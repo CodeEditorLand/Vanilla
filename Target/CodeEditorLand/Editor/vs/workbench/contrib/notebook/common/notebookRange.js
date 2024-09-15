@@ -13,17 +13,14 @@ function cellIndexesToRanges(indexes) {
   if (first === void 0) {
     return [];
   }
-  return indexes.reduce(
-    (ranges, num) => {
-      if (num <= ranges[0][1]) {
-        ranges[0][1] = num + 1;
-      } else {
-        ranges.unshift([num, num + 1]);
-      }
-      return ranges;
-    },
-    [[first, first + 1]]
-  ).reverse().map((val) => ({ start: val[0], end: val[1] }));
+  return indexes.reduce(function(ranges, num) {
+    if (num <= ranges[0][1]) {
+      ranges[0][1] = num + 1;
+    } else {
+      ranges.unshift([num, num + 1]);
+    }
+    return ranges;
+  }, [[first, first + 1]]).reverse().map((val) => ({ start: val[0], end: val[1] }));
 }
 __name(cellIndexesToRanges, "cellIndexesToRanges");
 function cellRangesToIndexes(ranges) {
@@ -42,22 +39,17 @@ function reduceCellRanges(ranges) {
   if (!first) {
     return [];
   }
-  const reduced = sorted.reduce(
-    (prev, curr) => {
-      const last = prev[prev.length - 1];
-      if (last.end >= curr.start) {
-        last.end = Math.max(last.end, curr.end);
-      } else {
-        prev.push(curr);
-      }
-      return prev;
-    },
-    [first]
-  );
+  const reduced = sorted.reduce((prev, curr) => {
+    const last = prev[prev.length - 1];
+    if (last.end >= curr.start) {
+      last.end = Math.max(last.end, curr.end);
+    } else {
+      prev.push(curr);
+    }
+    return prev;
+  }, [first]);
   if (reduced.length > 1) {
-    return reduced.filter(
-      (range) => !(range.start === range.end && range.start === 0)
-    );
+    return reduced.filter((range) => !(range.start === range.end && range.start === 0));
   }
   return reduced;
 }

@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addDisposableListener, getWindow } from "./dom.js";
 import { Disposable } from "../common/lifecycle.js";
 import { Mimes } from "../common/mime.js";
-import { addDisposableListener, getWindow } from "./dom.js";
 class DelayedDragHandler extends Disposable {
   static {
     __name(this, "DelayedDragHandler");
@@ -10,23 +10,19 @@ class DelayedDragHandler extends Disposable {
   timeout;
   constructor(container, callback) {
     super();
-    this._register(
-      addDisposableListener(container, "dragover", (e) => {
-        e.preventDefault();
-        if (!this.timeout) {
-          this.timeout = setTimeout(() => {
-            callback();
-            this.timeout = null;
-          }, 800);
-        }
-      })
-    );
+    this._register(addDisposableListener(container, "dragover", (e) => {
+      e.preventDefault();
+      if (!this.timeout) {
+        this.timeout = setTimeout(() => {
+          callback();
+          this.timeout = null;
+        }, 800);
+      }
+    }));
     ["dragleave", "drop", "dragend"].forEach((type) => {
-      this._register(
-        addDisposableListener(container, type, () => {
-          this.clearDragTimeout();
-        })
-      );
+      this._register(addDisposableListener(container, type, () => {
+        this.clearDragTimeout();
+      }));
     });
   }
   clearDragTimeout() {

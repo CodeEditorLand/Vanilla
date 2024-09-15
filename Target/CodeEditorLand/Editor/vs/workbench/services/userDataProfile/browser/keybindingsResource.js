@@ -11,26 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { platform } from "../../../../base/common/platform.js";
-import { localize } from "../../../../nls.js";
-import {
-  FileOperationError,
-  FileOperationResult,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { FileOperationError, FileOperationResult, IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  ProfileResourceType
-} from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
+import { platform, Platform } from "../../../../base/common/platform.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import {
-  TreeItemCollapsibleState
-} from "../../../common/views.js";
-import {
-  IUserDataProfileService
-} from "../common/userDataProfile.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 let KeybindingsResourceInitializer = class {
   constructor(userDataProfileService, fileService, logService) {
     this.userDataProfileService = userDataProfileService;
@@ -43,15 +33,10 @@ let KeybindingsResourceInitializer = class {
   async initialize(content) {
     const keybindingsContent = JSON.parse(content);
     if (keybindingsContent.keybindings === null) {
-      this.logService.info(
-        `Initializing Profile: No keybindings to apply...`
-      );
+      this.logService.info(`Initializing Profile: No keybindings to apply...`);
       return;
     }
-    await this.fileService.writeFile(
-      this.userDataProfileService.currentProfile.keybindingsResource,
-      VSBuffer.fromString(keybindingsContent.keybindings)
-    );
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.keybindingsResource, VSBuffer.fromString(keybindingsContent.keybindings));
   }
 };
 KeybindingsResourceInitializer = __decorateClass([
@@ -78,21 +63,14 @@ let KeybindingsResource = class {
   async apply(content, profile) {
     const keybindingsContent = JSON.parse(content);
     if (keybindingsContent.keybindings === null) {
-      this.logService.info(
-        `Importing Profile (${profile.name}): No keybindings to apply...`
-      );
+      this.logService.info(`Importing Profile (${profile.name}): No keybindings to apply...`);
       return;
     }
-    await this.fileService.writeFile(
-      profile.keybindingsResource,
-      VSBuffer.fromString(keybindingsContent.keybindings)
-    );
+    await this.fileService.writeFile(profile.keybindingsResource, VSBuffer.fromString(keybindingsContent.keybindings));
   }
   async getKeybindingsContent(profile) {
     try {
-      const content = await this.fileService.readFile(
-        profile.keybindingsResource
-      );
+      const content = await this.fileService.readFile(profile.keybindingsResource);
       return content.value.toString();
     } catch (error) {
       if (error instanceof FileOperationError && error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND) {
@@ -125,28 +103,20 @@ let KeybindingsResourceTreeItem = class {
     return !this.profile.isDefault && !!this.profile.useDefaultFlags?.keybindings;
   }
   async getChildren() {
-    return [
-      {
-        handle: this.profile.keybindingsResource.toString(),
-        resourceUri: this.profile.keybindingsResource,
-        collapsibleState: TreeItemCollapsibleState.None,
-        parent: this,
-        accessibilityInformation: {
-          label: this.uriIdentityService.extUri.basename(
-            this.profile.settingsResource
-          )
-        },
-        command: {
-          id: API_OPEN_EDITOR_COMMAND_ID,
-          title: "",
-          arguments: [
-            this.profile.keybindingsResource,
-            void 0,
-            void 0
-          ]
-        }
+    return [{
+      handle: this.profile.keybindingsResource.toString(),
+      resourceUri: this.profile.keybindingsResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.settingsResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.keybindingsResource, void 0, void 0]
       }
-    ];
+    }];
   }
   async hasContent() {
     const keybindingsContent = await this.instantiationService.createInstance(KeybindingsResource).getKeybindingsResourceContent(this.profile);

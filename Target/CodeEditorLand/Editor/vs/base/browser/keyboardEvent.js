@@ -1,14 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  EVENT_KEY_CODE_MAP,
-  KeyCode,
-  KeyCodeUtils,
-  KeyMod
-} from "../common/keyCodes.js";
+import * as browser from "./browser.js";
+import { EVENT_KEY_CODE_MAP, KeyCode, KeyCodeUtils, KeyMod } from "../common/keyCodes.js";
 import { KeyCodeChord } from "../common/keybindings.js";
 import * as platform from "../common/platform.js";
-import * as browser from "./browser.js";
 function extractKeyCode(e) {
   if (e.charCode) {
     const char = String.fromCharCode(e.charCode).toUpperCase();
@@ -165,13 +160,7 @@ class StandardKeyboardEvent {
     if (this.keyCode !== KeyCode.Ctrl && this.keyCode !== KeyCode.Shift && this.keyCode !== KeyCode.Alt && this.keyCode !== KeyCode.Meta) {
       key = this.keyCode;
     }
-    return new KeyCodeChord(
-      this.ctrlKey,
-      this.shiftKey,
-      this.altKey,
-      this.metaKey,
-      key
-    );
+    return new KeyCodeChord(this.ctrlKey, this.shiftKey, this.altKey, this.metaKey, key);
   }
 }
 export {

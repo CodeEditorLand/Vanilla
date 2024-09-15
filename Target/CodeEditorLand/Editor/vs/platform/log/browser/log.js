@@ -2,19 +2,13 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { mainWindow } from "../../../base/browser/window.js";
 import { relativePath } from "../../../base/common/resources.js";
-import {
-  AdapterLogger,
-  DEFAULT_LOG_LEVEL,
-  LogLevel
-} from "../common/log.js";
+import { URI } from "../../../base/common/uri.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { AdapterLogger, DEFAULT_LOG_LEVEL, ILogger, LogLevel } from "../common/log.js";
 async function getLogs(fileService, environmentService) {
   const result = [];
-  await doGetLogs(
-    fileService,
-    result,
-    environmentService.logsHome,
-    environmentService.logsHome
-  );
+  await doGetLogs(fileService, result, environmentService.logsHome, environmentService.logsHome);
   return result;
 }
 __name(getLogs, "getLogs");
@@ -56,12 +50,7 @@ class ConsoleLogInAutomationLogger extends AdapterLogger {
     __name(this, "ConsoleLogInAutomationLogger");
   }
   constructor(logLevel = DEFAULT_LOG_LEVEL) {
-    super(
-      {
-        log: /* @__PURE__ */ __name((level, args) => this.consoleLog(logLevelToString(level), args), "log")
-      },
-      logLevel
-    );
+    super({ log: /* @__PURE__ */ __name((level, args) => this.consoleLog(logLevelToString(level), args), "log") }, logLevel);
   }
   consoleLog(type, args) {
     const automatedWindow = mainWindow;

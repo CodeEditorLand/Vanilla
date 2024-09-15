@@ -1,14 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer, encodeBase64 } from "../../../base/common/buffer.js";
-import {
-  Emitter,
-  PauseableEmitter
-} from "../../../base/common/event.js";
+import { Emitter, Event, PauseableEmitter } from "../../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import {
-  SocketDiagnostics
-} from "../../../base/parts/ipc/common/ipc.net.js";
+import { ISocket, SocketCloseEvent, SocketDiagnostics, SocketDiagnosticsEventType } from "../../../base/parts/ipc/common/ipc.net.js";
 const makeRawSocketHeaders = /* @__PURE__ */ __name((path, query, deubgLabel) => {
   const buffer = new Uint8Array(16);
   for (let i = 0; i < 16; i++) {
@@ -25,42 +20,29 @@ const makeRawSocketHeaders = /* @__PURE__ */ __name((path, query, deubgLabel) =>
 }, "makeRawSocketHeaders");
 const socketRawEndHeaderSequence = VSBuffer.fromString("\r\n\r\n");
 async function connectManagedSocket(socket, path, query, debugLabel, half) {
-  socket.write(
-    VSBuffer.fromString(makeRawSocketHeaders(path, query, debugLabel))
-  );
+  socket.write(VSBuffer.fromString(makeRawSocketHeaders(path, query, debugLabel)));
   const d = new DisposableStore();
   try {
     return await new Promise((resolve, reject) => {
       let dataSoFar;
-      d.add(
-        socket.onData((d_1) => {
-          if (dataSoFar) {
-            dataSoFar = VSBuffer.concat(
-              [dataSoFar, d_1],
-              dataSoFar.byteLength + d_1.byteLength
-            );
-          } else {
-            dataSoFar = d_1;
-          }
-          const index = dataSoFar.indexOf(socketRawEndHeaderSequence);
-          if (index === -1) {
-            return;
-          }
-          resolve(socket);
-          socket.pauseData();
-          const rest = dataSoFar.slice(
-            index + socketRawEndHeaderSequence.byteLength
-          );
-          if (rest.byteLength) {
-            half.onData.fire(rest);
-          }
-        })
-      );
-      d.add(
-        socket.onClose(
-          (err) => reject(err ?? new Error("socket closed"))
-        )
-      );
+      d.add(socket.onData((d_1) => {
+        if (!dataSoFar) {
+          dataSoFar = d_1;
+        } else {
+          dataSoFar = VSBuffer.concat([dataSoFar, d_1], dataSoFar.byteLength + d_1.byteLength);
+        }
+        const index = dataSoFar.indexOf(socketRawEndHeaderSequence);
+        if (index === -1) {
+          return;
+        }
+        resolve(socket);
+        socket.pauseData();
+        const rest = dataSoFar.slice(index + socketRawEndHeaderSequence.byteLength);
+        if (rest.byteLength) {
+          half.onData.fire(rest);
+        }
+      }));
+      d.add(socket.onClose((err) => reject(err ?? new Error("socket closed"))));
       d.add(socket.onEnd(() => reject(new Error("socket ended"))));
     });
   } catch (e) {
@@ -76,18 +58,14 @@ class ManagedSocket extends Disposable {
     super();
     this.debugLabel = debugLabel;
     this._register(half.onData);
-    this._register(
-      half.onData.event((data) => this.pausableDataEmitter.fire(data))
-    );
+    this._register(half.onData.event((data) => this.pausableDataEmitter.fire(data)));
     this.onClose = this._register(half.onClose).event;
     this.onEnd = this._register(half.onEnd).event;
   }
   static {
     __name(this, "ManagedSocket");
   }
-  pausableDataEmitter = this._register(
-    new PauseableEmitter()
-  );
+  pausableDataEmitter = this._register(new PauseableEmitter());
   onData = /* @__PURE__ */ __name((...args) => {
     if (this.pausableDataEmitter.isPaused) {
       queueMicrotask(() => this.pausableDataEmitter.resume());

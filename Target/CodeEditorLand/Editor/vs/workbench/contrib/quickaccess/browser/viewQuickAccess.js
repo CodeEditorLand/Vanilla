@@ -10,34 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { matchesFuzzy } from "../../../../base/common/filters.js";
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { fuzzyContains } from "../../../../base/common/strings.js";
 import { localize, localize2 } from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  PickerQuickAccessProvider
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import {
-  IQuickInputService,
-  ItemActivation
-} from "../../../../platform/quickinput/common/quickInput.js";
-import {
-  IViewDescriptorService,
-  ViewContainerLocation
-} from "../../../common/views.js";
-import { IOutputService } from "../../../services/output/common/output.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IQuickPickSeparator, IQuickInputService, ItemActivation } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IViewDescriptorService, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { ITerminalGroupService, ITerminalService } from "../../terminal/browser/terminal.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { PaneCompositeDescriptor } from "../../../browser/panecomposite.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { fuzzyContains } from "../../../../base/common/strings.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { KeyMod, KeyCode } from "../../../../base/common/keyCodes.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
 import { IDebugService, REPL_VIEW_ID } from "../../debug/common/debug.js";
-import {
-  ITerminalGroupService,
-  ITerminalService
-} from "../../terminal/browser/terminal.js";
 let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(viewDescriptorService, viewsService, outputService, terminalService, terminalGroupService, debugService, paneCompositeService, contextKeyService) {
     super(ViewQuickAccessProvider.PREFIX, {
@@ -60,17 +51,13 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
   }
   static PREFIX = "view ";
   _getPicks(filter) {
-    const filteredViewEntries = this.doGetViewPickItems().filter(
-      (entry) => {
-        if (!filter) {
-          return true;
-        }
-        entry.highlights = {
-          label: matchesFuzzy(filter, entry.label, true) ?? void 0
-        };
-        return entry.highlights.label || fuzzyContains(entry.containerLabel, filter);
+    const filteredViewEntries = this.doGetViewPickItems().filter((entry) => {
+      if (!filter) {
+        return true;
       }
-    );
+      entry.highlights = { label: matchesFuzzy(filter, entry.label, true) ?? void 0 };
+      return entry.highlights.label || fuzzyContains(entry.containerLabel, filter);
+    });
     const mapEntryToContainer = /* @__PURE__ */ new Map();
     for (const entry of filteredViewEntries) {
       if (!mapEntryToContainer.has(entry.label)) {
@@ -78,7 +65,7 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
       }
     }
     const filteredViewEntriesWithSeparators = [];
-    let lastContainer;
+    let lastContainer = void 0;
     for (const entry of filteredViewEntries) {
       if (lastContainer !== entry.containerLabel) {
         lastContainer = entry.containerLabel;
@@ -88,10 +75,7 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
         } else {
           separatorLabel = lastContainer;
         }
-        filteredViewEntriesWithSeparators.push({
-          type: "separator",
-          label: separatorLabel
-        });
+        filteredViewEntriesWithSeparators.push({ type: "separator", label: separatorLabel });
       }
       filteredViewEntriesWithSeparators.push(entry);
     }
@@ -117,12 +101,8 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
       const paneComposites = this.paneCompositeService.getPaneComposites(location);
       const visiblePaneCompositeIds = this.paneCompositeService.getVisiblePaneCompositeIds(location);
       paneComposites.sort((a, b) => {
-        let aIndex = visiblePaneCompositeIds.findIndex(
-          (id) => a.id === id
-        );
-        let bIndex = visiblePaneCompositeIds.findIndex(
-          (id) => b.id === id
-        );
+        let aIndex = visiblePaneCompositeIds.findIndex((id) => a.id === id);
+        let bIndex = visiblePaneCompositeIds.findIndex((id) => b.id === id);
         if (aIndex < 0) {
           aIndex = paneComposites.indexOf(a) + visiblePaneCompositeIds.length;
         }
@@ -133,50 +113,26 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
       });
       for (const paneComposite of paneComposites) {
         if (this.includeViewContainer(paneComposite)) {
-          const viewContainer = this.viewDescriptorService.getViewContainerById(
-            paneComposite.id
-          );
+          const viewContainer = this.viewDescriptorService.getViewContainerById(paneComposite.id);
           if (viewContainer) {
             viewEntries.push({
-              label: this.viewDescriptorService.getViewContainerModel(
-                viewContainer
-              ).title,
+              label: this.viewDescriptorService.getViewContainerModel(viewContainer).title,
               containerLabel,
-              accept: /* @__PURE__ */ __name(() => this.paneCompositeService.openPaneComposite(
-                paneComposite.id,
-                location,
-                true
-              ), "accept")
+              accept: /* @__PURE__ */ __name(() => this.paneCompositeService.openPaneComposite(paneComposite.id, location, true), "accept")
             });
           }
         }
       }
     }, "addPaneComposites");
-    addPaneComposites(
-      ViewContainerLocation.Sidebar,
-      localize("views", "Side Bar")
-    );
-    addPaneComposites(
-      ViewContainerLocation.Panel,
-      localize("panels", "Panel")
-    );
-    addPaneComposites(
-      ViewContainerLocation.AuxiliaryBar,
-      localize("secondary side bar", "Secondary Side Bar")
-    );
+    addPaneComposites(ViewContainerLocation.Sidebar, localize("views", "Side Bar"));
+    addPaneComposites(ViewContainerLocation.Panel, localize("panels", "Panel"));
+    addPaneComposites(ViewContainerLocation.AuxiliaryBar, localize("secondary side bar", "Secondary Side Bar"));
     const addPaneCompositeViews = /* @__PURE__ */ __name((location) => {
       const paneComposites = this.paneCompositeService.getPaneComposites(location);
       for (const paneComposite of paneComposites) {
-        const viewContainer = this.viewDescriptorService.getViewContainerById(
-          paneComposite.id
-        );
+        const viewContainer = this.viewDescriptorService.getViewContainerById(paneComposite.id);
         if (viewContainer) {
-          viewEntries.push(
-            ...getViewEntriesForPaneComposite(
-              paneComposite,
-              viewContainer
-            )
-          );
+          viewEntries.push(...getViewEntriesForPaneComposite(paneComposite, viewContainer));
         }
       }
     }, "addPaneCompositeViews");
@@ -185,12 +141,7 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
     addPaneCompositeViews(ViewContainerLocation.AuxiliaryBar);
     this.terminalGroupService.groups.forEach((group, groupIndex) => {
       group.terminalInstances.forEach((terminal, terminalIndex) => {
-        const label = localize(
-          "terminalTitle",
-          "{0}: {1}",
-          `${groupIndex + 1}.${terminalIndex + 1}`,
-          terminal.title
-        );
+        const label = localize("terminalTitle", "{0}: {1}", `${groupIndex + 1}.${terminalIndex + 1}`, terminal.title);
         viewEntries.push({
           label,
           containerLabel: localize("terminals", "Terminal"),
@@ -207,17 +158,9 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
         label,
         containerLabel: localize("debugConsoles", "Debug Console"),
         accept: /* @__PURE__ */ __name(async () => {
-          await this.debugService.focusStackFrame(
-            void 0,
-            void 0,
-            session,
-            { explicit: true }
-          );
+          await this.debugService.focusStackFrame(void 0, void 0, session, { explicit: true });
           if (!this.viewsService.isViewVisible(REPL_VIEW_ID)) {
-            await this.viewsService.openView(
-              REPL_VIEW_ID,
-              true
-            );
+            await this.viewsService.openView(REPL_VIEW_ID, true);
           }
         }, "accept")
       });
@@ -233,9 +176,7 @@ let ViewQuickAccessProvider = class extends PickerQuickAccessProvider {
     return viewEntries;
   }
   includeViewContainer(container) {
-    const viewContainer = this.viewDescriptorService.getViewContainerById(
-      container.id
-    );
+    const viewContainer = this.viewDescriptorService.getViewContainerById(container.id);
     if (viewContainer?.hideIfEmpty) {
       return this.viewDescriptorService.getViewContainerModel(viewContainer).activeViewDescriptors.length > 0;
     }
@@ -296,13 +237,8 @@ class QuickAccessViewPickerAction extends Action2 {
   async run(accessor) {
     const keybindingService = accessor.get(IKeybindingService);
     const quickInputService = accessor.get(IQuickInputService);
-    const keys = keybindingService.lookupKeybindings(
-      QuickAccessViewPickerAction.ID
-    );
-    quickInputService.quickAccess.show(ViewQuickAccessProvider.PREFIX, {
-      quickNavigateConfiguration: { keybindings: keys },
-      itemActivation: ItemActivation.FIRST
-    });
+    const keys = keybindingService.lookupKeybindings(QuickAccessViewPickerAction.ID);
+    quickInputService.quickAccess.show(ViewQuickAccessProvider.PREFIX, { quickNavigateConfiguration: { keybindings: keys }, itemActivation: ItemActivation.FIRST });
   }
 }
 export {

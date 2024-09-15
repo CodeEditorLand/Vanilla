@@ -10,52 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Separator } from "../../../../base/common/actions.js";
-import { isMacintosh } from "../../../../base/common/platform.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { isICommandActionToggleInfo } from "../../../../platform/action/common/action.js";
-import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuItemAction,
-  SubmenuItemAction
-} from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAction, Separator } from "../../../../base/common/actions.js";
+import { IMenuService, SubmenuItemAction, MenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IOpenRecentAction, MenubarControl } from "../../../browser/parts/titlebar/menubarControl.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IMenubarData, IMenubarMenu, IMenubarKeybinding, IMenubarMenuItemSubmenu, IMenubarMenuItemAction, MenubarMenuItem } from "../../../../platform/menubar/common/menubar.js";
 import { IMenubarService } from "../../../../platform/menubar/electron-sandbox/menubar.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
-import { OpenRecentAction } from "../../../browser/actions/windowActions.js";
-import {
-  MenubarControl
-} from "../../../browser/parts/titlebar/menubarControl.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { OpenRecentAction } from "../../../browser/actions/windowActions.js";
+import { isICommandActionToggleInfo } from "../../../../platform/action/common/action.js";
+import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 let NativeMenubarControl = class extends MenubarControl {
   constructor(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, menubarService, hostService, nativeHostService, commandService) {
-    super(
-      menuService,
-      workspacesService,
-      contextKeyService,
-      keybindingService,
-      configurationService,
-      labelService,
-      updateService,
-      storageService,
-      notificationService,
-      preferencesService,
-      environmentService,
-      accessibilityService,
-      hostService,
-      commandService
-    );
+    super(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, hostService, commandService);
     this.menubarService = menubarService;
     this.nativeHostService = nativeHostService;
     (async () => {
@@ -72,9 +52,7 @@ let NativeMenubarControl = class extends MenubarControl {
     for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
       const menu = this.menus[topLevelMenuName];
       if (menu) {
-        this.mainMenuDisposables.add(
-          menu.onDidChange(() => this.updateMenubar())
-        );
+        this.mainMenuDisposables.add(menu.onDidChange(() => this.updateMenubar()));
       }
     }
   }
@@ -84,10 +62,7 @@ let NativeMenubarControl = class extends MenubarControl {
     }
     const menubarData = { menus: {}, keybindings: {} };
     if (this.getMenubarMenus(menubarData)) {
-      this.menubarService.updateMenubar(
-        this.nativeHostService.windowId,
-        menubarData
-      );
+      this.menubarService.updateMenubar(this.nativeHostService.windowId, menubarData);
     }
   }
   getMenubarMenus(menubarData) {
@@ -100,16 +75,8 @@ let NativeMenubarControl = class extends MenubarControl {
       if (menu) {
         const menubarMenu = { items: [] };
         const menuActions = [];
-        createAndFillInContextMenuActions(
-          menu,
-          { shouldForwardArgs: true },
-          menuActions
-        );
-        this.populateMenuItems(
-          menuActions,
-          menubarMenu,
-          menubarData.keybindings
-        );
+        createAndFillInContextMenuActions(menu, { shouldForwardArgs: true }, menuActions);
+        this.populateMenuItems(menuActions, menubarMenu, menubarData.keybindings);
         if (menubarMenu.items.length === 0) {
           return false;
         }
@@ -126,11 +93,7 @@ let NativeMenubarControl = class extends MenubarControl {
         const title = typeof menuItem.item.title === "string" ? menuItem.item.title : menuItem.item.title.mnemonicTitle ?? menuItem.item.title.value;
         if (menuItem instanceof SubmenuItemAction) {
           const submenu = { items: [] };
-          this.populateMenuItems(
-            menuItem.actions,
-            submenu,
-            keybindings
-          );
+          this.populateMenuItems(menuItem.actions, submenu, keybindings);
           if (submenu.items.length > 0) {
             const menubarSubmenuItem = {
               id: menuItem.id,
@@ -141,9 +104,7 @@ let NativeMenubarControl = class extends MenubarControl {
           }
         } else {
           if (menuItem.id === OpenRecentAction.ID) {
-            const actions = this.getOpenRecentActions().map(
-              this.transformOpenRecentAction
-            );
+            const actions = this.getOpenRecentActions().map(this.transformOpenRecentAction);
             menuToPopulate.items.push(...actions);
           }
           const menubarMenuItem = {
@@ -159,9 +120,7 @@ let NativeMenubarControl = class extends MenubarControl {
           if (!menuItem.enabled) {
             menubarMenuItem.enabled = false;
           }
-          keybindings[menuItem.id] = this.getMenubarKeybinding(
-            menuItem.id
-          );
+          keybindings[menuItem.id] = this.getMenubarKeybinding(menuItem.id);
           menuToPopulate.items.push(menubarMenuItem);
         }
       }
@@ -182,9 +141,7 @@ let NativeMenubarControl = class extends MenubarControl {
   getAdditionalKeybindings() {
     const keybindings = {};
     if (isMacintosh) {
-      const keybinding = this.getMenubarKeybinding(
-        "workbench.action.quit"
-      );
+      const keybinding = this.getMenubarKeybinding("workbench.action.quit");
       if (keybinding) {
         keybindings["workbench.action.quit"] = keybinding;
       }
@@ -198,18 +155,11 @@ let NativeMenubarControl = class extends MenubarControl {
     }
     const electronAccelerator = binding.getElectronAccelerator();
     if (electronAccelerator) {
-      return {
-        label: electronAccelerator,
-        userSettingsLabel: binding.getUserSettingsLabel() ?? void 0
-      };
+      return { label: electronAccelerator, userSettingsLabel: binding.getUserSettingsLabel() ?? void 0 };
     }
     const acceleratorLabel = binding.getLabel();
     if (acceleratorLabel) {
-      return {
-        label: acceleratorLabel,
-        isNative: false,
-        userSettingsLabel: binding.getUserSettingsLabel() ?? void 0
-      };
+      return { label: acceleratorLabel, isNative: false, userSettingsLabel: binding.getUserSettingsLabel() ?? void 0 };
     }
     return void 0;
   }

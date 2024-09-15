@@ -10,88 +10,51 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  $,
-  addDisposableListener,
-  append,
-  clearNode
-} from "../../../../base/browser/dom.js";
+import { $, Dimension, addDisposableListener, append, clearNode } from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
-import {
-  Action,
-  Separator
-} from "../../../../base/common/actions.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import { Action, IAction, Separator } from "../../../../base/common/actions.js";
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { fromNow } from "../../../../base/common/date.js";
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as nls from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
 import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  Action2,
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  ExtensionIdentifierMap
-} from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import {
-  Extensions,
-  IExtensionFeaturesManagementService
-} from "../../../services/extensionManagement/common/extensionFeatures.js";
-import {
-  DefaultIconPath,
-  EnablementState
-} from "../../../services/extensionManagement/common/extensionManagement.js";
+import { Extensions, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { DefaultIconPath, EnablementState } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { LocalWebWorkerRunningLocation } from "../../../services/extensions/common/extensionRunningLocation.js";
-import {
-  IExtensionService
-} from "../../../services/extensions/common/extensions.js";
-import {
-  IExtensionsWorkbenchService
-} from "../common/extensions.js";
+import { IExtensionHostProfile, IExtensionService, IExtensionsStatus } from "../../../services/extensions/common/extensions.js";
+import { IExtension, IExtensionsWorkbenchService } from "../common/extensions.js";
 import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
 import { errorIcon, warningIcon } from "./extensionsIcons.js";
 import "./media/runtimeExtensionsEditor.css";
 let AbstractRuntimeExtensionsEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, contextKeyService, _extensionsWorkbenchService, _extensionService, _notificationService, _contextMenuService, _instantiationService, storageService, _labelService, _environmentService, _clipboardService, _extensionFeaturesManagementService, _hoverService, _menuService) {
-    super(
-      AbstractRuntimeExtensionsEditor.ID,
-      group,
-      telemetryService,
-      themeService,
-      storageService
-    );
+    super(AbstractRuntimeExtensionsEditor.ID, group, telemetryService, themeService, storageService);
     this.contextKeyService = contextKeyService;
     this._extensionsWorkbenchService = _extensionsWorkbenchService;
     this._extensionService = _extensionService;
@@ -106,19 +69,9 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
     this._menuService = _menuService;
     this._list = null;
     this._elements = null;
-    this._updateSoon = this._register(
-      new RunOnceScheduler(() => this._updateExtensions(), 200)
-    );
-    this._register(
-      this._extensionService.onDidChangeExtensionsStatus(
-        () => this._updateSoon.schedule()
-      )
-    );
-    this._register(
-      this._extensionFeaturesManagementService.onDidChangeAccessData(
-        () => this._updateSoon.schedule()
-      )
-    );
+    this._updateSoon = this._register(new RunOnceScheduler(() => this._updateExtensions(), 200));
+    this._register(this._extensionService.onDidChangeExtensionsStatus(() => this._updateSoon.schedule()));
+    this._register(this._extensionFeaturesManagementService.onDidChangeAccessData(() => this._updateSoon.schedule()));
     this._updateExtensions();
   }
   static {
@@ -134,11 +87,9 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
   }
   async _resolveExtensions() {
     await this._extensionService.whenInstalledExtensionsRegistered();
-    const extensionsDescriptions = this._extensionService.extensions.filter(
-      (extension) => {
-        return Boolean(extension.main) || Boolean(extension.browser);
-      }
-    );
+    const extensionsDescriptions = this._extensionService.extensions.filter((extension) => {
+      return Boolean(extension.main) || Boolean(extension.browser);
+    });
     const marketplaceMap = new ExtensionIdentifierMap();
     const marketPlaceExtensions = await this._extensionsWorkbenchService.queryLocal();
     for (const extension of marketPlaceExtensions) {
@@ -182,14 +133,10 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
       result[i] = {
         originalIndex: i,
         description: extensionDescription,
-        marketplaceInfo: marketplaceMap.get(
-          extensionDescription.identifier
-        ),
+        marketplaceInfo: marketplaceMap.get(extensionDescription.identifier),
         status: statusMap[extensionDescription.identifier.value],
         profileInfo: extProfileInfo || void 0,
-        unresponsiveProfile: this._getUnresponsiveProfile(
-          extensionDescription.identifier
-        )
+        unresponsiveProfile: this._getUnresponsiveProfile(extensionDescription.identifier)
       };
     }
     result = result.filter((element) => element.status.activationStarted);
@@ -224,10 +171,7 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
       renderTemplate: /* @__PURE__ */ __name((root) => {
         const element = append(root, $(".extension"));
         const iconContainer = append(element, $(".icon-container"));
-        const icon = append(
-          iconContainer,
-          $("img.icon")
-        );
+        const icon = append(iconContainer, $("img.icon"));
         const desc = append(element, $("div.desc"));
         const headerContainer = append(desc, $(".header-container"));
         const header = append(headerContainer, $(".header"));
@@ -235,18 +179,10 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
         const version = append(header, $("span.version"));
         const msgContainer = append(desc, $("div.msg"));
         const actionbar = new ActionBar(desc);
-        actionbar.onDidRun(
-          ({ error }) => error && this._notificationService.error(error)
-        );
+        actionbar.onDidRun(({ error }) => error && this._notificationService.error(error));
         const timeContainer = append(element, $(".time"));
-        const activationTime = append(
-          timeContainer,
-          $("div.activation-time")
-        );
-        const profileTime = append(
-          timeContainer,
-          $("div.profile-time")
-        );
+        const activationTime = append(timeContainer, $("div.activation-time"));
+        const profileTime = append(timeContainer, $("div.profile-time"));
         const disposables = [actionbar];
         return {
           root,
@@ -265,20 +201,13 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
       renderElement: /* @__PURE__ */ __name((element, index, data) => {
         data.elementDisposables = dispose(data.elementDisposables);
         data.root.classList.toggle("odd", index % 2 === 1);
-        data.elementDisposables.push(
-          addDisposableListener(
-            data.icon,
-            "error",
-            () => data.icon.src = element.marketplaceInfo?.iconUrlFallback || DefaultIconPath,
-            { once: true }
-          )
-        );
+        data.elementDisposables.push(addDisposableListener(data.icon, "error", () => data.icon.src = element.marketplaceInfo?.iconUrlFallback || DefaultIconPath, { once: true }));
         data.icon.src = element.marketplaceInfo?.iconUrl || DefaultIconPath;
-        if (data.icon.complete) {
-          data.icon.style.visibility = "inherit";
-        } else {
+        if (!data.icon.complete) {
           data.icon.style.visibility = "hidden";
           data.icon.onload = () => data.icon.style.visibility = "inherit";
+        } else {
+          data.icon.style.visibility = "inherit";
         }
         data.name.textContent = (element.marketplaceInfo?.displayName || element.description.identifier.value).substr(0, 50);
         data.version.textContent = element.description.version;
@@ -292,18 +221,12 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
         data.actionbar.clear();
         const slowExtensionAction = this._createSlowExtensionAction(element);
         if (slowExtensionAction) {
-          data.actionbar.push(slowExtensionAction, {
-            icon: false,
-            label: true
-          });
+          data.actionbar.push(slowExtensionAction, { icon: false, label: true });
         }
         if (isNonEmptyArray(element.status.runtimeErrors)) {
           const reportExtensionIssueAction = this._createReportExtensionIssueAction(element);
           if (reportExtensionIssueAction) {
-            data.actionbar.push(reportExtensionIssueAction, {
-              icon: false,
-              label: true
-            });
+            data.actionbar.push(reportExtensionIssueAction, { icon: false, label: true });
           }
         }
         let title;
@@ -311,161 +234,83 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
           const activationId = activationTimes.activationReason.extensionId.value;
           const activationEvent = activationTimes.activationReason.activationEvent;
           if (activationEvent === "*") {
-            title = nls.localize(
-              {
-                key: "starActivation",
-                comment: [
-                  "{0} will be an extension identifier"
-                ]
-              },
-              "Activated by {0} on start-up",
-              activationId
-            );
+            title = nls.localize({
+              key: "starActivation",
+              comment: [
+                "{0} will be an extension identifier"
+              ]
+            }, "Activated by {0} on start-up", activationId);
           } else if (/^workspaceContains:/.test(activationEvent)) {
-            const fileNameOrGlob = activationEvent.substr(
-              "workspaceContains:".length
-            );
+            const fileNameOrGlob = activationEvent.substr("workspaceContains:".length);
             if (fileNameOrGlob.indexOf("*") >= 0 || fileNameOrGlob.indexOf("?") >= 0) {
-              title = nls.localize(
-                {
-                  key: "workspaceContainsGlobActivation",
-                  comment: [
-                    "{0} will be a glob pattern",
-                    "{1} will be an extension identifier"
-                  ]
-                },
-                "Activated by {1} because a file matching {0} exists in your workspace",
-                fileNameOrGlob,
-                activationId
-              );
-            } else {
-              title = nls.localize(
-                {
-                  key: "workspaceContainsFileActivation",
-                  comment: [
-                    "{0} will be a file name",
-                    "{1} will be an extension identifier"
-                  ]
-                },
-                "Activated by {1} because file {0} exists in your workspace",
-                fileNameOrGlob,
-                activationId
-              );
-            }
-          } else if (/^workspaceContainsTimeout:/.test(activationEvent)) {
-            const glob = activationEvent.substr(
-              "workspaceContainsTimeout:".length
-            );
-            title = nls.localize(
-              {
-                key: "workspaceContainsTimeout",
+              title = nls.localize({
+                key: "workspaceContainsGlobActivation",
                 comment: [
                   "{0} will be a glob pattern",
                   "{1} will be an extension identifier"
                 ]
-              },
-              "Activated by {1} because searching for {0} took too long",
-              glob,
-              activationId
-            );
-          } else if (activationEvent === "onStartupFinished") {
-            title = nls.localize(
-              {
-                key: "startupFinishedActivation",
+              }, "Activated by {1} because a file matching {0} exists in your workspace", fileNameOrGlob, activationId);
+            } else {
+              title = nls.localize({
+                key: "workspaceContainsFileActivation",
                 comment: [
-                  "This refers to an extension. {0} will be an activation event."
-                ]
-              },
-              "Activated by {0} after start-up finished",
-              activationId
-            );
-          } else if (/^onLanguage:/.test(activationEvent)) {
-            const language = activationEvent.substr(
-              "onLanguage:".length
-            );
-            title = nls.localize(
-              "languageActivation",
-              "Activated by {1} because you opened a {0} file",
-              language,
-              activationId
-            );
-          } else {
-            title = nls.localize(
-              {
-                key: "workspaceGenericActivation",
-                comment: [
-                  "{0} will be an activation event, like e.g. 'language:typescript', 'debug', etc.",
+                  "{0} will be a file name",
                   "{1} will be an extension identifier"
                 ]
-              },
-              "Activated by {1} on {0}",
-              activationEvent,
-              activationId
-            );
+              }, "Activated by {1} because file {0} exists in your workspace", fileNameOrGlob, activationId);
+            }
+          } else if (/^workspaceContainsTimeout:/.test(activationEvent)) {
+            const glob = activationEvent.substr("workspaceContainsTimeout:".length);
+            title = nls.localize({
+              key: "workspaceContainsTimeout",
+              comment: [
+                "{0} will be a glob pattern",
+                "{1} will be an extension identifier"
+              ]
+            }, "Activated by {1} because searching for {0} took too long", glob, activationId);
+          } else if (activationEvent === "onStartupFinished") {
+            title = nls.localize({
+              key: "startupFinishedActivation",
+              comment: [
+                "This refers to an extension. {0} will be an activation event."
+              ]
+            }, "Activated by {0} after start-up finished", activationId);
+          } else if (/^onLanguage:/.test(activationEvent)) {
+            const language = activationEvent.substr("onLanguage:".length);
+            title = nls.localize("languageActivation", "Activated by {1} because you opened a {0} file", language, activationId);
+          } else {
+            title = nls.localize({
+              key: "workspaceGenericActivation",
+              comment: [
+                "{0} will be an activation event, like e.g. 'language:typescript', 'debug', etc.",
+                "{1} will be an extension identifier"
+              ]
+            }, "Activated by {1} on {0}", activationEvent, activationId);
           }
         } else {
-          title = nls.localize(
-            "extensionActivating",
-            "Extension is activating..."
-          );
+          title = nls.localize("extensionActivating", "Extension is activating...");
         }
-        data.elementDisposables.push(
-          this._hoverService.setupManagedHover(
-            getDefaultHoverDelegate("mouse"),
-            data.activationTime,
-            title
-          )
-        );
+        data.elementDisposables.push(this._hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), data.activationTime, title));
         clearNode(data.msgContainer);
         if (this._getUnresponsiveProfile(element.description.identifier)) {
-          const el = $(
-            "span",
-            void 0,
-            ...renderLabelWithIcons(` $(alert) Unresponsive`)
-          );
-          const extensionHostFreezTitle = nls.localize(
-            "unresponsive.title",
-            "Extension has caused the extension host to freeze."
-          );
-          data.elementDisposables.push(
-            this._hoverService.setupManagedHover(
-              getDefaultHoverDelegate("mouse"),
-              el,
-              extensionHostFreezTitle
-            )
-          );
+          const el = $("span", void 0, ...renderLabelWithIcons(` $(alert) Unresponsive`));
+          const extensionHostFreezTitle = nls.localize("unresponsive.title", "Extension has caused the extension host to freeze.");
+          data.elementDisposables.push(this._hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), el, extensionHostFreezTitle));
           data.msgContainer.appendChild(el);
         }
         if (isNonEmptyArray(element.status.runtimeErrors)) {
-          const el = $(
-            "span",
-            void 0,
-            ...renderLabelWithIcons(
-              `$(bug) ${nls.localize("errors", "{0} uncaught errors", element.status.runtimeErrors.length)}`
-            )
-          );
+          const el = $("span", void 0, ...renderLabelWithIcons(`$(bug) ${nls.localize("errors", "{0} uncaught errors", element.status.runtimeErrors.length)}`));
           data.msgContainer.appendChild(el);
         }
         if (element.status.messages && element.status.messages.length > 0) {
-          const el = $(
-            "span",
-            void 0,
-            ...renderLabelWithIcons(
-              `$(alert) ${element.status.messages[0].message}`
-            )
-          );
+          const el = $("span", void 0, ...renderLabelWithIcons(`$(alert) ${element.status.messages[0].message}`));
           data.msgContainer.appendChild(el);
         }
         let extraLabel = null;
-        if (element.status.runningLocation && element.status.runningLocation.equals(
-          new LocalWebWorkerRunningLocation(0)
-        )) {
+        if (element.status.runningLocation && element.status.runningLocation.equals(new LocalWebWorkerRunningLocation(0))) {
           extraLabel = `$(globe) web worker`;
         } else if (element.description.extensionLocation.scheme === Schemas.vscodeRemote) {
-          const hostLabel = this._labelService.getHostLabel(
-            Schemas.vscodeRemote,
-            this._environmentService.remoteAuthority
-          );
+          const hostLabel = this._labelService.getHostLabel(Schemas.vscodeRemote, this._environmentService.remoteAuthority);
           if (hostLabel) {
             extraLabel = `$(remote) ${hostLabel}`;
           } else {
@@ -475,60 +320,23 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
           extraLabel = element.status.runningLocation instanceof LocalWebWorkerRunningLocation ? `$(globe) web worker ${element.status.runningLocation.affinity + 1}` : `$(server-process) local process ${element.status.runningLocation.affinity + 1}`;
         }
         if (extraLabel) {
-          const el = $(
-            "span",
-            void 0,
-            ...renderLabelWithIcons(extraLabel)
-          );
+          const el = $("span", void 0, ...renderLabelWithIcons(extraLabel));
           data.msgContainer.appendChild(el);
         }
-        const features = Registry.as(
-          Extensions.ExtensionFeaturesRegistry
-        ).getExtensionFeatures();
+        const features = Registry.as(Extensions.ExtensionFeaturesRegistry).getExtensionFeatures();
         for (const feature of features) {
-          const accessData = this._extensionFeaturesManagementService.getAccessData(
-            element.description.identifier,
-            feature.id
-          );
+          const accessData = this._extensionFeaturesManagementService.getAccessData(element.description.identifier, feature.id);
           if (accessData) {
             const status = accessData?.current?.status;
             if (status) {
-              data.msgContainer.appendChild(
-                $("span", void 0, `${feature.label}: `)
-              );
-              data.msgContainer.appendChild(
-                $(
-                  "span",
-                  void 0,
-                  ...renderLabelWithIcons(
-                    `$(${status.severity === Severity.Error ? errorIcon.id : warningIcon.id}) ${status.message}`
-                  )
-                )
-              );
+              data.msgContainer.appendChild($("span", void 0, `${feature.label}: `));
+              data.msgContainer.appendChild($("span", void 0, ...renderLabelWithIcons(`$(${status.severity === Severity.Error ? errorIcon.id : warningIcon.id}) ${status.message}`)));
             }
             if (accessData?.totalCount > 0) {
-              const element2 = $(
-                "span",
-                void 0,
-                `${nls.localize("requests count", "{0} Requests: {1} (Overall)", feature.label, accessData.totalCount)}${accessData.current ? nls.localize("session requests count", ", {0} (Session)", accessData.current.count) : ""}`
-              );
+              const element2 = $("span", void 0, `${nls.localize("requests count", "{0} Requests: {1} (Overall)", feature.label, accessData.totalCount)}${accessData.current ? nls.localize("session requests count", ", {0} (Session)", accessData.current.count) : ""}`);
               if (accessData.current) {
-                const title2 = nls.localize(
-                  "requests count title",
-                  "Last request was {0}.",
-                  fromNow(
-                    accessData.current.lastAccessed,
-                    true,
-                    true
-                  )
-                );
-                data.elementDisposables.push(
-                  this._hoverService.setupManagedHover(
-                    getDefaultHoverDelegate("mouse"),
-                    element2,
-                    title2
-                  )
-                );
+                const title2 = nls.localize("requests count title", "Last request was {0}.", fromNow(accessData.current.lastAccessed, true, true));
+                data.elementDisposables.push(this._hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), element2, title2));
               }
               data.msgContainer.appendChild(element2);
             }
@@ -559,10 +367,7 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
         },
         accessibilityProvider: new class {
           getWidgetAriaLabel() {
-            return nls.localize(
-              "runtimeExtensions",
-              "Runtime Extensions"
-            );
+            return nls.localize("runtimeExtensions", "Runtime Extensions");
           }
           getAriaLabel(element) {
             return element.description.name;
@@ -576,66 +381,27 @@ let AbstractRuntimeExtensionsEditor = class extends EditorPane {
         return;
       }
       const actions = [];
-      actions.push(
-        new Action(
-          "runtimeExtensionsEditor.action.copyId",
-          nls.localize(
-            "copy id",
-            "Copy id ({0})",
-            e.element.description.identifier.value
-          ),
-          void 0,
-          true,
-          () => {
-            this._clipboardService.writeText(
-              e.element.description.identifier.value
-            );
-          }
-        )
-      );
+      actions.push(new Action(
+        "runtimeExtensionsEditor.action.copyId",
+        nls.localize("copy id", "Copy id ({0})", e.element.description.identifier.value),
+        void 0,
+        true,
+        () => {
+          this._clipboardService.writeText(e.element.description.identifier.value);
+        }
+      ));
       const reportExtensionIssueAction = this._createReportExtensionIssueAction(e.element);
       if (reportExtensionIssueAction) {
         actions.push(reportExtensionIssueAction);
       }
       actions.push(new Separator());
       if (e.element.marketplaceInfo) {
-        actions.push(
-          new Action(
-            "runtimeExtensionsEditor.action.disableWorkspace",
-            nls.localize(
-              "disable workspace",
-              "Disable (Workspace)"
-            ),
-            void 0,
-            true,
-            () => this._extensionsWorkbenchService.setEnablement(
-              e.element.marketplaceInfo,
-              EnablementState.DisabledWorkspace
-            )
-          )
-        );
-        actions.push(
-          new Action(
-            "runtimeExtensionsEditor.action.disable",
-            nls.localize("disable", "Disable"),
-            void 0,
-            true,
-            () => this._extensionsWorkbenchService.setEnablement(
-              e.element.marketplaceInfo,
-              EnablementState.DisabledGlobally
-            )
-          )
-        );
+        actions.push(new Action("runtimeExtensionsEditor.action.disableWorkspace", nls.localize("disable workspace", "Disable (Workspace)"), void 0, true, () => this._extensionsWorkbenchService.setEnablement(e.element.marketplaceInfo, EnablementState.DisabledWorkspace)));
+        actions.push(new Action("runtimeExtensionsEditor.action.disable", nls.localize("disable", "Disable"), void 0, true, () => this._extensionsWorkbenchService.setEnablement(e.element.marketplaceInfo, EnablementState.DisabledGlobally)));
       }
       actions.push(new Separator());
-      const menuActions = this._menuService.getMenuActions(
-        MenuId.ExtensionEditorContextMenu,
-        this.contextKeyService
-      );
-      createAndFillInContextMenuActions(menuActions, {
-        primary: [],
-        secondary: actions
-      });
+      const menuActions = this._menuService.getMenuActions(MenuId.ExtensionEditorContextMenu, this.contextKeyService);
+      createAndFillInContextMenuActions(menuActions, { primary: [], secondary: actions });
       this._contextMenuService.showContextMenu({
         getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
         getActions: /* @__PURE__ */ __name(() => actions, "getActions")
@@ -670,18 +436,12 @@ class ShowRuntimeExtensionsAction extends Action2 {
   constructor() {
     super({
       id: "workbench.action.showRuntimeExtensions",
-      title: nls.localize2(
-        "showRuntimeExtensions",
-        "Show Running Extensions"
-      ),
+      title: nls.localize2("showRuntimeExtensions", "Show Running Extensions"),
       category: Categories.Developer,
       f1: true,
       menu: {
         id: MenuId.ViewContainerTitle,
-        when: ContextKeyExpr.equals(
-          "viewContainer",
-          "workbench.view.extensions"
-        ),
+        when: ContextKeyExpr.equals("viewContainer", "workbench.view.extensions"),
         group: "2_enablement",
         order: 3
       }

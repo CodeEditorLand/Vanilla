@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { ICellOutputViewModel, ICellViewModel } from "../../notebookBrowser.js";
 import { isTextStreamMime } from "../../../common/notebookCommon.js";
 async function copyCellOutput(mimeType, outputViewModel, clipboardService, logService) {
   const cellOutput = outputViewModel.model;
-  const output = mimeType && TEXT_BASED_MIMETYPES.includes(mimeType) ? cellOutput.outputs.find((output2) => output2.mime === mimeType) : cellOutput.outputs.find(
-    (output2) => TEXT_BASED_MIMETYPES.includes(output2.mime)
-  );
+  const output = mimeType && TEXT_BASED_MIMETYPES.includes(mimeType) ? cellOutput.outputs.find((output2) => output2.mime === mimeType) : cellOutput.outputs.find((output2) => TEXT_BASED_MIMETYPES.includes(output2.mime));
   mimeType = output?.mime;
   if (!mimeType || !output) {
     return;
@@ -17,9 +18,7 @@ async function copyCellOutput(mimeType, outputViewModel, clipboardService, logSe
     let index = cellViewModel.outputsViewModels.indexOf(outputViewModel) + 1;
     while (index < cellViewModel.model.outputs.length) {
       const nextCellOutput = cellViewModel.model.outputs[index];
-      const nextOutput = nextCellOutput.outputs.find(
-        (output2) => isTextStreamMime(output2.mime)
-      );
+      const nextOutput = nextCellOutput.outputs.find((output2) => isTextStreamMime(output2.mime));
       if (!nextOutput) {
         break;
       }

@@ -1,22 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Iterable } from "../../../common/iterator.js";
-import {
-  AbstractTree
-} from "./abstractTree.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../list/list.js";
+import { AbstractTree, AbstractTreeViewState, IAbstractTreeOptions } from "./abstractTree.js";
 import { ObjectTreeModel } from "./objectTreeModel.js";
-import {
-  TreeError
-} from "./tree.js";
+import { IDataSource, ITreeElement, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter, TreeError } from "./tree.js";
+import { Iterable } from "../../../common/iterator.js";
 class DataTree extends AbstractTree {
   constructor(user, container, delegate, renderers, dataSource, options = {}) {
-    super(
-      user,
-      container,
-      delegate,
-      renderers,
-      options
-    );
+    super(user, container, delegate, renderers, options);
     this.user = user;
     this.dataSource = dataSource;
     this.identityProvider = options.identityProvider;
@@ -33,10 +24,7 @@ class DataTree extends AbstractTree {
   }
   setInput(input, viewState) {
     if (viewState && !this.identityProvider) {
-      throw new TreeError(
-        this.user,
-        "Can't restore tree view state without an identity provider"
-      );
+      throw new TreeError(this.user, "Can't restore tree view state without an identity provider");
     }
     this.input = input;
     if (!input) {
@@ -88,10 +76,7 @@ class DataTree extends AbstractTree {
     this._refresh(element, isCollapsed);
   }
   resort(element = this.input, recursive = true) {
-    this.model.resort(
-      element === this.input ? null : element,
-      recursive
-    );
+    this.model.resort(element === this.input ? null : element, recursive);
   }
   // View
   refresh(element) {
@@ -108,35 +93,24 @@ class DataTree extends AbstractTree {
       const insertedElements = /* @__PURE__ */ new Set();
       const outerOnDidCreateNode = onDidCreateNode;
       onDidCreateNode = /* @__PURE__ */ __name((node) => {
-        const id = this.identityProvider.getId(
-          node.element
-        ).toString();
+        const id = this.identityProvider.getId(node.element).toString();
         insertedElements.add(id);
         this.nodesByIdentity.set(id, node);
         outerOnDidCreateNode?.(node);
       }, "onDidCreateNode");
       onDidDeleteNode = /* @__PURE__ */ __name((node) => {
-        const id = this.identityProvider.getId(
-          node.element
-        ).toString();
+        const id = this.identityProvider.getId(node.element).toString();
         if (!insertedElements.has(id)) {
           this.nodesByIdentity.delete(id);
         }
       }, "onDidDeleteNode");
     }
-    this.model.setChildren(
-      element === this.input ? null : element,
-      this.iterate(element, isCollapsed).elements,
-      { onDidCreateNode, onDidDeleteNode }
-    );
+    this.model.setChildren(element === this.input ? null : element, this.iterate(element, isCollapsed).elements, { onDidCreateNode, onDidDeleteNode });
   }
   iterate(element, isCollapsed) {
     const children = [...this.dataSource.getChildren(element)];
     const elements = Iterable.map(children, (element2) => {
-      const { elements: children2, size } = this.iterate(
-        element2,
-        isCollapsed
-      );
+      const { elements: children2, size } = this.iterate(element2, isCollapsed);
       const collapsible = this.dataSource.hasChildren ? this.dataSource.hasChildren(element2) : void 0;
       const collapsed = size === 0 ? void 0 : isCollapsed && isCollapsed(element2);
       return { element: element2, children: children2, collapsible, collapsed };

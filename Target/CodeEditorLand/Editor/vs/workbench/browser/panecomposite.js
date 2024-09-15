@@ -10,29 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Separator } from "../../base/common/actions.js";
-import {
-  SubmenuItemAction
-} from "../../platform/actions/common/actions.js";
-import { IContextMenuService } from "../../platform/contextview/browser/contextView.js";
-import {
-  IInstantiationService
-} from "../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../platform/registry/common/platform.js";
+import { Composite, CompositeDescriptor, CompositeRegistry } from "./composite.js";
+import { IConstructorSignature, BrandedService, IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { URI } from "../../base/common/uri.js";
+import { Dimension } from "../../base/browser/dom.js";
+import { IActionViewItem } from "../../base/browser/ui/actionbar/actionbar.js";
+import { IAction, Separator } from "../../base/common/actions.js";
+import { MenuId, SubmenuItemAction } from "../../platform/actions/common/actions.js";
+import { IContextMenuService } from "../../platform/contextview/browser/contextView.js";
 import { IStorageService } from "../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../platform/theme/common/themeService.js";
 import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+import { ViewPaneContainer, ViewsSubMenu } from "./parts/views/viewPaneContainer.js";
+import { IPaneComposite } from "../common/panecomposite.js";
+import { IView } from "../common/views.js";
 import { IExtensionService } from "../services/extensions/common/extensions.js";
-import {
-  Composite,
-  CompositeDescriptor,
-  CompositeRegistry
-} from "./composite.js";
 import { VIEWPANE_FILTER_ACTION } from "./parts/views/viewPane.js";
-import {
-  ViewsSubMenu
-} from "./parts/views/viewPaneContainer.js";
+import { IBoundarySashes } from "../../base/browser/ui/sash/sash.js";
+import { IBaseActionViewItemOptions } from "../../base/browser/ui/actionbar/actionViewItems.js";
 let PaneComposite = class extends Composite {
   constructor(id, telemetryService, storageService, instantiationService, themeService, contextMenuService, extensionService, contextService) {
     super(id, telemetryService, themeService, storageService);
@@ -48,14 +45,8 @@ let PaneComposite = class extends Composite {
   viewPaneContainer;
   create(parent) {
     super.create(parent);
-    this.viewPaneContainer = this._register(
-      this.createViewPaneContainer(parent)
-    );
-    this._register(
-      this.viewPaneContainer.onTitleAreaUpdate(
-        () => this.updateTitleArea()
-      )
-    );
+    this.viewPaneContainer = this._register(this.createViewPaneContainer(parent));
+    this._register(this.viewPaneContainer.onTitleAreaUpdate(() => this.updateTitleArea()));
     this.viewPaneContainer.create(parent);
   }
   setVisible(visible) {
@@ -96,9 +87,7 @@ let PaneComposite = class extends Composite {
   getActions() {
     const result = [];
     if (this.viewPaneContainer?.menuActions) {
-      result.push(
-        ...this.viewPaneContainer.menuActions.getPrimaryActions()
-      );
+      result.push(...this.viewPaneContainer.menuActions.getPrimaryActions());
       if (this.viewPaneContainer.isViewMergedWithContainer()) {
         const viewPane = this.viewPaneContainer.panes[0];
         if (viewPane.shouldShowFilterInHeader()) {
@@ -115,27 +104,25 @@ let PaneComposite = class extends Composite {
     }
     const viewPaneActions = this.viewPaneContainer.isViewMergedWithContainer() ? this.viewPaneContainer.panes[0].menuActions.getSecondaryActions() : [];
     let menuActions = this.viewPaneContainer.menuActions.getSecondaryActions();
-    const viewsSubmenuActionIndex = menuActions.findIndex(
-      (action) => action instanceof SubmenuItemAction && action.item.submenu === ViewsSubMenu
-    );
+    const viewsSubmenuActionIndex = menuActions.findIndex((action) => action instanceof SubmenuItemAction && action.item.submenu === ViewsSubMenu);
     if (viewsSubmenuActionIndex !== -1) {
       const viewsSubmenuAction = menuActions[viewsSubmenuActionIndex];
       if (viewsSubmenuAction.actions.some(({ enabled }) => enabled)) {
         if (menuActions.length === 1 && viewPaneActions.length === 0) {
           menuActions = viewsSubmenuAction.actions.slice();
         } else if (viewsSubmenuActionIndex !== 0) {
-          menuActions = [
-            viewsSubmenuAction,
-            ...menuActions.slice(0, viewsSubmenuActionIndex),
-            ...menuActions.slice(viewsSubmenuActionIndex + 1)
-          ];
+          menuActions = [viewsSubmenuAction, ...menuActions.slice(0, viewsSubmenuActionIndex), ...menuActions.slice(viewsSubmenuActionIndex + 1)];
         }
       } else {
         menuActions.splice(viewsSubmenuActionIndex, 1);
       }
     }
     if (menuActions.length && viewPaneActions.length) {
-      return [...menuActions, new Separator(), ...viewPaneActions];
+      return [
+        ...menuActions,
+        new Separator(),
+        ...viewPaneActions
+      ];
     }
     return menuActions.length ? menuActions : viewPaneActions;
   }
@@ -168,15 +155,7 @@ class PaneCompositeDescriptor extends CompositeDescriptor {
     __name(this, "PaneCompositeDescriptor");
   }
   static create(ctor, id, name, cssClass, order, requestedIndex, iconUrl) {
-    return new PaneCompositeDescriptor(
-      ctor,
-      id,
-      name,
-      cssClass,
-      order,
-      requestedIndex,
-      iconUrl
-    );
+    return new PaneCompositeDescriptor(ctor, id, name, cssClass, order, requestedIndex, iconUrl);
   }
 }
 const Extensions = {

@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { $, append, show } from "../../../../base/browser/dom.js";
-import {
-  IconLabel
-} from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IconLabel, IIconLabelValueOptions } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { createMatches } from "../../../../base/common/filters.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
@@ -37,23 +37,14 @@ class SimpleSuggestWidgetItemRenderer {
     const iconContainer = append(main, $(".icon-label.codicon"));
     const left = append(main, $("span.left"));
     const right = append(main, $("span.right"));
-    const iconLabel = new IconLabel(left, {
-      supportHighlights: true,
-      supportIcons: true
-    });
+    const iconLabel = new IconLabel(left, { supportHighlights: true, supportIcons: true });
     disposables.add(iconLabel);
     const parametersLabel = append(left, $("span.signature-label"));
     const qualifierLabel = append(left, $("span.qualifier-label"));
     const detailsLabel = append(right, $("span.details-label"));
     const configureFont = /* @__PURE__ */ __name(() => {
       const fontFeatureSettings = "";
-      const {
-        fontFamily,
-        fontSize,
-        lineHeight,
-        fontWeight,
-        letterSpacing
-      } = this._getFontInfo();
+      const { fontFamily, fontSize, lineHeight, fontWeight, letterSpacing } = this._getFontInfo();
       const fontSizePx = `${fontSize}px`;
       const lineHeightPx = `${lineHeight}px`;
       const letterSpacingPx = `${letterSpacing}px`;
@@ -67,19 +58,7 @@ class SimpleSuggestWidgetItemRenderer {
       icon.style.width = lineHeightPx;
     }, "configureFont");
     configureFont();
-    return {
-      root,
-      left,
-      right,
-      icon,
-      colorspan,
-      iconLabel,
-      iconContainer,
-      parametersLabel,
-      qualifierLabel,
-      detailsLabel,
-      disposables
-    };
+    return { root, left, right, icon, colorspan, iconLabel, iconContainer, parametersLabel, qualifierLabel, detailsLabel, disposables };
   }
   renderElement(element, index, data) {
     const { completion } = element;
@@ -91,12 +70,7 @@ class SimpleSuggestWidgetItemRenderer {
     };
     data.icon.className = "icon hide";
     data.iconContainer.className = "";
-    data.iconContainer.classList.add(
-      "suggest-icon",
-      ...ThemeIcon.asClassNameArray(
-        completion.icon || Codicon.symbolText
-      )
-    );
+    data.iconContainer.classList.add("suggest-icon", ...ThemeIcon.asClassNameArray(completion.icon || Codicon.symbolText));
     data.iconLabel.setLabel(completion.label, void 0, labelOptions);
     data.parametersLabel.textContent = "";
     data.detailsLabel.textContent = stripNewLines(completion.detail || "");

@@ -1,13 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    model: "pc104",
-    group: 0,
-    layout: "fr",
-    variant: "",
-    options: "",
-    rules: "base"
-  },
+  layout: { model: "pc104", group: 0, layout: "fr", variant: "", options: "", rules: "base" },
   secondaryLayouts: [],
   mapping: {
     Sleep: [],

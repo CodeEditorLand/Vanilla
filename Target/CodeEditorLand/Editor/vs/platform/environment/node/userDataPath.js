@@ -3,7 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import * as os from "os";
 import * as path from "path";
 const module = { exports: {} };
-(() => {
+(function() {
   const isESM = true;
   function factory(path2, os2, cwd) {
     function getUserDataPath2(cliArgs, productName) {
@@ -37,23 +37,13 @@ const module = { exports: {} };
           if (!appDataPath) {
             const userProfile = process.env["USERPROFILE"];
             if (typeof userProfile !== "string") {
-              throw new Error(
-                "Windows: Unexpected undefined %USERPROFILE% environment variable"
-              );
+              throw new Error("Windows: Unexpected undefined %USERPROFILE% environment variable");
             }
-            appDataPath = path2.join(
-              userProfile,
-              "AppData",
-              "Roaming"
-            );
+            appDataPath = path2.join(userProfile, "AppData", "Roaming");
           }
           break;
         case "darwin":
-          appDataPath = path2.join(
-            os2.homedir(),
-            "Library",
-            "Application Support"
-          );
+          appDataPath = path2.join(os2.homedir(), "Library", "Application Support");
           break;
         case "linux":
           appDataPath = process.env["XDG_CONFIG_HOME"] || path2.join(os2.homedir(), ".config");
@@ -70,15 +60,11 @@ const module = { exports: {} };
   }
   __name(factory, "factory");
   if (!isESM && typeof define === "function") {
-    define(["path", "os", "vs/base/common/process"], (path2, os2, process2) => {
+    define(["path", "os", "vs/base/common/process"], function(path2, os2, process2) {
       return factory(path2, os2, process2.cwd());
     });
   } else if (typeof module === "object" && typeof module.exports === "object") {
-    module.exports = factory(
-      path,
-      os,
-      process.env["VSCODE_CWD"] || process.cwd()
-    );
+    module.exports = factory(path, os, process.env["VSCODE_CWD"] || process.cwd());
   } else {
     throw new Error("Unknown context");
   }

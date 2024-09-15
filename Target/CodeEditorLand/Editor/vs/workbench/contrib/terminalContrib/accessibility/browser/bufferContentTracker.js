@@ -12,10 +12,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import {
-  ITerminalLogService,
-  TerminalSettingId
-} from "../../../../../platform/terminal/common/terminal.js";
+import { ITerminalLogService, TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
+import { IXtermTerminal } from "../../../terminal/browser/terminal.js";
 let BufferContentTracker = class extends Disposable {
   constructor(_xterm, _logService, _configurationService) {
     super();
@@ -52,14 +50,8 @@ let BufferContentTracker = class extends Disposable {
     this._removeViewportContent();
     this._updateCachedContent();
     this._updateViewportContent();
-    this._lastCachedMarker = this._register(
-      this._xterm.raw.registerMarker()
-    );
-    this._logService.debug(
-      "Buffer content tracker: set ",
-      this._lines.length,
-      " lines"
-    );
+    this._lastCachedMarker = this._register(this._xterm.raw.registerMarker());
+    this._logService.debug("Buffer content tracker: set ", this._lines.length, " lines");
   }
   _updateCachedContent() {
     const buffer = this._xterm.raw.buffer.active;
@@ -68,9 +60,7 @@ let BufferContentTracker = class extends Disposable {
     if (start < 0 || start > end) {
       return;
     }
-    const scrollback = this._configurationService.getValue(
-      TerminalSettingId.Scrollback
-    );
+    const scrollback = this._configurationService.getValue(TerminalSettingId.Scrollback);
     const maxBufferSize = scrollback + this._xterm.raw.rows - 1;
     const linesToAdd = end - start;
     if (linesToAdd + this._lines.length > maxBufferSize) {
@@ -78,13 +68,7 @@ let BufferContentTracker = class extends Disposable {
       for (let i = 0; i < numToRemove; i++) {
         this._lines.shift();
       }
-      this._logService.debug(
-        "Buffer content tracker: removed ",
-        numToRemove,
-        " lines from top of cached lines, now ",
-        this._lines.length,
-        " lines"
-      );
+      this._logService.debug("Buffer content tracker: removed ", numToRemove, " lines from top of cached lines, now ", this._lines.length, " lines");
     }
     const cachedLines = [];
     let currentLine = "";
@@ -93,10 +77,7 @@ let BufferContentTracker = class extends Disposable {
       if (!line) {
         continue;
       }
-      this.bufferToEditorLineMapping.set(
-        i,
-        this._lines.length + cachedLines.length
-      );
+      this.bufferToEditorLineMapping.set(i, this._lines.length + cachedLines.length);
       const isWrapped = buffer.getLine(i + 1)?.isWrapped;
       currentLine += line.translateToString(!isWrapped);
       if (currentLine && !isWrapped || i === buffer.baseY + this._xterm.raw.rows - 1) {
@@ -106,11 +87,7 @@ let BufferContentTracker = class extends Disposable {
         }
       }
     }
-    this._logService.debug(
-      "Buffer content tracker:",
-      cachedLines.length,
-      " lines cached"
-    );
+    this._logService.debug("Buffer content tracker:", cachedLines.length, " lines cached");
     this._lines.push(...cachedLines);
   }
   _removeViewportContent() {
@@ -129,11 +106,7 @@ let BufferContentTracker = class extends Disposable {
       index++;
       linesToRemove--;
     }
-    this._logService.debug(
-      "Buffer content tracker: removed lines from viewport, now ",
-      this._lines.length,
-      " lines cached"
-    );
+    this._logService.debug("Buffer content tracker: removed lines from viewport, now ", this._lines.length, " lines cached");
   }
   _updateViewportContent() {
     const buffer = this._xterm.raw.buffer.active;
@@ -155,11 +128,7 @@ let BufferContentTracker = class extends Disposable {
         }
       }
     }
-    this._logService.debug(
-      "Viewport content update complete, ",
-      this._lines.length,
-      " lines in the viewport"
-    );
+    this._logService.debug("Viewport content update complete, ", this._lines.length, " lines in the viewport");
   }
 };
 BufferContentTracker = __decorateClass([

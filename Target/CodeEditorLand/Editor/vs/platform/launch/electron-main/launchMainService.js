@@ -12,20 +12,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { app } from "electron";
 import { coalesce } from "../../../base/common/arrays.js";
-import {
-  isMacintosh
-} from "../../../base/common/platform.js";
+import { IProcessEnvironment, isMacintosh } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
 import { whenDeleted } from "../../../base/node/pfs.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
 import { isLaunchedFromCli } from "../../environment/node/argvHelper.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
 import { IURLService } from "../../url/common/url.js";
-import {
-  IWindowsMainService,
-  OpenContext
-} from "../../windows/electron-main/windows.js";
+import { ICodeWindow } from "../../window/electron-main/window.js";
+import { IWindowSettings } from "../../window/common/window.js";
+import { IOpenConfiguration, IWindowsMainService, OpenContext } from "../../windows/electron-main/windows.js";
+import { IProtocolUrl } from "../../url/electron-main/url.js";
 const ID = "launchMainService";
 const ILaunchMainService = createDecorator(ID);
 let LaunchMainService = class {
@@ -39,11 +38,7 @@ let LaunchMainService = class {
     __name(this, "LaunchMainService");
   }
   async start(args, userEnv) {
-    this.logService.trace(
-      "Received data from other instance: ",
-      args,
-      userEnv
-    );
+    this.logService.trace("Received data from other instance: ", args, userEnv);
     if (isMacintosh) {
       app.focus({ steal: true });
     }
@@ -51,9 +46,7 @@ let LaunchMainService = class {
     if (urlsToOpen.length) {
       let whenWindowReady = Promise.resolve();
       if (this.windowsMainService.getWindowCount() === 0) {
-        const window = (await this.windowsMainService.openEmptyWindow({
-          context: OpenContext.DESKTOP
-        })).at(0);
+        const window = (await this.windowsMainService.openEmptyWindow({ context: OpenContext.DESKTOP })).at(0);
         if (window) {
           whenWindowReady = window.ready();
         }
@@ -69,15 +62,13 @@ let LaunchMainService = class {
   }
   parseOpenUrl(args) {
     if (args["open-url"] && args._urls && args._urls.length > 0) {
-      return coalesce(
-        args._urls.map((url) => {
-          try {
-            return { uri: URI.parse(url), originalUrl: url };
-          } catch (err) {
-            return null;
-          }
-        })
-      );
+      return coalesce(args._urls.map((url) => {
+        try {
+          return { uri: URI.parse(url), originalUrl: url };
+        } catch (err) {
+          return null;
+        }
+      }));
     }
     return [];
   }
@@ -107,10 +98,7 @@ let LaunchMainService = class {
       forceTempProfile: args["profile-temp"]
     };
     if (!!args.extensionDevelopmentPath) {
-      await this.windowsMainService.openExtensionDevelopmentHostWindow(
-        args.extensionDevelopmentPath,
-        baseConfig
-      );
+      await this.windowsMainService.openExtensionDevelopmentHostWindow(args.extensionDevelopmentPath, baseConfig);
     } else if (!args._.length && !args["folder-uri"] && !args["file-uri"]) {
       let openNewWindow = false;
       if (args["new-window"] || baseConfig.forceProfile || baseConfig.forceTempProfile) {
@@ -140,10 +128,7 @@ let LaunchMainService = class {
       } else {
         const lastActive = this.windowsMainService.getLastActiveWindow();
         if (lastActive) {
-          this.windowsMainService.openExistingWindow(
-            lastActive,
-            baseConfig
-          );
+          this.windowsMainService.openExistingWindow(lastActive, baseConfig);
           usedWindows = [lastActive];
         } else {
           usedWindows = await this.windowsMainService.open({
@@ -169,16 +154,11 @@ let LaunchMainService = class {
       return Promise.race([
         usedWindows[0].whenClosedOrLoaded,
         whenDeleted(waitMarkerFileURI.fsPath)
-      ]).then(
-        () => void 0,
-        () => void 0
-      );
+      ]).then(() => void 0, () => void 0);
     }
   }
   async getMainProcessId() {
-    this.logService.trace(
-      "Received request for process ID from other instance."
-    );
+    this.logService.trace("Received request for process ID from other instance.");
     return process.pid;
   }
 };

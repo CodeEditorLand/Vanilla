@@ -10,18 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableStore
-} from "../../../base/common/lifecycle.js";
 import { localize } from "../../../nls.js";
-import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 import { Registry } from "../../registry/common/platform.js";
-import {
-  Extensions
-} from "../common/quickAccess.js";
-import {
-  IQuickInputService
-} from "../common/quickInput.js";
+import { DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { Extensions, IQuickAccessProvider, IQuickAccessProviderDescriptor, IQuickAccessRegistry } from "../common/quickAccess.js";
+import { IQuickInputService, IQuickPick, IQuickPickItem } from "../common/quickInput.js";
 let HelpQuickAccessProvider = class {
   constructor(quickInputService, keybindingService) {
     this.quickInputService = quickInputService;
@@ -31,43 +25,26 @@ let HelpQuickAccessProvider = class {
     __name(this, "HelpQuickAccessProvider");
   }
   static PREFIX = "?";
-  registry = Registry.as(
-    Extensions.Quickaccess
-  );
+  registry = Registry.as(Extensions.Quickaccess);
   provide(picker) {
     const disposables = new DisposableStore();
-    disposables.add(
-      picker.onDidAccept(() => {
-        const [item] = picker.selectedItems;
-        if (item) {
-          this.quickInputService.quickAccess.show(item.prefix, {
-            preserveValue: true
-          });
-        }
-      })
-    );
-    disposables.add(
-      picker.onDidChangeValue((value) => {
-        const providerDescriptor = this.registry.getQuickAccessProvider(
-          value.substr(HelpQuickAccessProvider.PREFIX.length)
-        );
-        if (providerDescriptor && providerDescriptor.prefix && providerDescriptor.prefix !== HelpQuickAccessProvider.PREFIX) {
-          this.quickInputService.quickAccess.show(
-            providerDescriptor.prefix,
-            { preserveValue: true }
-          );
-        }
-      })
-    );
-    picker.items = this.getQuickAccessProviders().filter(
-      (p) => p.prefix !== HelpQuickAccessProvider.PREFIX
-    );
+    disposables.add(picker.onDidAccept(() => {
+      const [item] = picker.selectedItems;
+      if (item) {
+        this.quickInputService.quickAccess.show(item.prefix, { preserveValue: true });
+      }
+    }));
+    disposables.add(picker.onDidChangeValue((value) => {
+      const providerDescriptor = this.registry.getQuickAccessProvider(value.substr(HelpQuickAccessProvider.PREFIX.length));
+      if (providerDescriptor && providerDescriptor.prefix && providerDescriptor.prefix !== HelpQuickAccessProvider.PREFIX) {
+        this.quickInputService.quickAccess.show(providerDescriptor.prefix, { preserveValue: true });
+      }
+    }));
+    picker.items = this.getQuickAccessProviders().filter((p) => p.prefix !== HelpQuickAccessProvider.PREFIX);
     return disposables;
   }
   getQuickAccessProviders() {
-    const providers = this.registry.getQuickAccessProviders().sort(
-      (providerA, providerB) => providerA.prefix.localeCompare(providerB.prefix)
-    ).flatMap((provider) => this.createPicks(provider));
+    const providers = this.registry.getQuickAccessProviders().sort((providerA, providerB) => providerA.prefix.localeCompare(providerB.prefix)).flatMap((provider) => this.createPicks(provider));
     return providers;
   }
   createPicks(provider) {
@@ -77,15 +54,8 @@ let HelpQuickAccessProvider = class {
       return {
         prefix,
         label,
-        keybinding: helpEntry.commandId ? this.keybindingService.lookupKeybinding(
-          helpEntry.commandId
-        ) : void 0,
-        ariaLabel: localize(
-          "helpPickAriaLabel",
-          "{0}, {1}",
-          label,
-          helpEntry.description
-        ),
+        keybinding: helpEntry.commandId ? this.keybindingService.lookupKeybinding(helpEntry.commandId) : void 0,
+        ariaLabel: localize("helpPickAriaLabel", "{0}, {1}", label, helpEntry.description),
         description: helpEntry.description
       };
     });

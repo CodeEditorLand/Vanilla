@@ -20,28 +20,15 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
 import { IViewDescriptorService } from "../../../common/views.js";
+import { Testing } from "../common/constants.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { Testing } from "../common/constants.js";
 let TestingViewPaneContainer = class extends ViewPaneContainer {
   static {
     __name(this, "TestingViewPaneContainer");
   }
   constructor(layoutService, telemetryService, instantiationService, contextMenuService, themeService, storageService, configurationService, extensionService, contextService, viewDescriptorService) {
-    super(
-      Testing.ViewletId,
-      { mergeViewWithContainerWhenSingleView: true },
-      instantiationService,
-      configurationService,
-      layoutService,
-      contextMenuService,
-      telemetryService,
-      extensionService,
-      themeService,
-      storageService,
-      contextService,
-      viewDescriptorService
-    );
+    super(Testing.ViewletId, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService);
   }
   create(parent) {
     super.create(parent);

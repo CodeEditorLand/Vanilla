@@ -10,73 +10,39 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { AbstractTextFileService } from "./textFileService.js";
+import { ITextFileService, TextFileEditorModelState } from "../common/textfiles.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import {
-  IDialogService,
-  IFileDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
+import { IDialogService, IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IDecorationsService } from "../../decorations/common/decorations.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
 import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
 import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
 import { IPathService } from "../../path/common/pathService.js";
 import { IUntitledTextEditorService } from "../../untitled/common/untitledTextEditorService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkingCopyFileService } from "../../workingCopy/common/workingCopyFileService.js";
-import {
-  ITextFileService,
-  TextFileEditorModelState
-} from "../common/textfiles.js";
-import { AbstractTextFileService } from "./textFileService.js";
+import { IDecorationsService } from "../../decorations/common/decorations.js";
 let BrowserTextFileService = class extends AbstractTextFileService {
   static {
     __name(this, "BrowserTextFileService");
   }
   constructor(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, elevatedFileService, logService, decorationsService) {
-    super(
-      fileService,
-      untitledTextEditorService,
-      lifecycleService,
-      instantiationService,
-      modelService,
-      environmentService,
-      dialogService,
-      fileDialogService,
-      textResourceConfigurationService,
-      filesConfigurationService,
-      codeEditorService,
-      pathService,
-      workingCopyFileService,
-      uriIdentityService,
-      languageService,
-      logService,
-      elevatedFileService,
-      decorationsService
-    );
+    super(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService);
     this.registerListeners();
   }
   registerListeners() {
-    this._register(
-      this.lifecycleService.onBeforeShutdown(
-        (event) => event.veto(this.onBeforeShutdown(), "veto.textFiles")
-      )
-    );
+    this._register(this.lifecycleService.onBeforeShutdown((event) => event.veto(this.onBeforeShutdown(), "veto.textFiles")));
   }
   onBeforeShutdown() {
-    if (this.files.models.some(
-      (model) => model.hasState(TextFileEditorModelState.PENDING_SAVE)
-    )) {
+    if (this.files.models.some((model) => model.hasState(TextFileEditorModelState.PENDING_SAVE))) {
       return true;
     }
     return false;
@@ -102,11 +68,7 @@ BrowserTextFileService = __decorateClass([
   __decorateParam(16, ILogService),
   __decorateParam(17, IDecorationsService)
 ], BrowserTextFileService);
-registerSingleton(
-  ITextFileService,
-  BrowserTextFileService,
-  InstantiationType.Eager
-);
+registerSingleton(ITextFileService, BrowserTextFileService, InstantiationType.Eager);
 export {
   BrowserTextFileService
 };

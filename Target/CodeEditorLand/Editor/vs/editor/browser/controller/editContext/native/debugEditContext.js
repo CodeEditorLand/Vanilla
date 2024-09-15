@@ -43,26 +43,11 @@ class DebugEditContext extends EditContext {
   characterBounds() {
     return super.characterBounds();
   }
-  _ontextupdateWrapper = new EventListenerWrapper(
-    "textupdate",
-    this
-  );
-  _ontextformatupdateWrapper = new EventListenerWrapper(
-    "textformatupdate",
-    this
-  );
-  _oncharacterboundsupdateWrapper = new EventListenerWrapper(
-    "characterboundsupdate",
-    this
-  );
-  _oncompositionstartWrapper = new EventListenerWrapper(
-    "compositionstart",
-    this
-  );
-  _oncompositionendWrapper = new EventListenerWrapper(
-    "compositionend",
-    this
-  );
+  _ontextupdateWrapper = new EventListenerWrapper("textupdate", this);
+  _ontextformatupdateWrapper = new EventListenerWrapper("textformatupdate", this);
+  _oncharacterboundsupdateWrapper = new EventListenerWrapper("characterboundsupdate", this);
+  _oncompositionstartWrapper = new EventListenerWrapper("compositionstart", this);
+  _oncompositionendWrapper = new EventListenerWrapper("compositionend", this);
   get ontextupdate() {
     return this._ontextupdateWrapper.eventHandler;
   }
@@ -143,25 +128,17 @@ class DebugEditContext extends EditContext {
       return;
     }
     if (this._controlBounds) {
-      this._disposables.push(
-        createRect(this._controlBounds, COLOR_FOR_CONTROL_BOUNDS)
-      );
+      this._disposables.push(createRect(this._controlBounds, COLOR_FOR_CONTROL_BOUNDS));
     }
     if (this._selectionBounds) {
-      this._disposables.push(
-        createRect(this._selectionBounds, COLOR_FOR_SELECTION_BOUNDS)
-      );
+      this._disposables.push(createRect(this._selectionBounds, COLOR_FOR_SELECTION_BOUNDS));
     }
     if (this._characterBounds) {
       for (const rect of this._characterBounds.characterBounds) {
-        this._disposables.push(
-          createRect(rect, COLOR_FOR_CHARACTER_BOUNDS)
-        );
+        this._disposables.push(createRect(rect, COLOR_FOR_CHARACTER_BOUNDS));
       }
     }
-    this._disposables.push(
-      createDiv(this.text, this.selectionStart, this.selectionEnd)
-    );
+    this._disposables.push(createDiv(this.text, this.selectionStart, this.selectionEnd));
   }
 }
 function createDiv(text, selectionStart, selectionEnd) {
@@ -231,10 +208,7 @@ class EventListenerWrapper {
   }
   set eventHandler(value) {
     if (this._eventHandler) {
-      this._target.removeEventListener(
-        this._eventType,
-        this._eventHandler
-      );
+      this._target.removeEventListener(this._eventType, this._eventHandler);
     }
     this._eventHandler = value;
     if (value) {

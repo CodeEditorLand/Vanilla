@@ -1,16 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as https from "https";
 import { streamToBuffer } from "../../../base/common/buffer.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import {
-  AbstractOneDataSystemAppender
-} from "../common/1dsAppender.js";
+import { IRequestOptions } from "../../../base/parts/request/common/request.js";
+import { IRequestService } from "../../request/common/request.js";
+import * as https from "https";
+import { AbstractOneDataSystemAppender, IAppInsightsCore } from "../common/1dsAppender.js";
 async function makeTelemetryRequest(options, requestService) {
-  const response = await requestService.request(
-    options,
-    CancellationToken.None
-  );
+  const response = await requestService.request(options, CancellationToken.None);
   const responseData = (await streamToBuffer(response.stream)).toString();
   const statusCode = response.res.statusCode ?? 200;
   const headers = response.res.headers;
@@ -28,14 +25,14 @@ async function makeLegacyTelemetryRequest(options) {
   };
   const responsePromise = new Promise((resolve, reject) => {
     const req = https.request(options.url ?? "", httpsOptions, (res) => {
-      res.on("data", (responseData) => {
+      res.on("data", function(responseData) {
         resolve({
           headers: res.headers,
           statusCode: res.statusCode ?? 200,
           responseData: responseData.toString()
         });
       });
-      res.on("error", (err) => {
+      res.on("error", function(err) {
         reject(err);
       });
     });
@@ -63,11 +60,7 @@ async function sendPostAsync(requestService, payload, oncomplete) {
   };
   try {
     const responseData = requestService ? await makeTelemetryRequest(requestOptions, requestService) : await makeLegacyTelemetryRequest(requestOptions);
-    oncomplete(
-      responseData.statusCode,
-      responseData.headers,
-      responseData.responseData
-    );
+    oncomplete(responseData.statusCode, responseData.headers, responseData.responseData);
   } catch {
     oncomplete(0, {});
   }
@@ -83,13 +76,7 @@ class OneDataSystemAppender extends AbstractOneDataSystemAppender {
         sendPostAsync(requestService, payload, oncomplete);
       }, "sendPOST")
     };
-    super(
-      isInternalTelemetry,
-      eventPrefix,
-      defaultData,
-      iKeyOrClientFactory,
-      customHttpXHROverride
-    );
+    super(isInternalTelemetry, eventPrefix, defaultData, iKeyOrClientFactory, customHttpXHROverride);
   }
 }
 export {

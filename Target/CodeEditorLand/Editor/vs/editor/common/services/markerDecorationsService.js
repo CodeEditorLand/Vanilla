@@ -10,35 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { diffSets } from "../../../base/common/collections.js";
-import { Emitter } from "../../../base/common/event.js";
+import { IMarkerService, IMarker, MarkerSeverity, MarkerTag } from "../../../platform/markers/common/markers.js";
 import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { BidirectionalMap, ResourceMap } from "../../../base/common/map.js";
-import { Schemas } from "../../../base/common/network.js";
-import {
-  IMarkerService,
-  MarkerSeverity,
-  MarkerTag
-} from "../../../platform/markers/common/markers.js";
-import {
-  minimapError,
-  minimapInfo,
-  minimapWarning
-} from "../../../platform/theme/common/colorRegistry.js";
-import { themeColorFromId } from "../../../platform/theme/common/themeService.js";
-import {
-  overviewRulerError,
-  overviewRulerInfo,
-  overviewRulerWarning
-} from "../core/editorColorRegistry.js";
-import { Range } from "../core/range.js";
-import {
-  MinimapPosition,
-  OverviewRulerLane,
-  TrackedRangeStickiness
-} from "../model.js";
+import { URI } from "../../../base/common/uri.js";
+import { IModelDeltaDecoration, ITextModel, IModelDecorationOptions, TrackedRangeStickiness, OverviewRulerLane, IModelDecoration, MinimapPosition, IModelDecorationMinimapOptions } from "../model.js";
 import { ClassName } from "../model/intervalTree.js";
+import { themeColorFromId } from "../../../platform/theme/common/themeService.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { overviewRulerWarning, overviewRulerInfo, overviewRulerError } from "../core/editorColorRegistry.js";
 import { IModelService } from "./model.js";
+import { Range } from "../core/range.js";
+import { IMarkerDecorationsService } from "./markerDecorations.js";
+import { Schemas } from "../../../base/common/network.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { minimapInfo, minimapWarning, minimapError } from "../../../platform/theme/common/colorRegistry.js";
+import { BidirectionalMap, ResourceMap } from "../../../base/common/map.js";
+import { diffSets } from "../../../base/common/collections.js";
 let MarkerDecorationsService = class extends Disposable {
   constructor(modelService, _markerService) {
     super();
@@ -51,9 +38,7 @@ let MarkerDecorationsService = class extends Disposable {
   static {
     __name(this, "MarkerDecorationsService");
   }
-  _onDidChangeMarker = this._register(
-    new Emitter()
-  );
+  _onDidChangeMarker = this._register(new Emitter());
   onDidChangeMarker = this._onDidChangeMarker.event;
   _markerDecorations = new ResourceMap();
   dispose() {
@@ -89,16 +74,11 @@ let MarkerDecorationsService = class extends Disposable {
       this._markerDecorations.delete(model.uri);
     }
     if (model.uri.scheme === Schemas.inMemory || model.uri.scheme === Schemas.internal || model.uri.scheme === Schemas.vscode) {
-      this._markerService?.read({ resource: model.uri }).map((marker) => marker.owner).forEach(
-        (owner) => this._markerService.remove(owner, [model.uri])
-      );
+      this._markerService?.read({ resource: model.uri }).map((marker) => marker.owner).forEach((owner) => this._markerService.remove(owner, [model.uri]));
     }
   }
   _updateDecorations(markerDecorations) {
-    const markers = this._markerService.read({
-      resource: markerDecorations.model.uri,
-      take: 500
-    });
+    const markers = this._markerService.read({ resource: markerDecorations.model.uri, take: 500 });
     if (markerDecorations.update(markers)) {
       this._onDidChangeMarker.fire(markerDecorations.model);
     }
@@ -112,28 +92,21 @@ class MarkerDecorations extends Disposable {
   constructor(model) {
     super();
     this.model = model;
-    this._register(
-      toDisposable(() => {
-        this.model.deltaDecorations([...this._map.values()], []);
-        this._map.clear();
-      })
-    );
+    this._register(toDisposable(() => {
+      this.model.deltaDecorations([...this._map.values()], []);
+      this._map.clear();
+    }));
   }
   static {
     __name(this, "MarkerDecorations");
   }
   _map = new BidirectionalMap();
   update(markers) {
-    const { added, removed } = diffSets(
-      new Set(this._map.keys()),
-      new Set(markers)
-    );
+    const { added, removed } = diffSets(new Set(this._map.keys()), new Set(markers));
     if (added.length === 0 && removed.length === 0) {
       return false;
     }
-    const oldIds = removed.map(
-      (marker) => this._map.get(marker)
-    );
+    const oldIds = removed.map((marker) => this._map.get(marker));
     const newDecorations = added.map((marker) => {
       return {
         range: this._createDecorationRange(this.model, marker),
@@ -175,24 +148,12 @@ class MarkerDecorations extends Disposable {
       }
       const word = model.getWordAtPosition(ret.getStartPosition());
       if (word) {
-        ret = new Range(
-          ret.startLineNumber,
-          word.startColumn,
-          ret.endLineNumber,
-          word.endColumn
-        );
+        ret = new Range(ret.startLineNumber, word.startColumn, ret.endLineNumber, word.endColumn);
       }
     } else if (rawMarker.endColumn === Number.MAX_VALUE && rawMarker.startColumn === 1 && ret.startLineNumber === ret.endLineNumber) {
-      const minColumn = model.getLineFirstNonWhitespaceColumn(
-        rawMarker.startLineNumber
-      );
+      const minColumn = model.getLineFirstNonWhitespaceColumn(rawMarker.startLineNumber);
       if (minColumn < ret.endColumn) {
-        ret = new Range(
-          ret.startLineNumber,
-          minColumn,
-          ret.endLineNumber,
-          ret.endColumn
-        );
+        ret = new Range(ret.startLineNumber, minColumn, ret.endLineNumber, ret.endColumn);
         rawMarker.startColumn = minColumn;
       }
     }
@@ -200,9 +161,9 @@ class MarkerDecorations extends Disposable {
   }
   _createDecorationOption(marker) {
     let className;
-    let color;
+    let color = void 0;
     let zIndex;
-    let inlineClassName;
+    let inlineClassName = void 0;
     let minimap;
     switch (marker.severity) {
       case MarkerSeverity.Hint:

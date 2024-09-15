@@ -1,15 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { CursorChangeReason } from "../../../common/cursorEvents.js";
+import { CursorMoveCommands } from "../../../common/cursor/cursorMoveCommands.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import * as nls from "../../../../nls.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  EditorAction,
-  registerEditorAction
-} from "../../../browser/editorExtensions.js";
-import { CursorMoveCommands } from "../../../common/cursor/cursorMoveCommands.js";
-import { CursorChangeReason } from "../../../common/cursorEvents.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 class ExpandLineSelectionAction extends EditorAction {
   static {
     __name(this, "ExpandLineSelectionAction");
@@ -37,10 +35,7 @@ class ExpandLineSelectionAction extends EditorAction {
     viewModel.setCursorStates(
       args.source,
       CursorChangeReason.Explicit,
-      CursorMoveCommands.expandLineSelection(
-        viewModel,
-        viewModel.getCursorStates()
-      )
+      CursorMoveCommands.expandLineSelection(viewModel, viewModel.getCursorStates())
     );
     viewModel.revealAllCursors(args.source, true);
   }

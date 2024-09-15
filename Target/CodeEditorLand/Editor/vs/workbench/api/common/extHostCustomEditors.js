@@ -1,19 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../base/common/buffer.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { hash } from "../../../base/common/hash.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { joinPath } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
+import { IExtensionStoragePaths } from "./extHostStoragePaths.js";
+import * as typeConverters from "./extHostTypeConverters.js";
+import { ExtHostWebviews, shouldSerializeBuffersForPostMessage, toExtensionData } from "./extHostWebview.js";
+import { ExtHostWebviewPanels } from "./extHostWebviewPanels.js";
+import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
 import { Cache } from "./cache.js";
 import * as extHostProtocol from "./extHost.protocol.js";
-import * as typeConverters from "./extHostTypeConverters.js";
 import * as extHostTypes from "./extHostTypes.js";
-import {
-  shouldSerializeBuffersForPostMessage,
-  toExtensionData
-} from "./extHostWebview.js";
 class CustomDocumentStoreEntry {
   constructor(document, _storagePath) {
     this.document = document;
@@ -23,9 +26,7 @@ class CustomDocumentStoreEntry {
     __name(this, "CustomDocumentStoreEntry");
   }
   _backupCounter = 1;
-  _edits = new Cache(
-    "custom documents"
-  );
+  _edits = new Cache("custom documents");
   _backup;
   addEdit(item) {
     return this._edits.add([item]);
@@ -81,9 +82,7 @@ class CustomDocumentStore {
   add(viewType, document, storagePath) {
     const key = this.key(viewType, document.uri);
     if (this._documents.has(key)) {
-      throw new Error(
-        `Document already exists for viewType:${viewType} resource:${document.uri}`
-      );
+      throw new Error(`Document already exists for viewType:${viewType} resource:${document.uri}`);
     }
     const entry = new CustomDocumentStoreEntry(document, storagePath);
     this._documents.set(key, entry);
@@ -108,32 +107,20 @@ class EditorProviderStore {
   }
   _providers = /* @__PURE__ */ new Map();
   addTextProvider(viewType, extension, provider) {
-    return this.add(viewType, {
-      type: 0 /* Text */,
-      extension,
-      provider
-    });
+    return this.add(viewType, { type: 0 /* Text */, extension, provider });
   }
   addCustomProvider(viewType, extension, provider) {
-    return this.add(viewType, {
-      type: 1 /* Custom */,
-      extension,
-      provider
-    });
+    return this.add(viewType, { type: 1 /* Custom */, extension, provider });
   }
   get(viewType) {
     return this._providers.get(viewType);
   }
   add(viewType, entry) {
     if (this._providers.has(viewType)) {
-      throw new Error(
-        `Provider for viewType:${viewType} already registered`
-      );
+      throw new Error(`Provider for viewType:${viewType} already registered`);
     }
     this._providers.set(viewType, entry);
-    return new extHostTypes.Disposable(
-      () => this._providers.delete(viewType)
-    );
+    return new extHostTypes.Disposable(() => this._providers.delete(viewType));
   }
 }
 class ExtHostCustomEditors {
@@ -142,9 +129,7 @@ class ExtHostCustomEditors {
     this._extensionStoragePaths = _extensionStoragePaths;
     this._extHostWebview = _extHostWebview;
     this._extHostWebviewPanels = _extHostWebviewPanels;
-    this._proxy = mainContext.getProxy(
-      extHostProtocol.MainContext.MainThreadCustomEditors
-    );
+    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadCustomEditors);
   }
   static {
     __name(this, "ExtHostCustomEditors");
@@ -155,61 +140,24 @@ class ExtHostCustomEditors {
   registerCustomEditorProvider(extension, viewType, provider, options) {
     const disposables = new DisposableStore();
     if (isCustomTextEditorProvider(provider)) {
-      disposables.add(
-        this._editorProviders.addTextProvider(
-          viewType,
-          extension,
-          provider
-        )
-      );
-      this._proxy.$registerTextEditorProvider(
-        toExtensionData(extension),
-        viewType,
-        options.webviewOptions || {},
-        {
-          supportsMove: !!provider.moveCustomTextEditor
-        },
-        shouldSerializeBuffersForPostMessage(extension)
-      );
+      disposables.add(this._editorProviders.addTextProvider(viewType, extension, provider));
+      this._proxy.$registerTextEditorProvider(toExtensionData(extension), viewType, options.webviewOptions || {}, {
+        supportsMove: !!provider.moveCustomTextEditor
+      }, shouldSerializeBuffersForPostMessage(extension));
     } else {
-      disposables.add(
-        this._editorProviders.addCustomProvider(
-          viewType,
-          extension,
-          provider
-        )
-      );
+      disposables.add(this._editorProviders.addCustomProvider(viewType, extension, provider));
       if (isCustomEditorProviderWithEditingCapability(provider)) {
-        disposables.add(
-          provider.onDidChangeCustomDocument((e) => {
-            const entry = this.getCustomDocumentEntry(
-              viewType,
-              e.document.uri
-            );
-            if (isEditEvent(e)) {
-              const editId = entry.addEdit(e);
-              this._proxy.$onDidEdit(
-                e.document.uri,
-                viewType,
-                editId,
-                e.label
-              );
-            } else {
-              this._proxy.$onContentChange(
-                e.document.uri,
-                viewType
-              );
-            }
-          })
-        );
+        disposables.add(provider.onDidChangeCustomDocument((e) => {
+          const entry = this.getCustomDocumentEntry(viewType, e.document.uri);
+          if (isEditEvent(e)) {
+            const editId = entry.addEdit(e);
+            this._proxy.$onDidEdit(e.document.uri, viewType, editId, e.label);
+          } else {
+            this._proxy.$onContentChange(e.document.uri, viewType);
+          }
+        }));
       }
-      this._proxy.$registerCustomEditorProvider(
-        toExtensionData(extension),
-        viewType,
-        options.webviewOptions || {},
-        !!options.supportsMultipleEditorsPerDocument,
-        shouldSerializeBuffersForPostMessage(extension)
-      );
+      this._proxy.$registerCustomEditorProvider(toExtensionData(extension), viewType, options.webviewOptions || {}, !!options.supportsMultipleEditorsPerDocument, shouldSerializeBuffersForPostMessage(extension));
     }
     return extHostTypes.Disposable.from(
       disposables,
@@ -227,21 +175,13 @@ class ExtHostCustomEditors {
       throw new Error(`Invalid provide type for '${viewType}'`);
     }
     const revivedResource = URI.revive(resource);
-    const document = await entry.provider.openCustomDocument(
-      revivedResource,
-      { backupId, untitledDocumentData: untitledDocumentData?.buffer },
-      cancellation
-    );
+    const document = await entry.provider.openCustomDocument(revivedResource, { backupId, untitledDocumentData: untitledDocumentData?.buffer }, cancellation);
     let storageRoot;
     if (isCustomEditorProviderWithEditingCapability(entry.provider) && this._extensionStoragePaths) {
       storageRoot = this._extensionStoragePaths.workspaceValue(entry.extension) ?? this._extensionStoragePaths.globalValue(entry.extension);
     }
     this._documents.add(viewType, document, storageRoot);
-    return {
-      editable: isCustomEditorProviderWithEditingCapability(
-        entry.provider
-      )
-    };
+    return { editable: isCustomEditorProviderWithEditingCapability(entry.provider) };
   }
   async $disposeCustomDocument(resource, viewType) {
     const entry = this._editorProviders.get(viewType);
@@ -252,10 +192,7 @@ class ExtHostCustomEditors {
       throw new Error(`Invalid provider type for '${viewType}'`);
     }
     const revivedResource = URI.revive(resource);
-    const { document } = this.getCustomDocumentEntry(
-      viewType,
-      revivedResource
-    );
+    const { document } = this.getCustomDocumentEntry(viewType, revivedResource);
     this._documents.delete(viewType, document);
     document.dispose();
   }
@@ -265,40 +202,17 @@ class ExtHostCustomEditors {
       throw new Error(`No provider found for '${viewType}'`);
     }
     const viewColumn = typeConverters.ViewColumn.to(position);
-    const webview = this._extHostWebview.createNewWebview(
-      handle,
-      initData.contentOptions,
-      entry.extension
-    );
-    const panel = this._extHostWebviewPanels.createNewWebviewPanel(
-      handle,
-      viewType,
-      initData.title,
-      viewColumn,
-      initData.options,
-      webview,
-      initData.active
-    );
+    const webview = this._extHostWebview.createNewWebview(handle, initData.contentOptions, entry.extension);
+    const panel = this._extHostWebviewPanels.createNewWebviewPanel(handle, viewType, initData.title, viewColumn, initData.options, webview, initData.active);
     const revivedResource = URI.revive(resource);
     switch (entry.type) {
       case 1 /* Custom */: {
-        const { document } = this.getCustomDocumentEntry(
-          viewType,
-          revivedResource
-        );
-        return entry.provider.resolveCustomEditor(
-          document,
-          panel,
-          cancellation
-        );
+        const { document } = this.getCustomDocumentEntry(viewType, revivedResource);
+        return entry.provider.resolveCustomEditor(document, panel, cancellation);
       }
       case 0 /* Text */: {
         const document = this._extHostDocuments.getDocument(revivedResource);
-        return entry.provider.resolveCustomTextEditor(
-          document,
-          panel,
-          cancellation
-        );
+        return entry.provider.resolveCustomTextEditor(document, panel, cancellation);
       }
       default: {
         throw new Error("Unknown webview provider type");
@@ -306,10 +220,7 @@ class ExtHostCustomEditors {
     }
   }
   $disposeEdits(resourceComponents, viewType, editIds) {
-    const document = this.getCustomDocumentEntry(
-      viewType,
-      resourceComponents
-    );
+    const document = this.getCustomDocumentEntry(viewType, resourceComponents);
     document.disposeEdits(editIds);
   }
   async $onMoveCustomEditor(handle, newResourceComponents, viewType) {
@@ -351,22 +262,14 @@ class ExtHostCustomEditors {
   async $onSaveAs(resourceComponents, viewType, targetResource, cancellation) {
     const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
     const provider = this.getCustomEditorProvider(viewType);
-    return provider.saveCustomDocumentAs(
-      entry.document,
-      URI.revive(targetResource),
-      cancellation
-    );
+    return provider.saveCustomDocumentAs(entry.document, URI.revive(targetResource), cancellation);
   }
   async $backup(resourceComponents, viewType, cancellation) {
     const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
     const provider = this.getCustomEditorProvider(viewType);
-    const backup = await provider.backupCustomDocument(
-      entry.document,
-      {
-        destination: entry.getNewBackupUri()
-      },
-      cancellation
-    );
+    const backup = await provider.backupCustomDocument(entry.document, {
+      destination: entry.getNewBackupUri()
+    }, cancellation);
     entry.updateBackup(backup);
     return backup.id;
   }

@@ -10,10 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { parse } from "../../../base/common/path.js";
 import { debounce, throttle } from "../../../base/common/decorators.js";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { parse } from "../../../base/common/path.js";
+import { ProcessItem } from "../../../base/common/processes.js";
 import { listProcesses } from "../../../base/node/ps.js";
 import { ILogService } from "../../log/common/log.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
@@ -35,10 +36,7 @@ let ChildProcessMonitor = class extends Disposable {
   set hasChildProcesses(value) {
     if (this._hasChildProcesses !== value) {
       this._hasChildProcesses = value;
-      this._logService.debug(
-        "ChildProcessMonitor: Has child processes changed",
-        value
-      );
+      this._logService.debug("ChildProcessMonitor: Has child processes changed", value);
       this._onDidChangeHasChildProcesses.fire(value);
     }
   }
@@ -48,9 +46,7 @@ let ChildProcessMonitor = class extends Disposable {
   get hasChildProcesses() {
     return this._hasChildProcesses;
   }
-  _onDidChangeHasChildProcesses = this._register(
-    new Emitter()
-  );
+  _onDidChangeHasChildProcesses = this._register(new Emitter());
   /**
    * An event that fires when whether the process has child processes changes.
    */
@@ -75,10 +71,7 @@ let ChildProcessMonitor = class extends Disposable {
       const processItem = await listProcesses(this._pid);
       this.hasChildProcesses = this._processContainsChildren(processItem);
     } catch (e) {
-      this._logService.debug(
-        "ChildProcessMonitor: Fetching process tree failed",
-        e
-      );
+      this._logService.debug("ChildProcessMonitor: Fetching process tree failed", e);
     }
   }
   _refreshInactive() {

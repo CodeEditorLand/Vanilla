@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ITextMateThemingRule, IColorMap } from "./workbenchThemeService.js";
 import { Color } from "../../../../base/common/color.js";
 import * as colorRegistry from "../../../../platform/theme/common/colorRegistry.js";
 import * as editorColorRegistry from "../../../../editor/common/core/editorColorRegistry.js";
@@ -17,7 +18,9 @@ function convertSettings(oldSettings, result) {
     result.textMateRules.push(rule);
     if (!rule.scope) {
       const settings = rule.settings;
-      if (settings) {
+      if (!settings) {
+        rule.settings = {};
+      } else {
         for (const settingKey in settings) {
           const key = settingKey;
           const mappings = settingToColorIdMapping[key];
@@ -34,8 +37,6 @@ function convertSettings(oldSettings, result) {
             delete settings[key];
           }
         }
-      } else {
-        rule.settings = {};
       }
     }
   }
@@ -45,27 +46,15 @@ addSettingMapping("background", colorRegistry.editorBackground);
 addSettingMapping("foreground", colorRegistry.editorForeground);
 addSettingMapping("selection", colorRegistry.editorSelectionBackground);
 addSettingMapping("inactiveSelection", colorRegistry.editorInactiveSelection);
-addSettingMapping(
-  "selectionHighlightColor",
-  colorRegistry.editorSelectionHighlight
-);
+addSettingMapping("selectionHighlightColor", colorRegistry.editorSelectionHighlight);
 addSettingMapping("findMatchHighlight", colorRegistry.editorFindMatchHighlight);
 addSettingMapping("currentFindMatchHighlight", colorRegistry.editorFindMatch);
 addSettingMapping("hoverHighlight", colorRegistry.editorHoverHighlight);
 addSettingMapping("wordHighlight", "editor.wordHighlightBackground");
-addSettingMapping(
-  "wordHighlightStrong",
-  "editor.wordHighlightStrongBackground"
-);
+addSettingMapping("wordHighlightStrong", "editor.wordHighlightStrongBackground");
 addSettingMapping("findRangeHighlight", colorRegistry.editorFindRangeHighlight);
-addSettingMapping(
-  "findMatchHighlight",
-  "peekViewResult.matchHighlightBackground"
-);
-addSettingMapping(
-  "referenceHighlight",
-  "peekViewEditor.matchHighlightBackground"
-);
+addSettingMapping("findMatchHighlight", "peekViewResult.matchHighlightBackground");
+addSettingMapping("referenceHighlight", "peekViewEditor.matchHighlightBackground");
 addSettingMapping("lineHighlight", editorColorRegistry.editorLineHighlight);
 addSettingMapping("rangeHighlight", editorColorRegistry.editorRangeHighlight);
 addSettingMapping("caret", editorColorRegistry.editorCursorForeground);

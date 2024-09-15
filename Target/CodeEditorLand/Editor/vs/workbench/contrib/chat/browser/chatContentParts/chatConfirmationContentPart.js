@@ -11,16 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  IChatService
-} from "../../common/chatService.js";
-import { isResponseVM } from "../../common/chatViewModel.js";
 import { ChatConfirmationWidget } from "./chatConfirmationWidget.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
+import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
+import { IChatConfirmation, IChatSendRequestOptions, IChatService } from "../../common/chatService.js";
+import { isResponseVM } from "../../common/chatViewModel.js";
 let ChatConfirmationContentPart = class extends Disposable {
   constructor(confirmation, context, instantiationService, chatService) {
     super();
@@ -31,45 +29,25 @@ let ChatConfirmationContentPart = class extends Disposable {
       label: button,
       data: confirmation.data
     })) : [
-      {
-        label: localize("accept", "Accept"),
-        data: confirmation.data
-      },
-      {
-        label: localize("dismiss", "Dismiss"),
-        data: confirmation.data,
-        isSecondary: true
-      }
+      { label: localize("accept", "Accept"), data: confirmation.data },
+      { label: localize("dismiss", "Dismiss"), data: confirmation.data, isSecondary: true }
     ];
-    const confirmationWidget = this._register(
-      this.instantiationService.createInstance(
-        ChatConfirmationWidget,
-        confirmation.title,
-        confirmation.message,
-        buttons
-      )
-    );
+    const confirmationWidget = this._register(this.instantiationService.createInstance(ChatConfirmationWidget, confirmation.title, confirmation.message, buttons));
     confirmationWidget.setShowButtons(!confirmation.isUsed);
-    this._register(
-      confirmationWidget.onDidClick(async (e) => {
-        if (isResponseVM(element)) {
-          const prompt = `${e.label}: "${confirmation.title}"`;
-          const data = e.isSecondary ? { rejectedConfirmationData: [e.data] } : { acceptedConfirmationData: [e.data] };
-          data.agentId = element.agent?.id;
-          data.slashCommand = element.slashCommand?.name;
-          data.confirmation = e.label;
-          if (await this.chatService.sendRequest(
-            element.sessionId,
-            prompt,
-            data
-          )) {
-            confirmation.isUsed = true;
-            confirmationWidget.setShowButtons(false);
-            this._onDidChangeHeight.fire();
-          }
+    this._register(confirmationWidget.onDidClick(async (e) => {
+      if (isResponseVM(element)) {
+        const prompt = `${e.label}: "${confirmation.title}"`;
+        const data = e.isSecondary ? { rejectedConfirmationData: [e.data] } : { acceptedConfirmationData: [e.data] };
+        data.agentId = element.agent?.id;
+        data.slashCommand = element.slashCommand?.name;
+        data.confirmation = e.label;
+        if (await this.chatService.sendRequest(element.sessionId, prompt, data)) {
+          confirmation.isUsed = true;
+          confirmationWidget.setShowButtons(false);
+          this._onDidChangeHeight.fire();
         }
-      })
-    );
+      }
+    }));
     this.domNode = confirmationWidget.domNode;
   }
   static {

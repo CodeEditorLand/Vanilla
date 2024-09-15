@@ -1,6 +1,10 @@
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Event } from "../../../../base/common/event.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IAnyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
 const FOLDER_CONFIG_FOLDER_NAME = ".vscode";
 const FOLDER_SETTINGS_NAME = "settings";
 const FOLDER_SETTINGS_PATH = `${FOLDER_CONFIG_FOLDER_NAME}/${FOLDER_SETTINGS_NAME}.json`;
@@ -13,40 +17,12 @@ const folderSettingsSchemaId = "vscode://schemas/settings/folder";
 const launchSchemaId = "vscode://schemas/launch";
 const tasksSchemaId = "vscode://schemas/tasks";
 const APPLICATION_SCOPES = [ConfigurationScope.APPLICATION];
-const PROFILE_SCOPES = [
-  ConfigurationScope.MACHINE,
-  ConfigurationScope.WINDOW,
-  ConfigurationScope.RESOURCE,
-  ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  ConfigurationScope.MACHINE_OVERRIDABLE
-];
-const LOCAL_MACHINE_PROFILE_SCOPES = [
-  ConfigurationScope.WINDOW,
-  ConfigurationScope.RESOURCE,
-  ConfigurationScope.LANGUAGE_OVERRIDABLE
-];
-const LOCAL_MACHINE_SCOPES = [
-  ConfigurationScope.APPLICATION,
-  ...LOCAL_MACHINE_PROFILE_SCOPES
-];
-const REMOTE_MACHINE_SCOPES = [
-  ConfigurationScope.MACHINE,
-  ConfigurationScope.WINDOW,
-  ConfigurationScope.RESOURCE,
-  ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  ConfigurationScope.MACHINE_OVERRIDABLE
-];
-const WORKSPACE_SCOPES = [
-  ConfigurationScope.WINDOW,
-  ConfigurationScope.RESOURCE,
-  ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  ConfigurationScope.MACHINE_OVERRIDABLE
-];
-const FOLDER_SCOPES = [
-  ConfigurationScope.RESOURCE,
-  ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  ConfigurationScope.MACHINE_OVERRIDABLE
-];
+const PROFILE_SCOPES = [ConfigurationScope.MACHINE, ConfigurationScope.WINDOW, ConfigurationScope.RESOURCE, ConfigurationScope.LANGUAGE_OVERRIDABLE, ConfigurationScope.MACHINE_OVERRIDABLE];
+const LOCAL_MACHINE_PROFILE_SCOPES = [ConfigurationScope.WINDOW, ConfigurationScope.RESOURCE, ConfigurationScope.LANGUAGE_OVERRIDABLE];
+const LOCAL_MACHINE_SCOPES = [ConfigurationScope.APPLICATION, ...LOCAL_MACHINE_PROFILE_SCOPES];
+const REMOTE_MACHINE_SCOPES = [ConfigurationScope.MACHINE, ConfigurationScope.WINDOW, ConfigurationScope.RESOURCE, ConfigurationScope.LANGUAGE_OVERRIDABLE, ConfigurationScope.MACHINE_OVERRIDABLE];
+const WORKSPACE_SCOPES = [ConfigurationScope.WINDOW, ConfigurationScope.RESOURCE, ConfigurationScope.LANGUAGE_OVERRIDABLE, ConfigurationScope.MACHINE_OVERRIDABLE];
+const FOLDER_SCOPES = [ConfigurationScope.RESOURCE, ConfigurationScope.LANGUAGE_OVERRIDABLE, ConfigurationScope.MACHINE_OVERRIDABLE];
 const TASKS_CONFIGURATION_KEY = "tasks";
 const LAUNCH_CONFIGURATION_KEY = "launch";
 const WORKSPACE_STANDALONE_CONFIGURATIONS = /* @__PURE__ */ Object.create(null);

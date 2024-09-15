@@ -1,21 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
-import { Codicon } from "../../../common/codicons.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 import { Toggle } from "../toggle/toggle.js";
-const NLS_CASE_SENSITIVE_TOGGLE_LABEL = nls.localize(
-  "caseDescription",
-  "Match Case"
-);
-const NLS_WHOLE_WORD_TOGGLE_LABEL = nls.localize(
-  "wordsDescription",
-  "Match Whole Word"
-);
-const NLS_REGEX_TOGGLE_LABEL = nls.localize(
-  "regexDescription",
-  "Use Regular Expression"
-);
+import { Codicon } from "../../../common/codicons.js";
+import * as nls from "../../../../nls.js";
+const NLS_CASE_SENSITIVE_TOGGLE_LABEL = nls.localize("caseDescription", "Match Case");
+const NLS_WHOLE_WORD_TOGGLE_LABEL = nls.localize("wordsDescription", "Match Whole Word");
+const NLS_REGEX_TOGGLE_LABEL = nls.localize("regexDescription", "Use Regular Expression");
 class CaseSensitiveToggle extends Toggle {
   static {
     __name(this, "CaseSensitiveToggle");

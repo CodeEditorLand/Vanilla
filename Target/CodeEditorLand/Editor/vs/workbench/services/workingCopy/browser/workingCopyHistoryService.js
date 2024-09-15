@@ -10,39 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkingCopyHistoryModelOptions, WorkingCopyHistoryService } from "../common/workingCopyHistoryService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IWorkingCopyHistoryService } from "../common/workingCopyHistory.js";
-import {
-  WorkingCopyHistoryService
-} from "../common/workingCopyHistoryService.js";
 let BrowserWorkingCopyHistoryService = class extends WorkingCopyHistoryService {
   static {
     __name(this, "BrowserWorkingCopyHistoryService");
   }
   constructor(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService) {
-    super(
-      fileService,
-      remoteAgentService,
-      environmentService,
-      uriIdentityService,
-      labelService,
-      logService,
-      configurationService
-    );
+    super(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService);
   }
   getModelOptions() {
     return {
       flushOnChange: true
+      /* because browsers support no long running shutdown */
     };
   }
 };
@@ -55,11 +43,7 @@ BrowserWorkingCopyHistoryService = __decorateClass([
   __decorateParam(5, ILogService),
   __decorateParam(6, IConfigurationService)
 ], BrowserWorkingCopyHistoryService);
-registerSingleton(
-  IWorkingCopyHistoryService,
-  BrowserWorkingCopyHistoryService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkingCopyHistoryService, BrowserWorkingCopyHistoryService, InstantiationType.Delayed);
 export {
   BrowserWorkingCopyHistoryService
 };

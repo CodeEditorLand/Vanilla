@@ -1,6 +1,26 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../base/common/event.js";
+import { IMarkdownString } from "../../base/common/htmlContent.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
 import { equals } from "../../base/common/objects.js";
+import { ThemeColor } from "../../base/common/themables.js";
+import { URI } from "../../base/common/uri.js";
+import { ISingleEditOperation } from "./core/editOperation.js";
+import { IPosition, Position } from "./core/position.js";
+import { IRange, Range } from "./core/range.js";
+import { Selection } from "./core/selection.js";
+import { TextChange } from "./core/textChange.js";
+import { WordCharacterClassifier } from "./core/wordCharacterClassifier.js";
+import { IWordAtPosition } from "./core/wordHelper.js";
+import { FormattingOptions } from "./languages.js";
+import { ILanguageSelection } from "./languages/language.js";
+import { IBracketPairsTextModelPart } from "./textModelBracketPairs.js";
+import { IModelContentChange, IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent, InternalModelContentChangeEvent, ModelInjectedTextChangedEvent } from "./textModelEvents.js";
+import { IGuidesTextModelPart } from "./textModelGuides.js";
+import { ITokenizationTextModelPart } from "./tokenizationTextModelPart.js";
+import { UndoRedoGroup } from "../../platform/undoRedo/common/undoRedo.js";
+import { TokenArray } from "./tokens/tokenArray.js";
 var OverviewRulerLane = /* @__PURE__ */ ((OverviewRulerLane2) => {
   OverviewRulerLane2[OverviewRulerLane2["Left"] = 1] = "Left";
   OverviewRulerLane2[OverviewRulerLane2["Center"] = 2] = "Center";
@@ -83,10 +103,7 @@ class TextModelResolvedOptions {
    * @internal
    */
   equals(other) {
-    return this.tabSize === other.tabSize && this._indentSizeIsTabSize === other._indentSizeIsTabSize && this.indentSize === other.indentSize && this.insertSpaces === other.insertSpaces && this.defaultEOL === other.defaultEOL && this.trimAutoWhitespace === other.trimAutoWhitespace && equals(
-      this.bracketPairColorizationOptions,
-      other.bracketPairColorizationOptions
-    );
+    return this.tabSize === other.tabSize && this._indentSizeIsTabSize === other._indentSizeIsTabSize && this.indentSize === other.indentSize && this.insertSpaces === other.insertSpaces && this.defaultEOL === other.defaultEOL && this.trimAutoWhitespace === other.trimAutoWhitespace && equals(this.bracketPairColorizationOptions, other.bracketPairColorizationOptions);
   }
   /**
    * @internal

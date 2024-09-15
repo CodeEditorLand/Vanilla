@@ -1,14 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  binarySearch,
-  isFalsyOrEmpty
-} from "../../../../base/common/arrays.js";
+import { binarySearch, isFalsyOrEmpty } from "../../../../base/common/arrays.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import { IPosition } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import {
-  CompletionItemKind
-} from "../../../common/languages.js";
+import { CompletionItem, CompletionItemKind } from "../../../common/languages.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
 import { BracketSelectionRangeProvider } from "../../smartSelect/browser/bracketSelections.js";
 class WordDistance {
   static {
@@ -31,17 +29,11 @@ class WordDistance {
     if (!service.canComputeWordRanges(model.uri)) {
       return WordDistance.None;
     }
-    const [ranges] = await new BracketSelectionRangeProvider().provideSelectionRanges(
-      model,
-      [position]
-    );
+    const [ranges] = await new BracketSelectionRangeProvider().provideSelectionRanges(model, [position]);
     if (ranges.length === 0) {
       return WordDistance.None;
     }
-    const wordRanges = await service.computeWordRanges(
-      model.uri,
-      ranges[0].range
-    );
+    const wordRanges = await service.computeWordRanges(model.uri, ranges[0].range);
     if (!wordRanges) {
       return WordDistance.None;
     }
@@ -60,11 +52,7 @@ class WordDistance {
         if (isFalsyOrEmpty(wordLines)) {
           return 2 << 20;
         }
-        const idx = binarySearch(
-          wordLines,
-          Range.fromPositions(anchor),
-          Range.compareRangesUsingStarts
-        );
+        const idx = binarySearch(wordLines, Range.fromPositions(anchor), Range.compareRangesUsingStarts);
         const bestWordRange = idx >= 0 ? wordLines[idx] : wordLines[Math.max(0, ~idx - 1)];
         let blockDistance = ranges.length;
         for (const range of ranges) {

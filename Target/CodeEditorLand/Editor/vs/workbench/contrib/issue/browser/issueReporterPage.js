@@ -2,24 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { escape } from "../../../../base/common/strings.js";
 import { localize } from "../../../../nls.js";
-const sendSystemInfoLabel = escape(
-  localize("sendSystemInfo", "Include my system information")
-);
-const sendProcessInfoLabel = escape(
-  localize("sendProcessInfo", "Include my currently running processes")
-);
-const sendWorkspaceInfoLabel = escape(
-  localize("sendWorkspaceInfo", "Include my workspace metadata")
-);
-const sendExtensionsLabel = escape(
-  localize("sendExtensions", "Include my enabled extensions")
-);
-const sendExperimentsLabel = escape(
-  localize("sendExperiments", "Include A/B experiment info")
-);
-const sendExtensionData = escape(
-  localize("sendExtensionData", "Include additional extension info")
-);
+const sendSystemInfoLabel = escape(localize("sendSystemInfo", "Include my system information"));
+const sendProcessInfoLabel = escape(localize("sendProcessInfo", "Include my currently running processes"));
+const sendWorkspaceInfoLabel = escape(localize("sendWorkspaceInfo", "Include my workspace metadata"));
+const sendExtensionsLabel = escape(localize("sendExtensions", "Include my enabled extensions"));
+const sendExperimentsLabel = escape(localize("sendExperiments", "Include A/B experiment info"));
+const sendExtensionData = escape(localize("sendExtensionData", "Include additional extension info"));
 const reviewGuidanceLabel = localize(
   // intentionally not escaped because of its embedded tags
   {
@@ -51,15 +39,7 @@ var issueReporterPage_default = /* @__PURE__ */ __name(() => `
 				<!-- To be dynamically filled -->
 			</select>
 			<div id="issue-source-empty-error" class="validation-error hidden" role="alert">${escape(localize("issueSourceEmptyValidation", "An issue source is required."))}</div>
-			<div id="problem-source-help-text" class="instructions hidden">${escape(
-  localize(
-    "disableExtensionsLabelText",
-    "Try to reproduce the problem after {0}. If the problem only reproduces when extensions are active, it is likely an issue with an extension."
-  )
-).replace(
-  "{0}",
-  () => `<span tabIndex=0 role="button" id="disableExtensions" class="workbenchCommand">${escape(localize("disableExtensions", "disabling all extensions and reloading the window"))}</span>`
-)}
+			<div id="problem-source-help-text" class="instructions hidden">${escape(localize("disableExtensionsLabelText", "Try to reproduce the problem after {0}. If the problem only reproduces when extensions are active, it is likely an issue with an extension.")).replace("{0}", () => `<span tabIndex=0 role="button" id="disableExtensions" class="workbenchCommand">${escape(localize("disableExtensions", "disabling all extensions and reloading the window"))}</span>`)}
 			</div>
 
 			<div id="extension-selection">
@@ -67,15 +47,7 @@ var issueReporterPage_default = /* @__PURE__ */ __name(() => `
 				<select id="extension-selector" class="inline-form-control">
 					<!-- To be dynamically filled -->
 				</select>
-				<div id="extension-selection-validation-error" class="validation-error hidden" role="alert">${escape(
-  localize(
-    "extensionWithNonstandardBugsUrl",
-    "The issue reporter is unable to create issues for this extension. Please visit {0} to report an issue."
-  )
-).replace(
-  "{0}",
-  () => `<span tabIndex=0 role="button" id="extensionBugsLink" class="workbenchCommand"><!-- To be dynamically filled --></span>`
-)}</div>
+				<div id="extension-selection-validation-error" class="validation-error hidden" role="alert">${escape(localize("extensionWithNonstandardBugsUrl", "The issue reporter is unable to create issues for this extension. Please visit {0} to report an issue.")).replace("{0}", () => `<span tabIndex=0 role="button" id="extensionBugsLink" class="workbenchCommand"><!-- To be dynamically filled --></span>`)}</div>
 				<div id="extension-selection-validation-error-no-url" class="validation-error hidden" role="alert">
 					${escape(localize("extensionWithNoBugsUrl", "The issue reporter is unable to create issues for this extension, as it does not specify a URL for reporting issues. Please check the marketplace page of this extension to see if other instructions are available."))}
 				</div>

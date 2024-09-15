@@ -9,17 +9,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
+import * as DomUtils from "./dom.js";
+import { mainWindow } from "./window.js";
 import * as arrays from "../common/arrays.js";
 import { memoize } from "../common/decorators.js";
 import { Event as EventUtils } from "../common/event.js";
-import {
-  Disposable,
-  markAsSingleton,
-  toDisposable
-} from "../common/lifecycle.js";
+import { Disposable, IDisposable, markAsSingleton, toDisposable } from "../common/lifecycle.js";
 import { LinkedList } from "../common/linkedList.js";
-import * as DomUtils from "./dom.js";
-import { mainWindow } from "./window.js";
 var EventType;
 ((EventType2) => {
   EventType2.Tap = "-monaco-gesturetap";
@@ -48,37 +44,11 @@ const _Gesture = class _Gesture extends Disposable {
     this.activeTouches = {};
     this.handle = null;
     this._lastSetTapCountTime = 0;
-    this._register(
-      EventUtils.runAndSubscribe(
-        DomUtils.onDidRegisterWindow,
-        ({ window, disposables }) => {
-          disposables.add(
-            DomUtils.addDisposableListener(
-              window.document,
-              "touchstart",
-              (e) => this.onTouchStart(e),
-              { passive: false }
-            )
-          );
-          disposables.add(
-            DomUtils.addDisposableListener(
-              window.document,
-              "touchend",
-              (e) => this.onTouchEnd(window, e)
-            )
-          );
-          disposables.add(
-            DomUtils.addDisposableListener(
-              window.document,
-              "touchmove",
-              (e) => this.onTouchMove(e),
-              { passive: false }
-            )
-          );
-        },
-        { window: mainWindow, disposables: this._store }
-      )
-    );
+    this._register(EventUtils.runAndSubscribe(DomUtils.onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(DomUtils.addDisposableListener(window.document, "touchstart", (e) => this.onTouchStart(e), { passive: false }));
+      disposables.add(DomUtils.addDisposableListener(window.document, "touchend", (e) => this.onTouchEnd(window, e)));
+      disposables.add(DomUtils.addDisposableListener(window.document, "touchmove", (e) => this.onTouchMove(e), { passive: false }));
+    }, { window: mainWindow, disposables: this._store }));
   }
   static addTarget(element) {
     if (!_Gesture.isTouchDevice()) {
@@ -150,18 +120,12 @@ const _Gesture = class _Gesture extends Disposable {
       }
       const data = this.activeTouches[touch.identifier], holdTime = Date.now() - data.initialTimeStamp;
       if (holdTime < _Gesture.HOLD_DELAY && Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30 && Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30) {
-        const evt = this.newGestureEvent(
-          EventType.Tap,
-          data.initialTarget
-        );
+        const evt = this.newGestureEvent(EventType.Tap, data.initialTarget);
         evt.pageX = arrays.tail(data.rollingPageX);
         evt.pageY = arrays.tail(data.rollingPageY);
         this.dispatchEvent(evt);
       } else if (holdTime >= _Gesture.HOLD_DELAY && Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30 && Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30) {
-        const evt = this.newGestureEvent(
-          EventType.Contextmenu,
-          data.initialTarget
-        );
+        const evt = this.newGestureEvent(EventType.Contextmenu, data.initialTarget);
         evt.pageX = arrays.tail(data.rollingPageX);
         evt.pageY = arrays.tail(data.rollingPageY);
         this.dispatchEvent(evt);
@@ -171,9 +135,7 @@ const _Gesture = class _Gesture extends Disposable {
         const deltaT = arrays.tail(data.rollingTimestamps) - data.rollingTimestamps[0];
         const deltaX = finalX - data.rollingPageX[0];
         const deltaY = finalY - data.rollingPageY[0];
-        const dispatchTo = [...this.targets].filter(
-          (t) => data.initialTarget instanceof Node && t.contains(data.initialTarget)
-        );
+        const dispatchTo = [...this.targets].filter((t) => data.initialTarget instanceof Node && t.contains(data.initialTarget));
         this.inertia(
           targetWindow,
           dispatchTo,
@@ -193,9 +155,7 @@ const _Gesture = class _Gesture extends Disposable {
           // y now
         );
       }
-      this.dispatchEvent(
-        this.newGestureEvent(EventType.End, data.initialTarget)
-      );
+      this.dispatchEvent(this.newGestureEvent(EventType.End, data.initialTarget));
       delete this.activeTouches[touch.identifier];
     }
     if (this.dispatched) {
@@ -205,9 +165,7 @@ const _Gesture = class _Gesture extends Disposable {
     }
   }
   newGestureEvent(type, initialTarget) {
-    const event = document.createEvent(
-      "CustomEvent"
-    );
+    const event = document.createEvent("CustomEvent");
     event.initEvent(type, false, true);
     event.initialTarget = initialTarget;
     event.tapCount = 0;
@@ -253,42 +211,29 @@ const _Gesture = class _Gesture extends Disposable {
     }
   }
   inertia(targetWindow, dispatchTo, t1, vX, dirX, x, vY, dirY, y) {
-    this.handle = DomUtils.scheduleAtNextAnimationFrame(
-      targetWindow,
-      () => {
-        const now = Date.now();
-        const deltaT = now - t1;
-        let delta_pos_x = 0, delta_pos_y = 0;
-        let stopped = true;
-        vX += _Gesture.SCROLL_FRICTION * deltaT;
-        vY += _Gesture.SCROLL_FRICTION * deltaT;
-        if (vX > 0) {
-          stopped = false;
-          delta_pos_x = dirX * vX * deltaT;
-        }
-        if (vY > 0) {
-          stopped = false;
-          delta_pos_y = dirY * vY * deltaT;
-        }
-        const evt = this.newGestureEvent(EventType.Change);
-        evt.translationX = delta_pos_x;
-        evt.translationY = delta_pos_y;
-        dispatchTo.forEach((d) => d.dispatchEvent(evt));
-        if (!stopped) {
-          this.inertia(
-            targetWindow,
-            dispatchTo,
-            now,
-            vX,
-            dirX,
-            x + delta_pos_x,
-            vY,
-            dirY,
-            y + delta_pos_y
-          );
-        }
+    this.handle = DomUtils.scheduleAtNextAnimationFrame(targetWindow, () => {
+      const now = Date.now();
+      const deltaT = now - t1;
+      let delta_pos_x = 0, delta_pos_y = 0;
+      let stopped = true;
+      vX += _Gesture.SCROLL_FRICTION * deltaT;
+      vY += _Gesture.SCROLL_FRICTION * deltaT;
+      if (vX > 0) {
+        stopped = false;
+        delta_pos_x = dirX * vX * deltaT;
       }
-    );
+      if (vY > 0) {
+        stopped = false;
+        delta_pos_y = dirY * vY * deltaT;
+      }
+      const evt = this.newGestureEvent(EventType.Change);
+      evt.translationX = delta_pos_x;
+      evt.translationY = delta_pos_y;
+      dispatchTo.forEach((d) => d.dispatchEvent(evt));
+      if (!stopped) {
+        this.inertia(targetWindow, dispatchTo, now, vX, dirX, x + delta_pos_x, vY, dirY, y + delta_pos_y);
+      }
+    });
   }
   onTouchMove(e) {
     const timestamp = Date.now();
@@ -299,10 +244,7 @@ const _Gesture = class _Gesture extends Disposable {
         continue;
       }
       const data = this.activeTouches[touch.identifier];
-      const evt = this.newGestureEvent(
-        EventType.Change,
-        data.initialTarget
-      );
+      const evt = this.newGestureEvent(EventType.Change, data.initialTarget);
       evt.translationX = touch.pageX - arrays.tail(data.rollingPageX);
       evt.translationY = touch.pageY - arrays.tail(data.rollingPageY);
       evt.pageX = touch.pageX;

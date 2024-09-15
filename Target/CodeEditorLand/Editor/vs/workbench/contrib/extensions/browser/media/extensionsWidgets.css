@@ -17,7 +17,7 @@
   margin-left: 0;
 }
 .extension-ratings .codicon-extensions-star-empty {
-  opacity: 0.75;
+  opacity: .75;
 }
 .extension-verified-publisher {
   display: flex;

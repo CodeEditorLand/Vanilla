@@ -10,38 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { importAMDNodeModule } from "../../../../amdX.js";
-import { canASAR } from "../../../../base/common/amd.js";
-import {
-  cancelOnDispose
-} from "../../../../base/common/cancellation.js";
-import {
-  CancellationError,
-  isCancellationError
-} from "../../../../base/common/errors.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import {
-  FileAccess,
-  nodeModulesAsarUnpackedPath,
-  nodeModulesPath
-} from "../../../../base/common/network.js";
-import { PromiseResult } from "../../../../base/common/observable.js";
-import { setTimeout0 } from "../../../../base/common/platform.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { AppResourcePath, FileAccess, nodeModulesAsarUnpackedPath, nodeModulesPath } from "../../../../base/common/network.js";
+import { EDITOR_EXPERIMENTAL_PREFER_TREESITTER, ITreeSitterParserService, ITreeSitterParseResult } from "../../../common/services/treeSitterParserService.js";
 import { IModelService } from "../../../common/services/model.js";
-import {
-  EDITOR_EXPERIMENTAL_PREFER_TREESITTER
-} from "../../../common/services/treeSitterParserService.js";
+import { Disposable, DisposableMap, DisposableStore, dispose, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ITextModel } from "../../../common/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IModelContentChange } from "../../../common/textModelEvents.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { setTimeout0 } from "../../../../base/common/platform.js";
+import { importAMDNodeModule } from "../../../../amdX.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { CancellationToken, cancelOnDispose } from "../../../../base/common/cancellation.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { canASAR } from "../../../../base/common/amd.js";
+import { CancellationError, isCancellationError } from "../../../../base/common/errors.js";
+import { PromiseResult } from "../../../../base/common/observable.js";
 const EDITOR_TREESITTER_TELEMETRY = "editor.experimental.treeSitterTelemetry";
 const MODULE_LOCATION_SUBPATH = `@vscode/tree-sitter-wasm/wasm`;
 const FILENAME_TREESITTER_WASM = `tree-sitter.wasm`;
@@ -57,14 +43,7 @@ class TextModelTreeSitter extends Disposable {
     this._treeSitterImporter = _treeSitterImporter;
     this._logService = _logService;
     this._telemetryService = _telemetryService;
-    this._register(
-      Event.runAndSubscribe(
-        this.model.onDidChangeLanguage,
-        (e) => this._onDidChangeLanguage(
-          e ? e.newLanguage : this.model.getLanguageId()
-        )
-      )
-    );
+    this._register(Event.runAndSubscribe(this.model.onDidChangeLanguage, (e) => this._onDidChangeLanguage(e ? e.newLanguage : this.model.getLanguageId())));
   }
   static {
     __name(this, "TextModelTreeSitter");
@@ -73,9 +52,7 @@ class TextModelTreeSitter extends Disposable {
   get parseResult() {
     return this._parseResult;
   }
-  _languageSessionDisposables = this._register(
-    new DisposableStore()
-  );
+  _languageSessionDisposables = this._register(new DisposableStore());
   /**
    * Be very careful when making changes to this method as it is easy to introduce race conditions.
    */
@@ -96,19 +73,8 @@ class TextModelTreeSitter extends Disposable {
     if (token.isCancellationRequested) {
       return;
     }
-    const treeSitterTree = this._languageSessionDisposables.add(
-      new TreeSitterParseResult(
-        new Parser(),
-        language,
-        this._logService,
-        this._telemetryService
-      )
-    );
-    this._languageSessionDisposables.add(
-      this.model.onDidChangeContent(
-        (e) => this._onDidChangeContent(treeSitterTree, e.changes)
-      )
-    );
+    const treeSitterTree = this._languageSessionDisposables.add(new TreeSitterParseResult(new Parser(), language, this._logService, this._telemetryService));
+    this._languageSessionDisposables.add(this.model.onDidChangeContent((e) => this._onDidChangeContent(treeSitterTree, e.changes)));
     await this._onDidChangeContent(treeSitterTree, []);
     if (token.isCancellationRequested) {
       return;
@@ -122,22 +88,16 @@ class TextModelTreeSitter extends Disposable {
     }
     const disposables = [];
     return new Promise((resolve, reject) => {
-      disposables.push(
-        this._treeSitterLanguages.onDidAddLanguage((e) => {
-          if (e.id === languageId) {
-            dispose(disposables);
-            resolve(e.language);
-          }
-        })
-      );
-      token.onCancellationRequested(
-        () => {
+      disposables.push(this._treeSitterLanguages.onDidAddLanguage((e) => {
+        if (e.id === languageId) {
           dispose(disposables);
-          reject(new CancellationError());
-        },
-        void 0,
-        disposables
-      );
+          resolve(e.language);
+        }
+      }));
+      token.onCancellationRequested(() => {
+        dispose(disposables);
+        reject(new CancellationError());
+      }, void 0, disposables);
     });
   }
   async _onDidChangeContent(treeSitterTree, changes) {
@@ -200,18 +160,9 @@ class TreeSitterParseResult {
         startIndex: change.rangeOffset,
         oldEndIndex: change.rangeOffset + change.rangeLength,
         newEndIndex: change.rangeOffset + change.text.length,
-        startPosition: {
-          row: change.range.startLineNumber - 1,
-          column: change.range.startColumn - 1
-        },
-        oldEndPosition: {
-          row: change.range.endLineNumber - 1,
-          column: change.range.endColumn - 1
-        },
-        newEndPosition: {
-          row: newEndPosition.lineNumber - 1,
-          column: newEndPosition.column - 1
-        }
+        startPosition: { row: change.range.startLineNumber - 1, column: change.range.startColumn - 1 },
+        oldEndPosition: { row: change.range.endLineNumber - 1, column: change.range.endColumn - 1 },
+        newEndPosition: { row: newEndPosition.lineNumber - 1, column: newEndPosition.column - 1 }
       });
       this._newEdits = true;
     }
@@ -238,10 +189,7 @@ class TreeSitterParseResult {
     do {
       const timer = performance.now();
       try {
-        tree = this.parser.parse(
-          (index, position) => this._parseCallback(model, index),
-          this.tree
-        );
+        tree = this.parser.parse((index, position) => this._parseCallback(model, index), this.tree);
       } catch (e) {
       } finally {
         time += performance.now() - timer;
@@ -259,17 +207,12 @@ class TreeSitterParseResult {
     try {
       return textModel.getTextBuffer().getNearestChunk(index);
     } catch (e) {
-      this._logService.debug(
-        "Error getting chunk for tree-sitter parsing",
-        e
-      );
+      this._logService.debug("Error getting chunk for tree-sitter parsing", e);
     }
     return null;
   }
   sendParseTimeTelemetry(parseType, languageId, time, passes) {
-    this._logService.debug(
-      `Tree parsing (${parseType}) took ${time} ms and ${passes} passes.`
-    );
+    this._logService.debug(`Tree parsing (${parseType}) took ${time} ms and ${passes} passes.`);
     if (parseType === "fullParse" /* Full */) {
       this._telemetryService.publicLog2(`treeSitter.fullParse`, { languageId, time, passes });
     } else {
@@ -320,9 +263,7 @@ class TreeSitterLanguages extends Disposable {
       return void 0;
     }
     const wasmPath = `${languageLocation}/${grammarName}.wasm`;
-    const languageFile = await this._fileService.readFile(
-      FileAccess.asFileUri(wasmPath)
-    );
+    const languageFile = await this._fileService.readFile(FileAccess.asFileUri(wasmPath));
     const Parser = await this._treeSitterImporter.getParserClass();
     return Parser.Language.load(languageFile.value.buffer);
   }
@@ -361,24 +302,13 @@ let TreeSitterTextModelService = class extends Disposable {
     this._logService = _logService;
     this._configurationService = _configurationService;
     this._environmentService = _environmentService;
-    this._treeSitterLanguages = this._register(
-      new TreeSitterLanguages(
-        this._treeSitterImporter,
-        fileService,
-        this._environmentService,
-        this._registeredLanguages
-      )
-    );
+    this._treeSitterLanguages = this._register(new TreeSitterLanguages(this._treeSitterImporter, fileService, this._environmentService, this._registeredLanguages));
     this.onDidAddLanguage = this._treeSitterLanguages.onDidAddLanguage;
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          EDITOR_EXPERIMENTAL_PREFER_TREESITTER
-        )) {
-          this._supportedLanguagesChanged();
-        }
-      })
-    );
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(EDITOR_EXPERIMENTAL_PREFER_TREESITTER)) {
+        this._supportedLanguagesChanged();
+      }
+    }));
     this._supportedLanguagesChanged();
   }
   static {
@@ -403,9 +333,7 @@ let TreeSitterTextModelService = class extends Disposable {
     const environmentService = this._environmentService;
     await Parser.init({
       locateFile(_file, _folder) {
-        return FileAccess.asBrowserUri(
-          `${getModuleLocation(environmentService)}/${FILENAME_TREESITTER_WASM}`
-        ).toString(true);
+        return FileAccess.asBrowserUri(`${getModuleLocation(environmentService)}/${FILENAME_TREESITTER_WASM}`).toString(true);
       }
     });
     return true;
@@ -439,15 +367,11 @@ let TreeSitterTextModelService = class extends Disposable {
     }
   }
   _getSetting() {
-    const setting = this._configurationService.getValue(
-      EDITOR_EXPERIMENTAL_PREFER_TREESITTER
-    );
+    const setting = this._configurationService.getValue(EDITOR_EXPERIMENTAL_PREFER_TREESITTER);
     if (setting && setting.length > 0) {
       return setting;
     } else {
-      const expSetting = this._configurationService.getValue(
-        EDITOR_TREESITTER_TELEMETRY
-      );
+      const expSetting = this._configurationService.getValue(EDITOR_TREESITTER_TELEMETRY);
       if (expSetting) {
         return ["typescript"];
       }
@@ -455,26 +379,16 @@ let TreeSitterTextModelService = class extends Disposable {
     return [];
   }
   async _registerModelServiceListeners() {
-    this._register(
-      this._modelService.onModelAdded((model) => {
-        this._createTextModelTreeSitter(model);
-      })
-    );
-    this._register(
-      this._modelService.onModelRemoved((model) => {
-        this._textModelTreeSitters.deleteAndDispose(model);
-      })
-    );
+    this._register(this._modelService.onModelAdded((model) => {
+      this._createTextModelTreeSitter(model);
+    }));
+    this._register(this._modelService.onModelRemoved((model) => {
+      this._textModelTreeSitters.deleteAndDispose(model);
+    }));
     this._modelService.getModels().forEach((model) => this._createTextModelTreeSitter(model));
   }
   _createTextModelTreeSitter(model) {
-    const textModelTreeSitter = new TextModelTreeSitter(
-      model,
-      this._treeSitterLanguages,
-      this._treeSitterImporter,
-      this._logService,
-      this._telemetryService
-    );
+    const textModelTreeSitter = new TextModelTreeSitter(model, this._treeSitterLanguages, this._treeSitterImporter, this._logService, this._telemetryService);
     this._textModelTreeSitters.set(model, textModelTreeSitter);
   }
   _addGrammar(languageId, grammarName) {

@@ -97,22 +97,14 @@ function lengthsToRange(lengthStart, lengthEnd) {
   const l2 = lengthEnd;
   const lineCount2 = Math.floor(l2 / factor);
   const colCount2 = l2 - lineCount2 * factor;
-  return new Range(
-    lineCount + 1,
-    colCount + 1,
-    lineCount2 + 1,
-    colCount2 + 1
-  );
+  return new Range(lineCount + 1, colCount + 1, lineCount2 + 1, colCount2 + 1);
 }
 __name(lengthsToRange, "lengthsToRange");
 function lengthOfRange(range) {
   if (range.startLineNumber === range.endLineNumber) {
     return new TextLength(0, range.endColumn - range.startColumn);
   } else {
-    return new TextLength(
-      range.endLineNumber - range.startLineNumber,
-      range.endColumn - 1
-    );
+    return new TextLength(range.endLineNumber - range.startLineNumber, range.endColumn - 1);
   }
 }
 __name(lengthOfRange, "lengthOfRange");

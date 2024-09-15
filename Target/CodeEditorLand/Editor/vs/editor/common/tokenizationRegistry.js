@@ -1,10 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../base/common/lifecycle.js";
+import { Color } from "../../base/common/color.js";
+import { Emitter, Event } from "../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { ITokenizationRegistry, ITokenizationSupportChangedEvent, ILazyTokenizationSupport } from "./languages.js";
 import { ColorId } from "./encodedTokenAttributes.js";
 class TokenizationRegistry {
   static {
@@ -40,11 +39,7 @@ class TokenizationRegistry {
   }
   registerFactory(languageId, factory) {
     this._factories.get(languageId)?.dispose();
-    const myData = new TokenizationSupportFactoryData(
-      this,
-      languageId,
-      factory
-    );
+    const myData = new TokenizationSupportFactoryData(this, languageId, factory);
     this._factories.set(languageId, myData);
     return toDisposable(() => {
       const v = this._factories.get(languageId);

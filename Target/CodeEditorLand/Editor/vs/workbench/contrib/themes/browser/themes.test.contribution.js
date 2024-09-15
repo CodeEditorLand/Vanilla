@@ -10,28 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Color } from "../../../../base/common/color.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { basename } from "../../../../base/common/resources.js";
-import { splitLines } from "../../../../base/common/strings.js";
 import { URI } from "../../../../base/common/uri.js";
-import { TokenMetadata } from "../../../../editor/common/encodedTokenAttributes.js";
-import { TokenizationRegistry } from "../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorResourceAccessor } from "../../../common/editor.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchThemeService, IWorkbenchColorTheme } from "../../../services/themes/common/workbenchThemeService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { EditorResourceAccessor } from "../../../common/editor.js";
 import { ITextMateTokenizationService } from "../../../services/textMate/browser/textMateTokenizationFeature.js";
-import {
-  findMatchingThemeRule
-} from "../../../services/textMate/common/TMHelper.js";
-import {
-  IWorkbenchThemeService
-} from "../../../services/themes/common/workbenchThemeService.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { TokenMetadata } from "../../../../editor/common/encodedTokenAttributes.js";
+import { ThemeRule, findMatchingThemeRule } from "../../../services/textMate/common/TMHelper.js";
+import { Color } from "../../../../base/common/color.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { basename } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { splitLines } from "../../../../base/common/strings.js";
 class ThemeDocument {
   static {
     __name(this, "ThemeDocument");
@@ -58,26 +52,19 @@ class ThemeDocument {
     if (!matchingRule) {
       const expected2 = Color.fromHex(this._defaultColor);
       if (!color.equals(expected2)) {
-        throw new Error(
-          `[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected default ${Color.Format.CSS.formatHexA(expected2)}`
-        );
+        throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected default ${Color.Format.CSS.formatHexA(expected2)}`);
       }
       return this._generateExplanation("default", color);
     }
     const expected = Color.fromHex(matchingRule.settings.foreground);
     if (!color.equals(expected)) {
-      throw new Error(
-        `[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected ${Color.Format.CSS.formatHexA(expected)} coming in from ${matchingRule.rawSelector}`
-      );
+      throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected ${Color.Format.CSS.formatHexA(expected)} coming in from ${matchingRule.rawSelector}`);
     }
     return this._generateExplanation(matchingRule.rawSelector, color);
   }
   _findMatchingThemeRule(scopes) {
     if (!this._cache[scopes]) {
-      this._cache[scopes] = findMatchingThemeRule(
-        this._theme,
-        scopes.split(" ")
-      );
+      this._cache[scopes] = findMatchingThemeRule(this._theme, scopes.split(" "));
     }
     return this._cache[scopes];
   }
@@ -124,10 +111,7 @@ let Snapper = class {
       let lastScopes = null;
       for (let j = 0, lenJ = tokenizationResult.tokens.length; j < lenJ; j++) {
         const token = tokenizationResult.tokens[j];
-        const tokenText = line.substring(
-          token.startIndex,
-          token.endIndex
-        );
+        const tokenText = line.substring(token.startIndex, token.endIndex);
         const tokenScopes = token.scopes.join(" ");
         if (lastScopes === tokenScopes) {
           result[resultLen - 1].c += tokenText;
@@ -162,21 +146,14 @@ let Snapper = class {
     }, "getThemeName");
     const result = {};
     const themeDatas = await this.themeService.getColorThemes();
-    const defaultThemes = themeDatas.filter(
-      (themeData) => !!getThemeName(themeData.id)
-    );
+    const defaultThemes = themeDatas.filter((themeData) => !!getThemeName(themeData.id));
     for (const defaultTheme of defaultThemes) {
       const themeId = defaultTheme.id;
-      const success = await this.themeService.setColorTheme(
-        themeId,
-        void 0
-      );
+      const success = await this.themeService.setColorTheme(themeId, void 0);
       if (success) {
         const themeName = getThemeName(themeId);
         result[themeName] = {
-          document: new ThemeDocument(
-            this.themeService.getColorTheme()
-          ),
+          document: new ThemeDocument(this.themeService.getColorTheme()),
           tokens: this._themedTokenize(grammar, lines)
         };
       }
@@ -203,21 +180,17 @@ let Snapper = class {
     }
   }
   captureSyntaxTokens(fileName, content) {
-    const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(
-      URI.file(fileName)
-    );
+    const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(URI.file(fileName));
     return this.textMateService.createTokenizer(languageId).then((grammar) => {
       if (!grammar) {
         return [];
       }
       const lines = splitLines(content);
       const result = this._tokenize(grammar, lines);
-      return this._getThemesResult(grammar, lines).then(
-        (themesResult) => {
-          this._enrichResult(result, themesResult);
-          return result.filter((t) => t.c.length > 0);
-        }
-      );
+      return this._getThemesResult(grammar, lines).then((themesResult) => {
+        this._enrichResult(result, themesResult);
+        return result.filter((t) => t.c.length > 0);
+      });
     });
   }
 };
@@ -226,37 +199,28 @@ Snapper = __decorateClass([
   __decorateParam(1, IWorkbenchThemeService),
   __decorateParam(2, ITextMateTokenizationService)
 ], Snapper);
-CommandsRegistry.registerCommand(
-  "_workbench.captureSyntaxTokens",
-  (accessor, resource) => {
-    const process = /* @__PURE__ */ __name((resource2) => {
-      const fileService = accessor.get(IFileService);
-      const fileName = basename(resource2);
-      const snapper = accessor.get(IInstantiationService).createInstance(Snapper);
-      return fileService.readFile(resource2).then((content) => {
-        return snapper.captureSyntaxTokens(
-          fileName,
-          content.value.toString()
-        );
+CommandsRegistry.registerCommand("_workbench.captureSyntaxTokens", function(accessor, resource) {
+  const process = /* @__PURE__ */ __name((resource2) => {
+    const fileService = accessor.get(IFileService);
+    const fileName = basename(resource2);
+    const snapper = accessor.get(IInstantiationService).createInstance(Snapper);
+    return fileService.readFile(resource2).then((content) => {
+      return snapper.captureSyntaxTokens(fileName, content.value.toString());
+    });
+  }, "process");
+  if (!resource) {
+    const editorService = accessor.get(IEditorService);
+    const file = editorService.activeEditor ? EditorResourceAccessor.getCanonicalUri(editorService.activeEditor, { filterByScheme: Schemas.file }) : null;
+    if (file) {
+      process(file).then((result) => {
+        console.log(result);
       });
-    }, "process");
-    if (resource) {
-      return process(resource);
     } else {
-      const editorService = accessor.get(IEditorService);
-      const file = editorService.activeEditor ? EditorResourceAccessor.getCanonicalUri(
-        editorService.activeEditor,
-        { filterByScheme: Schemas.file }
-      ) : null;
-      if (file) {
-        process(file).then((result) => {
-          console.log(result);
-        });
-      } else {
-        console.log("No file editor active");
-      }
+      console.log("No file editor active");
     }
-    return void 0;
+  } else {
+    return process(resource);
   }
-);
+  return void 0;
+});
 //# sourceMappingURL=themes.test.contribution.js.map

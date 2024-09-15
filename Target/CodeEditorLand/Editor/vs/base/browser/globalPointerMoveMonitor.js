@@ -1,10 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  DisposableStore,
-  toDisposable
-} from "../common/lifecycle.js";
 import * as dom from "./dom.js";
+import { DisposableStore, IDisposable, toDisposable } from "../common/lifecycle.js";
 class GlobalPointerMoveMonitor {
   static {
     __name(this, "GlobalPointerMoveMonitor");
@@ -40,38 +37,32 @@ class GlobalPointerMoveMonitor {
     let eventSource = initialElement;
     try {
       initialElement.setPointerCapture(pointerId);
-      this._hooks.add(
-        toDisposable(() => {
-          try {
-            initialElement.releasePointerCapture(pointerId);
-          } catch (err) {
-          }
-        })
-      );
+      this._hooks.add(toDisposable(() => {
+        try {
+          initialElement.releasePointerCapture(pointerId);
+        } catch (err) {
+        }
+      }));
     } catch (err) {
       eventSource = dom.getWindow(initialElement);
     }
-    this._hooks.add(
-      dom.addDisposableListener(
-        eventSource,
-        dom.EventType.POINTER_MOVE,
-        (e) => {
-          if (e.buttons !== initialButtons) {
-            this.stopMonitoring(true);
-            return;
-          }
-          e.preventDefault();
-          this._pointerMoveCallback(e);
+    this._hooks.add(dom.addDisposableListener(
+      eventSource,
+      dom.EventType.POINTER_MOVE,
+      (e) => {
+        if (e.buttons !== initialButtons) {
+          this.stopMonitoring(true);
+          return;
         }
-      )
-    );
-    this._hooks.add(
-      dom.addDisposableListener(
-        eventSource,
-        dom.EventType.POINTER_UP,
-        (e) => this.stopMonitoring(true)
-      )
-    );
+        e.preventDefault();
+        this._pointerMoveCallback(e);
+      }
+    ));
+    this._hooks.add(dom.addDisposableListener(
+      eventSource,
+      dom.EventType.POINTER_UP,
+      (e) => this.stopMonitoring(true)
+    ));
   }
 }
 export {

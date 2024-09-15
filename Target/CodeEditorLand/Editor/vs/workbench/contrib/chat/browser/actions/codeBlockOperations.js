@@ -19,44 +19,28 @@ import { ResourceMap } from "../../../../../base/common/map.js";
 import { isEqual } from "../../../../../base/common/resources.js";
 import * as strings from "../../../../../base/common/strings.js";
 import { URI } from "../../../../../base/common/uri.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../../editor/browser/editorBrowser.js";
-import {
-  IBulkEditService,
-  ResourceTextEdit
-} from "../../../../../editor/browser/services/bulkEditService.js";
+import { IActiveCodeEditor, isCodeEditor, isDiffEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
 import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import {
-  isLocation
-} from "../../../../../editor/common/languages.js";
+import { ConversationRequest, ConversationResponse, DocumentContextItem, isLocation, IWorkspaceFileEdit, IWorkspaceTextEdit } from "../../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
 import { localize } from "../../../../../nls.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../../platform/notification/common/notification.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../../platform/progress/common/progress.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { IProgressService, ProgressLocation } from "../../../../../platform/progress/common/progress.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
 import { InlineChatController } from "../../../inlineChat/browser/inlineChatController.js";
 import { insertCell } from "../../../notebook/browser/controller/cellOperations.js";
-import {
-  CellKind,
-  NOTEBOOK_EDITOR_ID
-} from "../../../notebook/common/notebookCommon.js";
-import {
-  IChatService
-} from "../../common/chatService.js";
+import { IActiveNotebookEditor, INotebookEditor } from "../../../notebook/browser/notebookBrowser.js";
+import { CellKind, NOTEBOOK_EDITOR_ID } from "../../../notebook/common/notebookCommon.js";
+import { ChatUserAction, IChatContentReference, IChatService, IDocumentContext } from "../../common/chatService.js";
 import { isRequestVM, isResponseVM } from "../../common/chatViewModel.js";
+import { ICodeBlockActionContext } from "../codeBlockPart.js";
 let InsertCodeBlockOperation = class {
   constructor(editorService, textFileService, bulkEditService, codeEditorService, chatService, languageService) {
     this.editorService = editorService;
@@ -70,16 +54,11 @@ let InsertCodeBlockOperation = class {
     __name(this, "InsertCodeBlockOperation");
   }
   async run(context) {
-    const activeEditorControl = getEditableActiveCodeEditor(
-      this.editorService,
-      this.textFileService
-    );
+    const activeEditorControl = getEditableActiveCodeEditor(this.editorService, this.textFileService);
     if (activeEditorControl) {
       await this.handleTextEditor(activeEditorControl, context);
     } else {
-      const activeNotebookEditor = getActiveNotebookEditor(
-        this.editorService
-      );
+      const activeNotebookEditor = getActiveNotebookEditor(this.editorService);
       if (activeNotebookEditor) {
         await this.handleNotebookEditor(activeNotebookEditor, context);
       }
@@ -93,34 +72,15 @@ let InsertCodeBlockOperation = class {
   async handleNotebookEditor(notebookEditor, codeBlockContext) {
     const focusRange = notebookEditor.getFocus();
     const next = Math.max(focusRange.end - 1, 0);
-    insertCell(
-      this.languageService,
-      notebookEditor,
-      next,
-      CellKind.Code,
-      "below",
-      codeBlockContext.code,
-      true
-    );
+    insertCell(this.languageService, notebookEditor, next, CellKind.Code, "below", codeBlockContext.code, true);
   }
   async handleTextEditor(codeEditor, codeBlockContext) {
     const activeModel = codeEditor.getModel();
-    const range = codeEditor.getSelection() ?? new Range(
-      activeModel.getLineCount(),
-      1,
-      activeModel.getLineCount(),
-      1
-    );
-    const text = reindent(
-      codeBlockContext.code,
-      activeModel,
-      range.startLineNumber
-    );
+    const range = codeEditor.getSelection() ?? new Range(activeModel.getLineCount(), 1, activeModel.getLineCount(), 1);
+    const text = reindent(codeBlockContext.code, activeModel, range.startLineNumber);
     const edits = [new ResourceTextEdit(activeModel.uri, { range, text })];
     await this.bulkEditService.apply(edits);
-    this.codeEditorService.listCodeEditors().find(
-      (editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString()
-    )?.focus();
+    this.codeEditorService.listCodeEditors().find((editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString())?.focus();
   }
 };
 InsertCodeBlockOperation = __decorateClass([
@@ -152,43 +112,27 @@ let ApplyCodeBlockOperation = class {
   async run(context) {
     if (this.inlineChatPreview && this.inlineChatPreview.isOpen()) {
       await this.dialogService.info(
-        localize(
-          "overlap",
-          "Another code change is being previewed. Please first apply or discard the pending changes."
-        )
+        localize("overlap", "Another code change is being previewed. Please first apply or discard the pending changes.")
       );
       return;
     }
     if (context.codemapperUri) {
       try {
         if (!await this.fileService.exists(context.codemapperUri)) {
-          await this.fileService.writeFile(
-            context.codemapperUri,
-            VSBuffer.fromString("")
-          );
+          await this.fileService.writeFile(context.codemapperUri, VSBuffer.fromString(""));
         }
-        await this.editorService.openEditor({
-          resource: context.codemapperUri
-        });
+        await this.editorService.openEditor({ resource: context.codemapperUri });
       } catch {
       }
     }
     let result;
-    const activeEditorControl = getEditableActiveCodeEditor(
-      this.editorService,
-      this.textFileService
-    );
+    const activeEditorControl = getEditableActiveCodeEditor(this.editorService, this.textFileService);
     if (activeEditorControl) {
       result = await this.handleTextEditor(activeEditorControl, context);
     } else {
-      const activeNotebookEditor = getActiveNotebookEditor(
-        this.editorService
-      );
+      const activeNotebookEditor = getActiveNotebookEditor(this.editorService);
       if (activeNotebookEditor) {
-        result = await this.handleNotebookEditor(
-          activeNotebookEditor,
-          context
-        );
+        result = await this.handleNotebookEditor(activeNotebookEditor, context);
       }
     }
     notifyUserAction(this.chatService, context, {
@@ -202,41 +146,24 @@ let ApplyCodeBlockOperation = class {
   async handleNotebookEditor(notebookEditor, codeBlockContext) {
     const focusRange = notebookEditor.getFocus();
     const next = Math.max(focusRange.end - 1, 0);
-    insertCell(
-      this.languageService,
-      notebookEditor,
-      next,
-      CellKind.Code,
-      "below",
-      codeBlockContext.code,
-      true
-    );
+    insertCell(this.languageService, notebookEditor, next, CellKind.Code, "below", codeBlockContext.code, true);
     return { edits: [], codeMapper: void 0 };
   }
   async handleTextEditor(codeEditor, codeBlockContext) {
     const result = await this.computeEdits(codeEditor, codeBlockContext);
     if (result.edits) {
-      const showWithPreview = await this.applyWithInlinePreview(
-        result.edits,
-        codeEditor
-      );
+      const showWithPreview = await this.applyWithInlinePreview(result.edits, codeEditor);
       if (!showWithPreview) {
-        await this.bulkEditService.apply(result.edits, {
-          showPreview: true
-        });
+        await this.bulkEditService.apply(result.edits, { showPreview: true });
         const activeModel = codeEditor.getModel();
-        this.codeEditorService.listCodeEditors().find(
-          (editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString()
-        )?.focus();
+        this.codeEditorService.listCodeEditors().find((editor) => editor.getModel()?.uri.toString() === activeModel.uri.toString())?.focus();
       }
     }
     return result;
   }
   async computeEdits(codeEditor, codeBlockActionContext) {
     const activeModel = codeEditor.getModel();
-    const mappedEditsProviders = this.languageFeaturesService.mappedEditsProvider.ordered(
-      activeModel
-    );
+    const mappedEditsProviders = this.languageFeaturesService.mappedEditsProvider.ordered(activeModel);
     if (mappedEditsProviders.length > 0) {
       const docRefs = [];
       const currentDocUri = activeModel.uri;
@@ -259,30 +186,17 @@ let ApplyCodeBlockOperation = class {
       let codeMapper;
       try {
         const result = await this.progressService.withProgress(
-          {
-            location: ProgressLocation.Notification,
-            delay: 500,
-            sticky: true,
-            cancellable: true
-          },
+          { location: ProgressLocation.Notification, delay: 500, sticky: true, cancellable: true },
           async (progress) => {
             for (const provider of mappedEditsProviders) {
               codeMapper = provider.displayName;
-              progress.report({
-                message: localize(
-                  "applyCodeBlock.progress",
-                  "Applying code block using {0}...",
-                  codeMapper
-                )
-              });
+              progress.report({ message: localize("applyCodeBlock.progress", "Applying code block using {0}...", codeMapper) });
               const mappedEdits = await provider.provideMappedEdits(
                 activeModel,
                 [codeBlockActionContext.code],
                 {
                   documents: docRefs,
-                  conversation: getChatConversation(
-                    codeBlockActionContext
-                  )
+                  conversation: getChatConversation(codeBlockActionContext)
                 },
                 cancellationTokenSource.token
               );
@@ -298,14 +212,7 @@ let ApplyCodeBlockOperation = class {
           return result;
         }
       } catch (e) {
-        this.notificationService.notify({
-          severity: Severity.Error,
-          message: localize(
-            "applyCodeBlock.error",
-            "Failed to apply code block: {0}",
-            e.message
-          )
-        });
+        this.notificationService.notify({ severity: Severity.Error, message: localize("applyCodeBlock.error", "Failed to apply code block: {0}", e.message) });
       } finally {
         cancellationTokenSource.dispose();
       }
@@ -319,28 +226,17 @@ let ApplyCodeBlockOperation = class {
       return false;
     }
     const resource = firstEdit.resource;
-    const textEdits = coalesce(
-      edits.map(
-        (edit) => ResourceTextEdit.is(edit) && isEqual(resource, edit.resource) ? edit.textEdit : void 0
-      )
-    );
+    const textEdits = coalesce(edits.map((edit) => ResourceTextEdit.is(edit) && isEqual(resource, edit.resource) ? edit.textEdit : void 0));
     if (textEdits.length !== edits.length) {
       return false;
     }
-    const editorToApply = await this.codeEditorService.openCodeEditor(
-      { resource },
-      codeEditor
-    );
+    const editorToApply = await this.codeEditorService.openCodeEditor({ resource }, codeEditor);
     if (editorToApply) {
       const inlineChatController = InlineChatController.get(editorToApply);
       if (inlineChatController) {
         const tokenSource = new CancellationTokenSource();
         let isOpen = true;
-        const promise = inlineChatController.reviewEdits(
-          textEdits[0].range,
-          AsyncIterableObject.fromArray(textEdits),
-          tokenSource.token
-        );
+        const promise = inlineChatController.reviewEdits(textEdits[0].range, AsyncIterableObject.fromArray(textEdits), tokenSource.token);
         promise.finally(() => {
           isOpen = false;
           tokenSource.dispose();
@@ -422,22 +318,16 @@ function getUsedDocuments(context) {
 __name(getUsedDocuments, "getUsedDocuments");
 function getChatConversation(context) {
   if (isResponseVM(context.element)) {
-    return [
-      {
-        type: "response",
-        message: context.element.response.toMarkdown(),
-        references: getReferencesAsDocumentContext(
-          context.element.contentReferences
-        )
-      }
-    ];
+    return [{
+      type: "response",
+      message: context.element.response.toMarkdown(),
+      references: getReferencesAsDocumentContext(context.element.contentReferences)
+    }];
   } else if (isRequestVM(context.element)) {
-    return [
-      {
-        type: "request",
-        message: context.element.messageText
-      }
-    ];
+    return [{
+      type: "request",
+      message: context.element.messageText
+    }];
   } else {
     return [];
   }
@@ -461,11 +351,7 @@ function getReferencesAsDocumentContext(res) {
           item.ranges.push(range);
         }
       } else {
-        map.set(uri, {
-          uri,
-          version: -1,
-          ranges: range ? [range] : []
-        });
+        map.set(uri, { uri, version: -1, ranges: range ? [range] : [] });
       }
     }
   }
@@ -478,32 +364,21 @@ function reindent(codeBlockContent, model, seletionStartLine) {
     return codeBlockContent;
   }
   const formattingOptions = model.getFormattingOptions();
-  const codeIndentLevel = computeIndentation(
-    model.getLineContent(seletionStartLine),
-    formattingOptions.tabSize
-  ).level;
-  const indents = newContent.map(
-    (line) => computeIndentation(line, formattingOptions.tabSize)
-  );
-  const newContentIndentLevel = indents.reduce(
-    (min, indent, index) => {
-      if (indent.length !== newContent[index].length) {
-        return Math.min(indent.level, min);
-      }
-      return min;
-    },
-    Number.MAX_VALUE
-  );
+  const codeIndentLevel = computeIndentation(model.getLineContent(seletionStartLine), formattingOptions.tabSize).level;
+  const indents = newContent.map((line) => computeIndentation(line, formattingOptions.tabSize));
+  const newContentIndentLevel = indents.reduce((min, indent, index) => {
+    if (indent.length !== newContent[index].length) {
+      return Math.min(indent.level, min);
+    }
+    return min;
+  }, Number.MAX_VALUE);
   if (newContentIndentLevel === Number.MAX_VALUE || newContentIndentLevel === codeIndentLevel) {
     return codeBlockContent;
   }
   const newLines = [];
   for (let i = 0; i < newContent.length; i++) {
     const { level, length } = indents[i];
-    const newLevel = Math.max(
-      0,
-      codeIndentLevel + level - newContentIndentLevel
-    );
+    const newLevel = Math.max(0, codeIndentLevel + level - newContentIndentLevel);
     const newIndentation = formattingOptions.insertSpaces ? " ".repeat(formattingOptions.tabSize * newLevel) : "	".repeat(newLevel);
     newLines.push(newIndentation + newContent[i].substring(length));
   }

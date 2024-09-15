@@ -11,23 +11,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import electron from "electron";
+import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
 import { Barrier, Promises, timeout } from "../../../base/common/async.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 import { isMacintosh, isWindows } from "../../../base/common/platform.js";
 import { cwd } from "../../../base/common/process.js";
 import { assertIsDefined } from "../../../base/common/types.js";
-import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
-import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
 import { IStateService } from "../../state/node/state.js";
-import {
-  UnloadReason
-} from "../../window/electron-main/window.js";
-const ILifecycleMainService = createDecorator(
-  "lifecycleMainService"
-);
+import { ICodeWindow, LoadReason, UnloadReason } from "../../window/electron-main/window.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
+const ILifecycleMainService = createDecorator("lifecycleMainService");
 var ShutdownReason = /* @__PURE__ */ ((ShutdownReason2) => {
   ShutdownReason2[ShutdownReason2["QUIT"] = 1] = "QUIT";
   ShutdownReason2[ShutdownReason2["KILL"] = 2] = "KILL";
@@ -47,9 +46,7 @@ let LifecycleMainService = class extends Disposable {
     this.stateService = stateService;
     this.environmentMainService = environmentMainService;
     this.resolveRestarted();
-    this.when(2 /* Ready */).then(
-      () => this.registerListeners()
-    );
+    this.when(2 /* Ready */).then(() => this.registerListeners());
   }
   static {
     __name(this, "LifecycleMainService");
@@ -57,17 +54,11 @@ let LifecycleMainService = class extends Disposable {
   static QUIT_AND_RESTART_KEY = "lifecycle.quitAndRestart";
   _onBeforeShutdown = this._register(new Emitter());
   onBeforeShutdown = this._onBeforeShutdown.event;
-  _onWillShutdown = this._register(
-    new Emitter()
-  );
+  _onWillShutdown = this._register(new Emitter());
   onWillShutdown = this._onWillShutdown.event;
-  _onWillLoadWindow = this._register(
-    new Emitter()
-  );
+  _onWillLoadWindow = this._register(new Emitter());
   onWillLoadWindow = this._onWillLoadWindow.event;
-  _onBeforeCloseWindow = this._register(
-    new Emitter()
-  );
+  _onBeforeCloseWindow = this._register(new Emitter());
   onBeforeCloseWindow = this._onBeforeCloseWindow.event;
   _quitRequested = false;
   get quitRequested() {
@@ -91,13 +82,9 @@ let LifecycleMainService = class extends Disposable {
   phaseWhen = /* @__PURE__ */ new Map();
   relaunchHandler = void 0;
   resolveRestarted() {
-    this._wasRestarted = !!this.stateService.getItem(
-      LifecycleMainService.QUIT_AND_RESTART_KEY
-    );
+    this._wasRestarted = !!this.stateService.getItem(LifecycleMainService.QUIT_AND_RESTART_KEY);
     if (this._wasRestarted) {
-      this.stateService.removeItem(
-        LifecycleMainService.QUIT_AND_RESTART_KEY
-      );
+      this.stateService.removeItem(LifecycleMainService.QUIT_AND_RESTART_KEY);
     }
   }
   registerListeners() {
@@ -124,22 +111,15 @@ let LifecycleMainService = class extends Disposable {
     electron.app.once("will-quit", (e) => {
       this.trace("Lifecycle#app.on(will-quit) - begin");
       e.preventDefault();
-      const shutdownPromise = this.fireOnWillShutdown(
-        1 /* QUIT */
-      );
+      const shutdownPromise = this.fireOnWillShutdown(1 /* QUIT */);
       shutdownPromise.finally(() => {
-        this.trace(
-          "Lifecycle#app.on(will-quit) - after fireOnWillShutdown"
-        );
+        this.trace("Lifecycle#app.on(will-quit) - after fireOnWillShutdown");
         this.resolvePendingQuitPromise(
           false
           /* no veto */
         );
         electron.app.removeListener("before-quit", beforeQuitListener);
-        electron.app.removeListener(
-          "window-all-closed",
-          windowAllClosedListener
-        );
+        electron.app.removeListener("window-all-closed", windowAllClosedListener);
         this.trace("Lifecycle#app.on(will-quit) - calling app.quit()");
         electron.app.quit();
       });
@@ -156,13 +136,9 @@ let LifecycleMainService = class extends Disposable {
       reason,
       join(id, promise) {
         logService.trace(`Lifecycle#onWillShutdown - begin '${id}'`);
-        joiners.push(
-          promise.finally(() => {
-            logService.trace(
-              `Lifecycle#onWillShutdown - end '${id}'`
-            );
-          })
-        );
+        joiners.push(promise.finally(() => {
+          logService.trace(`Lifecycle#onWillShutdown - end '${id}'`);
+        }));
       }
     });
     this.pendingWillShutdownPromise = (async () => {
@@ -208,90 +184,50 @@ let LifecycleMainService = class extends Disposable {
   registerWindow(window) {
     const windowListeners = new DisposableStore();
     this.windowCounter++;
-    windowListeners.add(
-      window.onWillLoad(
-        (e) => this._onWillLoadWindow.fire({
-          window,
-          workspace: e.workspace,
-          reason: e.reason
-        })
-      )
-    );
+    windowListeners.add(window.onWillLoad((e) => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
     const win = assertIsDefined(window.win);
-    windowListeners.add(
-      Event.fromNodeEventEmitter(
-        win,
-        "close"
-      )((e) => {
-        const windowId = window.id;
-        if (this.windowToCloseRequest.has(windowId)) {
+    windowListeners.add(Event.fromNodeEventEmitter(win, "close")((e) => {
+      const windowId = window.id;
+      if (this.windowToCloseRequest.has(windowId)) {
+        this.windowToCloseRequest.delete(windowId);
+        return;
+      }
+      this.trace(`Lifecycle#window.on('close') - window ID ${window.id}`);
+      e.preventDefault();
+      this.unload(window, UnloadReason.CLOSE).then((veto) => {
+        if (veto) {
           this.windowToCloseRequest.delete(windowId);
           return;
         }
-        this.trace(
-          `Lifecycle#window.on('close') - window ID ${window.id}`
-        );
-        e.preventDefault();
-        this.unload(window, UnloadReason.CLOSE).then((veto) => {
-          if (veto) {
-            this.windowToCloseRequest.delete(windowId);
-            return;
-          }
-          this.windowToCloseRequest.add(windowId);
-          this.trace(
-            `Lifecycle#onBeforeCloseWindow.fire() - window ID ${windowId}`
-          );
-          this._onBeforeCloseWindow.fire(window);
-          window.close();
-        });
-      })
-    );
-    windowListeners.add(
-      Event.fromNodeEventEmitter(
-        win,
-        "closed"
-      )(() => {
-        this.trace(
-          `Lifecycle#window.on('closed') - window ID ${window.id}`
-        );
-        this.windowCounter--;
-        windowListeners.dispose();
-        if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) {
-          this.fireOnWillShutdown(1 /* QUIT */);
-        }
-      })
-    );
+        this.windowToCloseRequest.add(windowId);
+        this.trace(`Lifecycle#onBeforeCloseWindow.fire() - window ID ${windowId}`);
+        this._onBeforeCloseWindow.fire(window);
+        window.close();
+      });
+    }));
+    windowListeners.add(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this.trace(`Lifecycle#window.on('closed') - window ID ${window.id}`);
+      this.windowCounter--;
+      windowListeners.dispose();
+      if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) {
+        this.fireOnWillShutdown(1 /* QUIT */);
+      }
+    }));
   }
   registerAuxWindow(auxWindow) {
     const win = assertIsDefined(auxWindow.win);
     const windowListeners = new DisposableStore();
-    windowListeners.add(
-      Event.fromNodeEventEmitter(
-        win,
-        "close"
-      )((e) => {
-        this.trace(
-          `Lifecycle#auxWindow.on('close') - window ID ${auxWindow.id}`
-        );
-        if (this._quitRequested) {
-          this.trace(
-            `Lifecycle#auxWindow.on('close') - preventDefault() because quit requested`
-          );
-          e.preventDefault();
-        }
-      })
-    );
-    windowListeners.add(
-      Event.fromNodeEventEmitter(
-        win,
-        "closed"
-      )(() => {
-        this.trace(
-          `Lifecycle#auxWindow.on('closed') - window ID ${auxWindow.id}`
-        );
-        windowListeners.dispose();
-      })
-    );
+    windowListeners.add(Event.fromNodeEventEmitter(win, "close")((e) => {
+      this.trace(`Lifecycle#auxWindow.on('close') - window ID ${auxWindow.id}`);
+      if (this._quitRequested) {
+        this.trace(`Lifecycle#auxWindow.on('close') - preventDefault() because quit requested`);
+        e.preventDefault();
+      }
+    }));
+    windowListeners.add(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this.trace(`Lifecycle#auxWindow.on('closed') - window ID ${auxWindow.id}`);
+      windowListeners.dispose();
+    }));
   }
   async reload(window, cli) {
     const veto = await this.unload(window, UnloadReason.RELOAD);
@@ -300,9 +236,7 @@ let LifecycleMainService = class extends Disposable {
     }
   }
   unload(window, reason) {
-    const pendingUnloadPromise = this.mapWindowIdToPendingUnload.get(
-      window.id
-    );
+    const pendingUnloadPromise = this.mapWindowIdToPendingUnload.get(window.id);
     if (pendingUnloadPromise) {
       return pendingUnloadPromise;
     }
@@ -318,14 +252,9 @@ let LifecycleMainService = class extends Disposable {
     }
     this.trace(`Lifecycle#unload() - window ID ${window.id}`);
     const windowUnloadReason = this._quitRequested ? UnloadReason.QUIT : reason;
-    const veto = await this.onBeforeUnloadWindowInRenderer(
-      window,
-      windowUnloadReason
-    );
+    const veto = await this.onBeforeUnloadWindowInRenderer(window, windowUnloadReason);
     if (veto) {
-      this.trace(
-        `Lifecycle#unload() - veto in renderer (window ID ${window.id})`
-      );
+      this.trace(`Lifecycle#unload() - veto in renderer (window ID ${window.id})`);
       return this.handleWindowUnloadVeto(veto);
     }
     await this.onWillUnloadWindowInRenderer(window, windowUnloadReason);
@@ -360,11 +289,7 @@ let LifecycleMainService = class extends Disposable {
       validatedIpcMain.once(cancelChannel, () => {
         resolve(true);
       });
-      window.send("vscode:onBeforeUnload", {
-        okChannel,
-        cancelChannel,
-        reason
-      });
+      window.send("vscode:onBeforeUnload", { okChannel, cancelChannel, reason });
     });
   }
   onWillUnloadWindowInRenderer(window, reason) {
@@ -399,10 +324,7 @@ let LifecycleMainService = class extends Disposable {
       return this.pendingQuitPromise;
     }
     if (willRestart) {
-      this.stateService.setItem(
-        LifecycleMainService.QUIT_AND_RESTART_KEY,
-        true
-      );
+      this.stateService.setItem(LifecycleMainService.QUIT_AND_RESTART_KEY, true);
     }
     this.pendingQuitPromise = new Promise((resolve) => {
       this.pendingQuitPromiseResolve = resolve;
@@ -465,9 +387,7 @@ let LifecycleMainService = class extends Disposable {
           if (window && !window.isDestroyed()) {
             let whenWindowClosed;
             if (window.webContents && !window.webContents.isDestroyed()) {
-              whenWindowClosed = new Promise(
-                (resolve) => window.once("closed", resolve)
-              );
+              whenWindowClosed = new Promise((resolve) => window.once("closed", resolve));
             } else {
               whenWindowClosed = Promise.resolve();
             }

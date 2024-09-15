@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  Disposable,
-  dispose,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, dispose, toDisposable } from "../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../base/common/linkedList.js";
 function createObjectCollectionBuffer(propertySpecs, capacity) {
   return new ObjectCollectionBuffer(propertySpecs, capacity);
@@ -46,38 +42,23 @@ class ObjectCollectionBuffer extends Disposable {
   onDidChange = this._onDidChange.event;
   createEntry(data) {
     if (this._entries.size === this.capacity) {
-      throw new Error(
-        `Cannot create more entries ObjectCollectionBuffer entries (capacity=${this.capacity})`
-      );
+      throw new Error(`Cannot create more entries ObjectCollectionBuffer entries (capacity=${this.capacity})`);
     }
-    const value = new ObjectCollectionBufferEntry(
-      this.view,
-      this._propertySpecsMap,
-      this._entries.size,
-      data
-    );
+    const value = new ObjectCollectionBufferEntry(this.view, this._propertySpecsMap, this._entries.size, data);
     const removeFromEntries = this._entries.push(value);
     const listeners = [];
     listeners.push(Event.forward(value.onDidChange, this._onDidChange));
-    listeners.push(
-      value.onWillDispose(() => {
-        const deletedEntryIndex = value.i;
-        removeFromEntries();
-        this.view.set(
-          this.view.subarray(
-            deletedEntryIndex * this._entrySize + 2,
-            this._entries.size * this._entrySize + 2
-          ),
-          deletedEntryIndex * this._entrySize
-        );
-        for (const entry of this._entries) {
-          if (entry.i > deletedEntryIndex) {
-            entry.i--;
-          }
+    listeners.push(value.onWillDispose(() => {
+      const deletedEntryIndex = value.i;
+      removeFromEntries();
+      this.view.set(this.view.subarray(deletedEntryIndex * this._entrySize + 2, this._entries.size * this._entrySize + 2), deletedEntryIndex * this._entrySize);
+      for (const entry of this._entries) {
+        if (entry.i > deletedEntryIndex) {
+          entry.i--;
         }
-        dispose(listeners);
-      })
-    );
+      }
+      dispose(listeners);
+    }));
     return value;
   }
 }

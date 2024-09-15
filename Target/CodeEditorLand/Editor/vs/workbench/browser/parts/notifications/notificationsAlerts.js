@@ -1,18 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
-import { toErrorMessage } from "../../../../base/common/errorMessage.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
-import {
-  NotificationPriority,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import {
-  NotificationChangeType,
-  NotificationViewItemContentChangeKind
-} from "../../../common/notifications.js";
+import { INotificationViewItem, INotificationsModel, NotificationChangeType, INotificationChangeEvent, NotificationViewItemContentChangeKind } from "../../../common/notifications.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
+import { Event } from "../../../../base/common/event.js";
 class NotificationsAlerts extends Disposable {
   constructor(model) {
     super();
@@ -26,11 +20,7 @@ class NotificationsAlerts extends Disposable {
     __name(this, "NotificationsAlerts");
   }
   registerListeners() {
-    this._register(
-      this.model.onDidChangeNotification(
-        (e) => this.onDidChangeNotification(e)
-      )
-    );
+    this._register(this.model.onDidChangeNotification((e) => this.onDidChangeNotification(e)));
   }
   onDidChangeNotification(e) {
     if (e.kind === NotificationChangeType.ADD) {
@@ -39,12 +29,7 @@ class NotificationsAlerts extends Disposable {
         if (e.item.message.original instanceof Error) {
           console.error(e.item.message.original);
         } else {
-          console.error(
-            toErrorMessage(
-              e.item.message.linkedText.toString(),
-              true
-            )
-          );
+          console.error(toErrorMessage(e.item.message.linkedText.toString(), true));
         }
       }
     }
@@ -64,23 +49,11 @@ class NotificationsAlerts extends Disposable {
   doTriggerAriaAlert(notification) {
     let alertText;
     if (notification.severity === Severity.Error) {
-      alertText = localize(
-        "alertErrorMessage",
-        "Error: {0}",
-        notification.message.linkedText.toString()
-      );
+      alertText = localize("alertErrorMessage", "Error: {0}", notification.message.linkedText.toString());
     } else if (notification.severity === Severity.Warning) {
-      alertText = localize(
-        "alertWarningMessage",
-        "Warning: {0}",
-        notification.message.linkedText.toString()
-      );
+      alertText = localize("alertWarningMessage", "Warning: {0}", notification.message.linkedText.toString());
     } else {
-      alertText = localize(
-        "alertInfoMessage",
-        "Info: {0}",
-        notification.message.linkedText.toString()
-      );
+      alertText = localize("alertInfoMessage", "Info: {0}", notification.message.linkedText.toString());
     }
     alert(alertText);
   }

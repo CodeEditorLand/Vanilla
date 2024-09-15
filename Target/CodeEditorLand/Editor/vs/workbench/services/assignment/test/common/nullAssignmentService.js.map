@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/assignment/test/common/nullAssignmentService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { IWorkbenchAssignmentService } from '../../common/assignmentService.js';\n\nexport class NullWorkbenchAssignmentService implements IWorkbenchAssignmentService {\n\t_serviceBrand: undefined;\n\n\tasync getCurrentExperiments(): Promise<string[] | undefined> {\n\t\treturn [];\n\t}\n\n\tasync getTreatment<T extends string | number | boolean>(name: string): Promise<T | undefined> {\n\t\treturn undefined;\n\t}\n}\n"],
+  "mappings": ";;AAKA,SAAS,mCAAmC;AAErC,MAAM,+BAAsE;AAAA,EAPnF,OAOmF;AAAA;AAAA;AAAA,EAClF;AAAA,EAEA,MAAM,wBAAuD;AAC5D,WAAO,CAAC;AAAA,EACT;AAAA,EAEA,MAAM,aAAkD,MAAsC;AAC7F,WAAO;AAAA,EACR;AACD;",
+  "names": []
+}

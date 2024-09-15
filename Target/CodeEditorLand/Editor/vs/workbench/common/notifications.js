@@ -1,28 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { INotification, INotificationHandle, INotificationActions, INotificationProgress, NoOpNotification, Severity, NotificationMessage, IPromptChoice, IStatusMessageOptions, NotificationsFilter, INotificationProgressProperties, IPromptChoiceWithMenu, NotificationPriority, INotificationSource, isNotificationSource } from "../../platform/notification/common/notification.js";
+import { toErrorMessage, isErrorWithActions } from "../../base/common/errorMessage.js";
+import { Event, Emitter } from "../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { isCancellationError } from "../../base/common/errors.js";
 import { Action } from "../../base/common/actions.js";
 import { equals } from "../../base/common/arrays.js";
-import {
-  isErrorWithActions,
-  toErrorMessage
-} from "../../base/common/errorMessage.js";
-import { isCancellationError } from "../../base/common/errors.js";
-import { Emitter, Event } from "../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../base/common/lifecycle.js";
-import {
-  parseLinkedText
-} from "../../base/common/linkedText.js";
+import { parseLinkedText, LinkedText } from "../../base/common/linkedText.js";
 import { mapsStrictEqualIgnoreOrder } from "../../base/common/map.js";
-import {
-  NoOpNotification,
-  NotificationPriority,
-  NotificationsFilter,
-  Severity,
-  isNotificationSource
-} from "../../platform/notification/common/notification.js";
 var NotificationChangeType = /* @__PURE__ */ ((NotificationChangeType2) => {
   NotificationChangeType2[NotificationChangeType2["ADD"] = 0] = "ADD";
   NotificationChangeType2[NotificationChangeType2["CHANGE"] = 1] = "CHANGE";
@@ -47,16 +33,10 @@ class NotificationHandle extends Disposable {
   }
   _onDidClose = this._register(new Emitter());
   onDidClose = this._onDidClose.event;
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
   registerListeners() {
-    this._register(
-      this.item.onDidChangeVisibility(
-        (visible) => this._onDidChangeVisibility.fire(visible)
-      )
-    );
+    this._register(this.item.onDidChangeVisibility((visible) => this._onDidChangeVisibility.fire(visible)));
     Event.once(this.item.onDidClose)(() => {
       this._onDidClose.fire();
       this.dispose();
@@ -84,17 +64,11 @@ class NotificationsModel extends Disposable {
     __name(this, "NotificationsModel");
   }
   static NO_OP_NOTIFICATION = new NoOpNotification();
-  _onDidChangeNotification = this._register(
-    new Emitter()
-  );
+  _onDidChangeNotification = this._register(new Emitter());
   onDidChangeNotification = this._onDidChangeNotification.event;
-  _onDidChangeStatusMessage = this._register(
-    new Emitter()
-  );
+  _onDidChangeStatusMessage = this._register(new Emitter());
   onDidChangeStatusMessage = this._onDidChangeStatusMessage.event;
-  _onDidChangeFilter = this._register(
-    new Emitter()
-  );
+  _onDidChangeFilter = this._register(new Emitter());
   onDidChangeFilter = this._onDidChangeFilter.event;
   _notifications = [];
   get notifications() {
@@ -116,10 +90,7 @@ class NotificationsModel extends Disposable {
     }
     let sourcesChanged = false;
     if (filter.sources) {
-      sourcesChanged = !mapsStrictEqualIgnoreOrder(
-        this.filter.sources,
-        filter.sources
-      );
+      sourcesChanged = !mapsStrictEqualIgnoreOrder(this.filter.sources, filter.sources);
       this.filter.sources = filter.sources;
     }
     if (globalChanged || sourcesChanged) {
@@ -137,11 +108,7 @@ class NotificationsModel extends Disposable {
     const duplicate = this.findNotification(item);
     duplicate?.close();
     this._notifications.splice(0, 0, item);
-    this._onDidChangeNotification.fire({
-      item,
-      index: 0,
-      kind: 0 /* ADD */
-    });
+    this._onDidChangeNotification.fire({ item, index: 0, kind: 0 /* ADD */ });
     return new NotificationHandle(item, (item2) => this.onClose(item2));
   }
   onClose(item) {
@@ -153,9 +120,7 @@ class NotificationsModel extends Disposable {
     }
   }
   findNotification(item) {
-    return this._notifications.find(
-      (notification) => notification.equals(item)
-    );
+    return this._notifications.find((notification) => notification.equals(item));
   }
   createViewItem(notification) {
     const item = NotificationViewItem.create(notification, this.filter);
@@ -165,31 +130,18 @@ class NotificationsModel extends Disposable {
     const fireNotificationChangeEvent = /* @__PURE__ */ __name((kind, detail) => {
       const index = this._notifications.indexOf(item);
       if (index >= 0) {
-        this._onDidChangeNotification.fire({
-          item,
-          index,
-          kind,
-          detail
-        });
+        this._onDidChangeNotification.fire({ item, index, kind, detail });
       }
     }, "fireNotificationChangeEvent");
-    const itemExpansionChangeListener = item.onDidChangeExpansion(
-      () => fireNotificationChangeEvent(2 /* EXPAND_COLLAPSE */)
-    );
-    const itemContentChangeListener = item.onDidChangeContent(
-      (e) => fireNotificationChangeEvent(1 /* CHANGE */, e.kind)
-    );
+    const itemExpansionChangeListener = item.onDidChangeExpansion(() => fireNotificationChangeEvent(2 /* EXPAND_COLLAPSE */));
+    const itemContentChangeListener = item.onDidChangeContent((e) => fireNotificationChangeEvent(1 /* CHANGE */, e.kind));
     Event.once(item.onDidClose)(() => {
       itemExpansionChangeListener.dispose();
       itemContentChangeListener.dispose();
       const index = this._notifications.indexOf(item);
       if (index >= 0) {
         this._notifications.splice(index, 1);
-        this._onDidChangeNotification.fire({
-          item,
-          index,
-          kind: 3 /* REMOVE */
-        });
+        this._onDidChangeNotification.fire({ item, index, kind: 3 /* REMOVE */ });
       }
     });
     return item;
@@ -200,17 +152,11 @@ class NotificationsModel extends Disposable {
       return Disposable.None;
     }
     this._statusMessage = item;
-    this._onDidChangeStatusMessage.fire({
-      kind: 0 /* ADD */,
-      item
-    });
+    this._onDidChangeStatusMessage.fire({ kind: 0 /* ADD */, item });
     return toDisposable(() => {
       if (this._statusMessage === item) {
         this._statusMessage = void 0;
-        this._onDidChangeStatusMessage.fire({
-          kind: 1 /* REMOVE */,
-          item
-        });
+        this._onDidChangeStatusMessage.fire({ kind: 1 /* REMOVE */, item });
       }
     });
   }
@@ -302,19 +248,13 @@ class NotificationViewItem extends Disposable {
   _visible = false;
   _actions;
   _progress;
-  _onDidChangeExpansion = this._register(
-    new Emitter()
-  );
+  _onDidChangeExpansion = this._register(new Emitter());
   onDidChangeExpansion = this._onDidChangeExpansion.event;
   _onDidClose = this._register(new Emitter());
   onDidClose = this._onDidClose.event;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
   static create(notification, filter) {
     if (!notification || !notification.message || isCancellationError(notification.message)) {
@@ -326,9 +266,7 @@ class NotificationViewItem extends Disposable {
     } else {
       severity = Severity.Info;
     }
-    const message = NotificationViewItem.parseNotificationMessage(
-      notification.message
-    );
+    const message = NotificationViewItem.parseNotificationMessage(notification.message);
     if (!message) {
       return void 0;
     }
@@ -346,16 +284,7 @@ class NotificationViewItem extends Disposable {
         priority = NotificationPriority.SILENT;
       }
     }
-    return new NotificationViewItem(
-      notification.id,
-      severity,
-      notification.sticky,
-      priority,
-      message,
-      notification.source,
-      notification.progress,
-      actions
-    );
+    return new NotificationViewItem(notification.id, severity, notification.sticky, priority, message, notification.source, notification.progress, actions);
   }
   static parseNotificationMessage(input) {
     let message;
@@ -431,13 +360,7 @@ class NotificationViewItem extends Disposable {
   get progress() {
     if (!this._progress) {
       this._progress = this._register(new NotificationViewItemProgress());
-      this._register(
-        this._progress.onDidChange(
-          () => this._onDidChangeContent.fire({
-            kind: 3 /* PROGRESS */
-          })
-        )
-      );
+      this._register(this._progress.onDidChange(() => this._onDidChangeContent.fire({ kind: 3 /* PROGRESS */ })));
     }
     return this._progress;
   }
@@ -461,9 +384,7 @@ class NotificationViewItem extends Disposable {
       return;
     }
     this._severity = severity;
-    this._onDidChangeContent.fire({
-      kind: 0 /* SEVERITY */
-    });
+    this._onDidChangeContent.fire({ kind: 0 /* SEVERITY */ });
   }
   updateMessage(input) {
     const message = NotificationViewItem.parseNotificationMessage(input);
@@ -471,15 +392,11 @@ class NotificationViewItem extends Disposable {
       return;
     }
     this._message = message;
-    this._onDidChangeContent.fire({
-      kind: 1 /* MESSAGE */
-    });
+    this._onDidChangeContent.fire({ kind: 1 /* MESSAGE */ });
   }
   updateActions(actions) {
     this.setActions(actions);
-    this._onDidChangeContent.fire({
-      kind: 2 /* ACTIONS */
-    });
+    this._onDidChangeContent.fire({ kind: 2 /* ACTIONS */ });
   }
   updateVisibility(visible) {
     if (this._visible !== visible) {
@@ -533,11 +450,7 @@ class NotificationViewItem extends Disposable {
     }
     const primaryActions = this._actions && this._actions.primary || [];
     const otherPrimaryActions = other.actions && other.actions.primary || [];
-    return equals(
-      primaryActions,
-      otherPrimaryActions,
-      (action, otherAction) => action.id + action.label === otherAction.id + otherAction.label
-    );
+    return equals(primaryActions, otherPrimaryActions, (action, otherAction) => action.id + action.label === otherAction.id + otherAction.label);
   }
 }
 class ChoiceAction extends Action {
@@ -554,9 +467,7 @@ class ChoiceAction extends Action {
       this._onDidRun.fire();
     });
     this._keepOpen = !!choice.keepOpen;
-    this._menu = !choice.isSecondary && choice.menu ? choice.menu.map(
-      (c, index) => new ChoiceAction(`${id}.${index}`, c)
-    ) : void 0;
+    this._menu = !choice.isSecondary && choice.menu ? choice.menu.map((c, index) => new ChoiceAction(`${id}.${index}`, c)) : void 0;
   }
   get menu() {
     return this._menu;

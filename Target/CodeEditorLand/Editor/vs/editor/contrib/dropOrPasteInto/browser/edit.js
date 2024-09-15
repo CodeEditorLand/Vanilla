@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
 import { ResourceTextEdit } from "../../../browser/services/bulkEditService.js";
+import { DocumentDropEdit, DocumentPasteEdit, DropYieldTo, WorkspaceEdit } from "../../../common/languages.js";
+import { Range } from "../../../common/core/range.js";
 import { SnippetParser } from "../../snippet/browser/snippetParser.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
 function createCombinedWorkspaceEdit(uri, ranges, edit) {
   if (typeof edit.insertText === "string" ? edit.insertText === "" : edit.insertText.snippet === "") {
     return {
@@ -10,13 +14,10 @@ function createCombinedWorkspaceEdit(uri, ranges, edit) {
   }
   return {
     edits: [
-      ...ranges.map(
-        (range) => new ResourceTextEdit(uri, {
-          range,
-          text: typeof edit.insertText === "string" ? SnippetParser.escape(edit.insertText) + "$0" : edit.insertText.snippet,
-          insertAsSnippet: true
-        })
-      ),
+      ...ranges.map((range) => new ResourceTextEdit(
+        uri,
+        { range, text: typeof edit.insertText === "string" ? SnippetParser.escape(edit.insertText) + "$0" : edit.insertText.snippet, insertAsSnippet: true }
+      )),
       ...edit.additionalEdit?.edits ?? []
     ]
   };

@@ -1,18 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  BaseObservable,
-  _setDerivedOpts
-} from "./base.js";
-import {
-  DisposableStore,
-  assertFn,
-  onBugIndicatingError,
-  strictEquals
-} from "./commonFacade/deps.js";
-import {
-  DebugNameData
-} from "./debugName.js";
+import { BaseObservable, IChangeContext, IObservable, IObserver, IReader, ISettableObservable, ITransaction, _setDerivedOpts } from "./base.js";
+import { DebugNameData, DebugOwner, IDebugNameData } from "./debugName.js";
+import { DisposableStore, EqualityComparer, IDisposable, assertFn, onBugIndicatingError, strictEquals } from "./commonFacade/deps.js";
 import { getLogger } from "./logging.js";
 function derived(computeFnOrOwner, computeFn) {
   if (computeFn !== void 0) {
@@ -49,11 +39,7 @@ function derivedWithSetter(owner, computeFn, setter) {
 __name(derivedWithSetter, "derivedWithSetter");
 function derivedOpts(options, computeFn) {
   return new Derived(
-    new DebugNameData(
-      options.owner,
-      options.debugName,
-      options.debugReferenceFn
-    ),
+    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn),
     computeFn,
     void 0,
     void 0,
@@ -108,14 +94,14 @@ function derivedDisposable(computeFnOrOwner, computeFnOrUndefined) {
     owner = computeFnOrOwner;
     computeFn = computeFnOrUndefined;
   }
-  let store;
+  let store = void 0;
   return new Derived(
     new DebugNameData(owner, void 0, computeFn),
     (r) => {
-      if (store) {
-        store.clear();
-      } else {
+      if (!store) {
         store = new DisposableStore();
+      } else {
+        store.clear();
       }
       const result = computeFn(r);
       if (result) {
@@ -280,14 +266,11 @@ class Derived extends BaseObservable {
     if (this.dependencies.has(observable) && !this.dependenciesToBeRemoved.has(observable)) {
       let shouldReact = false;
       try {
-        shouldReact = this._handleChange ? this._handleChange(
-          {
-            changedObservable: observable,
-            change,
-            didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
-          },
-          this.changeSummary
-        ) : true;
+        shouldReact = this._handleChange ? this._handleChange({
+          changedObservable: observable,
+          change,
+          didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
+        }, this.changeSummary) : true;
       } catch (e) {
         onBugIndicatingError(e);
       }

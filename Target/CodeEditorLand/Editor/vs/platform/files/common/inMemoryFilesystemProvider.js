@@ -1,21 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../base/common/buffer.js";
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
 import * as resources from "../../../base/common/resources.js";
-import {
-  newWriteableStream
-} from "../../../base/common/stream.js";
-import {
-  FileChangeType,
-  FileSystemProviderCapabilities,
-  FileSystemProviderErrorCode,
-  FileType,
-  createFileSystemProviderError
-} from "./files.js";
+import { ReadableStreamEvents, newWriteableStream } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
+import { FileChangeType, IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions, createFileSystemProviderError, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileOpenOptions, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileReadStreamCapability } from "./files.js";
 class File {
   static {
     __name(this, "File");
@@ -89,16 +80,11 @@ class InMemoryFileSystemProvider extends Disposable {
     if (data) {
       return data;
     }
-    throw createFileSystemProviderError(
-      "file not found",
-      FileSystemProviderErrorCode.FileNotFound
-    );
+    throw createFileSystemProviderError("file not found", FileSystemProviderErrorCode.FileNotFound);
   }
   readFileStream(resource) {
     const data = this._lookupAsFile(resource, false).data;
-    const stream = newWriteableStream(
-      (data2) => VSBuffer.concat(data2.map((data3) => VSBuffer.wrap(data3))).buffer
-    );
+    const stream = newWriteableStream((data2) => VSBuffer.concat(data2.map((data3) => VSBuffer.wrap(data3))).buffer);
     stream.end(data);
     return stream;
   }
@@ -107,22 +93,13 @@ class InMemoryFileSystemProvider extends Disposable {
     const parent = this._lookupParentDirectory(resource);
     let entry = parent.entries.get(basename);
     if (entry instanceof Directory) {
-      throw createFileSystemProviderError(
-        "file is directory",
-        FileSystemProviderErrorCode.FileIsADirectory
-      );
+      throw createFileSystemProviderError("file is directory", FileSystemProviderErrorCode.FileIsADirectory);
     }
     if (!entry && !opts.create) {
-      throw createFileSystemProviderError(
-        "file not found",
-        FileSystemProviderErrorCode.FileNotFound
-      );
+      throw createFileSystemProviderError("file not found", FileSystemProviderErrorCode.FileNotFound);
     }
     if (entry && opts.create && !opts.overwrite) {
-      throw createFileSystemProviderError(
-        "file exists already",
-        FileSystemProviderErrorCode.FileExists
-      );
+      throw createFileSystemProviderError("file exists already", FileSystemProviderErrorCode.FileExists);
     }
     if (!entry) {
       entry = new File(basename);
@@ -142,10 +119,7 @@ class InMemoryFileSystemProvider extends Disposable {
       this.fdMemory.set(fd, data);
       return Promise.resolve(fd);
     }
-    throw createFileSystemProviderError(
-      "file not found",
-      FileSystemProviderErrorCode.FileNotFound
-    );
+    throw createFileSystemProviderError("file not found", FileSystemProviderErrorCode.FileNotFound);
   }
   close(fd) {
     this.fdMemory.delete(fd);
@@ -154,10 +128,7 @@ class InMemoryFileSystemProvider extends Disposable {
   read(fd, pos, data, offset, length) {
     const memory = this.fdMemory.get(fd);
     if (!memory) {
-      throw createFileSystemProviderError(
-        `No file with that descriptor open`,
-        FileSystemProviderErrorCode.Unavailable
-      );
+      throw createFileSystemProviderError(`No file with that descriptor open`, FileSystemProviderErrorCode.Unavailable);
     }
     const toWrite = VSBuffer.wrap(memory).slice(pos, pos + length);
     data.set(toWrite.buffer, offset);
@@ -166,10 +137,7 @@ class InMemoryFileSystemProvider extends Disposable {
   write(fd, pos, data, offset, length) {
     const memory = this.fdMemory.get(fd);
     if (!memory) {
-      throw createFileSystemProviderError(
-        `No file with that descriptor open`,
-        FileSystemProviderErrorCode.Unavailable
-      );
+      throw createFileSystemProviderError(`No file with that descriptor open`, FileSystemProviderErrorCode.Unavailable);
     }
     const toWrite = VSBuffer.wrap(data).slice(offset, offset + length);
     memory.set(toWrite.buffer, pos);
@@ -178,10 +146,7 @@ class InMemoryFileSystemProvider extends Disposable {
   // --- manage files/folders
   async rename(from, to, opts) {
     if (!opts.overwrite && this._lookup(to, true)) {
-      throw createFileSystemProviderError(
-        "file exists already",
-        FileSystemProviderErrorCode.FileExists
-      );
+      throw createFileSystemProviderError("file exists already", FileSystemProviderErrorCode.FileExists);
     }
     const entry = this._lookup(from, false);
     const oldParent = this._lookupParentDirectory(from);
@@ -203,18 +168,12 @@ class InMemoryFileSystemProvider extends Disposable {
       parent.entries.delete(basename);
       parent.mtime = Date.now();
       parent.size -= 1;
-      this._fireSoon(
-        { type: FileChangeType.UPDATED, resource: dirname },
-        { resource, type: FileChangeType.DELETED }
-      );
+      this._fireSoon({ type: FileChangeType.UPDATED, resource: dirname }, { resource, type: FileChangeType.DELETED });
     }
   }
   async mkdir(resource) {
     if (this._lookup(resource, true)) {
-      throw createFileSystemProviderError(
-        "file exists already",
-        FileSystemProviderErrorCode.FileExists
-      );
+      throw createFileSystemProviderError("file exists already", FileSystemProviderErrorCode.FileExists);
     }
     const basename = resources.basename(resource);
     const dirname = resources.dirname(resource);
@@ -223,10 +182,7 @@ class InMemoryFileSystemProvider extends Disposable {
     parent.entries.set(entry.name, entry);
     parent.mtime = Date.now();
     parent.size += 1;
-    this._fireSoon(
-      { type: FileChangeType.UPDATED, resource: dirname },
-      { type: FileChangeType.ADDED, resource }
-    );
+    this._fireSoon({ type: FileChangeType.UPDATED, resource: dirname }, { type: FileChangeType.ADDED, resource });
   }
   _lookup(uri, silent) {
     const parts = uri.path.split("/");
@@ -240,13 +196,10 @@ class InMemoryFileSystemProvider extends Disposable {
         child = entry.entries.get(part);
       }
       if (!child) {
-        if (silent) {
-          return void 0;
+        if (!silent) {
+          throw createFileSystemProviderError("file not found", FileSystemProviderErrorCode.FileNotFound);
         } else {
-          throw createFileSystemProviderError(
-            "file not found",
-            FileSystemProviderErrorCode.FileNotFound
-          );
+          return void 0;
         }
       }
       entry = child;
@@ -258,29 +211,21 @@ class InMemoryFileSystemProvider extends Disposable {
     if (entry instanceof Directory) {
       return entry;
     }
-    throw createFileSystemProviderError(
-      "file not a directory",
-      FileSystemProviderErrorCode.FileNotADirectory
-    );
+    throw createFileSystemProviderError("file not a directory", FileSystemProviderErrorCode.FileNotADirectory);
   }
   _lookupAsFile(uri, silent) {
     const entry = this._lookup(uri, silent);
     if (entry instanceof File) {
       return entry;
     }
-    throw createFileSystemProviderError(
-      "file is a directory",
-      FileSystemProviderErrorCode.FileIsADirectory
-    );
+    throw createFileSystemProviderError("file is a directory", FileSystemProviderErrorCode.FileIsADirectory);
   }
   _lookupParentDirectory(uri) {
     const dirname = resources.dirname(uri);
     return this._lookupAsDirectory(dirname, false);
   }
   // --- manage file events
-  _onDidChangeFile = this._register(
-    new Emitter()
-  );
+  _onDidChangeFile = this._register(new Emitter());
   onDidChangeFile = this._onDidChangeFile.event;
   _bufferedChanges = [];
   _fireSoonHandle;

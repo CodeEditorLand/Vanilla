@@ -1,24 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDimension } from "../../../../base/browser/dom.js";
 import { findLast } from "../../../../base/common/arraysFind.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunHandleChanges,
-  autorunOpts,
-  autorunWithStore,
-  observableValue,
-  transaction
-} from "../../../../base/common/observable.js";
+import { Disposable, DisposableStore, IDisposable, IReference, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, ISettableObservable, autorun, autorunHandleChanges, autorunOpts, autorunWithStore, observableValue, transaction } from "../../../../base/common/observable.js";
+import { ElementSizeObserver } from "../../config/elementSizeObserver.js";
+import { ICodeEditor, IOverlayWidget, IViewZone } from "../../editorBrowser.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
+import { DetailedLineRangeMapping } from "../../../common/diff/rangeMapping.js";
+import { IModelDeltaDecoration } from "../../../common/model.js";
 import { TextLength } from "../../../common/core/textLength.js";
-import { ElementSizeObserver } from "../../config/elementSizeObserver.js";
 function joinCombine(arr1, arr2, keySelector, combine) {
   if (arr1.length === 0) {
     return arr2;
@@ -60,17 +53,10 @@ __name(joinCombine, "joinCombine");
 function applyObservableDecorations(editor, decorations) {
   const d = new DisposableStore();
   const decorationsCollection = editor.createDecorationsCollection();
-  d.add(
-    autorunOpts(
-      {
-        debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName")
-      },
-      (reader) => {
-        const d2 = decorations.read(reader);
-        decorationsCollection.set(d2);
-      }
-    )
-  );
+  d.add(autorunOpts({ debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName") }, (reader) => {
+    const d2 = decorations.read(reader);
+    decorationsCollection.set(d2);
+  }));
   d.add({
     dispose: /* @__PURE__ */ __name(() => {
       decorationsCollection.clear();
@@ -112,25 +98,13 @@ class ObservableElementSizeObserver extends Disposable {
   }
   constructor(element, dimension) {
     super();
-    this.elementSizeObserver = this._register(
-      new ElementSizeObserver(element, dimension)
-    );
-    this._width = observableValue(
-      this,
-      this.elementSizeObserver.getWidth()
-    );
-    this._height = observableValue(
-      this,
-      this.elementSizeObserver.getHeight()
-    );
-    this._register(
-      this.elementSizeObserver.onDidChange(
-        (e) => transaction((tx) => {
-          this._width.set(this.elementSizeObserver.getWidth(), tx);
-          this._height.set(this.elementSizeObserver.getHeight(), tx);
-        })
-      )
-    );
+    this.elementSizeObserver = this._register(new ElementSizeObserver(element, dimension));
+    this._width = observableValue(this, this.elementSizeObserver.getWidth());
+    this._height = observableValue(this, this.elementSizeObserver.getHeight());
+    this._register(this.elementSizeObserver.onDidChange((e) => transaction((tx) => {
+      this._width.set(this.elementSizeObserver.getWidth(), tx);
+      this._height.set(this.elementSizeObserver.getHeight(), tx);
+    })));
   }
   observe(dimension) {
     this.elementSizeObserver.observe(dimension);
@@ -151,35 +125,28 @@ function animatedObservable(targetWindow, base, store) {
   const result = observableValue("animatedValue", targetVal);
   let animationStartMs = -1;
   const durationMs = 300;
-  let animationFrame;
-  store.add(
-    autorunHandleChanges(
-      {
-        createEmptyChangeSummary: /* @__PURE__ */ __name(() => ({ animate: false }), "createEmptyChangeSummary"),
-        handleChange: /* @__PURE__ */ __name((ctx, s) => {
-          if (ctx.didChange(base)) {
-            s.animate = s.animate || ctx.change;
-          }
-          return true;
-        }, "handleChange")
-      },
-      (reader, s) => {
-        if (animationFrame !== void 0) {
-          targetWindow.cancelAnimationFrame(animationFrame);
-          animationFrame = void 0;
-        }
-        startVal = curVal;
-        targetVal = base.read(reader);
-        animationStartMs = Date.now() - (s.animate ? 0 : durationMs);
-        update();
+  let animationFrame = void 0;
+  store.add(autorunHandleChanges({
+    createEmptyChangeSummary: /* @__PURE__ */ __name(() => ({ animate: false }), "createEmptyChangeSummary"),
+    handleChange: /* @__PURE__ */ __name((ctx, s) => {
+      if (ctx.didChange(base)) {
+        s.animate = s.animate || ctx.change;
       }
-    )
-  );
+      return true;
+    }, "handleChange")
+  }, (reader, s) => {
+    if (animationFrame !== void 0) {
+      targetWindow.cancelAnimationFrame(animationFrame);
+      animationFrame = void 0;
+    }
+    startVal = curVal;
+    targetVal = base.read(reader);
+    animationStartMs = Date.now() - (s.animate ? 0 : durationMs);
+    update();
+  }));
   function update() {
     const passedMs = Date.now() - animationStartMs;
-    curVal = Math.floor(
-      easeOutExpo(passedMs, startVal, targetVal - startVal, durationMs)
-    );
+    curVal = Math.floor(easeOutExpo(passedMs, startVal, targetVal - startVal, durationMs));
     if (passedMs < durationMs) {
       animationFrame = targetWindow.requestAnimationFrame(update);
     } else {
@@ -218,12 +185,10 @@ class ViewZoneOverlayWidget extends Disposable {
   constructor(editor, viewZone, htmlElement) {
     super();
     this._register(new ManagedOverlayWidget(editor, htmlElement));
-    this._register(
-      applyStyle(htmlElement, {
-        height: viewZone.actualHeight,
-        top: viewZone.actualTop
-      })
-    );
+    this._register(applyStyle(htmlElement, {
+      height: viewZone.actualHeight,
+      top: viewZone.actualTop
+    }));
   }
 }
 class PlaceholderViewZone {
@@ -235,14 +200,8 @@ class PlaceholderViewZone {
     __name(this, "PlaceholderViewZone");
   }
   domNode = document.createElement("div");
-  _actualTop = observableValue(
-    this,
-    void 0
-  );
-  _actualHeight = observableValue(
-    this,
-    void 0
-  );
+  _actualTop = observableValue(this, void 0);
+  _actualHeight = observableValue(this, void 0);
   actualTop = this._actualTop;
   actualHeight = this._actualHeight;
   showInHiddenAreas = true;
@@ -295,75 +254,63 @@ __name(applyStyle, "applyStyle");
 function applyViewZones(editor, viewZones, setIsUpdating, zoneIds) {
   const store = new DisposableStore();
   const lastViewZoneIds = [];
-  store.add(
-    autorunWithStore((reader, store2) => {
-      const curViewZones = viewZones.read(reader);
-      const viewZonIdsPerViewZone = /* @__PURE__ */ new Map();
-      const viewZoneIdPerOnChangeObservable = /* @__PURE__ */ new Map();
+  store.add(autorunWithStore((reader, store2) => {
+    const curViewZones = viewZones.read(reader);
+    const viewZonIdsPerViewZone = /* @__PURE__ */ new Map();
+    const viewZoneIdPerOnChangeObservable = /* @__PURE__ */ new Map();
+    if (setIsUpdating) {
+      setIsUpdating(true);
+    }
+    editor.changeViewZones((a) => {
+      for (const id of lastViewZoneIds) {
+        a.removeZone(id);
+        zoneIds?.delete(id);
+      }
+      lastViewZoneIds.length = 0;
+      for (const z of curViewZones) {
+        const id = a.addZone(z);
+        if (z.setZoneId) {
+          z.setZoneId(id);
+        }
+        lastViewZoneIds.push(id);
+        zoneIds?.add(id);
+        viewZonIdsPerViewZone.set(z, id);
+      }
+    });
+    if (setIsUpdating) {
+      setIsUpdating(false);
+    }
+    store2.add(autorunHandleChanges({
+      createEmptyChangeSummary() {
+        return { zoneIds: [] };
+      },
+      handleChange(context, changeSummary) {
+        const id = viewZoneIdPerOnChangeObservable.get(context.changedObservable);
+        if (id !== void 0) {
+          changeSummary.zoneIds.push(id);
+        }
+        return true;
+      }
+    }, (reader2, changeSummary) => {
+      for (const vz of curViewZones) {
+        if (vz.onChange) {
+          viewZoneIdPerOnChangeObservable.set(vz.onChange, viewZonIdsPerViewZone.get(vz));
+          vz.onChange.read(reader2);
+        }
+      }
       if (setIsUpdating) {
         setIsUpdating(true);
       }
       editor.changeViewZones((a) => {
-        for (const id of lastViewZoneIds) {
-          a.removeZone(id);
-          zoneIds?.delete(id);
-        }
-        lastViewZoneIds.length = 0;
-        for (const z of curViewZones) {
-          const id = a.addZone(z);
-          if (z.setZoneId) {
-            z.setZoneId(id);
-          }
-          lastViewZoneIds.push(id);
-          zoneIds?.add(id);
-          viewZonIdsPerViewZone.set(z, id);
+        for (const id of changeSummary.zoneIds) {
+          a.layoutZone(id);
         }
       });
       if (setIsUpdating) {
         setIsUpdating(false);
       }
-      store2.add(
-        autorunHandleChanges(
-          {
-            createEmptyChangeSummary() {
-              return { zoneIds: [] };
-            },
-            handleChange(context, changeSummary) {
-              const id = viewZoneIdPerOnChangeObservable.get(
-                context.changedObservable
-              );
-              if (id !== void 0) {
-                changeSummary.zoneIds.push(id);
-              }
-              return true;
-            }
-          },
-          (reader2, changeSummary) => {
-            for (const vz of curViewZones) {
-              if (vz.onChange) {
-                viewZoneIdPerOnChangeObservable.set(
-                  vz.onChange,
-                  viewZonIdsPerViewZone.get(vz)
-                );
-                vz.onChange.read(reader2);
-              }
-            }
-            if (setIsUpdating) {
-              setIsUpdating(true);
-            }
-            editor.changeViewZones((a) => {
-              for (const id of changeSummary.zoneIds) {
-                a.layoutZone(id);
-              }
-            });
-            if (setIsUpdating) {
-              setIsUpdating(false);
-            }
-          }
-        )
-      );
-    })
-  );
+    }));
+  }));
   store.add({
     dispose() {
       if (setIsUpdating) {
@@ -392,44 +339,27 @@ class DisposableCancellationTokenSource extends CancellationTokenSource {
   }
 }
 function translatePosition(posInOriginal, mappings) {
-  const mapping = findLast(
-    mappings,
-    (m) => m.original.startLineNumber <= posInOriginal.lineNumber
-  );
+  const mapping = findLast(mappings, (m) => m.original.startLineNumber <= posInOriginal.lineNumber);
   if (!mapping) {
     return Range.fromPositions(posInOriginal);
   }
   if (mapping.original.endLineNumberExclusive <= posInOriginal.lineNumber) {
     const newLineNumber = posInOriginal.lineNumber - mapping.original.endLineNumberExclusive + mapping.modified.endLineNumberExclusive;
-    return Range.fromPositions(
-      new Position(newLineNumber, posInOriginal.column)
-    );
+    return Range.fromPositions(new Position(newLineNumber, posInOriginal.column));
   }
   if (!mapping.innerChanges) {
-    return Range.fromPositions(
-      new Position(mapping.modified.startLineNumber, 1)
-    );
+    return Range.fromPositions(new Position(mapping.modified.startLineNumber, 1));
   }
-  const innerMapping = findLast(
-    mapping.innerChanges,
-    (m) => m.originalRange.getStartPosition().isBeforeOrEqual(posInOriginal)
-  );
+  const innerMapping = findLast(mapping.innerChanges, (m) => m.originalRange.getStartPosition().isBeforeOrEqual(posInOriginal));
   if (!innerMapping) {
     const newLineNumber = posInOriginal.lineNumber - mapping.original.startLineNumber + mapping.modified.startLineNumber;
-    return Range.fromPositions(
-      new Position(newLineNumber, posInOriginal.column)
-    );
+    return Range.fromPositions(new Position(newLineNumber, posInOriginal.column));
   }
   if (innerMapping.originalRange.containsPosition(posInOriginal)) {
     return innerMapping.modifiedRange;
   } else {
-    const l = lengthBetweenPositions(
-      innerMapping.originalRange.getEndPosition(),
-      posInOriginal
-    );
-    return Range.fromPositions(
-      l.addToPosition(innerMapping.modifiedRange.getEndPosition())
-    );
+    const l = lengthBetweenPositions(innerMapping.originalRange.getEndPosition(), posInOriginal);
+    return Range.fromPositions(l.addToPosition(innerMapping.modifiedRange.getEndPosition()));
   }
 }
 __name(translatePosition, "translatePosition");
@@ -437,10 +367,7 @@ function lengthBetweenPositions(position1, position2) {
   if (position1.lineNumber === position2.lineNumber) {
     return new TextLength(0, position2.column - position1.column);
   } else {
-    return new TextLength(
-      position2.lineNumber - position1.lineNumber,
-      position2.column - 1
-    );
+    return new TextLength(position2.lineNumber - position1.lineNumber, position2.column - 1);
   }
 }
 __name(lengthBetweenPositions, "lengthBetweenPositions");

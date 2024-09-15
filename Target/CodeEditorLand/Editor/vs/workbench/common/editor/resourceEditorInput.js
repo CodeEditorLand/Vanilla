@@ -10,22 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { dirname, isEqual } from "../../../base/common/resources.js";
-import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
-import { isConfigured } from "../../../platform/configuration/common/configuration.js";
-import {
-  ByteSize,
-  IFileService,
-  getLargeFileConfirmationLimit
-} from "../../../platform/files/common/files.js";
-import { ILabelService } from "../../../platform/label/common/label.js";
-import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
-import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
-import {
-  EditorInputCapabilities,
-  Verbosity
-} from "../editor.js";
+import { Verbosity, EditorInputWithPreferredResource, EditorInputCapabilities, IFileLimitedEditorInputOptions } from "../editor.js";
 import { EditorInput } from "./editorInput.js";
+import { URI } from "../../../base/common/uri.js";
+import { ByteSize, IFileReadLimits, IFileService, getLargeFileConfirmationLimit } from "../../../platform/files/common/files.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { dirname, isEqual } from "../../../base/common/resources.js";
+import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { isConfigured } from "../../../platform/configuration/common/configuration.js";
+import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
+import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
 let AbstractResourceEditorInput = class extends EditorInput {
   constructor(resource, preferredResource, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
     super();
@@ -60,24 +55,10 @@ let AbstractResourceEditorInput = class extends EditorInput {
     return this._preferredResource;
   }
   registerListeners() {
-    this._register(
-      this.labelService.onDidChangeFormatters(
-        (e) => this.onLabelEvent(e.scheme)
-      )
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderRegistrations(
-        (e) => this.onLabelEvent(e.scheme)
-      )
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderCapabilities(
-        (e) => this.onLabelEvent(e.scheme)
-      )
-    );
-    this._register(
-      this.customEditorLabelService.onDidChange(() => this.updateLabel())
-    );
+    this._register(this.labelService.onDidChangeFormatters((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.fileService.onDidChangeFileSystemProviderRegistrations((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.fileService.onDidChangeFileSystemProviderCapabilities((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.customEditorLabelService.onDidChange(() => this.updateLabel()));
   }
   onLabelEvent(scheme) {
     if (scheme === this._preferredResource.scheme) {
@@ -103,9 +84,7 @@ let AbstractResourceEditorInput = class extends EditorInput {
   _name = void 0;
   getName() {
     if (typeof this._name !== "string") {
-      this._name = this.customEditorLabelService.getName(
-        this._preferredResource
-      ) ?? this.labelService.getUriBasenameLabel(this._preferredResource);
+      this._name = this.customEditorLabelService.getName(this._preferredResource) ?? this.labelService.getUriBasenameLabel(this._preferredResource);
     }
     return this._name;
   }
@@ -123,28 +102,21 @@ let AbstractResourceEditorInput = class extends EditorInput {
   _shortDescription = void 0;
   get shortDescription() {
     if (typeof this._shortDescription !== "string") {
-      this._shortDescription = this.labelService.getUriBasenameLabel(
-        dirname(this._preferredResource)
-      );
+      this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this._preferredResource));
     }
     return this._shortDescription;
   }
   _mediumDescription = void 0;
   get mediumDescription() {
     if (typeof this._mediumDescription !== "string") {
-      this._mediumDescription = this.labelService.getUriLabel(
-        dirname(this._preferredResource),
-        { relative: true }
-      );
+      this._mediumDescription = this.labelService.getUriLabel(dirname(this._preferredResource), { relative: true });
     }
     return this._mediumDescription;
   }
   _longDescription = void 0;
   get longDescription() {
     if (typeof this._longDescription !== "string") {
-      this._longDescription = this.labelService.getUriLabel(
-        dirname(this._preferredResource)
-      );
+      this._longDescription = this.labelService.getUriLabel(dirname(this._preferredResource));
     }
     return this._longDescription;
   }
@@ -158,19 +130,14 @@ let AbstractResourceEditorInput = class extends EditorInput {
   _mediumTitle = void 0;
   get mediumTitle() {
     if (typeof this._mediumTitle !== "string") {
-      this._mediumTitle = this.labelService.getUriLabel(
-        this._preferredResource,
-        { relative: true }
-      );
+      this._mediumTitle = this.labelService.getUriLabel(this._preferredResource, { relative: true });
     }
     return this._mediumTitle;
   }
   _longTitle = void 0;
   get longTitle() {
     if (typeof this._longTitle !== "string") {
-      this._longTitle = this.labelService.getUriLabel(
-        this._preferredResource
-      );
+      this._longTitle = this.labelService.getUriLabel(this._preferredResource);
     }
     return this._longTitle;
   }
@@ -193,12 +160,8 @@ let AbstractResourceEditorInput = class extends EditorInput {
       return options.limits;
     }
     const defaultSizeLimit = getLargeFileConfirmationLimit(this.resource);
-    let configuredSizeLimit;
-    const configuredSizeLimitMb = this.textResourceConfigurationService.inspect(
-      this.resource,
-      null,
-      "workbench.editorLargeFileConfirmation"
-    );
+    let configuredSizeLimit = void 0;
+    const configuredSizeLimitMb = this.textResourceConfigurationService.inspect(this.resource, null, "workbench.editorLargeFileConfirmation");
     if (isConfigured(configuredSizeLimitMb)) {
       configuredSizeLimit = configuredSizeLimitMb.value * ByteSize.MB;
     }

@@ -19,31 +19,30 @@ async function getDisplayProtocol(errorLogger) {
     return xdgSessionType === "wayland" /* Wayland */ || xdgSessionType === "x11" /* X11 */ ? xdgSessionType : "unknown" /* Unknown */;
   } else {
     const waylandDisplay = env[WAYLAND_DISPLAY];
-    if (waylandDisplay) {
+    if (!waylandDisplay) {
+      return "x11" /* X11 */;
+    } else {
       const xdgRuntimeDir = env[XDG_RUNTIME_DIR];
-      if (xdgRuntimeDir) {
+      if (!xdgRuntimeDir) {
+        return "unknown" /* Unknown */;
+      } else {
         const waylandServerPipe = join(xdgRuntimeDir, "wayland-0");
         try {
-          await FSPromises.access(
-            waylandServerPipe,
-            FSConstants.R_OK
-          );
+          await FSPromises.access(waylandServerPipe, FSConstants.R_OK);
           return "wayland" /* Wayland */;
         } catch (err) {
           errorLogger(err);
           return "unknown" /* Unknown */;
         }
-      } else {
-        return "unknown" /* Unknown */;
       }
-    } else {
-      return "x11" /* X11 */;
     }
   }
 }
 __name(getDisplayProtocol, "getDisplayProtocol");
 function getCodeDisplayProtocol(displayProtocol, ozonePlatform) {
-  if (ozonePlatform) {
+  if (!ozonePlatform) {
+    return displayProtocol === "wayland" /* Wayland */ ? "xwayland" /* XWayland */ : "x11" /* X11 */;
+  } else {
     switch (ozonePlatform) {
       case "auto":
         return displayProtocol;
@@ -54,8 +53,6 @@ function getCodeDisplayProtocol(displayProtocol, ozonePlatform) {
       default:
         return "unknown" /* Unknown */;
     }
-  } else {
-    return displayProtocol === "wayland" /* Wayland */ ? "xwayland" /* XWayland */ : "x11" /* X11 */;
   }
 }
 __name(getCodeDisplayProtocol, "getCodeDisplayProtocol");

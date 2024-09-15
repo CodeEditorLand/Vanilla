@@ -10,13 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import * as dom from "../../../../../base/browser/dom.js";
 import { RunOnceScheduler } from "../../../../../base/common/async.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { isMacintosh } from "../../../../../base/common/platform.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { convertBufferRangeToViewport } from "./terminalLinkHelpers.js";
+import { isMacintosh } from "../../../../../base/common/platform.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { TerminalLinkType } from "./links.js";
 let TerminalLink = class extends DisposableStore {
   constructor(_xterm, range, text, uri, parsedLink, actions, _viewportY, _activateCallback, _tooltipCallback, _isHighConfidenceLink, label, _type, _configurationService) {
     super();
@@ -66,28 +67,22 @@ let TerminalLink = class extends DisposableStore {
     const w = dom.getWindow(event);
     const d = w.document;
     this._hoverListeners = new DisposableStore();
-    this._hoverListeners.add(
-      dom.addDisposableListener(d, "keydown", (e) => {
-        if (!e.repeat && this._isModifierDown(e)) {
-          this._enableDecorations();
-        }
-      })
-    );
-    this._hoverListeners.add(
-      dom.addDisposableListener(d, "keyup", (e) => {
-        if (!e.repeat && !this._isModifierDown(e)) {
-          this._disableDecorations();
-        }
-      })
-    );
-    this._hoverListeners.add(
-      this._xterm.onRender((e) => {
-        const viewportRangeY = this.range.start.y - this._viewportY;
-        if (viewportRangeY >= e.start && viewportRangeY <= e.end) {
-          this._onInvalidated.fire();
-        }
-      })
-    );
+    this._hoverListeners.add(dom.addDisposableListener(d, "keydown", (e) => {
+      if (!e.repeat && this._isModifierDown(e)) {
+        this._enableDecorations();
+      }
+    }));
+    this._hoverListeners.add(dom.addDisposableListener(d, "keyup", (e) => {
+      if (!e.repeat && !this._isModifierDown(e)) {
+        this._disableDecorations();
+      }
+    }));
+    this._hoverListeners.add(this._xterm.onRender((e) => {
+      const viewportRangeY = this.range.start.y - this._viewportY;
+      if (viewportRangeY >= e.start && viewportRangeY <= e.end) {
+        this._onInvalidated.fire();
+      }
+    }));
     if (this._isHighConfidenceLink) {
       this._tooltipScheduler = new RunOnceScheduler(() => {
         this._tooltipCallback(
@@ -103,20 +98,18 @@ let TerminalLink = class extends DisposableStore {
       this._tooltipScheduler.schedule();
     }
     const origin = { x: event.pageX, y: event.pageY };
-    this._hoverListeners.add(
-      dom.addDisposableListener(d, dom.EventType.MOUSE_MOVE, (e) => {
-        if (this._isModifierDown(e)) {
-          this._enableDecorations();
-        } else {
-          this._disableDecorations();
-        }
-        if (Math.abs(e.pageX - origin.x) > w.devicePixelRatio * 2 || Math.abs(e.pageY - origin.y) > w.devicePixelRatio * 2) {
-          origin.x = e.pageX;
-          origin.y = e.pageY;
-          this._tooltipScheduler?.schedule();
-        }
-      })
-    );
+    this._hoverListeners.add(dom.addDisposableListener(d, dom.EventType.MOUSE_MOVE, (e) => {
+      if (this._isModifierDown(e)) {
+        this._enableDecorations();
+      } else {
+        this._disableDecorations();
+      }
+      if (Math.abs(e.pageX - origin.x) > w.devicePixelRatio * 2 || Math.abs(e.pageY - origin.y) > w.devicePixelRatio * 2) {
+        origin.x = e.pageX;
+        origin.y = e.pageY;
+        this._tooltipScheduler?.schedule();
+      }
+    }));
   }
   leave() {
     this._hoverListeners?.dispose();

@@ -1,6 +1,6 @@
 .monaco-editor .zone-widget .zone-widget-container.breakpoint-widget {
   display: flex;
-  border-color: #007acc;
+  border-color: #007ACC;
   .breakpoint-select-container {
     display: flex;
     justify-content: center;

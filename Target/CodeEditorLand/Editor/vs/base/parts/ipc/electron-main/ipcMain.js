@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import electron from "electron";
 import { onUnexpectedError } from "../../../common/errors.js";
+import { Event } from "../../../common/event.js";
 import { VSCODE_AUTHORITY } from "../../../common/network.js";
 class ValidatedIpcMain {
   static {
@@ -30,14 +31,11 @@ class ValidatedIpcMain {
    * only the next time a message is sent to `channel`, after which it is removed.
    */
   once(channel, listener) {
-    electron.ipcMain.once(
-      channel,
-      (event, ...args) => {
-        if (this.validateEvent(channel, event)) {
-          listener(event, ...args);
-        }
+    electron.ipcMain.once(channel, (event, ...args) => {
+      if (this.validateEvent(channel, event)) {
+        listener(event, ...args);
       }
-    );
+    });
     return this;
   }
   /**
@@ -57,17 +55,12 @@ class ValidatedIpcMain {
    * provided to the renderer process. Please refer to #24427 for details.
    */
   handle(channel, listener) {
-    electron.ipcMain.handle(
-      channel,
-      (event, ...args) => {
-        if (this.validateEvent(channel, event)) {
-          return listener(event, ...args);
-        }
-        return Promise.reject(
-          `Invalid channel '${channel}' or sender for ipcMain.handle() usage.`
-        );
+    electron.ipcMain.handle(channel, (event, ...args) => {
+      if (this.validateEvent(channel, event)) {
+        return listener(event, ...args);
       }
-    );
+      return Promise.reject(`Invalid channel '${channel}' or sender for ipcMain.handle() usage.`);
+    });
     return this;
   }
   /**
@@ -91,9 +84,7 @@ class ValidatedIpcMain {
   }
   validateEvent(channel, event) {
     if (!channel || !channel.startsWith("vscode:")) {
-      onUnexpectedError(
-        `Refused to handle ipcMain event for channel '${channel}' because the channel is unknown.`
-      );
+      onUnexpectedError(`Refused to handle ipcMain event for channel '${channel}' because the channel is unknown.`);
       return false;
     }
     const sender = event.senderFrame;
@@ -105,21 +96,15 @@ class ValidatedIpcMain {
     try {
       host = new URL(url).host;
     } catch (error) {
-      onUnexpectedError(
-        `Refused to handle ipcMain event for channel '${channel}' because of a malformed URL '${url}'.`
-      );
+      onUnexpectedError(`Refused to handle ipcMain event for channel '${channel}' because of a malformed URL '${url}'.`);
       return false;
     }
     if (host !== VSCODE_AUTHORITY) {
-      onUnexpectedError(
-        `Refused to handle ipcMain event for channel '${channel}' because of a bad origin of '${host}'.`
-      );
+      onUnexpectedError(`Refused to handle ipcMain event for channel '${channel}' because of a bad origin of '${host}'.`);
       return false;
     }
     if (sender.parent !== null) {
-      onUnexpectedError(
-        `Refused to handle ipcMain event for channel '${channel}' because sender of origin '${host}' is not a main frame.`
-      );
+      onUnexpectedError(`Refused to handle ipcMain event for channel '${channel}' because sender of origin '${host}' is not a main frame.`);
       return false;
     }
     return true;

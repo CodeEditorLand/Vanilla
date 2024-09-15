@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { mainWindow } from "./window.js";
 import { getErrorMessage } from "../common/errors.js";
 import { Emitter } from "../common/event.js";
 import { Disposable, toDisposable } from "../common/lifecycle.js";
-import { mainWindow } from "./window.js";
 class BroadcastDataChannel extends Disposable {
   constructor(channelName) {
     super();
@@ -15,22 +15,14 @@ class BroadcastDataChannel extends Disposable {
           this._onDidReceiveData.fire(event.data);
         }, "listener");
         this.broadcastChannel.addEventListener("message", listener);
-        this._register(
-          toDisposable(() => {
-            if (this.broadcastChannel) {
-              this.broadcastChannel.removeEventListener(
-                "message",
-                listener
-              );
-              this.broadcastChannel.close();
-            }
-          })
-        );
+        this._register(toDisposable(() => {
+          if (this.broadcastChannel) {
+            this.broadcastChannel.removeEventListener("message", listener);
+            this.broadcastChannel.close();
+          }
+        }));
       } catch (error) {
-        console.warn(
-          "Error while creating broadcast channel. Falling back to localStorage.",
-          getErrorMessage(error)
-        );
+        console.warn("Error while creating broadcast channel. Falling back to localStorage.", getErrorMessage(error));
       }
     }
     if (!this.broadcastChannel) {
@@ -51,11 +43,7 @@ class BroadcastDataChannel extends Disposable {
       }
     }, "listener");
     mainWindow.addEventListener("storage", listener);
-    this._register(
-      toDisposable(
-        () => mainWindow.removeEventListener("storage", listener)
-      )
-    );
+    this._register(toDisposable(() => mainWindow.removeEventListener("storage", listener)));
   }
   /**
    * Sends the data to other BroadcastChannel objects set up for this channel. Data can be structured objects, e.g. nested objects and arrays.

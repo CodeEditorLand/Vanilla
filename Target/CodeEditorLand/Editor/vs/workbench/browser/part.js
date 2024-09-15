@@ -1,16 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/part.css";
-import {
-  Dimension,
-  getActiveDocument,
-  prepend,
-  size
-} from "../../base/browser/dom.js";
-import { Emitter } from "../../base/common/event.js";
-import { toDisposable } from "../../base/common/lifecycle.js";
-import { assertIsDefined } from "../../base/common/types.js";
 import { Component } from "../common/component.js";
+import { IThemeService, IColorTheme } from "../../platform/theme/common/themeService.js";
+import { Dimension, size, IDimension, getActiveDocument, prepend, IDomPosition } from "../../base/browser/dom.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
+import { ISerializableView, IViewSize } from "../../base/browser/ui/grid/grid.js";
+import { Event, Emitter } from "../../base/common/event.js";
+import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
+import { assertIsDefined } from "../../base/common/types.js";
+import { IDisposable, toDisposable } from "../../base/common/lifecycle.js";
 class Part extends Component {
   constructor(id, options, themeService, storageService, layoutService) {
     super(id, themeService, storageService);
@@ -143,12 +142,7 @@ class Part extends Component {
   }
   relayout() {
     if (this.dimension && this.contentPosition) {
-      this.layout(
-        this.dimension.width,
-        this.dimension.height,
-        this.contentPosition.top,
-        this.contentPosition.left
-      );
+      this.layout(this.dimension.width, this.dimension.height, this.contentPosition.top, this.contentPosition.left);
     }
   }
   /**
@@ -159,9 +153,7 @@ class Part extends Component {
     return partLayout.layout(width, height);
   }
   //#region ISerializableView
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   get onDidChange() {
     return this._onDidChange.event;
   }
@@ -191,28 +183,19 @@ class PartLayout {
   layout(width, height) {
     let titleSize;
     if (this.options.hasTitle) {
-      titleSize = new Dimension(
-        width,
-        Math.min(height, PartLayout.TITLE_HEIGHT)
-      );
+      titleSize = new Dimension(width, Math.min(height, PartLayout.TITLE_HEIGHT));
     } else {
       titleSize = Dimension.None;
     }
     let headerSize;
     if (this.headerVisible) {
-      headerSize = new Dimension(
-        width,
-        Math.min(height, PartLayout.HEADER_HEIGHT)
-      );
+      headerSize = new Dimension(width, Math.min(height, PartLayout.HEADER_HEIGHT));
     } else {
       headerSize = Dimension.None;
     }
     let footerSize;
     if (this.footerVisible) {
-      footerSize = new Dimension(
-        width,
-        Math.min(height, PartLayout.Footer_HEIGHT)
-      );
+      footerSize = new Dimension(width, Math.min(height, PartLayout.Footer_HEIGHT));
     } else {
       footerSize = Dimension.None;
     }
@@ -220,10 +203,7 @@ class PartLayout {
     if (this.options && typeof this.options.borderWidth === "function") {
       contentWidth -= this.options.borderWidth();
     }
-    const contentSize = new Dimension(
-      contentWidth,
-      height - titleSize.height - headerSize.height - footerSize.height
-    );
+    const contentSize = new Dimension(contentWidth, height - titleSize.height - headerSize.height - footerSize.height);
     if (this.contentArea) {
       size(this.contentArea, contentSize.width, contentSize.height);
     }

@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { posix, win32 } from "../../../../../base/common/path.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
 import { OperatingSystem } from "../../../../../base/common/platform.js";
-import {
-  TerminalCapability
-} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IPath, posix, win32 } from "../../../../../base/common/path.js";
+import { ITerminalCapabilityStore, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 function convertLinkRangeToBuffer(lines, bufferWidth, range, startLine) {
   const bufferRange = {
     start: {
@@ -19,10 +19,7 @@ function convertLinkRangeToBuffer(lines, bufferWidth, range, startLine) {
   let startOffset = 0;
   const startWrappedLineCount = Math.ceil(range.startColumn / bufferWidth);
   for (let y = 0; y < Math.min(startWrappedLineCount); y++) {
-    const lineLength = Math.min(
-      bufferWidth,
-      range.startColumn - 1 - y * bufferWidth
-    );
+    const lineLength = Math.min(bufferWidth, range.startColumn - 1 - y * bufferWidth);
     let lineOffset = 0;
     const line = lines[y];
     if (!line) {
@@ -48,10 +45,7 @@ function convertLinkRangeToBuffer(lines, bufferWidth, range, startLine) {
   const endWrappedLineCount = Math.ceil(range.endColumn / bufferWidth);
   for (let y = Math.max(0, startWrappedLineCount - 1); y < endWrappedLineCount; y++) {
     const start = y === startWrappedLineCount - 1 ? (range.startColumn - 1 + startOffset) % bufferWidth : 0;
-    const lineLength = Math.min(
-      bufferWidth,
-      range.endColumn + startOffset - y * bufferWidth
-    );
+    const lineLength = Math.min(bufferWidth, range.endColumn + startOffset - y * bufferWidth);
     let lineOffset = 0;
     const line = lines[y];
     if (!line) {
@@ -116,7 +110,7 @@ function getXtermLineContent(buffer, lineStart, lineEnd, cols) {
 }
 __name(getXtermLineContent, "getXtermLineContent");
 function getXtermRangesByAttr(buffer, lineStart, lineEnd, cols) {
-  let bufferRangeStart;
+  let bufferRangeStart = void 0;
   let lastFgAttr = -1;
   let lastBgAttr = -1;
   const ranges = [];
@@ -134,13 +128,15 @@ function getXtermRangesByAttr(buffer, lineStart, lineEnd, cols) {
       const thisBgAttr = cell.isDim() | cell.isItalic();
       if (lastFgAttr === -1 || lastBgAttr === -1) {
         bufferRangeStart = { x, y };
-      } else if (lastFgAttr !== thisFgAttr || lastBgAttr !== thisBgAttr) {
-        const bufferRangeEnd = { x, y };
-        ranges.push({
-          start: bufferRangeStart,
-          end: bufferRangeEnd
-        });
-        bufferRangeStart = { x, y };
+      } else {
+        if (lastFgAttr !== thisFgAttr || lastBgAttr !== thisBgAttr) {
+          const bufferRangeEnd = { x, y };
+          ranges.push({
+            start: bufferRangeStart,
+            end: bufferRangeEnd
+          });
+          bufferRangeStart = { x, y };
+        }
       }
       lastFgAttr = thisFgAttr;
       lastBgAttr = thisBgAttr;
@@ -157,17 +153,15 @@ function updateLinkWithRelativeCwd(capabilities, y, text, osPath, logService) {
   }
   const result = [];
   const sep = osPath.sep;
-  if (text.includes(sep)) {
+  if (!text.includes(sep)) {
+    result.push(osPath.resolve(cwd + sep + text));
+  } else {
     let commonDirs = 0;
     let i = 0;
     const cwdPath = cwd.split(sep).reverse();
     const linkPath = text.split(sep);
     while (i < cwdPath.length) {
-      result.push(
-        osPath.resolve(
-          cwd + sep + linkPath.slice(commonDirs).join(sep)
-        )
-      );
+      result.push(osPath.resolve(cwd + sep + linkPath.slice(commonDirs).join(sep)));
       if (cwdPath[i] === linkPath[i]) {
         commonDirs++;
       } else {
@@ -175,8 +169,6 @@ function updateLinkWithRelativeCwd(capabilities, y, text, osPath, logService) {
       }
       i++;
     }
-  } else {
-    result.push(osPath.resolve(cwd + sep + text));
   }
   return result;
 }

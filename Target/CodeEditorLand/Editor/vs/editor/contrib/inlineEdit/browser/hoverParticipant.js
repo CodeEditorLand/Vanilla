@@ -12,20 +12,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { constObservable } from "../../../../base/common/observable.js";
-import * as nls from "../../../../nls.js";
+import { ICodeEditor, IEditorMouseEvent, MouseTargetType } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { HoverAnchor, HoverAnchorType, HoverForeignElementAnchor, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverPart, IRenderedHoverParts, RenderedHoverParts } from "../../hover/browser/hoverTypes.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  MouseTargetType
-} from "../../../browser/editorBrowser.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import {
-  HoverAnchorType,
-  HoverForeignElementAnchor,
-  RenderedHoverParts
-} from "../../hover/browser/hoverTypes.js";
 import { InlineEditController } from "./inlineEditController.js";
 import { InlineEditHintsContentWidget } from "./inlineEditHintsWidget.js";
+import * as nls from "../../../../nls.js";
 class InlineEditHover {
   constructor(owner, range, controller) {
     this.owner = owner;
@@ -59,39 +55,18 @@ let InlineEditHoverParticipant = class {
       const viewZoneData = target.detail;
       if (controller.shouldShowHoverAtViewZone(viewZoneData.viewZoneId)) {
         const range = target.range;
-        return new HoverForeignElementAnchor(
-          1e3,
-          this,
-          range,
-          mouseEvent.event.posx,
-          mouseEvent.event.posy,
-          false
-        );
+        return new HoverForeignElementAnchor(1e3, this, range, mouseEvent.event.posx, mouseEvent.event.posy, false);
       }
     }
     if (target.type === MouseTargetType.CONTENT_EMPTY) {
       if (controller.shouldShowHoverAt(target.range)) {
-        return new HoverForeignElementAnchor(
-          1e3,
-          this,
-          target.range,
-          mouseEvent.event.posx,
-          mouseEvent.event.posy,
-          false
-        );
+        return new HoverForeignElementAnchor(1e3, this, target.range, mouseEvent.event.posx, mouseEvent.event.posy, false);
       }
     }
     if (target.type === MouseTargetType.CONTENT_TEXT) {
       const mightBeForeignElement = target.detail.mightBeForeignElement;
       if (mightBeForeignElement && controller.shouldShowHoverAt(target.range)) {
-        return new HoverForeignElementAnchor(
-          1e3,
-          this,
-          target.range,
-          mouseEvent.event.posx,
-          mouseEvent.event.posy,
-          false
-        );
+        return new HoverForeignElementAnchor(1e3, this, target.range, mouseEvent.event.posx, mouseEvent.event.posy, false);
       }
     }
     return null;
@@ -125,10 +100,7 @@ let InlineEditHoverParticipant = class {
     return new RenderedHoverParts([renderedHoverPart]);
   }
   getAccessibleContent(hoverPart) {
-    return nls.localize(
-      "hoverAccessibilityInlineEdits",
-      "There are inline edits here."
-    );
+    return nls.localize("hoverAccessibilityInlineEdits", "There are inline edits here.");
   }
 };
 InlineEditHoverParticipant = __decorateClass([

@@ -10,23 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { NotSupportedError } from "../../../../base/common/errors.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import { Event } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  FilePermission,
-  FileSystemProviderCapabilities,
-  FileSystemProviderErrorCode,
-  FileType
-} from "../../../../platform/files/common/files.js";
-import {
-  ChangeType,
-  EDIT_SESSIONS_SCHEME,
-  IEditSessionsStorageService,
-  decodeEditSessionFileContent
-} from "../common/editSessions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FilePermission, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
+import { ChangeType, decodeEditSessionFileContent, EDIT_SESSIONS_SCHEME, EditSession, IEditSessionsStorageService } from "../common/editSessions.js";
+import { NotSupportedError } from "../../../../base/common/errors.js";
 let EditSessionsFileSystemProvider = class {
   constructor(editSessionsStorageService) {
     this.editSessionsStorageService = editSessionsStorageService;
@@ -37,24 +26,17 @@ let EditSessionsFileSystemProvider = class {
   static SCHEMA = EDIT_SESSIONS_SCHEME;
   capabilities = FileSystemProviderCapabilities.Readonly + FileSystemProviderCapabilities.FileReadWrite;
   async readFile(resource) {
-    const match = /(?<ref>[^/]+)\/(?<folderName>[^/]+)\/(?<filePath>.*)/.exec(
-      resource.path.substring(1)
-    );
+    const match = /(?<ref>[^/]+)\/(?<folderName>[^/]+)\/(?<filePath>.*)/.exec(resource.path.substring(1));
     if (!match?.groups) {
       throw FileSystemProviderErrorCode.FileNotFound;
     }
     const { ref, folderName, filePath } = match.groups;
-    const data = await this.editSessionsStorageService.read(
-      "editSessions",
-      ref
-    );
+    const data = await this.editSessionsStorageService.read("editSessions", ref);
     if (!data) {
       throw FileSystemProviderErrorCode.FileNotFound;
     }
     const content = JSON.parse(data.content);
-    const change = content.folders.find((f) => f.name === folderName)?.workingChanges.find(
-      (change2) => change2.relativeFilePath === filePath
-    );
+    const change = content.folders.find((f) => f.name === folderName)?.workingChanges.find((change2) => change2.relativeFilePath === filePath);
     if (!change || change.type === ChangeType.Deletion) {
       throw FileSystemProviderErrorCode.FileNotFound;
     }

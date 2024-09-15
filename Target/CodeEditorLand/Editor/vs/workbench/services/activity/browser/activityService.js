@@ -10,43 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IActivityService, IActivity } from "../common/activity.js";
+import { IDisposable, Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IViewDescriptorService, ViewContainer } from "../../../common/views.js";
+import { GLOBAL_ACTIVITY_ID, ACCOUNTS_ACTIVITY_ID } from "../../../common/activity.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { isUndefined } from "../../../../base/common/types.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  ACCOUNTS_ACTIVITY_ID,
-  GLOBAL_ACTIVITY_ID
-} from "../../../common/activity.js";
-import {
-  IViewDescriptorService
-} from "../../../common/views.js";
-import { IActivityService } from "../common/activity.js";
+import { isUndefined } from "../../../../base/common/types.js";
 let ViewContainerActivityByView = class extends Disposable {
   constructor(viewId, viewDescriptorService, activityService) {
     super();
     this.viewId = viewId;
     this.viewDescriptorService = viewDescriptorService;
     this.activityService = activityService;
-    this._register(
-      Event.filter(
-        this.viewDescriptorService.onDidChangeContainer,
-        (e) => e.views.some((view) => view.id === viewId)
-      )(() => this.update())
-    );
-    this._register(
-      Event.filter(
-        this.viewDescriptorService.onDidChangeLocation,
-        (e) => e.views.some((view) => view.id === viewId)
-      )(() => this.update())
-    );
+    this._register(Event.filter(this.viewDescriptorService.onDidChangeContainer, (e) => e.views.some((view) => view.id === viewId))(() => this.update()));
+    this._register(Event.filter(this.viewDescriptorService.onDidChangeLocation, (e) => e.views.some((view) => view.id === viewId))(() => this.update()));
   }
   static {
     __name(this, "ViewContainerActivityByView");
@@ -63,14 +42,9 @@ let ViewContainerActivityByView = class extends Disposable {
   }
   update() {
     this.activityDisposable.dispose();
-    const container = this.viewDescriptorService.getViewContainerByViewId(
-      this.viewId
-    );
+    const container = this.viewDescriptorService.getViewContainerByViewId(this.viewId);
     if (container && this.activity) {
-      this.activityDisposable = this.activityService.showViewContainerActivity(
-        container.id,
-        this.activity
-      );
+      this.activityDisposable = this.activityService.showViewContainerActivity(container.id, this.activity);
     }
   }
   dispose() {
@@ -93,9 +67,7 @@ let ActivityService = class extends Disposable {
   }
   _serviceBrand;
   viewActivities = /* @__PURE__ */ new Map();
-  _onDidChangeActivity = this._register(
-    new Emitter()
-  );
+  _onDidChangeActivity = this._register(new Emitter());
   onDidChangeActivity = this._onDidChangeActivity.event;
   viewContainerActivities = /* @__PURE__ */ new Map();
   globalActivities = /* @__PURE__ */ new Map();
@@ -141,10 +113,7 @@ let ActivityService = class extends Disposable {
     } else {
       maybeItem = {
         id: 1,
-        activity: this.instantiationService.createInstance(
-          ViewContainerActivityByView,
-          viewId
-        )
+        activity: this.instantiationService.createInstance(ViewContainerActivityByView, viewId)
       };
       this.viewActivities.set(viewId, maybeItem);
     }

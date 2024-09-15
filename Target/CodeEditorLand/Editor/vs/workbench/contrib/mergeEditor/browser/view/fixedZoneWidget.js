@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { h } from "../../../../../base/browser/dom.js";
-import { Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor, IOverlayWidget, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
+import { Event } from "../../../../../base/common/event.js";
 class FixedZoneWidget extends Disposable {
   constructor(editor, viewZoneAccessor, afterLineNumber, height, viewZoneIdsToCleanUp) {
     super();
@@ -20,11 +21,9 @@ class FixedZoneWidget extends Disposable {
       }, "onDomNodeTop")
     });
     viewZoneIdsToCleanUp.push(this.viewZoneId);
-    this._register(
-      Event.runAndSubscribe(this.editor.onDidLayoutChange, () => {
-        this.widgetDomNode.style.left = this.editor.getLayoutInfo().contentLeft + "px";
-      })
-    );
+    this._register(Event.runAndSubscribe(this.editor.onDidLayoutChange, () => {
+      this.widgetDomNode.style.left = this.editor.getLayoutInfo().contentLeft + "px";
+    }));
     this.editor.addOverlayWidget(this.overlayWidget);
     this._register({
       dispose: /* @__PURE__ */ __name(() => {

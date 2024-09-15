@@ -5,7 +5,7 @@ function isUUID(value) {
   return _UUIDPattern.test(value);
 }
 __name(isUUID, "isUUID");
-const generateUuid = (() => {
+const generateUuid = function() {
   if (typeof crypto === "object" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID.bind(crypto);
   }
@@ -13,7 +13,7 @@ const generateUuid = (() => {
   if (typeof crypto === "object" && typeof crypto.getRandomValues === "function") {
     getRandomValues = crypto.getRandomValues.bind(crypto);
   } else {
-    getRandomValues = /* @__PURE__ */ __name((bucket) => {
+    getRandomValues = /* @__PURE__ */ __name(function(bucket) {
       for (let i = 0; i < bucket.length; i++) {
         bucket[i] = Math.floor(Math.random() * 256);
       }
@@ -53,7 +53,7 @@ const generateUuid = (() => {
     result += _hex[_data[i++]];
     return result;
   }, "generateUuid");
-})();
+}();
 export {
   generateUuid,
   isUUID

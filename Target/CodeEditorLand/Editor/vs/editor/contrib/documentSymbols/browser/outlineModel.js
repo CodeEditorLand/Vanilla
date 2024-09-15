@@ -10,31 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  binarySearch,
-  coalesceInPlace,
-  equals
-} from "../../../../base/common/arrays.js";
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { binarySearch, coalesceInPlace, equals } from "../../../../base/common/arrays.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
 import { commonPrefixLength } from "../../../../base/common/strings.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { ITextModel } from "../../../common/model.js";
+import { DocumentSymbol, DocumentSymbolProvider } from "../../../common/languages.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IFeatureDebounceInformation, ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import {
-  ILanguageFeatureDebounceService
-} from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IModelService } from "../../../common/services/model.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 class TreeElement {
   static {
     __name(this, "TreeElement");
@@ -132,11 +126,7 @@ class OutlineGroup extends TreeElement {
   }
   _updateMarker(markers, item) {
     item.marker = void 0;
-    const idx = binarySearch(
-      markers,
-      item.symbol.range,
-      Range.compareRangesUsingStarts
-    );
+    const idx = binarySearch(markers, item.symbol.range, Range.compareRangesUsingStarts);
     let start;
     if (idx < 0) {
       start = ~idx;
@@ -184,30 +174,20 @@ class OutlineModel extends TreeElement {
     const provider = registry.ordered(textModel);
     const promises = provider.map((provider2, index) => {
       const id = TreeElement.findId(`provider_${index}`, result);
-      const group = new OutlineGroup(
-        id,
-        result,
-        provider2.displayName ?? "Unknown Outline Provider",
-        index
-      );
-      return Promise.resolve(
-        provider2.provideDocumentSymbols(textModel, cts.token)
-      ).then(
-        (result2) => {
-          for (const info of result2 || []) {
-            OutlineModel._makeOutlineElement(info, group);
-          }
-          return group;
-        },
-        (err) => {
-          onUnexpectedExternalError(err);
-          return group;
+      const group = new OutlineGroup(id, result, provider2.displayName ?? "Unknown Outline Provider", index);
+      return Promise.resolve(provider2.provideDocumentSymbols(textModel, cts.token)).then((result2) => {
+        for (const info of result2 || []) {
+          OutlineModel._makeOutlineElement(info, group);
         }
-      ).then((group2) => {
-        if (TreeElement.empty(group2)) {
-          group2.remove();
-        } else {
+        return group;
+      }, (err) => {
+        onUnexpectedExternalError(err);
+        return group;
+      }).then((group2) => {
+        if (!TreeElement.empty(group2)) {
           result._groups.set(id, group2);
+        } else {
+          group2.remove();
         }
       });
     });
@@ -294,7 +274,7 @@ class OutlineModel extends TreeElement {
         candidate = candidate.parent;
       }
     }
-    let result;
+    let result = void 0;
     for (const [, group] of this._groups) {
       result = group.getItemEnclosingPosition(position);
       if (result && (!preferredGroup || preferredGroup === group)) {
@@ -318,30 +298,17 @@ class OutlineModel extends TreeElement {
       if (child instanceof OutlineElement) {
         roots.push(child.symbol);
       } else {
-        roots.push(
-          ...Iterable.map(
-            child.children.values(),
-            (child2) => child2.symbol
-          )
-        );
+        roots.push(...Iterable.map(child.children.values(), (child2) => child2.symbol));
       }
     }
-    return roots.sort(
-      (a, b) => Range.compareRangesUsingStarts(a.range, b.range)
-    );
+    return roots.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
   }
   asListOfDocumentSymbols() {
     const roots = this.getTopLevelSymbols();
     const bucket = [];
     OutlineModel._flattenDocumentSymbols(bucket, roots, "");
     return bucket.sort(
-      (a, b) => Position.compare(
-        Range.getStartPosition(a.range),
-        Range.getStartPosition(b.range)
-      ) || Position.compare(
-        Range.getEndPosition(b.range),
-        Range.getEndPosition(a.range)
-      )
+      (a, b) => Position.compare(Range.getStartPosition(a.range), Range.getStartPosition(b.range)) || Position.compare(Range.getEndPosition(b.range), Range.getEndPosition(a.range))
     );
   }
   static _flattenDocumentSymbols(bucket, entries, overrideContainerLabel) {
@@ -358,31 +325,19 @@ class OutlineModel extends TreeElement {
         // we flatten it...
       });
       if (entry.children) {
-        OutlineModel._flattenDocumentSymbols(
-          bucket,
-          entry.children,
-          entry.name
-        );
+        OutlineModel._flattenDocumentSymbols(bucket, entry.children, entry.name);
       }
     }
   }
 }
-const IOutlineModelService = createDecorator(
-  "IOutlineModelService"
-);
+const IOutlineModelService = createDecorator("IOutlineModelService");
 let OutlineModelService = class {
   constructor(_languageFeaturesService, debounces, modelService) {
     this._languageFeaturesService = _languageFeaturesService;
-    this._debounceInformation = debounces.for(
-      _languageFeaturesService.documentSymbolProvider,
-      "DocumentSymbols",
-      { min: 350 }
-    );
-    this._disposables.add(
-      modelService.onModelRemoved((textModel) => {
-        this._cache.delete(textModel.id);
-      })
-    );
+    this._debounceInformation = debounces.for(_languageFeaturesService.documentSymbolProvider, "DocumentSymbols", { min: 350 });
+    this._disposables.add(modelService.onModelRemoved((textModel) => {
+      this._cache.delete(textModel.id);
+    }));
   }
   static {
     __name(this, "OutlineModelService");
@@ -411,10 +366,7 @@ let OutlineModelService = class {
       const now = Date.now();
       data.promise.then((outlineModel) => {
         data.model = outlineModel;
-        this._debounceInformation.update(
-          textModel,
-          Date.now() - now
-        );
+        this._debounceInformation.update(textModel, Date.now() - now);
       }).catch((_err) => {
         this._cache.delete(textModel.id);
       });
@@ -444,11 +396,7 @@ OutlineModelService = __decorateClass([
   __decorateParam(1, ILanguageFeatureDebounceService),
   __decorateParam(2, IModelService)
 ], OutlineModelService);
-registerSingleton(
-  IOutlineModelService,
-  OutlineModelService,
-  InstantiationType.Delayed
-);
+registerSingleton(IOutlineModelService, OutlineModelService, InstantiationType.Delayed);
 export {
   IOutlineModelService,
   OutlineElement,

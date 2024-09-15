@@ -10,20 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { log } from "../../../base/common/console.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { MainContext, MainThreadConsoleShape } from "../common/extHost.protocol.js";
 import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
+import { IRemoteConsoleLog, log } from "../../../base/common/console.js";
+import { logRemoteEntry, logRemoteEntryIfError } from "../../services/extensions/common/remoteConsoleUtil.js";
 import { parseExtensionDevOptions } from "../../services/extensions/common/extensionDevOptions.js";
-import {
-  logRemoteEntry,
-  logRemoteEntryIfError
-} from "../../services/extensions/common/remoteConsoleUtil.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ILogService } from "../../../platform/log/common/log.js";
 let MainThreadConsole = class {
   constructor(_extHostContext, _environmentService, _logService) {
     this._environmentService = _environmentService;

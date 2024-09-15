@@ -11,53 +11,33 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./editorDictation.css";
-import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
-import { toAction } from "../../../../../base/common/actions.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { IDimension } from "../../../../../base/browser/dom.js";
 import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../../../editor/browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../../editor/common/editorCommon.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
+import { HasSpeechProvider, ISpeechService, SpeechToTextInProgress, SpeechToTextStatus } from "../../../speech/common/speechService.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
-import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
-import { isWindows } from "../../../../../base/common/platform.js";
-import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { assertIsDefined } from "../../../../../base/common/types.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../../../editor/browser/editorBrowser.js";
-import {
-  EditorAction2,
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../../../editor/browser/editorExtensions.js";
 import { EditorOption } from "../../../../../editor/common/config/editorOptions.js";
+import { EditorAction2, EditorContributionInstantiation, registerEditorContribution } from "../../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { EditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { Selection } from "../../../../../editor/common/core/selection.js";
 import { Position } from "../../../../../editor/common/core/position.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import { Selection } from "../../../../../editor/common/core/selection.js";
-import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
-import { localize, localize2 } from "../../../../../nls.js";
 import { registerAction2 } from "../../../../../platform/actions/common/actions.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  HasSpeechProvider,
-  ISpeechService,
-  SpeechToTextInProgress,
-  SpeechToTextStatus
-} from "../../../speech/common/speechService.js";
-const EDITOR_DICTATION_IN_PROGRESS = new RawContextKey(
-  "editorDictation.inProgress",
-  false
-);
+import { assertIsDefined } from "../../../../../base/common/types.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { toAction } from "../../../../../base/common/actions.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { isWindows } from "../../../../../base/common/platform.js";
+const EDITOR_DICTATION_IN_PROGRESS = new RawContextKey("editorDictation.inProgress", false);
 const VOICE_CATEGORY = localize2("voiceCategory", "Voice");
 class EditorDictationStartAction extends EditorAction2 {
   static {
@@ -79,15 +59,15 @@ class EditorDictationStartAction extends EditorAction2 {
       keybinding: {
         primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyV,
         weight: KeybindingWeight.WorkbenchContrib,
-        secondary: isWindows ? [KeyMod.Alt | KeyCode.Backquote] : void 0
+        secondary: isWindows ? [
+          KeyMod.Alt | KeyCode.Backquote
+        ] : void 0
       }
     });
   }
   runEditorCommand(accessor, editor) {
     const keybindingService = accessor.get(IKeybindingService);
-    const holdMode = keybindingService.enableKeybindingHoldMode(
-      this.desc.id
-    );
+    const holdMode = keybindingService.enableKeybindingHoldMode(this.desc.id);
     if (holdMode) {
       let shouldCallStop = false;
       const handle = setTimeout(() => {
@@ -131,19 +111,12 @@ class DictationWidget extends Disposable {
     this.editor = editor;
     const actionBar = this._register(new ActionBar(this.domNode));
     const stopActionKeybinding = keybindingService.lookupKeybinding(EditorDictationStopAction.ID)?.getLabel();
-    actionBar.push(
-      toAction({
-        id: EditorDictationStopAction.ID,
-        label: stopActionKeybinding ? localize(
-          "stopDictationShort1",
-          "Stop Dictation ({0})",
-          stopActionKeybinding
-        ) : localize("stopDictationShort2", "Stop Dictation"),
-        class: ThemeIcon.asClassName(Codicon.micFilled),
-        run: /* @__PURE__ */ __name(() => EditorDictation.get(editor)?.stop(), "run")
-      }),
-      { icon: true, label: false, keybinding: stopActionKeybinding }
-    );
+    actionBar.push(toAction({
+      id: EditorDictationStopAction.ID,
+      label: stopActionKeybinding ? localize("stopDictationShort1", "Stop Dictation ({0})", stopActionKeybinding) : localize("stopDictationShort2", "Stop Dictation"),
+      class: ThemeIcon.asClassName(Codicon.micFilled),
+      run: /* @__PURE__ */ __name(() => EditorDictation.get(editor)?.stop(), "run")
+    }), { icon: true, label: false, keybinding: stopActionKeybinding });
     this.domNode.classList.add("editor-dictation-widget");
     this.domNode.appendChild(actionBar.domNode);
   }
@@ -175,14 +148,8 @@ class DictationWidget extends Disposable {
   beforeRender() {
     const lineHeight = this.editor.getOption(EditorOption.lineHeight);
     const width = this.editor.getLayoutInfo().contentWidth * 0.7;
-    this.domNode.style.setProperty(
-      "--vscode-editor-dictation-widget-height",
-      `${lineHeight}px`
-    );
-    this.domNode.style.setProperty(
-      "--vscode-editor-dictation-widget-width",
-      `${width}px`
-    );
+    this.domNode.style.setProperty("--vscode-editor-dictation-widget-height", `${lineHeight}px`);
+    this.domNode.style.setProperty("--vscode-editor-dictation-widget-width", `${width}px`);
     return null;
   }
   show() {
@@ -214,63 +181,35 @@ let EditorDictation = class extends Disposable {
   static get(editor) {
     return editor.getContribution(EditorDictation.ID);
   }
-  widget = this._register(
-    new DictationWidget(this.editor, this.keybindingService)
-  );
+  widget = this._register(new DictationWidget(this.editor, this.keybindingService));
   editorDictationInProgress = EDITOR_DICTATION_IN_PROGRESS.bindTo(this.contextKeyService);
-  sessionDisposables = this._register(
-    new MutableDisposable()
-  );
+  sessionDisposables = this._register(new MutableDisposable());
   async start() {
     const disposables = new DisposableStore();
     this.sessionDisposables.value = disposables;
     this.widget.show();
     disposables.add(toDisposable(() => this.widget.hide()));
     this.editorDictationInProgress.set(true);
-    disposables.add(
-      toDisposable(() => this.editorDictationInProgress.reset())
-    );
+    disposables.add(toDisposable(() => this.editorDictationInProgress.reset()));
     const collection = this.editor.createDecorationsCollection();
     disposables.add(toDisposable(() => collection.clear()));
-    disposables.add(
-      this.editor.onDidChangeCursorPosition(() => this.widget.layout())
-    );
-    let previewStart;
+    disposables.add(this.editor.onDidChangeCursorPosition(() => this.widget.layout()));
+    let previewStart = void 0;
     let lastReplaceTextLength = 0;
     const replaceText = /* @__PURE__ */ __name((text, isPreview) => {
       if (!previewStart) {
         previewStart = assertIsDefined(this.editor.getPosition());
       }
-      const endPosition = new Position(
-        previewStart.lineNumber,
-        previewStart.column + text.length
-      );
-      this.editor.executeEdits(
-        EditorDictation.ID,
-        [
-          EditOperation.replace(
-            Range.fromPositions(
-              previewStart,
-              previewStart.with(
-                void 0,
-                previewStart.column + lastReplaceTextLength
-              )
-            ),
-            text
-          )
-        ],
-        [Selection.fromPositions(endPosition)]
-      );
+      const endPosition = new Position(previewStart.lineNumber, previewStart.column + text.length);
+      this.editor.executeEdits(EditorDictation.ID, [
+        EditOperation.replace(Range.fromPositions(previewStart, previewStart.with(void 0, previewStart.column + lastReplaceTextLength)), text)
+      ], [
+        Selection.fromPositions(endPosition)
+      ]);
       if (isPreview) {
         collection.set([
           {
-            range: Range.fromPositions(
-              previewStart,
-              previewStart.with(
-                void 0,
-                previewStart.column + text.length
-              )
-            ),
+            range: Range.fromPositions(previewStart, previewStart.with(void 0, previewStart.column + text.length)),
             options: {
               description: "editor-dictation-preview",
               inlineClassName: "ghost-text-decoration-preview"
@@ -289,39 +228,34 @@ let EditorDictation = class extends Disposable {
     }, "replaceText");
     const cts = new CancellationTokenSource();
     disposables.add(toDisposable(() => cts.dispose(true)));
-    const session = await this.speechService.createSpeechToTextSession(
-      cts.token,
-      "editor"
-    );
-    disposables.add(
-      session.onDidChange((e) => {
-        if (cts.token.isCancellationRequested) {
-          return;
-        }
-        switch (e.status) {
-          case SpeechToTextStatus.Started:
-            this.widget.active();
-            break;
-          case SpeechToTextStatus.Stopped:
-            disposables.dispose();
-            break;
-          case SpeechToTextStatus.Recognizing: {
-            if (!e.text) {
-              return;
-            }
-            replaceText(e.text, true);
-            break;
+    const session = await this.speechService.createSpeechToTextSession(cts.token, "editor");
+    disposables.add(session.onDidChange((e) => {
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      switch (e.status) {
+        case SpeechToTextStatus.Started:
+          this.widget.active();
+          break;
+        case SpeechToTextStatus.Stopped:
+          disposables.dispose();
+          break;
+        case SpeechToTextStatus.Recognizing: {
+          if (!e.text) {
+            return;
           }
-          case SpeechToTextStatus.Recognized: {
-            if (!e.text) {
-              return;
-            }
-            replaceText(`${e.text} `, false);
-            break;
-          }
+          replaceText(e.text, true);
+          break;
         }
-      })
-    );
+        case SpeechToTextStatus.Recognized: {
+          if (!e.text) {
+            return;
+          }
+          replaceText(`${e.text} `, false);
+          break;
+        }
+      }
+    }));
   }
   stop() {
     this.sessionDisposables.clear();
@@ -332,11 +266,7 @@ EditorDictation = __decorateClass([
   __decorateParam(2, IContextKeyService),
   __decorateParam(3, IKeybindingService)
 ], EditorDictation);
-registerEditorContribution(
-  EditorDictation.ID,
-  EditorDictation,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(EditorDictation.ID, EditorDictation, EditorContributionInstantiation.Lazy);
 registerAction2(EditorDictationStartAction);
 registerAction2(EditorDictationStopAction);
 export {

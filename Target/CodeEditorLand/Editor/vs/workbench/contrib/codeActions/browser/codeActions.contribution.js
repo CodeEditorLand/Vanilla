@@ -10,60 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Extensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Extensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
+import { CodeActionsExtensionPoint, codeActionsExtensionPointDescriptor } from "../common/codeActionsExtensionPoint.js";
+import { DocumentationExtensionPoint, documentationExtensionPointDescriptor } from "../common/documentationExtensionPoint.js";
 import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import {
-  codeActionsExtensionPointDescriptor
-} from "../common/codeActionsExtensionPoint.js";
-import {
-  documentationExtensionPointDescriptor
-} from "../common/documentationExtensionPoint.js";
-import {
-  CodeActionsContribution,
-  editorConfiguration,
-  notebookEditorConfiguration
-} from "./codeActionsContribution.js";
+import { CodeActionsContribution, editorConfiguration, notebookEditorConfiguration } from "./codeActionsContribution.js";
 import { CodeActionDocumentationContribution } from "./documentationContribution.js";
 const codeActionsExtensionPoint = ExtensionsRegistry.registerExtensionPoint(codeActionsExtensionPointDescriptor);
-const documentationExtensionPoint = ExtensionsRegistry.registerExtensionPoint(
-  documentationExtensionPointDescriptor
-);
-Registry.as(
-  Extensions.Configuration
-).registerConfiguration(editorConfiguration);
-Registry.as(
-  Extensions.Configuration
-).registerConfiguration(notebookEditorConfiguration);
+const documentationExtensionPoint = ExtensionsRegistry.registerExtensionPoint(documentationExtensionPointDescriptor);
+Registry.as(Extensions.Configuration).registerConfiguration(editorConfiguration);
+Registry.as(Extensions.Configuration).registerConfiguration(notebookEditorConfiguration);
 let WorkbenchConfigurationContribution = class {
   static {
     __name(this, "WorkbenchConfigurationContribution");
   }
   constructor(instantiationService) {
-    instantiationService.createInstance(
-      CodeActionsContribution,
-      codeActionsExtensionPoint
-    );
-    instantiationService.createInstance(
-      CodeActionDocumentationContribution,
-      documentationExtensionPoint
-    );
+    instantiationService.createInstance(CodeActionsContribution, codeActionsExtensionPoint);
+    instantiationService.createInstance(CodeActionDocumentationContribution, documentationExtensionPoint);
   }
 };
 WorkbenchConfigurationContribution = __decorateClass([
   __decorateParam(0, IInstantiationService)
 ], WorkbenchConfigurationContribution);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  WorkbenchConfigurationContribution,
-  LifecyclePhase.Eventually
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(WorkbenchConfigurationContribution, LifecyclePhase.Eventually);
 //# sourceMappingURL=codeActions.contribution.js.map

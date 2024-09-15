@@ -10,8 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
 import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { WebviewContentOptions, WebviewExtensionDescription, WebviewOptions } from "../../webview/browser/webview.js";
+import { WebviewIcons } from "./webviewIconManager.js";
 import { WebviewInput } from "./webviewEditorInput.js";
 import { IWebviewWorkbenchService } from "./webviewWorkbenchService.js";
 let WebviewEditorInputSerializer = class {
@@ -57,10 +61,7 @@ let WebviewEditorInputSerializer = class {
   fromJson(data) {
     return {
       ...data,
-      extension: reviveWebviewExtensionDescription(
-        data.extensionId,
-        data.extensionLocation
-      ),
+      extension: reviveWebviewExtensionDescription(data.extensionId, data.extensionLocation),
       iconPath: reviveIconPath(data.iconPath),
       state: reviveState(data.state),
       webviewOptions: restoreWebviewOptions(data.options),
@@ -73,10 +74,7 @@ let WebviewEditorInputSerializer = class {
       viewType: input.viewType,
       providedId: input.providedId,
       title: input.getName(),
-      options: {
-        ...input.webview.options,
-        ...input.webview.contentOptions
-      },
+      options: { ...input.webview.options, ...input.webview.contentOptions },
       extensionLocation: input.extension?.location,
       extensionId: input.extension?.id.value,
       state: input.webview.state,
@@ -136,9 +134,7 @@ __name(restoreWebviewOptions, "restoreWebviewOptions");
 function restoreWebviewContentOptions(options) {
   return {
     ...options,
-    localResourceRoots: options.localResourceRoots?.map(
-      (uri) => reviveUri(uri)
-    )
+    localResourceRoots: options.localResourceRoots?.map((uri) => reviveUri(uri))
   };
 }
 __name(restoreWebviewContentOptions, "restoreWebviewContentOptions");

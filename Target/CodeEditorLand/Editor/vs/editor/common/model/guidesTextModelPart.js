@@ -1,17 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { findLast } from "../../../base/common/arraysFind.js";
-import { BugIndicatingError } from "../../../base/common/errors.js";
 import * as strings from "../../../base/common/strings.js";
 import { CursorColumns } from "../core/cursorColumns.js";
+import { IPosition, Position } from "../core/position.js";
 import { Range } from "../core/range.js";
-import {
-  HorizontalGuidesState,
-  IndentGuide,
-  IndentGuideHorizontalLine
-} from "../textModelGuides.js";
 import { TextModelPart } from "./textModelPart.js";
 import { computeIndentLevel } from "./utils.js";
+import { ILanguageConfigurationService, ResolvedLanguageConfiguration } from "../languages/languageConfigurationRegistry.js";
+import { BracketGuideOptions, HorizontalGuidesState, IActiveIndentGuideInfo, IGuidesTextModelPart, IndentGuide, IndentGuideHorizontalLine } from "../textModelGuides.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
 class GuidesTextModelPart extends TextModelPart {
   constructor(textModel, languageConfigurationService) {
     super();
@@ -123,9 +121,7 @@ class GuidesTextModelPart extends TextModelPart {
       }
       let upLineIndentLevel = -1;
       if (goUp && upLineNumber >= 1) {
-        const currentIndent = this._computeIndentLevel(
-          upLineNumber - 1
-        );
+        const currentIndent = this._computeIndentLevel(upLineNumber - 1);
         if (currentIndent >= 0) {
           up_belowContentLineIndex = upLineNumber - 1;
           up_belowContentLineIndent = currentIndent;
@@ -143,9 +139,7 @@ class GuidesTextModelPart extends TextModelPart {
       }
       let downLineIndentLevel = -1;
       if (goDown && downLineNumber <= lineCount) {
-        const currentIndent = this._computeIndentLevel(
-          downLineNumber - 1
-        );
+        const currentIndent = this._computeIndentLevel(downLineNumber - 1);
         if (currentIndent >= 0) {
           down_aboveContentLineIndex = downLineNumber - 1;
           down_aboveContentLineIndent = currentIndent;
@@ -218,16 +212,11 @@ class GuidesTextModelPart extends TextModelPart {
         this.textModel.getLineMaxColumn(endLineNumber)
       )
     ).toArray();
-    let activeBracketPairRange;
+    let activeBracketPairRange = void 0;
     if (activePosition && bracketPairs.length > 0) {
-      const bracketsContainingActivePosition = (startLineNumber <= activePosition.lineNumber && activePosition.lineNumber <= endLineNumber ? (
-        // We don't need to query the brackets again if the cursor is in the viewport
-        bracketPairs
-      ) : this.textModel.bracketPairs.getBracketPairsInRange(
+      const bracketsContainingActivePosition = (startLineNumber <= activePosition.lineNumber && activePosition.lineNumber <= endLineNumber ? bracketPairs : this.textModel.bracketPairs.getBracketPairsInRange(
         Range.fromPositions(activePosition)
-      ).toArray()).filter(
-        (bp) => Range.strictContainsPosition(bp.range, activePosition)
-      );
+      ).toArray()).filter((bp) => Range.strictContainsPosition(bp.range, activePosition));
       activeBracketPairRange = findLast(
         bracketsContainingActivePosition,
         (i) => includeSingleLinePairs || i.range.startLineNumber !== i.range.endLineNumber
@@ -243,11 +232,7 @@ class GuidesTextModelPart extends TextModelPart {
       if (!isActive && !options.includeInactive) {
         continue;
       }
-      const className = colorProvider.getInlineClassName(
-        pair.nestingLevel,
-        pair.nestingLevelOfEqualBracketType,
-        independentColorPoolPerBracketType
-      ) + (options.highlightActive && isActive ? " " + colorProvider.activeClassName : "");
+      const className = colorProvider.getInlineClassName(pair.nestingLevel, pair.nestingLevelOfEqualBracketType, independentColorPoolPerBracketType) + (options.highlightActive && isActive ? " " + colorProvider.activeClassName : "");
       const start = pair.openingBracketRange.getStartPosition();
       const end = pair.closingBracketRange.getStartPosition();
       const horizontalGuides = options.horizontalGuides === HorizontalGuidesState.Enabled || options.horizontalGuides === HorizontalGuidesState.EnabledForActive && isActive;
@@ -270,11 +255,7 @@ class GuidesTextModelPart extends TextModelPart {
       const startVisibleColumn = this.getVisibleColumnFromPosition(
         pair.openingBracketRange.getStartPosition()
       );
-      const guideVisibleColumn = Math.min(
-        startVisibleColumn,
-        endVisibleColumn,
-        pair.minVisibleColumnIndentation + 1
-      );
+      const guideVisibleColumn = Math.min(startVisibleColumn, endVisibleColumn, pair.minVisibleColumnIndentation + 1);
       let renderHorizontalEndLineAtTheBottom = false;
       const firstNonWsIndex = strings.firstNonWhitespaceIndex(
         this.textModel.getLineContent(
@@ -285,14 +266,8 @@ class GuidesTextModelPart extends TextModelPart {
       if (hasTextBeforeClosingBracket) {
         renderHorizontalEndLineAtTheBottom = true;
       }
-      const visibleGuideStartLineNumber = Math.max(
-        start.lineNumber,
-        startLineNumber
-      );
-      const visibleGuideEndLineNumber = Math.min(
-        end.lineNumber,
-        endLineNumber
-      );
+      const visibleGuideStartLineNumber = Math.max(start.lineNumber, startLineNumber);
+      const visibleGuideEndLineNumber = Math.min(end.lineNumber, endLineNumber);
       const offset = renderHorizontalEndLineAtTheBottom ? 1 : 0;
       for (let l = visibleGuideStartLineNumber; l < visibleGuideEndLineNumber + offset; l++) {
         result[l - startLineNumber].push(
@@ -325,10 +300,7 @@ class GuidesTextModelPart extends TextModelPart {
               guideVisibleColumn,
               -1,
               className,
-              new IndentGuideHorizontalLine(
-                !renderHorizontalEndLineAtTheBottom,
-                end.column
-              ),
+              new IndentGuideHorizontalLine(!renderHorizontalEndLineAtTheBottom, end.column),
               -1,
               -1
             )
@@ -375,9 +347,7 @@ class GuidesTextModelPart extends TextModelPart {
       if (currentIndent >= 0) {
         aboveContentLineIndex = lineNumber - 1;
         aboveContentLineIndent = currentIndent;
-        result[resultIndex] = Math.ceil(
-          currentIndent / options.indentSize
-        );
+        result[resultIndex] = Math.ceil(currentIndent / options.indentSize);
         continue;
       }
       if (aboveContentLineIndex === -2) {
@@ -420,10 +390,12 @@ class GuidesTextModelPart extends TextModelPart {
       return 1 + Math.floor(aboveContentLineIndent / options.indentSize);
     } else if (aboveContentLineIndent === belowContentLineIndent) {
       return Math.ceil(belowContentLineIndent / options.indentSize);
-    } else if (offSide) {
-      return Math.ceil(belowContentLineIndent / options.indentSize);
     } else {
-      return 1 + Math.floor(belowContentLineIndent / options.indentSize);
+      if (offSide) {
+        return Math.ceil(belowContentLineIndent / options.indentSize);
+      } else {
+        return 1 + Math.floor(belowContentLineIndent / options.indentSize);
+      }
     }
   }
 }
@@ -433,9 +405,7 @@ class BracketPairGuidesClassNames {
   }
   activeClassName = "indent-active";
   getInlineClassName(nestingLevel, nestingLevelOfEqualBracketType, independentColorPoolPerBracketType) {
-    return this.getInlineClassNameOfLevel(
-      independentColorPoolPerBracketType ? nestingLevelOfEqualBracketType : nestingLevel
-    );
+    return this.getInlineClassNameOfLevel(independentColorPoolPerBracketType ? nestingLevelOfEqualBracketType : nestingLevel);
   }
   getInlineClassNameOfLevel(level) {
     return `bracket-indent-guide lvl-${level % 30}`;

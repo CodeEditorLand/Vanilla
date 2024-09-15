@@ -10,19 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  ILoggerService,
-  log
-} from "../../../../platform/log/common/log.js";
+import { ILogger, ILoggerService, log, LogLevel } from "../../../../platform/log/common/log.js";
+import { URI } from "../../../../base/common/uri.js";
 let DelayedLogChannel = class {
   constructor(id, name, file, loggerService) {
     this.file = file;
     this.loggerService = loggerService;
-    this.logger = loggerService.createLogger(file, {
-      name,
-      id,
-      hidden: true
-    });
+    this.logger = loggerService.createLogger(file, { name, id, hidden: true });
   }
   static {
     __name(this, "DelayedLogChannel");

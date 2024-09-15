@@ -12,42 +12,24 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/scm.css";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { HISTORY_VIEW_PANE_ID, REPOSITORIES_VIEW_PANE_ID, VIEW_PANE_ID, VIEWLET_ID } from "../common/scm.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import {
-  HISTORY_VIEW_PANE_ID,
-  REPOSITORIES_VIEW_PANE_ID,
-  VIEWLET_ID,
-  VIEW_PANE_ID
-} from "../common/scm.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
 let SCMViewPaneContainer = class extends ViewPaneContainer {
   static {
     __name(this, "SCMViewPaneContainer");
   }
   constructor(layoutService, telemetryService, instantiationService, contextMenuService, themeService, storageService, configurationService, extensionService, contextService, viewDescriptorService) {
-    super(
-      VIEWLET_ID,
-      { mergeViewWithContainerWhenSingleView: true },
-      instantiationService,
-      configurationService,
-      layoutService,
-      contextMenuService,
-      telemetryService,
-      extensionService,
-      themeService,
-      storageService,
-      contextService,
-      viewDescriptorService
-    );
+    super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService);
   }
   create(parent) {
     super.create(parent);

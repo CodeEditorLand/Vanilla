@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { $ } from "../../../../base/browser/dom.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { $, Dimension } from "../../../../base/browser/dom.js";
 import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { equals } from "../../../../base/common/arrays.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
 class GettingStartedIndexList extends Disposable {
   constructor(options) {
     super();
@@ -15,25 +14,19 @@ class GettingStartedIndexList extends Disposable {
     this.entries = void 0;
     this.itemCount = 0;
     this.list = $("ul");
-    this.scrollbar = this._register(
-      new DomScrollableElement(this.list, {})
-    );
-    this._register(
-      this.onDidChangeEntries(() => this.scrollbar.scanDomNode())
-    );
+    this.scrollbar = this._register(new DomScrollableElement(this.list, {}));
+    this._register(this.onDidChangeEntries(() => this.scrollbar.scanDomNode()));
     this.domElement = $(
       ".index-list." + options.klass,
       {},
       $("h2", {}, options.title),
       this.scrollbar.getDomNode()
     );
-    this._register(
-      this.contextService.onDidChangeContext((e) => {
-        if (e.affectsSome(this.contextKeysToWatch)) {
-          this.rerender();
-        }
-      })
-    );
+    this._register(this.contextService.onDidChangeContext((e) => {
+      if (e.affectsSome(this.contextKeysToWatch)) {
+        this.rerender();
+      }
+    }));
   }
   static {
     __name(this, "GettingStartedIndexList");
@@ -84,9 +77,7 @@ class GettingStartedIndexList extends Disposable {
       entryList = entryList.filter((e) => ranker(e) !== null);
       entryList.sort((a, b) => ranker(b) - ranker(a));
     }
-    const activeEntries = entryList.filter(
-      (e) => !e.when || this.contextService.contextMatchesRules(e.when)
-    );
+    const activeEntries = entryList.filter((e) => !e.when || this.contextService.contextMatchesRules(e.when));
     const limitedEntries = activeEntries.slice(0, this.options.limit);
     const toRender = limitedEntries.map((e) => e.id);
     if (this.entries === entries && equals(toRender, this.lastRendered)) {

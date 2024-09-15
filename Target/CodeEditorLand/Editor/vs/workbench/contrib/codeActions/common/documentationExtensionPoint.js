@@ -1,4 +1,5 @@
 import * as nls from "../../../../nls.js";
+import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { languagesExtPoint } from "../../../services/language/common/languageService.js";
 var DocumentationExtensionPointFields = /* @__PURE__ */ ((DocumentationExtensionPointFields2) => {
   DocumentationExtensionPointFields2["when"] = "when";
@@ -8,23 +9,14 @@ var DocumentationExtensionPointFields = /* @__PURE__ */ ((DocumentationExtension
 })(DocumentationExtensionPointFields || {});
 const documentationExtensionPointSchema = Object.freeze({
   type: "object",
-  description: nls.localize(
-    "contributes.documentation",
-    "Contributed documentation."
-  ),
+  description: nls.localize("contributes.documentation", "Contributed documentation."),
   properties: {
-    refactoring: {
+    "refactoring": {
       type: "array",
-      description: nls.localize(
-        "contributes.documentation.refactorings",
-        "Contributed documentation for refactorings."
-      ),
+      description: nls.localize("contributes.documentation.refactorings", "Contributed documentation for refactorings."),
       items: {
         type: "object",
-        description: nls.localize(
-          "contributes.documentation.refactoring",
-          "Contributed documentation for refactoring."
-        ),
+        description: nls.localize("contributes.documentation.refactoring", "Contributed documentation for refactoring."),
         required: [
           "title" /* title */,
           "when" /* when */,
@@ -33,24 +25,15 @@ const documentationExtensionPointSchema = Object.freeze({
         properties: {
           ["title" /* title */]: {
             type: "string",
-            description: nls.localize(
-              "contributes.documentation.refactoring.title",
-              "Label for the documentation used in the UI."
-            )
+            description: nls.localize("contributes.documentation.refactoring.title", "Label for the documentation used in the UI.")
           },
           ["when" /* when */]: {
             type: "string",
-            description: nls.localize(
-              "contributes.documentation.refactoring.when",
-              "When clause."
-            )
+            description: nls.localize("contributes.documentation.refactoring.when", "When clause.")
           },
           ["command" /* command */]: {
             type: "string",
-            description: nls.localize(
-              "contributes.documentation.refactoring.command",
-              "Command executed."
-            )
+            description: nls.localize("contributes.documentation.refactoring.command", "Command executed.")
           }
         }
       }

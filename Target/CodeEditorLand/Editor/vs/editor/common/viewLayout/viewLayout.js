@@ -1,22 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import {
-  Scrollable,
-  ScrollbarVisibility
-} from "../../../base/common/scrollable.js";
-import {
-  EditorOption
-} from "../config/editorOptions.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IScrollPosition, ScrollEvent, Scrollable, ScrollbarVisibility, INewScrollPosition } from "../../../base/common/scrollable.js";
+import { ConfigurationChangedEvent, EditorOption } from "../config/editorOptions.js";
 import { ScrollType } from "../editorCommon.js";
-import {
-  Viewport
-} from "../viewModel.js";
-import { ContentSizeChangedEvent } from "../viewModelEventDispatcher.js";
+import { IEditorConfiguration } from "../config/editorConfiguration.js";
 import { LinesLayout } from "./linesLayout.js";
+import { IEditorWhitespace, IPartialViewLinesViewportData, IViewLayout, IViewWhitespaceViewportData, IWhitespaceChangeAccessor, Viewport } from "../viewModel.js";
+import { ContentSizeChangedEvent } from "../viewModelEventDispatcher.js";
 const SMOOTH_SCROLLING_TIME = 125;
 class EditorScrollDimensions {
   static {
@@ -63,20 +55,16 @@ class EditorScrollable extends Disposable {
   _scrollable;
   _dimensions;
   onDidScroll;
-  _onDidContentSizeChange = this._register(
-    new Emitter()
-  );
+  _onDidContentSizeChange = this._register(new Emitter());
   onDidContentSizeChange = this._onDidContentSizeChange.event;
   constructor(smoothScrollDuration, scheduleAtNextAnimationFrame) {
     super();
     this._dimensions = new EditorScrollDimensions(0, 0, 0, 0);
-    this._scrollable = this._register(
-      new Scrollable({
-        forceIntegerValues: true,
-        smoothScrollDuration,
-        scheduleAtNextAnimationFrame
-      })
-    );
+    this._scrollable = this._register(new Scrollable({
+      forceIntegerValues: true,
+      smoothScrollDuration,
+      scheduleAtNextAnimationFrame
+    }));
     this.onDidScroll = this._scrollable.onScroll;
   }
   getScrollable() {
@@ -97,26 +85,21 @@ class EditorScrollable extends Disposable {
     }
     const oldDimensions = this._dimensions;
     this._dimensions = dimensions;
-    this._scrollable.setScrollDimensions(
-      {
-        width: dimensions.width,
-        scrollWidth: dimensions.scrollWidth,
-        height: dimensions.height,
-        scrollHeight: dimensions.scrollHeight
-      },
-      true
-    );
+    this._scrollable.setScrollDimensions({
+      width: dimensions.width,
+      scrollWidth: dimensions.scrollWidth,
+      height: dimensions.height,
+      scrollHeight: dimensions.scrollHeight
+    }, true);
     const contentWidthChanged = oldDimensions.contentWidth !== dimensions.contentWidth;
     const contentHeightChanged = oldDimensions.contentHeight !== dimensions.contentHeight;
     if (contentWidthChanged || contentHeightChanged) {
-      this._onDidContentSizeChange.fire(
-        new ContentSizeChangedEvent(
-          oldDimensions.contentWidth,
-          oldDimensions.contentHeight,
-          dimensions.contentWidth,
-          dimensions.contentHeight
-        )
-      );
+      this._onDidContentSizeChange.fire(new ContentSizeChangedEvent(
+        oldDimensions.contentWidth,
+        oldDimensions.contentHeight,
+        dimensions.contentWidth,
+        dimensions.contentHeight
+      ));
     }
   }
   getFutureScrollPosition() {
@@ -152,26 +135,17 @@ class ViewLayout extends Disposable {
     const options = this._configuration.options;
     const layoutInfo = options.get(EditorOption.layoutInfo);
     const padding = options.get(EditorOption.padding);
-    this._linesLayout = new LinesLayout(
-      lineCount,
-      options.get(EditorOption.lineHeight),
-      padding.top,
-      padding.bottom
-    );
+    this._linesLayout = new LinesLayout(lineCount, options.get(EditorOption.lineHeight), padding.top, padding.bottom);
     this._maxLineWidth = 0;
     this._overlayWidgetsMinWidth = 0;
-    this._scrollable = this._register(
-      new EditorScrollable(0, scheduleAtNextAnimationFrame)
-    );
+    this._scrollable = this._register(new EditorScrollable(0, scheduleAtNextAnimationFrame));
     this._configureSmoothScrollDuration();
-    this._scrollable.setScrollDimensions(
-      new EditorScrollDimensions(
-        layoutInfo.contentWidth,
-        0,
-        layoutInfo.height,
-        0
-      )
-    );
+    this._scrollable.setScrollDimensions(new EditorScrollDimensions(
+      layoutInfo.contentWidth,
+      0,
+      layoutInfo.height,
+      0
+    ));
     this.onDidScroll = this._scrollable.onDidScroll;
     this.onDidContentSizeChange = this._scrollable.onDidContentSizeChange;
     this._updateHeight();
@@ -186,17 +160,13 @@ class ViewLayout extends Disposable {
     this._updateHeight();
   }
   _configureSmoothScrollDuration() {
-    this._scrollable.setSmoothScrollDuration(
-      this._configuration.options.get(EditorOption.smoothScrolling) ? SMOOTH_SCROLLING_TIME : 0
-    );
+    this._scrollable.setSmoothScrollDuration(this._configuration.options.get(EditorOption.smoothScrolling) ? SMOOTH_SCROLLING_TIME : 0);
   }
   // ---- begin view event handlers
   onConfigurationChanged(e) {
     const options = this._configuration.options;
     if (e.hasChanged(EditorOption.lineHeight)) {
-      this._linesLayout.setLineHeight(
-        options.get(EditorOption.lineHeight)
-      );
+      this._linesLayout.setLineHeight(options.get(EditorOption.lineHeight));
     }
     if (e.hasChanged(EditorOption.padding)) {
       const padding = options.get(EditorOption.padding);
@@ -208,14 +178,12 @@ class ViewLayout extends Disposable {
       const height = layoutInfo.height;
       const scrollDimensions = this._scrollable.getScrollDimensions();
       const contentWidth = scrollDimensions.contentWidth;
-      this._scrollable.setScrollDimensions(
-        new EditorScrollDimensions(
-          width,
-          scrollDimensions.contentWidth,
-          height,
-          this._getContentHeight(width, height, contentWidth)
-        )
-      );
+      this._scrollable.setScrollDimensions(new EditorScrollDimensions(
+        width,
+        scrollDimensions.contentWidth,
+        height,
+        this._getContentHeight(width, height, contentWidth)
+      ));
     } else {
       this._updateHeight();
     }
@@ -248,10 +216,7 @@ class ViewLayout extends Disposable {
     const options = this._configuration.options;
     let result = this._linesLayout.getLinesTotalHeight();
     if (options.get(EditorOption.scrollBeyondLastLine)) {
-      result += Math.max(
-        0,
-        height - options.get(EditorOption.lineHeight) - options.get(EditorOption.padding).bottom
-      );
+      result += Math.max(0, height - options.get(EditorOption.lineHeight) - options.get(EditorOption.padding).bottom);
     } else if (!options.get(EditorOption.scrollbar).ignoreHorizontalScrollbarInContentHeight) {
       result += this._getHorizontalScrollbarHeight(width, contentWidth);
     }
@@ -262,14 +227,12 @@ class ViewLayout extends Disposable {
     const width = scrollDimensions.width;
     const height = scrollDimensions.height;
     const contentWidth = scrollDimensions.contentWidth;
-    this._scrollable.setScrollDimensions(
-      new EditorScrollDimensions(
-        width,
-        scrollDimensions.contentWidth,
-        height,
-        this._getContentHeight(width, height, contentWidth)
-      )
-    );
+    this._scrollable.setScrollDimensions(new EditorScrollDimensions(
+      width,
+      scrollDimensions.contentWidth,
+      height,
+      this._getContentHeight(width, height, contentWidth)
+    ));
   }
   // ---- Layouting logic
   getCurrentViewport() {
@@ -309,11 +272,7 @@ class ViewLayout extends Disposable {
     } else {
       const extraHorizontalSpace = options.get(EditorOption.scrollBeyondLastColumn) * fontInfo.typicalHalfwidthCharacterWidth;
       const whitespaceMinWidth = this._linesLayout.getWhitespaceMinWidth();
-      return Math.max(
-        maxLineWidth + extraHorizontalSpace + layoutInfo.verticalScrollbarWidth,
-        whitespaceMinWidth,
-        this._overlayWidgetsMinWidth
-      );
+      return Math.max(maxLineWidth + extraHorizontalSpace + layoutInfo.verticalScrollbarWidth, whitespaceMinWidth, this._overlayWidgetsMinWidth);
     }
   }
   setMaxLineWidth(maxLineWidth) {
@@ -326,14 +285,12 @@ class ViewLayout extends Disposable {
   }
   _updateContentWidth() {
     const scrollDimensions = this._scrollable.getScrollDimensions();
-    this._scrollable.setScrollDimensions(
-      new EditorScrollDimensions(
-        scrollDimensions.width,
-        this._computeContentWidth(),
-        scrollDimensions.height,
-        scrollDimensions.contentHeight
-      )
-    );
+    this._scrollable.setScrollDimensions(new EditorScrollDimensions(
+      scrollDimensions.width,
+      this._computeContentWidth(),
+      scrollDimensions.height,
+      scrollDimensions.contentHeight
+    ));
     this._updateHeight();
   }
   // ---- view state
@@ -341,9 +298,7 @@ class ViewLayout extends Disposable {
     const currentScrollPosition = this._scrollable.getFutureScrollPosition();
     const scrollTop = currentScrollPosition.scrollTop;
     const firstLineNumberInViewport = this._linesLayout.getLineNumberAtOrAfterVerticalOffset(scrollTop);
-    const whitespaceAboveFirstLine = this._linesLayout.getWhitespaceAccumulatedHeightBeforeLineNumber(
-      firstLineNumberInViewport
-    );
+    const whitespaceAboveFirstLine = this._linesLayout.getWhitespaceAccumulatedHeightBeforeLineNumber(firstLineNumberInViewport);
     return {
       scrollTop,
       scrollTopWithoutViewZones: scrollTop - whitespaceAboveFirstLine,
@@ -359,16 +314,10 @@ class ViewLayout extends Disposable {
     return hadAChange;
   }
   getVerticalOffsetForLineNumber(lineNumber, includeViewZones = false) {
-    return this._linesLayout.getVerticalOffsetForLineNumber(
-      lineNumber,
-      includeViewZones
-    );
+    return this._linesLayout.getVerticalOffsetForLineNumber(lineNumber, includeViewZones);
   }
   getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones = false) {
-    return this._linesLayout.getVerticalOffsetAfterLineNumber(
-      lineNumber,
-      includeViewZones
-    );
+    return this._linesLayout.getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones);
   }
   isAfterLines(verticalOffset) {
     return this._linesLayout.isAfterLines(verticalOffset);
@@ -380,19 +329,14 @@ class ViewLayout extends Disposable {
     return this._linesLayout.isInBottomPadding(verticalOffset);
   }
   getLineNumberAtVerticalOffset(verticalOffset) {
-    return this._linesLayout.getLineNumberAtOrAfterVerticalOffset(
-      verticalOffset
-    );
+    return this._linesLayout.getLineNumberAtOrAfterVerticalOffset(verticalOffset);
   }
   getWhitespaceAtVerticalOffset(verticalOffset) {
     return this._linesLayout.getWhitespaceAtVerticalOffset(verticalOffset);
   }
   getLinesViewportData() {
     const visibleBox = this.getCurrentViewport();
-    return this._linesLayout.getLinesViewportData(
-      visibleBox.top,
-      visibleBox.top + visibleBox.height
-    );
+    return this._linesLayout.getLinesViewportData(visibleBox.top, visibleBox.top + visibleBox.height);
   }
   getLinesViewportDataAtScrollTop(scrollTop) {
     const scrollDimensions = this._scrollable.getScrollDimensions();
@@ -402,17 +346,11 @@ class ViewLayout extends Disposable {
     if (scrollTop < 0) {
       scrollTop = 0;
     }
-    return this._linesLayout.getLinesViewportData(
-      scrollTop,
-      scrollTop + scrollDimensions.height
-    );
+    return this._linesLayout.getLinesViewportData(scrollTop, scrollTop + scrollDimensions.height);
   }
   getWhitespaceViewportData() {
     const visibleBox = this.getCurrentViewport();
-    return this._linesLayout.getWhitespaceViewportData(
-      visibleBox.top,
-      visibleBox.top + visibleBox.height
-    );
+    return this._linesLayout.getWhitespaceViewportData(visibleBox.top, visibleBox.top + visibleBox.height);
   }
   getWhitespaces() {
     return this._linesLayout.getWhitespaces();

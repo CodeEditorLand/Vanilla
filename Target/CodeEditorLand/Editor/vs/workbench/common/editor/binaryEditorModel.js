@@ -10,9 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Mimes } from "../../../base/common/mime.js";
-import { IFileService } from "../../../platform/files/common/files.js";
 import { EditorModel } from "./editorModel.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFileService } from "../../../platform/files/common/files.js";
+import { Mimes } from "../../../base/common/mime.js";
 let BinaryEditorModel = class extends EditorModel {
   constructor(resource, name, fileService) {
     super();

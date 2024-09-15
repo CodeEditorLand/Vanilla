@@ -11,10 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { session } from "electron";
-import {
-  Disposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { COI, FileAccess, Schemas } from "../../../base/common/network.js";
 import { basename, extname, normalize } from "../../../base/common/path.js";
 import { isLinux } from "../../../base/common/platform.js";
@@ -24,6 +21,7 @@ import { generateUuid } from "../../../base/common/uuid.js";
 import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
 import { ILogService } from "../../log/common/log.js";
+import { IIPCObjectUrl, IProtocolMainService } from "./protocol.js";
 import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 let ProtocolMainService = class extends Disposable {
   // https://github.com/microsoft/vscode/issues/119384
@@ -33,50 +31,23 @@ let ProtocolMainService = class extends Disposable {
     this.logService = logService;
     this.addValidFileRoot(environmentService.appRoot);
     this.addValidFileRoot(environmentService.extensionsPath);
-    this.addValidFileRoot(
-      userDataProfilesService.defaultProfile.globalStorageHome.with({
-        scheme: Schemas.file
-      }).fsPath
-    );
-    this.addValidFileRoot(
-      environmentService.workspaceStorageHome.with({
-        scheme: Schemas.file
-      }).fsPath
-    );
+    this.addValidFileRoot(userDataProfilesService.defaultProfile.globalStorageHome.with({ scheme: Schemas.file }).fsPath);
+    this.addValidFileRoot(environmentService.workspaceStorageHome.with({ scheme: Schemas.file }).fsPath);
     this.handleProtocols();
   }
   static {
     __name(this, "ProtocolMainService");
   }
   validRoots = TernarySearchTree.forPaths(!isLinux);
-  validExtensions = /* @__PURE__ */ new Set([
-    ".svg",
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".gif",
-    ".bmp",
-    ".webp",
-    ".mp4"
-  ]);
+  validExtensions = /* @__PURE__ */ new Set([".svg", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".mp4"]);
   handleProtocols() {
     const { defaultSession } = session;
-    defaultSession.protocol.registerFileProtocol(
-      Schemas.vscodeFileResource,
-      (request, callback) => this.handleResourceRequest(request, callback)
-    );
-    defaultSession.protocol.interceptFileProtocol(
-      Schemas.file,
-      (request, callback) => this.handleFileRequest(request, callback)
-    );
-    this._register(
-      toDisposable(() => {
-        defaultSession.protocol.unregisterProtocol(
-          Schemas.vscodeFileResource
-        );
-        defaultSession.protocol.uninterceptProtocol(Schemas.file);
-      })
-    );
+    defaultSession.protocol.registerFileProtocol(Schemas.vscodeFileResource, (request, callback) => this.handleResourceRequest(request, callback));
+    defaultSession.protocol.interceptFileProtocol(Schemas.file, (request, callback) => this.handleFileRequest(request, callback));
+    this._register(toDisposable(() => {
+      defaultSession.protocol.unregisterProtocol(Schemas.vscodeFileResource);
+      defaultSession.protocol.uninterceptProtocol(Schemas.file);
+    }));
   }
   addValidFileRoot(root) {
     const normalizedRoot = normalize(root);
@@ -89,9 +60,7 @@ let ProtocolMainService = class extends Disposable {
   //#region file://
   handleFileRequest(request, callback) {
     const uri = URI.parse(request.url);
-    this.logService.error(
-      `Refused to load resource ${uri.fsPath} from ${Schemas.file}: protocol (original URL: ${request.url})`
-    );
+    this.logService.error(`Refused to load resource ${uri.fsPath} from ${Schemas.file}: protocol (original URL: ${request.url})`);
     return callback({
       error: -3
       /* ABORTED */
@@ -116,9 +85,7 @@ let ProtocolMainService = class extends Disposable {
     if (this.validExtensions.has(extname(path).toLowerCase())) {
       return callback({ path });
     }
-    this.logService.error(
-      `${Schemas.vscodeFileResource}: Refused to load resource ${path} from ${Schemas.vscodeFileResource}: protocol (original URL: ${request.url})`
-    );
+    this.logService.error(`${Schemas.vscodeFileResource}: Refused to load resource ${path} from ${Schemas.vscodeFileResource}: protocol (original URL: ${request.url})`);
     return callback({
       error: -3
       /* ABORTED */
@@ -132,7 +99,7 @@ let ProtocolMainService = class extends Disposable {
   //#endregion
   //#region IPC Object URLs
   createIPCObjectUrl() {
-    let obj;
+    let obj = void 0;
     const resource = URI.from({
       scheme: "vscode",
       // used for all our IPC communication (vscode:<channel>)
@@ -141,16 +108,12 @@ let ProtocolMainService = class extends Disposable {
     const channel = resource.toString();
     const handler = /* @__PURE__ */ __name(async () => obj, "handler");
     validatedIpcMain.handle(channel, handler);
-    this.logService.trace(
-      `IPC Object URL: Registered new channel ${channel}.`
-    );
+    this.logService.trace(`IPC Object URL: Registered new channel ${channel}.`);
     return {
       resource,
       update: /* @__PURE__ */ __name((updatedObj) => obj = updatedObj, "update"),
       dispose: /* @__PURE__ */ __name(() => {
-        this.logService.trace(
-          `IPC Object URL: Removed channel ${channel}.`
-        );
+        this.logService.trace(`IPC Object URL: Removed channel ${channel}.`);
         validatedIpcMain.removeHandler(channel);
       }, "dispose")
     };

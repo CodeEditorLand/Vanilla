@@ -45,37 +45,34 @@ __name(createError, "createError");
 function substituteMatches(lexer, str, id, matches, state) {
   const re = /\$((\$)|(#)|(\d\d?)|[sS](\d\d?)|@(\w+))/g;
   let stateMatches = null;
-  return str.replace(
-    re,
-    (full, sub, dollar, hash, n, s, attr, ofs, total) => {
-      if (!empty(dollar)) {
-        return "$";
-      }
-      if (!empty(hash)) {
-        return fixCase(lexer, id);
-      }
-      if (!empty(n) && n < matches.length) {
-        return fixCase(lexer, matches[n]);
-      }
-      if (!empty(attr) && lexer && typeof lexer[attr] === "string") {
-        return lexer[attr];
-      }
-      if (stateMatches === null) {
-        stateMatches = state.split(".");
-        stateMatches.unshift(state);
-      }
-      if (!empty(s) && s < stateMatches.length) {
-        return fixCase(lexer, stateMatches[s]);
-      }
-      return "";
+  return str.replace(re, function(full, sub, dollar, hash, n, s, attr, ofs, total) {
+    if (!empty(dollar)) {
+      return "$";
     }
-  );
+    if (!empty(hash)) {
+      return fixCase(lexer, id);
+    }
+    if (!empty(n) && n < matches.length) {
+      return fixCase(lexer, matches[n]);
+    }
+    if (!empty(attr) && lexer && typeof lexer[attr] === "string") {
+      return lexer[attr];
+    }
+    if (stateMatches === null) {
+      stateMatches = state.split(".");
+      stateMatches.unshift(state);
+    }
+    if (!empty(s) && s < stateMatches.length) {
+      return fixCase(lexer, stateMatches[s]);
+    }
+    return "";
+  });
 }
 __name(substituteMatches, "substituteMatches");
 function substituteMatchesRe(lexer, str, state) {
   const re = /\$[sS](\d\d?)/g;
   let stateMatches = null;
-  return str.replace(re, (full, s) => {
+  return str.replace(re, function(full, s) {
     if (stateMatches === null) {
       stateMatches = state.split(".");
       stateMatches.unshift(state);

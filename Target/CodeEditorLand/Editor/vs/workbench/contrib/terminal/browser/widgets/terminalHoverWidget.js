@@ -10,14 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../../../base/browser/dom.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Widget } from "../../../../../base/browser/ui/widget.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITerminalWidget } from "./widgets.js";
+import * as dom from "../../../../../base/browser/dom.js";
 import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
 const $ = dom.$;
 let TerminalHover = class extends Disposable {
@@ -35,9 +34,7 @@ let TerminalHover = class extends Disposable {
   }
   id = "hover";
   attach(container) {
-    const showLinkHover = this._configurationService.getValue(
-      TerminalSettingId.ShowLinkHover
-    );
+    const showLinkHover = this._configurationService.getValue(TerminalSettingId.ShowLinkHover);
     if (!showLinkHover) {
       return;
     }
@@ -90,30 +87,18 @@ class CellHoverTarget extends Widget {
     }
     if (this._options.modifierDownCallback && this._options.modifierUpCallback) {
       let down = false;
-      this._register(
-        dom.addDisposableListener(
-          container.ownerDocument,
-          "keydown",
-          (e) => {
-            if (e.ctrlKey && !down) {
-              down = true;
-              this._options.modifierDownCallback();
-            }
-          }
-        )
-      );
-      this._register(
-        dom.addDisposableListener(
-          container.ownerDocument,
-          "keyup",
-          (e) => {
-            if (!e.ctrlKey) {
-              down = false;
-              this._options.modifierUpCallback();
-            }
-          }
-        )
-      );
+      this._register(dom.addDisposableListener(container.ownerDocument, "keydown", (e) => {
+        if (e.ctrlKey && !down) {
+          down = true;
+          this._options.modifierDownCallback();
+        }
+      }));
+      this._register(dom.addDisposableListener(container.ownerDocument, "keyup", (e) => {
+        if (!e.ctrlKey) {
+          down = false;
+          this._options.modifierUpCallback();
+        }
+      }));
     }
     container.appendChild(this._domNode);
     this._register(toDisposable(() => this._domNode?.remove()));

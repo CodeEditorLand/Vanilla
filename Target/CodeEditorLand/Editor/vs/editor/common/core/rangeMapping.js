@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { findLastMonotonous } from "../../../base/common/arraysFind.js";
+import { Position } from "./position.js";
 import { Range } from "./range.js";
 import { TextLength } from "./textLength.js";
 class RangeMapping {
@@ -11,23 +12,15 @@ class RangeMapping {
     __name(this, "RangeMapping");
   }
   mapPosition(position) {
-    const mapping = findLastMonotonous(
-      this.mappings,
-      (m) => m.original.getStartPosition().isBeforeOrEqual(position)
-    );
+    const mapping = findLastMonotonous(this.mappings, (m) => m.original.getStartPosition().isBeforeOrEqual(position));
     if (!mapping) {
       return PositionOrRange.position(position);
     }
     if (mapping.original.containsPosition(position)) {
       return PositionOrRange.range(mapping.modified);
     }
-    const l = TextLength.betweenPositions(
-      mapping.original.getEndPosition(),
-      position
-    );
-    return PositionOrRange.position(
-      l.addToPosition(mapping.modified.getEndPosition())
-    );
+    const l = TextLength.betweenPositions(mapping.original.getEndPosition(), position);
+    return PositionOrRange.position(l.addToPosition(mapping.modified.getEndPosition()));
   }
   mapRange(range) {
     const start = this.mapPosition(range.getStartPosition());
@@ -38,9 +31,7 @@ class RangeMapping {
     );
   }
   reverse() {
-    return new RangeMapping(
-      this.mappings.map((mapping) => mapping.reverse())
-    );
+    return new RangeMapping(this.mappings.map((mapping) => mapping.reverse()));
   }
 }
 class SingleRangeMapping {

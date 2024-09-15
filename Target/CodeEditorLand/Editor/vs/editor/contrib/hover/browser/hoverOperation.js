@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  RunOnceScheduler,
-  createCancelableAsyncIterable
-} from "../../../../base/common/async.js";
+import { AsyncIterableObject, CancelableAsyncIterableObject, createCancelableAsyncIterable, RunOnceScheduler } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 var HoverOperationState = /* @__PURE__ */ ((HoverOperationState2) => {
   HoverOperationState2[HoverOperationState2["Idle"] = 0] = "Idle";
@@ -46,28 +45,11 @@ class HoverOperation extends Disposable {
   static {
     __name(this, "HoverOperation");
   }
-  _onResult = this._register(
-    new Emitter()
-  );
+  _onResult = this._register(new Emitter());
   onResult = this._onResult.event;
-  _asyncComputationScheduler = this._register(
-    new Debouncer(
-      (options) => this._triggerAsyncComputation(options),
-      0
-    )
-  );
-  _syncComputationScheduler = this._register(
-    new Debouncer(
-      (options) => this._triggerSyncComputation(options),
-      0
-    )
-  );
-  _loadingMessageScheduler = this._register(
-    new Debouncer(
-      (options) => this._triggerLoadingMessage(options),
-      0
-    )
-  );
+  _asyncComputationScheduler = this._register(new Debouncer((options) => this._triggerAsyncComputation(options), 0));
+  _syncComputationScheduler = this._register(new Debouncer((options) => this._triggerSyncComputation(options), 0));
+  _loadingMessageScheduler = this._register(new Debouncer((options) => this._triggerLoadingMessage(options), 0));
   _state = 0 /* Idle */;
   _asyncIterable = null;
   _asyncIterableDone = false;
@@ -102,9 +84,7 @@ class HoverOperation extends Disposable {
     this._syncComputationScheduler.schedule(options, this._secondWaitTime);
     if (this._computer.computeAsync) {
       this._asyncIterableDone = false;
-      this._asyncIterable = createCancelableAsyncIterable(
-        (token) => this._computer.computeAsync(options, token)
-      );
+      this._asyncIterable = createCancelableAsyncIterable((token) => this._computer.computeAsync(options, token));
       (async () => {
         try {
           for await (const item of this._asyncIterable) {
@@ -127,21 +107,13 @@ class HoverOperation extends Disposable {
   }
   _triggerSyncComputation(options) {
     if (this._computer.computeSync) {
-      this._result = this._result.concat(
-        this._computer.computeSync(options)
-      );
+      this._result = this._result.concat(this._computer.computeSync(options));
     }
-    this._setState(
-      this._asyncIterableDone ? 0 /* Idle */ : 3 /* WaitingForAsync */,
-      options
-    );
+    this._setState(this._asyncIterableDone ? 0 /* Idle */ : 3 /* WaitingForAsync */, options);
   }
   _triggerLoadingMessage(options) {
     if (this._state === 3 /* WaitingForAsync */) {
-      this._setState(
-        4 /* WaitingForAsyncShowingLoading */,
-        options
-      );
+      this._setState(4 /* WaitingForAsyncShowingLoading */, options);
     }
   }
   _fireResult(options) {
@@ -150,27 +122,14 @@ class HoverOperation extends Disposable {
     }
     const isComplete = this._state === 0 /* Idle */;
     const hasLoadingMessage = this._state === 4 /* WaitingForAsyncShowingLoading */;
-    this._onResult.fire(
-      new HoverResult(
-        this._result.slice(0),
-        isComplete,
-        hasLoadingMessage,
-        options
-      )
-    );
+    this._onResult.fire(new HoverResult(this._result.slice(0), isComplete, hasLoadingMessage, options));
   }
   start(mode, options) {
     if (mode === 0 /* Delayed */) {
       if (this._state === 0 /* Idle */) {
         this._setState(1 /* FirstWait */, options);
-        this._asyncComputationScheduler.schedule(
-          options,
-          this._firstWaitTime
-        );
-        this._loadingMessageScheduler.schedule(
-          options,
-          this._loadingMessageTime
-        );
+        this._asyncComputationScheduler.schedule(options, this._firstWaitTime);
+        this._loadingMessageScheduler.schedule(options, this._loadingMessageTime);
       }
     } else {
       switch (this._state) {
@@ -210,9 +169,7 @@ class Debouncer extends Disposable {
   _options;
   constructor(runner, debounceTimeMs) {
     super();
-    this._scheduler = this._register(
-      new RunOnceScheduler(() => runner(this._options), debounceTimeMs)
-    );
+    this._scheduler = this._register(new RunOnceScheduler(() => runner(this._options), debounceTimeMs));
   }
   schedule(options, debounceTimeMs) {
     this._options = options;

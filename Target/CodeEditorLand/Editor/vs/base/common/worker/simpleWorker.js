@@ -1,15 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../charCode.js";
-import {
-  onUnexpectedError,
-  transformErrorForSerialization
-} from "../errors.js";
-import { Emitter } from "../event.js";
-import { Disposable } from "../lifecycle.js";
-import { FileAccess } from "../network.js";
+import { onUnexpectedError, transformErrorForSerialization } from "../errors.js";
+import { Emitter, Event } from "../event.js";
+import { Disposable, IDisposable } from "../lifecycle.js";
+import { AppResourcePath, FileAccess } from "../network.js";
 import { isWeb } from "../platform.js";
 import * as strings from "../strings.js";
+import { URI } from "../uri.js";
 const isESM = true;
 const DEFAULT_CHANNEL = "default";
 const INITIALIZE = "$initialize";
@@ -20,9 +18,7 @@ function logOnceWebWorkerWarning(err) {
   }
   if (!webWorkerWarningLogged) {
     webWorkerWarningLogged = true;
-    console.warn(
-      "Could not create web worker(s). Falling back to loading web worker code in main thread, which might cause UI freezes. Please see https://github.com/microsoft/monaco-editor#faq"
-    );
+    console.warn("Could not create web worker(s). Falling back to loading web worker code in main thread, which might cause UI freezes. Please see https://github.com/microsoft/monaco-editor#faq");
   }
   console.warn(err.message);
 }
@@ -122,9 +118,7 @@ class SimpleWorkerProtocol {
         resolve,
         reject
       };
-      this._send(
-        new RequestMessage(this._workerId, req, channel, method, args)
-      );
+      this._send(new RequestMessage(this._workerId, req, channel, method, args));
     });
   }
   listen(channel, eventName, arg) {
@@ -133,15 +127,7 @@ class SimpleWorkerProtocol {
       onWillAddFirstListener: /* @__PURE__ */ __name(() => {
         req = String(++this._lastSentReq);
         this._pendingEmitters.set(req, emitter);
-        this._send(
-          new SubscribeEventMessage(
-            this._workerId,
-            req,
-            channel,
-            eventName,
-            arg
-          )
-        );
+        this._send(new SubscribeEventMessage(this._workerId, req, channel, eventName, arg));
       }, "onWillAddFirstListener"),
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
         this._pendingEmitters.delete(req);
@@ -218,37 +204,19 @@ class SimpleWorkerProtocol {
   }
   _handleRequestMessage(requestMessage) {
     const req = requestMessage.req;
-    const result = this._handler.handleMessage(
-      requestMessage.channel,
-      requestMessage.method,
-      requestMessage.args
-    );
-    result.then(
-      (r) => {
-        this._send(new ReplyMessage(this._workerId, req, r, void 0));
-      },
-      (e) => {
-        if (e.detail instanceof Error) {
-          e.detail = transformErrorForSerialization(e.detail);
-        }
-        this._send(
-          new ReplyMessage(
-            this._workerId,
-            req,
-            void 0,
-            transformErrorForSerialization(e)
-          )
-        );
+    const result = this._handler.handleMessage(requestMessage.channel, requestMessage.method, requestMessage.args);
+    result.then((r) => {
+      this._send(new ReplyMessage(this._workerId, req, r, void 0));
+    }, (e) => {
+      if (e.detail instanceof Error) {
+        e.detail = transformErrorForSerialization(e.detail);
       }
-    );
+      this._send(new ReplyMessage(this._workerId, req, void 0, transformErrorForSerialization(e)));
+    });
   }
   _handleSubscribeEventMessage(msg) {
     const req = msg.req;
-    const disposable = this._handler.handleEvent(
-      msg.channel,
-      msg.eventName,
-      msg.arg
-    )((event) => {
+    const disposable = this._handler.handleEvent(msg.channel, msg.eventName, msg.arg)((event) => {
       this._send(new EventMessage(this._workerId, req, event));
     });
     this._pendingEvents.set(req, disposable);
@@ -296,21 +264,19 @@ class SimpleWorkerClient extends Disposable {
   _remoteChannels = /* @__PURE__ */ new Map();
   constructor(workerFactory, workerDescriptor) {
     super();
-    this._worker = this._register(
-      workerFactory.create(
-        {
-          amdModuleId: "vs/base/common/worker/simpleWorker",
-          esmModuleLocation: workerDescriptor.esmModuleLocation,
-          label: workerDescriptor.label
-        },
-        (msg) => {
-          this._protocol.handleMessage(msg);
-        },
-        (err) => {
-          onUnexpectedError(err);
-        }
-      )
-    );
+    this._worker = this._register(workerFactory.create(
+      {
+        amdModuleId: "vs/base/common/worker/simpleWorker",
+        esmModuleLocation: workerDescriptor.esmModuleLocation,
+        label: workerDescriptor.label
+      },
+      (msg) => {
+        this._protocol.handleMessage(msg);
+      },
+      (err) => {
+        onUnexpectedError(err);
+      }
+    ));
     this._protocol = new SimpleWorkerProtocol({
       sendMessage: /* @__PURE__ */ __name((msg, transfer) => {
         this._worker.postMessage(msg, transfer);
@@ -330,46 +296,28 @@ class SimpleWorkerClient extends Disposable {
     } else if (typeof globalThis.requirejs !== "undefined") {
       loaderConfiguration = globalThis.requirejs.s.contexts._.config;
     }
-    this._onModuleLoaded = this._protocol.sendMessage(
-      DEFAULT_CHANNEL,
-      INITIALIZE,
-      [
-        this._worker.getId(),
-        JSON.parse(JSON.stringify(loaderConfiguration)),
-        workerDescriptor.amdModuleId
-      ]
-    );
-    this.proxy = this._protocol.createProxyToRemoteChannel(
-      DEFAULT_CHANNEL,
-      async () => {
-        await this._onModuleLoaded;
-      }
-    );
+    this._onModuleLoaded = this._protocol.sendMessage(DEFAULT_CHANNEL, INITIALIZE, [
+      this._worker.getId(),
+      JSON.parse(JSON.stringify(loaderConfiguration)),
+      workerDescriptor.amdModuleId
+    ]);
+    this.proxy = this._protocol.createProxyToRemoteChannel(DEFAULT_CHANNEL, async () => {
+      await this._onModuleLoaded;
+    });
     this._onModuleLoaded.catch((e) => {
-      this._onError(
-        "Worker failed to load " + workerDescriptor.amdModuleId,
-        e
-      );
+      this._onError("Worker failed to load " + workerDescriptor.amdModuleId, e);
     });
   }
   _handleMessage(channelName, method, args) {
     const channel = this._localChannels.get(channelName);
     if (!channel) {
-      return Promise.reject(
-        new Error(`Missing channel ${channelName} on main thread`)
-      );
+      return Promise.reject(new Error(`Missing channel ${channelName} on main thread`));
     }
     if (typeof channel[method] !== "function") {
-      return Promise.reject(
-        new Error(
-          `Missing method ${method} on main thread channel ${channelName}`
-        )
-      );
+      return Promise.reject(new Error(`Missing method ${method} on main thread channel ${channelName}`));
     }
     try {
-      return Promise.resolve(
-        channel[method].apply(channel, args)
-      );
+      return Promise.resolve(channel[method].apply(channel, args));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -382,18 +330,14 @@ class SimpleWorkerClient extends Disposable {
     if (propertyIsDynamicEvent(eventName)) {
       const event = channel[eventName].call(channel, arg);
       if (typeof event !== "function") {
-        throw new Error(
-          `Missing dynamic event ${eventName} on main thread channel ${channelName}.`
-        );
+        throw new Error(`Missing dynamic event ${eventName} on main thread channel ${channelName}.`);
       }
       return event;
     }
     if (propertyIsEvent(eventName)) {
       const event = channel[eventName];
       if (typeof event !== "function") {
-        throw new Error(
-          `Missing event ${eventName} on main thread channel ${channelName}.`
-        );
+        throw new Error(`Missing event ${eventName} on main thread channel ${channelName}.`);
       }
       return event;
     }
@@ -404,12 +348,9 @@ class SimpleWorkerClient extends Disposable {
   }
   getChannel(channel) {
     if (!this._remoteChannels.has(channel)) {
-      const inst = this._protocol.createProxyToRemoteChannel(
-        channel,
-        async () => {
-          await this._onModuleLoaded;
-        }
-      );
+      const inst = this._protocol.createProxyToRemoteChannel(channel, async () => {
+        await this._onModuleLoaded;
+      });
       this._remoteChannels.set(channel, inst);
     }
     return this._remoteChannels.get(channel);
@@ -452,29 +393,17 @@ class SimpleWorkerServer {
   }
   _handleMessage(channel, method, args) {
     if (channel === DEFAULT_CHANNEL && method === INITIALIZE) {
-      return this.initialize(
-        args[0],
-        args[1],
-        args[2]
-      );
+      return this.initialize(args[0], args[1], args[2]);
     }
     const requestHandler = channel === DEFAULT_CHANNEL ? this._requestHandler : this._localChannels.get(channel);
     if (!requestHandler) {
-      return Promise.reject(
-        new Error(`Missing channel ${channel} on worker thread`)
-      );
+      return Promise.reject(new Error(`Missing channel ${channel} on worker thread`));
     }
     if (typeof requestHandler[method] !== "function") {
-      return Promise.reject(
-        new Error(
-          `Missing method ${method} on worker thread channel ${channel}`
-        )
-      );
+      return Promise.reject(new Error(`Missing method ${method} on worker thread channel ${channel}`));
     }
     try {
-      return Promise.resolve(
-        requestHandler[method].apply(requestHandler, args)
-      );
+      return Promise.resolve(requestHandler[method].apply(requestHandler, args));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -485,23 +414,16 @@ class SimpleWorkerServer {
       throw new Error(`Missing channel ${channel} on worker thread`);
     }
     if (propertyIsDynamicEvent(eventName)) {
-      const event = requestHandler[eventName].call(
-        requestHandler,
-        arg
-      );
+      const event = requestHandler[eventName].call(requestHandler, arg);
       if (typeof event !== "function") {
-        throw new Error(
-          `Missing dynamic event ${eventName} on request handler.`
-        );
+        throw new Error(`Missing dynamic event ${eventName} on request handler.`);
       }
       return event;
     }
     if (propertyIsEvent(eventName)) {
       const event = requestHandler[eventName];
       if (typeof event !== "function") {
-        throw new Error(
-          `Missing event ${eventName} on request handler.`
-        );
+        throw new Error(`Missing event ${eventName} on request handler.`);
       }
       return event;
     }
@@ -539,32 +461,24 @@ class SimpleWorkerServer {
       globalThis.require.config(loaderConfig);
     }
     if (isESM) {
-      const url = FileAccess.asBrowserUri(
-        `${moduleId}.js`
-      ).toString(true);
-      return import(`${url}`).then(
-        (module) => {
-          this._requestHandler = module.create(this);
-          if (!this._requestHandler) {
-            throw new Error(`No RequestHandler!`);
-          }
+      const url = FileAccess.asBrowserUri(`${moduleId}.js`).toString(true);
+      return import(`${url}`).then((module) => {
+        this._requestHandler = module.create(this);
+        if (!this._requestHandler) {
+          throw new Error(`No RequestHandler!`);
         }
-      );
+      });
     }
     return new Promise((resolve, reject) => {
       const req = globalThis.require;
-      req(
-        [moduleId],
-        (module) => {
-          this._requestHandler = module.create(this);
-          if (!this._requestHandler) {
-            reject(new Error(`No RequestHandler!`));
-            return;
-          }
-          resolve();
-        },
-        reject
-      );
+      req([moduleId], (module) => {
+        this._requestHandler = module.create(this);
+        if (!this._requestHandler) {
+          reject(new Error(`No RequestHandler!`));
+          return;
+        }
+        resolve();
+      }, reject);
     });
   }
 }

@@ -10,15 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  PlatformToString,
-  platform
-} from "../../../../base/common/platform.js";
+import { ExtensionRecommendations, GalleryExtensionRecommendation } from "./extensionRecommendations.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import {
-  ExtensionRecommendations
-} from "./extensionRecommendations.js";
+import { PlatformToString, platform } from "../../../../base/common/platform.js";
 let RemoteRecommendations = class extends ExtensionRecommendations {
   constructor(productService) {
     super();
@@ -32,14 +27,9 @@ let RemoteRecommendations = class extends ExtensionRecommendations {
     return this._recommendations;
   }
   async doActivate() {
-    const extensionTips = {
-      ...this.productService.remoteExtensionTips,
-      ...this.productService.virtualWorkspaceExtensionTips
-    };
+    const extensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
     const currentPlatform = PlatformToString(platform);
-    this._recommendations = Object.values(extensionTips).filter(
-      ({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)
-    ).map((extension) => ({
+    this._recommendations = Object.values(extensionTips).filter(({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)).map((extension) => ({
       extension: extension.extensionId.toLowerCase(),
       reason: {
         reasonId: ExtensionRecommendationReason.Application,

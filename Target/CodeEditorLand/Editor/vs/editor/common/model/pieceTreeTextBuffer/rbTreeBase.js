@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Piece, PieceTreeBase } from "./pieceTreeBase.js";
 class TreeNode {
   static {
     __name(this, "TreeNode");
@@ -188,10 +189,12 @@ function rbDelete(tree, z) {
     y.color = z.color;
     if (z === tree.root) {
       tree.root = y;
-    } else if (z === z.parent.left) {
-      z.parent.left = y;
     } else {
-      z.parent.right = y;
+      if (z === z.parent.left) {
+        z.parent.left = y;
+      } else {
+        z.parent.right = y;
+      }
     }
     if (y.left !== SENTINEL) {
       y.left.parent = y;

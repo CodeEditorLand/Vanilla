@@ -19,45 +19,26 @@ import { VSBuffer } from "../../../../base/common/buffer.js";
 import { canceled, onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import {
-  COI,
-  FileAccess
-} from "../../../../base/common/network.js";
+import { AppResourcePath, COI, FileAccess } from "../../../../base/common/network.js";
 import * as platform from "../../../../base/common/platform.js";
 import { joinPath } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
+import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
 import { getNLSLanguage, getNLSMessages } from "../../../../nls.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import {
-  ILogService,
-  ILoggerService
-} from "../../../../platform/log/common/log.js";
+import { ILogService, ILoggerService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { isLoggingOnly } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceContextService, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import {
-  ExtensionHostExitCode,
-  MessageType,
-  UIKind,
-  createMessageOfType,
-  isMessageOfType
-} from "../common/extensionHostProtocol.js";
-import {
-  ExtensionHostStartup
-} from "../common/extensions.js";
+import { ExtensionHostExitCode, IExtensionHostInitData, MessageType, UIKind, createMessageOfType, isMessageOfType } from "../common/extensionHostProtocol.js";
+import { LocalWebWorkerRunningLocation } from "../common/extensionRunningLocation.js";
+import { ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost } from "../common/extensions.js";
 let WebWorkerExtensionHost = class extends Disposable {
   constructor(runningLocation, startup, _initDataProvider, _telemetryService, _contextService, _labelService, _logService, _loggerService, _environmentService, _userDataProfilesService, _productService, _layoutService, _storageService) {
     super();
@@ -77,10 +58,7 @@ let WebWorkerExtensionHost = class extends Disposable {
     this._isTerminating = false;
     this._protocolPromise = null;
     this._protocol = null;
-    this._extensionHostLogsLocation = joinPath(
-      this._environmentService.extHostLogsPath,
-      "webWorker"
-    );
+    this._extensionHostLogsLocation = joinPath(this._environmentService.extHostLogsPath, "webWorker");
   }
   static {
     __name(this, "WebWorkerExtensionHost");
@@ -88,9 +66,7 @@ let WebWorkerExtensionHost = class extends Disposable {
   pid = null;
   remoteAuthority = null;
   extensions = null;
-  _onDidExit = this._register(
-    new Emitter()
-  );
+  _onDidExit = this._register(new Emitter());
   onExit = this._onDidExit.event;
   _isTerminating;
   _protocolPromise;
@@ -110,34 +86,19 @@ let WebWorkerExtensionHost = class extends Disposable {
       const quality = this._productService.quality;
       if (webEndpointUrlTemplate && commit && quality) {
         const key = "webWorkerExtensionHostIframeStableOriginUUID";
-        let stableOriginUUID = this._storageService.get(
-          key,
-          StorageScope.WORKSPACE
-        );
+        let stableOriginUUID = this._storageService.get(key, StorageScope.WORKSPACE);
         if (typeof stableOriginUUID === "undefined") {
           stableOriginUUID = generateUuid();
-          this._storageService.store(
-            key,
-            stableOriginUUID,
-            StorageScope.WORKSPACE,
-            StorageTarget.MACHINE
-          );
+          this._storageService.store(key, stableOriginUUID, StorageScope.WORKSPACE, StorageTarget.MACHINE);
         }
-        const hash = await parentOriginHash(
-          mainWindow.origin,
-          stableOriginUUID
-        );
+        const hash = await parentOriginHash(mainWindow.origin, stableOriginUUID);
         const baseUrl = webEndpointUrlTemplate.replace("{{uuid}}", `v--${hash}`).replace("{{commit}}", commit).replace("{{quality}}", quality);
-        const res = new URL(
-          `${baseUrl}/out/${iframeModulePath}${suffix}`
-        );
+        const res = new URL(`${baseUrl}/out/${iframeModulePath}${suffix}`);
         res.searchParams.set("parentOrigin", mainWindow.origin);
         res.searchParams.set("salt", stableOriginUUID);
         return res.toString();
       }
-      console.warn(
-        `The web worker extension host is started in a same-origin iframe!`
-      );
+      console.warn(`The web worker extension host is started in a same-origin iframe!`);
     }
     const relativeExtensionHostIframeSrc = FileAccess.asBrowserUri(iframeModulePath);
     return `${relativeExtensionHostIframeSrc.toString(true)}${suffix}`;
@@ -145,9 +106,7 @@ let WebWorkerExtensionHost = class extends Disposable {
   async start() {
     if (!this._protocolPromise) {
       this._protocolPromise = this._startInsideIframe();
-      this._protocolPromise.then(
-        (protocol) => this._protocol = protocol
-      );
+      this._protocolPromise.then((protocol) => this._protocol = protocol);
     }
     return this._protocolPromise;
   }
@@ -157,17 +116,11 @@ let WebWorkerExtensionHost = class extends Disposable {
     const iframe = document.createElement("iframe");
     iframe.setAttribute("class", "web-worker-ext-host-iframe");
     iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
-    iframe.setAttribute(
-      "allow",
-      "usb; serial; hid; cross-origin-isolated;"
-    );
+    iframe.setAttribute("allow", "usb; serial; hid; cross-origin-isolated;");
     iframe.setAttribute("aria-hidden", "true");
     iframe.style.display = "none";
     const vscodeWebWorkerExtHostId = generateUuid();
-    iframe.setAttribute(
-      "src",
-      `${webWorkerExtensionHostIframeSrc}&vscodeWebWorkerExtHostId=${vscodeWebWorkerExtHostId}`
-    );
+    iframe.setAttribute("src", `${webWorkerExtensionHostIframeSrc}&vscodeWebWorkerExtHostId=${vscodeWebWorkerExtHostId}`);
     const barrier = new Barrier();
     let port;
     let barrierError = null;
@@ -178,10 +131,7 @@ let WebWorkerExtensionHost = class extends Disposable {
       barrierHasError = true;
       onUnexpectedError(barrierError);
       clearTimeout(startTimeout);
-      this._onDidExit.fire([
-        ExtensionHostExitCode.UnexpectedError,
-        barrierError.message
-      ]);
+      this._onDidExit.fire([ExtensionHostExitCode.UnexpectedError, barrierError.message]);
       barrier.open();
     }, "rejectBarrier");
     const resolveBarrier = /* @__PURE__ */ __name((messagePort) => {
@@ -190,63 +140,48 @@ let WebWorkerExtensionHost = class extends Disposable {
       barrier.open();
     }, "resolveBarrier");
     startTimeout = setTimeout(() => {
-      console.warn(
-        `The Web Worker Extension Host did not start in 60s, that might be a problem.`
-      );
+      console.warn(`The Web Worker Extension Host did not start in 60s, that might be a problem.`);
     }, 6e4);
-    this._register(
-      dom.addDisposableListener(mainWindow, "message", (event) => {
-        if (event.source !== iframe.contentWindow) {
-          return;
-        }
-        if (event.data.vscodeWebWorkerExtHostId !== vscodeWebWorkerExtHostId) {
-          return;
-        }
-        if (event.data.error) {
-          const { name, message, stack } = event.data.error;
-          const err = new Error();
-          err.message = message;
-          err.name = name;
-          err.stack = stack;
-          return rejectBarrier(
-            ExtensionHostExitCode.UnexpectedError,
-            err
-          );
-        }
-        if (event.data.type === "vscode.bootstrap.nls") {
-          const factoryModuleId = "vs/base/worker/workerMain.js";
-          const baseUrl = isESM ? void 0 : require.toUrl(factoryModuleId).slice(0, -factoryModuleId.length);
-          iframe.contentWindow.postMessage(
-            {
-              type: event.data.type,
-              data: {
-                baseUrl,
-                workerUrl: isESM ? FileAccess.asBrowserUri(
-                  "vs/workbench/api/worker/extensionHostWorker.esm.js"
-                ).toString(true) : require.toUrl(factoryModuleId),
-                fileRoot: globalThis._VSCODE_FILE_ROOT,
-                nls: {
-                  messages: getNLSMessages(),
-                  language: getNLSLanguage()
-                }
-              }
-            },
-            "*"
-          );
-          return;
-        }
-        const { data } = event.data;
-        if (barrier.isOpen() || !(data instanceof MessagePort)) {
-          console.warn("UNEXPECTED message", event);
-          const err = new Error("UNEXPECTED message");
-          return rejectBarrier(
-            ExtensionHostExitCode.UnexpectedError,
-            err
-          );
-        }
-        resolveBarrier(data);
-      })
-    );
+    this._register(dom.addDisposableListener(mainWindow, "message", (event) => {
+      if (event.source !== iframe.contentWindow) {
+        return;
+      }
+      if (event.data.vscodeWebWorkerExtHostId !== vscodeWebWorkerExtHostId) {
+        return;
+      }
+      if (event.data.error) {
+        const { name, message, stack } = event.data.error;
+        const err = new Error();
+        err.message = message;
+        err.name = name;
+        err.stack = stack;
+        return rejectBarrier(ExtensionHostExitCode.UnexpectedError, err);
+      }
+      if (event.data.type === "vscode.bootstrap.nls") {
+        const factoryModuleId = "vs/base/worker/workerMain.js";
+        const baseUrl = isESM ? void 0 : require.toUrl(factoryModuleId).slice(0, -factoryModuleId.length);
+        iframe.contentWindow.postMessage({
+          type: event.data.type,
+          data: {
+            baseUrl,
+            workerUrl: isESM ? FileAccess.asBrowserUri("vs/workbench/api/worker/extensionHostWorker.esm.js").toString(true) : require.toUrl(factoryModuleId),
+            fileRoot: globalThis._VSCODE_FILE_ROOT,
+            nls: {
+              messages: getNLSMessages(),
+              language: getNLSLanguage()
+            }
+          }
+        }, "*");
+        return;
+      }
+      const { data } = event.data;
+      if (barrier.isOpen() || !(data instanceof MessagePort)) {
+        console.warn("UNEXPECTED message", event);
+        const err = new Error("UNEXPECTED message");
+        return rejectBarrier(ExtensionHostExitCode.UnexpectedError, err);
+      }
+      resolveBarrier(data);
+    }));
     this._layoutService.mainContainer.appendChild(iframe);
     this._register(toDisposable(() => iframe.remove()));
     await barrier.wait();
@@ -254,11 +189,7 @@ let WebWorkerExtensionHost = class extends Disposable {
       throw barrierError;
     }
     const messagePorts = this._environmentService.options?.messagePorts ?? /* @__PURE__ */ new Map();
-    iframe.contentWindow.postMessage(
-      { type: "vscode.init", data: messagePorts },
-      "*",
-      [...messagePorts.values()]
-    );
+    iframe.contentWindow.postMessage({ type: "vscode.init", data: messagePorts }, "*", [...messagePorts.values()]);
     port.onmessage = (event) => {
       const { data } = event;
       if (!(data instanceof ArrayBuffer)) {
@@ -266,46 +197,27 @@ let WebWorkerExtensionHost = class extends Disposable {
         this._onDidExit.fire([77, "UNKNOWN data received"]);
         return;
       }
-      emitter.fire(
-        VSBuffer.wrap(new Uint8Array(data, 0, data.byteLength))
-      );
+      emitter.fire(VSBuffer.wrap(new Uint8Array(data, 0, data.byteLength)));
     };
     const protocol = {
       onMessage: emitter.event,
       send: /* @__PURE__ */ __name((vsbuf) => {
-        const data = vsbuf.buffer.buffer.slice(
-          vsbuf.buffer.byteOffset,
-          vsbuf.buffer.byteOffset + vsbuf.buffer.byteLength
-        );
+        const data = vsbuf.buffer.buffer.slice(vsbuf.buffer.byteOffset, vsbuf.buffer.byteOffset + vsbuf.buffer.byteLength);
         port.postMessage(data, [data]);
       }, "send")
     };
     return this._performHandshake(protocol);
   }
   async _performHandshake(protocol) {
-    await Event.toPromise(
-      Event.filter(
-        protocol.onMessage,
-        (msg) => isMessageOfType(msg, MessageType.Ready)
-      )
-    );
+    await Event.toPromise(Event.filter(protocol.onMessage, (msg) => isMessageOfType(msg, MessageType.Ready)));
     if (this._isTerminating) {
       throw canceled();
     }
-    protocol.send(
-      VSBuffer.fromString(
-        JSON.stringify(await this._createExtHostInitData())
-      )
-    );
+    protocol.send(VSBuffer.fromString(JSON.stringify(await this._createExtHostInitData())));
     if (this._isTerminating) {
       throw canceled();
     }
-    await Event.toPromise(
-      Event.filter(
-        protocol.onMessage,
-        (msg) => isMessageOfType(msg, MessageType.Initialized)
-      )
-    );
+    await Event.toPromise(Event.filter(protocol.onMessage, (msg) => isMessageOfType(msg, MessageType.Initialized)));
     if (this._isTerminating) {
       throw canceled();
     }
@@ -330,14 +242,9 @@ let WebWorkerExtensionHost = class extends Disposable {
     this.extensions = initData.extensions;
     const workspace = this._contextService.getWorkspace();
     const nlsBaseUrl = this._productService.extensionsGallery?.nlsBaseUrl;
-    let nlsUrlWithDetails;
+    let nlsUrlWithDetails = void 0;
     if (nlsBaseUrl && this._productService.commit && !platform.Language.isDefaultVariant()) {
-      nlsUrlWithDetails = URI.joinPath(
-        URI.parse(nlsBaseUrl),
-        this._productService.commit,
-        this._productService.version,
-        platform.Language.value()
-      );
+      nlsUrlWithDetails = URI.joinPath(URI.parse(nlsBaseUrl), this._productService.commit, this._productService.version, platform.Language.value());
     }
     return {
       commit: this._productService.commit,
@@ -351,10 +258,7 @@ let WebWorkerExtensionHost = class extends Disposable {
         appUriScheme: this._productService.urlProtocol,
         appLanguage: platform.language,
         extensionTelemetryLogResource: this._environmentService.extHostTelemetryLogFile,
-        isExtensionTelemetryLoggingOnly: isLoggingOnly(
-          this._productService,
-          this._environmentService
-        ),
+        isExtensionTelemetryLoggingOnly: isLoggingOnly(this._productService, this._environmentService),
         extensionDevelopmentLocationURI: this._environmentService.extensionDevelopmentLocationURI,
         extensionTestsLocationURI: this._environmentService.extensionTestsLocationURI,
         globalStorageHome: this._userDataProfilesService.defaultProfile.globalStorageHome,
@@ -364,9 +268,7 @@ let WebWorkerExtensionHost = class extends Disposable {
       workspace: this._contextService.getWorkbenchState() === WorkbenchState.EMPTY ? void 0 : {
         configuration: workspace.configuration || void 0,
         id: workspace.id,
-        name: this._labelService.getWorkspaceLabel(
-          workspace
-        ),
+        name: this._labelService.getWorkspaceLabel(workspace),
         transient: workspace.transient
       },
       consoleForward: {

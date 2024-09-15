@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
 class ObjectPool {
   constructor(_create) {
     this._create = _create;
@@ -17,9 +18,7 @@ class ObjectPool {
       this._itemData.set(obj, data);
     } else {
       const values = [...this._unused.values()];
-      obj = values.find(
-        (obj2) => this._itemData.get(obj2).getId() === data.getId()
-      ) ?? values[0];
+      obj = values.find((obj2) => this._itemData.get(obj2).getId() === data.getId()) ?? values[0];
       this._unused.delete(obj);
       this._itemData.set(obj, data);
       obj.setData(data);

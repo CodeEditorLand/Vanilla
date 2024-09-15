@@ -10,43 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import Severity from "../../../../base/common/severity.js";
-import {
-  getCodeEditor
-} from "../../../../editor/browser/editorBrowser.js";
-import * as nls from "../../../../nls.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { ICodeEditor, getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  ILanguageStatusService
-} from "../../../services/languageStatus/common/languageStatusService.js";
+import { ILanguageStatus, ILanguageStatusService } from "../../../services/languageStatus/common/languageStatusService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, IWorkbenchContribution } from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { ColorDetector } from "../../../../editor/contrib/colorPicker/browser/colorDetector.js";
+import { Event } from "../../../../base/common/event.js";
+import * as nls from "../../../../nls.js";
 import { FoldingController } from "../../../../editor/contrib/folding/browser/folding.js";
+import { ColorDetector } from "../../../../editor/contrib/colorPicker/browser/colorDetector.js";
 const openSettingsCommand = "workbench.action.openSettings";
-const configureSettingsLabel = nls.localize(
-  "status.button.configure",
-  "Configure"
-);
+const configureSettingsLabel = nls.localize("status.button.configure", "Configure");
 let LimitIndicatorContribution = class extends Disposable {
   static {
     __name(this, "LimitIndicatorContribution");
   }
   constructor(editorService, languageStatusService) {
     super();
-    const accessors = [
-      new ColorDecorationAccessor(),
-      new FoldingRangeAccessor()
-    ];
-    const statusEntries = accessors.map(
-      (indicator) => new LanguageStatusEntry(languageStatusService, indicator)
-    );
+    const accessors = [new ColorDecorationAccessor(), new FoldingRangeAccessor()];
+    const statusEntries = accessors.map((indicator) => new LanguageStatusEntry(languageStatusService, indicator));
     statusEntries.forEach((entry) => this._register(entry));
     let control;
     const onActiveEditorChanged = /* @__PURE__ */ __name(() => {
@@ -56,13 +41,9 @@ let LimitIndicatorContribution = class extends Disposable {
       }
       control = activeControl;
       const editor = getCodeEditor(activeControl);
-      statusEntries.forEach(
-        (statusEntry) => statusEntry.onActiveEditorChanged(editor)
-      );
+      statusEntries.forEach((statusEntry) => statusEntry.onActiveEditorChanged(editor));
     }, "onActiveEditorChanged");
-    this._register(
-      editorService.onDidActiveEditorChange(onActiveEditorChanged)
-    );
+    this._register(editorService.onDidActiveEditorChange(onActiveEditorChanged));
     onActiveEditorChanged();
   }
 };
@@ -75,18 +56,9 @@ class ColorDecorationAccessor {
     __name(this, "ColorDecorationAccessor");
   }
   id = "decoratorsLimitInfo";
-  name = nls.localize(
-    "colorDecoratorsStatusItem.name",
-    "Color Decorator Status"
-  );
-  label = nls.localize(
-    "status.limitedColorDecorators.short",
-    "Color Decorators"
-  );
-  source = nls.localize(
-    "colorDecoratorsStatusItem.source",
-    "Color Decorators"
-  );
+  name = nls.localize("colorDecoratorsStatusItem.name", "Color Decorator Status");
+  label = nls.localize("status.limitedColorDecorators.short", "Color Decorators");
+  source = nls.localize("colorDecoratorsStatusItem.source", "Color Decorators");
   settingsId = "editor.colorDecoratorsLimit";
   getLimitReporter(editor) {
     return ColorDetector.get(editor)?.limitReporter;
@@ -97,14 +69,8 @@ class FoldingRangeAccessor {
     __name(this, "FoldingRangeAccessor");
   }
   id = "foldingLimitInfo";
-  name = nls.localize(
-    "foldingRangesStatusItem.name",
-    "Folding Status"
-  );
-  label = nls.localize(
-    "status.limitedFoldingRanges.short",
-    "Folding Ranges"
-  );
+  name = nls.localize("foldingRangesStatusItem.name", "Folding Status");
+  label = nls.localize("status.limitedFoldingRanges.short", "Folding Ranges");
   source = nls.localize("foldingRangesStatusItem.source", "Folding");
   settingsId = "editor.foldingMaximumRegions";
   getLimitReporter(editor) {
@@ -151,16 +117,8 @@ class LanguageStatusEntry {
         name: this.accessor.name,
         severity: Severity.Warning,
         label: this.accessor.label,
-        detail: nls.localize(
-          "status.limited.details",
-          "only {0} shown for performance reasons",
-          info.limited
-        ),
-        command: {
-          id: openSettingsCommand,
-          arguments: [this.accessor.settingsId],
-          title: configureSettingsLabel
-        },
+        detail: nls.localize("status.limited.details", "only {0} shown for performance reasons", info.limited),
+        command: { id: openSettingsCommand, arguments: [this.accessor.settingsId], title: configureSettingsLabel },
         accessibilityInfo: void 0,
         source: this.accessor.source,
         busy: false
@@ -175,9 +133,7 @@ class LanguageStatusEntry {
     this._indicatorChangeListener = void 0;
   }
 }
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
   LimitIndicatorContribution,
   LifecyclePhase.Restored
 );

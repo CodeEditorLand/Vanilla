@@ -1,4 +1,4 @@
-var loading_default = "../../../../../../Asset/loading-TSRHPP2T.svg";
+var loading_default = "../../../../../../Asset/loading-JCD7Q4T4.svg";
 export {
   loading_default as default
 };

@@ -1,15 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  trackFocus
-} from "../../base/browser/dom.js";
-import {
-  ActionRunner
-} from "../../base/common/actions.js";
-import { Emitter } from "../../base/common/event.js";
+import { IAction, IActionRunner, ActionRunner } from "../../base/common/actions.js";
+import { Component } from "../common/component.js";
+import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
+import { IComposite, ICompositeControl } from "../common/composite.js";
+import { Event, Emitter } from "../../base/common/event.js";
+import { IThemeService } from "../../platform/theme/common/themeService.js";
+import { IConstructorSignature, IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { trackFocus, Dimension, IDomPosition } from "../../base/browser/dom.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
 import { Disposable } from "../../base/common/lifecycle.js";
 import { assertIsDefined } from "../../base/common/types.js";
-import { Component } from "../common/component.js";
+import { IActionViewItem } from "../../base/browser/ui/actionbar/actionbar.js";
+import { MenuId } from "../../platform/actions/common/actions.js";
+import { IBoundarySashes } from "../../base/browser/ui/sash/sash.js";
+import { IBaseActionViewItemOptions } from "../../base/browser/ui/actionbar/actionViewItems.js";
 class Composite extends Component {
   constructor(id, telemetryService, themeService, storageService) {
     super(id, themeService, storageService);
@@ -41,24 +46,16 @@ class Composite extends Component {
   registerFocusTrackEvents() {
     const container = assertIsDefined(this.getContainer());
     const focusTracker = this._register(trackFocus(container));
-    const onDidFocus = this._onDidFocus = this._register(
-      new Emitter()
-    );
-    this._register(
-      focusTracker.onDidFocus(() => {
-        this._hasFocus = true;
-        onDidFocus.fire();
-      })
-    );
-    const onDidBlur = this._onDidBlur = this._register(
-      new Emitter()
-    );
-    this._register(
-      focusTracker.onDidBlur(() => {
-        this._hasFocus = false;
-        onDidBlur.fire();
-      })
-    );
+    const onDidFocus = this._onDidFocus = this._register(new Emitter());
+    this._register(focusTracker.onDidFocus(() => {
+      this._hasFocus = true;
+      onDidFocus.fire();
+    }));
+    const onDidBlur = this._onDidBlur = this._register(new Emitter());
+    this._register(focusTracker.onDidBlur(() => {
+      this._hasFocus = false;
+      onDidBlur.fire();
+    }));
     return { onDidFocus, onDidBlur };
   }
   actionRunner;
@@ -199,13 +196,9 @@ class CompositeRegistry extends Disposable {
   static {
     __name(this, "CompositeRegistry");
   }
-  _onDidRegister = this._register(
-    new Emitter()
-  );
+  _onDidRegister = this._register(new Emitter());
   onDidRegister = this._onDidRegister.event;
-  _onDidDeregister = this._register(
-    new Emitter()
-  );
+  _onDidDeregister = this._register(new Emitter());
   onDidDeregister = this._onDidDeregister.event;
   composites = [];
   registerComposite(descriptor) {

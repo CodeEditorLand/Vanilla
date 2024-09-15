@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "./cancellation.js";
 function countMapFrom(values) {
   const map = /* @__PURE__ */ new Map();
   for (const value of values) {
@@ -21,11 +22,7 @@ class TfIdfCalculator {
         return [];
       }
       for (const chunk of doc.chunks) {
-        const score = this.computeSimilarityScore(
-          chunk,
-          embedding,
-          idfCache
-        );
+        const score = this.computeSimilarityScore(chunk, embedding, idfCache);
         if (score > 0) {
           scores.push({ key, score });
         }
@@ -44,9 +41,7 @@ class TfIdfCalculator {
    */
   static *splitTerms(input) {
     const normalize = /* @__PURE__ */ __name((word) => word.toLowerCase(), "normalize");
-    for (const [word] of input.matchAll(
-      /\b\p{Letter}[\p{Letter}\d]{2,}\b/gu
-    )) {
+    for (const [word] of input.matchAll(/\b\p{Letter}[\p{Letter}\d]{2,}\b/gu)) {
       yield normalize(word);
       const camelParts = word.replace(/([a-z])([A-Z])/g, "$1 $2").split(/\s+/g);
       if (camelParts.length > 1) {
@@ -73,10 +68,7 @@ class TfIdfCalculator {
       for (const text of doc.textChunks) {
         const tf = TfIdfCalculator.termFrequencies(text);
         for (const term of tf.keys()) {
-          this.chunkOccurrences.set(
-            term,
-            (this.chunkOccurrences.get(term) ?? 0) + 1
-          );
+          this.chunkOccurrences.set(term, (this.chunkOccurrences.get(term) ?? 0) + 1);
         }
         chunks.push({ text, tf });
       }

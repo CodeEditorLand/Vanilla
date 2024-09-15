@@ -16,11 +16,9 @@ class InsertButton extends Disposable {
     this._button = dom.append(container, document.createElement("button"));
     this._button.classList.add("insert-button");
     this._button.textContent = "Insert";
-    this._register(
-      dom.addDisposableListener(this._button, dom.EventType.CLICK, () => {
-        this._onClicked.fire();
-      })
-    );
+    this._register(dom.addDisposableListener(this._button, dom.EventType.CLICK, () => {
+      this._onClicked.fire();
+    }));
   }
   get button() {
     return this._button;

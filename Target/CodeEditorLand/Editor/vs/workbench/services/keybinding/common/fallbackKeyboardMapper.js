@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  KeyCodeChord,
-  Keybinding
-} from "../../../../base/common/keybindings.js";
+import { ResolvedKeybinding, KeyCodeChord, Keybinding } from "../../../../base/common/keybindings.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
 import { USLayoutResolvedKeybinding } from "../../../../platform/keybinding/common/usLayoutResolvedKeybinding.js";
+import { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
 class FallbackKeyboardMapper {
   constructor(_mapAltGrToCtrlAlt, _OS) {
     this._mapAltGrToCtrlAlt = _mapAltGrToCtrlAlt;
@@ -30,10 +30,7 @@ class FallbackKeyboardMapper {
     return result[0];
   }
   resolveKeybinding(keybinding) {
-    return USLayoutResolvedKeybinding.resolveKeybinding(
-      keybinding,
-      this._OS
-    );
+    return USLayoutResolvedKeybinding.resolveKeybinding(keybinding, this._OS);
   }
 }
 export {

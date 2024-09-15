@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./scrollDecoration.css";
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
 import { ViewPart } from "../../view/viewPart.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
 class ScrollDecorationViewPart extends ViewPart {
   static {
     __name(this, "ScrollDecorationViewPart");

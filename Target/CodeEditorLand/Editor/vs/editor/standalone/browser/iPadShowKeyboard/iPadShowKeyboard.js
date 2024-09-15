@@ -3,15 +3,11 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import "./iPadShowKeyboard.css";
 import * as dom from "../../../../base/browser/dom.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { isIOS } from "../../../../base/common/platform.js";
-import {
-  OverlayWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference } from "../../../browser/editorBrowser.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import { isIOS } from "../../../../base/common/platform.js";
 class IPadShowKeyboard extends Disposable {
   static {
     __name(this, "IPadShowKeyboard");
@@ -24,9 +20,7 @@ class IPadShowKeyboard extends Disposable {
     this.editor = editor;
     this.widget = null;
     if (isIOS) {
-      this._register(
-        editor.onDidChangeConfiguration(() => this.update())
-      );
+      this._register(editor.onDidChangeConfiguration(() => this.update()));
       this.update();
     }
   }
@@ -59,16 +53,12 @@ class ShowKeyboardWidget extends Disposable {
     this.editor = editor;
     this._domNode = document.createElement("textarea");
     this._domNode.className = "iPadShowKeyboard";
-    this._register(
-      dom.addDisposableListener(this._domNode, "touchstart", (e) => {
-        this.editor.focus();
-      })
-    );
-    this._register(
-      dom.addDisposableListener(this._domNode, "focus", (e) => {
-        this.editor.focus();
-      })
-    );
+    this._register(dom.addDisposableListener(this._domNode, "touchstart", (e) => {
+      this.editor.focus();
+    }));
+    this._register(dom.addDisposableListener(this._domNode, "focus", (e) => {
+      this.editor.focus();
+    }));
     this.editor.addOverlayWidget(this);
   }
   dispose() {
@@ -88,11 +78,7 @@ class ShowKeyboardWidget extends Disposable {
     };
   }
 }
-registerEditorContribution(
-  IPadShowKeyboard.ID,
-  IPadShowKeyboard,
-  EditorContributionInstantiation.Eventually
-);
+registerEditorContribution(IPadShowKeyboard.ID, IPadShowKeyboard, EditorContributionInstantiation.Eventually);
 export {
   IPadShowKeyboard
 };

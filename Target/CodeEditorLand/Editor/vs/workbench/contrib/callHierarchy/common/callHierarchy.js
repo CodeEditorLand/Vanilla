@@ -1,20 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { SymbolKind, ProviderResult, SymbolTag } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
-import {
-  RefCountedDisposable
-} from "../../../../base/common/lifecycle.js";
-import { assertType } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  Position
-} from "../../../../editor/common/core/position.js";
 import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IPosition, Position } from "../../../../editor/common/core/position.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { IDisposable, RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { assertType } from "../../../../base/common/types.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 var CallHierarchyDirection = /* @__PURE__ */ ((CallHierarchyDirection2) => {
   CallHierarchyDirection2["CallsTo"] = "incomingCalls";
   CallHierarchyDirection2["CallsFrom"] = "outgoingCalls";
@@ -37,20 +36,11 @@ class CallHierarchyModel {
     if (!provider) {
       return void 0;
     }
-    const session = await provider.prepareCallHierarchy(
-      model,
-      position,
-      token
-    );
+    const session = await provider.prepareCallHierarchy(model, position, token);
     if (!session) {
       return void 0;
     }
-    return new CallHierarchyModel(
-      session.roots.reduce((p, c) => p + c._sessionId, ""),
-      provider,
-      session.roots,
-      new RefCountedDisposable(session)
-    );
+    return new CallHierarchyModel(session.roots.reduce((p, c) => p + c._sessionId, ""), provider, session.roots, new RefCountedDisposable(session));
   }
   root;
   dispose() {
@@ -66,10 +56,7 @@ class CallHierarchyModel {
   }
   async resolveIncomingCalls(item, token) {
     try {
-      const result = await this.provider.provideIncomingCalls(
-        item,
-        token
-      );
+      const result = await this.provider.provideIncomingCalls(item, token);
       if (isNonEmptyArray(result)) {
         return result;
       }
@@ -80,10 +67,7 @@ class CallHierarchyModel {
   }
   async resolveOutgoingCalls(item, token) {
     try {
-      const result = await this.provider.provideOutgoingCalls(
-        item,
-        token
-      );
+      const result = await this.provider.provideOutgoingCalls(item, token);
       if (isNonEmptyArray(result)) {
         return result;
       }
@@ -94,71 +78,58 @@ class CallHierarchyModel {
   }
 }
 const _models = /* @__PURE__ */ new Map();
-CommandsRegistry.registerCommand(
-  "_executePrepareCallHierarchy",
-  async (accessor, ...args) => {
-    const [resource, position] = args;
-    assertType(URI.isUri(resource));
-    assertType(Position.isIPosition(position));
-    const modelService = accessor.get(IModelService);
-    let textModel = modelService.getModel(resource);
-    let textModelReference;
-    if (!textModel) {
-      const textModelService = accessor.get(ITextModelService);
-      const result = await textModelService.createModelReference(resource);
-      textModel = result.object.textEditorModel;
-      textModelReference = result;
-    }
-    try {
-      const model = await CallHierarchyModel.create(
-        textModel,
-        position,
-        CancellationToken.None
-      );
-      if (!model) {
-        return [];
-      }
-      _models.set(model.id, model);
-      _models.forEach((value, key, map) => {
-        if (map.size > 10) {
-          value.dispose();
-          _models.delete(key);
-        }
-      });
-      return [model.root];
-    } finally {
-      textModelReference?.dispose();
-    }
+CommandsRegistry.registerCommand("_executePrepareCallHierarchy", async (accessor, ...args) => {
+  const [resource, position] = args;
+  assertType(URI.isUri(resource));
+  assertType(Position.isIPosition(position));
+  const modelService = accessor.get(IModelService);
+  let textModel = modelService.getModel(resource);
+  let textModelReference;
+  if (!textModel) {
+    const textModelService = accessor.get(ITextModelService);
+    const result = await textModelService.createModelReference(resource);
+    textModel = result.object.textEditorModel;
+    textModelReference = result;
   }
-);
+  try {
+    const model = await CallHierarchyModel.create(textModel, position, CancellationToken.None);
+    if (!model) {
+      return [];
+    }
+    _models.set(model.id, model);
+    _models.forEach((value, key, map) => {
+      if (map.size > 10) {
+        value.dispose();
+        _models.delete(key);
+      }
+    });
+    return [model.root];
+  } finally {
+    textModelReference?.dispose();
+  }
+});
 function isCallHierarchyItemDto(obj) {
   return true;
 }
 __name(isCallHierarchyItemDto, "isCallHierarchyItemDto");
-CommandsRegistry.registerCommand(
-  "_executeProvideIncomingCalls",
-  async (_accessor, ...args) => {
-    const [item] = args;
-    assertType(isCallHierarchyItemDto(item));
-    const model = _models.get(item._sessionId);
-    if (!model) {
-      return void 0;
-    }
-    return model.resolveIncomingCalls(item, CancellationToken.None);
+CommandsRegistry.registerCommand("_executeProvideIncomingCalls", async (_accessor, ...args) => {
+  const [item] = args;
+  assertType(isCallHierarchyItemDto(item));
+  const model = _models.get(item._sessionId);
+  if (!model) {
+    return void 0;
   }
-);
-CommandsRegistry.registerCommand(
-  "_executeProvideOutgoingCalls",
-  async (_accessor, ...args) => {
-    const [item] = args;
-    assertType(isCallHierarchyItemDto(item));
-    const model = _models.get(item._sessionId);
-    if (!model) {
-      return void 0;
-    }
-    return model.resolveOutgoingCalls(item, CancellationToken.None);
+  return model.resolveIncomingCalls(item, CancellationToken.None);
+});
+CommandsRegistry.registerCommand("_executeProvideOutgoingCalls", async (_accessor, ...args) => {
+  const [item] = args;
+  assertType(isCallHierarchyItemDto(item));
+  const model = _models.get(item._sessionId);
+  if (!model) {
+    return void 0;
   }
-);
+  return model.resolveOutgoingCalls(item, CancellationToken.None);
+});
 export {
   CallHierarchyDirection,
   CallHierarchyModel,

@@ -11,123 +11,64 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/scm.css";
-import { $, append, h, reset } from "../../../../base/browser/dom.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
-import {
-  ActionRunner
-} from "../../../../base/common/actions.js";
-import { delta, groupBy, tail } from "../../../../base/common/arrays.js";
-import { Sequencer, Throttler } from "../../../../base/common/async.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { fromNow } from "../../../../base/common/date.js";
-import { Event } from "../../../../base/common/event.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import { stripIcons } from "../../../../base/common/iconLabels.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { clamp } from "../../../../base/common/numbers.js";
-import {
-  autorun,
-  autorunWithStore,
-  constObservable,
-  derived,
-  latestChangedValue,
-  observableFromEvent,
-  observableValue,
-  runOnChange,
-  waitForState
-} from "../../../../base/common/observable.js";
 import * as platform from "../../../../base/common/platform.js";
-import { compare } from "../../../../base/common/strings.js";
+import { $, append, h, reset } from "../../../../base/browser/dom.js";
+import { IHoverOptions, IManagedHoverTooltipMarkdownString } from "../../../../base/browser/ui/hover/hover.js";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { LabelFuzzyScore } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { IAsyncDataSource, ITreeContextMenuEvent, ITreeNode, ITreeRenderer } from "../../../../base/browser/ui/tree/tree.js";
+import { fromNow } from "../../../../base/common/date.js";
+import { createMatches, FuzzyScore, IMatch } from "../../../../base/common/filters.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived, IObservable, observableValue, waitForState, constObservable, latestChangedValue, observableFromEvent, runOnChange, ISettableObservable } from "../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  IHoverService,
-  WorkbenchHoverDelegate
-} from "../../../../platform/hover/browser/hover.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IHoverService, WorkbenchHoverDelegate } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import {
-  WorkbenchAsyncDataTree
-} from "../../../../platform/list/browser/listService.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IOpenEvent, WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  asCssVariable,
-  foreground
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { asCssVariable, ColorIdentifier, foreground } from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  ViewAction,
-  ViewPane,
-  ViewPaneShowActions
-} from "../../../browser/parts/views/viewPane.js";
-import {
-  IViewDescriptorService,
-  ViewContainerLocation
-} from "../../../common/views.js";
-import {
-  IWorkbenchLayoutService,
-  Position
-} from "../../../services/layout/browser/layoutService.js";
-import {
-  HISTORY_VIEW_PANE_ID,
-  ISCMService,
-  ISCMViewService
-} from "../common/scm.js";
-import {
-  SWIMLANE_WIDTH,
-  historyItemHoverAdditionsForeground,
-  historyItemHoverDefaultLabelBackground,
-  historyItemHoverDefaultLabelForeground,
-  historyItemHoverDeletionsForeground,
-  historyItemHoverLabelForeground,
-  renderSCMHistoryGraphPlaceholder,
-  renderSCMHistoryItemGraph,
-  toISCMHistoryItemViewModelArray
-} from "./scmHistory.js";
+import { IViewPaneOptions, ViewAction, ViewPane, ViewPaneShowActions } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService, ViewContainerLocation } from "../../../common/views.js";
+import { renderSCMHistoryItemGraph, toISCMHistoryItemViewModelArray, SWIMLANE_WIDTH, renderSCMHistoryGraphPlaceholder, historyItemHoverDeletionsForeground, historyItemHoverLabelForeground, historyItemHoverAdditionsForeground, historyItemHoverDefaultLabelForeground, historyItemHoverDefaultLabelBackground } from "./scmHistory.js";
+import { isSCMHistoryItemLoadMoreTreeElement, isSCMHistoryItemViewModelTreeElement, isSCMRepository } from "./util.js";
+import { ISCMHistoryItem, ISCMHistoryItemRef, ISCMHistoryItemViewModel, ISCMHistoryProvider, SCMHistoryItemLoadMoreTreeElement, SCMHistoryItemViewModelTreeElement } from "../common/history.js";
+import { HISTORY_VIEW_PANE_ID, ISCMProvider, ISCMRepository, ISCMService, ISCMViewService } from "../common/scm.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import { stripIcons } from "../../../../base/common/iconLabels.js";
+import { IWorkbenchLayoutService, Position } from "../../../services/layout/browser/layoutService.js";
+import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Sequencer, Throttler } from "../../../../base/common/async.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ActionRunner, IAction, IActionRunner } from "../../../../base/common/actions.js";
+import { delta, groupBy, tail } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
 import { ContextKeys } from "./scmViewPane.js";
-import {
-  isSCMHistoryItemLoadMoreTreeElement,
-  isSCMHistoryItemViewModelTreeElement,
-  isSCMRepository
-} from "./util.js";
+import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IDropdownMenuActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { Event } from "../../../../base/common/event.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { clamp } from "../../../../base/common/numbers.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { compare } from "../../../../base/common/strings.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
 const PICK_REPOSITORY_ACTION_ID = "workbench.scm.action.graph.pickRepository";
 const PICK_HISTORY_ITEM_REFS_ACTION_ID = "workbench.scm.action.graph.pickHistoryItemRefs";
 class SCMRepositoryActionViewItem extends ActionViewItem {
@@ -165,9 +106,7 @@ class SCMHistoryItemRefsActionViewItem extends ActionViewItem {
     if (this.options.label && this.label) {
       this.label.classList.add("scm-graph-history-item-picker");
       const icon = $(".icon");
-      icon.classList.add(
-        ...ThemeIcon.asClassNameArray(Codicon.gitBranch)
-      );
+      icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.gitBranch));
       const name = $(".name");
       if (this._historyItemsFilter === "all") {
         name.textContent = localize("all", "All");
@@ -176,21 +115,14 @@ class SCMHistoryItemRefsActionViewItem extends ActionViewItem {
       } else if (this._historyItemsFilter.length === 1) {
         name.textContent = this._historyItemsFilter[0].name;
       } else {
-        name.textContent = localize(
-          "items",
-          "{0} Items",
-          this._historyItemsFilter.length
-        );
+        name.textContent = localize("items", "{0} Items", this._historyItemsFilter.length);
       }
       reset(this.label, icon, name);
     }
   }
   getTooltip() {
     if (this._historyItemsFilter === "all") {
-      return localize(
-        "allHistoryItemRefs",
-        "All history item references"
-      );
+      return localize("allHistoryItemRefs", "All history item references");
     } else if (this._historyItemsFilter === "auto") {
       const historyProvider = this._repository.provider.historyProvider.get();
       return [
@@ -205,165 +137,123 @@ class SCMHistoryItemRefsActionViewItem extends ActionViewItem {
     }
   }
 }
-registerAction2(
-  class extends ViewAction {
-    constructor() {
-      super({
-        id: PICK_REPOSITORY_ACTION_ID,
-        title: localize("repositoryPicker", "Repository Picker"),
-        viewId: HISTORY_VIEW_PANE_ID,
-        f1: false,
-        menu: {
-          id: MenuId.SCMHistoryTitle,
-          when: ContextKeyExpr.and(
-            ContextKeyExpr.has("scm.providerCount"),
-            ContextKeyExpr.greater("scm.providerCount", 1)
-          ),
-          group: "navigation",
-          order: 0
-        }
-      });
-    }
-    async runInView(_, view) {
-      view.pickRepository();
-    }
-  }
-);
-registerAction2(
-  class extends ViewAction {
-    constructor() {
-      super({
-        id: PICK_HISTORY_ITEM_REFS_ACTION_ID,
-        title: localize(
-          "referencePicker",
-          "History Item Reference Picker"
-        ),
-        icon: Codicon.gitBranch,
-        viewId: HISTORY_VIEW_PANE_ID,
-        f1: false,
-        menu: {
-          id: MenuId.SCMHistoryTitle,
-          group: "navigation",
-          order: 1
-        }
-      });
-    }
-    async runInView(_, view) {
-      view.pickHistoryItemRef();
-    }
-  }
-);
-registerAction2(
-  class extends ViewAction {
-    constructor() {
-      super({
-        id: "workbench.scm.action.graph.revealCurrentHistoryItem",
-        title: localize(
-          "goToCurrentHistoryItem",
-          "Go to Current History Item"
-        ),
-        viewId: HISTORY_VIEW_PANE_ID,
-        f1: false,
-        icon: Codicon.target,
-        menu: {
-          id: MenuId.SCMHistoryTitle,
-          group: "navigation",
-          order: 2
-        }
-      });
-    }
-    async runInView(_, view) {
-      view.revealCurrentHistoryItem();
-    }
-  }
-);
-registerAction2(
-  class extends ViewAction {
-    constructor() {
-      super({
-        id: "workbench.scm.action.graph.refresh",
-        title: localize("refreshGraph", "Refresh"),
-        viewId: HISTORY_VIEW_PANE_ID,
-        f1: false,
-        icon: Codicon.refresh,
-        menu: {
-          id: MenuId.SCMHistoryTitle,
-          group: "navigation",
-          order: 1e3
-        }
-      });
-    }
-    async runInView(_, view) {
-      view.refresh();
-    }
-  }
-);
-registerAction2(
-  class extends Action2 {
-    constructor() {
-      super({
-        id: "workbench.scm.action.graph.viewChanges",
-        title: localize("viewChanges", "View Changes"),
-        f1: false,
-        menu: [
-          {
-            id: MenuId.SCMChangesContext,
-            group: "0_view",
-            when: ContextKeyExpr.equals(
-              "config.multiDiffEditor.experimental.enabled",
-              true
-            )
-          }
-        ]
-      });
-    }
-    async run(accessor, provider, ...historyItems) {
-      const commandService = accessor.get(ICommandService);
-      if (!provider || historyItems.length === 0) {
-        return;
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: PICK_REPOSITORY_ACTION_ID,
+      title: localize("repositoryPicker", "Repository Picker"),
+      viewId: HISTORY_VIEW_PANE_ID,
+      f1: false,
+      menu: {
+        id: MenuId.SCMHistoryTitle,
+        when: ContextKeyExpr.and(ContextKeyExpr.has("scm.providerCount"), ContextKeyExpr.greater("scm.providerCount", 1)),
+        group: "navigation",
+        order: 0
       }
-      const historyItem = historyItems[0];
-      const historyItemLast = historyItems[historyItems.length - 1];
-      const historyProvider = provider.historyProvider.get();
-      if (historyItems.length > 1) {
-        const ancestor = await historyProvider?.resolveHistoryItemRefsCommonAncestor(
-          [historyItem.id, historyItemLast.id]
-        );
-        if (!ancestor || ancestor !== historyItem.id && ancestor !== historyItemLast.id) {
-          return;
-        }
+    });
+  }
+  async runInView(_, view) {
+    view.pickRepository();
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: PICK_HISTORY_ITEM_REFS_ACTION_ID,
+      title: localize("referencePicker", "History Item Reference Picker"),
+      icon: Codicon.gitBranch,
+      viewId: HISTORY_VIEW_PANE_ID,
+      f1: false,
+      menu: {
+        id: MenuId.SCMHistoryTitle,
+        group: "navigation",
+        order: 1
       }
-      const historyItemParentId = historyItemLast.parentIds.length > 0 ? historyItemLast.parentIds[0] : void 0;
-      const historyItemChanges = await historyProvider?.provideHistoryItemChanges(
-        historyItem.id,
-        historyItemParentId
-      );
-      if (!historyItemChanges?.length) {
-        return;
+    });
+  }
+  async runInView(_, view) {
+    view.pickHistoryItemRef();
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.revealCurrentHistoryItem",
+      title: localize("goToCurrentHistoryItem", "Go to Current History Item"),
+      viewId: HISTORY_VIEW_PANE_ID,
+      f1: false,
+      icon: Codicon.target,
+      menu: {
+        id: MenuId.SCMHistoryTitle,
+        group: "navigation",
+        order: 2
       }
-      const title = historyItems.length === 1 ? `${historyItems[0].displayId ?? historyItems[0].id} - ${historyItems[0].message}` : localize(
-        "historyItemChangesEditorTitle",
-        "All Changes ({0} \u2194 {1})",
-        historyItemLast.displayId ?? historyItemLast.id,
-        historyItem.displayId ?? historyItem.id
-      );
-      const rootUri = provider.rootUri;
-      const path = rootUri ? rootUri.path : provider.label;
-      const multiDiffSourceUri = URI.from(
+    });
+  }
+  async runInView(_, view) {
+    view.revealCurrentHistoryItem();
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.refresh",
+      title: localize("refreshGraph", "Refresh"),
+      viewId: HISTORY_VIEW_PANE_ID,
+      f1: false,
+      icon: Codicon.refresh,
+      menu: {
+        id: MenuId.SCMHistoryTitle,
+        group: "navigation",
+        order: 1e3
+      }
+    });
+  }
+  async runInView(_, view) {
+    view.refresh();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.viewChanges",
+      title: localize("viewChanges", "View Changes"),
+      f1: false,
+      menu: [
         {
-          scheme: "scm-history-item",
-          path: `${path}/${historyItemParentId}..${historyItem.id}`
-        },
-        true
-      );
-      commandService.executeCommand("_workbench.openMultiDiffEditor", {
-        title,
-        multiDiffSourceUri,
-        resources: historyItemChanges
-      });
-    }
+          id: MenuId.SCMChangesContext,
+          group: "0_view",
+          when: ContextKeyExpr.equals("config.multiDiffEditor.experimental.enabled", true)
+        }
+      ]
+    });
   }
-);
+  async run(accessor, provider, ...historyItems) {
+    const commandService = accessor.get(ICommandService);
+    if (!provider || historyItems.length === 0) {
+      return;
+    }
+    const historyItem = historyItems[0];
+    const historyItemLast = historyItems[historyItems.length - 1];
+    const historyProvider = provider.historyProvider.get();
+    if (historyItems.length > 1) {
+      const ancestor = await historyProvider?.resolveHistoryItemRefsCommonAncestor([historyItem.id, historyItemLast.id]);
+      if (!ancestor || ancestor !== historyItem.id && ancestor !== historyItemLast.id) {
+        return;
+      }
+    }
+    const historyItemParentId = historyItemLast.parentIds.length > 0 ? historyItemLast.parentIds[0] : void 0;
+    const historyItemChanges = await historyProvider?.provideHistoryItemChanges(historyItem.id, historyItemParentId);
+    if (!historyItemChanges?.length) {
+      return;
+    }
+    const title = historyItems.length === 1 ? `${historyItems[0].displayId ?? historyItems[0].id} - ${historyItems[0].message}` : localize("historyItemChangesEditorTitle", "All Changes ({0} \u2194 {1})", historyItemLast.displayId ?? historyItemLast.id, historyItem.displayId ?? historyItem.id);
+    const rootUri = provider.rootUri;
+    const path = rootUri ? rootUri.path : provider.label;
+    const multiDiffSourceUri = URI.from({ scheme: "scm-history-item", path: `${path}/${historyItemParentId}..${historyItem.id}` }, true);
+    commandService.executeCommand("_workbench.openMultiDiffEditor", { title, multiDiffSourceUri, resources: historyItemChanges });
+  }
+});
 class ListDelegate {
   static {
     __name(this, "ListDelegate");
@@ -396,107 +286,59 @@ let HistoryItemRenderer = class {
   get templateId() {
     return HistoryItemRenderer.TEMPLATE_ID;
   }
-  _badgesConfig = observableConfigValue(
-    "scm.graph.badges",
-    "filter",
-    this._configurationService
-  );
+  _badgesConfig = observableConfigValue("scm.graph.badges", "filter", this._configurationService);
   renderTemplate(container) {
-    container.parentElement.parentElement.querySelector(
-      ".monaco-tl-twistie"
-    ).classList.add("force-no-twistie");
+    container.parentElement.parentElement.querySelector(".monaco-tl-twistie").classList.add("force-no-twistie");
     const element = append(container, $(".history-item"));
     const graphContainer = append(element, $(".graph-container"));
-    const iconLabel = new IconLabel(element, {
-      supportIcons: true,
-      supportHighlights: true,
-      supportDescriptionHighlights: true
-    });
+    const iconLabel = new IconLabel(element, { supportIcons: true, supportHighlights: true, supportDescriptionHighlights: true });
     const labelContainer = append(element, $(".label-container"));
     element.appendChild(labelContainer);
-    return {
-      element,
-      graphContainer,
-      label: iconLabel,
-      labelContainer,
-      elementDisposables: new DisposableStore(),
-      disposables: new DisposableStore()
-    };
+    return { element, graphContainer, label: iconLabel, labelContainer, elementDisposables: new DisposableStore(), disposables: new DisposableStore() };
   }
   renderElement(node, index, templateData, height) {
     const historyItemViewModel = node.element.historyItemViewModel;
     const historyItem = historyItemViewModel.historyItem;
-    const historyItemHover = this._hoverService.setupManagedHover(
-      this.hoverDelegate,
-      templateData.element,
-      this._getHoverContent(node.element),
-      {
-        actions: this._getHoverActions(historyItem)
-      }
-    );
+    const historyItemHover = this._hoverService.setupManagedHover(this.hoverDelegate, templateData.element, this._getHoverContent(node.element), {
+      actions: this._getHoverActions(historyItem)
+    });
     templateData.elementDisposables.add(historyItemHover);
     templateData.graphContainer.textContent = "";
-    templateData.graphContainer.classList.toggle(
-      "current",
-      historyItemViewModel.isCurrent
-    );
-    templateData.graphContainer.appendChild(
-      renderSCMHistoryItemGraph(historyItemViewModel)
-    );
+    templateData.graphContainer.classList.toggle("current", historyItemViewModel.isCurrent);
+    templateData.graphContainer.appendChild(renderSCMHistoryItemGraph(historyItemViewModel));
     const provider = node.element.repository.provider;
     const historyItemRef = provider.historyProvider.get()?.historyItemRef?.get();
     const extraClasses = historyItemRef?.revision === historyItem.id ? ["history-item-current"] : [];
-    const [matches, descriptionMatches] = this._processMatches(
-      historyItemViewModel,
-      node.filterData
-    );
-    templateData.label.setLabel(historyItem.subject, historyItem.author, {
-      matches,
-      descriptionMatches,
-      extraClasses
-    });
+    const [matches, descriptionMatches] = this._processMatches(historyItemViewModel, node.filterData);
+    templateData.label.setLabel(historyItem.subject, historyItem.author, { matches, descriptionMatches, extraClasses });
     this._renderBadges(historyItem, templateData);
   }
   _renderBadges(historyItem, templateData) {
-    templateData.elementDisposables.add(
-      autorun((reader) => {
-        const labelConfig = this._badgesConfig.read(reader);
-        templateData.labelContainer.textContent = "";
-        const firstColoredRef = historyItem.references?.find(
-          (ref) => ref.color
-        );
-        for (const ref of historyItem.references ?? []) {
-          if (!ref.color && labelConfig === "filter") {
-            continue;
-          }
-          if (ref.icon && ThemeIcon.isThemeIcon(ref.icon)) {
-            const elements = h(
-              "div.label",
-              {
-                style: {
-                  color: ref.color ? asCssVariable(
-                    historyItemHoverLabelForeground
-                  ) : asCssVariable(foreground),
-                  backgroundColor: ref.color ? asCssVariable(ref.color) : asCssVariable(
-                    historyItemHoverDefaultLabelBackground
-                  )
-                }
-              },
-              [
-                h("div.icon@icon"),
-                h("div.description@description")
-              ]
-            );
-            elements.icon.classList.add(
-              ...ThemeIcon.asClassNameArray(ref.icon)
-            );
-            elements.description.textContent = ref.name;
-            elements.description.style.display = ref === firstColoredRef ? "" : "none";
-            append(templateData.labelContainer, elements.root);
-          }
+    templateData.elementDisposables.add(autorun((reader) => {
+      const labelConfig = this._badgesConfig.read(reader);
+      templateData.labelContainer.textContent = "";
+      const firstColoredRef = historyItem.references?.find((ref) => ref.color);
+      for (const ref of historyItem.references ?? []) {
+        if (!ref.color && labelConfig === "filter") {
+          continue;
         }
-      })
-    );
+        if (ref.icon && ThemeIcon.isThemeIcon(ref.icon)) {
+          const elements = h("div.label", {
+            style: {
+              color: ref.color ? asCssVariable(historyItemHoverLabelForeground) : asCssVariable(foreground),
+              backgroundColor: ref.color ? asCssVariable(ref.color) : asCssVariable(historyItemHoverDefaultLabelBackground)
+            }
+          }, [
+            h("div.icon@icon"),
+            h("div.description@description")
+          ]);
+          elements.icon.classList.add(...ThemeIcon.asClassNameArray(ref.icon));
+          elements.description.textContent = ref.name;
+          elements.description.style.display = ref === firstColoredRef ? "" : "none";
+          append(templateData.labelContainer, elements.root);
+        }
+      }
+    }));
   }
   _getHoverActions(historyItem) {
     return [
@@ -517,26 +359,12 @@ let HistoryItemRenderer = class {
   _getHoverContent(element) {
     const colorTheme = this._themeService.getColorTheme();
     const historyItem = element.historyItemViewModel.historyItem;
-    const markdown = new MarkdownString("", {
-      isTrusted: true,
-      supportThemeIcons: true
-    });
+    const markdown = new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
     if (historyItem.author) {
       markdown.appendMarkdown(`$(account) **${historyItem.author}**`);
       if (historyItem.timestamp) {
-        const dateFormatter = new Intl.DateTimeFormat(
-          platform.language,
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric"
-          }
-        );
-        markdown.appendMarkdown(
-          `, $(history) ${fromNow(historyItem.timestamp, true, true)} (${dateFormatter.format(historyItem.timestamp)})`
-        );
+        const dateFormatter = new Intl.DateTimeFormat(platform.language, { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" });
+        markdown.appendMarkdown(`, $(history) ${fromNow(historyItem.timestamp, true, true)} (${dateFormatter.format(historyItem.timestamp)})`);
       }
       markdown.appendMarkdown("\n\n");
     }
@@ -547,52 +375,14 @@ let HistoryItemRenderer = class {
       markdown.appendMarkdown(`---
 
 `);
-      markdown.appendMarkdown(
-        `<span>${historyItem.statistics.files === 1 ? localize(
-          "fileChanged",
-          "{0} file changed",
-          historyItem.statistics.files
-        ) : localize(
-          "filesChanged",
-          "{0} files changed",
-          historyItem.statistics.files
-        )}</span>`
-      );
+      markdown.appendMarkdown(`<span>${historyItem.statistics.files === 1 ? localize("fileChanged", "{0} file changed", historyItem.statistics.files) : localize("filesChanged", "{0} files changed", historyItem.statistics.files)}</span>`);
       if (historyItem.statistics.insertions) {
-        const additionsForegroundColor = colorTheme.getColor(
-          historyItemHoverAdditionsForeground
-        );
-        markdown.appendMarkdown(
-          `,&nbsp;<span style="color:${additionsForegroundColor};">${historyItem.statistics.insertions === 1 ? localize(
-            "insertion",
-            "{0} insertion{1}",
-            historyItem.statistics.insertions,
-            "(+)"
-          ) : localize(
-            "insertions",
-            "{0} insertions{1}",
-            historyItem.statistics.insertions,
-            "(+)"
-          )}</span>`
-        );
+        const additionsForegroundColor = colorTheme.getColor(historyItemHoverAdditionsForeground);
+        markdown.appendMarkdown(`,&nbsp;<span style="color:${additionsForegroundColor};">${historyItem.statistics.insertions === 1 ? localize("insertion", "{0} insertion{1}", historyItem.statistics.insertions, "(+)") : localize("insertions", "{0} insertions{1}", historyItem.statistics.insertions, "(+)")}</span>`);
       }
       if (historyItem.statistics.deletions) {
-        const deletionsForegroundColor = colorTheme.getColor(
-          historyItemHoverDeletionsForeground
-        );
-        markdown.appendMarkdown(
-          `,&nbsp;<span style="color:${deletionsForegroundColor};">${historyItem.statistics.deletions === 1 ? localize(
-            "deletion",
-            "{0} deletion{1}",
-            historyItem.statistics.deletions,
-            "(-)"
-          ) : localize(
-            "deletions",
-            "{0} deletions{1}",
-            historyItem.statistics.deletions,
-            "(-)"
-          )}</span>`
-        );
+        const deletionsForegroundColor = colorTheme.getColor(historyItemHoverDeletionsForeground);
+        markdown.appendMarkdown(`,&nbsp;<span style="color:${deletionsForegroundColor};">${historyItem.statistics.deletions === 1 ? localize("deletion", "{0} deletion{1}", historyItem.statistics.deletions, "(-)") : localize("deletions", "{0} deletions{1}", historyItem.statistics.deletions, "(-)")}</span>`);
       }
     }
     if ((historyItem.references ?? []).length > 0) {
@@ -601,18 +391,12 @@ let HistoryItemRenderer = class {
 ---
 
 `);
-      markdown.appendMarkdown(
-        (historyItem.references ?? []).map((ref) => {
-          const labelIconId = ThemeIcon.isThemeIcon(ref.icon) ? ref.icon.id : "";
-          const labelBackgroundColor = ref.color ? asCssVariable(ref.color) : asCssVariable(
-            historyItemHoverDefaultLabelBackground
-          );
-          const labelForegroundColor = ref.color ? asCssVariable(historyItemHoverLabelForeground) : asCssVariable(
-            historyItemHoverDefaultLabelForeground
-          );
-          return `<span style="color:${labelForegroundColor};background-color:${labelBackgroundColor};border-radius:2px;">&nbsp;$(${labelIconId})&nbsp;${ref.name}&nbsp;</span>`;
-        }).join("&nbsp;&nbsp;")
-      );
+      markdown.appendMarkdown((historyItem.references ?? []).map((ref) => {
+        const labelIconId = ThemeIcon.isThemeIcon(ref.icon) ? ref.icon.id : "";
+        const labelBackgroundColor = ref.color ? asCssVariable(ref.color) : asCssVariable(historyItemHoverDefaultLabelBackground);
+        const labelForegroundColor = ref.color ? asCssVariable(historyItemHoverLabelForeground) : asCssVariable(historyItemHoverDefaultLabelForeground);
+        return `<span style="color:${labelForegroundColor};background-color:${labelBackgroundColor};border-radius:2px;">&nbsp;$(${labelIconId})&nbsp;${ref.name}&nbsp;</span>`;
+      }).join("&nbsp;&nbsp;"));
     }
     return { markdown, markdownNotSupportedFallback: historyItem.message };
   }
@@ -652,54 +436,28 @@ let HistoryItemLoadMoreRenderer = class {
     return HistoryItemLoadMoreRenderer.TEMPLATE_ID;
   }
   renderTemplate(container) {
-    container.parentElement.parentElement.querySelector(
-      ".monaco-tl-twistie"
-    ).classList.add("force-no-twistie");
+    container.parentElement.parentElement.querySelector(".monaco-tl-twistie").classList.add("force-no-twistie");
     const element = append(container, $(".history-item-load-more"));
     const graphPlaceholder = append(element, $(".graph-placeholder"));
-    const historyItemPlaceholderContainer = append(
-      element,
-      $(".history-item-placeholder")
-    );
-    const historyItemPlaceholderLabel = new IconLabel(
-      historyItemPlaceholderContainer,
-      { supportIcons: true }
-    );
-    return {
-      element,
-      graphPlaceholder,
-      historyItemPlaceholderContainer,
-      historyItemPlaceholderLabel,
-      elementDisposables: new DisposableStore(),
-      disposables: new DisposableStore()
-    };
+    const historyItemPlaceholderContainer = append(element, $(".history-item-placeholder"));
+    const historyItemPlaceholderLabel = new IconLabel(historyItemPlaceholderContainer, { supportIcons: true });
+    return { element, graphPlaceholder, historyItemPlaceholderContainer, historyItemPlaceholderLabel, elementDisposables: new DisposableStore(), disposables: new DisposableStore() };
   }
   renderElement(element, index, templateData, height) {
     templateData.graphPlaceholder.textContent = "";
     templateData.graphPlaceholder.style.width = `${SWIMLANE_WIDTH * (element.element.graphColumns.length + 1)}px`;
-    templateData.graphPlaceholder.appendChild(
-      renderSCMHistoryGraphPlaceholder(element.element.graphColumns)
-    );
-    const pageOnScroll = this._configurationService.getValue(
-      "scm.graph.pageOnScroll"
-    ) === true;
-    templateData.historyItemPlaceholderContainer.classList.toggle(
-      "shimmer",
-      pageOnScroll
-    );
+    templateData.graphPlaceholder.appendChild(renderSCMHistoryGraphPlaceholder(element.element.graphColumns));
+    const pageOnScroll = this._configurationService.getValue("scm.graph.pageOnScroll") === true;
+    templateData.historyItemPlaceholderContainer.classList.toggle("shimmer", pageOnScroll);
     if (pageOnScroll) {
       templateData.historyItemPlaceholderLabel.setLabel("");
       this._loadMoreCallback(element.element.repository);
     } else {
-      templateData.elementDisposables.add(
-        autorun((reader) => {
-          const loadingMore = this._loadingMore().read(reader);
-          const icon = `$(${loadingMore ? "loading~spin" : "fold-down"})`;
-          templateData.historyItemPlaceholderLabel.setLabel(
-            localize("loadMore", "{0} Load More...", icon)
-          );
-        })
-      );
+      templateData.elementDisposables.add(autorun((reader) => {
+        const loadingMore = this._loadingMore().read(reader);
+        const icon = `$(${loadingMore ? "loading~spin" : "fold-down"})`;
+        templateData.historyItemPlaceholderLabel.setLabel(localize("loadMore", "{0} Load More...", icon));
+      }));
     }
   }
   disposeElement(element, index, templateData, height) {
@@ -714,13 +472,7 @@ HistoryItemLoadMoreRenderer = __decorateClass([
 ], HistoryItemLoadMoreRenderer);
 let HistoryItemHoverDelegate = class extends WorkbenchHoverDelegate {
   constructor(_viewContainerLocation, layoutService, configurationService, hoverService) {
-    super(
-      "element",
-      true,
-      () => this.getHoverOptions(),
-      configurationService,
-      hoverService
-    );
+    super("element", true, () => this.getHoverOptions(), configurationService, hoverService);
     this._viewContainerLocation = _viewContainerLocation;
     this.layoutService = layoutService;
   }
@@ -737,10 +489,7 @@ let HistoryItemHoverDelegate = class extends WorkbenchHoverDelegate {
     } else {
       hoverPosition = HoverPosition.RIGHT;
     }
-    return {
-      additionalClasses: ["history-item-hover"],
-      position: { hoverPosition, forcePosition: true }
-    };
+    return { additionalClasses: ["history-item-hover"], position: { hoverPosition, forcePosition: true } };
   }
 };
 HistoryItemHoverDelegate = __decorateClass([
@@ -812,10 +561,7 @@ class SCMHistoryTreeKeyboardNavigationLabelProvider {
     if (isSCMRepository(element)) {
       return void 0;
     } else if (isSCMHistoryItemViewModelTreeElement(element)) {
-      return [
-        element.historyItemViewModel.historyItem.message,
-        element.historyItemViewModel.historyItem.author
-      ];
+      return [element.historyItemViewModel.historyItem.message, element.historyItemViewModel.historyItem.author];
     } else if (isSCMHistoryItemLoadMoreTreeElement(element)) {
       return "";
     } else {
@@ -863,21 +609,16 @@ let SCMHistoryViewModel = class extends Disposable {
     } catch {
       this.historyItemsFilter = observableValue(this, "auto");
     }
-    this._register(
-      autorun((reader) => {
-        const repository = this._closedRepository.read(reader);
-        if (!repository) {
-          return;
-        }
-        if (this.repository.get() === repository) {
-          this._selectedRepository.set(
-            Iterable.first(this._scmService.repositories) ?? "auto",
-            void 0
-          );
-        }
-        this._state.delete(repository);
-      })
-    );
+    this._register(autorun((reader) => {
+      const repository = this._closedRepository.read(reader);
+      if (!repository) {
+        return;
+      }
+      if (this.repository.get() === repository) {
+        this._selectedRepository.set(Iterable.first(this._scmService.repositories) ?? "auto", void 0);
+      }
+      this._state.delete(repository);
+    }));
   }
   static {
     __name(this, "SCMHistoryViewModel");
@@ -904,10 +645,7 @@ let SCMHistoryViewModel = class extends Disposable {
    * The active | selected repository takes precedence over the first repository when the observable
    * values are updated in the same transaction (or during the initial read of the observable value).
    */
-  repository = latestChangedValue(this, [
-    this._firstRepository,
-    this._graphRepository
-  ]);
+  repository = latestChangedValue(this, [this._firstRepository, this._graphRepository]);
   historyItemsFilter;
   _state = /* @__PURE__ */ new Map();
   clearRepositoryState() {
@@ -940,9 +678,7 @@ let SCMHistoryViewModel = class extends Disposable {
     let state = this._state.get(repository);
     if (!state || state.loadMore !== false) {
       let historyItemRefs = state?.historyItemRefs;
-      const historyItems = state?.viewModels.map(
-        (vm) => vm.historyItemViewModel.historyItem
-      ) ?? [];
+      const historyItems = state?.viewModels.map((vm) => vm.historyItemViewModel.historyItem) ?? [];
       if (!historyItemRefs) {
         const historyItemsFilter = this.historyItemsFilter.get();
         switch (historyItemsFilter) {
@@ -961,37 +697,21 @@ let SCMHistoryViewModel = class extends Disposable {
             break;
         }
       }
-      const limit = clamp(
-        this._configurationService.getValue(
-          "scm.graph.pageSize"
-        ),
-        1,
-        1e3
-      );
-      const historyItemRefIds = historyItemRefs.map(
-        (ref) => ref.revision ?? ref.id
-      );
+      const limit = clamp(this._configurationService.getValue("scm.graph.pageSize"), 1, 1e3);
+      const historyItemRefIds = historyItemRefs.map((ref) => ref.revision ?? ref.id);
       do {
-        historyItems.push(
-          ...await historyProvider.provideHistoryItems({
-            historyItemRefs: historyItemRefIds,
-            limit,
-            skip: historyItems.length
-          }) ?? []
-        );
+        historyItems.push(...await historyProvider.provideHistoryItems({
+          historyItemRefs: historyItemRefIds,
+          limit,
+          skip: historyItems.length
+        }) ?? []);
       } while (typeof state?.loadMore === "string" && !historyItems.find((item) => item.id === state?.loadMore));
       const colorMap = this._getGraphColorMap(historyItemRefs);
-      const viewModels = toISCMHistoryItemViewModelArray(
-        historyItems,
-        colorMap,
-        historyProvider.historyItemRef.get()
-      ).map(
-        (historyItemViewModel) => ({
-          repository,
-          historyItemViewModel,
-          type: "historyItemViewModel"
-        })
-      );
+      const viewModels = toISCMHistoryItemViewModelArray(historyItems, colorMap, historyProvider.historyItemRef.get()).map((historyItemViewModel) => ({
+        repository,
+        historyItemViewModel,
+        type: "historyItemViewModel"
+      }));
       state = { historyItemRefs, viewModels, loadMore: false };
       this._state.set(repository, state);
     }
@@ -1001,12 +721,7 @@ let SCMHistoryViewModel = class extends Disposable {
     this._selectedRepository.set(repository, void 0);
   }
   setHistoryItemsFilter(filter) {
-    this._storageService.store(
-      "scm.graphView.referencesFiler",
-      filter,
-      StorageScope.WORKSPACE,
-      StorageTarget.USER
-    );
+    this._storageService.store("scm.graphView.referencesFiler", filter, StorageScope.WORKSPACE, StorageTarget.USER);
     this.historyItemsFilter.set(filter, void 0);
   }
   _getGraphColorMap(historyItemRefs) {
@@ -1019,10 +734,7 @@ let SCMHistoryViewModel = class extends Disposable {
     if (historyItemRef) {
       colorMap.set(historyItemRef.id, historyItemRef.color);
       if (historyItemRemoteRef) {
-        colorMap.set(
-          historyItemRemoteRef.id,
-          historyItemRemoteRef.color
-        );
+        colorMap.set(historyItemRemoteRef.id, historyItemRemoteRef.color);
       }
       if (historyItemBaseRef) {
         colorMap.set(historyItemBaseRef.id, historyItemBaseRef.color);
@@ -1057,10 +769,7 @@ let RepositoryPicker = class extends Disposable {
   }
   _autoQuickPickItem = {
     label: localize("auto", "Auto"),
-    description: localize(
-      "activeRepository",
-      "Show the source control graph for the active repository"
-    ),
+    description: localize("activeRepository", "Show the source control graph for the active repository"),
     repository: "auto"
   };
   async pickRepository() {
@@ -1068,19 +777,14 @@ let RepositoryPicker = class extends Disposable {
       this._autoQuickPickItem,
       { type: "separator" }
     ];
-    picks.push(
-      ...this._scmViewService.repositories.map((r) => ({
-        label: r.provider.name,
-        description: r.provider.rootUri?.fsPath,
-        iconClass: ThemeIcon.asClassName(Codicon.repo),
-        repository: r
-      }))
-    );
+    picks.push(...this._scmViewService.repositories.map((r) => ({
+      label: r.provider.name,
+      description: r.provider.rootUri?.fsPath,
+      iconClass: ThemeIcon.asClassName(Codicon.repo),
+      repository: r
+    })));
     return this._quickInputService.pick(picks, {
-      placeHolder: localize(
-        "scmGraphRepository",
-        "Select the repository to view, type to filter all repositories"
-      )
+      placeHolder: localize("scmGraphRepository", "Select the repository to view, type to filter all repositories")
     });
   }
 };
@@ -1101,30 +805,19 @@ let HistoryItemRefPicker = class extends Disposable {
   _allQuickPickItem = {
     id: "all",
     label: localize("all", "All"),
-    description: localize(
-      "allHistoryItemRefs",
-      "All history item references"
-    ),
+    description: localize("allHistoryItemRefs", "All history item references"),
     historyItemRef: "all"
   };
   _autoQuickPickItem = {
     id: "auto",
     label: localize("auto", "Auto"),
-    description: localize(
-      "currentHistoryItemRef",
-      "Current history item reference(s)"
-    ),
+    description: localize("currentHistoryItemRef", "Current history item reference(s)"),
     historyItemRef: "auto"
   };
   async pickHistoryItemRef() {
-    const quickPick = this._quickInputService.createQuickPick(
-      { useSeparators: true }
-    );
+    const quickPick = this._quickInputService.createQuickPick({ useSeparators: true });
     this._store.add(quickPick);
-    quickPick.placeholder = localize(
-      "scmGraphHistoryItemRef",
-      "Select one/more history item references to view, type to filter"
-    );
+    quickPick.placeholder = localize("scmGraphHistoryItemRef", "Select one/more history item references to view, type to filter");
     quickPick.canSelectMany = true;
     quickPick.hideCheckAll = true;
     quickPick.busy = true;
@@ -1142,13 +835,8 @@ let HistoryItemRefPicker = class extends Disposable {
           index++;
           continue;
         }
-        if (this._historyItemsFilter.some(
-          (ref) => ref.id === items[index].id
-        )) {
-          const item = items.splice(
-            index,
-            1
-          );
+        if (this._historyItemsFilter.some((ref) => ref.id === items[index].id)) {
+          const item = items.splice(index, 1);
           selectedItems.push(...item);
         } else {
           index++;
@@ -1159,55 +847,35 @@ let HistoryItemRefPicker = class extends Disposable {
     quickPick.items = items;
     quickPick.selectedItems = selectedItems;
     quickPick.busy = false;
-    return new Promise(
-      (resolve) => {
-        this._store.add(
-          quickPick.onDidChangeSelection((items2) => {
-            const { added } = delta(
-              selectedItems,
-              items2,
-              (a, b) => compare(a.id ?? "", b.id ?? "")
-            );
-            if (added.length > 0) {
-              if (added[0].historyItemRef === "all" || added[0].historyItemRef === "auto") {
-                quickPick.selectedItems = [added[0]];
-              } else {
-                quickPick.selectedItems = [
-                  ...quickPick.selectedItems.filter(
-                    (i) => i.historyItemRef !== "all" && i.historyItemRef !== "auto"
-                  )
-                ];
-              }
-            }
-            selectedItems = [...quickPick.selectedItems];
-          })
-        );
-        this._store.add(
-          quickPick.onDidAccept(() => {
-            if (selectedItems.length === 0) {
-              resolve(void 0);
-            } else if (selectedItems.length === 1 && selectedItems[0].historyItemRef === "all") {
-              resolve("all");
-            } else if (selectedItems.length === 1 && selectedItems[0].historyItemRef === "auto") {
-              resolve("auto");
-            } else {
-              resolve(
-                selectedItems.map(
-                  (item) => item.historyItemRef
-                )
-              );
-            }
-            quickPick.hide();
-          })
-        );
-        this._store.add(
-          quickPick.onDidHide(() => {
-            resolve(void 0);
-            this.dispose();
-          })
-        );
-      }
-    );
+    return new Promise((resolve) => {
+      this._store.add(quickPick.onDidChangeSelection((items2) => {
+        const { added } = delta(selectedItems, items2, (a, b) => compare(a.id ?? "", b.id ?? ""));
+        if (added.length > 0) {
+          if (added[0].historyItemRef === "all" || added[0].historyItemRef === "auto") {
+            quickPick.selectedItems = [added[0]];
+          } else {
+            quickPick.selectedItems = [...quickPick.selectedItems.filter((i) => i.historyItemRef !== "all" && i.historyItemRef !== "auto")];
+          }
+        }
+        selectedItems = [...quickPick.selectedItems];
+      }));
+      this._store.add(quickPick.onDidAccept(() => {
+        if (selectedItems.length === 0) {
+          resolve(void 0);
+        } else if (selectedItems.length === 1 && selectedItems[0].historyItemRef === "all") {
+          resolve("all");
+        } else if (selectedItems.length === 1 && selectedItems[0].historyItemRef === "auto") {
+          resolve("auto");
+        } else {
+          resolve(selectedItems.map((item) => item.historyItemRef));
+        }
+        quickPick.hide();
+      }));
+      this._store.add(quickPick.onDidHide(() => {
+        resolve(void 0);
+        this.dispose();
+      }));
+    });
   }
   async _createQuickPickItems() {
     const picks = [
@@ -1215,26 +883,21 @@ let HistoryItemRefPicker = class extends Disposable {
       this._autoQuickPickItem
     ];
     const historyItemRefs = await this._historyProvider.provideHistoryItemRefs() ?? [];
-    const historyItemRefsByCategory = groupBy(
-      historyItemRefs,
-      (a, b) => compare(a.category ?? "", b.category ?? "")
-    );
+    const historyItemRefsByCategory = groupBy(historyItemRefs, (a, b) => compare(a.category ?? "", b.category ?? ""));
     for (const refs of historyItemRefsByCategory) {
       if (refs.length === 0) {
         continue;
       }
       picks.push({ type: "separator", label: refs[0].category });
-      picks.push(
-        ...refs.map((ref) => {
-          return {
-            id: ref.id,
-            label: ref.name,
-            description: ref.description,
-            iconClass: ThemeIcon.isThemeIcon(ref.icon) ? ThemeIcon.asClassName(ref.icon) : void 0,
-            historyItemRef: ref
-          };
-        })
-      );
+      picks.push(...refs.map((ref) => {
+        return {
+          id: ref.id,
+          label: ref.name,
+          description: ref.description,
+          iconClass: ThemeIcon.isThemeIcon(ref.icon) ? ThemeIcon.asClassName(ref.icon) : void 0,
+          historyItemRef: ref
+        };
+      }));
     }
     return picks;
   }
@@ -1244,33 +907,17 @@ HistoryItemRefPicker = __decorateClass([
 ], HistoryItemRefPicker);
 let SCMHistoryViewPane = class extends ViewPane {
   constructor(options, _commandService, _instantiationService, _notificationService, _progressService, configurationService, contextMenuService, keybindingService, instantiationService, viewDescriptorService, contextKeyService, openerService, themeService, telemetryService, hoverService) {
-    super(
-      {
-        ...options,
-        titleMenuId: MenuId.SCMHistoryTitle,
-        showActions: ViewPaneShowActions.WhenExpanded
-      },
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService
-    );
+    super({
+      ...options,
+      titleMenuId: MenuId.SCMHistoryTitle,
+      showActions: ViewPaneShowActions.WhenExpanded
+    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
     this._commandService = _commandService;
     this._instantiationService = _instantiationService;
     this._notificationService = _notificationService;
     this._progressService = _progressService;
-    this._scmProviderCtx = ContextKeys.SCMProvider.bindTo(
-      this.scopedContextKeyService
-    );
-    this._actionRunner = this.instantiationService.createInstance(
-      SCMHistoryViewPaneActionRunner
-    );
+    this._scmProviderCtx = ContextKeys.SCMProvider.bindTo(this.scopedContextKeyService);
+    this._actionRunner = this.instantiationService.createInstance(SCMHistoryViewPaneActionRunner);
     this._register(this._actionRunner);
     this._register(this._updateChildrenThrottler);
   }
@@ -1297,35 +944,21 @@ let SCMHistoryViewPane = class extends ViewPane {
     ]);
     element.badge.textContent = "Outdated";
     container.appendChild(element.root);
-    this._register(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        element.root,
-        {
-          markdown: {
-            value: localize(
-              "scmGraphViewOutdated",
-              "Please refresh the graph using the refresh action ($(refresh))."
-            ),
-            supportThemeIcons: true
-          },
-          markdownNotSupportedFallback: void 0
-        }
-      )
-    );
-    this._register(
-      autorun((reader) => {
-        const outdated = this._repositoryOutdated.read(reader);
-        element.root.style.display = outdated ? "" : "none";
-      })
-    );
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), element.root, {
+      markdown: {
+        value: localize("scmGraphViewOutdated", "Please refresh the graph using the refresh action ($(refresh))."),
+        supportThemeIcons: true
+      },
+      markdownNotSupportedFallback: void 0
+    }));
+    this._register(autorun((reader) => {
+      const outdated = this._repositoryOutdated.read(reader);
+      element.root.style.display = outdated ? "" : "none";
+    }));
   }
   renderBody(container) {
     super.renderBody(container);
-    this._treeContainer = append(
-      container,
-      $(".scm-view.scm-history-view")
-    );
+    this._treeContainer = append(container, $(".scm-view.scm-history-view"));
     this._treeContainer.classList.add("file-icon-themable-tree");
     this._createTree(this._treeContainer);
     this.onDidChangeBodyVisibility(async (visible) => {
@@ -1335,104 +968,70 @@ let SCMHistoryViewPane = class extends ViewPane {
       }
       this._treeViewModel = this.instantiationService.createInstance(SCMHistoryViewModel);
       this._visibilityDisposables.add(this._treeViewModel);
-      await this._progressService.withProgress(
-        { location: this.id },
-        async () => {
-          const firstRepositoryInitialized = derived(
-            this,
-            (reader) => {
-              const repository = this._treeViewModel.repository.read(reader);
-              const historyProvider = repository?.provider.historyProvider.read(
-                reader
-              );
-              const historyItemRef = historyProvider?.historyItemRef.read(reader);
-              return historyItemRef !== void 0 ? true : void 0;
-            }
-          );
-          await waitForState(firstRepositoryInitialized);
-          await this._treeOperationSequencer.queue(async () => {
-            await this._tree.setInput(this._treeViewModel);
-            this._tree.scrollTop = 0;
-          });
-        }
-      );
-      let isFirstRun = true;
-      this._visibilityDisposables.add(
-        autorunWithStore((reader, store) => {
+      await this._progressService.withProgress({ location: this.id }, async () => {
+        const firstRepositoryInitialized = derived(this, (reader) => {
           const repository = this._treeViewModel.repository.read(reader);
           const historyProvider = repository?.provider.historyProvider.read(reader);
-          if (!repository || !historyProvider) {
+          const historyItemRef = historyProvider?.historyItemRef.read(reader);
+          return historyItemRef !== void 0 ? true : void 0;
+        });
+        await waitForState(firstRepositoryInitialized);
+        await this._treeOperationSequencer.queue(async () => {
+          await this._tree.setInput(this._treeViewModel);
+          this._tree.scrollTop = 0;
+        });
+      });
+      let isFirstRun = true;
+      this._visibilityDisposables.add(autorunWithStore((reader, store) => {
+        const repository = this._treeViewModel.repository.read(reader);
+        const historyProvider = repository?.provider.historyProvider.read(reader);
+        if (!repository || !historyProvider) {
+          return;
+        }
+        this._scmProviderCtx.set(repository.provider.contextValue);
+        const historyItemRefId = derived((reader2) => {
+          return historyProvider.historyItemRef.read(reader2)?.id;
+        });
+        store.add(runOnChange(historyItemRefId, () => {
+          this.refresh();
+        }));
+        store.add(runOnChange(historyProvider.historyItemRefChanges, (changes) => {
+          if (changes.silent) {
+            if (this._tree.scrollTop === 0) {
+              this.refresh();
+              return;
+            }
+            this._repositoryOutdated.set(true, void 0);
             return;
           }
-          this._scmProviderCtx.set(repository.provider.contextValue);
-          const historyItemRefId = derived((reader2) => {
-            return historyProvider.historyItemRef.read(reader2)?.id;
-          });
-          store.add(
-            runOnChange(historyItemRefId, () => {
-              this.refresh();
-            })
-          );
-          store.add(
-            runOnChange(
-              historyProvider.historyItemRefChanges,
-              (changes) => {
-                if (changes.silent) {
-                  if (this._tree.scrollTop === 0) {
-                    this.refresh();
-                    return;
-                  }
-                  this._repositoryOutdated.set(
-                    true,
-                    void 0
-                  );
-                  return;
+          if (changes.removed.length !== 0) {
+            const historyItemsFilter = this._treeViewModel.historyItemsFilter.get();
+            if (historyItemsFilter !== "all" && historyItemsFilter !== "auto") {
+              let updateFilter = false;
+              const historyItemRefs = [...historyItemsFilter];
+              for (const ref of changes.removed) {
+                const index = historyItemRefs.findIndex((item) => item.id === ref.id);
+                if (index !== -1) {
+                  historyItemRefs.splice(index, 1);
+                  updateFilter = true;
                 }
-                if (changes.removed.length !== 0) {
-                  const historyItemsFilter = this._treeViewModel.historyItemsFilter.get();
-                  if (historyItemsFilter !== "all" && historyItemsFilter !== "auto") {
-                    let updateFilter = false;
-                    const historyItemRefs = [
-                      ...historyItemsFilter
-                    ];
-                    for (const ref of changes.removed) {
-                      const index = historyItemRefs.findIndex(
-                        (item) => item.id === ref.id
-                      );
-                      if (index !== -1) {
-                        historyItemRefs.splice(
-                          index,
-                          1
-                        );
-                        updateFilter = true;
-                      }
-                    }
-                    if (updateFilter) {
-                      this._treeViewModel.setHistoryItemsFilter(
-                        historyItemRefs
-                      );
-                      return;
-                    }
-                  }
-                }
-                this.refresh();
               }
-            )
-          );
-          store.add(
-            runOnChange(
-              this._treeViewModel.historyItemsFilter,
-              () => {
-                this.refresh();
+              if (updateFilter) {
+                this._treeViewModel.setHistoryItemsFilter(historyItemRefs);
+                return;
               }
-            )
-          );
-          if (!isFirstRun) {
-            this.refresh();
+            }
           }
-          isFirstRun = false;
-        })
-      );
+          this.refresh();
+        }));
+        store.add(runOnChange(this._treeViewModel.historyItemsFilter, () => {
+          this.refresh();
+        }));
+        if (!isFirstRun) {
+          this.refresh();
+        }
+        isFirstRun = false;
+      }));
     });
   }
   layoutBody(height, width) {
@@ -1449,22 +1048,13 @@ let SCMHistoryViewPane = class extends ViewPane {
     if (action.id === PICK_REPOSITORY_ACTION_ID) {
       const repository = this._treeViewModel?.repository.get();
       if (repository) {
-        return new SCMRepositoryActionViewItem(
-          repository,
-          action,
-          options
-        );
+        return new SCMRepositoryActionViewItem(repository, action, options);
       }
     } else if (action.id === PICK_HISTORY_ITEM_REFS_ACTION_ID) {
       const repository = this._treeViewModel?.repository.get();
       const historyItemsFilter = this._treeViewModel?.historyItemsFilter.get();
       if (repository && historyItemsFilter) {
-        return new SCMHistoryItemRefsActionViewItem(
-          repository,
-          historyItemsFilter,
-          action,
-          options
-        );
+        return new SCMHistoryItemRefsActionViewItem(repository, historyItemsFilter, action, options);
       }
     }
     return super.getActionViewItem(action, options);
@@ -1489,11 +1079,7 @@ let SCMHistoryViewPane = class extends ViewPane {
       return;
     }
     const historyItemsFilter = this._treeViewModel.historyItemsFilter.get();
-    const picker = this._instantiationService.createInstance(
-      HistoryItemRefPicker,
-      historyProvider,
-      historyItemsFilter
-    );
+    const picker = this._instantiationService.createInstance(HistoryItemRefPicker, historyProvider, historyItemsFilter);
     const result = await picker.pickHistoryItemRef();
     if (result) {
       this._treeViewModel.setHistoryItemsFilter(result);
@@ -1508,12 +1094,7 @@ let SCMHistoryViewPane = class extends ViewPane {
     }
     const historyItemFilter = this._treeViewModel.historyItemsFilter.get();
     if (Array.isArray(historyItemFilter) && !historyItemFilter.find((r) => r.id === historyItemRef.id)) {
-      this._notificationService.info(
-        localize(
-          "scmGraphViewRevealCurrentHistoryItem",
-          "The current history item is not present in the source control graph. Please use the history item references picker to expand the set of history items in the graph."
-        )
-      );
+      this._notificationService.info(localize("scmGraphViewRevealCurrentHistoryItem", "The current history item is not present in the source control graph. Please use the history item references picker to expand the set of history items in the graph."));
       return;
     }
     const revealTreeNode = /* @__PURE__ */ __name(() => {
@@ -1521,9 +1102,7 @@ let SCMHistoryViewPane = class extends ViewPane {
       if (!state) {
         return false;
       }
-      const historyItemViewModel = state.viewModels.find(
-        (item) => item.historyItemViewModel.historyItem.id === historyItemRef.revision
-      );
+      const historyItemViewModel = state.viewModels.find((item) => item.historyItemViewModel.historyItem.id === historyItemRef.revision);
       if (historyItemViewModel && this._tree.hasNode(historyItemViewModel)) {
         this._tree.reveal(historyItemViewModel, 0.5);
         this._tree.setSelection([historyItemViewModel]);
@@ -1541,14 +1120,9 @@ let SCMHistoryViewPane = class extends ViewPane {
   }
   _createTree(container) {
     this._treeIdentityProvider = new SCMHistoryTreeIdentityProvider();
-    const historyItemHoverDelegate = this.instantiationService.createInstance(
-      HistoryItemHoverDelegate,
-      this.viewDescriptorService.getViewLocationById(this.id)
-    );
+    const historyItemHoverDelegate = this.instantiationService.createInstance(HistoryItemHoverDelegate, this.viewDescriptorService.getViewLocationById(this.id));
     this._register(historyItemHoverDelegate);
-    this._treeDataSource = this.instantiationService.createInstance(
-      SCMHistoryTreeDataSource
-    );
+    this._treeDataSource = this.instantiationService.createInstance(SCMHistoryTreeDataSource);
     this._register(this._treeDataSource);
     this._tree = this.instantiationService.createInstance(
       WorkbenchAsyncDataTree,
@@ -1556,10 +1130,7 @@ let SCMHistoryViewPane = class extends ViewPane {
       container,
       new ListDelegate(),
       [
-        this.instantiationService.createInstance(
-          HistoryItemRenderer,
-          historyItemHoverDelegate
-        ),
+        this.instantiationService.createInstance(HistoryItemRenderer, historyItemHoverDelegate),
         this.instantiationService.createInstance(
           HistoryItemLoadMoreRenderer,
           () => this._repositoryLoadMore,
@@ -1587,34 +1158,16 @@ let SCMHistoryViewPane = class extends ViewPane {
       const historyItem = e.element.historyItemViewModel.historyItem;
       const historyItemParentId = historyItem.parentIds.length > 0 ? historyItem.parentIds[0] : void 0;
       const historyProvider = e.element.repository.provider.historyProvider.get();
-      const historyItemChanges = await historyProvider?.provideHistoryItemChanges(
-        historyItem.id,
-        historyItemParentId
-      );
+      const historyItemChanges = await historyProvider?.provideHistoryItemChanges(historyItem.id, historyItemParentId);
       if (historyItemChanges) {
         const title = `${historyItem.displayId ?? historyItem.id} - ${historyItem.message}`;
         const rootUri = e.element.repository.provider.rootUri;
         const path = rootUri ? rootUri.path : e.element.repository.provider.label;
-        const multiDiffSourceUri = URI.from(
-          {
-            scheme: "scm-history-item",
-            path: `${path}/${historyItemParentId}..${historyItem.id}`
-          },
-          true
-        );
-        await this._commandService.executeCommand(
-          "_workbench.openMultiDiffEditor",
-          {
-            title,
-            multiDiffSourceUri,
-            resources: historyItemChanges
-          }
-        );
+        const multiDiffSourceUri = URI.from({ scheme: "scm-history-item", path: `${path}/${historyItemParentId}..${historyItem.id}` }, true);
+        await this._commandService.executeCommand("_workbench.openMultiDiffEditor", { title, multiDiffSourceUri, resources: historyItemChanges });
       }
     } else if (isSCMHistoryItemLoadMoreTreeElement(e.element)) {
-      const pageOnScroll = this.configurationService.getValue(
-        "scm.graph.pageOnScroll"
-      ) === true;
+      const pageOnScroll = this.configurationService.getValue("scm.graph.pageOnScroll") === true;
       if (!pageOnScroll) {
         this._loadMoreCallback(e.element.repository);
         this._tree.setSelection([]);
@@ -1649,24 +1202,21 @@ let SCMHistoryViewPane = class extends ViewPane {
   }
   _updateChildren(clearCache = false) {
     return this._updateChildrenThrottler.queue(
-      () => this._treeOperationSequencer.queue(async () => {
-        if (clearCache) {
-          this._treeViewModel.clearRepositoryState();
-        }
-        await this._progressService.withProgress(
-          { location: this.id },
-          async () => {
-            await this._tree.updateChildren(
-              void 0,
-              void 0,
-              void 0,
-              {
-                // diffIdentityProvider: this._treeIdentityProvider
-              }
-            );
+      () => this._treeOperationSequencer.queue(
+        async () => {
+          if (clearCache) {
+            this._treeViewModel.clearRepositoryState();
           }
-        );
-      })
+          await this._progressService.withProgress(
+            { location: this.id },
+            async () => {
+              await this._tree.updateChildren(void 0, void 0, void 0, {
+                // diffIdentityProvider: this._treeIdentityProvider
+              });
+            }
+          );
+        }
+      )
     );
   }
   dispose() {

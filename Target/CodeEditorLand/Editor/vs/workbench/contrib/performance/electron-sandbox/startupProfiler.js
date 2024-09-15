@@ -10,24 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { basename, dirname } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { localize } from "../../../../nls.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { dirname, basename } from "../../../../base/common/resources.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { ILifecycleService, LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { PerfviewContrib } from "../browser/perfviewEditor.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../../services/lifecycle/common/lifecycle.js";
-import { PerfviewContrib } from "../browser/perfviewEditor.js";
 let StartupProfiler = class {
   constructor(_dialogService, _environmentService, _textModelResolverService, _clipboardService, lifecycleService, extensionService, _openerService, _nativeHostService, _productService, _fileService, _labelService) {
     this._dialogService = _dialogService;
@@ -53,100 +51,49 @@ let StartupProfiler = class {
     if (!this._environmentService.args["prof-startup-prefix"]) {
       return;
     }
-    const profileFilenamePrefix = URI.file(
-      this._environmentService.args["prof-startup-prefix"]
-    );
+    const profileFilenamePrefix = URI.file(this._environmentService.args["prof-startup-prefix"]);
     const dir = dirname(profileFilenamePrefix);
     const prefix = basename(profileFilenamePrefix);
     const removeArgs = ["--prof-startup"];
-    const markerFile = this._fileService.readFile(profileFilenamePrefix).then((value) => removeArgs.push(...value.toString().split("|"))).then(
-      () => this._fileService.del(profileFilenamePrefix, {
-        recursive: true
-      })
-    ).then(
-      () => new Promise((resolve) => {
-        const check = /* @__PURE__ */ __name(() => {
-          this._fileService.exists(profileFilenamePrefix).then((exists) => {
-            if (exists) {
-              resolve();
-            } else {
-              setTimeout(check, 500);
-            }
-          });
-        }, "check");
-        check();
-      })
-    ).then(
-      () => this._fileService.del(profileFilenamePrefix, {
-        recursive: true
-      })
-    );
+    const markerFile = this._fileService.readFile(profileFilenamePrefix).then((value) => removeArgs.push(...value.toString().split("|"))).then(() => this._fileService.del(profileFilenamePrefix, { recursive: true })).then(() => new Promise((resolve) => {
+      const check = /* @__PURE__ */ __name(() => {
+        this._fileService.exists(profileFilenamePrefix).then((exists) => {
+          if (exists) {
+            resolve();
+          } else {
+            setTimeout(check, 500);
+          }
+        });
+      }, "check");
+      check();
+    })).then(() => this._fileService.del(profileFilenamePrefix, { recursive: true }));
     markerFile.then(() => {
       return this._fileService.resolve(dir).then((stat) => {
-        return (stat.children ? stat.children.filter(
-          (value) => value.resource.path.includes(prefix)
-        ) : []).map((stat2) => stat2.resource);
+        return (stat.children ? stat.children.filter((value) => value.resource.path.includes(prefix)) : []).map((stat2) => stat2.resource);
       });
     }).then((files) => {
-      const profileFiles = files.reduce(
-        (prev, cur) => `${prev}${this._labelService.getUriLabel(cur)}
-`,
-        "\n"
-      );
+      const profileFiles = files.reduce((prev, cur) => `${prev}${this._labelService.getUriLabel(cur)}
+`, "\n");
       return this._dialogService.confirm({
         type: "info",
-        message: localize(
-          "prof.message",
-          "Successfully created profiles."
-        ),
-        detail: localize(
-          "prof.detail",
-          "Please create an issue and manually attach the following files:\n{0}",
-          profileFiles
-        ),
-        primaryButton: localize(
-          {
-            key: "prof.restartAndFileIssue",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Create Issue and Restart"
-        ),
+        message: localize("prof.message", "Successfully created profiles."),
+        detail: localize("prof.detail", "Please create an issue and manually attach the following files:\n{0}", profileFiles),
+        primaryButton: localize({ key: "prof.restartAndFileIssue", comment: ["&& denotes a mnemonic"] }, "&&Create Issue and Restart"),
         cancelButton: localize("prof.restart", "Restart")
       }).then((res) => {
         if (res.confirmed) {
           Promise.all([
-            this._nativeHostService.showItemInFolder(
-              files[0].fsPath
-            ),
-            this._createPerfIssue(
-              files.map((file) => basename(file))
-            )
+            this._nativeHostService.showItemInFolder(files[0].fsPath),
+            this._createPerfIssue(files.map((file) => basename(file)))
           ]).then(() => {
             return this._dialogService.confirm({
               type: "info",
-              message: localize(
-                "prof.thanks",
-                "Thanks for helping us."
-              ),
-              detail: localize(
-                "prof.detail.restart",
-                "A final restart is required to continue to use '{0}'. Again, thank you for your contribution.",
-                this._productService.nameLong
-              ),
-              primaryButton: localize(
-                {
-                  key: "prof.restart.button",
-                  comment: [
-                    "&& denotes a mnemonic"
-                  ]
-                },
-                "&&Restart"
-              )
+              message: localize("prof.thanks", "Thanks for helping us."),
+              detail: localize("prof.detail.restart", "A final restart is required to continue to use '{0}'. Again, thank you for your contribution.", this._productService.nameLong),
+              primaryButton: localize({ key: "prof.restart.button", comment: ["&& denotes a mnemonic"] }, "&&Restart")
             }).then((res2) => {
               if (res2.confirmed) {
-                this._nativeHostService.relaunch({
-                  removeArgs
-                });
+                this._nativeHostService.relaunch({ removeArgs });
               }
             });
           });
@@ -162,13 +109,9 @@ let StartupProfiler = class {
       return;
     }
     const contrib = PerfviewContrib.get();
-    const ref = await this._textModelResolverService.createModelReference(
-      contrib.getInputUri()
-    );
+    const ref = await this._textModelResolverService.createModelReference(contrib.getInputUri());
     try {
-      await this._clipboardService.writeText(
-        ref.object.textEditorModel.getValue()
-      );
+      await this._clipboardService.writeText(ref.object.textEditorModel.getValue());
     } finally {
       ref.dispose();
     }
@@ -179,11 +122,7 @@ ${files.map((file) => `-\`${file}\``).join("\n")}
 `;
     const baseUrl = reportIssueUrl;
     const queryStringPrefix = baseUrl.indexOf("?") === -1 ? "?" : "&";
-    this._openerService.open(
-      URI.parse(
-        `${baseUrl}${queryStringPrefix}body=${encodeURIComponent(body)}`
-      )
-    );
+    this._openerService.open(URI.parse(`${baseUrl}${queryStringPrefix}body=${encodeURIComponent(body)}`));
   }
 };
 StartupProfiler = __decorateClass([

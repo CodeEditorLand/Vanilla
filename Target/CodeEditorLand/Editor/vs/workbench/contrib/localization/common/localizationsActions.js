@@ -1,18 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../nls.js";
+import { IQuickInputService, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { localize, localize2 } from "../../../../nls.js";
-import {
-  Action2,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
-import {
-  ILanguagePackService
-} from "../../../../platform/languagePacks/common/languagePacks.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILanguagePackItem, ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
 import { ILocaleService } from "../../../services/localization/common/locale.js";
 import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 class ConfigureDisplayLanguageAction extends Action2 {
@@ -28,10 +22,7 @@ class ConfigureDisplayLanguageAction extends Action2 {
         id: MenuId.CommandPalette
       },
       metadata: {
-        description: localize2(
-          "configureLocaleDescription",
-          "Changes the locale of VS Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more."
-        )
+        description: localize2("configureLocaleDescription", "Changes the locale of VS Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more.")
       }
     });
   }
@@ -42,79 +33,53 @@ class ConfigureDisplayLanguageAction extends Action2 {
     const extensionWorkbenchService = accessor.get(IExtensionsWorkbenchService);
     const installedLanguages = await languagePackService.getInstalledLanguages();
     const disposables = new DisposableStore();
-    const qp = disposables.add(
-      quickInputService.createQuickPick({
-        useSeparators: true
-      })
-    );
+    const qp = disposables.add(quickInputService.createQuickPick({ useSeparators: true }));
     qp.matchOnDescription = true;
     qp.placeholder = localize("chooseLocale", "Select Display Language");
     if (installedLanguages?.length) {
-      const items = [
-        {
-          type: "separator",
-          label: localize("installed", "Installed")
-        }
-      ];
-      qp.items = items.concat(
-        this.withMoreInfoButton(installedLanguages)
-      );
+      const items = [{ type: "separator", label: localize("installed", "Installed") }];
+      qp.items = items.concat(this.withMoreInfoButton(installedLanguages));
     }
     const source = new CancellationTokenSource();
-    disposables.add(
-      qp.onDispose(() => {
-        source.cancel();
-        disposables.dispose();
-      })
-    );
-    const installedSet = new Set(
-      installedLanguages?.map((language) => language.id) ?? []
-    );
+    disposables.add(qp.onDispose(() => {
+      source.cancel();
+      disposables.dispose();
+    }));
+    const installedSet = new Set(installedLanguages?.map((language) => language.id) ?? []);
     languagePackService.getAvailableLanguages().then((availableLanguages) => {
-      const newLanguages = availableLanguages.filter(
-        (l) => l.id && !installedSet.has(l.id)
-      );
+      const newLanguages = availableLanguages.filter((l) => l.id && !installedSet.has(l.id));
       if (newLanguages.length) {
         qp.items = [
           ...qp.items,
-          {
-            type: "separator",
-            label: localize("available", "Available")
-          },
+          { type: "separator", label: localize("available", "Available") },
           ...this.withMoreInfoButton(newLanguages)
         ];
       }
       qp.busy = false;
     });
-    disposables.add(
-      qp.onDidAccept(async () => {
-        const selectedLanguage = qp.activeItems[0];
-        if (selectedLanguage) {
-          qp.hide();
-          await localeService.setLocale(selectedLanguage);
-        }
-      })
-    );
-    disposables.add(
-      qp.onDidTriggerItemButton(async (e) => {
+    disposables.add(qp.onDidAccept(async () => {
+      const selectedLanguage = qp.activeItems[0];
+      if (selectedLanguage) {
         qp.hide();
-        if (e.item.extensionId) {
-          await extensionWorkbenchService.open(e.item.extensionId);
-        }
-      })
-    );
+        await localeService.setLocale(selectedLanguage);
+      }
+    }));
+    disposables.add(qp.onDidTriggerItemButton(async (e) => {
+      qp.hide();
+      if (e.item.extensionId) {
+        await extensionWorkbenchService.open(e.item.extensionId);
+      }
+    }));
     qp.show();
     qp.busy = true;
   }
   withMoreInfoButton(items) {
     for (const item of items) {
       if (item.extensionId) {
-        item.buttons = [
-          {
-            tooltip: localize("moreInfo", "More Info"),
-            iconClass: "codicon-info"
-          }
-        ];
+        item.buttons = [{
+          tooltip: localize("moreInfo", "More Info"),
+          iconClass: "codicon-info"
+        }];
       }
     }
     return items;
@@ -125,10 +90,7 @@ class ClearDisplayLanguageAction extends Action2 {
     __name(this, "ClearDisplayLanguageAction");
   }
   static ID = "workbench.action.clearLocalePreference";
-  static LABEL = localize2(
-    "clearDisplayLanguage",
-    "Clear Display Language Preference"
-  );
+  static LABEL = localize2("clearDisplayLanguage", "Clear Display Language Preference");
   constructor() {
     super({
       id: ClearDisplayLanguageAction.ID,

@@ -1,36 +1,34 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "../../../base/common/arrays.js";
+import { VSBufferReadableStream } from "../../../base/common/buffer.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtUri } from "../../../base/common/resources.js";
 import { isObject, isString } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { IHeaders } from "../../../base/parts/request/common/request.js";
 import { localize } from "../../../nls.js";
-import {
-  Extensions as ConfigurationExtensions,
-  ConfigurationScope,
-  allSettings,
-  getAllConfigurationProperties,
-  parseScope
-} from "../../configuration/common/configurationRegistry.js";
-import {
-  EXTENSION_IDENTIFIER_PATTERN
-} from "../../extensionManagement/common/extensionManagement.js";
+import { allSettings, ConfigurationScope, Extensions as ConfigurationExtensions, IConfigurationRegistry, IRegisteredConfigurationPropertySchema, getAllConfigurationProperties, parseScope } from "../../configuration/common/configurationRegistry.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { EXTENSION_IDENTIFIER_PATTERN, IExtensionIdentifier } from "../../extensionManagement/common/extensionManagement.js";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  Extensions as JSONExtensions
-} from "../../jsonschemas/common/jsonContributionRegistry.js";
+import { Extensions as JSONExtensions, IJSONContributionRegistry } from "../../jsonschemas/common/jsonContributionRegistry.js";
+import { ILogService } from "../../log/common/log.js";
 import { Registry } from "../../registry/common/platform.js";
+import { IUserDataProfile, UseDefaultProfileFlags } from "../../userDataProfile/common/userDataProfile.js";
+import { IUserDataSyncMachine } from "./userDataSyncMachines.js";
 function getDisallowedIgnoredSettings() {
-  const allSettings2 = Registry.as(
-    ConfigurationExtensions.Configuration
-  ).getConfigurationProperties();
-  return Object.keys(allSettings2).filter(
-    (setting) => !!allSettings2[setting].disallowSyncIgnore
-  );
+  const allSettings2 = Registry.as(ConfigurationExtensions.Configuration).getConfigurationProperties();
+  return Object.keys(allSettings2).filter((setting) => !!allSettings2[setting].disallowSyncIgnore);
 }
 __name(getDisallowedIgnoredSettings, "getDisallowedIgnoredSettings");
 function getDefaultIgnoredSettings(excludeExtensions = false) {
-  const allSettings2 = Registry.as(
-    ConfigurationExtensions.Configuration
-  ).getConfigurationProperties();
+  const allSettings2 = Registry.as(ConfigurationExtensions.Configuration).getConfigurationProperties();
   const ignoredSettings = getIgnoredSettings(allSettings2, excludeExtensions);
   const disallowedSettings = getDisallowedIgnoredSettings();
   return distinct([...ignoredSettings, ...disallowedSettings]);
@@ -66,9 +64,7 @@ const USER_DATA_SYNC_CONFIGURATION_SCOPE = "settingsSync";
 const CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM = "settingsSync.keybindingsPerPlatform";
 function registerConfiguration() {
   const ignoredSettingsSchemaId = "vscode://schemas/ignoredSettings";
-  const configurationRegistry = Registry.as(
-    ConfigurationExtensions.Configuration
-  );
+  const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
   configurationRegistry.registerConfiguration({
     id: "settingsSync",
     order: 30,
@@ -77,44 +73,30 @@ function registerConfiguration() {
     properties: {
       [CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM]: {
         type: "boolean",
-        description: localize(
-          "settingsSync.keybindingsPerPlatform",
-          "Synchronize keybindings for each platform."
-        ),
+        description: localize("settingsSync.keybindingsPerPlatform", "Synchronize keybindings for each platform."),
         default: true,
         scope: ConfigurationScope.APPLICATION,
         tags: ["sync", "usesOnlineServices"]
       },
       "settingsSync.ignoredExtensions": {
-        type: "array",
-        markdownDescription: localize(
-          "settingsSync.ignoredExtensions",
-          "List of extensions to be ignored while synchronizing. The identifier of an extension is always `${publisher}.${name}`. For example: `vscode.csharp`."
-        ),
-        items: [
-          {
-            type: "string",
-            pattern: EXTENSION_IDENTIFIER_PATTERN,
-            errorMessage: localize(
-              "app.extension.identifier.errorMessage",
-              "Expected format '${publisher}.${name}'. Example: 'vscode.csharp'."
-            )
-          }
-        ],
-        default: [],
-        scope: ConfigurationScope.APPLICATION,
+        "type": "array",
+        markdownDescription: localize("settingsSync.ignoredExtensions", "List of extensions to be ignored while synchronizing. The identifier of an extension is always `${publisher}.${name}`. For example: `vscode.csharp`."),
+        items: [{
+          type: "string",
+          pattern: EXTENSION_IDENTIFIER_PATTERN,
+          errorMessage: localize("app.extension.identifier.errorMessage", "Expected format '${publisher}.${name}'. Example: 'vscode.csharp'.")
+        }],
+        "default": [],
+        "scope": ConfigurationScope.APPLICATION,
         uniqueItems: true,
         disallowSyncIgnore: true,
         tags: ["sync", "usesOnlineServices"]
       },
       "settingsSync.ignoredSettings": {
-        type: "array",
-        description: localize(
-          "settingsSync.ignoredSettings",
-          "Configure settings to be ignored while synchronizing."
-        ),
-        default: [],
-        scope: ConfigurationScope.APPLICATION,
+        "type": "array",
+        description: localize("settingsSync.ignoredSettings", "Configure settings to be ignored while synchronizing."),
+        "default": [],
+        "scope": ConfigurationScope.APPLICATION,
         $ref: ignoredSettingsSchemaId,
         additionalProperties: true,
         uniqueItems: true,
@@ -123,35 +105,21 @@ function registerConfiguration() {
       }
     }
   });
-  const jsonRegistry = Registry.as(
-    JSONExtensions.JSONContribution
-  );
+  const jsonRegistry = Registry.as(JSONExtensions.JSONContribution);
   const registerIgnoredSettingsSchema = /* @__PURE__ */ __name(() => {
     const disallowedIgnoredSettings = getDisallowedIgnoredSettings();
     const defaultIgnoredSettings = getDefaultIgnoredSettings();
-    const settings = Object.keys(allSettings.properties).filter(
-      (setting) => !defaultIgnoredSettings.includes(setting)
-    );
-    const ignoredSettings = defaultIgnoredSettings.filter(
-      (setting) => !disallowedIgnoredSettings.includes(setting)
-    );
+    const settings = Object.keys(allSettings.properties).filter((setting) => !defaultIgnoredSettings.includes(setting));
+    const ignoredSettings = defaultIgnoredSettings.filter((setting) => !disallowedIgnoredSettings.includes(setting));
     const ignoredSettingsSchema = {
       items: {
         type: "string",
-        enum: [
-          ...settings,
-          ...ignoredSettings.map((setting) => `-${setting}`)
-        ]
+        enum: [...settings, ...ignoredSettings.map((setting) => `-${setting}`)]
       }
     };
-    jsonRegistry.registerSchema(
-      ignoredSettingsSchemaId,
-      ignoredSettingsSchema
-    );
+    jsonRegistry.registerSchema(ignoredSettingsSchemaId, ignoredSettingsSchema);
   }, "registerIgnoredSettingsSchema");
-  return configurationRegistry.onDidUpdateConfiguration(
-    () => registerIgnoredSettingsSchema()
-  );
+  return configurationRegistry.onDidUpdateConfiguration(() => registerIgnoredSettingsSchema());
 }
 __name(registerConfiguration, "registerConfiguration");
 function isAuthenticationProvider(thing) {
@@ -169,37 +137,18 @@ var SyncResource = /* @__PURE__ */ ((SyncResource2) => {
   SyncResource2["WorkspaceState"] = "workspaceState";
   return SyncResource2;
 })(SyncResource || {});
-const ALL_SYNC_RESOURCES = [
-  "settings" /* Settings */,
-  "keybindings" /* Keybindings */,
-  "snippets" /* Snippets */,
-  "tasks" /* Tasks */,
-  "extensions" /* Extensions */,
-  "globalState" /* GlobalState */,
-  "profiles" /* Profiles */
-];
+const ALL_SYNC_RESOURCES = ["settings" /* Settings */, "keybindings" /* Keybindings */, "snippets" /* Snippets */, "tasks" /* Tasks */, "extensions" /* Extensions */, "globalState" /* GlobalState */, "profiles" /* Profiles */];
 function getPathSegments(collection, ...paths) {
   return collection ? [collection, ...paths] : paths;
 }
 __name(getPathSegments, "getPathSegments");
 function getLastSyncResourceUri(collection, syncResource, environmentService, extUri) {
-  return extUri.joinPath(
-    environmentService.userDataSyncHome,
-    ...getPathSegments(
-      collection,
-      syncResource,
-      `lastSync${syncResource}.json`
-    )
-  );
+  return extUri.joinPath(environmentService.userDataSyncHome, ...getPathSegments(collection, syncResource, `lastSync${syncResource}.json`));
 }
 __name(getLastSyncResourceUri, "getLastSyncResourceUri");
-const IUserDataSyncStoreManagementService = createDecorator(
-  "IUserDataSyncStoreManagementService"
-);
+const IUserDataSyncStoreManagementService = createDecorator("IUserDataSyncStoreManagementService");
 const IUserDataSyncStoreService = createDecorator("IUserDataSyncStoreService");
-const IUserDataSyncLocalStoreService = createDecorator(
-  "IUserDataSyncLocalStoreService"
-);
+const IUserDataSyncLocalStoreService = createDecorator("IUserDataSyncLocalStoreService");
 const HEADER_OPERATION_ID = "x-operation-id";
 const HEADER_EXECUTION_ID = "X-Execution-Id";
 function createSyncHeaders(executionId) {
@@ -279,23 +228,13 @@ class UserDataAutoSyncError extends UserDataSyncError {
     if (error instanceof UserDataSyncError2) {
       return error;
     }
-    const match = /^(.+) \(UserDataSyncError\) syncResource:(.+) operationId:(.+)$/.exec(
-      error.name
-    );
+    const match = /^(.+) \(UserDataSyncError\) syncResource:(.+) operationId:(.+)$/.exec(error.name);
     if (match && match[1]) {
       const syncResource = match[2] === "unknown" ? void 0 : match[2];
       const operationId = match[3] === "unknown" ? void 0 : match[3];
-      return new UserDataSyncError2(
-        error.message,
-        match[1],
-        syncResource,
-        operationId
-      );
+      return new UserDataSyncError2(error.message, match[1], syncResource, operationId);
     }
-    return new UserDataSyncError2(
-      error.message,
-      "Unknown" /* Unknown */
-    );
+    return new UserDataSyncError2(error.message, "Unknown" /* Unknown */);
   }
   UserDataSyncError2.toUserDataSyncError = toUserDataSyncError;
   __name(toUserDataSyncError, "toUserDataSyncError");
@@ -325,20 +264,12 @@ function getEnablementKey(resource) {
   return `sync.enable.${resource}`;
 }
 __name(getEnablementKey, "getEnablementKey");
-const IUserDataSyncEnablementService = createDecorator(
-  "IUserDataSyncEnablementService"
-);
-const IUserDataSyncService = createDecorator(
-  "IUserDataSyncService"
-);
-const IUserDataSyncResourceProviderService = createDecorator(
-  "IUserDataSyncResourceProviderService"
-);
+const IUserDataSyncEnablementService = createDecorator("IUserDataSyncEnablementService");
+const IUserDataSyncService = createDecorator("IUserDataSyncService");
+const IUserDataSyncResourceProviderService = createDecorator("IUserDataSyncResourceProviderService");
 const IUserDataAutoSyncService = createDecorator("IUserDataAutoSyncService");
 const IUserDataSyncUtilService = createDecorator("IUserDataSyncUtilService");
-const IUserDataSyncLogService = createDecorator(
-  "IUserDataSyncLogService"
-);
+const IUserDataSyncLogService = createDecorator("IUserDataSyncLogService");
 const USER_DATA_SYNC_LOG_ID = "userDataSync";
 const USER_DATA_SYNC_SCHEME = "vscode-userdata-sync";
 const PREVIEW_DIR_NAME = "preview";

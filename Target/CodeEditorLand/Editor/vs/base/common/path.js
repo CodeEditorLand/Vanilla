@@ -279,12 +279,7 @@ const win32 = {
         rootEnd = 3;
       }
     }
-    let tail = rootEnd < len ? normalizeString(
-      path.slice(rootEnd),
-      !isAbsolute2,
-      "\\",
-      isPathSeparator
-    ) : "";
+    let tail = rootEnd < len ? normalizeString(path.slice(rootEnd), !isAbsolute2, "\\", isPathSeparator) : "";
     if (tail.length === 0 && !isAbsolute2) {
       tail = ".";
     }

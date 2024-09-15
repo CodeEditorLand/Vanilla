@@ -52,16 +52,10 @@ import "./services/extensions/electron-sandbox/nativeExtensionService.js";
 import "../platform/userDataProfile/electron-sandbox/userDataProfileStorageService.js";
 import "./services/auxiliaryWindow/electron-sandbox/auxiliaryWindowService.js";
 import "../platform/extensionManagement/electron-sandbox/extensionsProfileScannerService.js";
-import { SyncDescriptor } from "../platform/instantiation/common/descriptors.js";
 import { registerSingleton } from "../platform/instantiation/common/extensions.js";
-import {
-  IUserDataInitializationService,
-  UserDataInitializationService
-} from "./services/userData/browser/userDataInit.js";
-registerSingleton(
-  IUserDataInitializationService,
-  new SyncDescriptor(UserDataInitializationService, [[]], true)
-);
+import { IUserDataInitializationService, UserDataInitializationService } from "./services/userData/browser/userDataInit.js";
+import { SyncDescriptor } from "../platform/instantiation/common/descriptors.js";
+registerSingleton(IUserDataInitializationService, new SyncDescriptor(UserDataInitializationService, [[]], true));
 import "./contrib/logs/electron-sandbox/logs.contribution.js";
 import "./contrib/localization/electron-sandbox/localization.contribution.js";
 import "./contrib/files/electron-sandbox/fileActions.contribution.js";

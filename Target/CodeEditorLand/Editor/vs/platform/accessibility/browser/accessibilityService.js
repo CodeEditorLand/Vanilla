@@ -13,17 +13,12 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { addDisposableListener } from "../../../base/browser/dom.js";
 import { alert, status } from "../../../base/browser/ui/aria/aria.js";
 import { mainWindow } from "../../../base/browser/window.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
+import { AccessibilitySupport, CONTEXT_ACCESSIBILITY_MODE_ENABLED, IAccessibilityService } from "../common/accessibility.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../contextkey/common/contextkey.js";
 import { ILayoutService } from "../../layout/browser/layoutService.js";
-import {
-  AccessibilitySupport,
-  CONTEXT_ACCESSIBILITY_MODE_ENABLED
-} from "../common/accessibility.js";
 let AccessibilityService = class extends Disposable {
   constructor(_contextKeyService, _layoutService, _configurationService) {
     super();
@@ -63,53 +58,34 @@ let AccessibilityService = class extends Disposable {
   _linkUnderlinesEnabled;
   _onDidChangeLinkUnderline = new Emitter();
   initReducedMotionListeners(reduceMotionMatcher) {
-    this._register(
-      addDisposableListener(reduceMotionMatcher, "change", () => {
-        this._systemMotionReduced = reduceMotionMatcher.matches;
-        if (this._configMotionReduced === "auto") {
-          this._onDidChangeReducedMotion.fire();
-        }
-      })
-    );
+    this._register(addDisposableListener(reduceMotionMatcher, "change", () => {
+      this._systemMotionReduced = reduceMotionMatcher.matches;
+      if (this._configMotionReduced === "auto") {
+        this._onDidChangeReducedMotion.fire();
+      }
+    }));
     const updateRootClasses = /* @__PURE__ */ __name(() => {
       const reduce = this.isMotionReduced();
-      this._layoutService.mainContainer.classList.toggle(
-        "reduce-motion",
-        reduce
-      );
-      this._layoutService.mainContainer.classList.toggle(
-        "enable-motion",
-        !reduce
-      );
+      this._layoutService.mainContainer.classList.toggle("reduce-motion", reduce);
+      this._layoutService.mainContainer.classList.toggle("enable-motion", !reduce);
     }, "updateRootClasses");
     updateRootClasses();
-    this._register(
-      this.onDidChangeReducedMotion(() => updateRootClasses())
-    );
+    this._register(this.onDidChangeReducedMotion(() => updateRootClasses()));
   }
   initLinkUnderlineListeners() {
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("accessibility.underlineLinks")) {
-          const linkUnderlinesEnabled = this._configurationService.getValue(
-            "accessibility.underlineLinks"
-          );
-          this._linkUnderlinesEnabled = linkUnderlinesEnabled;
-          this._onDidChangeLinkUnderline.fire();
-        }
-      })
-    );
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("accessibility.underlineLinks")) {
+        const linkUnderlinesEnabled = this._configurationService.getValue("accessibility.underlineLinks");
+        this._linkUnderlinesEnabled = linkUnderlinesEnabled;
+        this._onDidChangeLinkUnderline.fire();
+      }
+    }));
     const updateLinkUnderlineClasses = /* @__PURE__ */ __name(() => {
       const underlineLinks = this._linkUnderlinesEnabled;
-      this._layoutService.mainContainer.classList.toggle(
-        "underline-links",
-        underlineLinks
-      );
+      this._layoutService.mainContainer.classList.toggle("underline-links", underlineLinks);
     }, "updateLinkUnderlineClasses");
     updateLinkUnderlineClasses();
-    this._register(
-      this.onDidChangeLinkUnderlines(() => updateLinkUnderlineClasses())
-    );
+    this._register(this.onDidChangeLinkUnderlines(() => updateLinkUnderlineClasses()));
   }
   onDidChangeLinkUnderlines(listener) {
     return this._onDidChangeLinkUnderline.event(listener);
@@ -118,9 +94,7 @@ let AccessibilityService = class extends Disposable {
     return this._onDidChangeScreenReaderOptimized.event;
   }
   isScreenReaderOptimized() {
-    const config = this._configurationService.getValue(
-      "editor.accessibilitySupport"
-    );
+    const config = this._configurationService.getValue("editor.accessibilitySupport");
     return config === "on" || config === "auto" && this._accessibilitySupport === AccessibilitySupport.Enabled;
   }
   get onDidChangeReducedMotion() {

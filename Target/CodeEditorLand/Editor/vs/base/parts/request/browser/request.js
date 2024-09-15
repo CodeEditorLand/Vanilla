@@ -1,18 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer, bufferToStream } from "../../../common/buffer.js";
+import { bufferToStream, VSBuffer } from "../../../common/buffer.js";
+import { CancellationToken } from "../../../common/cancellation.js";
 import { canceled } from "../../../common/errors.js";
-import {
-  OfflineError
-} from "../common/request.js";
+import { IHeaders, IRequestContext, IRequestOptions, OfflineError } from "../common/request.js";
 async function request(options, token) {
   if (token.isCancellationRequested) {
     throw canceled();
   }
   const cancellation = new AbortController();
-  const disposable = token.onCancellationRequested(
-    () => cancellation.abort()
-  );
+  const disposable = token.onCancellationRequested(() => cancellation.abort());
   const signal = options.timeout ? AbortSignal.any([
     cancellation.signal,
     AbortSignal.timeout(options.timeout)
@@ -29,9 +26,7 @@ async function request(options, token) {
         statusCode: res.status,
         headers: getResponseHeaders(res)
       },
-      stream: bufferToStream(
-        VSBuffer.wrap(new Uint8Array(await res.arrayBuffer()))
-      )
+      stream: bufferToStream(VSBuffer.wrap(new Uint8Array(await res.arrayBuffer())))
     };
   } catch (err) {
     if (!navigator.onLine) {
@@ -69,10 +64,7 @@ function getRequestHeaders(options) {
       }
     }
     if (options.user || options.password) {
-      headers.set(
-        "Authorization",
-        "Basic " + btoa(`${options.user || ""}:${options.password || ""}`)
-      );
+      headers.set("Authorization", "Basic " + btoa(`${options.user || ""}:${options.password || ""}`));
     }
     if (options.proxyAuthorization) {
       headers.set("Proxy-Authorization", options.proxyAuthorization);

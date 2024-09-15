@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.Spanish-ISO",
-    lang: "es",
-    localizedName: "Spanish - ISO"
-  },
+  layout: { id: "com.apple.keylayout.Spanish-ISO", lang: "es", localizedName: "Spanish - ISO" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xE5", "\xC5", 0],

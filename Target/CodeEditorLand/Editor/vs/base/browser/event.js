@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../common/event.js";
+import { GestureEvent } from "./touch.js";
+import { Emitter, Event as BaseEvent } from "../common/event.js";
+import { IDisposable } from "../common/lifecycle.js";
 class DomEmitter {
   static {
     __name(this, "DomEmitter");

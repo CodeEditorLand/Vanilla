@@ -1,14 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $, IDomNodePagePosition } from "../../dom.js";
+import { IView, IViewSize } from "../grid/grid.js";
+import { IBoundarySashes } from "../sash/sash.js";
+import { DistributeSizing, ISplitViewStyles, IView as ISplitViewView, Orientation, SplitView } from "../splitview/splitview.js";
+import { Color } from "../../../common/color.js";
 import { Event } from "../../../common/event.js";
-import {
-  DisposableStore
-} from "../../../common/lifecycle.js";
-import { $ } from "../../dom.js";
-import {
-  Orientation,
-  SplitView
-} from "../splitview/splitview.js";
+import { DisposableStore, IDisposable } from "../../../common/lifecycle.js";
 const defaultState = {
   targetWidth: 900,
   leftMarginRatio: 0.1909,
@@ -40,12 +38,7 @@ function toSplitViewView(view, getHeight) {
       return view.minimumWidth;
     },
     onDidChange: Event.map(view.onDidChange, (e) => e && e.width),
-    layout: /* @__PURE__ */ __name((size, offset, ctx) => view.layout(
-      size,
-      getHeight(),
-      ctx?.top ?? 0,
-      (ctx?.left ?? 0) + offset
-    ), "layout")
+    layout: /* @__PURE__ */ __name((size, offset, ctx) => view.layout(size, getHeight(), ctx?.top ?? 0, (ctx?.left ?? 0) + offset), "layout")
   };
 }
 __name(toSplitViewView, "toSplitViewView");
@@ -62,12 +55,7 @@ class CenteredViewLayout {
     __name(this, "CenteredViewLayout");
   }
   splitView;
-  lastLayoutPosition = {
-    width: 0,
-    height: 0,
-    left: 0,
-    top: 0
-  };
+  lastLayoutPosition = { width: 0, height: 0, left: 0, top: 0 };
   style;
   didLayout = false;
   emptyViews;
@@ -116,10 +104,7 @@ class CenteredViewLayout {
       return;
     }
     if (this.centeredLayoutFixedWidth) {
-      const centerViewWidth = Math.min(
-        this.lastLayoutPosition.width,
-        this.state.targetWidth
-      );
+      const centerViewWidth = Math.min(this.lastLayoutPosition.width, this.state.targetWidth);
       const marginWidthFloat = (this.lastLayoutPosition.width - centerViewWidth) / 2;
       this.splitView.resizeView(0, Math.floor(marginWidthFloat));
       this.splitView.resizeView(1, centerViewWidth);
@@ -171,37 +156,20 @@ class CenteredViewLayout {
       });
       this.splitView.orthogonalStartSash = this.boundarySashes.top;
       this.splitView.orthogonalEndSash = this.boundarySashes.bottom;
-      this.splitViewDisposables.add(
-        this.splitView.onDidSashChange(() => {
-          if (!!this.splitView) {
-            this.updateState();
-          }
-        })
-      );
-      this.splitViewDisposables.add(
-        this.splitView.onDidSashReset(() => {
-          this.state = { ...defaultState };
-          this.resizeSplitViews();
-        })
-      );
-      this.splitView.layout(
-        this.lastLayoutPosition.width,
-        this.lastLayoutPosition
-      );
+      this.splitViewDisposables.add(this.splitView.onDidSashChange(() => {
+        if (!!this.splitView) {
+          this.updateState();
+        }
+      }));
+      this.splitViewDisposables.add(this.splitView.onDidSashReset(() => {
+        this.state = { ...defaultState };
+        this.resizeSplitViews();
+      }));
+      this.splitView.layout(this.lastLayoutPosition.width, this.lastLayoutPosition);
       const backgroundColor = this.style ? this.style.background : void 0;
-      this.emptyViews = [
-        createEmptyView(backgroundColor),
-        createEmptyView(backgroundColor)
-      ];
+      this.emptyViews = [createEmptyView(backgroundColor), createEmptyView(backgroundColor)];
       this.splitView.addView(this.emptyViews[0], distributeSizing, 0);
-      this.splitView.addView(
-        toSplitViewView(
-          this.view,
-          () => this.lastLayoutPosition.height
-        ),
-        distributeSizing,
-        1
-      );
+      this.splitView.addView(toSplitViewView(this.view, () => this.lastLayoutPosition.height), distributeSizing, 1);
       this.splitView.addView(this.emptyViews[1], distributeSizing, 2);
       this.resizeSplitViews();
     } else {
@@ -211,12 +179,7 @@ class CenteredViewLayout {
       this.splitView = void 0;
       this.emptyViews = void 0;
       this.container.appendChild(this.view.element);
-      this.view.layout(
-        this.lastLayoutPosition.width,
-        this.lastLayoutPosition.height,
-        this.lastLayoutPosition.top,
-        this.lastLayoutPosition.left
-      );
+      this.view.layout(this.lastLayoutPosition.width, this.lastLayoutPosition.height, this.lastLayoutPosition.top, this.lastLayoutPosition.left);
     }
   }
   isDefault(state) {

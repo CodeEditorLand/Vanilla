@@ -1,4 +1,4 @@
-var commandPalette_default = "../../../../../../Asset/commandPalette-ALSS2OM6.svg";
+var commandPalette_default = "../../../../../../Asset/commandPalette-VBK3SWGI.svg";
 export {
   commandPalette_default as default
 };

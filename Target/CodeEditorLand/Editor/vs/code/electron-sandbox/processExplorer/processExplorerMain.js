@@ -2,27 +2,27 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/processExplorer.css";
 import "../../../base/browser/ui/codicons/codiconStyles.js";
+import { localize } from "../../../nls.js";
 import { $, append, createStyleSheet } from "../../../base/browser/dom.js";
-import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { IListVirtualDelegate } from "../../../base/browser/ui/list/list.js";
 import { DataTree } from "../../../base/browser/ui/tree/dataTree.js";
-import { mainWindow } from "../../../base/browser/window.js";
+import { IDataSource, ITreeNode, ITreeRenderer } from "../../../base/browser/ui/tree/tree.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
-import { KeyCode } from "../../../base/common/keyCodes.js";
+import { ProcessItem } from "../../../base/common/processes.js";
+import { IContextMenuItem } from "../../../base/parts/contextmenu/common/contextmenu.js";
 import { popup } from "../../../base/parts/contextmenu/electron-sandbox/contextmenu.js";
 import { ipcRenderer } from "../../../base/parts/sandbox/electron-sandbox/globals.js";
-import { localize } from "../../../nls.js";
-import {
-  isRemoteDiagnosticError
-} from "../../../platform/diagnostics/common/diagnostics.js";
+import { IRemoteDiagnosticError, isRemoteDiagnosticError } from "../../../platform/diagnostics/common/diagnostics.js";
 import { ByteSize } from "../../../platform/files/common/files.js";
 import { ElectronIPCMainProcessService } from "../../../platform/ipc/electron-sandbox/mainProcessService.js";
+import { ProcessExplorerData, ProcessExplorerStyles, ProcessExplorerWindowConfiguration } from "../../../platform/issue/common/issue.js";
+import { INativeHostService } from "../../../platform/native/common/native.js";
 import { NativeHostService } from "../../../platform/native/common/nativeHostService.js";
 import { getIconsStyleSheet } from "../../../platform/theme/browser/iconsStyleSheet.js";
-import {
-  applyZoom,
-  zoomIn,
-  zoomOut
-} from "../../../platform/window/electron-sandbox/window.js";
+import { applyZoom, zoomIn, zoomOut } from "../../../platform/window/electron-sandbox/window.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { KeyCode } from "../../../base/common/keyCodes.js";
+import { mainWindow } from "../../../base/browser/window.js";
 const DEBUG_FLAGS_PATTERN = /\s--inspect(?:-brk|port)?=(?<port>\d+)?/;
 const DEBUG_PORT_PATTERN = /\s--inspect-port=(?<port>\d+)/;
 class ProcessListDelegate {
@@ -190,41 +190,29 @@ class ProcessExplorer {
   constructor(windowId, data) {
     this.data = data;
     const mainProcessService = new ElectronIPCMainProcessService(windowId);
-    this.nativeHostService = new NativeHostService(
-      windowId,
-      mainProcessService
-    );
+    this.nativeHostService = new NativeHostService(windowId, mainProcessService);
     this.applyStyles(data.styles);
     this.setEventHandlers(data);
-    ipcRenderer.on(
-      "vscode:pidToNameResponse",
-      (event, pidToNames) => {
-        this.mapPidToName.clear();
-        for (const [pid, name] of pidToNames) {
-          this.mapPidToName.set(pid, name);
-        }
+    ipcRenderer.on("vscode:pidToNameResponse", (event, pidToNames) => {
+      this.mapPidToName.clear();
+      for (const [pid, name] of pidToNames) {
+        this.mapPidToName.set(pid, name);
       }
-    );
-    ipcRenderer.on(
-      "vscode:listProcessesResponse",
-      async (event, processRoots) => {
-        processRoots.forEach((info, index) => {
-          if (isProcessItem(info.rootProcess)) {
-            info.rootProcess.name = index === 0 ? `${this.data.applicationName} main` : "remote agent";
-          }
-        });
-        if (this.tree) {
-          this.tree.setInput({ processes: { processRoots } });
-          this.tree.layout(
-            mainWindow.innerHeight,
-            mainWindow.innerWidth
-          );
-        } else {
-          await this.createProcessTree(processRoots);
+    });
+    ipcRenderer.on("vscode:listProcessesResponse", async (event, processRoots) => {
+      processRoots.forEach((info, index) => {
+        if (isProcessItem(info.rootProcess)) {
+          info.rootProcess.name = index === 0 ? `${this.data.applicationName} main` : "remote agent";
         }
-        this.requestProcessList(0);
+      });
+      if (!this.tree) {
+        await this.createProcessTree(processRoots);
+      } else {
+        this.tree.setInput({ processes: { processRoots } });
+        this.tree.layout(mainWindow.innerHeight, mainWindow.innerWidth);
       }
-    );
+      this.requestProcessList(0);
+    });
     this.lastRequestTime = Date.now();
     ipcRenderer.send("vscode:pidToNameRequest");
     ipcRenderer.send("vscode:listProcesses");
@@ -259,11 +247,7 @@ class ProcessExplorer {
     }
     const { totalmem } = await this.nativeHostService.getOSStatistics();
     const renderers = [
-      new ProcessRenderer(
-        this.data.platform,
-        totalmem,
-        this.mapPidToName
-      ),
+      new ProcessRenderer(this.data.platform, totalmem, this.mapPidToName),
       new ProcessHeaderTreeRenderer(),
       new MachineRenderer(),
       new ErrorRenderer()
@@ -300,11 +284,7 @@ class ProcessExplorer {
       const event = new StandardKeyboardEvent(e);
       if (event.keyCode === KeyCode.KeyE && event.altKey) {
         const selectionPids = this.getSelectedPids();
-        void Promise.all(
-          selectionPids.map(
-            (pid) => this.nativeHostService.killProcess(pid, "SIGTERM")
-          )
-        ).then(() => this.tree?.refresh());
+        void Promise.all(selectionPids.map((pid) => this.nativeHostService.killProcess(pid, "SIGTERM"))).then(() => this.tree?.refresh());
       }
     });
     this.tree.onContextMenu((e) => {
@@ -338,60 +318,36 @@ class ProcessExplorer {
     if (matches) {
       config.port = Number(matches.groups.port);
     }
-    ipcRenderer.send("vscode:workbenchCommand", {
-      id: "debug.startFromConfig",
-      from: "processExplorer",
-      args: [config]
-    });
+    ipcRenderer.send("vscode:workbenchCommand", { id: "debug.startFromConfig", from: "processExplorer", args: [config] });
   }
   applyStyles(styles) {
     const styleElement = createStyleSheet();
     const content = [];
     if (styles.listFocusBackground) {
-      content.push(
-        `.monaco-list:focus .monaco-list-row.focused { background-color: ${styles.listFocusBackground}; }`
-      );
-      content.push(
-        `.monaco-list:focus .monaco-list-row.focused:hover { background-color: ${styles.listFocusBackground}; }`
-      );
+      content.push(`.monaco-list:focus .monaco-list-row.focused { background-color: ${styles.listFocusBackground}; }`);
+      content.push(`.monaco-list:focus .monaco-list-row.focused:hover { background-color: ${styles.listFocusBackground}; }`);
     }
     if (styles.listFocusForeground) {
-      content.push(
-        `.monaco-list:focus .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`
-      );
+      content.push(`.monaco-list:focus .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`);
     }
     if (styles.listActiveSelectionBackground) {
-      content.push(
-        `.monaco-list:focus .monaco-list-row.selected { background-color: ${styles.listActiveSelectionBackground}; }`
-      );
-      content.push(
-        `.monaco-list:focus .monaco-list-row.selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`
-      );
+      content.push(`.monaco-list:focus .monaco-list-row.selected { background-color: ${styles.listActiveSelectionBackground}; }`);
+      content.push(`.monaco-list:focus .monaco-list-row.selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`);
     }
     if (styles.listActiveSelectionForeground) {
-      content.push(
-        `.monaco-list:focus .monaco-list-row.selected { color: ${styles.listActiveSelectionForeground}; }`
-      );
+      content.push(`.monaco-list:focus .monaco-list-row.selected { color: ${styles.listActiveSelectionForeground}; }`);
     }
     if (styles.listHoverBackground) {
-      content.push(
-        `.monaco-list-row:hover:not(.selected):not(.focused) { background-color: ${styles.listHoverBackground}; }`
-      );
+      content.push(`.monaco-list-row:hover:not(.selected):not(.focused) { background-color: ${styles.listHoverBackground}; }`);
     }
     if (styles.listHoverForeground) {
-      content.push(
-        `.monaco-list-row:hover:not(.selected):not(.focused) { color: ${styles.listHoverForeground}; }`
-      );
+      content.push(`.monaco-list-row:hover:not(.selected):not(.focused) { color: ${styles.listHoverForeground}; }`);
     }
     if (styles.listFocusOutline) {
-      content.push(
-        `.monaco-list:focus .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`
-      );
+      content.push(`.monaco-list:focus .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`);
     }
     if (styles.listHoverOutline) {
-      content.push(
-        `.monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`
-      );
+      content.push(`.monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`);
     }
     if (styles.scrollbarShadowColor) {
       content.push(`
@@ -475,9 +431,7 @@ class ProcessExplorer {
       click: /* @__PURE__ */ __name(() => {
         const processList = mainWindow.document.getElementById("process-list");
         if (processList) {
-          this.nativeHostService.writeClipboardText(
-            processList.innerText
-          );
+          this.nativeHostService.writeClipboardText(processList.innerText);
         }
       }, "click")
     });

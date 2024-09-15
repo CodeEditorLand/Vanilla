@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { EditorModel } from "./editorModel.js";
+import { IResolvableEditorModel } from "../../../platform/editor/common/editor.js";
 class DiffEditorModel extends EditorModel {
   static {
     __name(this, "DiffEditorModel");

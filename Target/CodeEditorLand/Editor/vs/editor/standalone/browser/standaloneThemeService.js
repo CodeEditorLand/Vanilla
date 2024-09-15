@@ -1,48 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { addMatchMediaChangeListener } from "../../../base/browser/browser.js";
 import * as dom from "../../../base/browser/dom.js";
-import { mainWindow } from "../../../base/browser/window.js";
+import { addMatchMediaChangeListener } from "../../../base/browser/browser.js";
 import { Color } from "../../../base/common/color.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import { Registry } from "../../../platform/registry/common/platform.js";
-import {
-  UnthemedProductIconTheme,
-  getIconsStyleSheet
-} from "../../../platform/theme/browser/iconsStyleSheet.js";
-import {
-  Extensions,
-  asCssVariableName
-} from "../../../platform/theme/common/colorRegistry.js";
-import {
-  ColorScheme,
-  isDark,
-  isHighContrast
-} from "../../../platform/theme/common/theme.js";
-import {
-  Extensions as ThemingExtensions
-} from "../../../platform/theme/common/themeService.js";
-import {
-  FontStyle,
-  TokenMetadata
-} from "../../common/encodedTokenAttributes.js";
 import { TokenizationRegistry } from "../../common/languages.js";
-import {
-  TokenTheme,
-  generateTokensCSSForColorMap
-} from "../../common/languages/supports/tokenization.js";
+import { FontStyle, TokenMetadata } from "../../common/encodedTokenAttributes.js";
+import { ITokenThemeRule, TokenTheme, generateTokensCSSForColorMap } from "../../common/languages/supports/tokenization.js";
+import { BuiltinTheme, IStandaloneTheme, IStandaloneThemeData, IStandaloneThemeService } from "../common/standaloneTheme.js";
 import { hc_black, hc_light, vs, vs_dark } from "../common/themes.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { asCssVariableName, ColorIdentifier, Extensions, IColorRegistry } from "../../../platform/theme/common/colorRegistry.js";
+import { Extensions as ThemingExtensions, ICssStyleCollector, IFileIconTheme, IProductIconTheme, IThemingRegistry, ITokenStyle } from "../../../platform/theme/common/themeService.js";
+import { IDisposable, Disposable } from "../../../base/common/lifecycle.js";
+import { ColorScheme, isDark, isHighContrast } from "../../../platform/theme/common/theme.js";
+import { getIconsStyleSheet, UnthemedProductIconTheme } from "../../../platform/theme/browser/iconsStyleSheet.js";
+import { mainWindow } from "../../../base/browser/window.js";
 const VS_LIGHT_THEME_NAME = "vs";
 const VS_DARK_THEME_NAME = "vs-dark";
 const HC_BLACK_THEME_NAME = "hc-black";
 const HC_LIGHT_THEME_NAME = "hc-light";
 const colorRegistry = Registry.as(Extensions.ColorContribution);
-const themingRegistry = Registry.as(
-  ThemingExtensions.ThemingContribution
-);
+const themingRegistry = Registry.as(ThemingExtensions.ThemingContribution);
 class StandaloneTheme {
   static {
     __name(this, "StandaloneTheme");
@@ -162,17 +142,12 @@ class StandaloneTheme {
       if (this.themeData.encodedTokensColors) {
         encodedTokensColors = this.themeData.encodedTokensColors;
       }
-      this._tokenTheme = TokenTheme.createFromRawTokenTheme(
-        rules,
-        encodedTokensColors
-      );
+      this._tokenTheme = TokenTheme.createFromRawTokenTheme(rules, encodedTokensColors);
     }
     return this._tokenTheme;
   }
   getTokenStyleMetadata(type, modifiers, modelLanguage) {
-    const style = this.tokenTheme._match(
-      [type].concat(modifiers).join(".")
-    );
+    const style = this.tokenTheme._match([type].concat(modifiers).join("."));
     const metadata = style.metadata;
     const foreground = TokenMetadata.getForeground(metadata);
     const fontStyle = TokenMetadata.getFontStyle(metadata);
@@ -215,17 +190,11 @@ class StandaloneThemeService extends Disposable {
   static {
     __name(this, "StandaloneThemeService");
   }
-  _onColorThemeChange = this._register(
-    new Emitter()
-  );
+  _onColorThemeChange = this._register(new Emitter());
   onDidColorThemeChange = this._onColorThemeChange.event;
-  _onFileIconThemeChange = this._register(
-    new Emitter()
-  );
+  _onFileIconThemeChange = this._register(new Emitter());
   onDidFileIconThemeChange = this._onFileIconThemeChange.event;
-  _onProductIconThemeChange = this._register(
-    new Emitter()
-  );
+  _onProductIconThemeChange = this._register(new Emitter());
   onDidProductIconThemeChange = this._onProductIconThemeChange.event;
   _environment = /* @__PURE__ */ Object.create(null);
   _knownThemes;
@@ -242,22 +211,10 @@ class StandaloneThemeService extends Disposable {
     super();
     this._autoDetectHighContrast = true;
     this._knownThemes = /* @__PURE__ */ new Map();
-    this._knownThemes.set(
-      VS_LIGHT_THEME_NAME,
-      newBuiltInTheme(VS_LIGHT_THEME_NAME)
-    );
-    this._knownThemes.set(
-      VS_DARK_THEME_NAME,
-      newBuiltInTheme(VS_DARK_THEME_NAME)
-    );
-    this._knownThemes.set(
-      HC_BLACK_THEME_NAME,
-      newBuiltInTheme(HC_BLACK_THEME_NAME)
-    );
-    this._knownThemes.set(
-      HC_LIGHT_THEME_NAME,
-      newBuiltInTheme(HC_LIGHT_THEME_NAME)
-    );
+    this._knownThemes.set(VS_LIGHT_THEME_NAME, newBuiltInTheme(VS_LIGHT_THEME_NAME));
+    this._knownThemes.set(VS_DARK_THEME_NAME, newBuiltInTheme(VS_DARK_THEME_NAME));
+    this._knownThemes.set(HC_BLACK_THEME_NAME, newBuiltInTheme(HC_BLACK_THEME_NAME));
+    this._knownThemes.set(HC_LIGHT_THEME_NAME, newBuiltInTheme(HC_LIGHT_THEME_NAME));
     const iconsStyleSheet = this._register(getIconsStyleSheet(this));
     this._codiconCSS = iconsStyleSheet.getCSS();
     this._themeCSS = "";
@@ -268,19 +225,13 @@ ${this._themeCSS}`;
     this._colorMapOverride = null;
     this.setTheme(VS_LIGHT_THEME_NAME);
     this._onOSSchemeChanged();
-    this._register(
-      iconsStyleSheet.onDidChange(() => {
-        this._codiconCSS = iconsStyleSheet.getCSS();
-        this._updateCSS();
-      })
-    );
-    addMatchMediaChangeListener(
-      mainWindow,
-      "(forced-colors: active)",
-      () => {
-        this._onOSSchemeChanged();
-      }
-    );
+    this._register(iconsStyleSheet.onDidChange(() => {
+      this._codiconCSS = iconsStyleSheet.getCSS();
+      this._updateCSS();
+    }));
+    addMatchMediaChangeListener(mainWindow, "(forced-colors: active)", () => {
+      this._onOSSchemeChanged();
+    });
   }
   registerEditorContainer(domNode) {
     if (dom.isInShadowDOM(domNode)) {
@@ -290,13 +241,10 @@ ${this._themeCSS}`;
   }
   _registerRegularEditorContainer() {
     if (!this._globalStyleElement) {
-      this._globalStyleElement = dom.createStyleSheet(
-        void 0,
-        (style) => {
-          style.className = "monaco-colors";
-          style.textContent = this._allCSS;
-        }
-      );
+      this._globalStyleElement = dom.createStyleSheet(void 0, (style) => {
+        style.className = "monaco-colors";
+        style.textContent = this._allCSS;
+      });
       this._styleElements.push(this._globalStyleElement);
     }
     return Disposable.None;
@@ -319,16 +267,13 @@ ${this._themeCSS}`;
     };
   }
   defineTheme(themeName, themeData) {
-    if (!/^[a-z0-9-]+$/i.test(themeName)) {
+    if (!/^[a-z0-9\-]+$/i.test(themeName)) {
       throw new Error("Illegal theme name!");
     }
     if (!isBuiltinTheme(themeData.base) && !isBuiltinTheme(themeName)) {
       throw new Error("Illegal theme base!");
     }
-    this._knownThemes.set(
-      themeName,
-      new StandaloneTheme(themeName, themeData)
-    );
+    this._knownThemes.set(themeName, new StandaloneTheme(themeName, themeData));
     if (isBuiltinTheme(themeName)) {
       this._knownThemes.forEach((theme) => {
         if (theme.base === themeName) {
@@ -365,9 +310,7 @@ ${this._themeCSS}`;
   }
   _onOSSchemeChanged() {
     if (this._autoDetectHighContrast) {
-      const wantsHighContrast = mainWindow.matchMedia(
-        `(forced-colors: active)`
-      ).matches;
+      const wantsHighContrast = mainWindow.matchMedia(`(forced-colors: active)`).matches;
       if (wantsHighContrast !== isHighContrast(this._theme.type)) {
         let newThemeName;
         if (isDark(this._theme.type)) {
@@ -399,14 +342,10 @@ ${this._themeCSS}`;
     for (const item of colorRegistry.getColors()) {
       const color = this._theme.getColor(item.id, true);
       if (color) {
-        colorVariables.push(
-          `${asCssVariableName(item.id)}: ${color.toString()};`
-        );
+        colorVariables.push(`${asCssVariableName(item.id)}: ${color.toString()};`);
       }
     }
-    ruleCollector.addRule(
-      `.monaco-editor, .monaco-diff-editor, .monaco-component { ${colorVariables.join("\n")} }`
-    );
+    ruleCollector.addRule(`.monaco-editor, .monaco-diff-editor, .monaco-component { ${colorVariables.join("\n")} }`);
     const colorMap = this._colorMapOverride || this._theme.tokenTheme.getColorMap();
     ruleCollector.addRule(generateTokensCSSForColorMap(colorMap));
     this._themeCSS = cssRules.join("\n");
@@ -417,9 +356,7 @@ ${this._themeCSS}`;
   _updateCSS() {
     this._allCSS = `${this._codiconCSS}
 ${this._themeCSS}`;
-    this._styleElements.forEach(
-      (styleElement) => styleElement.textContent = this._allCSS
-    );
+    this._styleElements.forEach((styleElement) => styleElement.textContent = this._allCSS);
   }
   getFileIconTheme() {
     return {

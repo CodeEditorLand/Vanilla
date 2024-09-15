@@ -2,18 +2,15 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import {
-  AccessibleViewProviderId,
-  AccessibleViewType
-} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
 import { IMenuService } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 import { COMMENTS_VIEW_ID, CommentsMenus } from "./commentsTreeViewer.js";
-import {
-  CONTEXT_KEY_COMMENT_FOCUSED
-} from "./commentsView.js";
+import { CommentsPanel, CONTEXT_KEY_COMMENT_FOCUSED } from "./commentsView.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
 class CommentsAccessibleView extends Disposable {
   static {
     __name(this, "CommentsAccessibleView");
@@ -33,11 +30,7 @@ class CommentsAccessibleView extends Disposable {
     }
     const menus = this._register(new CommentsMenus(menuService));
     menus.setContextKeyService(contextKeyService);
-    return new CommentsAccessibleContentProvider(
-      commentsView,
-      focusedCommentNode,
-      menus
-    );
+    return new CommentsAccessibleContentProvider(commentsView, focusedCommentNode, menus);
   }
   constructor() {
     super();
@@ -56,9 +49,7 @@ class CommentsAccessibleContentProvider extends Disposable {
   id = AccessibleViewProviderId.Comments;
   verbositySettingKey = AccessibilityVerbositySettingId.Comments;
   options = { type: AccessibleViewType.View };
-  actions = [
-    ...this._menus.getResourceContextActions(this._focusedCommentNode)
-  ].filter((i) => i.enabled).map((action) => {
+  actions = [...this._menus.getResourceContextActions(this._focusedCommentNode)].filter((i) => i.enabled).map((action) => {
     return {
       ...action,
       run: /* @__PURE__ */ __name(() => {
@@ -76,9 +67,7 @@ class CommentsAccessibleContentProvider extends Disposable {
     const commentNode = this._commentsView.focusedCommentNode;
     const content = this._commentsView.focusedCommentInfo?.toString();
     if (!commentNode || !content) {
-      throw new Error(
-        "Comment tree is focused but no comment is selected"
-      );
+      throw new Error("Comment tree is focused but no comment is selected");
     }
     return content;
   }

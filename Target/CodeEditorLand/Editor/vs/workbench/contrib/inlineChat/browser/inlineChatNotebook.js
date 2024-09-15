@@ -14,93 +14,72 @@ import { illegalState } from "../../../../base/common/errors.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { isEqual } from "../../../../base/common/resources.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { InlineChatController } from "./inlineChatController.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
+import { CellUri } from "../../notebook/common/notebookCommon.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { NotebookTextDiffEditor } from "../../notebook/browser/diff/notebookDiffEditor.js";
 import { NotebookMultiTextDiffEditor } from "../../notebook/browser/diff/notebookMultiDiffEditor.js";
-import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
-import { CellUri } from "../../notebook/common/notebookCommon.js";
-import { InlineChatController } from "./inlineChatController.js";
-import { IInlineChatSessionService } from "./inlineChatSessionService.js";
 let InlineChatNotebookContribution = class {
   static {
     __name(this, "InlineChatNotebookContribution");
   }
   _store = new DisposableStore();
   constructor(sessionService, editorService, notebookEditorService) {
-    this._store.add(
-      sessionService.registerSessionKeyComputer(
-        Schemas.vscodeNotebookCell,
-        {
-          getComparisonKey: /* @__PURE__ */ __name((editor, uri) => {
-            const data = CellUri.parse(uri);
-            if (!data) {
-              throw illegalState("Expected notebook cell uri");
-            }
-            let fallback;
-            for (const notebookEditor of notebookEditorService.listNotebookEditors()) {
-              if (notebookEditor.hasModel() && isEqual(
-                notebookEditor.textModel.uri,
-                data.notebook
-              )) {
-                const candidate = `<notebook>${notebookEditor.getId()}#${uri}`;
-                if (!fallback) {
-                  fallback = candidate;
-                }
-                if (notebookEditor.codeEditors.find(
-                  (tuple) => tuple[1] === editor
-                )) {
-                  return candidate;
-                }
-              }
-            }
-            if (fallback) {
-              return fallback;
-            }
-            const activeEditor = editorService.activeEditorPane;
-            if (activeEditor && (activeEditor.getId() === NotebookTextDiffEditor.ID || activeEditor.getId() === NotebookMultiTextDiffEditor.ID)) {
-              return `<notebook>${editor.getId()}#${uri}`;
-            }
-            throw illegalState("Expected notebook editor");
-          }, "getComparisonKey")
+    this._store.add(sessionService.registerSessionKeyComputer(Schemas.vscodeNotebookCell, {
+      getComparisonKey: /* @__PURE__ */ __name((editor, uri) => {
+        const data = CellUri.parse(uri);
+        if (!data) {
+          throw illegalState("Expected notebook cell uri");
         }
-      )
-    );
-    this._store.add(
-      sessionService.onWillStartSession((newSessionEditor) => {
-        const candidate = CellUri.parse(
-          newSessionEditor.getModel().uri
-        );
-        if (!candidate) {
-          return;
-        }
+        let fallback;
         for (const notebookEditor of notebookEditorService.listNotebookEditors()) {
-          if (isEqual(
-            notebookEditor.textModel?.uri,
-            candidate.notebook
-          )) {
-            let found = false;
-            const editors = [];
-            for (const [
-              ,
-              codeEditor
-            ] of notebookEditor.codeEditors) {
-              editors.push(codeEditor);
-              found = codeEditor === newSessionEditor || found;
+          if (notebookEditor.hasModel() && isEqual(notebookEditor.textModel.uri, data.notebook)) {
+            const candidate = `<notebook>${notebookEditor.getId()}#${uri}`;
+            if (!fallback) {
+              fallback = candidate;
             }
-            if (found) {
-              for (const editor of editors) {
-                if (editor !== newSessionEditor) {
-                  InlineChatController.get(
-                    editor
-                  )?.finishExistingSession();
-                }
-              }
-              break;
+            if (notebookEditor.codeEditors.find((tuple) => tuple[1] === editor)) {
+              return candidate;
             }
           }
         }
-      })
-    );
+        if (fallback) {
+          return fallback;
+        }
+        const activeEditor = editorService.activeEditorPane;
+        if (activeEditor && (activeEditor.getId() === NotebookTextDiffEditor.ID || activeEditor.getId() === NotebookMultiTextDiffEditor.ID)) {
+          return `<notebook>${editor.getId()}#${uri}`;
+        }
+        throw illegalState("Expected notebook editor");
+      }, "getComparisonKey")
+    }));
+    this._store.add(sessionService.onWillStartSession((newSessionEditor) => {
+      const candidate = CellUri.parse(newSessionEditor.getModel().uri);
+      if (!candidate) {
+        return;
+      }
+      for (const notebookEditor of notebookEditorService.listNotebookEditors()) {
+        if (isEqual(notebookEditor.textModel?.uri, candidate.notebook)) {
+          let found = false;
+          const editors = [];
+          for (const [, codeEditor] of notebookEditor.codeEditors) {
+            editors.push(codeEditor);
+            found = codeEditor === newSessionEditor || found;
+          }
+          if (found) {
+            for (const editor of editors) {
+              if (editor !== newSessionEditor) {
+                InlineChatController.get(editor)?.finishExistingSession();
+              }
+            }
+            break;
+          }
+        }
+      }
+    }));
   }
   dispose() {
     this._store.dispose();

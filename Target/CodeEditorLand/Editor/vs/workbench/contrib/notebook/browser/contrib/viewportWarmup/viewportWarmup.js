@@ -13,44 +13,29 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { RunOnceScheduler } from "../../../../../../base/common/async.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { CellEditState, IInsetRenderOutput, INotebookEditor, INotebookEditorContribution, INotebookEditorDelegate, RenderOutputType } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CodeCellViewModel, outputDisplayLimit } from "../../viewModel/codeCellViewModel.js";
 import { CellKind } from "../../../common/notebookCommon.js";
 import { cellRangesToIndexes } from "../../../common/notebookRange.js";
 import { INotebookService } from "../../../common/notebookService.js";
-import {
-  CellEditState,
-  RenderOutputType
-} from "../../notebookBrowser.js";
-import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
-import {
-  outputDisplayLimit
-} from "../../viewModel/codeCellViewModel.js";
 let NotebookViewportContribution = class extends Disposable {
   constructor(_notebookEditor, _notebookService, accessibilityService) {
     super();
     this._notebookEditor = _notebookEditor;
     this._notebookService = _notebookService;
-    this._warmupViewport = new RunOnceScheduler(
-      () => this._warmupViewportNow(),
-      200
-    );
+    this._warmupViewport = new RunOnceScheduler(() => this._warmupViewportNow(), 200);
     this._register(this._warmupViewport);
-    this._register(
-      this._notebookEditor.onDidScroll(() => {
-        this._warmupViewport.schedule();
-      })
-    );
-    this._warmupDocument = new RunOnceScheduler(
-      () => this._warmupDocumentNow(),
-      200
-    );
+    this._register(this._notebookEditor.onDidScroll(() => {
+      this._warmupViewport.schedule();
+    }));
+    this._warmupDocument = new RunOnceScheduler(() => this._warmupDocumentNow(), 200);
     this._register(this._warmupDocument);
-    this._register(
-      this._notebookEditor.onDidAttachViewModel(() => {
-        if (this._notebookEditor.hasModel()) {
-          this._warmupDocument?.schedule();
-        }
-      })
-    );
+    this._register(this._notebookEditor.onDidAttachViewModel(() => {
+      if (this._notebookEditor.hasModel()) {
+        this._warmupDocument?.schedule();
+      }
+    }));
     if (this._notebookEditor.hasModel()) {
       this._warmupDocument?.schedule();
     }
@@ -95,10 +80,7 @@ let NotebookViewportContribution = class extends Disposable {
     }
     const outputs = viewCell.outputsViewModels;
     for (const output of outputs.slice(0, outputDisplayLimit)) {
-      const [mimeTypes, pick] = output.resolveMimeTypes(
-        this._notebookEditor.textModel,
-        void 0
-      );
+      const [mimeTypes, pick] = output.resolveMimeTypes(this._notebookEditor.textModel, void 0);
       if (!mimeTypes.find((mimeType) => mimeType.isTrusted) || mimeTypes.length === 0) {
         continue;
       }
@@ -109,18 +91,11 @@ let NotebookViewportContribution = class extends Disposable {
       if (!this._notebookEditor.hasModel()) {
         return;
       }
-      const renderer = this._notebookService.getRendererInfo(
-        pickedMimeTypeRenderer.rendererId
-      );
+      const renderer = this._notebookService.getRendererInfo(pickedMimeTypeRenderer.rendererId);
       if (!renderer) {
         return;
       }
-      const result = {
-        type: RenderOutputType.Extension,
-        renderer,
-        source: output,
-        mimeType: pickedMimeTypeRenderer.mimeType
-      };
+      const result = { type: RenderOutputType.Extension, renderer, source: output, mimeType: pickedMimeTypeRenderer.mimeType };
       this._notebookEditor.createOutput(viewCell, result, 0, true);
     }
   }
@@ -129,8 +104,5 @@ NotebookViewportContribution = __decorateClass([
   __decorateParam(1, INotebookService),
   __decorateParam(2, IAccessibilityService)
 ], NotebookViewportContribution);
-registerNotebookContribution(
-  NotebookViewportContribution.id,
-  NotebookViewportContribution
-);
+registerNotebookContribution(NotebookViewportContribution.id, NotebookViewportContribution);
 //# sourceMappingURL=viewportWarmup.js.map

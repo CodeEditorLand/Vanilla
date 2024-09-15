@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  isWindows
-} from "../../../base/common/platform.js";
-import {
-  EnvironmentVariableMutatorType
-} from "./environmentVariable.js";
+import { IProcessEnvironment, isWindows } from "../../../base/common/platform.js";
+import { EnvironmentVariableMutatorType, EnvironmentVariableScope, IEnvironmentVariableCollection, IExtensionOwnedEnvironmentDescriptionMutator, IExtensionOwnedEnvironmentVariableMutator, IMergedEnvironmentVariableCollection, IMergedEnvironmentVariableCollectionDiff } from "./environmentVariable.js";
 const mutatorTypeToLabelMap = /* @__PURE__ */ new Map([
   [EnvironmentVariableMutatorType.Append, "APPEND"],
   [EnvironmentVariableMutatorType.Prepend, "PREPEND"],
@@ -55,9 +51,7 @@ class MergedEnvironmentVariableCollection {
     let lowerToActualVariableNames;
     if (isWindows) {
       lowerToActualVariableNames = {};
-      Object.keys(env).forEach(
-        (e) => lowerToActualVariableNames[e.toLowerCase()] = e
-      );
+      Object.keys(env).forEach((e) => lowerToActualVariableNames[e.toLowerCase()] = e);
     }
     for (const [variable, mutators] of this.getVariableMap(scope)) {
       const actualVariable = isWindows ? lowerToActualVariableNames[variable.toLowerCase()] || variable : variable;
@@ -92,30 +86,21 @@ class MergedEnvironmentVariableCollection {
     const removed = /* @__PURE__ */ new Map();
     other.getVariableMap(scope).forEach((otherMutators, variable) => {
       const currentMutators = this.getVariableMap(scope).get(variable);
-      const result = getMissingMutatorsFromArray(
-        otherMutators,
-        currentMutators
-      );
+      const result = getMissingMutatorsFromArray(otherMutators, currentMutators);
       if (result) {
         added.set(variable, result);
       }
     });
     this.getVariableMap(scope).forEach((currentMutators, variable) => {
       const otherMutators = other.getVariableMap(scope).get(variable);
-      const result = getMissingMutatorsFromArray(
-        currentMutators,
-        otherMutators
-      );
+      const result = getMissingMutatorsFromArray(currentMutators, otherMutators);
       if (result) {
         removed.set(variable, result);
       }
     });
     this.getVariableMap(scope).forEach((currentMutators, variable) => {
       const otherMutators = other.getVariableMap(scope).get(variable);
-      const result = getChangedMutatorsFromArray(
-        currentMutators,
-        otherMutators
-      );
+      const result = getChangedMutatorsFromArray(currentMutators, otherMutators);
       if (result) {
         changed.set(variable, result);
       }
@@ -128,9 +113,7 @@ class MergedEnvironmentVariableCollection {
   getVariableMap(scope) {
     const result = /* @__PURE__ */ new Map();
     for (const mutators of this.map.values()) {
-      const filteredMutators = mutators.filter(
-        (m) => filterScope(m, scope)
-      );
+      const filteredMutators = mutators.filter((m) => filterScope(m, scope));
       if (filteredMutators.length > 0) {
         result.set(filteredMutators[0].variable, filteredMutators);
       }
@@ -140,9 +123,7 @@ class MergedEnvironmentVariableCollection {
   getDescriptionMap(scope) {
     const result = /* @__PURE__ */ new Map();
     for (const mutators of this.descriptionMap.values()) {
-      const filteredMutators = mutators.filter(
-        (m) => filterScope(m, scope, true)
-      );
+      const filteredMutators = mutators.filter((m) => filterScope(m, scope, true));
       for (const mutator of filteredMutators) {
         result.set(mutator.extensionIdentifier, mutator.description);
       }
@@ -212,9 +193,7 @@ function getChangedMutatorsFromArray(current, other) {
   other.forEach((m) => otherMutatorExtensions.set(m.extensionIdentifier, m));
   const result = [];
   current.forEach((mutator) => {
-    const otherMutator = otherMutatorExtensions.get(
-      mutator.extensionIdentifier
-    );
+    const otherMutator = otherMutatorExtensions.get(mutator.extensionIdentifier);
     if (otherMutator && (mutator.type !== otherMutator.type || mutator.value !== otherMutator.value || mutator.scope?.workspaceFolder?.index !== otherMutator.scope?.workspaceFolder?.index)) {
       result.push(otherMutator);
     }

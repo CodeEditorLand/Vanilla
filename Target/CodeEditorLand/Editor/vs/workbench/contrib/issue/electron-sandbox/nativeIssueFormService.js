@@ -19,21 +19,14 @@ import { IInstantiationService } from "../../../../platform/instantiation/common
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import product from "../../../../platform/product/common/product.js";
+import { IssueFormService } from "../browser/issueFormService.js";
+import { IIssueFormService, IssueReporterData } from "../common/issue.js";
+import { IssueReporter2 } from "./issueReporterService2.js";
 import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
-import { IssueFormService } from "../browser/issueFormService.js";
-import { IssueReporter2 } from "./issueReporterService2.js";
 let NativeIssueFormService = class extends IssueFormService {
   constructor(instantiationService, auxiliaryWindowService, logService, dialogService, menuService, contextKeyService, hostService, nativeHostService, environmentService) {
-    super(
-      instantiationService,
-      auxiliaryWindowService,
-      menuService,
-      contextKeyService,
-      logService,
-      dialogService,
-      hostService
-    );
+    super(instantiationService, auxiliaryWindowService, menuService, contextKeyService, logService, dialogService, hostService);
     this.nativeHostService = nativeHostService;
     this.environmentService = environmentService;
   }
@@ -55,14 +48,7 @@ let NativeIssueFormService = class extends IssueFormService {
     this.release = release;
     this.type = type;
     if (this.issueReporterWindow) {
-      const issueReporter = this.instantiationService.createInstance(
-        IssueReporter2,
-        !!this.environmentService.disableExtensions,
-        data,
-        { type: this.type, arch: this.arch, release: this.release },
-        product,
-        this.issueReporterWindow
-      );
+      const issueReporter = this.instantiationService.createInstance(IssueReporter2, !!this.environmentService.disableExtensions, data, { type: this.type, arch: this.arch, release: this.release }, product, this.issueReporterWindow);
       issueReporter.render();
     }
   }

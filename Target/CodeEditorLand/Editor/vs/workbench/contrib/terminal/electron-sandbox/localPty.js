@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IProcessPropertyMap, IPtyService, ITerminalChildProcess, ITerminalLaunchError, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
 import { BasePty } from "../common/basePty.js";
 class LocalPty extends BasePty {
   constructor(id, shouldPersist, _proxy) {
@@ -43,9 +44,7 @@ class LocalPty extends BasePty {
   }
   freePortKillProcess(port) {
     if (!this._proxy.freePortKillProcess) {
-      throw new Error(
-        "freePortKillProcess does not exist on the local pty service"
-      );
+      throw new Error("freePortKillProcess does not exist on the local pty service");
     }
     return this._proxy.freePortKillProcess(port);
   }

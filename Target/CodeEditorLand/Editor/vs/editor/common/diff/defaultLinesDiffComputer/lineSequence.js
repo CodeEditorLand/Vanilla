@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../../base/common/charCode.js";
+import { OffsetRange } from "../../core/offsetRange.js";
+import { ISequence } from "./algorithms/diffAlgorithm.js";
 class LineSequence {
   constructor(trimmedHash, lines) {
     this.trimmedHash = trimmedHash;

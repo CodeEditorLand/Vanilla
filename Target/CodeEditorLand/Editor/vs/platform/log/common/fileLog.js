@@ -13,18 +13,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { ThrottledDelayer } from "../../../base/common/async.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
 import { basename, dirname, joinPath } from "../../../base/common/resources.js";
-import {
-  ByteSize,
-  FileOperationResult,
-  IFileService,
-  whenProviderRegistered
-} from "../../files/common/files.js";
+import { URI } from "../../../base/common/uri.js";
+import { ByteSize, FileOperationError, FileOperationResult, IFileService, whenProviderRegistered } from "../../files/common/files.js";
 import { BufferLogger } from "./bufferLog.js";
-import {
-  AbstractLoggerService,
-  AbstractMessageLogger,
-  LogLevel
-} from "./log.js";
+import { AbstractLoggerService, AbstractMessageLogger, ILogger, ILoggerOptions, ILoggerService, LogLevel } from "./log.js";
 const MAX_FILE_SIZE = 5 * ByteSize.MB;
 let FileLogger = class extends AbstractMessageLogger {
   constructor(resource, level, donotUseFormatters, fileService) {
@@ -35,6 +27,7 @@ let FileLogger = class extends AbstractMessageLogger {
     this.setLevel(level);
     this.flushDelayer = new ThrottledDelayer(
       100
+      /* buffer saves over a short time */
     );
     this.initializePromise = this.initialize();
   }
@@ -52,19 +45,13 @@ let FileLogger = class extends AbstractMessageLogger {
     await this.initializePromise;
     let content = await this.loadContent();
     if (content.length > MAX_FILE_SIZE) {
-      await this.fileService.writeFile(
-        this.getBackupResource(),
-        VSBuffer.fromString(content)
-      );
+      await this.fileService.writeFile(this.getBackupResource(), VSBuffer.fromString(content));
       content = "";
     }
     if (this.buffer) {
       content += this.buffer;
       this.buffer = "";
-      await this.fileService.writeFile(
-        this.resource,
-        VSBuffer.fromString(content)
-      );
+      await this.fileService.writeFile(this.resource, VSBuffer.fromString(content));
     }
   }
   async initialize() {
@@ -93,10 +80,7 @@ let FileLogger = class extends AbstractMessageLogger {
   }
   getBackupResource() {
     this.backupIndex = this.backupIndex > 5 ? 1 : this.backupIndex;
-    return joinPath(
-      dirname(this.resource),
-      `${basename(this.resource)}_${this.backupIndex++}`
-    );
+    return joinPath(dirname(this.resource), `${basename(this.resource)}_${this.backupIndex++}`);
   }
   async loadContent() {
     try {
@@ -135,14 +119,7 @@ class FileLoggerService extends AbstractLoggerService {
   }
   doCreateLogger(resource, logLevel, options) {
     const logger = new BufferLogger(logLevel);
-    whenProviderRegistered(resource, this.fileService).then(
-      () => logger.logger = new FileLogger(
-        resource,
-        logger.getLevel(),
-        !!options?.donotUseFormatters,
-        this.fileService
-      )
-    );
+    whenProviderRegistered(resource, this.fileService).then(() => logger.logger = new FileLogger(resource, logger.getLevel(), !!options?.donotUseFormatters, this.fileService));
     return logger;
   }
 }

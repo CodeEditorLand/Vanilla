@@ -1,6 +1,6 @@
-import * as platform from "../common/platform.js";
 import * as browser from "./browser.js";
 import { mainWindow } from "./window.js";
+import * as platform from "../common/platform.js";
 var KeyboardSupport = /* @__PURE__ */ ((KeyboardSupport2) => {
   KeyboardSupport2[KeyboardSupport2["Always"] = 0] = "Always";
   KeyboardSupport2[KeyboardSupport2["FullScreen"] = 1] = "FullScreen";

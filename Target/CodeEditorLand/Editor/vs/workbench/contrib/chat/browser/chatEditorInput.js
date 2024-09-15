@@ -15,20 +15,17 @@ import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import {
-  EditorInputCapabilities
-} from "../../../common/editor.js";
+import { EditorInputCapabilities, IEditorSerializer, IUntypedEditorInput } from "../../../common/editor.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
 import { ChatAgentLocation } from "../common/chatAgents.js";
+import { IChatModel } from "../common/chatModel.js";
 import { IChatService } from "../common/chatService.js";
-const ChatEditorIcon = registerIcon(
-  "chat-editor-label-icon",
-  Codicon.commentDiscussion,
-  nls.localize("chatEditorLabelIcon", "Icon of the chat editor label.")
-);
+const ChatEditorIcon = registerIcon("chat-editor-label-icon", Codicon.commentDiscussion, nls.localize("chatEditorLabelIcon", "Icon of the chat editor label."));
 let ChatEditorInput = class extends EditorInput {
   constructor(resource, options, chatService) {
     super();
@@ -42,11 +39,7 @@ let ChatEditorInput = class extends EditorInput {
     this.sessionId = options.target && "sessionId" in options.target ? options.target.sessionId : void 0;
     this.inputCount = ChatEditorInput.getNextCount();
     ChatEditorInput.countsInUse.add(this.inputCount);
-    this._register(
-      toDisposable(
-        () => ChatEditorInput.countsInUse.delete(this.inputCount)
-      )
-    );
+    this._register(toDisposable(() => ChatEditorInput.countsInUse.delete(this.inputCount)));
   }
   static {
     __name(this, "ChatEditorInput");
@@ -90,22 +83,15 @@ let ChatEditorInput = class extends EditorInput {
     if (typeof this.sessionId === "string") {
       this.model = this.chatService.getOrRestoreSession(this.sessionId);
     } else if (!this.options.target) {
-      this.model = this.chatService.startSession(
-        ChatAgentLocation.Panel,
-        CancellationToken.None
-      );
+      this.model = this.chatService.startSession(ChatAgentLocation.Panel, CancellationToken.None);
     } else if ("data" in this.options.target) {
-      this.model = this.chatService.loadSessionFromContent(
-        this.options.target.data
-      );
+      this.model = this.chatService.loadSessionFromContent(this.options.target.data);
     }
     if (!this.model) {
       return null;
     }
     this.sessionId = this.model.sessionId;
-    this._register(
-      this.model.onDidChange(() => this._onDidChangeLabel.fire())
-    );
+    this._register(this.model.onDidChange(() => this._onDidChangeLabel.fire()));
     return this._register(new ChatEditorModel(this.model));
   }
   dispose() {
@@ -161,7 +147,7 @@ var ChatUri;
     if (typeof handleStr !== "string") {
       return void 0;
     }
-    const handle = Number.parseInt(handleStr);
+    const handle = parseInt(handleStr);
     if (isNaN(handle)) {
       return void 0;
     }
@@ -192,11 +178,7 @@ class ChatEditorInputSerializer {
     try {
       const parsed = JSON.parse(serializedEditor);
       const resource = URI.revive(parsed.resource);
-      return instantiationService.createInstance(
-        ChatEditorInput,
-        resource,
-        { ...parsed.options, target: { sessionId: parsed.sessionId } }
-      );
+      return instantiationService.createInstance(ChatEditorInput, resource, { ...parsed.options, target: { sessionId: parsed.sessionId } });
     } catch (err) {
       return void 0;
     }

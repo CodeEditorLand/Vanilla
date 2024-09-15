@@ -1,14 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { canASAR, isESM } from "./base/common/amd.js";
-import {
-  FileAccess,
-  Schemas,
-  VSCODE_AUTHORITY,
-  nodeModulesAsarPath,
-  nodeModulesPath
-} from "./base/common/network.js";
+import { isESM, canASAR } from "./base/common/amd.js";
+import { AppResourcePath, FileAccess, nodeModulesAsarPath, nodeModulesPath, Schemas, VSCODE_AUTHORITY } from "./base/common/network.js";
 import * as platform from "./base/common/platform.js";
+import { IProductConfiguration } from "./base/common/product.js";
 import { assertType } from "./base/common/types.js";
 import { URI } from "./base/common/uri.js";
 import { generateUuid } from "./base/common/uuid.js";
@@ -70,14 +65,10 @@ class AMDModuleImporter {
           if (value.startsWith(window.location.origin)) {
             return value;
           }
-          if (value.startsWith(
-            `${Schemas.vscodeFileResource}://${VSCODE_AUTHORITY}`
-          )) {
+          if (value.startsWith(`${Schemas.vscodeFileResource}://${VSCODE_AUTHORITY}`)) {
             return value;
           }
-          throw new Error(
-            `[trusted_script_src] Invalid script url: ${value}`
-          );
+          throw new Error(`[trusted_script_src] Invalid script url: ${value}`);
         }
       });
     } else if (this._isWebWorker) {
@@ -93,26 +84,16 @@ class AMDModuleImporter {
     if (this._state === 3 /* InitializedExternal */) {
       return new Promise((resolve) => {
         const tmpModuleId = generateUuid();
-        console.log(
-          `[amdX] Using external define("${tmpModuleId}", ["${scriptSrc}"])`
-        );
-        globalThis.define(
-          tmpModuleId,
-          [scriptSrc],
-          (moduleResult) => {
-            console.log(
-              `[amdX] Got a result for ${tmpModuleId}: ${!!moduleResult}`
-            );
-            resolve(moduleResult);
-          }
-        );
+        console.log(`[amdX] Using external define("${tmpModuleId}", ["${scriptSrc}"])`);
+        globalThis.define(tmpModuleId, [scriptSrc], function(moduleResult) {
+          console.log(`[amdX] Got a result for ${tmpModuleId}: ${!!moduleResult}`);
+          resolve(moduleResult);
+        });
       });
     }
     const defineCall = await (this._isWebWorker ? this._workerLoadScript(scriptSrc) : this._isRenderer ? this._rendererLoadScript(scriptSrc) : this._nodeJSLoadScript(scriptSrc));
     if (!defineCall) {
-      console.warn(
-        `Did not receive a define call from script ${scriptSrc}`
-      );
+      console.warn(`Did not receive a define call from script ${scriptSrc}`);
       return void 0;
     }
     const exports = {};
@@ -128,9 +109,7 @@ class AMDModuleImporter {
       }
     }
     if (dependencyModules.length > 0) {
-      throw new Error(
-        `Cannot resolve dependencies for script ${scriptSrc}. The dependencies are: ${dependencyModules.join(", ")}`
-      );
+      throw new Error(`Cannot resolve dependencies for script ${scriptSrc}. The dependencies are: ${dependencyModules.join(", ")}`);
     }
     if (typeof defineCall.callback === "function") {
       return defineCall.callback(...dependencyObjs) ?? exports;
@@ -158,9 +137,7 @@ class AMDModuleImporter {
       scriptElement.addEventListener("load", loadEventListener);
       scriptElement.addEventListener("error", errorEventListener);
       if (this._amdPolicy) {
-        scriptSrc = this._amdPolicy.createScriptURL(
-          scriptSrc
-        );
+        scriptSrc = this._amdPolicy.createScriptURL(scriptSrc);
       }
       scriptElement.setAttribute("src", scriptSrc);
       window.document.getElementsByTagName("head")[0].appendChild(scriptElement);
@@ -168,9 +145,7 @@ class AMDModuleImporter {
   }
   async _workerLoadScript(scriptSrc) {
     if (this._amdPolicy) {
-      scriptSrc = this._amdPolicy.createScriptURL(
-        scriptSrc
-      );
+      scriptSrc = this._amdPolicy.createScriptURL(scriptSrc);
     }
     if (isESM) {
       await import(scriptSrc);
@@ -201,9 +176,7 @@ async function importAMDNodeModule(nodeModuleName, pathInsideNodeModule, isBuilt
   if (isESM) {
     if (isBuilt === void 0) {
       const product = globalThis._VSCODE_PRODUCT_JSON;
-      isBuilt = Boolean(
-        (product ?? globalThis.vscode?.context?.configuration()?.product)?.commit
-      );
+      isBuilt = Boolean((product ?? globalThis.vscode?.context?.configuration()?.product)?.commit);
     }
     const nodeModulePath = pathInsideNodeModule ? `${nodeModuleName}/${pathInsideNodeModule}` : nodeModuleName;
     if (cache.has(nodeModulePath)) {
@@ -229,9 +202,7 @@ __name(importAMDNodeModule, "importAMDNodeModule");
 function resolveAmdNodeModulePath(nodeModuleName, pathInsideNodeModule) {
   assertType(isESM);
   const product = globalThis._VSCODE_PRODUCT_JSON;
-  const isBuilt = Boolean(
-    (product ?? globalThis.vscode?.context?.configuration()?.product)?.commit
-  );
+  const isBuilt = Boolean((product ?? globalThis.vscode?.context?.configuration()?.product)?.commit);
   const useASAR = canASAR && isBuilt && !platform.isWeb;
   const nodeModulePath = `${nodeModuleName}/${pathInsideNodeModule}`;
   const actualNodeModulesPath = useASAR ? nodeModulesAsarPath : nodeModulesPath;

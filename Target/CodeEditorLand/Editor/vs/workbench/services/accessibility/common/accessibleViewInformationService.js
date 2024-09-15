@@ -13,13 +13,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX } from "../../../../platform/accessibility/common/accessibility.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope
-} from "../../../../platform/storage/common/storage.js";
-const IAccessibleViewInformationService = createDecorator(
-  "accessibleViewInformationService"
-);
+import { IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
+const IAccessibleViewInformationService = createDecorator("accessibleViewInformationService");
 let AccessibleViewInformationService = class extends Disposable {
   constructor(_storageService) {
     super();
@@ -29,11 +24,7 @@ let AccessibleViewInformationService = class extends Disposable {
     __name(this, "AccessibleViewInformationService");
   }
   hasShownAccessibleView(viewId) {
-    return this._storageService.getBoolean(
-      `${ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX}${viewId}`,
-      StorageScope.APPLICATION,
-      false
-    ) === true;
+    return this._storageService.getBoolean(`${ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX}${viewId}`, StorageScope.APPLICATION, false) === true;
   }
 };
 AccessibleViewInformationService = __decorateClass([

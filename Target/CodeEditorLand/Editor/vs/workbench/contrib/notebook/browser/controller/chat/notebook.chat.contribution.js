@@ -11,17 +11,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import {
-  IContextKeyService
-} from "../../../../../../platform/contextkey/common/contextkey.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../../../common/contributions.js";
-import {
-  ChatAgentLocation,
-  IChatAgentService
-} from "../../../../chat/common/chatAgents.js";
+import { IContextKey, IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from "../../../../../common/contributions.js";
+import { ChatAgentLocation, IChatAgentService } from "../../../../chat/common/chatAgents.js";
 import "./cellChatActions.js";
 import { CTX_NOTEBOOK_CHAT_HAS_AGENT } from "./notebookChatContext.js";
 let NotebookChatContribution = class extends Disposable {
@@ -34,24 +26,16 @@ let NotebookChatContribution = class extends Disposable {
     super();
     this._ctxHasProvider = CTX_NOTEBOOK_CHAT_HAS_AGENT.bindTo(contextKeyService);
     const updateNotebookAgentStatus = /* @__PURE__ */ __name(() => {
-      const hasNotebookAgent = Boolean(
-        chatAgentService.getDefaultAgent(ChatAgentLocation.Notebook)
-      );
+      const hasNotebookAgent = Boolean(chatAgentService.getDefaultAgent(ChatAgentLocation.Notebook));
       this._ctxHasProvider.set(hasNotebookAgent);
     }, "updateNotebookAgentStatus");
     updateNotebookAgentStatus();
-    this._register(
-      chatAgentService.onDidChangeAgents(updateNotebookAgentStatus)
-    );
+    this._register(chatAgentService.onDidChangeAgents(updateNotebookAgentStatus));
   }
 };
 NotebookChatContribution = __decorateClass([
   __decorateParam(0, IContextKeyService),
   __decorateParam(1, IChatAgentService)
 ], NotebookChatContribution);
-registerWorkbenchContribution2(
-  NotebookChatContribution.ID,
-  NotebookChatContribution,
-  WorkbenchPhase.BlockRestore
-);
+registerWorkbenchContribution2(NotebookChatContribution.ID, NotebookChatContribution, WorkbenchPhase.BlockRestore);
 //# sourceMappingURL=notebook.chat.contribution.js.map

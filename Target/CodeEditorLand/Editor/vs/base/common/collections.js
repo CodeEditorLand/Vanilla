@@ -97,9 +97,7 @@ class SetWithKey {
     this._map.clear();
   }
   forEach(callbackfn, thisArg) {
-    this._map.forEach(
-      (entry) => callbackfn.call(thisArg, entry, entry, this)
-    );
+    this._map.forEach((entry) => callbackfn.call(thisArg, entry, entry, this));
   }
   [Symbol.iterator]() {
     return this.values();

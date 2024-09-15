@@ -1,11 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  getWindow,
-  scheduleAtNextAnimationFrame
-} from "../../../base/browser/dom.js";
-import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
+import { IDimension } from "../../common/core/dimension.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { getWindow, scheduleAtNextAnimationFrame } from "../../../base/browser/dom.js";
 class ElementSizeObserver extends Disposable {
   static {
     __name(this, "ElementSizeObserver");
@@ -39,10 +37,7 @@ class ElementSizeObserver extends Disposable {
       let observedDimenstion = null;
       const observeNow = /* @__PURE__ */ __name(() => {
         if (observedDimenstion) {
-          this.observe({
-            width: observedDimenstion.width,
-            height: observedDimenstion.height
-          });
+          this.observe({ width: observedDimenstion.width, height: observedDimenstion.height });
         } else {
           this.observe();
         }
@@ -56,22 +51,16 @@ class ElementSizeObserver extends Disposable {
             alreadyObservedThisAnimationFrame = true;
             observeNow();
           } finally {
-            scheduleAtNextAnimationFrame(
-              getWindow(this._referenceDomElement),
-              () => {
-                alreadyObservedThisAnimationFrame = false;
-                update();
-              }
-            );
+            scheduleAtNextAnimationFrame(getWindow(this._referenceDomElement), () => {
+              alreadyObservedThisAnimationFrame = false;
+              update();
+            });
           }
         }
       }, "update");
       this._resizeObserver = new ResizeObserver((entries) => {
         if (entries && entries[0] && entries[0].contentRect) {
-          observedDimenstion = {
-            width: entries[0].contentRect.width,
-            height: entries[0].contentRect.height
-          };
+          observedDimenstion = { width: entries[0].contentRect.width, height: entries[0].contentRect.height };
         } else {
           observedDimenstion = null;
         }

@@ -11,106 +11,54 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/paneviewlet.css";
-import {
-  $,
-  Dimension,
-  EventType,
-  addDisposableListener,
-  after,
-  append,
-  asCSSUrl,
-  asCssValueWithDefault,
-  createCSSRule,
-  reset,
-  trackFocus
-} from "../../../../base/browser/dom.js";
-import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import {
-  ActionsOrientation,
-  prepareActions
-} from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { Button } from "../../../../base/browser/ui/button/button.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import { Orientation } from "../../../../base/browser/ui/sash/sash.js";
-import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
-import {
-  Pane
-} from "../../../../base/browser/ui/splitview/paneview.js";
-import {
-  Action
-} from "../../../../base/common/actions.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { parseLinkedText } from "../../../../base/common/linkedText.js";
-import { ScrollbarVisibility } from "../../../../base/common/scrollable.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import {
-  assertIsDefined
-} from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
-import {
-  Action2,
-  MenuId,
-  SubmenuItemAction
-} from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { Link } from "../../../../platform/opener/browser/link.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { asCssVariable, foreground } from "../../../../platform/theme/common/colorRegistry.js";
+import { after, append, $, trackFocus, EventType, addDisposableListener, createCSSRule, asCSSUrl, Dimension, reset, asCssValueWithDefault } from "../../../../base/browser/dom.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Action, IAction, IActionRunner } from "../../../../base/common/actions.js";
+import { ActionsOrientation, IActionViewItem, prepareActions } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  defaultButtonStyles,
-  defaultProgressBarStyles
-} from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  asCssVariable,
-  foreground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  PANEL_BACKGROUND,
-  PANEL_SECTION_DRAG_AND_DROP_BACKGROUND,
-  PANEL_STICKY_SCROLL_BACKGROUND,
-  PANEL_STICKY_SCROLL_BORDER,
-  PANEL_STICKY_SCROLL_SHADOW,
-  SIDE_BAR_BACKGROUND,
-  SIDE_BAR_DRAG_AND_DROP_BACKGROUND,
-  SIDE_BAR_STICKY_SCROLL_BACKGROUND,
-  SIDE_BAR_STICKY_SCROLL_BORDER,
-  SIDE_BAR_STICKY_SCROLL_SHADOW
-} from "../../../common/theme.js";
-import {
-  IViewDescriptorService,
-  Extensions as ViewContainerExtensions,
-  ViewContainerLocation,
-  ViewContainerLocationToString,
-  defaultViewIcon
-} from "../../../common/views.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import {
-  AbstractProgressScope,
-  ScopedProgressIndicator
-} from "../../../services/progress/browser/progressIndicator.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IPaneOptions, Pane, IPaneStyles } from "../../../../base/browser/ui/splitview/paneview.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions as ViewContainerExtensions, IView, IViewDescriptorService, ViewContainerLocation, IViewsRegistry, IViewContentDescriptor, defaultViewIcon, ViewContainerLocationToString } from "../../../common/views.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { assertIsDefined, PartialExcept } from "../../../../base/common/types.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { MenuId, Action2, IAction2Options, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { parseLinkedText } from "../../../../base/common/linkedText.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { Orientation } from "../../../../base/browser/ui/sash/sash.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { AbstractProgressScope, ScopedProgressIndicator } from "../../../services/progress/browser/progressIndicator.js";
+import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { ScrollbarVisibility } from "../../../../base/common/scrollable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { CompositeMenuActions } from "../../actions.js";
-import { FilterWidget } from "./viewFilter.js";
+import { IDropdownMenuActionViewItemOptions } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { FilterWidget, IFilterWidgetOptions } from "./viewFilter.js";
+import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { defaultButtonStyles, defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
+import { PANEL_BACKGROUND, PANEL_SECTION_DRAG_AND_DROP_BACKGROUND, PANEL_STICKY_SCROLL_BACKGROUND, PANEL_STICKY_SCROLL_BORDER, PANEL_STICKY_SCROLL_SHADOW, SIDE_BAR_BACKGROUND, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, SIDE_BAR_STICKY_SCROLL_BACKGROUND, SIDE_BAR_STICKY_SCROLL_BORDER, SIDE_BAR_STICKY_SCROLL_SHADOW } from "../../../common/theme.js";
+import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
 var ViewPaneShowActions = /* @__PURE__ */ ((ViewPaneShowActions2) => {
   ViewPaneShowActions2[ViewPaneShowActions2["Default"] = 0] = "Default";
   ViewPaneShowActions2[ViewPaneShowActions2["WhenExpanded"] = 1] = "WhenExpanded";
@@ -118,25 +66,9 @@ var ViewPaneShowActions = /* @__PURE__ */ ((ViewPaneShowActions2) => {
   return ViewPaneShowActions2;
 })(ViewPaneShowActions || {});
 const VIEWPANE_FILTER_ACTION = new Action("viewpane.action.filter");
-const viewPaneContainerExpandedIcon = registerIcon(
-  "view-pane-container-expanded",
-  Codicon.chevronDown,
-  nls.localize(
-    "viewPaneContainerExpandedIcon",
-    "Icon for an expanded view pane container."
-  )
-);
-const viewPaneContainerCollapsedIcon = registerIcon(
-  "view-pane-container-collapsed",
-  Codicon.chevronRight,
-  nls.localize(
-    "viewPaneContainerCollapsedIcon",
-    "Icon for a collapsed view pane container."
-  )
-);
-const viewsRegistry = Registry.as(
-  ViewContainerExtensions.ViewsRegistry
-);
+const viewPaneContainerExpandedIcon = registerIcon("view-pane-container-expanded", Codicon.chevronDown, nls.localize("viewPaneContainerExpandedIcon", "Icon for an expanded view pane container."));
+const viewPaneContainerCollapsedIcon = registerIcon("view-pane-container-collapsed", Codicon.chevronRight, nls.localize("viewPaneContainerCollapsedIcon", "Icon for a collapsed view pane container."));
+const viewsRegistry = Registry.as(ViewContainerExtensions.ViewsRegistry);
 let ViewWelcomeController = class {
   constructor(container, delegate, instantiationService, openerService, telemetryService, contextKeyService, lifecycleService) {
     this.container = container;
@@ -160,12 +92,8 @@ let ViewWelcomeController = class {
   element;
   scrollableElement;
   disposables = new DisposableStore();
-  enabledDisposables = this.disposables.add(
-    new DisposableStore()
-  );
-  renderDisposables = this.disposables.add(
-    new DisposableStore()
-  );
+  enabledDisposables = this.disposables.add(new DisposableStore());
+  renderDisposables = this.disposables.add(new DisposableStore());
   layout(height, width) {
     if (!this._enabled) {
       return;
@@ -194,44 +122,27 @@ let ViewWelcomeController = class {
     this.container.classList.add("welcome");
     const viewWelcomeContainer = append(this.container, $(".welcome-view"));
     this.element = $(".welcome-view-content", { tabIndex: 0 });
-    this.scrollableElement = new DomScrollableElement(this.element, {
-      alwaysConsumeMouseWheel: true,
-      horizontal: ScrollbarVisibility.Hidden,
-      vertical: ScrollbarVisibility.Visible
-    });
+    this.scrollableElement = new DomScrollableElement(this.element, { alwaysConsumeMouseWheel: true, horizontal: ScrollbarVisibility.Hidden, vertical: ScrollbarVisibility.Visible });
     append(viewWelcomeContainer, this.scrollableElement.getDomNode());
-    this.enabledDisposables.add(
-      toDisposable(() => {
-        this.container.classList.remove("welcome");
-        this.scrollableElement.dispose();
-        viewWelcomeContainer.remove();
-        this.scrollableElement = void 0;
-        this.element = void 0;
-      })
-    );
-    this.contextKeyService.onDidChangeContext(
-      this.onDidChangeContext,
-      this,
-      this.enabledDisposables
-    );
-    Event.chain(
-      viewsRegistry.onDidChangeViewWelcomeContent,
-      ($2) => $2.filter((id) => id === this.delegate.id)
-    )(this.onDidChangeViewWelcomeContent, this, this.enabledDisposables);
+    this.enabledDisposables.add(toDisposable(() => {
+      this.container.classList.remove("welcome");
+      this.scrollableElement.dispose();
+      viewWelcomeContainer.remove();
+      this.scrollableElement = void 0;
+      this.element = void 0;
+    }));
+    this.contextKeyService.onDidChangeContext(this.onDidChangeContext, this, this.enabledDisposables);
+    Event.chain(viewsRegistry.onDidChangeViewWelcomeContent, ($2) => $2.filter((id) => id === this.delegate.id))(this.onDidChangeViewWelcomeContent, this, this.enabledDisposables);
     this.onDidChangeViewWelcomeContent();
   }
   onDidChangeViewWelcomeContent() {
-    const descriptors = viewsRegistry.getViewWelcomeContent(
-      this.delegate.id
-    );
+    const descriptors = viewsRegistry.getViewWelcomeContent(this.delegate.id);
     this.items = [];
     for (const descriptor of descriptors) {
       if (descriptor.when === "default") {
         this.defaultItem = { descriptor, visible: true };
       } else {
-        const visible = descriptor.when ? this.contextKeyService.contextMatchesRules(
-          descriptor.when
-        ) : true;
+        const visible = descriptor.when ? this.contextKeyService.contextMatchesRules(descriptor.when) : true;
         this.items.push({ descriptor, visible });
       }
     }
@@ -243,9 +154,7 @@ let ViewWelcomeController = class {
       if (!item.descriptor.when || item.descriptor.when === "default") {
         continue;
       }
-      const visible = this.contextKeyService.contextMatchesRules(
-        item.descriptor.when
-      );
+      const visible = this.contextKeyService.contextMatchesRules(item.descriptor.when);
       if (item.visible === visible) {
         continue;
       }
@@ -275,45 +184,20 @@ let ViewWelcomeController = class {
         const linkedText = parseLinkedText(line);
         if (linkedText.nodes.length === 1 && typeof linkedText.nodes[0] !== "string") {
           const node = linkedText.nodes[0];
-          const buttonContainer = append(
-            this.element,
-            $(".button-container")
-          );
-          const button = new Button(buttonContainer, {
-            title: node.title,
-            supportIcons: true,
-            ...defaultButtonStyles
-          });
+          const buttonContainer = append(this.element, $(".button-container"));
+          const button = new Button(buttonContainer, { title: node.title, supportIcons: true, ...defaultButtonStyles });
           button.label = node.label;
-          button.onDidClick(
-            (_) => {
-              this.telemetryService.publicLog2("views.welcomeAction", {
-                viewId: this.delegate.id,
-                uri: node.href
-              });
-              this.openerService.open(node.href, {
-                allowCommands: true
-              });
-            },
-            null,
-            this.renderDisposables
-          );
+          button.onDidClick((_) => {
+            this.telemetryService.publicLog2("views.welcomeAction", { viewId: this.delegate.id, uri: node.href });
+            this.openerService.open(node.href, { allowCommands: true });
+          }, null, this.renderDisposables);
           this.renderDisposables.add(button);
           if (precondition) {
-            const updateEnablement = /* @__PURE__ */ __name(() => button.enabled = this.contextKeyService.contextMatchesRules(
-              precondition
-            ), "updateEnablement");
+            const updateEnablement = /* @__PURE__ */ __name(() => button.enabled = this.contextKeyService.contextMatchesRules(precondition), "updateEnablement");
             updateEnablement();
             const keys = new Set(precondition.keys());
-            const onDidChangeContext = Event.filter(
-              this.contextKeyService.onDidChangeContext,
-              (e) => e.affectsSome(keys)
-            );
-            onDidChangeContext(
-              updateEnablement,
-              null,
-              this.renderDisposables
-            );
+            const onDidChangeContext = Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(keys));
+            onDidChangeContext(updateEnablement, null, this.renderDisposables);
           }
         } else {
           const p = append(this.element, $("p"));
@@ -321,29 +205,13 @@ let ViewWelcomeController = class {
             if (typeof node === "string") {
               append(p, document.createTextNode(node));
             } else {
-              const link = this.renderDisposables.add(
-                this.instantiationService.createInstance(
-                  Link,
-                  p,
-                  node,
-                  {}
-                )
-              );
+              const link = this.renderDisposables.add(this.instantiationService.createInstance(Link, p, node, {}));
               if (precondition && node.href.startsWith("command:")) {
-                const updateEnablement = /* @__PURE__ */ __name(() => link.enabled = this.contextKeyService.contextMatchesRules(
-                  precondition
-                ), "updateEnablement");
+                const updateEnablement = /* @__PURE__ */ __name(() => link.enabled = this.contextKeyService.contextMatchesRules(precondition), "updateEnablement");
                 updateEnablement();
                 const keys = new Set(precondition.keys());
-                const onDidChangeContext = Event.filter(
-                  this.contextKeyService.onDidChangeContext,
-                  (e) => e.affectsSome(keys)
-                );
-                onDidChangeContext(
-                  updateEnablement,
-                  null,
-                  this.renderDisposables
-                );
+                const onDidChangeContext = Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(keys));
+                onDidChangeContext(updateEnablement, null, this.renderDisposables);
               }
             }
           }
@@ -410,9 +278,7 @@ let ViewPane = class extends Pane {
   onDidChangeBodyVisibility = this._onDidChangeBodyVisibility.event;
   _onDidChangeTitleArea = this._register(new Emitter());
   onDidChangeTitleArea = this._onDidChangeTitleArea.event;
-  _onDidChangeViewWelcomeState = this._register(
-    new Emitter()
-  );
+  _onDidChangeViewWelcomeState = this._register(new Emitter());
   onDidChangeViewWelcomeState = this._onDidChangeViewWelcomeState.event;
   _isVisible = false;
   id;
@@ -481,68 +347,31 @@ let ViewPane = class extends Pane {
   }
   renderHeader(container) {
     this.headerContainer = container;
-    this.twistiesContainer = append(
-      container,
-      $(
-        `.twisty-container${ThemeIcon.asCSSSelector(this.getTwistyIcon(this.isExpanded()))}`
-      )
-    );
+    this.twistiesContainer = append(container, $(`.twisty-container${ThemeIcon.asCSSSelector(this.getTwistyIcon(this.isExpanded()))}`));
     this.renderHeaderTitle(container, this.title);
     const actions = append(container, $(".actions"));
-    actions.classList.toggle(
-      "show-always",
-      this.showActions === 2 /* Always */
-    );
-    actions.classList.toggle(
-      "show-expanded",
-      this.showActions === 1 /* WhenExpanded */
-    );
-    this.toolbar = this.instantiationService.createInstance(
-      WorkbenchToolBar,
-      actions,
-      {
-        orientation: ActionsOrientation.HORIZONTAL,
-        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.getActionViewItem(action, options), "actionViewItemProvider"),
-        ariaLabel: nls.localize(
-          "viewToolbarAriaLabel",
-          "{0} actions",
-          this.title
-        ),
-        getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
-        renderDropdownAsChildElement: true,
-        actionRunner: this.getActionRunner(),
-        resetMenu: this.menuActions.menuId
-      }
-    );
+    actions.classList.toggle("show-always", this.showActions === 2 /* Always */);
+    actions.classList.toggle("show-expanded", this.showActions === 1 /* WhenExpanded */);
+    this.toolbar = this.instantiationService.createInstance(WorkbenchToolBar, actions, {
+      orientation: ActionsOrientation.HORIZONTAL,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.getActionViewItem(action, options), "actionViewItemProvider"),
+      ariaLabel: nls.localize("viewToolbarAriaLabel", "{0} actions", this.title),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      renderDropdownAsChildElement: true,
+      actionRunner: this.getActionRunner(),
+      resetMenu: this.menuActions.menuId
+    });
     this._register(this.toolbar);
     this.setActions();
-    this._register(
-      addDisposableListener(
-        actions,
-        EventType.CLICK,
-        (e) => e.preventDefault()
-      )
-    );
+    this._register(addDisposableListener(actions, EventType.CLICK, (e) => e.preventDefault()));
     const viewContainerModel = this.viewDescriptorService.getViewContainerByViewId(this.id);
     if (viewContainerModel) {
-      this._register(
-        this.viewDescriptorService.getViewContainerModel(viewContainerModel).onDidChangeContainerInfo(
-          ({ title }) => this.updateTitle(this.title)
-        )
-      );
+      this._register(this.viewDescriptorService.getViewContainerModel(viewContainerModel).onDidChangeContainerInfo(({ title }) => this.updateTitle(this.title)));
     } else {
       console.error(`View container model not found for view ${this.id}`);
     }
-    const onDidRelevantConfigurationChange = Event.filter(
-      this.configurationService.onDidChangeConfiguration,
-      (e) => e.affectsConfiguration(ViewPane.AlwaysShowActionsConfig)
-    );
-    this._register(
-      onDidRelevantConfigurationChange(
-        this.updateActionsVisibility,
-        this
-      )
-    );
+    const onDidRelevantConfigurationChange = Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ViewPane.AlwaysShowActionsConfig));
+    this._register(onDidRelevantConfigurationChange(this.updateActionsVisibility, this));
     this.updateActionsVisibility();
   }
   updateHeader() {
@@ -551,16 +380,8 @@ let ViewPane = class extends Pane {
   }
   updateTwistyIcon() {
     if (this.twistiesContainer) {
-      this.twistiesContainer.classList.remove(
-        ...ThemeIcon.asClassNameArray(
-          this.getTwistyIcon(!this._expanded)
-        )
-      );
-      this.twistiesContainer.classList.add(
-        ...ThemeIcon.asClassNameArray(
-          this.getTwistyIcon(this._expanded)
-        )
-      );
+      this.twistiesContainer.classList.remove(...ThemeIcon.asClassNameArray(this.getTwistyIcon(!this._expanded)));
+      this.twistiesContainer.classList.add(...ThemeIcon.asClassNameArray(this.getTwistyIcon(this._expanded)));
     }
   }
   getTwistyIcon(expanded) {
@@ -570,10 +391,7 @@ let ViewPane = class extends Pane {
     super.style(styles);
     const icon = this.getIcon();
     if (this.iconContainer) {
-      const fgColor = asCssValueWithDefault(
-        styles.headerForeground,
-        asCssVariable(foreground)
-      );
+      const fgColor = asCssValueWithDefault(styles.headerForeground, asCssVariable(foreground));
       if (URI.isUri(icon)) {
         this.iconContainer.style.backgroundColor = fgColor;
         this.iconContainer.style.color = "";
@@ -589,19 +407,16 @@ let ViewPane = class extends Pane {
   renderHeaderTitle(container, title) {
     this.iconContainer = append(container, $(".icon", void 0));
     const icon = this.getIcon();
-    let cssClass;
+    let cssClass = void 0;
     if (URI.isUri(icon)) {
-      cssClass = `view-${this.id.replace(/[.:]/g, "-")}`;
+      cssClass = `view-${this.id.replace(/[\.\:]/g, "-")}`;
       const iconClass = `.pane-header .icon.${cssClass}`;
-      createCSSRule(
-        iconClass,
-        `
+      createCSSRule(iconClass, `
 				mask: ${asCSSUrl(icon)} no-repeat 50% 50%;
 				mask-size: 24px;
 				-webkit-mask: ${asCSSUrl(icon)} no-repeat 50% 50%;
 				-webkit-mask-size: 16px;
-			`
-      );
+			`);
     } else if (ThemeIcon.isThemeIcon(icon)) {
       cssClass = ThemeIcon.asClassName(icon);
     }
@@ -609,47 +424,21 @@ let ViewPane = class extends Pane {
       this.iconContainer.classList.add(...cssClass.split(" "));
     }
     const calculatedTitle = this.calculateTitle(title);
-    this.titleContainer = append(
-      container,
-      $("h3.title", {}, calculatedTitle)
-    );
-    this.titleContainerHover = this._register(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this.titleContainer,
-        calculatedTitle
-      )
-    );
+    this.titleContainer = append(container, $("h3.title", {}, calculatedTitle));
+    this.titleContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.titleContainer, calculatedTitle));
     if (this._titleDescription) {
       this.setTitleDescription(this._titleDescription);
     }
-    this.iconContainerHover = this._register(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this.iconContainer,
-        calculatedTitle
-      )
-    );
-    this.iconContainer.setAttribute(
-      "aria-label",
-      this._getAriaLabel(calculatedTitle)
-    );
+    this.iconContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.iconContainer, calculatedTitle));
+    this.iconContainer.setAttribute("aria-label", this._getAriaLabel(calculatedTitle));
   }
   _getAriaLabel(title) {
-    const viewHasAccessibilityHelpContent = this.viewDescriptorService.getViewDescriptorById(
-      this.id
-    )?.accessibilityHelpContent;
-    const accessibleViewHasShownForView = this.accessibleViewInformationService?.hasShownAccessibleView(
-      this.id
-    );
+    const viewHasAccessibilityHelpContent = this.viewDescriptorService.getViewDescriptorById(this.id)?.accessibilityHelpContent;
+    const accessibleViewHasShownForView = this.accessibleViewInformationService?.hasShownAccessibleView(this.id);
     if (!viewHasAccessibilityHelpContent || accessibleViewHasShownForView) {
       return title;
     }
-    return nls.localize(
-      "viewAccessibilityHelp",
-      "Use Alt+F1 for accessibility help {0}",
-      title
-    );
+    return nls.localize("viewAccessibilityHelp", "Use Alt+F1 for accessibility help {0}", title);
   }
   updateTitle(title) {
     const calculatedTitle = this.calculateTitle(title);
@@ -659,10 +448,7 @@ let ViewPane = class extends Pane {
     }
     if (this.iconContainer) {
       this.iconContainerHover?.update(calculatedTitle);
-      this.iconContainer.setAttribute(
-        "aria-label",
-        this._getAriaLabel(calculatedTitle)
-      );
+      this.iconContainer.setAttribute("aria-label", this._getAriaLabel(calculatedTitle));
     }
     this._title = title;
     this._onDidChangeTitleArea.fire();
@@ -672,17 +458,8 @@ let ViewPane = class extends Pane {
       this.titleDescriptionContainer.textContent = description ?? "";
       this.titleDescriptionContainerHover?.update(description ?? "");
     } else if (description && this.titleContainer) {
-      this.titleDescriptionContainer = after(
-        this.titleContainer,
-        $("span.description", {}, description)
-      );
-      this.titleDescriptionContainerHover = this._register(
-        this.hoverService.setupManagedHover(
-          getDefaultHoverDelegate("mouse"),
-          this.titleDescriptionContainer,
-          description
-        )
-      );
+      this.titleDescriptionContainer = after(this.titleContainer, $("span.description", {}, description));
+      this.titleDescriptionContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.titleDescriptionContainer, description));
     }
   }
   updateTitleDescription(description) {
@@ -693,9 +470,7 @@ let ViewPane = class extends Pane {
   calculateTitle(title) {
     const viewContainer = this.viewDescriptorService.getViewContainerByViewId(this.id);
     const model = this.viewDescriptorService.getViewContainerModel(viewContainer);
-    const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(
-      this.id
-    );
+    const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(this.id);
     const isDefault = this.viewDescriptorService.getDefaultContainerById(this.id) === viewContainer;
     if (!isDefault && viewDescriptor?.containerTitle && model.title !== viewDescriptor.containerTitle) {
       return `${viewDescriptor.containerTitle}: ${title}`;
@@ -703,13 +478,7 @@ let ViewPane = class extends Pane {
     return title;
   }
   renderBody(container) {
-    this.viewWelcomeController = this._register(
-      this.instantiationService.createInstance(
-        ViewWelcomeController,
-        container,
-        this
-      )
-    );
+    this.viewWelcomeController = this._register(this.instantiationService.createInstance(ViewWelcomeController, container, this));
   }
   layoutBody(height, width) {
     this.viewWelcomeController.layout(height, width);
@@ -718,28 +487,17 @@ let ViewPane = class extends Pane {
   }
   getProgressIndicator() {
     if (this.progressBar === void 0) {
-      this.progressBar = this._register(
-        new ProgressBar(this.element, defaultProgressBarStyles)
-      );
+      this.progressBar = this._register(new ProgressBar(this.element, defaultProgressBarStyles));
       this.progressBar.hide();
     }
     if (this.progressIndicator === void 0) {
       const that = this;
-      this.progressIndicator = this._register(
-        new ScopedProgressIndicator(
-          assertIsDefined(this.progressBar),
-          new class extends AbstractProgressScope {
-            constructor() {
-              super(that.id, that.isBodyVisible());
-              this._register(
-                that.onDidChangeBodyVisibility(
-                  (isVisible) => isVisible ? this.onScopeOpened(that.id) : this.onScopeClosed(that.id)
-                )
-              );
-            }
-          }()
-        )
-      );
+      this.progressIndicator = this._register(new ScopedProgressIndicator(assertIsDefined(this.progressBar), new class extends AbstractProgressScope {
+        constructor() {
+          super(that.id, that.isBodyVisible());
+          this._register(that.onDidChangeBodyVisibility((isVisible) => isVisible ? this.onScopeOpened(that.id) : this.onScopeClosed(that.id)));
+        }
+      }()));
     }
     return this.progressIndicator;
   }
@@ -747,9 +505,7 @@ let ViewPane = class extends Pane {
     return this.viewDescriptorService.getViewContainerByViewId(this.id).id;
   }
   getLocationBasedColors() {
-    return getLocationBasedViewColors(
-      this.viewDescriptorService.getViewLocationById(this.id)
-    );
+    return getLocationBasedViewColors(this.viewDescriptorService.getViewLocationById(this.id));
   }
   focus() {
     if (this.viewWelcomeController.enabled) {
@@ -765,10 +521,7 @@ let ViewPane = class extends Pane {
       if (this.shouldShowFilterInHeader()) {
         primaryActions.unshift(VIEWPANE_FILTER_ACTION);
       }
-      this.toolbar.setActions(
-        prepareActions(primaryActions),
-        prepareActions(this.menuActions.getSecondaryActions())
-      );
+      this.toolbar.setActions(prepareActions(primaryActions), prepareActions(this.menuActions.getSecondaryActions()));
       this.toolbar.context = this.getActionsContext();
     }
   }
@@ -776,13 +529,8 @@ let ViewPane = class extends Pane {
     if (!this.headerContainer) {
       return;
     }
-    const shouldAlwaysShowActions = this.configurationService.getValue(
-      "workbench.view.alwaysShowHeaderActions"
-    );
-    this.headerContainer.classList.toggle(
-      "actions-always-visible",
-      shouldAlwaysShowActions
-    );
+    const shouldAlwaysShowActions = this.configurationService.getValue("workbench.view.alwaysShowHeaderActions");
+    this.headerContainer.classList.toggle("actions-always-visible", shouldAlwaysShowActions);
   }
   updateActions() {
     this.setActions();
@@ -808,10 +556,7 @@ let ViewPane = class extends Pane {
         }
       }();
     }
-    return createActionViewItem(this.instantiationService, action, {
-      ...options,
-      ...{ menuAsChild: action instanceof SubmenuItemAction }
-    });
+    return createActionViewItem(this.instantiationService, action, { ...options, ...{ menuAsChild: action instanceof SubmenuItemAction } });
   }
   getActionsContext() {
     return void 0;
@@ -854,44 +599,16 @@ let FilterViewPane = class extends ViewPane {
   dimension;
   filterContainer;
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, accessibleViewService) {
-    super(
-      options,
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService,
-      accessibleViewService
-    );
-    const childInstantiationService = this._register(
-      instantiationService.createChild(
-        new ServiceCollection([
-          IContextKeyService,
-          this.scopedContextKeyService
-        ])
-      )
-    );
-    this.filterWidget = this._register(
-      childInstantiationService.createInstance(
-        FilterWidget,
-        options.filterOptions
-      )
-    );
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, accessibleViewService);
+    const childInstantiationService = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    this.filterWidget = this._register(childInstantiationService.createInstance(FilterWidget, options.filterOptions));
   }
   getFilterWidget() {
     return this.filterWidget;
   }
   renderBody(container) {
     super.renderBody(container);
-    this.filterContainer = append(
-      container,
-      $(".viewpane-filter-container")
-    );
+    this.filterContainer = append(container, $(".viewpane-filter-container"));
   }
   layoutBody(height, width) {
     super.layoutBody(height, width);

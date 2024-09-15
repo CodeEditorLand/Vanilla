@@ -15,13 +15,13 @@ import { autorun } from "../../../../../../base/common/observable.js";
 import { localize } from "../../../../../../nls.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
-import {
-  CellStatusbarAlignment
-} from "../../../common/notebookCommon.js";
+import { OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID } from "./cellDiagnosticsActions.js";
+import { NotebookStatusBarController } from "../cellStatusBar/executionStatusBarItemController.js";
+import { INotebookEditor, INotebookEditorContribution, INotebookViewModel } from "../../notebookBrowser.js";
 import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
 import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
-import { NotebookStatusBarController } from "../cellStatusBar/executionStatusBarItemController.js";
-import { OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID } from "./cellDiagnosticsActions.js";
+import { INotebookCellStatusBarItem, CellStatusbarAlignment } from "../../../common/notebookCommon.js";
+import { ICellExecutionError } from "../../../common/notebookExecutionStateService.js";
 let DiagnosticCellStatusBarContrib = class extends Disposable {
   static {
     __name(this, "DiagnosticCellStatusBarContrib");
@@ -29,38 +29,23 @@ let DiagnosticCellStatusBarContrib = class extends Disposable {
   static id = "workbench.notebook.statusBar.diagtnostic";
   constructor(notebookEditor, instantiationService) {
     super();
-    this._register(
-      new NotebookStatusBarController(
-        notebookEditor,
-        (vm, cell) => cell instanceof CodeCellViewModel ? instantiationService.createInstance(
-          DiagnosticCellStatusBarItem,
-          vm,
-          cell
-        ) : Disposable.None
-      )
-    );
+    this._register(new NotebookStatusBarController(
+      notebookEditor,
+      (vm, cell) => cell instanceof CodeCellViewModel ? instantiationService.createInstance(DiagnosticCellStatusBarItem, vm, cell) : Disposable.None
+    ));
   }
 };
 DiagnosticCellStatusBarContrib = __decorateClass([
   __decorateParam(1, IInstantiationService)
 ], DiagnosticCellStatusBarContrib);
-registerNotebookContribution(
-  DiagnosticCellStatusBarContrib.id,
-  DiagnosticCellStatusBarContrib
-);
+registerNotebookContribution(DiagnosticCellStatusBarContrib.id, DiagnosticCellStatusBarContrib);
 let DiagnosticCellStatusBarItem = class extends Disposable {
   constructor(_notebookViewModel, cell, keybindingService) {
     super();
     this._notebookViewModel = _notebookViewModel;
     this.cell = cell;
     this.keybindingService = keybindingService;
-    this._register(
-      autorun(
-        (reader) => this.updateSparkleItem(
-          reader.readObservable(cell.excecutionError)
-        )
-      )
-    );
+    this._register(autorun((reader) => this.updateSparkleItem(reader.readObservable(cell.excecutionError))));
   }
   static {
     __name(this, "DiagnosticCellStatusBarItem");
@@ -70,11 +55,7 @@ let DiagnosticCellStatusBarItem = class extends Disposable {
     let item;
     if (error?.location) {
       const keybinding = this.keybindingService.lookupKeybinding(OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID)?.getLabel();
-      const tooltip = localize(
-        "notebook.cell.status.diagnostic",
-        "Quick Actions {0}",
-        `(${keybinding})`
-      );
+      const tooltip = localize("notebook.cell.status.diagnostic", "Quick Actions {0}", `(${keybinding})`);
       item = {
         text: `$(sparkle)`,
         tooltip,
@@ -84,16 +65,11 @@ let DiagnosticCellStatusBarItem = class extends Disposable {
       };
     }
     const items = item ? [item] : [];
-    this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(
-      this._currentItemIds,
-      [{ handle: this.cell.handle, items }]
-    );
+    this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this.cell.handle, items }]);
   }
   dispose() {
     super.dispose();
-    this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [
-      { handle: this.cell.handle, items: [] }
-    ]);
+    this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this.cell.handle, items: [] }]);
   }
 };
 DiagnosticCellStatusBarItem = __decorateClass([

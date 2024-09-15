@@ -11,24 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { localize } from "../../../../../nls.js";
-import {
-  EditorResolution
-} from "../../../../../platform/editor/common/editor.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { BaseBinaryResourceEditor } from "../../../../browser/parts/editor/binaryEditor.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { BaseBinaryResourceEditor } from "../../../../browser/parts/editor/binaryEditor.js";
+import { EditorInput } from "../../../../common/editor/editorInput.js";
+import { FileEditorInput } from "./fileEditorInput.js";
+import { BINARY_FILE_EDITOR_ID, BINARY_TEXT_FILE_MODE } from "../../common/files.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { EditorResolution, IEditorOptions } from "../../../../../platform/editor/common/editor.js";
+import { IEditorResolverService, ResolvedStatus, ResolvedEditor } from "../../../../services/editor/common/editorResolverService.js";
 import { isEditorInputWithOptions } from "../../../../common/editor.js";
 import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
-import {
-  IEditorResolverService,
-  ResolvedStatus
-} from "../../../../services/editor/common/editorResolverService.js";
-import {
-  BINARY_FILE_EDITOR_ID,
-  BINARY_TEXT_FILE_MODE
-} from "../../common/files.js";
-import { FileEditorInput } from "./fileEditorInput.js";
+import { IEditorGroup } from "../../../../services/editor/common/editorGroupsService.js";
 let BinaryFileEditor = class extends BaseBinaryResourceEditor {
   constructor(group, telemetryService, themeService, editorResolverService, storageService) {
     super(
@@ -54,41 +48,33 @@ let BinaryFileEditor = class extends BaseBinaryResourceEditor {
       if (!untypedActiveEditor) {
         return;
       }
-      let resolvedEditor = await this.editorResolverService.resolveEditor(
-        {
-          ...untypedActiveEditor,
-          options: {
-            ...options,
-            override: EditorResolution.PICK
-          }
-        },
-        this.group
-      );
+      let resolvedEditor = await this.editorResolverService.resolveEditor({
+        ...untypedActiveEditor,
+        options: {
+          ...options,
+          override: EditorResolution.PICK
+        }
+      }, this.group);
       if (resolvedEditor === ResolvedStatus.NONE) {
         resolvedEditor = void 0;
       } else if (resolvedEditor === ResolvedStatus.ABORT) {
         return;
       }
       if (isEditorInputWithOptions(resolvedEditor)) {
-        for (const editor of resolvedEditor.editor instanceof DiffEditorInput ? [
-          resolvedEditor.editor.original,
-          resolvedEditor.editor.modified
-        ] : [resolvedEditor.editor]) {
+        for (const editor of resolvedEditor.editor instanceof DiffEditorInput ? [resolvedEditor.editor.original, resolvedEditor.editor.modified] : [resolvedEditor.editor]) {
           if (editor instanceof FileEditorInput) {
             editor.setForceOpenAsText();
             editor.setPreferredLanguageId(BINARY_TEXT_FILE_MODE);
           }
         }
       }
-      await this.group.replaceEditors([
-        {
-          editor: activeEditor,
-          replacement: resolvedEditor?.editor ?? input,
-          options: {
-            ...resolvedEditor?.options ?? options
-          }
+      await this.group.replaceEditors([{
+        editor: activeEditor,
+        replacement: resolvedEditor?.editor ?? input,
+        options: {
+          ...resolvedEditor?.options ?? options
         }
-      ]);
+      }]);
     }
   }
   getTitle() {

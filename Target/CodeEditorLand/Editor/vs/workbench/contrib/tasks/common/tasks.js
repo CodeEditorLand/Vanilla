@@ -1,23 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as Objects from "../../../../base/common/objects.js";
-import * as resources from "../../../../base/common/resources.js";
-import * as Types from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
-import {
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import * as Types from "../../../../base/common/types.js";
+import * as resources from "../../../../base/common/resources.js";
+import { IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
+import * as Objects from "../../../../base/common/objects.js";
+import { UriComponents, URI } from "../../../../base/common/uri.js";
+import { ProblemMatcher } from "./problemMatcher.js";
+import { IWorkspaceFolder, IWorkspace } from "../../../../platform/workspace/common/workspace.js";
+import { RawContextKey, ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
 import { TaskDefinitionRegistry } from "./taskDefinitionRegistry.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { TerminalExitReason } from "../../../../platform/terminal/common/terminal.js";
 const USER_TASKS_GROUP_KEY = "settings";
-const TASK_RUNNING_STATE = new RawContextKey(
-  "taskRunning",
-  false,
-  nls.localize(
-    "tasks.taskRunningContext",
-    "Whether a task is currently running."
-  )
-);
+const TASK_RUNNING_STATE = new RawContextKey("taskRunning", false, nls.localize("tasks.taskRunningContext", "Whether a task is currently running."));
 const TASKS_CATEGORY = nls.localize2("tasksCategory", "Tasks");
 var ShellQuoting = /* @__PURE__ */ ((ShellQuoting2) => {
   ShellQuoting2[ShellQuoting2["Escape"] = 1] = "Escape";
@@ -239,11 +236,7 @@ var RunOnOptions = /* @__PURE__ */ ((RunOnOptions2) => {
 })(RunOnOptions || {});
 var RunOptions;
 ((RunOptions2) => {
-  RunOptions2.defaults = {
-    reevaluateOnRerun: true,
-    runOn: 1 /* default */,
-    instanceLimit: 1
-  };
+  RunOptions2.defaults = { reevaluateOnRerun: true, runOn: 1 /* default */, instanceLimit: 1 };
 })(RunOptions || (RunOptions = {}));
 class CommonTask {
   static {
@@ -284,10 +277,7 @@ class CommonTask {
     return void 0;
   }
   getCommonTaskId() {
-    const key = {
-      folder: this.getFolderId(),
-      id: this._id
-    };
+    const key = { folder: this.getFolderId(), id: this._id };
     return JSON.stringify(key);
   }
   clone() {
@@ -355,14 +345,7 @@ class CustomTask extends CommonTask {
    */
   command = {};
   constructor(id, source, label, type, command, hasDefinedMatchers, runOptions, configurationProperties) {
-    super(
-      id,
-      label,
-      void 0,
-      runOptions,
-      configurationProperties,
-      source
-    );
+    super(id, label, void 0, runOptions, configurationProperties, source);
     this._source = source;
     this.hasDefinedMatchers = hasDefinedMatchers;
     if (command) {
@@ -370,16 +353,7 @@ class CustomTask extends CommonTask {
     }
   }
   clone() {
-    return new CustomTask(
-      this._id,
-      this._source,
-      this._label,
-      this.type,
-      this.command,
-      this.hasDefinedMatchers,
-      this.runOptions,
-      this.configurationProperties
-    );
+    return new CustomTask(this._id, this._source, this._label, this.type, this.command, this.hasDefinedMatchers, this.runOptions, this.configurationProperties);
   }
   customizes() {
     if (this._source && this._source.customizes) {
@@ -442,11 +416,7 @@ class CustomTask extends CommonTask {
     if (this._source.kind !== TaskSourceKind.Workspace) {
       id += this._source.kind;
     }
-    const key = {
-      type: CUSTOMIZED_TASK_TYPE,
-      folder: workspaceFolder,
-      id
-    };
+    const key = { type: CUSTOMIZED_TASK_TYPE, folder: workspaceFolder, id };
     return JSON.stringify(key);
   }
   getWorkspaceFolder() {
@@ -463,16 +433,7 @@ class CustomTask extends CommonTask {
     }
   }
   fromObject(object) {
-    return new CustomTask(
-      object._id,
-      object._source,
-      object._label,
-      object.type,
-      object.command,
-      object.hasDefinedMatchers,
-      object.runOptions,
-      object.configurationProperties
-    );
+    return new CustomTask(object._id, object._source, object._label, object.type, object.command, object.hasDefinedMatchers, object.runOptions, object.configurationProperties);
   }
 }
 class ConfiguringTask extends CommonTask {
@@ -516,11 +477,7 @@ class ConfiguringTask extends CommonTask {
     if (this._source.kind !== TaskSourceKind.Workspace) {
       id += this._source.kind;
     }
-    const key = {
-      type: CUSTOMIZED_TASK_TYPE,
-      folder: workspaceFolder,
-      id
-    };
+    const key = { type: CUSTOMIZED_TASK_TYPE, folder: workspaceFolder, id };
     return JSON.stringify(key);
   }
 }
@@ -552,17 +509,7 @@ class ContributedTask extends CommonTask {
     this.hide = configurationProperties.hide;
   }
   clone() {
-    return new ContributedTask(
-      this._id,
-      this._source,
-      this._label,
-      this.type,
-      this.defines,
-      this.command,
-      this.hasDefinedMatchers,
-      this.runOptions,
-      this.configurationProperties
-    );
+    return new ContributedTask(this._id, this._source, this._label, this.type, this.defines, this.command, this.hasDefinedMatchers, this.runOptions, this.configurationProperties);
   }
   getDefinition() {
     return this.defines;
@@ -581,11 +528,7 @@ class ContributedTask extends CommonTask {
     return void 0;
   }
   getKey() {
-    const key = {
-      type: "contributed",
-      scope: this._source.scope,
-      id: this._id
-    };
+    const key = { type: "contributed", scope: this._source.scope, id: this._id };
     key.folder = this.getFolderId();
     return JSON.stringify(key);
   }
@@ -596,17 +539,7 @@ class ContributedTask extends CommonTask {
     return "extension";
   }
   fromObject(object) {
-    return new ContributedTask(
-      object._id,
-      object._source,
-      object._label,
-      object.type,
-      object.defines,
-      object.command,
-      object.hasDefinedMatchers,
-      object.runOptions,
-      object.configurationProperties
-    );
+    return new ContributedTask(object._id, object._source, object._label, object.type, object.defines, object.command, object.hasDefinedMatchers, object.runOptions, object.configurationProperties);
   }
 }
 class InMemoryTask extends CommonTask {
@@ -623,14 +556,7 @@ class InMemoryTask extends CommonTask {
     this._source = source;
   }
   clone() {
-    return new InMemoryTask(
-      this._id,
-      this._source,
-      this._label,
-      this.type,
-      this.runOptions,
-      this.configurationProperties
-    );
+    return new InMemoryTask(this._id, this._source, this._label, this.type, this.runOptions, this.configurationProperties);
   }
   static is(value) {
     return value instanceof InMemoryTask;
@@ -645,14 +571,7 @@ class InMemoryTask extends CommonTask {
     return void 0;
   }
   fromObject(object) {
-    return new InMemoryTask(
-      object._id,
-      object._source,
-      object._label,
-      object.type,
-      object.runOptions,
-      object.configurationProperties
-    );
+    return new InMemoryTask(object._id, object._source, object._label, object.type, object.runOptions, object.configurationProperties);
   }
 }
 var ExecutionEngine = /* @__PURE__ */ ((ExecutionEngine2) => {
@@ -880,14 +799,12 @@ var TaskDefinition;
               literal[property] = "";
               break;
             default:
-              reporter.error(
-                nls.localize(
-                  "TaskDefinition.missingRequiredProperty",
-                  "Error: the task identifier '{0}' is missing the required property '{1}'. The task identifier will be ignored.",
-                  JSON.stringify(external, void 0, 0),
-                  property
-                )
-              );
+              reporter.error(nls.localize(
+                "TaskDefinition.missingRequiredProperty",
+                "Error: the task identifier '{0}' is missing the required property '{1}'. The task identifier will be ignored.",
+                JSON.stringify(external, void 0, 0),
+                property
+              ));
               return void 0;
           }
         }

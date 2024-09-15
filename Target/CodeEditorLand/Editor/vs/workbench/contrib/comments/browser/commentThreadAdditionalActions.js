@@ -11,10 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { IMenu, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { CommentFormActions } from "./commentFormActions.js";
+import { CommentMenus } from "./commentMenus.js";
+import { ICellRange } from "../../notebook/common/notebookRange.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 let CommentThreadAdditionalActions = class extends Disposable {
   constructor(container, _commentThread, _contextKeyService, _commentMenus, _actionRunDelegate, _keybindingService) {
     super();
@@ -23,10 +30,7 @@ let CommentThreadAdditionalActions = class extends Disposable {
     this._commentMenus = _commentMenus;
     this._actionRunDelegate = _actionRunDelegate;
     this._keybindingService = _keybindingService;
-    this._container = dom.append(
-      container,
-      dom.$(".comment-additional-actions")
-    );
+    this._container = dom.append(container, dom.$(".comment-additional-actions"));
     dom.append(this._container, dom.$(".section-separator"));
     this._buttonBar = dom.append(this._container, dom.$(".button-bar"));
     this._createAdditionalActions(this._buttonBar);
@@ -63,33 +67,23 @@ let CommentThreadAdditionalActions = class extends Disposable {
     this._hideMenu();
   }
   _createAdditionalActions(container) {
-    const menu = this._commentMenus.getCommentThreadAdditionalActions(
-      this._contextKeyService
-    );
+    const menu = this._commentMenus.getCommentThreadAdditionalActions(this._contextKeyService);
     this._register(menu);
-    this._register(
-      menu.onDidChange(() => {
-        this._commentFormActions.setActions(
-          menu,
-          /*hasOnlySecondaryActions*/
-          true
-        );
-        this._enableDisableMenu(menu);
-      })
-    );
-    this._commentFormActions = new CommentFormActions(
-      this._keybindingService,
-      this._contextKeyService,
-      container,
-      async (action) => {
-        this._actionRunDelegate?.();
-        action.run({
-          thread: this._commentThread,
-          $mid: MarshalledId.CommentThreadInstance
-        });
-      },
-      4
-    );
+    this._register(menu.onDidChange(() => {
+      this._commentFormActions.setActions(
+        menu,
+        /*hasOnlySecondaryActions*/
+        true
+      );
+      this._enableDisableMenu(menu);
+    }));
+    this._commentFormActions = new CommentFormActions(this._keybindingService, this._contextKeyService, container, async (action) => {
+      this._actionRunDelegate?.();
+      action.run({
+        thread: this._commentThread,
+        $mid: MarshalledId.CommentThreadInstance
+      });
+    }, 4);
     this._register(this._commentFormActions);
     this._commentFormActions.setActions(
       menu,

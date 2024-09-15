@@ -11,16 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Color } from "../../../../../base/common/color.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { Range } from "../../../../common/core/range.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { LanguageFeatureRegistry } from "../../../../common/languageFeatureRegistry.js";
+import { DocumentColorProvider, IColorInformation } from "../../../../common/languages.js";
+import { IEditorHoverRenderContext } from "../../../hover/browser/hoverTypes.js";
 import { getColors } from "../color.js";
 import { ColorDetector } from "../colorDetector.js";
-import {
-  createColorHover,
-  renderHoverParts,
-  updateColorPresentations,
-  updateEditorModel
-} from "../colorPickerParticipantUtils.js";
+import { ColorPickerModel } from "../colorPickerModel.js";
+import { createColorHover, renderHoverParts, updateColorPresentations, updateEditorModel } from "../colorPickerParticipantUtils.js";
+import { ColorPickerWidget } from "../hoverColorPicker/hoverColorPickerWidget.js";
+import { Range } from "../../../../common/core/range.js";
 class StandaloneColorPickerHover {
   constructor(owner, range, model, provider) {
     this.owner = owner;
@@ -50,11 +53,7 @@ let StandaloneColorPickerParticipant = class {
     if (!colorDetector) {
       return null;
     }
-    const colors = await getColors(
-      colorProviderRegistry,
-      this._editor.getModel(),
-      CancellationToken.None
-    );
+    const colors = await getColors(colorProviderRegistry, this._editor.getModel(), CancellationToken.None);
     let foundColorInfo = null;
     let foundColorProvider = null;
     for (const colorData of colors) {
@@ -67,46 +66,21 @@ let StandaloneColorPickerParticipant = class {
     const colorInfo = foundColorInfo ?? defaultColorInfo;
     const colorProvider = foundColorProvider ?? defaultColorProvider;
     const foundInEditor = !!foundColorInfo;
-    return {
-      colorHover: await createColorHover(
-        this,
-        this._editor.getModel(),
-        colorInfo,
-        colorProvider
-      ),
-      foundInEditor
-    };
+    return { colorHover: await createColorHover(this, this._editor.getModel(), colorInfo, colorProvider), foundInEditor };
   }
   async updateEditorModel(colorHoverData) {
     if (!this._editor.hasModel()) {
       return;
     }
     const colorPickerModel = colorHoverData.model;
-    let range = new Range(
-      colorHoverData.range.startLineNumber,
-      colorHoverData.range.startColumn,
-      colorHoverData.range.endLineNumber,
-      colorHoverData.range.endColumn
-    );
+    let range = new Range(colorHoverData.range.startLineNumber, colorHoverData.range.startColumn, colorHoverData.range.endLineNumber, colorHoverData.range.endColumn);
     if (this._color) {
-      await updateColorPresentations(
-        this._editor.getModel(),
-        colorPickerModel,
-        this._color,
-        range,
-        colorHoverData
-      );
+      await updateColorPresentations(this._editor.getModel(), colorPickerModel, this._color, range, colorHoverData);
       range = updateEditorModel(this._editor, range, colorPickerModel);
     }
   }
   renderHoverParts(context, hoverParts) {
-    return renderHoverParts(
-      this,
-      this._editor,
-      this._themeService,
-      hoverParts,
-      context
-    );
+    return renderHoverParts(this, this._editor, this._themeService, hoverParts, context);
   }
   set color(color) {
     this._color = color;

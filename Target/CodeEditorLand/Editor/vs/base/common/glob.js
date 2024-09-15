@@ -150,15 +150,19 @@ function parseRegExp(pattern) {
   return regEx;
 }
 __name(parseRegExp, "parseRegExp");
-const T1 = /^\*\*\/\*\.[\w.-]+$/;
-const T2 = /^\*\*\/([\w.-]+)\/?$/;
-const T3 = /^{\*\*\/\*?[\w.-]+\/?(,\*\*\/\*?[\w.-]+\/?)*}$/;
-const T3_2 = /^{\*\*\/\*?[\w.-]+(\/(\*\*)?)?(,\*\*\/\*?[\w.-]+(\/(\*\*)?)?)*}$/;
-const T4 = /^\*\*((\/[\w.-]+)+)\/?$/;
-const T5 = /^([\w.-]+(\/[\w.-]+)*)\/?$/;
+const T1 = /^\*\*\/\*\.[\w\.-]+$/;
+const T2 = /^\*\*\/([\w\.-]+)\/?$/;
+const T3 = /^{\*\*\/\*?[\w\.-]+\/?(,\*\*\/\*?[\w\.-]+\/?)*}$/;
+const T3_2 = /^{\*\*\/\*?[\w\.-]+(\/(\*\*)?)?(,\*\*\/\*?[\w\.-]+(\/(\*\*)?)?)*}$/;
+const T4 = /^\*\*((\/[\w\.-]+)+)\/?$/;
+const T5 = /^([\w\.-]+(\/[\w\.-]+)*)\/?$/;
 const CACHE = new LRUCache(1e4);
-const FALSE = /* @__PURE__ */ __name(() => false, "FALSE");
-const NULL = /* @__PURE__ */ __name(() => null, "NULL");
+const FALSE = /* @__PURE__ */ __name(function() {
+  return false;
+}, "FALSE");
+const NULL = /* @__PURE__ */ __name(function() {
+  return null;
+}, "NULL");
 function parsePattern(arg1, options) {
   if (!arg1) {
     return NULL;
@@ -197,14 +201,11 @@ function wrapRelativePattern(parsedPattern, arg2) {
   if (typeof arg2 === "string") {
     return parsedPattern;
   }
-  const wrappedPattern = /* @__PURE__ */ __name((path, basename2) => {
+  const wrappedPattern = /* @__PURE__ */ __name(function(path, basename2) {
     if (!isEqualOrParent(path, arg2.base, !isLinux)) {
       return null;
     }
-    return parsedPattern(
-      ltrim(path.substr(arg2.base.length), sep),
-      basename2
-    );
+    return parsedPattern(ltrim(path.substr(arg2.base.length), sep), basename2);
   }, "wrappedPattern");
   wrappedPattern.allBasenames = parsedPattern.allBasenames;
   wrappedPattern.allPaths = parsedPattern.allPaths;
@@ -218,13 +219,15 @@ function trimForExclusions(pattern, options) {
 }
 __name(trimForExclusions, "trimForExclusions");
 function trivia1(base, pattern) {
-  return (path, basename2) => typeof path === "string" && path.endsWith(base) ? pattern : null;
+  return function(path, basename2) {
+    return typeof path === "string" && path.endsWith(base) ? pattern : null;
+  };
 }
 __name(trivia1, "trivia1");
 function trivia2(base, pattern) {
   const slashBase = `/${base}`;
   const backslashBase = `\\${base}`;
-  const parsedPattern = /* @__PURE__ */ __name((path, basename2) => {
+  const parsedPattern = /* @__PURE__ */ __name(function(path, basename2) {
     if (typeof path !== "string") {
       return null;
     }
@@ -241,10 +244,7 @@ function trivia2(base, pattern) {
 }
 __name(trivia2, "trivia2");
 function trivia3(pattern, options) {
-  const parsedPatterns = aggregateBasenameMatches(
-    pattern.slice(1, -1).split(",").map((pattern2) => parsePattern(pattern2, options)).filter((pattern2) => pattern2 !== NULL),
-    pattern
-  );
+  const parsedPatterns = aggregateBasenameMatches(pattern.slice(1, -1).split(",").map((pattern2) => parsePattern(pattern2, options)).filter((pattern2) => pattern2 !== NULL), pattern);
   const patternsLength = parsedPatterns.length;
   if (!patternsLength) {
     return NULL;
@@ -252,7 +252,7 @@ function trivia3(pattern, options) {
   if (patternsLength === 1) {
     return parsedPatterns[0];
   }
-  const parsedPattern = /* @__PURE__ */ __name((path, basename2) => {
+  const parsedPattern = /* @__PURE__ */ __name(function(path, basename2) {
     for (let i = 0, n = parsedPatterns.length; i < n; i++) {
       if (parsedPatterns[i](path, basename2)) {
         return pattern;
@@ -260,16 +260,11 @@ function trivia3(pattern, options) {
     }
     return null;
   }, "parsedPattern");
-  const withBasenames = parsedPatterns.find(
-    (pattern2) => !!pattern2.allBasenames
-  );
+  const withBasenames = parsedPatterns.find((pattern2) => !!pattern2.allBasenames);
   if (withBasenames) {
     parsedPattern.allBasenames = withBasenames.allBasenames;
   }
-  const allPaths = parsedPatterns.reduce(
-    (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
-    []
-  );
+  const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
   if (allPaths.length) {
     parsedPattern.allPaths = allPaths;
   }
@@ -283,9 +278,13 @@ function trivia4and5(targetPath, pattern, matchPathEnds) {
   const targetPathEnd = posix.sep + targetPath;
   let parsedPattern;
   if (matchPathEnds) {
-    parsedPattern = /* @__PURE__ */ __name((path, basename2) => typeof path === "string" && (path === nativePath || path.endsWith(nativePathEnd) || !usingPosixSep && (path === targetPath || path.endsWith(targetPathEnd))) ? pattern : null, "parsedPattern");
+    parsedPattern = /* @__PURE__ */ __name(function(path, basename2) {
+      return typeof path === "string" && (path === nativePath || path.endsWith(nativePathEnd) || !usingPosixSep && (path === targetPath || path.endsWith(targetPathEnd))) ? pattern : null;
+    }, "parsedPattern");
   } else {
-    parsedPattern = /* @__PURE__ */ __name((path, basename2) => typeof path === "string" && (path === nativePath || !usingPosixSep && path === targetPath) ? pattern : null, "parsedPattern");
+    parsedPattern = /* @__PURE__ */ __name(function(path, basename2) {
+      return typeof path === "string" && (path === nativePath || !usingPosixSep && path === targetPath) ? pattern : null;
+    }, "parsedPattern");
   }
   parsedPattern.allPaths = [(matchPathEnds ? "*/" : "./") + targetPath];
   return parsedPattern;
@@ -294,7 +293,7 @@ __name(trivia4and5, "trivia4and5");
 function toRegExp(pattern) {
   try {
     const regExp = new RegExp(`^${parseRegExp(pattern)}$`);
-    return (path) => {
+    return function(path) {
       regExp.lastIndex = 0;
       return typeof path === "string" && regExp.test(path) ? pattern : null;
     };
@@ -319,7 +318,9 @@ function parse(arg1, options = {}) {
     if (parsedPattern === NULL) {
       return FALSE;
     }
-    const resultPattern = /* @__PURE__ */ __name((path, basename2) => !!parsedPattern(path, basename2), "resultPattern");
+    const resultPattern = /* @__PURE__ */ __name(function(path, basename2) {
+      return !!parsedPattern(path, basename2);
+    }, "resultPattern");
     if (parsedPattern.allBasenames) {
       resultPattern.allBasenames = parsedPattern.allBasenames;
     }
@@ -348,23 +349,17 @@ function getPathTerms(patternOrExpression) {
 }
 __name(getPathTerms, "getPathTerms");
 function parsedExpression(expression, options) {
-  const parsedPatterns = aggregateBasenameMatches(
-    Object.getOwnPropertyNames(expression).map(
-      (pattern) => parseExpressionPattern(pattern, expression[pattern], options)
-    ).filter((pattern) => pattern !== NULL)
-  );
+  const parsedPatterns = aggregateBasenameMatches(Object.getOwnPropertyNames(expression).map((pattern) => parseExpressionPattern(pattern, expression[pattern], options)).filter((pattern) => pattern !== NULL));
   const patternsLength = parsedPatterns.length;
   if (!patternsLength) {
     return NULL;
   }
-  if (!parsedPatterns.some(
-    (parsedPattern) => !!parsedPattern.requiresSiblings
-  )) {
+  if (!parsedPatterns.some((parsedPattern) => !!parsedPattern.requiresSiblings)) {
     if (patternsLength === 1) {
       return parsedPatterns[0];
     }
-    const resultExpression2 = /* @__PURE__ */ __name((path, basename2) => {
-      let resultPromises;
+    const resultExpression2 = /* @__PURE__ */ __name(function(path, basename2) {
+      let resultPromises = void 0;
       for (let i = 0, n = parsedPatterns.length; i < n; i++) {
         const result = parsedPatterns[i](path, basename2);
         if (typeof result === "string") {
@@ -390,24 +385,19 @@ function parsedExpression(expression, options) {
       }
       return null;
     }, "resultExpression");
-    const withBasenames2 = parsedPatterns.find(
-      (pattern) => !!pattern.allBasenames
-    );
+    const withBasenames2 = parsedPatterns.find((pattern) => !!pattern.allBasenames);
     if (withBasenames2) {
       resultExpression2.allBasenames = withBasenames2.allBasenames;
     }
-    const allPaths2 = parsedPatterns.reduce(
-      (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
-      []
-    );
+    const allPaths2 = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
     if (allPaths2.length) {
       resultExpression2.allPaths = allPaths2;
     }
     return resultExpression2;
   }
-  const resultExpression = /* @__PURE__ */ __name((path, base, hasSibling) => {
-    let name;
-    let resultPromises;
+  const resultExpression = /* @__PURE__ */ __name(function(path, base, hasSibling) {
+    let name = void 0;
+    let resultPromises = void 0;
     for (let i = 0, n = parsedPatterns.length; i < n; i++) {
       const parsedPattern = parsedPatterns[i];
       if (parsedPattern.requiresSiblings && hasSibling) {
@@ -442,16 +432,11 @@ function parsedExpression(expression, options) {
     }
     return null;
   }, "resultExpression");
-  const withBasenames = parsedPatterns.find(
-    (pattern) => !!pattern.allBasenames
-  );
+  const withBasenames = parsedPatterns.find((pattern) => !!pattern.allBasenames);
   if (withBasenames) {
     resultExpression.allBasenames = withBasenames.allBasenames;
   }
-  const allPaths = parsedPatterns.reduce(
-    (all, current) => current.allPaths ? all.concat(current.allPaths) : all,
-    []
-  );
+  const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
   if (allPaths.length) {
     resultExpression.allPaths = allPaths;
   }
@@ -488,9 +473,7 @@ function parseExpressionPattern(pattern, value, options) {
 }
 __name(parseExpressionPattern, "parseExpressionPattern");
 function aggregateBasenameMatches(parsedPatterns, result) {
-  const basenamePatterns = parsedPatterns.filter(
-    (parsedPattern) => !!parsedPattern.basenames
-  );
+  const basenamePatterns = parsedPatterns.filter((parsedPattern) => !!parsedPattern.basenames);
   if (basenamePatterns.length < 2) {
     return parsedPatterns;
   }
@@ -510,7 +493,7 @@ function aggregateBasenameMatches(parsedPatterns, result) {
       return patterns2 ? all.concat(patterns2) : all;
     }, []);
   }
-  const aggregate = /* @__PURE__ */ __name((path, basename2) => {
+  const aggregate = /* @__PURE__ */ __name(function(path, basename2) {
     if (typeof path !== "string") {
       return null;
     }
@@ -530,9 +513,7 @@ function aggregateBasenameMatches(parsedPatterns, result) {
   aggregate.basenames = basenames;
   aggregate.patterns = patterns;
   aggregate.allBasenames = basenames;
-  const aggregatedPatterns = parsedPatterns.filter(
-    (parsedPattern) => !parsedPattern.basenames
-  );
+  const aggregatedPatterns = parsedPatterns.filter((parsedPattern) => !parsedPattern.basenames);
   aggregatedPatterns.push(aggregate);
   return aggregatedPatterns;
 }

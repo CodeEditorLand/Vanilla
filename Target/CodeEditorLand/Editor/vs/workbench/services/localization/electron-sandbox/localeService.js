@@ -10,44 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toAction } from "../../../../base/common/actions.js";
-import { parse } from "../../../../base/common/jsonc.js";
-import {
-  LANGUAGE_DEFAULT,
-  Language
-} from "../../../../base/common/platform.js";
-import { localize } from "../../../../nls.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { Language, LANGUAGE_DEFAULT } from "../../../../base/common/platform.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  ILanguagePackService
-} from "../../../../platform/languagePacks/common/languagePacks.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
-import {
-  ViewContainerLocation
-} from "../../../common/views.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
 import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
+import { IActiveLanguagePackService, ILocaleService } from "../common/locale.js";
+import { ILanguagePackItem, ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
+import { IViewPaneContainer, ViewContainerLocation } from "../../../common/views.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IProgressService, ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { localize } from "../../../../nls.js";
+import { toAction } from "../../../../base/common/actions.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { parse } from "../../../../base/common/jsonc.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IHostService } from "../../host/browser/host.js";
-import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
-import { ITextFileService } from "../../textfile/common/textfiles.js";
-import {
-  IActiveLanguagePackService,
-  ILocaleService
-} from "../common/locale.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 const EXTENSIONS_VIEWLET_ID = "workbench.view.extensions";
 let NativeLocaleService = class {
   constructor(jsonEditingService, environmentService, notificationService, languagePackService, paneCompositePartService, extensionManagementService, progressService, textFileService, editorService, dialogService, hostService, productService) {
@@ -70,29 +51,18 @@ let NativeLocaleService = class {
   _serviceBrand;
   async validateLocaleFile() {
     try {
-      const content = await this.textFileService.read(
-        this.environmentService.argvResource,
-        { encoding: "utf8" }
-      );
+      const content = await this.textFileService.read(this.environmentService.argvResource, { encoding: "utf8" });
       parse(content.value);
     } catch (error) {
       this.notificationService.notify({
         severity: Severity.Error,
-        message: localize(
-          "argvInvalid",
-          "Unable to write display language. Please open the runtime settings, correct errors/warnings in it and try again."
-        ),
+        message: localize("argvInvalid", "Unable to write display language. Please open the runtime settings, correct errors/warnings in it and try again."),
         actions: {
           primary: [
             toAction({
               id: "openArgv",
-              label: localize(
-                "openArgv",
-                "Open Runtime Settings"
-              ),
-              run: /* @__PURE__ */ __name(() => this.editorService.openEditor({
-                resource: this.environmentService.argvResource
-              }), "run")
+              label: localize("openArgv", "Open Runtime Settings"),
+              run: /* @__PURE__ */ __name(() => this.editorService.openEditor({ resource: this.environmentService.argvResource }), "run")
             })
           ]
         }
@@ -105,11 +75,7 @@ let NativeLocaleService = class {
     if (!await this.validateLocaleFile()) {
       return false;
     }
-    await this.jsonEditingService.write(
-      this.environmentService.argvResource,
-      [{ path: ["locale"], value: locale }],
-      true
-    );
+    await this.jsonEditingService.write(this.environmentService.argvResource, [{ path: ["locale"], value: locale }], true);
     return true;
   }
   async setLocale(languagePackItem, skipDialog = false) {
@@ -119,33 +85,21 @@ let NativeLocaleService = class {
     }
     const installedLanguages = await this.languagePackService.getInstalledLanguages();
     try {
-      if (!installedLanguages.some(
-        (installedLanguage) => installedLanguage.id === languagePackItem.id
-      )) {
+      if (!installedLanguages.some((installedLanguage) => installedLanguage.id === languagePackItem.id)) {
         if (languagePackItem.galleryExtension?.publisher.toLowerCase() !== "ms-ceintl") {
-          const viewlet = await this.paneCompositePartService.openPaneComposite(
-            EXTENSIONS_VIEWLET_ID,
-            ViewContainerLocation.Sidebar
-          );
+          const viewlet = await this.paneCompositePartService.openPaneComposite(EXTENSIONS_VIEWLET_ID, ViewContainerLocation.Sidebar);
           (viewlet?.getViewPaneContainer()).search(`@id:${languagePackItem.extensionId}`);
           return;
         }
         await this.progressService.withProgress(
           {
             location: ProgressLocation.Notification,
-            title: localize(
-              "installing",
-              "Installing {0} language support...",
-              languagePackItem.label
-            )
+            title: localize("installing", "Installing {0} language support...", languagePackItem.label)
           },
-          (progress) => this.extensionManagementService.installFromGallery(
-            languagePackItem.galleryExtension,
-            {
-              // Setting this to false is how you get the extension to be synced with Settings Sync (if enabled).
-              isMachineScoped: false
-            }
-          )
+          (progress) => this.extensionManagementService.installFromGallery(languagePackItem.galleryExtension, {
+            // Setting this to false is how you get the extension to be synced with Settings Sync (if enabled).
+            isMachineScoped: false
+          })
         );
       }
       if (!skipDialog && !await this.showRestartDialog(languagePackItem.label)) {
@@ -169,25 +123,14 @@ let NativeLocaleService = class {
   }
   async showRestartDialog(languageName) {
     const { confirmed } = await this.dialogService.confirm({
-      message: localize(
-        "restartDisplayLanguageMessage1",
-        "Restart {0} to switch to {1}?",
-        this.productService.nameLong,
-        languageName
-      ),
+      message: localize("restartDisplayLanguageMessage1", "Restart {0} to switch to {1}?", this.productService.nameLong, languageName),
       detail: localize(
         "restartDisplayLanguageDetail1",
         "To change the display language to {0}, {1} needs to restart.",
         languageName,
         this.productService.nameLong
       ),
-      primaryButton: localize(
-        {
-          key: "restart",
-          comment: ["&& denotes a mnemonic character"]
-        },
-        "&&Restart"
-      )
+      primaryButton: localize({ key: "restart", comment: ["&& denotes a mnemonic character"] }, "&&Restart")
     });
     return confirmed;
   }
@@ -227,14 +170,6 @@ let NativeActiveLanguagePackService = class {
 NativeActiveLanguagePackService = __decorateClass([
   __decorateParam(0, ILanguagePackService)
 ], NativeActiveLanguagePackService);
-registerSingleton(
-  ILocaleService,
-  NativeLocaleService,
-  InstantiationType.Delayed
-);
-registerSingleton(
-  IActiveLanguagePackService,
-  NativeActiveLanguagePackService,
-  InstantiationType.Delayed
-);
+registerSingleton(ILocaleService, NativeLocaleService, InstantiationType.Delayed);
+registerSingleton(IActiveLanguagePackService, NativeActiveLanguagePackService, InstantiationType.Delayed);
 //# sourceMappingURL=localeService.js.map

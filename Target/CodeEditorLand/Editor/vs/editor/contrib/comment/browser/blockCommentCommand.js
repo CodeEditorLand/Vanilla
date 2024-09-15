@@ -1,12 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../../base/common/charCode.js";
-import {
-  EditOperation
-} from "../../../common/core/editOperation.js";
+import { EditOperation, ISingleEditOperation } from "../../../common/core/editOperation.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
 class BlockCommentCommand {
   constructor(selection, insertSpace, languageConfigurationService) {
     this.languageConfigurationService = languageConfigurationService;
@@ -52,32 +53,18 @@ class BlockCommentCommand {
     const endColumn = selection.endColumn;
     const startLineText = model.getLineContent(startLineNumber);
     const endLineText = model.getLineContent(endLineNumber);
-    let startTokenIndex = startLineText.lastIndexOf(
-      startToken,
-      startColumn - 1 + startToken.length
-    );
-    let endTokenIndex = endLineText.indexOf(
-      endToken,
-      endColumn - 1 - endToken.length
-    );
+    let startTokenIndex = startLineText.lastIndexOf(startToken, startColumn - 1 + startToken.length);
+    let endTokenIndex = endLineText.indexOf(endToken, endColumn - 1 - endToken.length);
     if (startTokenIndex !== -1 && endTokenIndex !== -1) {
       if (startLineNumber === endLineNumber) {
-        const lineBetweenTokens = startLineText.substring(
-          startTokenIndex + startToken.length,
-          endTokenIndex
-        );
+        const lineBetweenTokens = startLineText.substring(startTokenIndex + startToken.length, endTokenIndex);
         if (lineBetweenTokens.indexOf(endToken) >= 0) {
           startTokenIndex = -1;
           endTokenIndex = -1;
         }
       } else {
-        const startLineAfterStartToken = startLineText.substring(
-          startTokenIndex + startToken.length
-        );
-        const endLineBeforeEndToken = endLineText.substring(
-          0,
-          endTokenIndex
-        );
+        const startLineAfterStartToken = startLineText.substring(startTokenIndex + startToken.length);
+        const endLineBeforeEndToken = endLineText.substring(0, endTokenIndex);
         if (startLineAfterStartToken.indexOf(endToken) >= 0 || endLineBeforeEndToken.indexOf(endToken) >= 0) {
           startTokenIndex = -1;
           endTokenIndex = -1;
@@ -86,9 +73,7 @@ class BlockCommentCommand {
     }
     let ops;
     if (startTokenIndex !== -1 && endTokenIndex !== -1) {
-      if (insertSpace && startTokenIndex + startToken.length < startLineText.length && startLineText.charCodeAt(
-        startTokenIndex + startToken.length
-      ) === CharCode.Space) {
+      if (insertSpace && startTokenIndex + startToken.length < startLineText.length && startLineText.charCodeAt(startTokenIndex + startToken.length) === CharCode.Space) {
         startToken = startToken + " ";
       }
       if (insertSpace && endTokenIndex > 0 && endLineText.charCodeAt(endTokenIndex - 1) === CharCode.Space) {
@@ -96,22 +81,12 @@ class BlockCommentCommand {
         endTokenIndex -= 1;
       }
       ops = BlockCommentCommand._createRemoveBlockCommentOperations(
-        new Range(
-          startLineNumber,
-          startTokenIndex + startToken.length + 1,
-          endLineNumber,
-          endTokenIndex + 1
-        ),
+        new Range(startLineNumber, startTokenIndex + startToken.length + 1, endLineNumber, endTokenIndex + 1),
         startToken,
         endToken
       );
     } else {
-      ops = BlockCommentCommand._createAddBlockCommentOperations(
-        selection,
-        startToken,
-        endToken,
-        this._insertSpace
-      );
+      ops = BlockCommentCommand._createAddBlockCommentOperations(selection, startToken, endToken, this._insertSpace);
       this._usedEndToken = ops.length === 1 ? endToken : null;
     }
     for (const op of ops) {
@@ -120,68 +95,41 @@ class BlockCommentCommand {
   }
   static _createRemoveBlockCommentOperations(r, startToken, endToken) {
     const res = [];
-    if (Range.isEmpty(r)) {
-      res.push(
-        EditOperation.delete(
-          new Range(
-            r.startLineNumber,
-            r.startColumn - startToken.length,
-            r.endLineNumber,
-            r.endColumn + endToken.length
-          )
-        )
-      );
+    if (!Range.isEmpty(r)) {
+      res.push(EditOperation.delete(new Range(
+        r.startLineNumber,
+        r.startColumn - startToken.length,
+        r.startLineNumber,
+        r.startColumn
+      )));
+      res.push(EditOperation.delete(new Range(
+        r.endLineNumber,
+        r.endColumn,
+        r.endLineNumber,
+        r.endColumn + endToken.length
+      )));
     } else {
-      res.push(
-        EditOperation.delete(
-          new Range(
-            r.startLineNumber,
-            r.startColumn - startToken.length,
-            r.startLineNumber,
-            r.startColumn
-          )
-        )
-      );
-      res.push(
-        EditOperation.delete(
-          new Range(
-            r.endLineNumber,
-            r.endColumn,
-            r.endLineNumber,
-            r.endColumn + endToken.length
-          )
-        )
-      );
+      res.push(EditOperation.delete(new Range(
+        r.startLineNumber,
+        r.startColumn - startToken.length,
+        r.endLineNumber,
+        r.endColumn + endToken.length
+      )));
     }
     return res;
   }
   static _createAddBlockCommentOperations(r, startToken, endToken, insertSpace) {
     const res = [];
-    if (Range.isEmpty(r)) {
-      res.push(
-        EditOperation.replace(
-          new Range(
-            r.startLineNumber,
-            r.startColumn,
-            r.endLineNumber,
-            r.endColumn
-          ),
-          startToken + "  " + endToken
-        )
-      );
+    if (!Range.isEmpty(r)) {
+      res.push(EditOperation.insert(new Position(r.startLineNumber, r.startColumn), startToken + (insertSpace ? " " : "")));
+      res.push(EditOperation.insert(new Position(r.endLineNumber, r.endColumn), (insertSpace ? " " : "") + endToken));
     } else {
-      res.push(
-        EditOperation.insert(
-          new Position(r.startLineNumber, r.startColumn),
-          startToken + (insertSpace ? " " : "")
-        )
-      );
-      res.push(
-        EditOperation.insert(
-          new Position(r.endLineNumber, r.endColumn),
-          (insertSpace ? " " : "") + endToken
-        )
-      );
+      res.push(EditOperation.replace(new Range(
+        r.startLineNumber,
+        r.startColumn,
+        r.endLineNumber,
+        r.endColumn
+      ), startToken + "  " + endToken));
     }
     return res;
   }
@@ -189,24 +137,12 @@ class BlockCommentCommand {
     const startLineNumber = this._selection.startLineNumber;
     const startColumn = this._selection.startColumn;
     model.tokenization.tokenizeIfCheap(startLineNumber);
-    const languageId = model.getLanguageIdAtPosition(
-      startLineNumber,
-      startColumn
-    );
-    const config = this.languageConfigurationService.getLanguageConfiguration(
-      languageId
-    ).comments;
+    const languageId = model.getLanguageIdAtPosition(startLineNumber, startColumn);
+    const config = this.languageConfigurationService.getLanguageConfiguration(languageId).comments;
     if (!config || !config.blockCommentStartToken || !config.blockCommentEndToken) {
       return;
     }
-    this._createOperationsForBlockComment(
-      this._selection,
-      config.blockCommentStartToken,
-      config.blockCommentEndToken,
-      this._insertSpace,
-      model,
-      builder
-    );
+    this._createOperationsForBlockComment(this._selection, config.blockCommentStartToken, config.blockCommentEndToken, this._insertSpace, model, builder);
   }
   computeCursorState(model, helper) {
     const inverseEditOperations = helper.getInverseEditOperations();

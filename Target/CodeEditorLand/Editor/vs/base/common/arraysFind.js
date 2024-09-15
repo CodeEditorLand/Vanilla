@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Comparator } from "./arrays.js";
 function findLast(array, predicate) {
   const idx = findLastIdx(array, predicate);
   if (idx === -1) {
@@ -57,12 +58,7 @@ function findFirstIdxMonotonousOrArrLen(array, predicate, startIdx = 0, endIdxEx
 }
 __name(findFirstIdxMonotonousOrArrLen, "findFirstIdxMonotonousOrArrLen");
 function findFirstIdxMonotonous(array, predicate, startIdx = 0, endIdxEx = array.length) {
-  const idx = findFirstIdxMonotonousOrArrLen(
-    array,
-    predicate,
-    startIdx,
-    endIdxEx
-  );
+  const idx = findFirstIdxMonotonousOrArrLen(array, predicate, startIdx, endIdxEx);
   return idx === array.length ? -1 : idx;
 }
 __name(findFirstIdxMonotonous, "findFirstIdxMonotonous");
@@ -85,19 +81,13 @@ class MonotonousArray {
       if (this._prevFindLastPredicate) {
         for (const item of this._array) {
           if (this._prevFindLastPredicate(item) && !predicate(item)) {
-            throw new Error(
-              "MonotonousArray: current predicate must be weaker than (or equal to) the previous predicate."
-            );
+            throw new Error("MonotonousArray: current predicate must be weaker than (or equal to) the previous predicate.");
           }
         }
       }
       this._prevFindLastPredicate = predicate;
     }
-    const idx = findLastIdxMonotonous(
-      this._array,
-      predicate,
-      this._findLastMonotonousLastIdx
-    );
+    const idx = findLastIdxMonotonous(this._array, predicate, this._findLastMonotonousLastIdx);
     this._findLastMonotonousLastIdx = idx + 1;
     return idx === -1 ? void 0 : this._array[idx];
   }

@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
 import { CharacterClassifier } from "../core/characterClassifier.js";
+import { ILink } from "../languages.js";
 var State = /* @__PURE__ */ ((State2) => {
   State2[State2["Invalid"] = 0] = "Invalid";
   State2[State2["Start"] = 1] = "Start";
@@ -121,22 +122,14 @@ var CharacterClass = /* @__PURE__ */ ((CharacterClass2) => {
 let _classifier = null;
 function getClassifier() {
   if (_classifier === null) {
-    _classifier = new CharacterClassifier(
-      0 /* None */
-    );
+    _classifier = new CharacterClassifier(0 /* None */);
     const FORCE_TERMINATION_CHARACTERS = ` 	<>'"\u3001\u3002\uFF61\uFF64\uFF0C\uFF0E\uFF1A\uFF1B\u2018\u3008\u300C\u300E\u3014\uFF08\uFF3B\uFF5B\uFF62\uFF63\uFF5D\uFF3D\uFF09\u3015\u300F\u300D\u3009\u2019\uFF40\uFF5E\u2026`;
     for (let i = 0; i < FORCE_TERMINATION_CHARACTERS.length; i++) {
-      _classifier.set(
-        FORCE_TERMINATION_CHARACTERS.charCodeAt(i),
-        1 /* ForceTermination */
-      );
+      _classifier.set(FORCE_TERMINATION_CHARACTERS.charCodeAt(i), 1 /* ForceTermination */);
     }
     const CANNOT_END_WITH_CHARACTERS = ".,;:";
     for (let i = 0; i < CANNOT_END_WITH_CHARACTERS.length; i++) {
-      _classifier.set(
-        CANNOT_END_WITH_CHARACTERS.charCodeAt(i),
-        2 /* CannotEndIn */
-      );
+      _classifier.set(CANNOT_END_WITH_CHARACTERS.charCodeAt(i), 2 /* CannotEndIn */);
     }
   }
   return _classifier;
@@ -242,15 +235,7 @@ class LinkComputer {
               chClass = classifier.get(chCode);
           }
           if (chClass === 1 /* ForceTermination */) {
-            result.push(
-              LinkComputer._createLink(
-                classifier,
-                line,
-                i,
-                linkBeginIndex,
-                j
-              )
-            );
+            result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, j));
             resetStateMachine = true;
           }
         } else if (state === 12 /* End */) {
@@ -283,15 +268,7 @@ class LinkComputer {
         j++;
       }
       if (state === 13 /* Accept */) {
-        result.push(
-          LinkComputer._createLink(
-            classifier,
-            line,
-            i,
-            linkBeginIndex,
-            len
-          )
-        );
+        result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, len));
       }
     }
     return result;

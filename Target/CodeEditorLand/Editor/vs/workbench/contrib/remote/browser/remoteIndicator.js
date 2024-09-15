@@ -10,91 +10,54 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DomEmitter } from "../../../../base/browser/event.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-import { RunOnceScheduler, retry } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  MarkdownString
-} from "../../../../base/common/htmlContent.js";
-import { getCodiconAriaLabel } from "../../../../base/common/iconLabels.js";
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import {
-  PlatformToString,
-  isWeb,
-  platform
-} from "../../../../base/common/platform.js";
-import { truncate } from "../../../../base/common/strings.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import {
-  Action2,
-  IMenuService,
-  MenuId,
-  MenuItemAction,
-  MenuRegistry,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  Extensions as ConfigurationExtensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT,
-  IExtensionGalleryService,
-  IExtensionManagementService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IRemoteAgentService, remoteConnectionLatencyMeasurer } from "../../../services/remote/common/remoteAgentService.js";
+import { RunOnceScheduler, retry } from "../../../../base/common/async.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MenuId, IMenuService, MenuItemAction, MenuRegistry, registerAction2, Action2, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { StatusbarAlignment, IStatusbarService, IStatusbarEntryAccessor, IStatusbarEntry } from "../../../services/statusbar/browser/statusbar.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { QuickPickItem, IQuickInputService, IQuickInputButton } from "../../../../platform/quickinput/common/quickInput.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
 import { PersistentConnectionEventType } from "../../../../platform/remote/common/remoteAgentConnection.js";
 import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { getRemoteName } from "../../../../platform/remote/common/remoteHosts.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ReloadWindowAction } from "../../../browser/actions/windowActions.js";
-import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
-import {
-  RemoteNameContext,
-  VirtualWorkspaceContext
-} from "../../../common/contextkeys.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IHostService } from "../../../services/host/browser/host.js";
-import {
-  IRemoteAgentService,
-  remoteConnectionLatencyMeasurer
-} from "../../../services/remote/common/remoteAgentService.js";
-import {
-  IStatusbarService,
-  StatusbarAlignment
-} from "../../../services/statusbar/browser/statusbar.js";
+import { PlatformName, PlatformToString, isWeb, platform } from "../../../../base/common/platform.js";
+import { truncate } from "../../../../base/common/strings.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { getRemoteName } from "../../../../platform/remote/common/remoteHosts.js";
+import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
+import { getCodiconAriaLabel } from "../../../../base/common/iconLabels.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ReloadWindowAction } from "../../../browser/actions/windowActions.js";
+import { EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT, IExtensionGalleryService, IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionsWorkbenchService, LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID } from "../../extensions/common/extensions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMarkdownString, MarkdownString } from "../../../../base/common/htmlContent.js";
+import { RemoteNameContext, VirtualWorkspaceContext } from "../../../common/contextkeys.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from "../../../../base/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { DomEmitter } from "../../../../base/browser/event.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { infoIcon } from "../../extensions/browser/extensionsIcons.js";
-import {
-  IExtensionsWorkbenchService,
-  LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID
-} from "../../extensions/common/extensions.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { URI } from "../../../../base/common/uri.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 let RemoteStatusIndicator = class extends Disposable {
   constructor(statusbarService, environmentService, labelService, contextKeyService, menuService, quickInputService, commandService, extensionService, remoteAgentService, remoteAuthorityResolverService, hostService, workspaceContextService, logService, extensionGalleryService, telemetryService, productService, extensionManagementService, openerService, configurationService) {
     super();
@@ -141,19 +104,9 @@ let RemoteStatusIndicator = class extends Disposable {
   static REMOTE_CONNECTION_LATENCY_SCHEDULER_DELAY = 60 * 1e3;
   static REMOTE_CONNECTION_LATENCY_SCHEDULER_FIRST_RUN_DELAY = 10 * 1e3;
   remoteStatusEntry;
-  legacyIndicatorMenu = this._register(
-    this.menuService.createMenu(
-      MenuId.StatusBarWindowIndicatorMenu,
-      this.contextKeyService
-    )
-  );
+  legacyIndicatorMenu = this._register(this.menuService.createMenu(MenuId.StatusBarWindowIndicatorMenu, this.contextKeyService));
   // to be removed once migration completed
-  remoteIndicatorMenu = this._register(
-    this.menuService.createMenu(
-      MenuId.StatusBarRemoteIndicatorMenu,
-      this.contextKeyService
-    )
-  );
+  remoteIndicatorMenu = this._register(this.menuService.createMenu(MenuId.StatusBarRemoteIndicatorMenu, this.contextKeyService));
   remoteMenuActionsGroups;
   remoteAuthority = this.environmentService.remoteAuthority;
   virtualWorkspaceLocation = void 0;
@@ -166,10 +119,7 @@ let RemoteStatusIndicator = class extends Disposable {
   _remoteExtensionMetadata = void 0;
   get remoteExtensionMetadata() {
     if (!this._remoteExtensionMetadata) {
-      const remoteExtensionTips = {
-        ...this.productService.remoteExtensionTips,
-        ...this.productService.virtualWorkspaceExtensionTips
-      };
+      const remoteExtensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
       this._remoteExtensionMetadata = Object.values(remoteExtensionTips).filter((value) => value.startEntry !== void 0).map((value) => {
         return {
           id: value.extensionId,
@@ -184,9 +134,7 @@ let RemoteStatusIndicator = class extends Disposable {
           supportedPlatforms: value.supportedPlatforms
         };
       });
-      this.remoteExtensionMetadata.sort(
-        (ext1, ext2) => ext1.priority - ext2.priority
-      );
+      this.remoteExtensionMetadata.sort((ext1, ext2) => ext1.priority - ext2.priority);
     }
     return this._remoteExtensionMetadata;
   }
@@ -195,97 +143,61 @@ let RemoteStatusIndicator = class extends Disposable {
   onDidChangeEntries = this._onDidChangeEntries.event;
   registerActions() {
     const category = nls.localize2("remote.category", "Remote");
-    this._register(
-      registerAction2(
-        class extends Action2 {
-          constructor() {
-            super({
-              id: RemoteStatusIndicator.REMOTE_ACTIONS_COMMAND_ID,
-              category,
-              title: nls.localize2(
-                "remote.showMenu",
-                "Show Remote Menu"
-              ),
-              f1: true,
-              keybinding: {
-                weight: KeybindingWeight.WorkbenchContrib,
-                primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyO
-              }
-            });
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: RemoteStatusIndicator.REMOTE_ACTIONS_COMMAND_ID,
+          category,
+          title: nls.localize2("remote.showMenu", "Show Remote Menu"),
+          f1: true,
+          keybinding: {
+            weight: KeybindingWeight.WorkbenchContrib,
+            primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyO
           }
-          run = /* @__PURE__ */ __name(() => this.showRemoteMenu(), "run");
-        }
-      )
-    );
+        });
+      }
+      run = /* @__PURE__ */ __name(() => that.showRemoteMenu(), "run");
+    }));
     if (RemoteStatusIndicator.SHOW_CLOSE_REMOTE_COMMAND_ID) {
-      this._register(
-        registerAction2(
-          class extends Action2 {
-            constructor() {
-              super({
-                id: RemoteStatusIndicator.CLOSE_REMOTE_COMMAND_ID,
-                category,
-                title: nls.localize2(
-                  "remote.close",
-                  "Close Remote Connection"
-                ),
-                f1: true,
-                precondition: ContextKeyExpr.or(
-                  RemoteNameContext,
-                  VirtualWorkspaceContext
-                )
-              });
-            }
-            run = /* @__PURE__ */ __name(() => this.hostService.openWindow({
-              forceReuseWindow: true,
-              remoteAuthority: null
-            }), "run");
-          }
-        )
-      );
+      this._register(registerAction2(class extends Action2 {
+        constructor() {
+          super({
+            id: RemoteStatusIndicator.CLOSE_REMOTE_COMMAND_ID,
+            category,
+            title: nls.localize2("remote.close", "Close Remote Connection"),
+            f1: true,
+            precondition: ContextKeyExpr.or(RemoteNameContext, VirtualWorkspaceContext)
+          });
+        }
+        run = /* @__PURE__ */ __name(() => that.hostService.openWindow({ forceReuseWindow: true, remoteAuthority: null }), "run");
+      }));
       if (this.remoteAuthority) {
         MenuRegistry.appendMenuItem(MenuId.MenubarFileMenu, {
           group: "6_close",
           command: {
             id: RemoteStatusIndicator.CLOSE_REMOTE_COMMAND_ID,
-            title: nls.localize(
-              {
-                key: "miCloseRemote",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "Close Re&&mote Connection"
-            )
+            title: nls.localize({ key: "miCloseRemote", comment: ["&& denotes a mnemonic"] }, "Close Re&&mote Connection")
           },
           order: 3.5
         });
       }
     }
     if (this.extensionGalleryService.isEnabled()) {
-      this._register(
-        registerAction2(
-          class extends Action2 {
-            constructor() {
-              super({
-                id: RemoteStatusIndicator.INSTALL_REMOTE_EXTENSIONS_ID,
-                category,
-                title: nls.localize2(
-                  "remote.install",
-                  "Install Remote Development Extensions"
-                ),
-                f1: true
-              });
-            }
-            run = /* @__PURE__ */ __name((accessor, input) => {
-              const extensionsWorkbenchService = accessor.get(
-                IExtensionsWorkbenchService
-              );
-              return extensionsWorkbenchService.openSearch(
-                `@recommended:remotes`
-              );
-            }, "run");
-          }
-        )
-      );
+      this._register(registerAction2(class extends Action2 {
+        constructor() {
+          super({
+            id: RemoteStatusIndicator.INSTALL_REMOTE_EXTENSIONS_ID,
+            category,
+            title: nls.localize2("remote.install", "Install Remote Development Extensions"),
+            f1: true
+          });
+        }
+        run = /* @__PURE__ */ __name((accessor, input) => {
+          const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+          return extensionsWorkbenchService.openSearch(`@recommended:remotes`);
+        }, "run");
+      }));
     }
   }
   registerListeners() {
@@ -293,96 +205,58 @@ let RemoteStatusIndicator = class extends Disposable {
       this.remoteMenuActionsGroups = void 0;
       this.updateRemoteStatusIndicator();
     }, "updateRemoteActions");
-    this._register(
-      this.legacyIndicatorMenu.onDidChange(updateRemoteActions)
-    );
-    this._register(
-      this.remoteIndicatorMenu.onDidChange(updateRemoteActions)
-    );
-    this._register(
-      this.labelService.onDidChangeFormatters(
-        () => this.updateRemoteStatusIndicator()
-      )
-    );
+    this._register(this.legacyIndicatorMenu.onDidChange(updateRemoteActions));
+    this._register(this.remoteIndicatorMenu.onDidChange(updateRemoteActions));
+    this._register(this.labelService.onDidChangeFormatters(() => this.updateRemoteStatusIndicator()));
     const remoteIndicator = this.environmentService.options?.windowIndicator;
     if (remoteIndicator && remoteIndicator.onDidChange) {
-      this._register(
-        remoteIndicator.onDidChange(
-          () => this.updateRemoteStatusIndicator()
-        )
-      );
+      this._register(remoteIndicator.onDidChange(() => this.updateRemoteStatusIndicator()));
     }
     if (this.remoteAuthority) {
       const connection = this.remoteAgentService.getConnection();
       if (connection) {
-        this._register(
-          connection.onDidStateChange((e) => {
-            switch (e.type) {
-              case PersistentConnectionEventType.ConnectionLost:
-              case PersistentConnectionEventType.ReconnectionRunning:
-              case PersistentConnectionEventType.ReconnectionWait:
-                this.setConnectionState("reconnecting");
-                break;
-              case PersistentConnectionEventType.ReconnectionPermanentFailure:
-                this.setConnectionState("disconnected");
-                break;
-              case PersistentConnectionEventType.ConnectionGain:
-                this.setConnectionState("connected");
-                break;
-            }
-          })
-        );
+        this._register(connection.onDidStateChange((e) => {
+          switch (e.type) {
+            case PersistentConnectionEventType.ConnectionLost:
+            case PersistentConnectionEventType.ReconnectionRunning:
+            case PersistentConnectionEventType.ReconnectionWait:
+              this.setConnectionState("reconnecting");
+              break;
+            case PersistentConnectionEventType.ReconnectionPermanentFailure:
+              this.setConnectionState("disconnected");
+              break;
+            case PersistentConnectionEventType.ConnectionGain:
+              this.setConnectionState("connected");
+              break;
+          }
+        }));
       }
     } else {
-      this._register(
-        this.workspaceContextService.onDidChangeWorkbenchState(() => {
-          this.updateVirtualWorkspaceLocation();
-          this.updateRemoteStatusIndicator();
-        })
-      );
+      this._register(this.workspaceContextService.onDidChangeWorkbenchState(() => {
+        this.updateVirtualWorkspaceLocation();
+        this.updateRemoteStatusIndicator();
+      }));
     }
     if (isWeb) {
-      this._register(
-        Event.any(
-          this._register(new DomEmitter(mainWindow, "online")).event,
-          this._register(new DomEmitter(mainWindow, "offline")).event
-        )(
-          () => this.setNetworkState(
-            navigator.onLine ? "online" : "offline"
-          )
-        )
-      );
+      this._register(Event.any(
+        this._register(new DomEmitter(mainWindow, "online")).event,
+        this._register(new DomEmitter(mainWindow, "offline")).event
+      )(() => this.setNetworkState(navigator.onLine ? "online" : "offline")));
     }
-    this._register(
-      this.extensionService.onDidChangeExtensions(async (result) => {
-        for (const ext of result.added) {
-          const index = this.remoteExtensionMetadata.findIndex(
-            (value) => ExtensionIdentifier.equals(
-              value.id,
-              ext.identifier
-            )
-          );
-          if (index > -1) {
-            this.remoteExtensionMetadata[index].installed = true;
-          }
+    this._register(this.extensionService.onDidChangeExtensions(async (result) => {
+      for (const ext of result.added) {
+        const index = this.remoteExtensionMetadata.findIndex((value) => ExtensionIdentifier.equals(value.id, ext.identifier));
+        if (index > -1) {
+          this.remoteExtensionMetadata[index].installed = true;
         }
-      })
-    );
-    this._register(
-      this.extensionManagementService.onDidUninstallExtension(
-        async (result) => {
-          const index = this.remoteExtensionMetadata.findIndex(
-            (value) => ExtensionIdentifier.equals(
-              value.id,
-              result.identifier.id
-            )
-          );
-          if (index > -1) {
-            this.remoteExtensionMetadata[index].installed = false;
-          }
-        }
-      )
-    );
+      }
+    }));
+    this._register(this.extensionManagementService.onDidUninstallExtension(async (result) => {
+      const index = this.remoteExtensionMetadata.findIndex((value) => ExtensionIdentifier.equals(value.id, result.identifier.id));
+      if (index > -1) {
+        this.remoteExtensionMetadata[index].installed = false;
+      }
+    }));
   }
   async initializeRemoteMetadata() {
     if (this.remoteMetadataInitialized) {
@@ -392,9 +266,7 @@ let RemoteStatusIndicator = class extends Disposable {
     for (let i = 0; i < this.remoteExtensionMetadata.length; i++) {
       const extensionId = this.remoteExtensionMetadata[i].id;
       const supportedPlatforms = this.remoteExtensionMetadata[i].supportedPlatforms;
-      const isInstalled = (await this.extensionManagementService.getInstalled()).find(
-        (value) => ExtensionIdentifier.equals(value.identifier.id, extensionId)
-      ) ? true : false;
+      const isInstalled = (await this.extensionManagementService.getInstalled()).find((value) => ExtensionIdentifier.equals(value.identifier.id, extensionId)) ? true : false;
       this.remoteExtensionMetadata[i].installed = isInstalled;
       if (isInstalled) {
         this.remoteExtensionMetadata[i].isPlatformCompatible = true;
@@ -409,9 +281,7 @@ let RemoteStatusIndicator = class extends Disposable {
     this.updateRemoteStatusIndicator();
   }
   updateVirtualWorkspaceLocation() {
-    this.virtualWorkspaceLocation = getVirtualWorkspaceLocation(
-      this.workspaceContextService.getWorkspace()
-    );
+    this.virtualWorkspaceLocation = getVirtualWorkspaceLocation(this.workspaceContextService.getWorkspace());
   }
   async updateWhenInstalledExtensionsRegistered() {
     await this.extensionService.whenInstalledExtensionsRegistered();
@@ -419,9 +289,7 @@ let RemoteStatusIndicator = class extends Disposable {
     if (remoteAuthority) {
       (async () => {
         try {
-          const { authority } = await this.remoteAuthorityResolverService.resolveAuthority(
-            remoteAuthority
-          );
+          const { authority } = await this.remoteAuthorityResolverService.resolveAuthority(remoteAuthority);
           this.connectionToken = authority.connectionToken;
           this.setConnectionState("connected");
         } catch (error) {
@@ -451,21 +319,12 @@ let RemoteStatusIndicator = class extends Disposable {
     this.measureNetworkConnectionLatencyScheduler) {
       return;
     }
-    this.measureNetworkConnectionLatencyScheduler = this._register(
-      new RunOnceScheduler(
-        () => this.measureNetworkConnectionLatency(),
-        RemoteStatusIndicator.REMOTE_CONNECTION_LATENCY_SCHEDULER_DELAY
-      )
-    );
-    this.measureNetworkConnectionLatencyScheduler.schedule(
-      RemoteStatusIndicator.REMOTE_CONNECTION_LATENCY_SCHEDULER_FIRST_RUN_DELAY
-    );
+    this.measureNetworkConnectionLatencyScheduler = this._register(new RunOnceScheduler(() => this.measureNetworkConnectionLatency(), RemoteStatusIndicator.REMOTE_CONNECTION_LATENCY_SCHEDULER_DELAY));
+    this.measureNetworkConnectionLatencyScheduler.schedule(RemoteStatusIndicator.REMOTE_CONNECTION_LATENCY_SCHEDULER_FIRST_RUN_DELAY);
   }
   async measureNetworkConnectionLatency() {
     if (this.hostService.hasFocus && this.networkState !== "offline") {
-      const measurement = await remoteConnectionLatencyMeasurer.measure(
-        this.remoteAgentService
-      );
+      const measurement = await remoteConnectionLatencyMeasurer.measure(this.remoteAgentService);
       if (measurement) {
         if (measurement.high) {
           this.setNetworkState("high-latency");
@@ -481,21 +340,13 @@ let RemoteStatusIndicator = class extends Disposable {
       const oldState = this.networkState;
       this.networkState = newState;
       if (newState === "high-latency") {
-        this.logService.warn(
-          `Remote network connection appears to have high latency (${remoteConnectionLatencyMeasurer.latency?.current?.toFixed(2)}ms last, ${remoteConnectionLatencyMeasurer.latency?.average?.toFixed(2)}ms average)`
-        );
+        this.logService.warn(`Remote network connection appears to have high latency (${remoteConnectionLatencyMeasurer.latency?.current?.toFixed(2)}ms last, ${remoteConnectionLatencyMeasurer.latency?.average?.toFixed(2)}ms average)`);
       }
       if (this.connectionToken) {
         if (newState === "online" && oldState === "high-latency") {
-          this.logNetworkConnectionHealthTelemetry(
-            this.connectionToken,
-            "good"
-          );
+          this.logNetworkConnectionHealthTelemetry(this.connectionToken, "good");
         } else if (newState === "high-latency" && oldState === "online") {
-          this.logNetworkConnectionHealthTelemetry(
-            this.connectionToken,
-            "poor"
-          );
+          this.logNetworkConnectionHealthTelemetry(this.connectionToken, "poor");
         }
       }
       this.updateRemoteStatusIndicator();
@@ -509,14 +360,10 @@ let RemoteStatusIndicator = class extends Disposable {
     });
   }
   validatedGroup(group) {
-    if (!group.match(
-      /^(remote|virtualfs)_(\d\d)_(([a-z][a-z0-9+.-]*)_(.*))$/
-    )) {
+    if (!group.match(/^(remote|virtualfs)_(\d\d)_(([a-z][a-z0-9+.-]*)_(.*))$/)) {
       if (!this.loggedInvalidGroupNames[group]) {
         this.loggedInvalidGroupNames[group] = true;
-        this.logService.warn(
-          `Invalid group name used in "statusBar/remoteIndicator" menu contribution: ${group}. Entries ignored. Expected format: 'remote_$ORDER_$REMOTENAME_$GROUPING or 'virtualfs_$ORDER_$FILESCHEME_$GROUPING.`
-        );
+        this.logService.warn(`Invalid group name used in "statusBar/remoteIndicator" menu contribution: ${group}. Entries ignored. Expected format: 'remote_$ORDER_$REMOTENAME_$GROUPING or 'virtualfs_$ORDER_$FILESCHEME_$GROUPING.`);
       }
       return false;
     }
@@ -535,21 +382,11 @@ let RemoteStatusIndicator = class extends Disposable {
       if (!remoteIndicatorLabel.startsWith("$(")) {
         remoteIndicatorLabel = `$(remote) ${remoteIndicatorLabel}`;
       }
-      this.renderRemoteStatusIndicator(
-        truncate(
-          remoteIndicatorLabel,
-          RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH
-        ),
-        remoteIndicator.tooltip,
-        remoteIndicator.command
-      );
+      this.renderRemoteStatusIndicator(truncate(remoteIndicatorLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH), remoteIndicator.tooltip, remoteIndicator.command);
       return;
     }
     if (this.remoteAuthority) {
-      const hostLabel = this.labelService.getHostLabel(
-        Schemas.vscodeRemote,
-        this.remoteAuthority
-      ) || this.remoteAuthority;
+      const hostLabel = this.labelService.getHostLabel(Schemas.vscodeRemote, this.remoteAuthority) || this.remoteAuthority;
       switch (this.connectionState) {
         case "initializing":
           this.renderRemoteStatusIndicator(
@@ -557,6 +394,7 @@ let RemoteStatusIndicator = class extends Disposable {
             nls.localize("host.open", "Opening Remote..."),
             void 0,
             true
+            /* progress */
           );
           break;
         case "reconnecting":
@@ -565,110 +403,52 @@ let RemoteStatusIndicator = class extends Disposable {
             void 0,
             void 0,
             true
+            /* progress */
           );
           break;
         case "disconnected":
-          this.renderRemoteStatusIndicator(
-            `$(alert) ${nls.localize("disconnectedFrom", "Disconnected from {0}", truncate(hostLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH))}`
-          );
+          this.renderRemoteStatusIndicator(`$(alert) ${nls.localize("disconnectedFrom", "Disconnected from {0}", truncate(hostLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH))}`);
           break;
         default: {
-          const tooltip = new MarkdownString("", {
-            isTrusted: true,
-            supportThemeIcons: true
-          });
-          const hostNameTooltip = this.labelService.getHostTooltip(
-            Schemas.vscodeRemote,
-            this.remoteAuthority
-          );
+          const tooltip = new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
+          const hostNameTooltip = this.labelService.getHostTooltip(Schemas.vscodeRemote, this.remoteAuthority);
           if (hostNameTooltip) {
             tooltip.appendMarkdown(hostNameTooltip);
           } else {
-            tooltip.appendText(
-              nls.localize(
-                {
-                  key: "host.tooltip",
-                  comment: [
-                    "{0} is a remote host name, e.g. Dev Container"
-                  ]
-                },
-                "Editing on {0}",
-                hostLabel
-              )
-            );
+            tooltip.appendText(nls.localize({ key: "host.tooltip", comment: ["{0} is a remote host name, e.g. Dev Container"] }, "Editing on {0}", hostLabel));
           }
-          this.renderRemoteStatusIndicator(
-            `$(remote) ${truncate(hostLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH)}`,
-            tooltip
-          );
+          this.renderRemoteStatusIndicator(`$(remote) ${truncate(hostLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH)}`, tooltip);
         }
       }
       return;
     }
     if (this.virtualWorkspaceLocation) {
-      const workspaceLabel = this.labelService.getHostLabel(
-        this.virtualWorkspaceLocation.scheme,
-        this.virtualWorkspaceLocation.authority
-      );
+      const workspaceLabel = this.labelService.getHostLabel(this.virtualWorkspaceLocation.scheme, this.virtualWorkspaceLocation.authority);
       if (workspaceLabel) {
-        const tooltip = new MarkdownString("", {
-          isTrusted: true,
-          supportThemeIcons: true
-        });
-        const hostNameTooltip = this.labelService.getHostTooltip(
-          this.virtualWorkspaceLocation.scheme,
-          this.virtualWorkspaceLocation.authority
-        );
+        const tooltip = new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
+        const hostNameTooltip = this.labelService.getHostTooltip(this.virtualWorkspaceLocation.scheme, this.virtualWorkspaceLocation.authority);
         if (hostNameTooltip) {
           tooltip.appendMarkdown(hostNameTooltip);
         } else {
-          tooltip.appendText(
-            nls.localize(
-              {
-                key: "workspace.tooltip",
-                comment: [
-                  "{0} is a remote workspace name, e.g. GitHub"
-                ]
-              },
-              "Editing on {0}",
-              workspaceLabel
-            )
-          );
+          tooltip.appendText(nls.localize({ key: "workspace.tooltip", comment: ["{0} is a remote workspace name, e.g. GitHub"] }, "Editing on {0}", workspaceLabel));
         }
         if (!isWeb || this.remoteAuthority) {
           tooltip.appendMarkdown("\n\n");
-          tooltip.appendMarkdown(
-            nls.localize(
-              {
-                key: "workspace.tooltip2",
-                comment: [
-                  "[features are not available]({1}) is a link. Only translate `features are not available`. Do not change brackets and parentheses or {0}"
-                ]
-              },
-              "Some [features are not available]({0}) for resources located on a virtual file system.",
-              `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`
-            )
-          );
+          tooltip.appendMarkdown(nls.localize(
+            { key: "workspace.tooltip2", comment: ["[features are not available]({1}) is a link. Only translate `features are not available`. Do not change brackets and parentheses or {0}"] },
+            "Some [features are not available]({0}) for resources located on a virtual file system.",
+            `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`
+          ));
         }
-        this.renderRemoteStatusIndicator(
-          `$(remote) ${truncate(workspaceLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH)}`,
-          tooltip
-        );
+        this.renderRemoteStatusIndicator(`$(remote) ${truncate(workspaceLabel, RemoteStatusIndicator.REMOTE_STATUS_LABEL_MAX_LENGTH)}`, tooltip);
         return;
       }
     }
-    this.renderRemoteStatusIndicator(
-      `$(remote)`,
-      nls.localize("noHost.tooltip", "Open a Remote Window")
-    );
+    this.renderRemoteStatusIndicator(`$(remote)`, nls.localize("noHost.tooltip", "Open a Remote Window"));
     return;
   }
   renderRemoteStatusIndicator(initialText, initialTooltip, command, showProgress) {
-    const { text, tooltip, ariaLabel } = this.withNetworkStatus(
-      initialText,
-      initialTooltip,
-      showProgress
-    );
+    const { text, tooltip, ariaLabel } = this.withNetworkStatus(initialText, initialTooltip, showProgress);
     const properties = {
       name: nls.localize("remoteHost", "Remote Host"),
       kind: this.networkState === "offline" ? "offline" : "remote",
@@ -686,6 +466,7 @@ let RemoteStatusIndicator = class extends Disposable {
         "status.host",
         StatusbarAlignment.LEFT,
         Number.MAX_VALUE
+        /* first entry */
       );
     }
   }
@@ -702,10 +483,7 @@ let RemoteStatusIndicator = class extends Disposable {
     __name(textWithAlert, "textWithAlert");
     switch (this.networkState) {
       case "offline": {
-        const offlineMessage = nls.localize(
-          "networkStatusOfflineTooltip",
-          "Network appears to be offline, certain features might be unavailable."
-        );
+        const offlineMessage = nls.localize("networkStatusOfflineTooltip", "Network appears to be offline, certain features might be unavailable.");
         text = textWithAlert();
         tooltip = this.appendTooltipLine(tooltip, offlineMessage);
         ariaLabel = `${ariaLabel}, ${offlineMessage}`;
@@ -713,19 +491,7 @@ let RemoteStatusIndicator = class extends Disposable {
       }
       case "high-latency":
         text = textWithAlert();
-        tooltip = this.appendTooltipLine(
-          tooltip,
-          nls.localize(
-            "networkStatusHighLatencyTooltip",
-            "Network appears to have high latency ({0}ms last, {1}ms average), certain features may be slow to respond.",
-            remoteConnectionLatencyMeasurer.latency?.current?.toFixed(
-              2
-            ),
-            remoteConnectionLatencyMeasurer.latency?.average?.toFixed(
-              2
-            )
-          )
-        );
+        tooltip = this.appendTooltipLine(tooltip, nls.localize("networkStatusHighLatencyTooltip", "Network appears to have high latency ({0}ms last, {1}ms average), certain features may be slow to respond.", remoteConnectionLatencyMeasurer.latency?.current?.toFixed(2), remoteConnectionLatencyMeasurer.latency?.average?.toFixed(2)));
         break;
     }
     return { text, tooltip, ariaLabel };
@@ -733,15 +499,9 @@ let RemoteStatusIndicator = class extends Disposable {
   appendTooltipLine(tooltip, line) {
     let markdownTooltip;
     if (typeof tooltip === "string") {
-      markdownTooltip = new MarkdownString(tooltip, {
-        isTrusted: true,
-        supportThemeIcons: true
-      });
+      markdownTooltip = new MarkdownString(tooltip, { isTrusted: true, supportThemeIcons: true });
     } else {
-      markdownTooltip = tooltip ?? new MarkdownString("", {
-        isTrusted: true,
-        supportThemeIcons: true
-      });
+      markdownTooltip = tooltip ?? new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
     }
     if (markdownTooltip.value.length > 0) {
       markdownTooltip.appendMarkdown("\n\n");
@@ -750,31 +510,21 @@ let RemoteStatusIndicator = class extends Disposable {
     return markdownTooltip;
   }
   async installExtension(extensionId) {
-    const galleryExtension = (await this.extensionGalleryService.getExtensions(
-      [{ id: extensionId }],
-      CancellationToken.None
-    ))[0];
-    await this.extensionManagementService.installFromGallery(
-      galleryExtension,
-      {
-        isMachineScoped: false,
-        donotIncludePackAndDependencies: false,
-        context: { [EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT]: true }
-      }
-    );
+    const galleryExtension = (await this.extensionGalleryService.getExtensions([{ id: extensionId }], CancellationToken.None))[0];
+    await this.extensionManagementService.installFromGallery(galleryExtension, {
+      isMachineScoped: false,
+      donotIncludePackAndDependencies: false,
+      context: { [EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT]: true }
+    });
   }
   async runRemoteStartCommand(extensionId, startCommand) {
-    await retry(
-      async () => {
-        const ext = await this.extensionService.getExtension(extensionId);
-        if (!ext) {
-          throw Error("Failed to find installed remote extension");
-        }
-        return ext;
-      },
-      300,
-      10
-    );
+    await retry(async () => {
+      const ext = await this.extensionService.getExtension(extensionId);
+      if (!ext) {
+        throw Error("Failed to find installed remote extension");
+      }
+      return ext;
+    }, 300, 10);
     this.commandService.executeCommand(startCommand);
     this.telemetryService.publicLog2("workbenchActionExecuted", {
       id: "remoteInstallAndRun",
@@ -791,13 +541,9 @@ let RemoteStatusIndicator = class extends Disposable {
     }, "getCategoryLabel");
     const matchCurrentRemote = /* @__PURE__ */ __name(() => {
       if (this.remoteAuthority) {
-        return new RegExp(
-          `^remote_\\d\\d_${getRemoteName(this.remoteAuthority)}_`
-        );
+        return new RegExp(`^remote_\\d\\d_${getRemoteName(this.remoteAuthority)}_`);
       } else if (this.virtualWorkspaceLocation) {
-        return new RegExp(
-          `^virtualfs_\\d\\d_${this.virtualWorkspaceLocation.scheme}_`
-        );
+        return new RegExp(`^virtualfs_\\d\\d_${this.virtualWorkspaceLocation.scheme}_`);
       }
       return void 0;
     }, "matchCurrentRemote");
@@ -820,7 +566,7 @@ let RemoteStatusIndicator = class extends Disposable {
           return g1[0].localeCompare(g2[0]);
         });
       }
-      let lastCategoryName;
+      let lastCategoryName = void 0;
       for (const actionGroup of actionGroups) {
         let hasGroupCategory = false;
         for (const action of actionGroup[1]) {
@@ -828,10 +574,7 @@ let RemoteStatusIndicator = class extends Disposable {
             if (!hasGroupCategory) {
               const category = getCategoryLabel(action);
               if (category !== lastCategoryName) {
-                items.push({
-                  type: "separator",
-                  label: category
-                });
+                items.push({ type: "separator", label: category });
                 lastCategoryName = category;
               }
               hasGroupCategory = true;
@@ -845,37 +588,22 @@ let RemoteStatusIndicator = class extends Disposable {
           }
         }
       }
-      const showExtensionRecommendations = this.configurationService.getValue(
-        "workbench.remoteIndicator.showExtensionRecommendations"
-      );
+      const showExtensionRecommendations = this.configurationService.getValue("workbench.remoteIndicator.showExtensionRecommendations");
       if (showExtensionRecommendations && this.extensionGalleryService.isEnabled() && this.remoteMetadataInitialized) {
         const notInstalledItems = [];
         for (const metadata of this.remoteExtensionMetadata) {
           if (!metadata.installed && metadata.isPlatformCompatible) {
             const label = metadata.startConnectLabel;
-            const buttons = [
-              {
-                iconClass: ThemeIcon.asClassName(infoIcon),
-                tooltip: nls.localize(
-                  "remote.startActions.help",
-                  "Learn More"
-                )
-              }
-            ];
-            notInstalledItems.push({
-              type: "item",
-              id: metadata.id,
-              label,
-              buttons
-            });
+            const buttons = [{
+              iconClass: ThemeIcon.asClassName(infoIcon),
+              tooltip: nls.localize("remote.startActions.help", "Learn More")
+            }];
+            notInstalledItems.push({ type: "item", id: metadata.id, label, buttons });
           }
         }
         items.push({
           type: "separator",
-          label: nls.localize(
-            "remote.startActions.install",
-            "Install"
-          )
+          label: nls.localize("remote.startActions.install", "Install")
         });
         items.push(...notInstalledItems);
       }
@@ -888,29 +616,20 @@ let RemoteStatusIndicator = class extends Disposable {
           items.push({
             type: "item",
             id: RemoteStatusIndicator.CLOSE_REMOTE_COMMAND_ID,
-            label: nls.localize(
-              "closeRemoteConnection.title",
-              "Close Remote Connection"
-            )
+            label: nls.localize("closeRemoteConnection.title", "Close Remote Connection")
           });
           if (this.connectionState === "disconnected") {
             items.push({
               type: "item",
               id: ReloadWindowAction.ID,
-              label: nls.localize(
-                "reloadWindow",
-                "Reload Window"
-              )
+              label: nls.localize("reloadWindow", "Reload Window")
             });
           }
         } else if (this.virtualWorkspaceLocation) {
           items.push({
             type: "item",
             id: RemoteStatusIndicator.CLOSE_REMOTE_COMMAND_ID,
-            label: nls.localize(
-              "closeVirtualWorkspace.title",
-              "Close Remote Workspace"
-            )
+            label: nls.localize("closeVirtualWorkspace.title", "Close Remote Workspace")
           });
         }
       }
@@ -920,79 +639,48 @@ let RemoteStatusIndicator = class extends Disposable {
       return items;
     }, "computeItems");
     const disposables = new DisposableStore();
-    const quickPick = disposables.add(
-      this.quickInputService.createQuickPick({ useSeparators: true })
-    );
-    quickPick.placeholder = nls.localize(
-      "remoteActions",
-      "Select an option to open a Remote Window"
-    );
+    const quickPick = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
+    quickPick.placeholder = nls.localize("remoteActions", "Select an option to open a Remote Window");
     quickPick.items = computeItems();
     quickPick.sortByLabel = false;
     quickPick.canSelectMany = false;
-    disposables.add(
-      Event.once(quickPick.onDidAccept)(async (_) => {
-        const selectedItems = quickPick.selectedItems;
-        if (selectedItems.length === 1) {
-          const commandId = selectedItems[0].id;
-          const remoteExtension = this.remoteExtensionMetadata.find(
-            (value) => ExtensionIdentifier.equals(value.id, commandId)
-          );
-          if (remoteExtension) {
-            quickPick.items = [];
-            quickPick.busy = true;
-            quickPick.placeholder = nls.localize(
-              "remote.startActions.installingExtension",
-              "Installing extension... "
-            );
-            await this.installExtension(remoteExtension.id);
-            quickPick.hide();
-            await this.runRemoteStartCommand(
-              remoteExtension.id,
-              remoteExtension.startCommand
-            );
-          } else {
-            this.telemetryService.publicLog2("workbenchActionExecuted", {
-              id: commandId,
-              from: "remote indicator"
-            });
-            this.commandService.executeCommand(commandId);
-            quickPick.hide();
-          }
-        }
-      })
-    );
-    disposables.add(
-      Event.once(quickPick.onDidTriggerItemButton)(async (e) => {
-        const remoteExtension = this.remoteExtensionMetadata.find(
-          (value) => ExtensionIdentifier.equals(value.id, e.item.id)
-        );
+    disposables.add(Event.once(quickPick.onDidAccept)(async (_) => {
+      const selectedItems = quickPick.selectedItems;
+      if (selectedItems.length === 1) {
+        const commandId = selectedItems[0].id;
+        const remoteExtension = this.remoteExtensionMetadata.find((value) => ExtensionIdentifier.equals(value.id, commandId));
         if (remoteExtension) {
-          await this.openerService.open(
-            URI.parse(remoteExtension.helpLink)
-          );
+          quickPick.items = [];
+          quickPick.busy = true;
+          quickPick.placeholder = nls.localize("remote.startActions.installingExtension", "Installing extension... ");
+          await this.installExtension(remoteExtension.id);
+          quickPick.hide();
+          await this.runRemoteStartCommand(remoteExtension.id, remoteExtension.startCommand);
+        } else {
+          this.telemetryService.publicLog2("workbenchActionExecuted", {
+            id: commandId,
+            from: "remote indicator"
+          });
+          this.commandService.executeCommand(commandId);
+          quickPick.hide();
         }
-      })
-    );
-    disposables.add(
-      this.legacyIndicatorMenu.onDidChange(
-        () => quickPick.items = computeItems()
-      )
-    );
-    disposables.add(
-      this.remoteIndicatorMenu.onDidChange(
-        () => quickPick.items = computeItems()
-      )
-    );
+      }
+    }));
+    disposables.add(Event.once(quickPick.onDidTriggerItemButton)(async (e) => {
+      const remoteExtension = this.remoteExtensionMetadata.find((value) => ExtensionIdentifier.equals(value.id, e.item.id));
+      if (remoteExtension) {
+        await this.openerService.open(URI.parse(remoteExtension.helpLink));
+      }
+    }));
+    disposables.add(this.legacyIndicatorMenu.onDidChange(() => quickPick.items = computeItems()));
+    disposables.add(this.remoteIndicatorMenu.onDidChange(() => quickPick.items = computeItems()));
     disposables.add(quickPick.onDidHide(() => disposables.dispose()));
     if (!this.remoteMetadataInitialized) {
       quickPick.busy = true;
-      this._register(
-        this.onDidChangeEntries(() => {
-          quickPick.busy = false;
-          quickPick.items = computeItems();
-        })
-      );
+      this._register(this.onDidChangeEntries(() => {
+        quickPick.busy = false;
+        quickPick.items = computeItems();
+      }));
     }
     quickPick.show();
   }
@@ -1018,17 +706,12 @@ RemoteStatusIndicator = __decorateClass([
   __decorateParam(17, IOpenerService),
   __decorateParam(18, IConfigurationService)
 ], RemoteStatusIndicator);
-Registry.as(
-  ConfigurationExtensions.Configuration
-).registerConfiguration({
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
   ...workbenchConfigurationNodeBase,
   properties: {
     "workbench.remoteIndicator.showExtensionRecommendations": {
       type: "boolean",
-      markdownDescription: nls.localize(
-        "remote.showExtensionRecommendations",
-        "When enabled, remote extensions recommendations will be shown in the Remote Indicator menu."
-      ),
+      markdownDescription: nls.localize("remote.showExtensionRecommendations", "When enabled, remote extensions recommendations will be shown in the Remote Indicator menu."),
       default: true
     }
   }

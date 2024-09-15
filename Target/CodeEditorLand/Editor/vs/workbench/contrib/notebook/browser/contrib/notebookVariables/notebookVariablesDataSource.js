@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IAsyncDataSource } from "../../../../../../base/browser/ui/tree/tree.js";
 import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { localize } from "../../../../../../nls.js";
-import {
-  variablePageSize
-} from "../../../common/notebookKernelService.js";
+import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { INotebookKernel, INotebookKernelService, VariablesResult, variablePageSize } from "../../../common/notebookKernelService.js";
 class NotebookVariableDataSource {
   constructor(notebookKernelService) {
     this.notebookKernelService = notebookKernelService;
@@ -30,32 +30,18 @@ class NotebookVariableDataSource {
     }
   }
   async getVariables(parent) {
-    const selectedKernel = this.notebookKernelService.getMatchingKernel(
-      parent.notebook
-    ).selected;
+    const selectedKernel = this.notebookKernelService.getMatchingKernel(parent.notebook).selected;
     if (selectedKernel && selectedKernel.hasVariableProvider) {
       let children = [];
       if (parent.hasNamedChildren) {
-        const variables = selectedKernel.provideVariables(
-          parent.notebook.uri,
-          parent.extHostId,
-          "named",
-          0,
-          this.cancellationTokenSource.token
-        );
+        const variables = selectedKernel.provideVariables(parent.notebook.uri, parent.extHostId, "named", 0, this.cancellationTokenSource.token);
         const childNodes = await variables.map((variable) => {
-          return this.createVariableElement(
-            variable,
-            parent.notebook
-          );
+          return this.createVariableElement(variable, parent.notebook);
         }).toPromise();
         children = children.concat(childNodes);
       }
       if (parent.indexedChildrenCount > 0) {
-        const childNodes = await this.getIndexedChildren(
-          parent,
-          selectedKernel
-        );
+        const childNodes = await this.getIndexedChildren(parent, selectedKernel);
         children = children.concat(childNodes);
       }
       return children;
@@ -65,9 +51,7 @@ class NotebookVariableDataSource {
   async getIndexedChildren(parent, kernel) {
     const childNodes = [];
     if (parent.indexedChildrenCount > variablePageSize) {
-      const nestedPageSize = Math.floor(
-        Math.max(parent.indexedChildrenCount / variablePageSize, 100)
-      );
+      const nestedPageSize = Math.floor(Math.max(parent.indexedChildrenCount / variablePageSize, 100));
       const indexedChildCountLimit = 1e6;
       let start = parent.indexStart ?? 0;
       const last = start + Math.min(parent.indexedChildrenCount, indexedChildCountLimit);
@@ -94,27 +78,16 @@ class NotebookVariableDataSource {
           notebook: parent.notebook,
           id: parent.id + `${last + 1}`,
           extHostId: parent.extHostId,
-          name: localize(
-            "notebook.indexedChildrenLimitReached",
-            "Display limit reached"
-          ),
+          name: localize("notebook.indexedChildrenLimitReached", "Display limit reached"),
           value: "",
           indexedChildrenCount: 0,
           hasNamedChildren: false
         });
       }
     } else if (parent.indexedChildrenCount > 0) {
-      const variables = kernel.provideVariables(
-        parent.notebook.uri,
-        parent.extHostId,
-        "indexed",
-        parent.indexStart ?? 0,
-        this.cancellationTokenSource.token
-      );
+      const variables = kernel.provideVariables(parent.notebook.uri, parent.extHostId, "indexed", parent.indexStart ?? 0, this.cancellationTokenSource.token);
       for await (const variable of variables) {
-        childNodes.push(
-          this.createVariableElement(variable, parent.notebook)
-        );
+        childNodes.push(this.createVariableElement(variable, parent.notebook));
         if (childNodes.length >= variablePageSize) {
           break;
         }
@@ -125,13 +98,7 @@ class NotebookVariableDataSource {
   async getRootVariables(notebook) {
     const selectedKernel = this.notebookKernelService.getMatchingKernel(notebook).selected;
     if (selectedKernel && selectedKernel.hasVariableProvider) {
-      const variables = selectedKernel.provideVariables(
-        notebook.uri,
-        void 0,
-        "named",
-        0,
-        this.cancellationTokenSource.token
-      );
+      const variables = selectedKernel.provideVariables(notebook.uri, void 0, "named", 0, this.cancellationTokenSource.token);
       return await variables.map((variable) => {
         return this.createVariableElement(variable, notebook);
       }).toPromise();

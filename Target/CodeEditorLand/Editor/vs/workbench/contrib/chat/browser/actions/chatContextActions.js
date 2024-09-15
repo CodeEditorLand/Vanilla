@@ -7,45 +7,31 @@ import { Schemas } from "../../../../../base/common/network.js";
 import { compare } from "../../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
 import { EditorType } from "../../../../../editor/common/editorCommon.js";
-import {
-  AbstractGotoSymbolQuickAccessProvider
-} from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
+import { Command } from "../../../../../editor/common/languages.js";
+import { AbstractGotoSymbolQuickAccessProvider, IGotoSymbolQuickPickItem } from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
 import { localize, localize2 } from "../../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  IQuickInputService
-} from "../../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { AnythingQuickAccessProvider } from "../../../search/browser/anythingQuickAccess.js";
-import {
-  SymbolsQuickAccessProvider
-} from "../../../search/browser/symbolsQuickAccess.js";
-import {
-  ChatAgentLocation,
-  IChatAgentService
-} from "../../common/chatAgents.js";
-import {
-  CONTEXT_CHAT_LOCATION,
-  CONTEXT_IN_CHAT_INPUT
-} from "../../common/chatContextKeys.js";
+import { AnythingQuickAccessProviderRunOptions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickInputService, IQuickPickItem, QuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { IChatWidget, IChatWidgetService, IQuickChatService } from "../chat.js";
+import { isQuickChat } from "../chatWidget.js";
+import { ChatContextAttachments } from "../contrib/chatContextAttachments.js";
+import { ChatAgentLocation, IChatAgentService } from "../../common/chatAgents.js";
+import { CONTEXT_CHAT_LOCATION, CONTEXT_IN_CHAT_INPUT } from "../../common/chatContextKeys.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
 import { ChatRequestAgentPart } from "../../common/chatParserTypes.js";
 import { IChatVariablesService } from "../../common/chatVariables.js";
 import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
-import {
-  IChatWidgetService,
-  IQuickChatService
-} from "../chat.js";
-import { isQuickChat } from "../chatWidget.js";
-import { ChatContextAttachments } from "../contrib/chatContextAttachments.js";
-import { CHAT_CATEGORY } from "./chatActions.js";
+import { AnythingQuickAccessProvider } from "../../../search/browser/anythingQuickAccess.js";
+import { ISymbolQuickPickItem, SymbolsQuickAccessProvider } from "../../../search/browser/symbolsQuickAccess.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 function registerChatContextActions() {
   registerAction2(AttachContextAction);
   registerAction2(AttachFileAction);
@@ -60,10 +46,7 @@ class AttachFileAction extends Action2 {
   constructor() {
     super({
       id: AttachFileAction.ID,
-      title: localize2(
-        "workbench.action.chat.attachFile.label",
-        "Attach File"
-      ),
+      title: localize2("workbench.action.chat.attachFile.label", "Attach File"),
       category: CHAT_CATEGORY,
       f1: false
     });
@@ -72,14 +55,8 @@ class AttachFileAction extends Action2 {
     const variablesService = accessor.get(IChatVariablesService);
     const textEditorService = accessor.get(IEditorService);
     const activeUri = textEditorService.activeEditor?.resource;
-    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(
-      activeUri.scheme
-    )) {
-      variablesService.attachContext(
-        "file",
-        activeUri,
-        ChatAgentLocation.Panel
-      );
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(activeUri.scheme)) {
+      variablesService.attachContext("file", activeUri, ChatAgentLocation.Panel);
     }
   }
 }
@@ -91,10 +68,7 @@ class AttachSelectionAction extends Action2 {
   constructor() {
     super({
       id: AttachSelectionAction.ID,
-      title: localize2(
-        "workbench.action.chat.attachSelection.label",
-        "Add Selection to Chat"
-      ),
+      title: localize2("workbench.action.chat.attachSelection.label", "Add Selection to Chat"),
       category: CHAT_CATEGORY,
       f1: false
     });
@@ -104,16 +78,10 @@ class AttachSelectionAction extends Action2 {
     const textEditorService = accessor.get(IEditorService);
     const activeEditor = textEditorService.activeTextEditorControl;
     const activeUri = textEditorService.activeEditor?.resource;
-    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(
-      activeUri.scheme
-    )) {
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(activeUri.scheme)) {
       const selection = activeEditor?.getSelection();
       if (selection) {
-        variablesService.attachContext(
-          "file",
-          { uri: activeUri, range: selection },
-          ChatAgentLocation.Panel
-        );
+        variablesService.attachContext("file", { uri: activeUri, range: selection }, ChatAgentLocation.Panel);
       }
     }
   }
@@ -125,38 +93,15 @@ class AttachContextAction extends Action2 {
   static ID = "workbench.action.chat.attachContext";
   // used to enable/disable the keybinding and defined menu containment
   static _cdt = ContextKeyExpr.or(
-    ContextKeyExpr.and(
-      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel)
-    ),
-    ContextKeyExpr.and(
-      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Editor),
-      ContextKeyExpr.equals(
-        "config.chat.experimental.variables.editor",
-        true
-      )
-    ),
-    ContextKeyExpr.and(
-      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Notebook),
-      ContextKeyExpr.equals(
-        "config.chat.experimental.variables.notebook",
-        true
-      )
-    ),
-    ContextKeyExpr.and(
-      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Terminal),
-      ContextKeyExpr.equals(
-        "config.chat.experimental.variables.terminal",
-        true
-      )
-    )
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Editor), ContextKeyExpr.equals("config.chat.experimental.variables.editor", true)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Notebook), ContextKeyExpr.equals("config.chat.experimental.variables.notebook", true)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Terminal), ContextKeyExpr.equals("config.chat.experimental.variables.terminal", true))
   );
   constructor() {
     super({
       id: AttachContextAction.ID,
-      title: localize2(
-        "workbench.action.chat.attachContext.label",
-        "Attach Context"
-      ),
+      title: localize2("workbench.action.chat.attachContext.label", "Attach Context"),
       icon: Codicon.attach,
       category: CHAT_CATEGORY,
       precondition: AttachContextAction._cdt,
@@ -184,10 +129,7 @@ class AttachContextAction extends Action2 {
     const toAttach = [];
     for (const pick of picks) {
       if (pick && typeof pick === "object" && "command" in pick && pick.command) {
-        const selection = await commandService.executeCommand(
-          pick.command.id,
-          ...pick.command.arguments ?? []
-        );
+        const selection = await commandService.executeCommand(pick.command.id, ...pick.command.arguments ?? []);
         if (!selection) {
           continue;
         }
@@ -221,10 +163,7 @@ class AttachContextAction extends Action2 {
         toAttach.push({
           ...pick,
           range: void 0,
-          id: this._getFileContextId({
-            uri: pick.uri,
-            range: pick.range.decoration
-          }),
+          id: this._getFileContextId({ uri: pick.uri, range: pick.range.decoration }),
           value: { uri: pick.uri, range: pick.range.decoration },
           fullName: pick.label,
           name: pick.symbolName,
@@ -259,23 +198,17 @@ class AttachContextAction extends Action2 {
     const chatVariablesService = accessor.get(IChatVariablesService);
     const commandService = accessor.get(ICommandService);
     const widgetService = accessor.get(IChatWidgetService);
-    const languageModelToolsService = accessor.get(
-      ILanguageModelToolsService
-    );
+    const languageModelToolsService = accessor.get(ILanguageModelToolsService);
     const quickChatService = accessor.get(IQuickChatService);
     const context = args[0];
     const widget = context?.widget ?? widgetService.lastFocusedWidget;
     if (!widget) {
       return;
     }
-    const usedAgent = widget.parsedInput.parts.find(
-      (p) => p instanceof ChatRequestAgentPart
-    );
+    const usedAgent = widget.parsedInput.parts.find((p) => p instanceof ChatRequestAgentPart);
     const slowSupported = usedAgent ? usedAgent.agent.metadata.supportsSlowVariables : true;
     const quickPickItems = [];
-    for (const variable of chatVariablesService.getVariables(
-      widget.location
-    )) {
+    for (const variable of chatVariablesService.getVariables(widget.location)) {
       if (variable.fullName && (!variable.isSlow || slowSupported)) {
         quickPickItems.push({
           label: variable.fullName,
@@ -287,15 +220,9 @@ class AttachContextAction extends Action2 {
       }
     }
     if (widget.viewModel?.sessionId) {
-      const agentPart = widget.parsedInput.parts.find(
-        (part) => part instanceof ChatRequestAgentPart
-      );
+      const agentPart = widget.parsedInput.parts.find((part) => part instanceof ChatRequestAgentPart);
       if (agentPart) {
-        const completions = await chatAgentService.getAgentCompletionItems(
-          agentPart.agent.id,
-          "",
-          CancellationToken.None
-        );
+        const completions = await chatAgentService.getAgentCompletionItems(agentPart.agent.id, "", CancellationToken.None);
         for (const variable of completions) {
           if (variable.fullName) {
             quickPickItems.push({
@@ -341,21 +268,15 @@ class AttachContextAction extends Action2 {
       if (!label) {
         return "";
       }
-      const match = label.match(/\$\([^)]+\)\s*(.+)/);
+      const match = label.match(/\$\([^\)]+\)\s*(.+)/);
       return match ? match[1] : label;
     }
     __name(extractTextFromIconLabel, "extractTextFromIconLabel");
-    this._show(
-      quickInputService,
-      commandService,
-      widget,
-      quickChatService,
-      quickPickItems.sort((a, b) => {
-        const first = extractTextFromIconLabel(a.label).toUpperCase();
-        const second = extractTextFromIconLabel(b.label).toUpperCase();
-        return compare(first, second);
-      })
-    );
+    this._show(quickInputService, commandService, widget, quickChatService, quickPickItems.sort(function(a, b) {
+      const first = extractTextFromIconLabel(a.label).toUpperCase();
+      const second = extractTextFromIconLabel(b.label).toUpperCase();
+      return compare(first, second);
+    }));
   }
   _show(quickInputService, commandService, widget, quickChatService, quickPickItems, query = "") {
     quickInputService.quickAccess.show(query, {
@@ -364,21 +285,11 @@ class AttachContextAction extends Action2 {
         SymbolsQuickAccessProvider.PREFIX,
         AbstractGotoSymbolQuickAccessProvider.PREFIX
       ],
-      placeholder: localize(
-        "chatContext.attach.placeholder",
-        "Search attachments"
-      ),
+      placeholder: localize("chatContext.attach.placeholder", "Search attachments"),
       providerOptions: {
         handleAccept: /* @__PURE__ */ __name((item) => {
           if ("prefix" in item) {
-            this._show(
-              quickInputService,
-              commandService,
-              widget,
-              quickChatService,
-              quickPickItems,
-              item.prefix
-            );
+            this._show(quickInputService, commandService, widget, quickChatService, quickPickItems, item.prefix);
           } else {
             this._attachContext(widget, commandService, item);
             if (isQuickChat(widget)) {
@@ -388,30 +299,15 @@ class AttachContextAction extends Action2 {
         }, "handleAccept"),
         additionPicks: quickPickItems,
         filter: /* @__PURE__ */ __name((item) => {
-          const attachedContext = widget.getContrib(
-            ChatContextAttachments.ID
-          )?.getContext() ?? /* @__PURE__ */ new Set();
+          const attachedContext = widget.getContrib(ChatContextAttachments.ID)?.getContext() ?? /* @__PURE__ */ new Set();
           if ("symbol" in item && item.symbol) {
-            return !attachedContext.has(
-              this._getFileContextId(item.symbol.location)
-            );
+            return !attachedContext.has(this._getFileContextId(item.symbol.location));
           }
           if (item && typeof item === "object" && "resource" in item && URI.isUri(item.resource)) {
-            return [Schemas.file, Schemas.vscodeRemote].includes(
-              item.resource.scheme
-            ) && !attachedContext.has(
-              this._getFileContextId({
-                resource: item.resource
-              })
-            );
+            return [Schemas.file, Schemas.vscodeRemote].includes(item.resource.scheme) && !attachedContext.has(this._getFileContextId({ resource: item.resource }));
           }
           if (item && typeof item === "object" && "uri" in item && item.uri && item.range) {
-            return !attachedContext.has(
-              this._getFileContextId({
-                uri: item.uri,
-                range: item.range.decoration
-              })
-            );
+            return !attachedContext.has(this._getFileContextId({ uri: item.uri, range: item.range.decoration }));
           }
           if (!("command" in item) && item.id) {
             return !attachedContext.has(item.id);

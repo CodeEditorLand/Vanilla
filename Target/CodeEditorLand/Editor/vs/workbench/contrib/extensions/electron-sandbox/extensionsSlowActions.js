@@ -10,26 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Action } from "../../../../base/common/actions.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { localize } from "../../../../nls.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { Utils } from "../../../../platform/profiling/common/profiling.js";
-import {
-  IRequestService,
-  asText
-} from "../../../../platform/request/common/request.js";
+import { Action } from "../../../../base/common/actions.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionHostProfile } from "../../../services/extensions/common/extensions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IRequestService, asText } from "../../../../platform/request/common/request.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { Utils } from "../../../../platform/profiling/common/profiling.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { IRequestContext } from "../../../../base/parts/request/common/request.js";
 class RepoInfo {
   static {
     __name(this, "RepoInfo");
@@ -49,9 +47,7 @@ class RepoInfo {
     }
     if (!result && desc.repository && typeof desc.repository.url === "string") {
       const base = URI.parse(desc.repository.url);
-      const match = /\/([^/]+)\/([^/]+)(\.git)?$/.exec(
-        desc.repository.url
-      );
+      const match = /\/([^/]+)\/([^/]+)(\.git)?$/.exec(desc.repository.url);
       if (match) {
         result = {
           base: base.with({ path: null, fragment: null, query: null }).toString(true),
@@ -68,11 +64,7 @@ class RepoInfo {
 }
 let SlowExtensionAction = class extends Action {
   constructor(extension, profile, _instantiationService) {
-    super(
-      "report.slow",
-      localize("cmd.reportOrShow", "Performance Issue"),
-      "extension-action report-issue"
-    );
+    super("report.slow", localize("cmd.reportOrShow", "Performance Issue"), "extension-action report-issue");
     this.extension = extension;
     this.profile = profile;
     this._instantiationService = _instantiationService;
@@ -82,11 +74,7 @@ let SlowExtensionAction = class extends Action {
     __name(this, "SlowExtensionAction");
   }
   async run() {
-    const action = await this._instantiationService.invokeFunction(
-      createSlowExtensionAction,
-      this.extension,
-      this.profile
-    );
+    const action = await this._instantiationService.invokeFunction(createSlowExtensionAction, this.extension, this.profile);
     if (action) {
       await action.run();
     }
@@ -117,19 +105,9 @@ async function createSlowExtensionAction(accessor, extension, profile) {
   if (!data || typeof data.total_count !== "number") {
     return void 0;
   } else if (data.total_count === 0) {
-    return instaService.createInstance(
-      ReportExtensionSlowAction,
-      extension,
-      info,
-      profile
-    );
+    return instaService.createInstance(ReportExtensionSlowAction, extension, info, profile);
   } else {
-    return instaService.createInstance(
-      ShowExtensionSlowAction,
-      extension,
-      info,
-      profile
-    );
+    return instaService.createInstance(ShowExtensionSlowAction, extension, info, profile);
   }
 }
 __name(createSlowExtensionAction, "createSlowExtensionAction");
@@ -150,18 +128,9 @@ let ReportExtensionSlowAction = class extends Action {
     __name(this, "ReportExtensionSlowAction");
   }
   async run() {
-    const data = Utils.rewriteAbsolutePaths(
-      this.profile.data,
-      "pii_removed"
-    );
-    const path = joinPath(
-      this._environmentService.tmpDir,
-      `${this.extension.identifier.value}-unresponsive.cpuprofile.txt`
-    );
-    await this._fileService.writeFile(
-      path,
-      VSBuffer.fromString(JSON.stringify(data, void 0, 4))
-    );
+    const data = Utils.rewriteAbsolutePaths(this.profile.data, "pii_removed");
+    const path = joinPath(this._environmentService.tmpDir, `${this.extension.identifier.value}-unresponsive.cpuprofile.txt`);
+    await this._fileService.writeFile(path, VSBuffer.fromString(JSON.stringify(data, void 0, 4)));
     const os = await this._nativeHostService.getOSProperties();
     const title = encodeURIComponent("Extension causes high cpu load");
     const osVersion = `${os.type} ${os.arch} ${os.release}`;
@@ -180,11 +149,7 @@ ${message}`);
     this._openerService.open(URI.parse(url));
     this._dialogService.info(
       localize("attach.title", "Did you attach the CPU-Profile?"),
-      localize(
-        "attach.msg",
-        "This is a reminder to make sure that you have not forgotten to attach '{0}' to the issue you have just created.",
-        path.fsPath
-      )
+      localize("attach.msg", "This is a reminder to make sure that you have not forgotten to attach '{0}' to the issue you have just created.", path.fsPath)
     );
   }
 };
@@ -211,27 +176,14 @@ let ShowExtensionSlowAction = class extends Action {
     __name(this, "ShowExtensionSlowAction");
   }
   async run() {
-    const data = Utils.rewriteAbsolutePaths(
-      this.profile.data,
-      "pii_removed"
-    );
-    const path = joinPath(
-      this._environmentService.tmpDir,
-      `${this.extension.identifier.value}-unresponsive.cpuprofile.txt`
-    );
-    await this._fileService.writeFile(
-      path,
-      VSBuffer.fromString(JSON.stringify(data, void 0, 4))
-    );
+    const data = Utils.rewriteAbsolutePaths(this.profile.data, "pii_removed");
+    const path = joinPath(this._environmentService.tmpDir, `${this.extension.identifier.value}-unresponsive.cpuprofile.txt`);
+    await this._fileService.writeFile(path, VSBuffer.fromString(JSON.stringify(data, void 0, 4)));
     const url = `${this.repoInfo.base}/${this.repoInfo.owner}/${this.repoInfo.repo}/issues?utf8=\u2713&q=is%3Aissue+state%3Aopen+%22Extension+causes+high+cpu+load%22`;
     this._openerService.open(URI.parse(url));
     this._dialogService.info(
       localize("attach.title", "Did you attach the CPU-Profile?"),
-      localize(
-        "attach.msg2",
-        "This is a reminder to make sure that you have not forgotten to attach '{0}' to an existing performance issue.",
-        path.fsPath
-      )
+      localize("attach.msg2", "This is a reminder to make sure that you have not forgotten to attach '{0}' to an existing performance issue.", path.fsPath)
     );
   }
 };

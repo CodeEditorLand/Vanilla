@@ -10,30 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Promises } from "../../../base/common/async.js";
-import { Emitter } from "../../../base/common/event.js";
 import { hash } from "../../../base/common/hash.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../base/common/map.js";
 import { basename, joinPath } from "../../../base/common/resources.js";
-import { escapeRegExpCharacters } from "../../../base/common/strings.js";
-import { isString } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import { generateUuid } from "../../../base/common/uuid.js";
+import { URI, UriDto } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  FileOperationResult,
-  IFileService,
-  toFileOperationResult
-} from "../../files/common/files.js";
+import { FileOperationResult, IFileService, toFileOperationResult } from "../../files/common/files.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
+import { IAnyWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  isSingleFolderWorkspaceIdentifier,
-  isWorkspaceIdentifier
-} from "../../workspace/common/workspace.js";
+import { Promises } from "../../../base/common/async.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { escapeRegExpCharacters } from "../../../base/common/strings.js";
+import { isString } from "../../../base/common/types.js";
 var ProfileResourceType = /* @__PURE__ */ ((ProfileResourceType2) => {
   ProfileResourceType2["Settings"] = "settings";
   ProfileResourceType2["Keybindings"] = "keybindings";
@@ -57,18 +51,12 @@ function reviveProfile(profile, scheme) {
     shortName: profile.shortName,
     icon: profile.icon,
     location: URI.revive(profile.location).with({ scheme }),
-    globalStorageHome: URI.revive(profile.globalStorageHome).with({
-      scheme
-    }),
+    globalStorageHome: URI.revive(profile.globalStorageHome).with({ scheme }),
     settingsResource: URI.revive(profile.settingsResource).with({ scheme }),
-    keybindingsResource: URI.revive(profile.keybindingsResource).with({
-      scheme
-    }),
+    keybindingsResource: URI.revive(profile.keybindingsResource).with({ scheme }),
     tasksResource: URI.revive(profile.tasksResource).with({ scheme }),
     snippetsHome: URI.revive(profile.snippetsHome).with({ scheme }),
-    extensionsResource: URI.revive(profile.extensionsResource).with({
-      scheme
-    }),
+    extensionsResource: URI.revive(profile.extensionsResource).with({ scheme }),
     cacheHome: URI.revive(profile.cacheHome).with({ scheme }),
     useDefaultFlags: profile.useDefaultFlags,
     isTransient: profile.isTransient
@@ -102,14 +90,8 @@ let UserDataProfilesService = class extends Disposable {
     this.fileService = fileService;
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
-    this.profilesHome = joinPath(
-      this.environmentService.userRoamingDataHome,
-      "profiles"
-    );
-    this.profilesCacheHome = joinPath(
-      this.environmentService.cacheHome,
-      "CachedProfilesData"
-    );
+    this.profilesHome = joinPath(this.environmentService.userRoamingDataHome, "profiles");
+    this.profilesCacheHome = joinPath(this.environmentService.cacheHome, "CachedProfilesData");
   }
   static {
     __name(this, "UserDataProfilesService");
@@ -124,26 +106,15 @@ let UserDataProfilesService = class extends Disposable {
     return this.profiles[0];
   }
   get profiles() {
-    return [
-      ...this.profilesObject.profiles,
-      ...this.transientProfilesObject.profiles
-    ];
+    return [...this.profilesObject.profiles, ...this.transientProfilesObject.profiles];
   }
-  _onDidChangeProfiles = this._register(
-    new Emitter()
-  );
+  _onDidChangeProfiles = this._register(new Emitter());
   onDidChangeProfiles = this._onDidChangeProfiles.event;
-  _onWillCreateProfile = this._register(
-    new Emitter()
-  );
+  _onWillCreateProfile = this._register(new Emitter());
   onWillCreateProfile = this._onWillCreateProfile.event;
-  _onWillRemoveProfile = this._register(
-    new Emitter()
-  );
+  _onWillRemoveProfile = this._register(new Emitter());
   onWillRemoveProfile = this._onWillRemoveProfile.event;
-  _onDidResetWorkspaces = this._register(
-    new Emitter()
-  );
+  _onDidResetWorkspaces = this._register(new Emitter());
   onDidResetWorkspaces = this._onDidResetWorkspaces.event;
   profileCreationPromises = /* @__PURE__ */ new Map();
   transientProfilesObject = {
@@ -173,26 +144,10 @@ let UserDataProfilesService = class extends Disposable {
         try {
           for (const storedProfile of this.getStoredProfiles()) {
             if (!storedProfile.name || !isString(storedProfile.name) || !storedProfile.location) {
-              this.logService.warn(
-                "Skipping the invalid stored profile",
-                storedProfile.location || storedProfile.name
-              );
+              this.logService.warn("Skipping the invalid stored profile", storedProfile.location || storedProfile.name);
               continue;
             }
-            profiles.push(
-              toUserDataProfile(
-                basename(storedProfile.location),
-                storedProfile.name,
-                storedProfile.location,
-                this.profilesCacheHome,
-                {
-                  shortName: storedProfile.shortName,
-                  icon: storedProfile.icon,
-                  useDefaultFlags: storedProfile.useDefaultFlags
-                },
-                defaultProfile
-              )
-            );
+            profiles.push(toUserDataProfile(basename(storedProfile.location), storedProfile.name, storedProfile.location, this.profilesCacheHome, { shortName: storedProfile.shortName, icon: storedProfile.icon, useDefaultFlags: storedProfile.useDefaultFlags }, defaultProfile));
           }
         } catch (error) {
           this.logService.error(error);
@@ -204,25 +159,17 @@ let UserDataProfilesService = class extends Disposable {
         try {
           const profileAssociaitions = this.getStoredProfileAssociations();
           if (profileAssociaitions.workspaces) {
-            for (const [workspacePath, profileId] of Object.entries(
-              profileAssociaitions.workspaces
-            )) {
+            for (const [workspacePath, profileId] of Object.entries(profileAssociaitions.workspaces)) {
               const workspace = URI.parse(workspacePath);
-              const profile = profiles.find(
-                (p) => p.id === profileId
-              );
+              const profile = profiles.find((p) => p.id === profileId);
               if (profile) {
                 workspaces.set(workspace, profile);
               }
             }
           }
           if (profileAssociaitions.emptyWindows) {
-            for (const [windowId, profileId] of Object.entries(
-              profileAssociaitions.emptyWindows
-            )) {
-              const profile = profiles.find(
-                (p) => p.id === profileId
-              );
+            for (const [windowId, profileId] of Object.entries(profileAssociaitions.emptyWindows)) {
+              const profile = profiles.find((p) => p.id === profileId);
               if (profile) {
                 emptyWindows.set(windowId, profile);
               }
@@ -237,50 +184,27 @@ let UserDataProfilesService = class extends Disposable {
     return this._profilesObject;
   }
   createDefaultProfile() {
-    const defaultProfile = toUserDataProfile(
-      "__default__profile__",
-      localize("defaultProfile", "Default"),
-      this.environmentService.userRoamingDataHome,
-      this.profilesCacheHome
-    );
-    return {
-      ...defaultProfile,
-      extensionsResource: this.getDefaultProfileExtensionsLocation() ?? defaultProfile.extensionsResource,
-      isDefault: true
-    };
+    const defaultProfile = toUserDataProfile("__default__profile__", localize("defaultProfile", "Default"), this.environmentService.userRoamingDataHome, this.profilesCacheHome);
+    return { ...defaultProfile, extensionsResource: this.getDefaultProfileExtensionsLocation() ?? defaultProfile.extensionsResource, isDefault: true };
   }
   async createTransientProfile(workspaceIdentifier) {
     const namePrefix = `Temp`;
-    const nameRegEx = new RegExp(
-      `${escapeRegExpCharacters(namePrefix)}\\s(\\d+)`
-    );
+    const nameRegEx = new RegExp(`${escapeRegExpCharacters(namePrefix)}\\s(\\d+)`);
     let nameIndex = 0;
     for (const profile of this.profiles) {
       const matches = nameRegEx.exec(profile.name);
-      const index = matches ? Number.parseInt(matches[1]) : 0;
+      const index = matches ? parseInt(matches[1]) : 0;
       nameIndex = index > nameIndex ? index : nameIndex;
     }
     const name = `${namePrefix} ${nameIndex + 1}`;
-    return this.createProfile(
-      hash(generateUuid()).toString(16),
-      name,
-      { transient: true },
-      workspaceIdentifier
-    );
+    return this.createProfile(hash(generateUuid()).toString(16), name, { transient: true }, workspaceIdentifier);
   }
   async createNamedProfile(name, options, workspaceIdentifier) {
-    return this.createProfile(
-      hash(generateUuid()).toString(16),
-      name,
-      options,
-      workspaceIdentifier
-    );
+    return this.createProfile(hash(generateUuid()).toString(16), name, options, workspaceIdentifier);
   }
   async createProfile(id, name, options, workspaceIdentifier) {
     if (!this.enabled) {
-      throw new Error(
-        `Profiles are disabled in the current environment.`
-      );
+      throw new Error(`Profiles are disabled in the current environment.`);
     }
     const profile = await this.doCreateProfile(id, name, options);
     if (workspaceIdentifier) {
@@ -290,30 +214,17 @@ let UserDataProfilesService = class extends Disposable {
   }
   async doCreateProfile(id, name, options) {
     if (!isString(name) || !name) {
-      throw new Error(
-        "Name of the profile is mandatory and must be of type `string`"
-      );
+      throw new Error("Name of the profile is mandatory and must be of type `string`");
     }
     let profileCreationPromise = this.profileCreationPromises.get(name);
     if (!profileCreationPromise) {
       profileCreationPromise = (async () => {
         try {
-          const existing = this.profiles.find(
-            (p) => p.name === name || p.id === id
-          );
+          const existing = this.profiles.find((p) => p.name === name || p.id === id);
           if (existing) {
-            throw new Error(
-              `Profile with ${name} name already exists`
-            );
+            throw new Error(`Profile with ${name} name already exists`);
           }
-          const profile = toUserDataProfile(
-            id,
-            name,
-            joinPath(this.profilesHome, id),
-            this.profilesCacheHome,
-            options,
-            this.defaultProfile
-          );
+          const profile = toUserDataProfile(id, name, joinPath(this.profilesHome, id), this.profilesCacheHome, options, this.defaultProfile);
           await this.fileService.createFolder(profile.location);
           const joiners = [];
           this._onWillCreateProfile.fire({
@@ -335,35 +246,24 @@ let UserDataProfilesService = class extends Disposable {
   }
   async updateProfile(profileToUpdate, options) {
     if (!this.enabled) {
-      throw new Error(
-        `Profiles are disabled in the current environment.`
-      );
+      throw new Error(`Profiles are disabled in the current environment.`);
     }
     let profile = this.profiles.find((p) => p.id === profileToUpdate.id);
     if (!profile) {
       throw new Error(`Profile '${profileToUpdate.name}' does not exist`);
     }
-    profile = toUserDataProfile(
-      profile.id,
-      options.name ?? profile.name,
-      profile.location,
-      this.profilesCacheHome,
-      {
-        shortName: options.shortName ?? profile.shortName,
-        icon: options.icon === null ? void 0 : options.icon ?? profile.icon,
-        transient: options.transient ?? profile.isTransient,
-        useDefaultFlags: options.useDefaultFlags ?? profile.useDefaultFlags
-      },
-      this.defaultProfile
-    );
+    profile = toUserDataProfile(profile.id, options.name ?? profile.name, profile.location, this.profilesCacheHome, {
+      shortName: options.shortName ?? profile.shortName,
+      icon: options.icon === null ? void 0 : options.icon ?? profile.icon,
+      transient: options.transient ?? profile.isTransient,
+      useDefaultFlags: options.useDefaultFlags ?? profile.useDefaultFlags
+    }, this.defaultProfile);
     this.updateProfiles([], [], [profile]);
     return profile;
   }
   async removeProfile(profileToRemove) {
     if (!this.enabled) {
-      throw new Error(
-        `Profiles are disabled in the current environment.`
-      );
+      throw new Error(`Profiles are disabled in the current environment.`);
     }
     if (profileToRemove.isDefault) {
       throw new Error("Cannot remove default profile");
@@ -406,9 +306,7 @@ let UserDataProfilesService = class extends Disposable {
   }
   async setProfileForWorkspace(workspaceIdentifier, profileToSet) {
     if (!this.enabled) {
-      throw new Error(
-        `Profiles are disabled in the current environment.`
-      );
+      throw new Error(`Profiles are disabled in the current environment.`);
     }
     const profile = this.profiles.find((p) => p.id === profileToSet.id);
     if (!profile) {
@@ -418,15 +316,9 @@ let UserDataProfilesService = class extends Disposable {
   }
   unsetWorkspace(workspaceIdentifier, transient) {
     if (!this.enabled) {
-      throw new Error(
-        `Profiles are disabled in the current environment.`
-      );
+      throw new Error(`Profiles are disabled in the current environment.`);
     }
-    this.updateWorkspaceAssociation(
-      workspaceIdentifier,
-      void 0,
-      transient
-    );
+    this.updateWorkspaceAssociation(workspaceIdentifier, void 0, transient);
   }
   async resetWorkspaces() {
     this.transientProfilesObject.folders.clear();
@@ -443,32 +335,15 @@ let UserDataProfilesService = class extends Disposable {
     }
     if (await this.fileService.exists(this.profilesHome)) {
       const stat = await this.fileService.resolve(this.profilesHome);
-      await Promise.all(
-        (stat.children || []).filter(
-          (child) => child.isDirectory && this.profiles.every(
-            (p) => !this.uriIdentityService.extUri.isEqual(
-              p.location,
-              child.resource
-            )
-          )
-        ).map(
-          (child) => this.fileService.del(child.resource, {
-            recursive: true
-          })
-        )
-      );
+      await Promise.all((stat.children || []).filter((child) => child.isDirectory && this.profiles.every((p) => !this.uriIdentityService.extUri.isEqual(p.location, child.resource))).map((child) => this.fileService.del(child.resource, { recursive: true })));
     }
   }
   async cleanUpTransientProfiles() {
     if (!this.enabled) {
       return;
     }
-    const unAssociatedTransientProfiles = this.transientProfilesObject.profiles.filter(
-      (p) => !this.isProfileAssociatedToWorkspace(p)
-    );
-    await Promise.allSettled(
-      unAssociatedTransientProfiles.map((p) => this.removeProfile(p))
-    );
+    const unAssociatedTransientProfiles = this.transientProfilesObject.profiles.filter((p) => !this.isProfileAssociatedToWorkspace(p));
+    await Promise.allSettled(unAssociatedTransientProfiles.map((p) => this.removeProfile(p)));
   }
   getProfileForWorkspace(workspaceIdentifier) {
     const workspace = this.getWorkspace(workspaceIdentifier);
@@ -477,18 +352,12 @@ let UserDataProfilesService = class extends Disposable {
       return profile;
     }
     if (isSingleFolderWorkspaceIdentifier(workspaceIdentifier)) {
-      return this.transientProfilesObject.folders.get(
-        workspaceIdentifier.uri
-      );
+      return this.transientProfilesObject.folders.get(workspaceIdentifier.uri);
     }
     if (isWorkspaceIdentifier(workspaceIdentifier)) {
-      return this.transientProfilesObject.workspaces.get(
-        workspaceIdentifier.configPath
-      );
+      return this.transientProfilesObject.workspaces.get(workspaceIdentifier.configPath);
     }
-    return this.transientProfilesObject.emptyWindows.get(
-      workspaceIdentifier.id
-    );
+    return this.transientProfilesObject.emptyWindows.get(workspaceIdentifier.id);
   }
   getWorkspace(workspaceIdentifier) {
     if (isSingleFolderWorkspaceIdentifier(workspaceIdentifier)) {
@@ -500,44 +369,19 @@ let UserDataProfilesService = class extends Disposable {
     return workspaceIdentifier.id;
   }
   isProfileAssociatedToWorkspace(profile) {
-    if ([...this.profilesObject.emptyWindows.values()].some(
-      (windowProfile) => this.uriIdentityService.extUri.isEqual(
-        windowProfile.location,
-        profile.location
-      )
-    )) {
+    if ([...this.profilesObject.emptyWindows.values()].some((windowProfile) => this.uriIdentityService.extUri.isEqual(windowProfile.location, profile.location))) {
       return true;
     }
-    if ([...this.profilesObject.workspaces.values()].some(
-      (workspaceProfile) => this.uriIdentityService.extUri.isEqual(
-        workspaceProfile.location,
-        profile.location
-      )
-    )) {
+    if ([...this.profilesObject.workspaces.values()].some((workspaceProfile) => this.uriIdentityService.extUri.isEqual(workspaceProfile.location, profile.location))) {
       return true;
     }
-    if ([...this.transientProfilesObject.emptyWindows.values()].some(
-      (windowProfile) => this.uriIdentityService.extUri.isEqual(
-        windowProfile.location,
-        profile.location
-      )
-    )) {
+    if ([...this.transientProfilesObject.emptyWindows.values()].some((windowProfile) => this.uriIdentityService.extUri.isEqual(windowProfile.location, profile.location))) {
       return true;
     }
-    if ([...this.transientProfilesObject.workspaces.values()].some(
-      (workspaceProfile) => this.uriIdentityService.extUri.isEqual(
-        workspaceProfile.location,
-        profile.location
-      )
-    )) {
+    if ([...this.transientProfilesObject.workspaces.values()].some((workspaceProfile) => this.uriIdentityService.extUri.isEqual(workspaceProfile.location, profile.location))) {
       return true;
     }
-    if ([...this.transientProfilesObject.folders.values()].some(
-      (workspaceProfile) => this.uriIdentityService.extUri.isEqual(
-        workspaceProfile.location,
-        profile.location
-      )
-    )) {
+    if ([...this.transientProfilesObject.folders.values()].some((workspaceProfile) => this.uriIdentityService.extUri.isEqual(workspaceProfile.location, profile.location))) {
       return true;
     }
     return false;
@@ -555,57 +399,31 @@ let UserDataProfilesService = class extends Disposable {
         continue;
       }
       profile = updated.find((p) => profile.id === p.id) ?? profile;
-      const transientProfile = transientProfiles.find(
-        (p) => profile.id === p.id
-      );
+      const transientProfile = transientProfiles.find((p) => profile.id === p.id);
       if (profile.isTransient) {
         this.transientProfilesObject.profiles.push(profile);
       } else {
         if (transientProfile) {
-          for (const [
-            windowId,
-            p
-          ] of this.transientProfilesObject.emptyWindows.entries()) {
+          for (const [windowId, p] of this.transientProfilesObject.emptyWindows.entries()) {
             if (profile.id === p.id) {
-              this.updateWorkspaceAssociation(
-                { id: windowId },
-                profile
-              );
+              this.updateWorkspaceAssociation({ id: windowId }, profile);
               break;
             }
           }
-          for (const [
-            workspace,
-            p
-          ] of this.transientProfilesObject.workspaces.entries()) {
+          for (const [workspace, p] of this.transientProfilesObject.workspaces.entries()) {
             if (profile.id === p.id) {
-              this.updateWorkspaceAssociation(
-                { id: "", configPath: workspace },
-                profile
-              );
+              this.updateWorkspaceAssociation({ id: "", configPath: workspace }, profile);
               break;
             }
           }
-          for (const [
-            folder,
-            p
-          ] of this.transientProfilesObject.folders.entries()) {
+          for (const [folder, p] of this.transientProfilesObject.folders.entries()) {
             if (profile.id === p.id) {
-              this.updateWorkspaceAssociation(
-                { id: "", uri: folder },
-                profile
-              );
+              this.updateWorkspaceAssociation({ id: "", uri: folder }, profile);
               break;
             }
           }
         }
-        storedProfiles.push({
-          location: profile.location,
-          name: profile.name,
-          shortName: profile.shortName,
-          icon: profile.icon,
-          useDefaultFlags: profile.useDefaultFlags
-        });
+        storedProfiles.push({ location: profile.location, name: profile.name, shortName: profile.shortName, icon: profile.icon, useDefaultFlags: profile.useDefaultFlags });
       }
     }
     this.saveStoredProfiles(storedProfiles);
@@ -613,53 +431,29 @@ let UserDataProfilesService = class extends Disposable {
     this.triggerProfilesChanges(added, removed, updated);
   }
   triggerProfilesChanges(added, removed, updated) {
-    this._onDidChangeProfiles.fire({
-      added,
-      removed,
-      updated,
-      all: this.profiles
-    });
+    this._onDidChangeProfiles.fire({ added, removed, updated, all: this.profiles });
   }
   updateWorkspaceAssociation(workspaceIdentifier, newProfile, transient) {
     transient = newProfile?.isTransient ? true : transient;
     if (transient) {
       if (isSingleFolderWorkspaceIdentifier(workspaceIdentifier)) {
-        this.transientProfilesObject.folders.delete(
-          workspaceIdentifier.uri
-        );
+        this.transientProfilesObject.folders.delete(workspaceIdentifier.uri);
         if (newProfile) {
-          this.transientProfilesObject.folders.set(
-            workspaceIdentifier.uri,
-            newProfile
-          );
+          this.transientProfilesObject.folders.set(workspaceIdentifier.uri, newProfile);
         }
       } else if (isWorkspaceIdentifier(workspaceIdentifier)) {
-        this.transientProfilesObject.workspaces.delete(
-          workspaceIdentifier.configPath
-        );
+        this.transientProfilesObject.workspaces.delete(workspaceIdentifier.configPath);
         if (newProfile) {
-          this.transientProfilesObject.workspaces.set(
-            workspaceIdentifier.configPath,
-            newProfile
-          );
+          this.transientProfilesObject.workspaces.set(workspaceIdentifier.configPath, newProfile);
         }
       } else {
-        this.transientProfilesObject.emptyWindows.delete(
-          workspaceIdentifier.id
-        );
+        this.transientProfilesObject.emptyWindows.delete(workspaceIdentifier.id);
         if (newProfile) {
-          this.transientProfilesObject.emptyWindows.set(
-            workspaceIdentifier.id,
-            newProfile
-          );
+          this.transientProfilesObject.emptyWindows.set(workspaceIdentifier.id, newProfile);
         }
       }
     } else {
-      this.updateWorkspaceAssociation(
-        workspaceIdentifier,
-        void 0,
-        true
-      );
+      this.updateWorkspaceAssociation(workspaceIdentifier, void 0, true);
       const workspace = this.getWorkspace(workspaceIdentifier);
       if (URI.isUri(workspace)) {
         this.profilesObject.workspaces.delete(workspace);
@@ -677,17 +471,11 @@ let UserDataProfilesService = class extends Disposable {
   }
   updateStoredProfileAssociations() {
     const workspaces = {};
-    for (const [
-      workspace,
-      profile
-    ] of this.profilesObject.workspaces.entries()) {
+    for (const [workspace, profile] of this.profilesObject.workspaces.entries()) {
       workspaces[workspace.toString()] = profile.id;
     }
     const emptyWindows = {};
-    for (const [
-      windowId,
-      profile
-    ] of this.profilesObject.emptyWindows.entries()) {
+    for (const [windowId, profile] of this.profilesObject.emptyWindows.entries()) {
       emptyWindows[windowId.toString()] = profile.id;
     }
     this.saveStoredProfileAssociations({ workspaces, emptyWindows });
@@ -698,26 +486,16 @@ let UserDataProfilesService = class extends Disposable {
     const workspaces = {};
     const defaultProfile = this.createDefaultProfile();
     if (storedProfileAssociations.workspaces) {
-      for (const [workspace, location] of Object.entries(
-        storedProfileAssociations.workspaces
-      )) {
+      for (const [workspace, location] of Object.entries(storedProfileAssociations.workspaces)) {
         const uri = URI.parse(location);
-        workspaces[workspace] = this.uriIdentityService.extUri.isEqual(
-          uri,
-          defaultProfile.location
-        ) ? defaultProfile.id : this.uriIdentityService.extUri.basename(uri);
+        workspaces[workspace] = this.uriIdentityService.extUri.isEqual(uri, defaultProfile.location) ? defaultProfile.id : this.uriIdentityService.extUri.basename(uri);
       }
     }
     const emptyWindows = {};
     if (storedProfileAssociations.emptyWindows) {
-      for (const [workspace, location] of Object.entries(
-        storedProfileAssociations.emptyWindows
-      )) {
+      for (const [workspace, location] of Object.entries(storedProfileAssociations.emptyWindows)) {
         const uri = URI.parse(location);
-        emptyWindows[workspace] = this.uriIdentityService.extUri.isEqual(
-          uri,
-          defaultProfile.location
-        ) ? defaultProfile.id : this.uriIdentityService.extUri.basename(uri);
+        emptyWindows[workspace] = this.uriIdentityService.extUri.isEqual(uri, defaultProfile.location) ? defaultProfile.id : this.uriIdentityService.extUri.basename(uri);
       }
     }
     return { workspaces, emptyWindows };

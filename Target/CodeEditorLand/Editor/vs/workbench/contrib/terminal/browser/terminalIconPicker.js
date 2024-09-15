@@ -18,9 +18,7 @@ import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  getIconRegistry
-} from "../../../../platform/theme/common/iconRegistry.js";
+import { getIconRegistry, IconContribution } from "../../../../platform/theme/common/iconRegistry.js";
 import { WorkbenchIconSelectBox } from "../../../services/userDataProfile/browser/iconSelectBox.js";
 const icons = new Lazy(() => {
   const iconDefinitions = getIconRegistry().getIcons();
@@ -44,14 +42,11 @@ let TerminalIconPicker = class extends Disposable {
   constructor(instantiationService, _hoverService) {
     super();
     this._hoverService = _hoverService;
-    this._iconSelectBox = instantiationService.createInstance(
-      WorkbenchIconSelectBox,
-      {
-        icons: icons.value,
-        inputBoxStyles: defaultInputBoxStyles,
-        showIconInfo: true
-      }
-    );
+    this._iconSelectBox = instantiationService.createInstance(WorkbenchIconSelectBox, {
+      icons: icons.value,
+      inputBoxStyles: defaultInputBoxStyles,
+      showIconInfo: true
+    });
   }
   static {
     __name(this, "TerminalIconPicker");
@@ -60,29 +55,24 @@ let TerminalIconPicker = class extends Disposable {
   async pickIcons() {
     const dimension = new Dimension(486, 260);
     return new Promise((resolve) => {
-      this._register(
-        this._iconSelectBox.onDidSelect((e) => {
-          resolve(e);
-          this._iconSelectBox.dispose();
-        })
-      );
+      this._register(this._iconSelectBox.onDidSelect((e) => {
+        resolve(e);
+        this._iconSelectBox.dispose();
+      }));
       this._iconSelectBox.clearInput();
-      const hoverWidget = this._hoverService.showHover(
-        {
-          content: this._iconSelectBox.domNode,
-          target: getActiveDocument().body,
-          position: {
-            hoverPosition: HoverPosition.BELOW
-          },
-          persistence: {
-            sticky: true
-          },
-          appearance: {
-            showPointer: true
-          }
+      const hoverWidget = this._hoverService.showHover({
+        content: this._iconSelectBox.domNode,
+        target: getActiveDocument().body,
+        position: {
+          hoverPosition: HoverPosition.BELOW
         },
-        true
-      );
+        persistence: {
+          sticky: true
+        },
+        appearance: {
+          showPointer: true
+        }
+      }, true);
       if (hoverWidget) {
         this._register(hoverWidget);
       }

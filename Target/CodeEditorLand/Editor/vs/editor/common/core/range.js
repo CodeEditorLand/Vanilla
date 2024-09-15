@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Position } from "./position.js";
+import { IPosition, Position } from "./position.js";
 class Range {
   static {
     __name(this, "Range");
@@ -167,12 +167,7 @@ class Range {
       endLineNumber = a.endLineNumber;
       endColumn = a.endColumn;
     }
-    return new Range(
-      startLineNumber,
-      startColumn,
-      endLineNumber,
-      endColumn
-    );
+    return new Range(startLineNumber, startColumn, endLineNumber, endColumn);
   }
   /**
    * A intersection of the two ranges.
@@ -210,12 +205,7 @@ class Range {
     if (resultStartLineNumber === resultEndLineNumber && resultStartColumn > resultEndColumn) {
       return null;
     }
-    return new Range(
-      resultStartLineNumber,
-      resultStartColumn,
-      resultEndLineNumber,
-      resultEndColumn
-    );
+    return new Range(resultStartLineNumber, resultStartColumn, resultEndLineNumber, resultEndColumn);
   }
   /**
    * Test if this range equals other.
@@ -266,23 +256,13 @@ class Range {
    * Create a new range using this range's start position, and using endLineNumber and endColumn as the end position.
    */
   setEndPosition(endLineNumber, endColumn) {
-    return new Range(
-      this.startLineNumber,
-      this.startColumn,
-      endLineNumber,
-      endColumn
-    );
+    return new Range(this.startLineNumber, this.startColumn, endLineNumber, endColumn);
   }
   /**
    * Create a new range using this range's end position, and using startLineNumber and startColumn as the start position.
    */
   setStartPosition(startLineNumber, startColumn) {
-    return new Range(
-      startLineNumber,
-      startColumn,
-      this.endLineNumber,
-      this.endColumn
-    );
+    return new Range(startLineNumber, startColumn, this.endLineNumber, this.endColumn);
   }
   /**
    * Create a new empty range using this range's start position.
@@ -294,12 +274,7 @@ class Range {
    * Create a new empty range using this range's start position.
    */
   static collapseToStart(range) {
-    return new Range(
-      range.startLineNumber,
-      range.startColumn,
-      range.startLineNumber,
-      range.startColumn
-    );
+    return new Range(range.startLineNumber, range.startColumn, range.startLineNumber, range.startColumn);
   }
   /**
    * Create a new empty range using this range's end position.
@@ -311,43 +286,23 @@ class Range {
    * Create a new empty range using this range's end position.
    */
   static collapseToEnd(range) {
-    return new Range(
-      range.endLineNumber,
-      range.endColumn,
-      range.endLineNumber,
-      range.endColumn
-    );
+    return new Range(range.endLineNumber, range.endColumn, range.endLineNumber, range.endColumn);
   }
   /**
    * Moves the range by the given amount of lines.
    */
   delta(lineCount) {
-    return new Range(
-      this.startLineNumber + lineCount,
-      this.startColumn,
-      this.endLineNumber + lineCount,
-      this.endColumn
-    );
+    return new Range(this.startLineNumber + lineCount, this.startColumn, this.endLineNumber + lineCount, this.endColumn);
   }
   // ---
   static fromPositions(start, end = start) {
-    return new Range(
-      start.lineNumber,
-      start.column,
-      end.lineNumber,
-      end.column
-    );
+    return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
   }
   static lift(range) {
     if (!range) {
       return null;
     }
-    return new Range(
-      range.startLineNumber,
-      range.startColumn,
-      range.endLineNumber,
-      range.endColumn
-    );
+    return new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
   }
   /**
    * Test if `obj` is an `IRange`.

@@ -10,29 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Barrier } from "../../../base/common/async.js";
 import * as errors from "../../../base/common/errors.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import {
-  ExtensionIdentifierMap
-} from "../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../platform/log/common/log.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
 import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
-import {
-  MissingExtensionDependency
-} from "../../services/extensions/common/extensions.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap } from "../../../platform/extensions/common/extensions.js";
+import { ExtensionActivationReason, MissingExtensionDependency } from "../../services/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { Barrier } from "../../../base/common/async.js";
 class ExtensionActivationTimes {
   static {
     __name(this, "ExtensionActivationTimes");
   }
-  static NONE = new ExtensionActivationTimes(
-    false,
-    -1,
-    -1,
-    -1
-  );
+  static NONE = new ExtensionActivationTimes(false, -1, -1, -1);
   startup;
   codeLoadingTime;
   activateCallTime;
@@ -121,14 +110,7 @@ class EmptyExtension extends ActivatedExtension {
     __name(this, "EmptyExtension");
   }
   constructor(activationTimes) {
-    super(
-      false,
-      null,
-      activationTimes,
-      { activate: void 0, deactivate: void 0 },
-      void 0,
-      Disposable.None
-    );
+    super(false, null, activationTimes, { activate: void 0, deactivate: void 0 }, void 0, Disposable.None);
   }
 }
 class HostExtension extends ActivatedExtension {
@@ -136,14 +118,7 @@ class HostExtension extends ActivatedExtension {
     __name(this, "HostExtension");
   }
   constructor() {
-    super(
-      false,
-      null,
-      ExtensionActivationTimes.NONE,
-      { activate: void 0, deactivate: void 0 },
-      void 0,
-      Disposable.None
-    );
+    super(false, null, ExtensionActivationTimes.NONE, { activate: void 0, deactivate: void 0 }, void 0, Disposable.None);
   }
 }
 class FailedExtension extends ActivatedExtension {
@@ -151,14 +126,7 @@ class FailedExtension extends ActivatedExtension {
     __name(this, "FailedExtension");
   }
   constructor(activationError) {
-    super(
-      true,
-      activationError,
-      ExtensionActivationTimes.NONE,
-      { activate: void 0, deactivate: void 0 },
-      void 0,
-      Disposable.None
-    );
+    super(true, activationError, ExtensionActivationTimes.NONE, { activate: void 0, deactivate: void 0 }, void 0, Disposable.None);
   }
 }
 let ExtensionsActivator = class {
@@ -200,9 +168,7 @@ let ExtensionsActivator = class {
   getActivatedExtension(extensionId) {
     const op = this._operations.get(extensionId);
     if (!op || !op.value) {
-      throw new Error(
-        `Extension '${extensionId.value}' is not known or not activated`
-      );
+      throw new Error(`Extension '${extensionId.value}' is not known or not activated`);
     }
     return op.value;
   }
@@ -210,15 +176,11 @@ let ExtensionsActivator = class {
     if (this._alreadyActivatedEvents[activationEvent]) {
       return;
     }
-    const activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(
-      activationEvent
-    );
-    await this._activateExtensions(
-      activateExtensions.map((e) => ({
-        id: e.identifier,
-        reason: { startup, extensionId: e.identifier, activationEvent }
-      }))
-    );
+    const activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(activationEvent);
+    await this._activateExtensions(activateExtensions.map((e) => ({
+      id: e.identifier,
+      reason: { startup, extensionId: e.identifier, activationEvent }
+    })));
     this._alreadyActivatedEvents[activationEvent] = true;
   }
   activateById(extensionId, reason) {
@@ -241,26 +203,12 @@ let ExtensionsActivator = class {
       return this._operations.get(currentActivation.id);
     }
     if (this._isHostExtension(currentActivation.id)) {
-      return this._createAndSaveOperation(
-        currentActivation,
-        null,
-        [],
-        null
-      );
+      return this._createAndSaveOperation(currentActivation, null, [], null);
     }
-    const currentExtension = this._registry.getExtensionDescription(
-      currentActivation.id
-    );
+    const currentExtension = this._registry.getExtensionDescription(currentActivation.id);
     if (!currentExtension) {
-      const error = new Error(
-        `Cannot activate unknown extension '${currentActivation.id.value}'`
-      );
-      const result = this._createAndSaveOperation(
-        currentActivation,
-        null,
-        [],
-        new FailedExtension(error)
-      );
+      const error = new Error(`Cannot activate unknown extension '${currentActivation.id.value}'`);
+      const result = this._createAndSaveOperation(currentActivation, null, [], new FailedExtension(error));
       this._host.onExtensionActivationError(
         currentActivation.id,
         error,
@@ -280,12 +228,10 @@ let ExtensionsActivator = class {
         continue;
       }
       if (this._isHostExtension(depId)) {
-        deps.push(
-          this._handleActivationRequest({
-            id: this._globalRegistry.getExtensionDescription(depId).identifier,
-            reason: currentActivation.reason
-          })
-        );
+        deps.push(this._handleActivationRequest({
+          id: this._globalRegistry.getExtensionDescription(depId).identifier,
+          reason: currentActivation.reason
+        }));
         continue;
       }
       const depDesc = this._registry.getExtensionDescription(depId);
@@ -293,24 +239,15 @@ let ExtensionsActivator = class {
         if (!depDesc.main && !depDesc.browser) {
           continue;
         }
-        deps.push(
-          this._handleActivationRequest({
-            id: depDesc.identifier,
-            reason: currentActivation.reason
-          })
-        );
+        deps.push(this._handleActivationRequest({
+          id: depDesc.identifier,
+          reason: currentActivation.reason
+        }));
         continue;
       }
       const currentExtensionFriendlyName = currentExtension.displayName || currentExtension.identifier.value;
-      const error = new Error(
-        `Cannot activate the '${currentExtensionFriendlyName}' extension because it depends on unknown extension '${depId}'`
-      );
-      const result = this._createAndSaveOperation(
-        currentActivation,
-        currentExtension.displayName,
-        [],
-        new FailedExtension(error)
-      );
+      const error = new Error(`Cannot activate the '${currentExtensionFriendlyName}' extension because it depends on unknown extension '${depId}'`);
+      const result = this._createAndSaveOperation(currentActivation, currentExtension.displayName, [], new FailedExtension(error));
       this._host.onExtensionActivationError(
         currentExtension.identifier,
         error,
@@ -318,32 +255,15 @@ let ExtensionsActivator = class {
       );
       return result;
     }
-    return this._createAndSaveOperation(
-      currentActivation,
-      currentExtension.displayName,
-      deps,
-      null
-    );
+    return this._createAndSaveOperation(currentActivation, currentExtension.displayName, deps, null);
   }
   _createAndSaveOperation(activation, displayName, deps, value) {
-    const operation = new ActivationOperation(
-      activation.id,
-      displayName,
-      activation.reason,
-      deps,
-      value,
-      this._host,
-      this._logService
-    );
+    const operation = new ActivationOperation(activation.id, displayName, activation.reason, deps, value, this._host, this._logService);
     this._operations.set(activation.id, operation);
     return operation;
   }
   _isHostExtension(extensionId) {
-    return ExtensionDescriptionRegistry.isHostExtension(
-      extensionId,
-      this._registry,
-      this._globalRegistry
-    );
+    return ExtensionDescriptionRegistry.isHostExtension(extensionId, this._registry, this._globalRegistry);
   }
   _isResolvedExtension(extensionId) {
     const extensionDescription = this._globalRegistry.getExtensionDescription(extensionId);
@@ -401,16 +321,10 @@ let ActivationOperation = class {
           continue;
         }
         if (dep.value && dep.value.activationFailed) {
-          const error = new Error(
-            `Cannot activate the '${this.friendlyName}' extension because its dependency '${dep.friendlyName}' failed to activate`
-          );
+          const error = new Error(`Cannot activate the '${this.friendlyName}' extension because its dependency '${dep.friendlyName}' failed to activate`);
           error.detail = dep.value.activationFailedError;
           this._value = new FailedExtension(error);
-          this._host.onExtensionActivationError(
-            this._id,
-            error,
-            null
-          );
+          this._host.onExtensionActivationError(this._id, error, null);
           return;
         }
       }
@@ -422,10 +336,7 @@ let ActivationOperation = class {
   }
   async _activate() {
     try {
-      this._value = await this._host.actualActivateExtension(
-        this._id,
-        this._reason
-      );
+      this._value = await this._host.actualActivateExtension(this._id, this._reason);
     } catch (err) {
       const error = new Error();
       if (err && err.name) {
@@ -444,9 +355,7 @@ let ActivationOperation = class {
         return;
       }
       this._host.onExtensionActivationError(this._id, error, null);
-      this._logService.error(
-        `Activating extension ${this._id.value} failed due to an error:`
-      );
+      this._logService.error(`Activating extension ${this._id.value} failed due to an error:`);
       this._logService.error(err);
     }
   }

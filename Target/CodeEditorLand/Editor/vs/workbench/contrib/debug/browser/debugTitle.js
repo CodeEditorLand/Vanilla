@@ -10,12 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDebugService, State } from "../common/debug.js";
+import { dispose, IDisposable } from "../../../../base/common/lifecycle.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { ITitleService } from "../../../services/title/browser/titleService.js";
-import { IDebugService, State } from "../common/debug.js";
 let DebugTitleContribution = class {
   static {
     __name(this, "DebugTitleContribution");

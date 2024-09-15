@@ -11,35 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { sha1Hex } from "../../../../base/browser/hash.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { splitLines } from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
+import { IFileService, IFileStatResult, IFileStat } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService, WorkbenchState, IWorkspace } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import {
-  ITextFileService
-} from "../../../services/textfile/common/textfiles.js";
-import {
-  GradleDependencyCompactRegex,
-  GradleDependencyLooseRegex,
-  JavaLibrariesToLookFor,
-  MavenArtifactIdRegex,
-  MavenDependenciesRegex,
-  MavenDependencyRegex,
-  MavenGroupIdRegex
-} from "../common/javaWorkspaceTags.js";
-import { IWorkspaceTagsService } from "../common/workspaceTags.js";
+import { ITextFileService, ITextFileContent } from "../../../services/textfile/common/textfiles.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkspaceTagsService, Tags } from "../common/workspaceTags.js";
 import { getHashedRemotesFromConfig } from "./workspaceTags.js";
+import { splitLines } from "../../../../base/common/strings.js";
+import { MavenArtifactIdRegex, MavenDependenciesRegex, MavenDependencyRegex, GradleDependencyCompactRegex, GradleDependencyLooseRegex, MavenGroupIdRegex, JavaLibrariesToLookFor } from "../common/javaWorkspaceTags.js";
 const MetaModulesToLookFor = [
   // Azure packages
   "@azure",
@@ -462,9 +444,7 @@ let WorkspaceTagsService = class {
   }
   async getTelemetryWorkspaceId(workspace, state) {
     function createHash(uri) {
-      return sha1Hex(
-        uri.scheme === Schemas.file ? uri.fsPath : uri.toString()
-      );
+      return sha1Hex(uri.scheme === Schemas.file ? uri.fsPath : uri.toString());
     }
     __name(createHash, "createHash");
     let workspaceId;
@@ -484,18 +464,13 @@ let WorkspaceTagsService = class {
   }
   getHashedRemotesFromUri(workspaceUri, stripEndingDotGit = false) {
     const path = workspaceUri.path;
-    const uri = workspaceUri.with({
-      path: `${path !== "/" ? path : ""}/.git/config`
-    });
+    const uri = workspaceUri.with({ path: `${path !== "/" ? path : ""}/.git/config` });
     return this.fileService.exists(uri).then((exists) => {
       if (!exists) {
         return [];
       }
       return this.textFileService.read(uri, { acceptTextOnly: true }).then(
-        (content) => getHashedRemotesFromConfig(
-          content.value,
-          stripEndingDotGit
-        ),
+        (content) => getHashedRemotesFromConfig(content.value, stripEndingDotGit),
         (err) => []
         // ignore missing or binary file
       );
@@ -1224,10 +1199,7 @@ let WorkspaceTagsService = class {
     const tags = /* @__PURE__ */ Object.create(null);
     const state = this.contextService.getWorkbenchState();
     const workspace = this.contextService.getWorkspace();
-    tags["workspace.id"] = await this.getTelemetryWorkspaceId(
-      workspace,
-      state
-    );
+    tags["workspace.id"] = await this.getTelemetryWorkspaceId(workspace, state);
     const { filesToOpenOrCreate, filesToDiff, filesToMerge } = this.environmentService;
     tags["workbench.filesToOpenOrCreate"] = filesToOpenOrCreate && filesToOpenOrCreate.length || 0;
     tags["workbench.filesToDiff"] = filesToDiff && filesToDiff.length || 0;
@@ -1235,26 +1207,17 @@ let WorkspaceTagsService = class {
     const isEmpty = state === WorkbenchState.EMPTY;
     tags["workspace.roots"] = isEmpty ? 0 : workspace.folders.length;
     tags["workspace.empty"] = isEmpty;
-    const folders = isEmpty ? void 0 : workspace.folders.map((folder) => folder.uri);
+    const folders = !isEmpty ? workspace.folders.map((folder) => folder.uri) : void 0;
     if (!folders || !folders.length) {
       return Promise.resolve(tags);
     }
-    const aiGeneratedWorkspaces = URI.joinPath(
-      this.environmentService.workspaceStorageHome,
-      "aiGeneratedWorkspaces.json"
-    );
+    const aiGeneratedWorkspaces = URI.joinPath(this.environmentService.workspaceStorageHome, "aiGeneratedWorkspaces.json");
     await this.fileService.exists(aiGeneratedWorkspaces).then(async (result) => {
       if (result) {
         try {
-          const content = await this.fileService.readFile(
-            aiGeneratedWorkspaces
-          );
-          const workspaces = JSON.parse(
-            content.value.toString()
-          );
-          if (workspaces.indexOf(
-            workspace.folders[0].uri.toString()
-          ) > -1) {
+          const content = await this.fileService.readFile(aiGeneratedWorkspaces);
+          const workspaces = JSON.parse(content.value.toString());
+          if (workspaces.indexOf(workspace.folders[0].uri.toString()) > -1) {
             tags["aiGenerated"] = true;
           }
         } catch (e) {
@@ -1262,47 +1225,27 @@ let WorkspaceTagsService = class {
       }
     });
     return this.fileService.resolveAll(folders.map((resource) => ({ resource }))).then((files) => {
-      const names = [].concat(
-        ...files.map(
-          (result) => result.success ? result.stat.children || [] : []
-        )
-      ).map((c) => c.name);
-      const nameSet = names.reduce(
-        (s, n) => s.add(n.toLowerCase()),
-        /* @__PURE__ */ new Set()
-      );
+      const names = [].concat(...files.map((result) => result.success ? result.stat.children || [] : [])).map((c) => c.name);
+      const nameSet = names.reduce((s, n) => s.add(n.toLowerCase()), /* @__PURE__ */ new Set());
       tags["workspace.grunt"] = nameSet.has("gruntfile.js");
       tags["workspace.gulp"] = nameSet.has("gulpfile.js");
       tags["workspace.jake"] = nameSet.has("jakefile.js");
       tags["workspace.tsconfig"] = nameSet.has("tsconfig.json");
       tags["workspace.jsconfig"] = nameSet.has("jsconfig.json");
       tags["workspace.config.xml"] = nameSet.has("config.xml");
-      tags["workspace.vsc.extension"] = nameSet.has(
-        "vsc-extension-quickstart.md"
-      );
+      tags["workspace.vsc.extension"] = nameSet.has("vsc-extension-quickstart.md");
       tags["workspace.ASP5"] = nameSet.has("project.json") && this.searchArray(names, /^.+\.cs$/i);
-      tags["workspace.sln"] = this.searchArray(
-        names,
-        /^.+\.sln$|^.+\.csproj$/i
-      );
+      tags["workspace.sln"] = this.searchArray(names, /^.+\.sln$|^.+\.csproj$/i);
       tags["workspace.unity"] = nameSet.has("assets") && nameSet.has("library") && nameSet.has("projectsettings");
       tags["workspace.npm"] = nameSet.has("package.json") || nameSet.has("node_modules");
       tags["workspace.bower"] = nameSet.has("bower.json") || nameSet.has("bower_components");
       tags["workspace.java.pom"] = nameSet.has("pom.xml");
       tags["workspace.java.gradle"] = nameSet.has("build.gradle") || nameSet.has("settings.gradle") || nameSet.has("build.gradle.kts") || nameSet.has("settings.gradle.kts") || nameSet.has("gradlew") || nameSet.has("gradlew.bat");
-      tags["workspace.yeoman.code.ext"] = nameSet.has(
-        "vsc-extension-quickstart.md"
-      );
+      tags["workspace.yeoman.code.ext"] = nameSet.has("vsc-extension-quickstart.md");
       tags["workspace.py.requirements"] = nameSet.has("requirements.txt");
-      tags["workspace.py.requirements.star"] = this.searchArray(
-        names,
-        /^(.*)requirements(.*)\.txt$/i
-      );
+      tags["workspace.py.requirements.star"] = this.searchArray(names, /^(.*)requirements(.*)\.txt$/i);
       tags["workspace.py.Pipfile"] = nameSet.has("pipfile");
-      tags["workspace.py.conda"] = this.searchArray(
-        names,
-        /^environment(\.yml$|\.yaml$)/i
-      );
+      tags["workspace.py.conda"] = this.searchArray(names, /^environment(\.yml$|\.yaml$)/i);
       tags["workspace.py.setup"] = nameSet.has("setup.py");
       tags["workspace.py.manage"] = nameSet.has("manage.py");
       tags["workspace.py.setupcfg"] = nameSet.has("setup.cfg");
@@ -1340,21 +1283,16 @@ let WorkspaceTagsService = class {
         tags["workspace.android.cpp"] = true;
       }
       function getFilePromises(filename, fileService, textFileService, contentHandler) {
-        return nameSet.has(filename) ? folders.map((workspaceUri) => {
-          const uri = workspaceUri.with({
-            path: `${workspaceUri.path !== "/" ? workspaceUri.path : ""}/${filename}`
-          });
-          return fileService.exists(uri).then(
-            (exists) => {
-              if (!exists) {
-                return void 0;
-              }
-              return textFileService.read(uri, { acceptTextOnly: true }).then(contentHandler);
-            },
-            (err) => {
+        return !nameSet.has(filename) ? [] : folders.map((workspaceUri) => {
+          const uri = workspaceUri.with({ path: `${workspaceUri.path !== "/" ? workspaceUri.path : ""}/${filename}` });
+          return fileService.exists(uri).then((exists) => {
+            if (!exists) {
+              return void 0;
             }
-          );
-        }) : [];
+            return textFileService.read(uri, { acceptTextOnly: true }).then(contentHandler);
+          }, (err) => {
+          });
+        });
       }
       __name(getFilePromises, "getFilePromises");
       function addPythonTags(packageName) {
@@ -1367,194 +1305,117 @@ let WorkspaceTagsService = class {
           }
         }
         if (!tags["workspace.py.any-azure"]) {
-          tags["workspace.py.any-azure"] = /azure/i.test(
-            packageName
-          );
+          tags["workspace.py.any-azure"] = /azure/i.test(packageName);
         }
       }
       __name(addPythonTags, "addPythonTags");
-      const requirementsTxtPromises = getFilePromises(
-        "requirements.txt",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          const dependencies = splitLines(
-            content.value
-          );
-          for (const dependency of dependencies) {
-            const format1 = dependency.split("==");
-            const format2 = dependency.split(">=");
-            const packageName = (format1.length === 2 ? format1[0] : format2[0]).trim();
-            addPythonTags(packageName);
-          }
+      const requirementsTxtPromises = getFilePromises("requirements.txt", this.fileService, this.textFileService, (content) => {
+        const dependencies = splitLines(content.value);
+        for (const dependency of dependencies) {
+          const format1 = dependency.split("==");
+          const format2 = dependency.split(">=");
+          const packageName = (format1.length === 2 ? format1[0] : format2[0]).trim();
+          addPythonTags(packageName);
         }
-      );
-      const pipfilePromises = getFilePromises(
-        "pipfile",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          let dependencies = splitLines(content.value);
-          dependencies = dependencies.slice(
-            dependencies.indexOf("[packages]") + 1
-          );
-          for (const dependency of dependencies) {
-            if (dependency.trim().indexOf("[") > -1) {
-              break;
-            }
-            if (dependency.indexOf("=") === -1) {
-              continue;
-            }
-            const packageName = dependency.split("=")[0].trim();
-            addPythonTags(packageName);
+      });
+      const pipfilePromises = getFilePromises("pipfile", this.fileService, this.textFileService, (content) => {
+        let dependencies = splitLines(content.value);
+        dependencies = dependencies.slice(dependencies.indexOf("[packages]") + 1);
+        for (const dependency of dependencies) {
+          if (dependency.trim().indexOf("[") > -1) {
+            break;
           }
+          if (dependency.indexOf("=") === -1) {
+            continue;
+          }
+          const packageName = dependency.split("=")[0].trim();
+          addPythonTags(packageName);
         }
-      );
-      const packageJsonPromises = getFilePromises(
-        "package.json",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          try {
-            const packageJsonContents = JSON.parse(
-              content.value
-            );
-            const dependencies = Object.keys(
-              packageJsonContents["dependencies"] || {}
-            ).concat(
-              Object.keys(
-                packageJsonContents["devDependencies"] || {}
-              )
-            );
-            for (const dependency of dependencies) {
-              if (dependency.startsWith("react-native")) {
-                tags["workspace.reactNative"] = true;
-              } else if (dependency === "tns-core-modules" || dependency === "@nativescript/core") {
-                tags["workspace.nativescript"] = true;
-              } else if (ModulesToLookFor.indexOf(dependency) > -1) {
-                tags["workspace.npm." + dependency] = true;
+      });
+      const packageJsonPromises = getFilePromises("package.json", this.fileService, this.textFileService, (content) => {
+        try {
+          const packageJsonContents = JSON.parse(content.value);
+          const dependencies = Object.keys(packageJsonContents["dependencies"] || {}).concat(Object.keys(packageJsonContents["devDependencies"] || {}));
+          for (const dependency of dependencies) {
+            if (dependency.startsWith("react-native")) {
+              tags["workspace.reactNative"] = true;
+            } else if ("tns-core-modules" === dependency || "@nativescript/core" === dependency) {
+              tags["workspace.nativescript"] = true;
+            } else if (ModulesToLookFor.indexOf(dependency) > -1) {
+              tags["workspace.npm." + dependency] = true;
+            } else {
+              for (const metaModule of MetaModulesToLookFor) {
+                if (dependency.startsWith(metaModule)) {
+                  tags["workspace.npm." + metaModule] = true;
+                }
+              }
+            }
+          }
+        } catch (e) {
+        }
+      });
+      const goModPromises = getFilePromises("go.mod", this.fileService, this.textFileService, (content) => {
+        try {
+          const lines = splitLines(content.value);
+          let firstRequireBlockFound = false;
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.startsWith("require (")) {
+              if (!firstRequireBlockFound) {
+                firstRequireBlockFound = true;
+                continue;
               } else {
-                for (const metaModule of MetaModulesToLookFor) {
-                  if (dependency.startsWith(metaModule)) {
-                    tags["workspace.npm." + metaModule] = true;
-                  }
-                }
-              }
-            }
-          } catch (e) {
-          }
-        }
-      );
-      const goModPromises = getFilePromises(
-        "go.mod",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          try {
-            const lines = splitLines(content.value);
-            let firstRequireBlockFound = false;
-            for (let i = 0; i < lines.length; i++) {
-              const line = lines[i].trim();
-              if (line.startsWith("require (")) {
-                if (firstRequireBlockFound) {
-                  break;
-                } else {
-                  firstRequireBlockFound = true;
-                  continue;
-                }
-              }
-              if (line.startsWith(")")) {
                 break;
               }
-              if (firstRequireBlockFound && line !== "") {
-                const packageName = line.split(" ")[0].trim();
-                for (const module of GoModulesToLookFor) {
-                  if (packageName.startsWith(module)) {
-                    tags["workspace.go.mod." + packageName] = true;
-                  }
+            }
+            if (line.startsWith(")")) {
+              break;
+            }
+            if (firstRequireBlockFound && line !== "") {
+              const packageName = line.split(" ")[0].trim();
+              for (const module of GoModulesToLookFor) {
+                if (packageName.startsWith(module)) {
+                  tags["workspace.go.mod." + packageName] = true;
                 }
               }
             }
-          } catch (e) {
           }
+        } catch (e) {
         }
-      );
-      const pomPromises = getFilePromises(
-        "pom.xml",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          try {
-            let dependenciesContent;
-            while (dependenciesContent = MavenDependenciesRegex.exec(content.value)) {
-              let dependencyContent;
-              while (dependencyContent = MavenDependencyRegex.exec(
-                dependenciesContent[1]
-              )) {
-                const groupIdContent = MavenGroupIdRegex.exec(
-                  dependencyContent[1]
-                );
-                const artifactIdContent = MavenArtifactIdRegex.exec(
-                  dependencyContent[1]
-                );
-                if (groupIdContent && artifactIdContent) {
-                  this.tagJavaDependency(
-                    groupIdContent[1],
-                    artifactIdContent[1],
-                    "workspace.pom.",
-                    tags
-                  );
-                }
-              }
-            }
-          } catch (e) {
-          }
-        }
-      );
-      const gradlePromises = getFilePromises(
-        "build.gradle",
-        this.fileService,
-        this.textFileService,
-        (content) => {
-          try {
-            this.processGradleDependencies(
-              content.value,
-              GradleDependencyLooseRegex,
-              tags
-            );
-            this.processGradleDependencies(
-              content.value,
-              GradleDependencyCompactRegex,
-              tags
-            );
-          } catch (e) {
-          }
-        }
-      );
-      const androidPromises = folders.map((workspaceUri) => {
-        const manifest = URI.joinPath(
-          workspaceUri,
-          "/app/src/main/AndroidManifest.xml"
-        );
-        return this.fileService.exists(manifest).then(
-          (result) => {
-            if (result) {
-              tags["workspace.java.android"] = true;
-            }
-          },
-          (err) => {
-          }
-        );
       });
-      return Promise.all([
-        ...packageJsonPromises,
-        ...requirementsTxtPromises,
-        ...pipfilePromises,
-        ...pomPromises,
-        ...gradlePromises,
-        ...androidPromises,
-        ...goModPromises
-      ]).then(() => tags);
+      const pomPromises = getFilePromises("pom.xml", this.fileService, this.textFileService, (content) => {
+        try {
+          let dependenciesContent;
+          while (dependenciesContent = MavenDependenciesRegex.exec(content.value)) {
+            let dependencyContent;
+            while (dependencyContent = MavenDependencyRegex.exec(dependenciesContent[1])) {
+              const groupIdContent = MavenGroupIdRegex.exec(dependencyContent[1]);
+              const artifactIdContent = MavenArtifactIdRegex.exec(dependencyContent[1]);
+              if (groupIdContent && artifactIdContent) {
+                this.tagJavaDependency(groupIdContent[1], artifactIdContent[1], "workspace.pom.", tags);
+              }
+            }
+          }
+        } catch (e) {
+        }
+      });
+      const gradlePromises = getFilePromises("build.gradle", this.fileService, this.textFileService, (content) => {
+        try {
+          this.processGradleDependencies(content.value, GradleDependencyLooseRegex, tags);
+          this.processGradleDependencies(content.value, GradleDependencyCompactRegex, tags);
+        } catch (e) {
+        }
+      });
+      const androidPromises = folders.map((workspaceUri) => {
+        const manifest = URI.joinPath(workspaceUri, "/app/src/main/AndroidManifest.xml");
+        return this.fileService.exists(manifest).then((result) => {
+          if (result) {
+            tags["workspace.java.android"] = true;
+          }
+        }, (err) => {
+        });
+      });
+      return Promise.all([...packageJsonPromises, ...requirementsTxtPromises, ...pipfilePromises, ...pomPromises, ...gradlePromises, ...androidPromises, ...goModPromises]).then(() => tags);
     });
   }
   processGradleDependencies(content, regex, tags) {
@@ -1563,12 +1424,7 @@ let WorkspaceTagsService = class {
       const groupId = dependencyContent[1];
       const artifactId = dependencyContent[2];
       if (groupId && artifactId) {
-        this.tagJavaDependency(
-          groupId,
-          artifactId,
-          "workspace.gradle.",
-          tags
-        );
+        this.tagJavaDependency(groupId, artifactId, "workspace.gradle.", tags);
       }
     }
   }
@@ -1590,11 +1446,7 @@ WorkspaceTagsService = __decorateClass([
   __decorateParam(2, IWorkbenchEnvironmentService),
   __decorateParam(3, ITextFileService)
 ], WorkspaceTagsService);
-registerSingleton(
-  IWorkspaceTagsService,
-  WorkspaceTagsService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkspaceTagsService, WorkspaceTagsService, InstantiationType.Delayed);
 export {
   WorkspaceTagsService
 };

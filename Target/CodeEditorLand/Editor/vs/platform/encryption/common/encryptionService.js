@@ -2,9 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 const IEncryptionService = createDecorator("encryptionService");
-const IEncryptionMainService = createDecorator(
-  "encryptionMainService"
-);
+const IEncryptionMainService = createDecorator("encryptionMainService");
 var PasswordStoreCLIOption = /* @__PURE__ */ ((PasswordStoreCLIOption2) => {
   PasswordStoreCLIOption2["kwallet"] = "kwallet";
   PasswordStoreCLIOption2["kwallet5"] = "kwallet5";

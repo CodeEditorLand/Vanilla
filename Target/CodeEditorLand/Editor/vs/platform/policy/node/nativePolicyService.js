@@ -10,12 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { AbstractPolicyService, IPolicyService, PolicyDefinition } from "../common/policy.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
 import { Throttler } from "../../../base/common/async.js";
 import { MutableDisposable } from "../../../base/common/lifecycle.js";
 import { ILogService } from "../../log/common/log.js";
-import {
-  AbstractPolicyService
-} from "../common/policy.js";
 let NativePolicyService = class extends AbstractPolicyService {
   constructor(logService, productName) {
     super();
@@ -28,35 +27,22 @@ let NativePolicyService = class extends AbstractPolicyService {
   throttler = new Throttler();
   watcher = this._register(new MutableDisposable());
   async _updatePolicyDefinitions(policyDefinitions) {
-    this.logService.trace(
-      `NativePolicyService#_updatePolicyDefinitions - Found ${Object.keys(policyDefinitions).length} policy definitions`
-    );
+    this.logService.trace(`NativePolicyService#_updatePolicyDefinitions - Found ${Object.keys(policyDefinitions).length} policy definitions`);
     const { createWatcher } = await import("@vscode/policy-watcher");
-    await this.throttler.queue(
-      () => new Promise((c, e) => {
-        try {
-          this.watcher.value = createWatcher(
-            this.productName,
-            policyDefinitions,
-            (update) => {
-              this._onDidPolicyChange(update);
-              c();
-            }
-          );
-        } catch (err) {
-          this.logService.error(
-            `NativePolicyService#_updatePolicyDefinitions - Error creating watcher:`,
-            err
-          );
-          e(err);
-        }
-      })
-    );
+    await this.throttler.queue(() => new Promise((c, e) => {
+      try {
+        this.watcher.value = createWatcher(this.productName, policyDefinitions, (update) => {
+          this._onDidPolicyChange(update);
+          c();
+        });
+      } catch (err) {
+        this.logService.error(`NativePolicyService#_updatePolicyDefinitions - Error creating watcher:`, err);
+        e(err);
+      }
+    }));
   }
   _onDidPolicyChange(update) {
-    this.logService.trace(
-      `NativePolicyService#_onDidPolicyChange - Updated policy values: ${JSON.stringify(update)}`
-    );
+    this.logService.trace(`NativePolicyService#_onDidPolicyChange - Updated policy values: ${JSON.stringify(update)}`);
     for (const key in update) {
       const value = update[key];
       if (value === void 0) {

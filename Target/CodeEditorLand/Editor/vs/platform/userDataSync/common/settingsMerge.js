@@ -1,20 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "../../../base/common/arrays.js";
-import { parse, visit } from "../../../base/common/json.js";
-import {
-  applyEdits,
-  setProperty,
-  withFormatting
-} from "../../../base/common/jsonEdit.js";
-import {
-  getEOL
-} from "../../../base/common/jsonFormatter.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { JSONVisitor, parse, visit } from "../../../base/common/json.js";
+import { applyEdits, setProperty, withFormatting } from "../../../base/common/jsonEdit.js";
+import { Edit, FormattingOptions, getEOL } from "../../../base/common/jsonFormatter.js";
 import * as objects from "../../../base/common/objects.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
 import * as contentUtil from "./content.js";
-import {
-  getDisallowedIgnoredSettings
-} from "./userDataSync.js";
+import { getDisallowedIgnoredSettings, IConflictSetting } from "./userDataSync.js";
 function getIgnoredSettings(defaultIgnoredSettings, configurationService, settingsContent) {
   let value = [];
   if (settingsContent) {
@@ -32,29 +26,19 @@ function getIgnoredSettings(defaultIgnoredSettings, configurationService, settin
       }
     }
   }
-  return distinct(
-    [...defaultIgnoredSettings, ...added].filter(
-      (setting) => !removed.includes(setting)
-    )
-  );
+  return distinct([...defaultIgnoredSettings, ...added].filter((setting) => !removed.includes(setting)));
 }
 __name(getIgnoredSettings, "getIgnoredSettings");
 function getIgnoredSettingsFromConfig(configurationService) {
-  let userValue = configurationService.inspect(
-    "settingsSync.ignoredSettings"
-  ).userValue;
+  let userValue = configurationService.inspect("settingsSync.ignoredSettings").userValue;
   if (userValue !== void 0) {
     return userValue;
   }
-  userValue = configurationService.inspect(
-    "sync.ignoredSettings"
-  ).userValue;
+  userValue = configurationService.inspect("sync.ignoredSettings").userValue;
   if (userValue !== void 0) {
     return userValue;
   }
-  return configurationService.getValue(
-    "settingsSync.ignoredSettings"
-  ) || [];
+  return configurationService.getValue("settingsSync.ignoredSettings") || [];
 }
 __name(getIgnoredSettingsFromConfig, "getIgnoredSettingsFromConfig");
 function getIgnoredSettingsFromContent(settingsContent) {
@@ -66,12 +50,7 @@ function removeComments(content, formattingOptions) {
   const source = parse(content) || {};
   let result = "{}";
   for (const key of Object.keys(source)) {
-    const edits = setProperty(
-      result,
-      [key],
-      source[key],
-      formattingOptions
-    );
+    const edits = setProperty(result, [key], source[key], formattingOptions);
     result = applyEdits(result, edits);
   }
   return result;
@@ -90,91 +69,35 @@ function updateIgnoredSettings(targetContent, sourceContent, ignoredSettings, fo
       const sourceValue = source[key];
       const targetValue = target[key];
       if (sourceValue === void 0) {
-        targetContent = contentUtil.edit(
-          targetContent,
-          [key],
-          void 0,
-          formattingOptions
-        );
+        targetContent = contentUtil.edit(targetContent, [key], void 0, formattingOptions);
       } else if (targetValue !== void 0) {
-        targetContent = contentUtil.edit(
-          targetContent,
-          [key],
-          sourceValue,
-          formattingOptions
-        );
+        targetContent = contentUtil.edit(targetContent, [key], sourceValue, formattingOptions);
       } else {
         settingsToAdd.push(findSettingNode(key, sourceTree));
       }
     }
     settingsToAdd.sort((a, b) => a.startOffset - b.startOffset);
-    settingsToAdd.forEach(
-      (s) => targetContent = addSetting(
-        s.setting.key,
-        sourceContent,
-        targetContent,
-        formattingOptions
-      )
-    );
+    settingsToAdd.forEach((s) => targetContent = addSetting(s.setting.key, sourceContent, targetContent, formattingOptions));
   }
   return targetContent;
 }
 __name(updateIgnoredSettings, "updateIgnoredSettings");
 function merge(originalLocalContent, originalRemoteContent, baseContent, ignoredSettings, resolvedConflicts, formattingOptions) {
-  const localContentWithoutIgnoredSettings = updateIgnoredSettings(
-    originalLocalContent,
-    originalRemoteContent,
-    ignoredSettings,
-    formattingOptions
-  );
+  const localContentWithoutIgnoredSettings = updateIgnoredSettings(originalLocalContent, originalRemoteContent, ignoredSettings, formattingOptions);
   const localForwarded = baseContent !== localContentWithoutIgnoredSettings;
   const remoteForwarded = baseContent !== originalRemoteContent;
   if (!localForwarded && !remoteForwarded) {
-    return {
-      conflictsSettings: [],
-      localContent: null,
-      remoteContent: null,
-      hasConflicts: false
-    };
+    return { conflictsSettings: [], localContent: null, remoteContent: null, hasConflicts: false };
   }
   if (localForwarded && !remoteForwarded) {
-    return {
-      conflictsSettings: [],
-      localContent: null,
-      remoteContent: localContentWithoutIgnoredSettings,
-      hasConflicts: false
-    };
+    return { conflictsSettings: [], localContent: null, remoteContent: localContentWithoutIgnoredSettings, hasConflicts: false };
   }
   if (remoteForwarded && !localForwarded) {
-    return {
-      conflictsSettings: [],
-      localContent: updateIgnoredSettings(
-        originalRemoteContent,
-        originalLocalContent,
-        ignoredSettings,
-        formattingOptions
-      ),
-      remoteContent: null,
-      hasConflicts: false
-    };
+    return { conflictsSettings: [], localContent: updateIgnoredSettings(originalRemoteContent, originalLocalContent, ignoredSettings, formattingOptions), remoteContent: null, hasConflicts: false };
   }
   if (baseContent === null && isEmpty(originalLocalContent)) {
-    const localContent2 = areSame(
-      originalLocalContent,
-      originalRemoteContent,
-      ignoredSettings
-    ) ? null : updateIgnoredSettings(
-      originalRemoteContent,
-      originalLocalContent,
-      ignoredSettings,
-      formattingOptions
-    );
-    return {
-      conflictsSettings: [],
-      localContent: localContent2,
-      remoteContent: null,
-      hasConflicts: false
-    };
+    const localContent2 = areSame(originalLocalContent, originalRemoteContent, ignoredSettings) ? null : updateIgnoredSettings(originalRemoteContent, originalLocalContent, ignoredSettings, formattingOptions);
+    return { conflictsSettings: [], localContent: localContent2, remoteContent: null, hasConflicts: false };
   }
   let localContent = originalLocalContent;
   let remoteContent = originalRemoteContent;
@@ -192,40 +115,19 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
   const handledConflicts = /* @__PURE__ */ new Set();
   const handleConflict = /* @__PURE__ */ __name((conflictKey) => {
     handledConflicts.add(conflictKey);
-    const resolvedConflict = resolvedConflicts.filter(
-      ({ key }) => key === conflictKey
-    )[0];
+    const resolvedConflict = resolvedConflicts.filter(({ key }) => key === conflictKey)[0];
     if (resolvedConflict) {
-      localContent = contentUtil.edit(
-        localContent,
-        [conflictKey],
-        resolvedConflict.value,
-        formattingOptions
-      );
-      remoteContent = contentUtil.edit(
-        remoteContent,
-        [conflictKey],
-        resolvedConflict.value,
-        formattingOptions
-      );
+      localContent = contentUtil.edit(localContent, [conflictKey], resolvedConflict.value, formattingOptions);
+      remoteContent = contentUtil.edit(remoteContent, [conflictKey], resolvedConflict.value, formattingOptions);
     } else {
-      conflicts.set(conflictKey, {
-        key: conflictKey,
-        localValue: local[conflictKey],
-        remoteValue: remote[conflictKey]
-      });
+      conflicts.set(conflictKey, { key: conflictKey, localValue: local[conflictKey], remoteValue: remote[conflictKey] });
     }
   }, "handleConflict");
   for (const key of baseToLocal.removed.values()) {
     if (baseToRemote.updated.has(key)) {
       handleConflict(key);
     } else {
-      remoteContent = contentUtil.edit(
-        remoteContent,
-        [key],
-        void 0,
-        formattingOptions
-      );
+      remoteContent = contentUtil.edit(remoteContent, [key], void 0, formattingOptions);
     }
   }
   for (const key of baseToRemote.removed.values()) {
@@ -235,12 +137,7 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
     if (baseToLocal.updated.has(key)) {
       handleConflict(key);
     } else {
-      localContent = contentUtil.edit(
-        localContent,
-        [key],
-        void 0,
-        formattingOptions
-      );
+      localContent = contentUtil.edit(localContent, [key], void 0, formattingOptions);
     }
   }
   for (const key of baseToLocal.updated.values()) {
@@ -252,12 +149,7 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
         handleConflict(key);
       }
     } else {
-      remoteContent = contentUtil.edit(
-        remoteContent,
-        [key],
-        local[key],
-        formattingOptions
-      );
+      remoteContent = contentUtil.edit(remoteContent, [key], local[key], formattingOptions);
     }
   }
   for (const key of baseToRemote.updated.values()) {
@@ -269,12 +161,7 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
         handleConflict(key);
       }
     } else {
-      localContent = contentUtil.edit(
-        localContent,
-        [key],
-        remote[key],
-        formattingOptions
-      );
+      localContent = contentUtil.edit(localContent, [key], remote[key], formattingOptions);
     }
   }
   for (const key of baseToLocal.added.values()) {
@@ -286,12 +173,7 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
         handleConflict(key);
       }
     } else {
-      remoteContent = addSetting(
-        key,
-        localContent,
-        remoteContent,
-        formattingOptions
-      );
+      remoteContent = addSetting(key, localContent, remoteContent, formattingOptions);
     }
   }
   for (const key of baseToRemote.added.values()) {
@@ -303,23 +185,13 @@ function merge(originalLocalContent, originalRemoteContent, baseContent, ignored
         handleConflict(key);
       }
     } else {
-      localContent = addSetting(
-        key,
-        remoteContent,
-        localContent,
-        formattingOptions
-      );
+      localContent = addSetting(key, remoteContent, localContent, formattingOptions);
     }
   }
   const hasConflicts = conflicts.size > 0 || !areSame(localContent, remoteContent, ignoredSettings);
   const hasLocalChanged = hasConflicts || !areSame(localContent, originalLocalContent, []);
   const hasRemoteChanged = hasConflicts || !areSame(remoteContent, originalRemoteContent, []);
-  return {
-    localContent: hasLocalChanged ? localContent : null,
-    remoteContent: hasRemoteChanged ? remoteContent : null,
-    conflictsSettings: [...conflicts.values()],
-    hasConflicts
-  };
+  return { localContent: hasLocalChanged ? localContent : null, remoteContent: hasRemoteChanged ? remoteContent : null, conflictsSettings: [...conflicts.values()], hasConflicts };
 }
 __name(merge, "merge");
 function areSame(localContent, remoteContent, ignoredSettings) {
@@ -332,12 +204,8 @@ function areSame(localContent, remoteContent, ignoredSettings) {
     set.add(key);
     return set;
   }, /* @__PURE__ */ new Set());
-  const localTree = parseSettings(localContent).filter(
-    (node) => !(node.setting && ignored.has(node.setting.key))
-  );
-  const remoteTree = parseSettings(remoteContent).filter(
-    (node) => !(node.setting && ignored.has(node.setting.key))
-  );
+  const localTree = parseSettings(localContent).filter((node) => !(node.setting && ignored.has(node.setting.key)));
+  const remoteTree = parseSettings(remoteContent).filter((node) => !(node.setting && ignored.has(node.setting.key)));
   if (localTree.length !== remoteTree.length) {
     return false;
   }
@@ -348,10 +216,7 @@ function areSame(localContent, remoteContent, ignoredSettings) {
       if (localNode.setting.key !== remoteNode.setting.key) {
         return false;
       }
-      if (!objects.equals(
-        local[localNode.setting.key],
-        remote[localNode.setting.key]
-      )) {
+      if (!objects.equals(local[localNode.setting.key], remote[localNode.setting.key])) {
         return false;
       }
     } else if (!localNode.setting && !remoteNode.setting) {
@@ -405,94 +270,40 @@ function addSetting(key, sourceContent, targetContent, formattingOptions) {
   const sourceTree = parseSettings(sourceContent);
   const targetTree = parseSettings(targetContent);
   const insertLocation = getInsertLocation(key, sourceTree, targetTree);
-  return insertAtLocation(
-    targetContent,
-    key,
-    source[key],
-    insertLocation,
-    targetTree,
-    formattingOptions
-  );
+  return insertAtLocation(targetContent, key, source[key], insertLocation, targetTree, formattingOptions);
 }
 __name(addSetting, "addSetting");
 function getInsertLocation(key, sourceTree, targetTree) {
-  const sourceNodeIndex = sourceTree.findIndex(
-    (node) => node.setting?.key === key
-  );
+  const sourceNodeIndex = sourceTree.findIndex((node) => node.setting?.key === key);
   const sourcePreviousNode = sourceTree[sourceNodeIndex - 1];
   if (sourcePreviousNode) {
     if (sourcePreviousNode.setting) {
-      const targetPreviousSetting = findSettingNode(
-        sourcePreviousNode.setting.key,
-        targetTree
-      );
+      const targetPreviousSetting = findSettingNode(sourcePreviousNode.setting.key, targetTree);
       if (targetPreviousSetting) {
-        return {
-          index: targetTree.indexOf(targetPreviousSetting),
-          insertAfter: true
-        };
+        return { index: targetTree.indexOf(targetPreviousSetting), insertAfter: true };
       }
     } else {
-      const sourcePreviousSettingNode = findPreviousSettingNode(
-        sourceNodeIndex,
-        sourceTree
-      );
+      const sourcePreviousSettingNode = findPreviousSettingNode(sourceNodeIndex, sourceTree);
       if (sourcePreviousSettingNode) {
-        const targetPreviousSetting = findSettingNode(
-          sourcePreviousSettingNode.setting.key,
-          targetTree
-        );
+        const targetPreviousSetting = findSettingNode(sourcePreviousSettingNode.setting.key, targetTree);
         if (targetPreviousSetting) {
-          const targetNextSetting = findNextSettingNode(
-            targetTree.indexOf(targetPreviousSetting),
-            targetTree
-          );
-          const sourceCommentNodes = findNodesBetween(
-            sourceTree,
-            sourcePreviousSettingNode,
-            sourceTree[sourceNodeIndex]
-          );
+          const targetNextSetting = findNextSettingNode(targetTree.indexOf(targetPreviousSetting), targetTree);
+          const sourceCommentNodes = findNodesBetween(sourceTree, sourcePreviousSettingNode, sourceTree[sourceNodeIndex]);
           if (targetNextSetting) {
-            const targetCommentNodes = findNodesBetween(
-              targetTree,
-              targetPreviousSetting,
-              targetNextSetting
-            );
-            const targetCommentNode = findLastMatchingTargetCommentNode(
-              sourceCommentNodes,
-              targetCommentNodes
-            );
+            const targetCommentNodes = findNodesBetween(targetTree, targetPreviousSetting, targetNextSetting);
+            const targetCommentNode = findLastMatchingTargetCommentNode(sourceCommentNodes, targetCommentNodes);
             if (targetCommentNode) {
-              return {
-                index: targetTree.indexOf(targetCommentNode),
-                insertAfter: true
-              };
+              return { index: targetTree.indexOf(targetCommentNode), insertAfter: true };
             } else {
-              return {
-                index: targetTree.indexOf(targetNextSetting),
-                insertAfter: false
-              };
+              return { index: targetTree.indexOf(targetNextSetting), insertAfter: false };
             }
           } else {
-            const targetCommentNodes = findNodesBetween(
-              targetTree,
-              targetPreviousSetting,
-              targetTree[targetTree.length - 1]
-            );
-            const targetCommentNode = findLastMatchingTargetCommentNode(
-              sourceCommentNodes,
-              targetCommentNodes
-            );
+            const targetCommentNodes = findNodesBetween(targetTree, targetPreviousSetting, targetTree[targetTree.length - 1]);
+            const targetCommentNode = findLastMatchingTargetCommentNode(sourceCommentNodes, targetCommentNodes);
             if (targetCommentNode) {
-              return {
-                index: targetTree.indexOf(targetCommentNode),
-                insertAfter: true
-              };
+              return { index: targetTree.indexOf(targetCommentNode), insertAfter: true };
             } else {
-              return {
-                index: targetTree.length - 1,
-                insertAfter: true
-              };
+              return { index: targetTree.length - 1, insertAfter: true };
             }
           }
         }
@@ -501,83 +312,32 @@ function getInsertLocation(key, sourceTree, targetTree) {
     const sourceNextNode = sourceTree[sourceNodeIndex + 1];
     if (sourceNextNode) {
       if (sourceNextNode.setting) {
-        const targetNextSetting = findSettingNode(
-          sourceNextNode.setting.key,
-          targetTree
-        );
+        const targetNextSetting = findSettingNode(sourceNextNode.setting.key, targetTree);
         if (targetNextSetting) {
-          return {
-            index: targetTree.indexOf(targetNextSetting),
-            insertAfter: false
-          };
+          return { index: targetTree.indexOf(targetNextSetting), insertAfter: false };
         }
       } else {
-        const sourceNextSettingNode = findNextSettingNode(
-          sourceNodeIndex,
-          sourceTree
-        );
+        const sourceNextSettingNode = findNextSettingNode(sourceNodeIndex, sourceTree);
         if (sourceNextSettingNode) {
-          const targetNextSetting = findSettingNode(
-            sourceNextSettingNode.setting.key,
-            targetTree
-          );
+          const targetNextSetting = findSettingNode(sourceNextSettingNode.setting.key, targetTree);
           if (targetNextSetting) {
-            const targetPreviousSetting = findPreviousSettingNode(
-              targetTree.indexOf(targetNextSetting),
-              targetTree
-            );
-            const sourceCommentNodes = findNodesBetween(
-              sourceTree,
-              sourceTree[sourceNodeIndex],
-              sourceNextSettingNode
-            );
+            const targetPreviousSetting = findPreviousSettingNode(targetTree.indexOf(targetNextSetting), targetTree);
+            const sourceCommentNodes = findNodesBetween(sourceTree, sourceTree[sourceNodeIndex], sourceNextSettingNode);
             if (targetPreviousSetting) {
-              const targetCommentNodes = findNodesBetween(
-                targetTree,
-                targetPreviousSetting,
-                targetNextSetting
-              );
-              const targetCommentNode = findLastMatchingTargetCommentNode(
-                sourceCommentNodes.reverse(),
-                targetCommentNodes.reverse()
-              );
+              const targetCommentNodes = findNodesBetween(targetTree, targetPreviousSetting, targetNextSetting);
+              const targetCommentNode = findLastMatchingTargetCommentNode(sourceCommentNodes.reverse(), targetCommentNodes.reverse());
               if (targetCommentNode) {
-                return {
-                  index: targetTree.indexOf(
-                    targetCommentNode
-                  ),
-                  insertAfter: false
-                };
+                return { index: targetTree.indexOf(targetCommentNode), insertAfter: false };
               } else {
-                return {
-                  index: targetTree.indexOf(
-                    targetPreviousSetting
-                  ),
-                  insertAfter: true
-                };
+                return { index: targetTree.indexOf(targetPreviousSetting), insertAfter: true };
               }
             } else {
-              const targetCommentNodes = findNodesBetween(
-                targetTree,
-                targetTree[0],
-                targetNextSetting
-              );
-              const targetCommentNode = findLastMatchingTargetCommentNode(
-                sourceCommentNodes.reverse(),
-                targetCommentNodes.reverse()
-              );
+              const targetCommentNodes = findNodesBetween(targetTree, targetTree[0], targetNextSetting);
+              const targetCommentNode = findLastMatchingTargetCommentNode(sourceCommentNodes.reverse(), targetCommentNodes.reverse());
               if (targetCommentNode) {
-                return {
-                  index: targetTree.indexOf(
-                    targetCommentNode
-                  ),
-                  insertAfter: false
-                };
+                return { index: targetTree.indexOf(targetCommentNode), insertAfter: false };
               } else {
-                return {
-                  index: 0,
-                  insertAfter: false
-                };
+                return { index: 0, insertAfter: false };
               }
             }
           }
@@ -593,14 +353,7 @@ function insertAtLocation(content, key, value, location, tree, formattingOptions
   if (location.index === -1) {
     edits = setProperty(content, [key], value, formattingOptions);
   } else {
-    edits = getEditToInsertAtLocation(
-      content,
-      key,
-      value,
-      location,
-      tree,
-      formattingOptions
-    ).map((edit) => withFormatting(content, edit, formattingOptions)[0]);
+    edits = getEditToInsertAtLocation(content, key, value, location, tree, formattingOptions).map((edit) => withFormatting(content, edit, formattingOptions)[0]);
   }
   return applyEdits(content, edits);
 }
@@ -612,24 +365,13 @@ function getEditToInsertAtLocation(content, key, value, location, tree, formatti
   if (location.insertAfter) {
     const edits = [];
     if (node.setting) {
-      edits.push({
-        offset: node.endOffset,
-        length: 0,
-        content: "," + newProperty
-      });
+      edits.push({ offset: node.endOffset, length: 0, content: "," + newProperty });
     } else {
       const nextSettingNode = findNextSettingNode(location.index, tree);
-      const previousSettingNode = findPreviousSettingNode(
-        location.index,
-        tree
-      );
+      const previousSettingNode = findPreviousSettingNode(location.index, tree);
       const previousSettingCommaOffset = previousSettingNode?.setting?.commaOffset;
       if (previousSettingNode && previousSettingCommaOffset === void 0) {
-        edits.push({
-          offset: previousSettingNode.endOffset,
-          length: 0,
-          content: ","
-        });
+        edits.push({ offset: previousSettingNode.endOffset, length: 0, content: "," });
       }
       const isPreviouisSettingIncludesComment = previousSettingCommaOffset !== void 0 && previousSettingCommaOffset > node.endOffset;
       edits.push({
@@ -641,13 +383,7 @@ function getEditToInsertAtLocation(content, key, value, location, tree, formatti
     return edits;
   } else {
     if (node.setting) {
-      return [
-        {
-          offset: node.startOffset,
-          length: 0,
-          content: newProperty + ","
-        }
-      ];
+      return [{ offset: node.startOffset, length: 0, content: newProperty + "," }];
     }
     const content2 = (tree[location.index - 1] && !tree[location.index - 1].setting ? eol : "") + newProperty + (findNextSettingNode(location.index, tree) ? "," : "") + eol;
     return [{ offset: node.startOffset, length: 0, content: content2 }];
@@ -679,9 +415,7 @@ __name(findNextSettingNode, "findNextSettingNode");
 function findNodesBetween(nodes, from, till) {
   const fromIndex = nodes.indexOf(from);
   const tillIndex = nodes.indexOf(till);
-  return nodes.filter(
-    (node, index) => fromIndex < index && index < tillIndex
-  );
+  return nodes.filter((node, index) => fromIndex < index && index < tillIndex);
 }
 __name(findNodesBetween, "findNodesBetween");
 function findLastMatchingTargetCommentNode(sourceComments, targetComments) {

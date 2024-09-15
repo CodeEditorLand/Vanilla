@@ -48,81 +48,33 @@ var SearchCommandIds = /* @__PURE__ */ ((SearchCommandIds2) => {
   return SearchCommandIds2;
 })(SearchCommandIds || {});
 const SearchContext = {
-  SearchViewVisibleKey: new RawContextKey(
-    "searchViewletVisible",
-    true
-  ),
-  SearchViewFocusedKey: new RawContextKey(
-    "searchViewletFocus",
-    false
-  ),
+  SearchViewVisibleKey: new RawContextKey("searchViewletVisible", true),
+  SearchViewFocusedKey: new RawContextKey("searchViewletFocus", false),
   InputBoxFocusedKey: new RawContextKey("inputBoxFocus", false),
-  SearchInputBoxFocusedKey: new RawContextKey(
-    "searchInputBoxFocus",
-    false
-  ),
-  ReplaceInputBoxFocusedKey: new RawContextKey(
-    "replaceInputBoxFocus",
-    false
-  ),
-  PatternIncludesFocusedKey: new RawContextKey(
-    "patternIncludesInputBoxFocus",
-    false
-  ),
-  PatternExcludesFocusedKey: new RawContextKey(
-    "patternExcludesInputBoxFocus",
-    false
-  ),
+  SearchInputBoxFocusedKey: new RawContextKey("searchInputBoxFocus", false),
+  ReplaceInputBoxFocusedKey: new RawContextKey("replaceInputBoxFocus", false),
+  PatternIncludesFocusedKey: new RawContextKey("patternIncludesInputBoxFocus", false),
+  PatternExcludesFocusedKey: new RawContextKey("patternExcludesInputBoxFocus", false),
   ReplaceActiveKey: new RawContextKey("replaceActive", false),
   HasSearchResults: new RawContextKey("hasSearchResult", false),
   FirstMatchFocusKey: new RawContextKey("firstMatchFocus", false),
-  FileMatchOrMatchFocusKey: new RawContextKey(
-    "fileMatchOrMatchFocus",
-    false
-  ),
+  FileMatchOrMatchFocusKey: new RawContextKey("fileMatchOrMatchFocus", false),
   // This is actually, Match or File or Folder
-  FileMatchOrFolderMatchFocusKey: new RawContextKey(
-    "fileMatchOrFolderMatchFocus",
-    false
-  ),
-  FileMatchOrFolderMatchWithResourceFocusKey: new RawContextKey(
-    "fileMatchOrFolderMatchWithResourceFocus",
-    false
-  ),
+  FileMatchOrFolderMatchFocusKey: new RawContextKey("fileMatchOrFolderMatchFocus", false),
+  FileMatchOrFolderMatchWithResourceFocusKey: new RawContextKey("fileMatchOrFolderMatchWithResourceFocus", false),
   // Excludes "Other files"
   FileFocusKey: new RawContextKey("fileMatchFocus", false),
   FolderFocusKey: new RawContextKey("folderMatchFocus", false),
-  ResourceFolderFocusKey: new RawContextKey(
-    "folderMatchWithResourceFocus",
-    false
-  ),
+  ResourceFolderFocusKey: new RawContextKey("folderMatchWithResourceFocus", false),
   IsEditableItemKey: new RawContextKey("isEditableItem", true),
   MatchFocusKey: new RawContextKey("matchFocus", false),
-  ViewHasSearchPatternKey: new RawContextKey(
-    "viewHasSearchPattern",
-    false
-  ),
-  ViewHasReplacePatternKey: new RawContextKey(
-    "viewHasReplacePattern",
-    false
-  ),
-  ViewHasFilePatternKey: new RawContextKey(
-    "viewHasFilePattern",
-    false
-  ),
-  ViewHasSomeCollapsibleKey: new RawContextKey(
-    "viewHasSomeCollapsibleResult",
-    false
-  ),
+  ViewHasSearchPatternKey: new RawContextKey("viewHasSearchPattern", false),
+  ViewHasReplacePatternKey: new RawContextKey("viewHasReplacePattern", false),
+  ViewHasFilePatternKey: new RawContextKey("viewHasFilePattern", false),
+  ViewHasSomeCollapsibleKey: new RawContextKey("viewHasSomeCollapsibleResult", false),
   InTreeViewKey: new RawContextKey("inTreeView", false),
-  AIResultsVisibleKey: new RawContextKey(
-    "AIResultsVisibleKey",
-    false
-  ),
-  hasAIResultProvider: new RawContextKey(
-    "hasAIResultProviderKey",
-    false
-  )
+  AIResultsVisibleKey: new RawContextKey("AIResultsVisibleKey", false),
+  hasAIResultProvider: new RawContextKey("hasAIResultProviderKey", false)
 };
 export {
   SearchCommandIds,

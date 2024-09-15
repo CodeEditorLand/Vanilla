@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { IEditorMouseEvent, IMouseTarget, IMouseTargetViewZoneData, IPartialEditorMouseEvent, MouseTargetType } from "../editorBrowser.js";
+import { ICoordinatesConverter } from "../../common/viewModel.js";
+import { IMouseWheelEvent } from "../../../base/browser/mouseEvent.js";
 import { Position } from "../../common/core/position.js";
-import {
-  MouseTargetType
-} from "../editorBrowser.js";
 class ViewUserInputEvents {
   static {
     __name(this, "ViewUserInputEvents");
@@ -66,46 +67,28 @@ class ViewUserInputEvents {
     return e;
   }
   _convertViewToModelMouseTarget(target) {
-    return ViewUserInputEvents.convertViewToModelMouseTarget(
-      target,
-      this._coordinatesConverter
-    );
+    return ViewUserInputEvents.convertViewToModelMouseTarget(target, this._coordinatesConverter);
   }
   static convertViewToModelMouseTarget(target, coordinatesConverter) {
     const result = { ...target };
     if (result.position) {
-      result.position = coordinatesConverter.convertViewPositionToModelPosition(
-        result.position
-      );
+      result.position = coordinatesConverter.convertViewPositionToModelPosition(result.position);
     }
     if (result.range) {
-      result.range = coordinatesConverter.convertViewRangeToModelRange(
-        result.range
-      );
+      result.range = coordinatesConverter.convertViewRangeToModelRange(result.range);
     }
     if (result.type === MouseTargetType.GUTTER_VIEW_ZONE || result.type === MouseTargetType.CONTENT_VIEW_ZONE) {
-      result.detail = this.convertViewToModelViewZoneData(
-        result.detail,
-        coordinatesConverter
-      );
+      result.detail = this.convertViewToModelViewZoneData(result.detail, coordinatesConverter);
     }
     return result;
   }
   static convertViewToModelViewZoneData(data, coordinatesConverter) {
     return {
       viewZoneId: data.viewZoneId,
-      positionBefore: data.positionBefore ? coordinatesConverter.convertViewPositionToModelPosition(
-        data.positionBefore
-      ) : data.positionBefore,
-      positionAfter: data.positionAfter ? coordinatesConverter.convertViewPositionToModelPosition(
-        data.positionAfter
-      ) : data.positionAfter,
-      position: coordinatesConverter.convertViewPositionToModelPosition(
-        data.position
-      ),
-      afterLineNumber: coordinatesConverter.convertViewPositionToModelPosition(
-        new Position(data.afterLineNumber, 1)
-      ).lineNumber
+      positionBefore: data.positionBefore ? coordinatesConverter.convertViewPositionToModelPosition(data.positionBefore) : data.positionBefore,
+      positionAfter: data.positionAfter ? coordinatesConverter.convertViewPositionToModelPosition(data.positionAfter) : data.positionAfter,
+      position: coordinatesConverter.convertViewPositionToModelPosition(data.position),
+      afterLineNumber: coordinatesConverter.convertViewPositionToModelPosition(new Position(data.afterLineNumber, 1)).lineNumber
     };
   }
 }

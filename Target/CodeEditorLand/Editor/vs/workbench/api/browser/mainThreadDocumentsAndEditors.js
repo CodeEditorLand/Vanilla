@@ -10,49 +10,35 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { diffMaps, diffSets } from "../../../base/common/collections.js";
 import { Event } from "../../../base/common/event.js";
-import {
-  DisposableMap,
-  DisposableStore,
-  combinedDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../editor/browser/editorBrowser.js";
+import { combinedDisposable, DisposableStore, DisposableMap } from "../../../base/common/lifecycle.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor, IActiveCodeEditor } from "../../../editor/browser/editorBrowser.js";
 import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
-import {
-  shouldSynchronizeModel
-} from "../../../editor/common/model.js";
+import { IEditor } from "../../../editor/common/editorCommon.js";
+import { ITextModel, shouldSynchronizeModel } from "../../../editor/common/model.js";
 import { IModelService } from "../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../platform/files/common/files.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import { AbstractTextEditor } from "../../browser/parts/editor/textEditor.js";
-import { ViewContainerLocation } from "../../common/views.js";
-import {
-  editorGroupToColumn
-} from "../../services/editor/common/editorGroupColumn.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
-import {
-  extHostCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import { IPaneCompositePartService } from "../../services/panecomposite/browser/panecomposite.js";
-import { IPathService } from "../../services/path/common/pathService.js";
-import { ITextFileService } from "../../services/textfile/common/textfiles.js";
-import { IWorkingCopyFileService } from "../../services/workingCopy/common/workingCopyFileService.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { extHostCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { MainThreadDocuments } from "./mainThreadDocuments.js";
 import { MainThreadTextEditor } from "./mainThreadEditor.js";
 import { MainThreadTextEditors } from "./mainThreadEditors.js";
+import { ExtHostContext, ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta, IModelAddedData, ITextEditorAddData, MainContext } from "../common/extHost.protocol.js";
+import { AbstractTextEditor } from "../../browser/parts/editor/textEditor.js";
+import { IEditorPane } from "../../common/editor.js";
+import { EditorGroupColumn, editorGroupToColumn } from "../../services/editor/common/editorGroupColumn.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { ITextFileService } from "../../services/textfile/common/textfiles.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { IWorkingCopyFileService } from "../../services/workingCopy/common/workingCopyFileService.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IPathService } from "../../services/path/common/pathService.js";
+import { diffSets, diffMaps } from "../../../base/common/collections.js";
+import { IPaneCompositePartService } from "../../services/panecomposite/browser/panecomposite.js";
+import { ViewContainerLocation } from "../../common/views.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 class TextEditorSnapshot {
   constructor(editor) {
     this.editor = editor;
@@ -138,53 +124,15 @@ let MainThreadDocumentAndEditorStateComputer = class {
     this._codeEditorService = _codeEditorService;
     this._editorService = _editorService;
     this._paneCompositeService = _paneCompositeService;
-    this._modelService.onModelAdded(
-      this._updateStateOnModelAdd,
-      this,
-      this._toDispose
-    );
-    this._modelService.onModelRemoved(
-      (_) => this._updateState(),
-      this,
-      this._toDispose
-    );
-    this._editorService.onDidActiveEditorChange(
-      (_) => this._updateState(),
-      this,
-      this._toDispose
-    );
-    this._codeEditorService.onCodeEditorAdd(
-      this._onDidAddEditor,
-      this,
-      this._toDispose
-    );
-    this._codeEditorService.onCodeEditorRemove(
-      this._onDidRemoveEditor,
-      this,
-      this._toDispose
-    );
+    this._modelService.onModelAdded(this._updateStateOnModelAdd, this, this._toDispose);
+    this._modelService.onModelRemoved((_) => this._updateState(), this, this._toDispose);
+    this._editorService.onDidActiveEditorChange((_) => this._updateState(), this, this._toDispose);
+    this._codeEditorService.onCodeEditorAdd(this._onDidAddEditor, this, this._toDispose);
+    this._codeEditorService.onCodeEditorRemove(this._onDidRemoveEditor, this, this._toDispose);
     this._codeEditorService.listCodeEditors().forEach(this._onDidAddEditor, this);
-    Event.filter(
-      this._paneCompositeService.onDidPaneCompositeOpen,
-      (event) => event.viewContainerLocation === ViewContainerLocation.Panel
-    )(
-      (_) => this._activeEditorOrder = 1 /* Panel */,
-      void 0,
-      this._toDispose
-    );
-    Event.filter(
-      this._paneCompositeService.onDidPaneCompositeClose,
-      (event) => event.viewContainerLocation === ViewContainerLocation.Panel
-    )(
-      (_) => this._activeEditorOrder = 0 /* Editor */,
-      void 0,
-      this._toDispose
-    );
-    this._editorService.onDidVisibleEditorsChange(
-      (_) => this._activeEditorOrder = 0 /* Editor */,
-      void 0,
-      this._toDispose
-    );
+    Event.filter(this._paneCompositeService.onDidPaneCompositeOpen, (event) => event.viewContainerLocation === ViewContainerLocation.Panel)((_) => this._activeEditorOrder = 1 /* Panel */, void 0, this._toDispose);
+    Event.filter(this._paneCompositeService.onDidPaneCompositeClose, (event) => event.viewContainerLocation === ViewContainerLocation.Panel)((_) => this._activeEditorOrder = 0 /* Editor */, void 0, this._toDispose);
+    this._editorService.onDidVisibleEditorsChange((_) => this._activeEditorOrder = 0 /* Editor */, void 0, this._toDispose);
     this._updateState();
   }
   static {
@@ -199,14 +147,11 @@ let MainThreadDocumentAndEditorStateComputer = class {
     this._toDisposeOnEditorRemove.dispose();
   }
   _onDidAddEditor(e) {
-    this._toDisposeOnEditorRemove.set(
-      e.getId(),
-      combinedDisposable(
-        e.onDidChangeModel(() => this._updateState()),
-        e.onDidFocusEditorText(() => this._updateState()),
-        e.onDidFocusEditorWidget(() => this._updateState(e))
-      )
-    );
+    this._toDisposeOnEditorRemove.set(e.getId(), combinedDisposable(
+      e.onDidChangeModel(() => this._updateState()),
+      e.onDidFocusEditorText(() => this._updateState()),
+      e.onDidFocusEditorWidget(() => this._updateState(e))
+    ));
     this._updateState();
   }
   _onDidRemoveEditor(e) {
@@ -229,16 +174,14 @@ let MainThreadDocumentAndEditorStateComputer = class {
       this._currentState.textEditors,
       this._currentState.activeEditor
     );
-    this._onDidChangeState(
-      new DocumentAndEditorStateDelta(
-        [],
-        [model],
-        [],
-        [],
-        void 0,
-        void 0
-      )
-    );
+    this._onDidChangeState(new DocumentAndEditorStateDelta(
+      [],
+      [model],
+      [],
+      [],
+      void 0,
+      void 0
+    ));
   }
   _updateState(widgetFocusCandidate) {
     const models = /* @__PURE__ */ new Set();
@@ -254,8 +197,7 @@ let MainThreadDocumentAndEditorStateComputer = class {
         continue;
       }
       const model = editor.getModel();
-      if (editor.hasModel() && model && shouldSynchronizeModel(model) && !model.isDisposed() && // model disposed
-      Boolean(this._modelService.getModel(model.uri))) {
+      if (editor.hasModel() && model && shouldSynchronizeModel(model) && !model.isDisposed() && Boolean(this._modelService.getModel(model.uri))) {
         const apiEditor = new TextEditorSnapshot(editor);
         editors.set(apiEditor.id, apiEditor);
         if (editor.hasTextFocus() || widgetFocusCandidate === editor && editor.hasWidgetFocus()) {
@@ -278,24 +220,15 @@ let MainThreadDocumentAndEditorStateComputer = class {
         }
       }
     }
-    const newState = new DocumentAndEditorState(
-      models,
-      editors,
-      activeEditor
-    );
-    const delta = DocumentAndEditorState.compute(
-      this._currentState,
-      newState
-    );
+    const newState = new DocumentAndEditorState(models, editors, activeEditor);
+    const delta = DocumentAndEditorState.compute(this._currentState, newState);
     if (!delta.isEmpty) {
       this._currentState = newState;
       this._onDidChangeState(delta);
     }
   }
   _getActiveEditorFromPanel() {
-    const panel = this._paneCompositeService.getActivePaneComposite(
-      ViewContainerLocation.Panel
-    );
+    const panel = this._paneCompositeService.getActivePaneComposite(ViewContainerLocation.Panel);
     if (panel instanceof AbstractTextEditor) {
       const control = panel.getControl();
       if (isCodeEditor(control)) {
@@ -325,49 +258,12 @@ let MainThreadDocumentsAndEditors = class {
     this._editorService = _editorService;
     this._editorGroupService = _editorGroupService;
     this._clipboardService = _clipboardService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostDocumentsAndEditors
-    );
-    this._mainThreadDocuments = this._toDispose.add(
-      new MainThreadDocuments(
-        extHostContext,
-        this._modelService,
-        this._textFileService,
-        fileService,
-        textModelResolverService,
-        environmentService,
-        uriIdentityService,
-        workingCopyFileService,
-        pathService
-      )
-    );
-    extHostContext.set(
-      MainContext.MainThreadDocuments,
-      this._mainThreadDocuments
-    );
-    this._mainThreadEditors = this._toDispose.add(
-      new MainThreadTextEditors(
-        this,
-        extHostContext,
-        codeEditorService,
-        this._editorService,
-        this._editorGroupService,
-        configurationService
-      )
-    );
-    extHostContext.set(
-      MainContext.MainThreadTextEditors,
-      this._mainThreadEditors
-    );
-    this._toDispose.add(
-      new MainThreadDocumentAndEditorStateComputer(
-        (delta) => this._onDelta(delta),
-        _modelService,
-        codeEditorService,
-        this._editorService,
-        paneCompositeService
-      )
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentsAndEditors);
+    this._mainThreadDocuments = this._toDispose.add(new MainThreadDocuments(extHostContext, this._modelService, this._textFileService, fileService, textModelResolverService, environmentService, uriIdentityService, workingCopyFileService, pathService));
+    extHostContext.set(MainContext.MainThreadDocuments, this._mainThreadDocuments);
+    this._mainThreadEditors = this._toDispose.add(new MainThreadTextEditors(this, extHostContext, codeEditorService, this._editorService, this._editorGroupService, configurationService));
+    extHostContext.set(MainContext.MainThreadTextEditors, this._mainThreadEditors);
+    this._toDispose.add(new MainThreadDocumentAndEditorStateComputer((delta) => this._onDelta(delta), _modelService, codeEditorService, this._editorService, paneCompositeService));
   }
   _toDispose = new DisposableStore();
   _proxy;
@@ -420,34 +316,18 @@ let MainThreadDocumentsAndEditors = class {
     }
     if (delta.addedDocuments.length > 0) {
       empty = false;
-      extHostDelta.addedDocuments = delta.addedDocuments.map(
-        (m) => this._toModelAddData(m)
-      );
+      extHostDelta.addedDocuments = delta.addedDocuments.map((m) => this._toModelAddData(m));
     }
     if (delta.addedEditors.length > 0) {
       empty = false;
-      extHostDelta.addedEditors = addedEditors.map(
-        (e) => this._toTextEditorAddData(e)
-      );
+      extHostDelta.addedEditors = addedEditors.map((e) => this._toTextEditorAddData(e));
     }
     if (!empty) {
       this._proxy.$acceptDocumentsAndEditorsDelta(extHostDelta);
-      removedDocuments.forEach(
-        this._mainThreadDocuments.handleModelRemoved,
-        this._mainThreadDocuments
-      );
-      delta.addedDocuments.forEach(
-        this._mainThreadDocuments.handleModelAdded,
-        this._mainThreadDocuments
-      );
-      removedEditors.forEach(
-        this._mainThreadEditors.handleTextEditorRemoved,
-        this._mainThreadEditors
-      );
-      addedEditors.forEach(
-        this._mainThreadEditors.handleTextEditorAdded,
-        this._mainThreadEditors
-      );
+      removedDocuments.forEach(this._mainThreadDocuments.handleModelRemoved, this._mainThreadDocuments);
+      delta.addedDocuments.forEach(this._mainThreadDocuments.handleModelAdded, this._mainThreadDocuments);
+      removedEditors.forEach(this._mainThreadEditors.handleTextEditorRemoved, this._mainThreadEditors);
+      addedEditors.forEach(this._mainThreadEditors.handleTextEditorAdded, this._mainThreadEditors);
     }
   }
   _toModelAddData(model) {
@@ -474,10 +354,7 @@ let MainThreadDocumentsAndEditors = class {
   _findEditorPosition(editor) {
     for (const editorPane of this._editorService.visibleEditorPanes) {
       if (editor.matches(editorPane)) {
-        return editorGroupToColumn(
-          this._editorGroupService,
-          editorPane.group
-        );
+        return editorGroupToColumn(this._editorGroupService, editorPane.group);
       }
     }
     return void 0;

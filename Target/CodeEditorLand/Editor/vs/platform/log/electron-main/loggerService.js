@@ -1,12 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
 import { ResourceMap } from "../../../base/common/map.js";
+import { URI } from "../../../base/common/uri.js";
+import { Event } from "../../../base/common/event.js";
 import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  ILoggerService,
-  isLogLevel
-} from "../common/log.js";
+import { DidChangeLoggersEvent, ILogger, ILoggerOptions, ILoggerResource, ILoggerService, LogLevel, isLogLevel } from "../common/log.js";
 import { LoggerService } from "../node/loggerService.js";
 const ILoggerMainService = refineServiceDecorator(ILoggerService);
 class LoggerMainService extends LoggerService {
@@ -16,10 +14,7 @@ class LoggerMainService extends LoggerService {
   loggerResourcesByWindow = new ResourceMap();
   createLogger(idOrResource, options, windowId) {
     if (windowId !== void 0) {
-      this.loggerResourcesByWindow.set(
-        this.toResource(idOrResource),
-        windowId
-      );
+      this.loggerResourcesByWindow.set(this.toResource(idOrResource), windowId);
     }
     try {
       return super.createLogger(idOrResource, options);
@@ -48,33 +43,17 @@ class LoggerMainService extends LoggerService {
     return resources;
   }
   getOnDidChangeLogLevelEvent(windowId) {
-    return Event.filter(
-      this.onDidChangeLogLevel,
-      (arg) => isLogLevel(arg) || this.isInterestedLoggerResource(arg[0], windowId)
-    );
+    return Event.filter(this.onDidChangeLogLevel, (arg) => isLogLevel(arg) || this.isInterestedLoggerResource(arg[0], windowId));
   }
   getOnDidChangeVisibilityEvent(windowId) {
-    return Event.filter(
-      this.onDidChangeVisibility,
-      ([resource]) => this.isInterestedLoggerResource(resource, windowId)
-    );
+    return Event.filter(this.onDidChangeVisibility, ([resource]) => this.isInterestedLoggerResource(resource, windowId));
   }
   getOnDidChangeLoggersEvent(windowId) {
     return Event.filter(
       Event.map(this.onDidChangeLoggers, (e) => {
         const r = {
-          added: [...e.added].filter(
-            (loggerResource) => this.isInterestedLoggerResource(
-              loggerResource.resource,
-              windowId
-            )
-          ),
-          removed: [...e.removed].filter(
-            (loggerResource) => this.isInterestedLoggerResource(
-              loggerResource.resource,
-              windowId
-            )
-          )
+          added: [...e.added].filter((loggerResource) => this.isInterestedLoggerResource(loggerResource.resource, windowId)),
+          removed: [...e.removed].filter((loggerResource) => this.isInterestedLoggerResource(loggerResource.resource, windowId))
         };
         return r;
       }),

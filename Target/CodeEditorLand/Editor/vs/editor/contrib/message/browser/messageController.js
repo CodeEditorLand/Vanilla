@@ -13,38 +13,22 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
 import { Event } from "../../../../base/common/event.js";
-import {
-  isMarkdownString
-} from "../../../../base/common/htmlContent.js";
+import { IMarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import {
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { DisposableStore, IDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import "./messageController.css";
-import * as dom from "../../../../base/browser/dom.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { EditorCommand, EditorContributionInstantiation, registerEditorCommand, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { IPosition } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { IEditorContribution, ScrollType } from "../../../common/editorCommon.js";
+import { PositionAffinity } from "../../../common/model.js";
+import { openLinkFromMarkdown } from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import * as nls from "../../../../nls.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
-import {
-  EditorCommand,
-  EditorContributionInstantiation,
-  registerEditorCommand,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
-import { openLinkFromMarkdown } from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { Range } from "../../../common/core/range.js";
-import {
-  ScrollType
-} from "../../../common/editorCommon.js";
-import { PositionAffinity } from "../../../common/model.js";
+import * as dom from "../../../../base/browser/dom.js";
 let MessageController = class {
   constructor(editor, contextKeyService, _openerService) {
     this._openerService = _openerService;
@@ -55,14 +39,7 @@ let MessageController = class {
     __name(this, "MessageController");
   }
   static ID = "editor.contrib.messageController";
-  static MESSAGE_VISIBLE = new RawContextKey(
-    "messageVisible",
-    false,
-    nls.localize(
-      "messageVisible",
-      "Whether the editor is currently showing an inline message"
-    )
-  );
+  static MESSAGE_VISIBLE = new RawContextKey("messageVisible", false, nls.localize("messageVisible", "Whether the editor is currently showing an inline message"));
   static get(editor) {
     return editor.getContribution(MessageController.ID);
   }
@@ -90,89 +67,45 @@ let MessageController = class {
       actionHandler: {
         callback: /* @__PURE__ */ __name((url) => {
           this.closeMessage();
-          openLinkFromMarkdown(
-            this._openerService,
-            url,
-            isMarkdownString(message) ? message.isTrusted : void 0
-          );
+          openLinkFromMarkdown(this._openerService, url, isMarkdownString(message) ? message.isTrusted : void 0);
         }, "callback"),
         disposables: this._messageListeners
       }
     }) : void 0;
-    this._messageWidget.value = new MessageWidget(
-      this._editor,
-      position,
-      typeof message === "string" ? message : this._message.element
-    );
-    this._messageListeners.add(
-      Event.debounce(
-        this._editor.onDidBlurEditorText,
-        (last, event) => event,
-        0
-      )(() => {
+    this._messageWidget.value = new MessageWidget(this._editor, position, typeof message === "string" ? message : this._message.element);
+    this._messageListeners.add(Event.debounce(this._editor.onDidBlurEditorText, (last, event) => event, 0)(
+      () => {
         if (this._mouseOverMessage) {
           return;
         }
-        if (this._messageWidget.value && dom.isAncestor(
-          dom.getActiveElement(),
-          this._messageWidget.value.getDomNode()
-        )) {
+        if (this._messageWidget.value && dom.isAncestor(dom.getActiveElement(), this._messageWidget.value.getDomNode())) {
           return;
         }
         this.closeMessage();
-      })
-    );
-    this._messageListeners.add(
-      this._editor.onDidChangeCursorPosition(() => this.closeMessage())
-    );
-    this._messageListeners.add(
-      this._editor.onDidDispose(() => this.closeMessage())
-    );
-    this._messageListeners.add(
-      this._editor.onDidChangeModel(() => this.closeMessage())
-    );
-    this._messageListeners.add(
-      dom.addDisposableListener(
-        this._messageWidget.value.getDomNode(),
-        dom.EventType.MOUSE_ENTER,
-        () => this._mouseOverMessage = true,
-        true
-      )
-    );
-    this._messageListeners.add(
-      dom.addDisposableListener(
-        this._messageWidget.value.getDomNode(),
-        dom.EventType.MOUSE_LEAVE,
-        () => this._mouseOverMessage = false,
-        true
-      )
-    );
+      }
+    ));
+    this._messageListeners.add(this._editor.onDidChangeCursorPosition(() => this.closeMessage()));
+    this._messageListeners.add(this._editor.onDidDispose(() => this.closeMessage()));
+    this._messageListeners.add(this._editor.onDidChangeModel(() => this.closeMessage()));
+    this._messageListeners.add(dom.addDisposableListener(this._messageWidget.value.getDomNode(), dom.EventType.MOUSE_ENTER, () => this._mouseOverMessage = true, true));
+    this._messageListeners.add(dom.addDisposableListener(this._messageWidget.value.getDomNode(), dom.EventType.MOUSE_LEAVE, () => this._mouseOverMessage = false, true));
     let bounds;
-    this._messageListeners.add(
-      this._editor.onMouseMove((e) => {
-        if (!e.target.position) {
-          return;
-        }
-        if (!bounds) {
-          bounds = new Range(
-            position.lineNumber - 3,
-            1,
-            e.target.position.lineNumber + 3,
-            1
-          );
-        } else if (!bounds.containsPosition(e.target.position)) {
-          this.closeMessage();
-        }
-      })
-    );
+    this._messageListeners.add(this._editor.onMouseMove((e) => {
+      if (!e.target.position) {
+        return;
+      }
+      if (!bounds) {
+        bounds = new Range(position.lineNumber - 3, 1, e.target.position.lineNumber + 3, 1);
+      } else if (!bounds.containsPosition(e.target.position)) {
+        this.closeMessage();
+      }
+    }));
   }
   closeMessage() {
     this._visible.reset();
     this._messageListeners.clear();
     if (this._messageWidget.value) {
-      this._messageListeners.add(
-        MessageWidget.fadeOut(this._messageWidget.value)
-      );
+      this._messageListeners.add(MessageWidget.fadeOut(this._messageWidget.value));
     }
   }
 };
@@ -180,20 +113,16 @@ MessageController = __decorateClass([
   __decorateParam(1, IContextKeyService),
   __decorateParam(2, IOpenerService)
 ], MessageController);
-const MessageCommand = EditorCommand.bindToContribution(
-  MessageController.get
-);
-registerEditorCommand(
-  new MessageCommand({
-    id: "leaveEditorMessage",
-    precondition: MessageController.MESSAGE_VISIBLE,
-    handler: /* @__PURE__ */ __name((c) => c.closeMessage(), "handler"),
-    kbOpts: {
-      weight: KeybindingWeight.EditorContrib + 30,
-      primary: KeyCode.Escape
-    }
-  })
-);
+const MessageCommand = EditorCommand.bindToContribution(MessageController.get);
+registerEditorCommand(new MessageCommand({
+  id: "leaveEditorMessage",
+  precondition: MessageController.MESSAGE_VISIBLE,
+  handler: /* @__PURE__ */ __name((c) => c.closeMessage(), "handler"),
+  kbOpts: {
+    weight: KeybindingWeight.EditorContrib + 30,
+    primary: KeyCode.Escape
+  }
+}));
 class MessageWidget {
   static {
     __name(this, "MessageWidget");
@@ -217,11 +146,7 @@ class MessageWidget {
   }
   constructor(editor, { lineNumber, column }, text) {
     this._editor = editor;
-    this._editor.revealLinesInCenterIfOutsideViewport(
-      lineNumber,
-      lineNumber,
-      ScrollType.Smooth
-    );
+    this._editor.revealLinesInCenterIfOutsideViewport(lineNumber, lineNumber, ScrollType.Smooth);
     this._position = { lineNumber, column };
     this._domNode = document.createElement("div");
     this._domNode.classList.add("monaco-editor-overlaymessage");
@@ -264,17 +189,10 @@ class MessageWidget {
     };
   }
   afterRender(position) {
-    this._domNode.classList.toggle(
-      "below",
-      position === ContentWidgetPositionPreference.BELOW
-    );
+    this._domNode.classList.toggle("below", position === ContentWidgetPositionPreference.BELOW);
   }
 }
-registerEditorContribution(
-  MessageController.ID,
-  MessageController,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(MessageController.ID, MessageController, EditorContributionInstantiation.Lazy);
 export {
   MessageController
 };

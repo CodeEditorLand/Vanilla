@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  extractLocalHostUriMetaDataForPortMapping
-} from "../../tunnel/common/tunnel.js";
+import { IAddress } from "../../remote/common/remoteAgentConnection.js";
+import { extractLocalHostUriMetaDataForPortMapping, ITunnelService, RemoteTunnel } from "../../tunnel/common/tunnel.js";
 class WebviewPortMappingManager {
   constructor(_getExtensionLocation, _getMappings, tunnelService) {
     this._getExtensionLocation = _getExtensionLocation;
@@ -25,27 +25,20 @@ class WebviewPortMappingManager {
       if (mapping.webviewPort === requestLocalHostInfo.port) {
         const extensionLocation = this._getExtensionLocation();
         if (extensionLocation && extensionLocation.scheme === Schemas.vscodeRemote) {
-          const tunnel = resolveAuthority && await this.getOrCreateTunnel(
-            resolveAuthority,
-            mapping.extensionHostPort
-          );
+          const tunnel = resolveAuthority && await this.getOrCreateTunnel(resolveAuthority, mapping.extensionHostPort);
           if (tunnel) {
             if (tunnel.tunnelLocalPort === mapping.webviewPort) {
               return void 0;
             }
-            return encodeURI(
-              uri.with({
-                authority: `127.0.0.1:${tunnel.tunnelLocalPort}`
-              }).toString(true)
-            );
+            return encodeURI(uri.with({
+              authority: `127.0.0.1:${tunnel.tunnelLocalPort}`
+            }).toString(true));
           }
         }
         if (mapping.webviewPort !== mapping.extensionHostPort) {
-          return encodeURI(
-            uri.with({
-              authority: `${requestLocalHostInfo.address}:${mapping.extensionHostPort}`
-            }).toString(true)
-          );
+          return encodeURI(uri.with({
+            authority: `${requestLocalHostInfo.address}:${mapping.extensionHostPort}`
+          }).toString(true));
         }
       }
     }
@@ -62,11 +55,7 @@ class WebviewPortMappingManager {
     if (existing) {
       return existing;
     }
-    const tunnelOrError = await this.tunnelService.openTunnel(
-      { getAddress: /* @__PURE__ */ __name(async () => remoteAuthority, "getAddress") },
-      void 0,
-      remotePort
-    );
+    const tunnelOrError = await this.tunnelService.openTunnel({ getAddress: /* @__PURE__ */ __name(async () => remoteAuthority, "getAddress") }, void 0, remotePort);
     let tunnel;
     if (typeof tunnelOrError === "string") {
       tunnel = void 0;

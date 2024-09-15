@@ -1,5 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import Severity from "../../../../base/common/severity.js";
+import { TerminateResponse } from "../../../../base/common/processes.js";
+import { Event } from "../../../../base/common/event.js";
+import { Platform } from "../../../../base/common/platform.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { Task, ITaskEvent, KeyedTaskIdentifier } from "./tasks.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
 var TaskErrors = /* @__PURE__ */ ((TaskErrors2) => {
   TaskErrors2[TaskErrors2["NotConfigured"] = 0] = "NotConfigured";
   TaskErrors2[TaskErrors2["RunningTask"] = 1] = "RunningTask";

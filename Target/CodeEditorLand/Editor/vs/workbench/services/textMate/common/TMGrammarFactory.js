@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  TMScopeRegistry
-} from "./TMScopeRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IValidEmbeddedLanguagesMap, IValidGrammarDefinition, TMScopeRegistry } from "./TMScopeRegistry.js";
 const missingTMGrammarErrorMessage = "No TM Grammar registered for this language.";
 class TMGrammarFactory extends Disposable {
   static {
@@ -24,46 +23,33 @@ class TMGrammarFactory extends Disposable {
     this._injections = {};
     this._injectedEmbeddedLanguages = {};
     this._languageToScope = /* @__PURE__ */ new Map();
-    this._grammarRegistry = this._register(
-      new vscodeTextmate.Registry({
-        onigLib,
-        loadGrammar: /* @__PURE__ */ __name(async (scopeName) => {
-          const grammarDefinition = this._scopeRegistry.getGrammarDefinition(scopeName);
-          if (!grammarDefinition) {
-            this._host.logTrace(
-              `No grammar found for scope ${scopeName}`
-            );
-            return null;
-          }
-          const location = grammarDefinition.location;
-          try {
-            const content = await this._host.readFile(location);
-            return vscodeTextmate.parseRawGrammar(
-              content,
-              location.path
-            );
-          } catch (e) {
-            this._host.logError(
-              `Unable to load and parse grammar for scope ${scopeName} from ${location}`,
-              e
-            );
-            return null;
-          }
-        }, "loadGrammar"),
-        getInjections: /* @__PURE__ */ __name((scopeName) => {
-          const scopeParts = scopeName.split(".");
-          let injections = [];
-          for (let i = 1; i <= scopeParts.length; i++) {
-            const subScopeName = scopeParts.slice(0, i).join(".");
-            injections = [
-              ...injections,
-              ...this._injections[subScopeName] || []
-            ];
-          }
-          return injections;
-        }, "getInjections")
-      })
-    );
+    this._grammarRegistry = this._register(new vscodeTextmate.Registry({
+      onigLib,
+      loadGrammar: /* @__PURE__ */ __name(async (scopeName) => {
+        const grammarDefinition = this._scopeRegistry.getGrammarDefinition(scopeName);
+        if (!grammarDefinition) {
+          this._host.logTrace(`No grammar found for scope ${scopeName}`);
+          return null;
+        }
+        const location = grammarDefinition.location;
+        try {
+          const content = await this._host.readFile(location);
+          return vscodeTextmate.parseRawGrammar(content, location.path);
+        } catch (e) {
+          this._host.logError(`Unable to load and parse grammar for scope ${scopeName} from ${location}`, e);
+          return null;
+        }
+      }, "loadGrammar"),
+      getInjections: /* @__PURE__ */ __name((scopeName) => {
+        const scopeParts = scopeName.split(".");
+        let injections = [];
+        for (let i = 1; i <= scopeParts.length; i++) {
+          const subScopeName = scopeParts.slice(0, i).join(".");
+          injections = [...injections, ...this._injections[subScopeName] || []];
+        }
+        return injections;
+      }, "getInjections")
+    }));
     for (const validGrammar of grammarDefinitions) {
       this._scopeRegistry.register(validGrammar);
       if (validGrammar.injectTo) {
@@ -80,17 +66,12 @@ class TMGrammarFactory extends Disposable {
             if (!injectedEmbeddedLanguages) {
               this._injectedEmbeddedLanguages[injectScope] = injectedEmbeddedLanguages = [];
             }
-            injectedEmbeddedLanguages.push(
-              validGrammar.embeddedLanguages
-            );
+            injectedEmbeddedLanguages.push(validGrammar.embeddedLanguages);
           }
         }
       }
       if (validGrammar.language) {
-        this._languageToScope.set(
-          validGrammar.language,
-          validGrammar.scopeName
-        );
+        this._languageToScope.set(validGrammar.language, validGrammar.scopeName);
       }
     }
   }

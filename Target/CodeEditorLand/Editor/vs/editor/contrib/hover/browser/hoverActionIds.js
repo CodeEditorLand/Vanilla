@@ -11,26 +11,10 @@ const GO_TO_TOP_HOVER_ACTION_ID = "editor.action.goToTopHover";
 const GO_TO_BOTTOM_HOVER_ACTION_ID = "editor.action.goToBottomHover";
 const INCREASE_HOVER_VERBOSITY_ACTION_ID = "editor.action.increaseHoverVerbosityLevel";
 const INCREASE_HOVER_VERBOSITY_ACCESSIBLE_ACTION_ID = "editor.action.increaseHoverVerbosityLevelFromAccessibleView";
-const INCREASE_HOVER_VERBOSITY_ACTION_LABEL = nls.localize(
-  {
-    key: "increaseHoverVerbosityLevel",
-    comment: [
-      "Label for action that will increase the hover verbosity level."
-    ]
-  },
-  "Increase Hover Verbosity Level"
-);
+const INCREASE_HOVER_VERBOSITY_ACTION_LABEL = nls.localize({ key: "increaseHoverVerbosityLevel", comment: ["Label for action that will increase the hover verbosity level."] }, "Increase Hover Verbosity Level");
 const DECREASE_HOVER_VERBOSITY_ACTION_ID = "editor.action.decreaseHoverVerbosityLevel";
 const DECREASE_HOVER_VERBOSITY_ACCESSIBLE_ACTION_ID = "editor.action.decreaseHoverVerbosityLevelFromAccessibleView";
-const DECREASE_HOVER_VERBOSITY_ACTION_LABEL = nls.localize(
-  {
-    key: "decreaseHoverVerbosityLevel",
-    comment: [
-      "Label for action that will decrease the hover verbosity level."
-    ]
-  },
-  "Decrease Hover Verbosity Level"
-);
+const DECREASE_HOVER_VERBOSITY_ACTION_LABEL = nls.localize({ key: "decreaseHoverVerbosityLevel", comment: ["Label for action that will decrease the hover verbosity level."] }, "Decrease Hover Verbosity Level");
 export {
   DECREASE_HOVER_VERBOSITY_ACCESSIBLE_ACTION_ID,
   DECREASE_HOVER_VERBOSITY_ACTION_ID,

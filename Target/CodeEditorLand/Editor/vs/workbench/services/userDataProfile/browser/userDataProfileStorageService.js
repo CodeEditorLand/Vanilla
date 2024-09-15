@@ -11,73 +11,37 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { IStorageDatabase } from "../../../../base/parts/storage/common/storage.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  isProfileUsingDefaultStorage
-} from "../../../../platform/storage/common/storage.js";
-import {
-  AbstractUserDataProfileStorageService,
-  IUserDataProfileStorageService
-} from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
+import { AbstractUserDataProfileStorageService, IProfileStorageChanges, IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
+import { IProfileStorageValueChangeEvent, isProfileUsingDefaultStorage, IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IndexedDBStorageDatabase } from "../../storage/browser/storageService.js";
 import { IUserDataProfileService } from "../common/userDataProfile.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
 let UserDataProfileStorageService = class extends AbstractUserDataProfileStorageService {
   constructor(storageService, userDataProfileService, logService) {
     super(true, storageService);
     this.userDataProfileService = userDataProfileService;
     this.logService = logService;
     const disposables = this._register(new DisposableStore());
-    this._register(
-      Event.filter(
-        storageService.onDidChangeTarget,
-        (e) => e.scope === StorageScope.PROFILE,
-        disposables
-      )(() => this.onDidChangeStorageTargetInCurrentProfile())
-    );
-    this._register(
-      storageService.onDidChangeValue(
-        StorageScope.PROFILE,
-        void 0,
-        disposables
-      )((e) => this.onDidChangeStorageValueInCurrentProfile(e))
-    );
+    this._register(Event.filter(storageService.onDidChangeTarget, (e) => e.scope === StorageScope.PROFILE, disposables)(() => this.onDidChangeStorageTargetInCurrentProfile()));
+    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, void 0, disposables)((e) => this.onDidChangeStorageValueInCurrentProfile(e)));
   }
   static {
     __name(this, "UserDataProfileStorageService");
   }
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
   onDidChangeStorageTargetInCurrentProfile() {
-    this._onDidChange.fire({
-      targetChanges: [this.userDataProfileService.currentProfile],
-      valueChanges: []
-    });
+    this._onDidChange.fire({ targetChanges: [this.userDataProfileService.currentProfile], valueChanges: [] });
   }
   onDidChangeStorageValueInCurrentProfile(e) {
-    this._onDidChange.fire({
-      targetChanges: [],
-      valueChanges: [
-        {
-          profile: this.userDataProfileService.currentProfile,
-          changes: [e]
-        }
-      ]
-    });
+    this._onDidChange.fire({ targetChanges: [], valueChanges: [{ profile: this.userDataProfileService.currentProfile, changes: [e] }] });
   }
   createStorageDatabase(profile) {
-    return isProfileUsingDefaultStorage(profile) ? IndexedDBStorageDatabase.createApplicationStorage(this.logService) : IndexedDBStorageDatabase.createProfileStorage(
-      profile,
-      this.logService
-    );
+    return isProfileUsingDefaultStorage(profile) ? IndexedDBStorageDatabase.createApplicationStorage(this.logService) : IndexedDBStorageDatabase.createProfileStorage(profile, this.logService);
   }
 };
 UserDataProfileStorageService = __decorateClass([
@@ -85,11 +49,7 @@ UserDataProfileStorageService = __decorateClass([
   __decorateParam(1, IUserDataProfileService),
   __decorateParam(2, ILogService)
 ], UserDataProfileStorageService);
-registerSingleton(
-  IUserDataProfileStorageService,
-  UserDataProfileStorageService,
-  InstantiationType.Delayed
-);
+registerSingleton(IUserDataProfileStorageService, UserDataProfileStorageService, InstantiationType.Delayed);
 export {
   UserDataProfileStorageService
 };

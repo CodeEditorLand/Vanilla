@@ -10,16 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 const IAuthenticationUsageService = createDecorator("IAuthenticationUsageService");
 let AuthenticationUsageService = class {
   constructor(_storageService) {
@@ -31,10 +24,7 @@ let AuthenticationUsageService = class {
   _serviceBrand;
   readAccountUsages(providerId, accountName) {
     const accountKey = `${providerId}-${accountName}-usages`;
-    const storedUsages = this._storageService.get(
-      accountKey,
-      StorageScope.APPLICATION
-    );
+    const storedUsages = this._storageService.get(accountKey, StorageScope.APPLICATION);
     let usages = [];
     if (storedUsages) {
       try {
@@ -51,9 +41,7 @@ let AuthenticationUsageService = class {
   addAccountUsage(providerId, accountName, extensionId, extensionName) {
     const accountKey = `${providerId}-${accountName}-usages`;
     const usages = this.readAccountUsages(providerId, accountName);
-    const existingUsageIndex = usages.findIndex(
-      (usage) => usage.extensionId === extensionId
-    );
+    const existingUsageIndex = usages.findIndex((usage) => usage.extensionId === extensionId);
     if (existingUsageIndex > -1) {
       usages.splice(existingUsageIndex, 1, {
         extensionId,
@@ -67,22 +55,13 @@ let AuthenticationUsageService = class {
         lastUsed: Date.now()
       });
     }
-    this._storageService.store(
-      accountKey,
-      JSON.stringify(usages),
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this._storageService.store(accountKey, JSON.stringify(usages), StorageScope.APPLICATION, StorageTarget.MACHINE);
   }
 };
 AuthenticationUsageService = __decorateClass([
   __decorateParam(0, IStorageService)
 ], AuthenticationUsageService);
-registerSingleton(
-  IAuthenticationUsageService,
-  AuthenticationUsageService,
-  InstantiationType.Delayed
-);
+registerSingleton(IAuthenticationUsageService, AuthenticationUsageService, InstantiationType.Delayed);
 export {
   AuthenticationUsageService,
   IAuthenticationUsageService

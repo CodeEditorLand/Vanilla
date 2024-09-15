@@ -1,32 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { localize } from "../../../../nls.js";
-import { asArray } from "../../../../base/common/arrays.js";
-import * as Assert from "../../../../base/common/assert.js";
-import { Schemas as NetworkSchemas } from "../../../../base/common/network.js";
 import * as Objects from "../../../../base/common/objects.js";
-import {
-  Parser,
-  ValidationState,
-  ValidationStatus
-} from "../../../../base/common/parsers.js";
+import * as Strings from "../../../../base/common/strings.js";
+import * as Assert from "../../../../base/common/assert.js";
 import { join, normalize } from "../../../../base/common/path.js";
+import * as Types from "../../../../base/common/types.js";
+import * as UUID from "../../../../base/common/uuid.js";
 import * as Platform from "../../../../base/common/platform.js";
 import Severity from "../../../../base/common/severity.js";
-import * as Strings from "../../../../base/common/strings.js";
-import * as Types from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import * as UUID from "../../../../base/common/uuid.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  FileType
-} from "../../../../platform/files/common/files.js";
-import {
-  MarkerSeverity
-} from "../../../../platform/markers/common/markers.js";
-import {
-  ExtensionsRegistry
-} from "../../../services/extensions/common/extensionsRegistry.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { ValidationStatus, ValidationState, IProblemReporter, Parser } from "../../../../base/common/parsers.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { asArray } from "../../../../base/common/arrays.js";
+import { Schemas as NetworkSchemas } from "../../../../base/common/network.js";
+import { IMarkerData, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { ExtensionsRegistry, ExtensionMessageCollector } from "../../../services/extensions/common/extensionsRegistry.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { FileType, IFileService, IFileStatWithPartialMetadata, IFileSystemProvider } from "../../../../platform/files/common/files.js";
 var FileLocationKind = /* @__PURE__ */ ((FileLocationKind2) => {
   FileLocationKind2[FileLocationKind2["Default"] = 0] = "Default";
   FileLocationKind2[FileLocationKind2["Relative"] = 1] = "Relative";
@@ -110,7 +102,7 @@ async function getResource(filename, matcher, fileService) {
     matcherClone.fileLocation = 1 /* Relative */;
     if (fileService) {
       const relative = await getResource(filename, matcherClone);
-      let stat;
+      let stat = void 0;
       try {
         stat = await fileService.stat(relative);
       } catch (ex) {
@@ -124,11 +116,7 @@ async function getResource(filename, matcher, fileService) {
   } else if (kind === 4 /* Search */ && fileService) {
     const fsProvider = fileService.getProvider(NetworkSchemas.file);
     if (fsProvider) {
-      const uri = await searchForFileLocation(
-        filename,
-        fsProvider,
-        matcher.filePrefix
-      );
+      const uri = await searchForFileLocation(filename, fsProvider, matcher.filePrefix);
       fullPath = uri?.path;
     }
     if (!fullPath) {
@@ -138,9 +126,7 @@ async function getResource(filename, matcher, fileService) {
     }
   }
   if (fullPath === void 0) {
-    throw new Error(
-      "FileLocationKind is not actionable. Does the matcher have a filePrefix? This should never happen."
-    );
+    throw new Error("FileLocationKind is not actionable. Does the matcher have a filePrefix? This should never happen.");
   }
   fullPath = normalize(fullPath);
   fullPath = fullPath.replace(/\\/g, "/");
@@ -155,9 +141,7 @@ async function getResource(filename, matcher, fileService) {
 }
 __name(getResource, "getResource");
 async function searchForFileLocation(filename, fsProvider, args) {
-  const exclusions = new Set(
-    asArray(args.exclude || []).map((x) => URI.file(x).path)
-  );
+  const exclusions = new Set(asArray(args.exclude || []).map((x) => URI.file(x).path));
   async function search(dir) {
     if (exclusions.has(dir.path)) {
       return void 0;
@@ -285,9 +269,7 @@ class AbstractLineMatcher {
         };
       }
     } catch (err) {
-      console.error(
-        `Failed to convert problem data into match: ${JSON.stringify(data)}`
-      );
+      console.error(`Failed to convert problem data into match: ${JSON.stringify(data)}`);
     }
     return void 0;
   }
@@ -304,10 +286,10 @@ class AbstractLineMatcher {
     if (!data.line) {
       return null;
     }
-    const startLine = Number.parseInt(data.line);
-    const startColumn = data.character ? Number.parseInt(data.character) : void 0;
-    const endLine = data.endLine ? Number.parseInt(data.endLine) : void 0;
-    const endColumn = data.endCharacter ? Number.parseInt(data.endCharacter) : void 0;
+    const startLine = parseInt(data.line);
+    const startColumn = data.character ? parseInt(data.character) : void 0;
+    const endLine = data.endLine ? parseInt(data.endLine) : void 0;
+    const endColumn = data.endCharacter ? parseInt(data.endCharacter) : void 0;
     return this.createLocation(startLine, startColumn, endLine, endColumn);
   }
   parseLocationInfo(value) {
@@ -315,47 +297,22 @@ class AbstractLineMatcher {
       return null;
     }
     const parts = value.split(",");
-    const startLine = Number.parseInt(parts[0]);
-    const startColumn = parts.length > 1 ? Number.parseInt(parts[1]) : void 0;
+    const startLine = parseInt(parts[0]);
+    const startColumn = parts.length > 1 ? parseInt(parts[1]) : void 0;
     if (parts.length > 3) {
-      return this.createLocation(
-        startLine,
-        startColumn,
-        Number.parseInt(parts[2]),
-        Number.parseInt(parts[3])
-      );
+      return this.createLocation(startLine, startColumn, parseInt(parts[2]), parseInt(parts[3]));
     } else {
-      return this.createLocation(
-        startLine,
-        startColumn,
-        void 0,
-        void 0
-      );
+      return this.createLocation(startLine, startColumn, void 0, void 0);
     }
   }
   createLocation(startLine, startColumn, endLine, endColumn) {
     if (startColumn !== void 0 && endColumn !== void 0) {
-      return {
-        startLineNumber: startLine,
-        startCharacter: startColumn,
-        endLineNumber: endLine || startLine,
-        endCharacter: endColumn
-      };
+      return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: endLine || startLine, endCharacter: endColumn };
     }
     if (startColumn !== void 0) {
-      return {
-        startLineNumber: startLine,
-        startCharacter: startColumn,
-        endLineNumber: startLine,
-        endCharacter: startColumn
-      };
+      return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: startLine, endCharacter: startColumn };
     }
-    return {
-      startLineNumber: startLine,
-      startCharacter: 1,
-      endLineNumber: startLine,
-      endCharacter: 2 ** 31 - 1
-    };
+    return { startLineNumber: startLine, startCharacter: 1, endLineNumber: startLine, endCharacter: 2 ** 31 - 1 };
   }
   getSeverity(data) {
     let result = null;
@@ -437,13 +394,13 @@ class MultiLineMatcher extends AbstractLineMatcher {
     for (let i = 0; i < this.patterns.length; i++) {
       const pattern = this.patterns[i];
       const matches = pattern.regexp.exec(lines[i + start]);
-      if (matches) {
+      if (!matches) {
+        return { match: null, continue: false };
+      } else {
         if (pattern.loop && i === this.patterns.length - 1) {
           data = Objects.deepClone(data);
         }
         this.fillProblemData(data, pattern, matches);
-      } else {
-        return { match: null, continue: false };
       }
     }
     const loop = !!this.patterns[this.patterns.length - 1].loop;
@@ -550,20 +507,13 @@ class ProblemPatternParser extends Parser {
     } else if (Config.MultiLineCheckedProblemPattern.is(value)) {
       return this.createMultiLineProblemPattern(value);
     } else if (Config.NamedCheckedProblemPattern.is(value)) {
-      const result = this.createSingleProblemPattern(
-        value
-      );
+      const result = this.createSingleProblemPattern(value);
       result.name = value.name;
       return result;
     } else if (Config.CheckedProblemPattern.is(value)) {
       return this.createSingleProblemPattern(value);
     } else {
-      this.error(
-        localize(
-          "ProblemPatternParser.problemPattern.missingRegExp",
-          "The problem pattern is missing a regular expression."
-        )
-      );
+      this.error(localize("ProblemPatternParser.problemPattern.missingRegExp", "The problem pattern is missing a regular expression."));
       return null;
     }
   }
@@ -577,9 +527,7 @@ class ProblemPatternParser extends Parser {
     return this.validateProblemPattern([result]) ? result : null;
   }
   createNamedMultiLineProblemPattern(value) {
-    const validPatterns = this.createMultiLineProblemPattern(
-      value.patterns
-    );
+    const validPatterns = this.createMultiLineProblemPattern(value.patterns);
     if (!validPatterns) {
       return null;
     }
@@ -600,12 +548,7 @@ class ProblemPatternParser extends Parser {
       if (i < values.length - 1) {
         if (!Types.isUndefined(pattern.loop) && pattern.loop) {
           pattern.loop = false;
-          this.error(
-            localize(
-              "ProblemPatternParser.loopProperty.notLast",
-              "The loop property is only supported on the last line matcher."
-            )
-          );
+          this.error(localize("ProblemPatternParser.loopProperty.notLast", "The loop property is only supported on the last line matcher."));
         }
       }
       result.push(pattern);
@@ -667,12 +610,7 @@ class ProblemPatternParser extends Parser {
     const locationKind = values[0].kind === void 0 ? 1 /* Location */ : values[0].kind;
     values.forEach((pattern, i) => {
       if (i !== 0 && pattern.kind) {
-        this.error(
-          localize(
-            "ProblemPatternParser.problemPattern.kindProperty.notFirst",
-            "The problem pattern is invalid. The kind property must be provided only in the first element"
-          )
-        );
+        this.error(localize("ProblemPatternParser.problemPattern.kindProperty.notFirst", "The problem pattern is invalid. The kind property must be provided only in the first element"));
       }
       file = file || !Types.isUndefined(pattern.file);
       message = message || !Types.isUndefined(pattern.message);
@@ -680,21 +618,11 @@ class ProblemPatternParser extends Parser {
       line = line || !Types.isUndefined(pattern.line);
     });
     if (!(file && message)) {
-      this.error(
-        localize(
-          "ProblemPatternParser.problemPattern.missingProperty",
-          "The problem pattern is invalid. It must have at least have a file and a message."
-        )
-      );
+      this.error(localize("ProblemPatternParser.problemPattern.missingProperty", "The problem pattern is invalid. It must have at least have a file and a message."));
       return false;
     }
     if (locationKind === 1 /* Location */ && !(location || line)) {
-      this.error(
-        localize(
-          "ProblemPatternParser.problemPattern.missingLocation",
-          'The problem pattern is invalid. It must either have kind: "file" or have a line or location match group.'
-        )
-      );
+      this.error(localize("ProblemPatternParser.problemPattern.missingLocation", 'The problem pattern is invalid. It must either have kind: "file" or have a line or location match group.'));
       return false;
     }
     return true;
@@ -704,13 +632,7 @@ class ProblemPatternParser extends Parser {
     try {
       result = new RegExp(value);
     } catch (err) {
-      this.error(
-        localize(
-          "ProblemPatternParser.invalidRegexp",
-          "Error: The string {0} is not a valid regular expression.\n",
-          value
-        )
-      );
+      this.error(localize("ProblemPatternParser.invalidRegexp", "Error: The string {0} is not a valid regular expression.\n", value));
     }
     return result;
   }
@@ -757,87 +679,51 @@ var Schemas;
     properties: {
       regexp: {
         type: "string",
-        description: localize(
-          "ProblemPatternSchema.regexp",
-          "The regular expression to find an error, warning or info in the output."
-        )
+        description: localize("ProblemPatternSchema.regexp", "The regular expression to find an error, warning or info in the output.")
       },
       kind: {
         type: "string",
-        description: localize(
-          "ProblemPatternSchema.kind",
-          "whether the pattern matches a location (file and line) or only a file."
-        )
+        description: localize("ProblemPatternSchema.kind", "whether the pattern matches a location (file and line) or only a file.")
       },
       file: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.file",
-          "The match group index of the filename. If omitted 1 is used."
-        )
+        description: localize("ProblemPatternSchema.file", "The match group index of the filename. If omitted 1 is used.")
       },
       location: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.location",
-          "The match group index of the problem's location. Valid location patterns are: (line), (line,column) and (startLine,startColumn,endLine,endColumn). If omitted (line,column) is assumed."
-        )
+        description: localize("ProblemPatternSchema.location", "The match group index of the problem's location. Valid location patterns are: (line), (line,column) and (startLine,startColumn,endLine,endColumn). If omitted (line,column) is assumed.")
       },
       line: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.line",
-          "The match group index of the problem's line. Defaults to 2"
-        )
+        description: localize("ProblemPatternSchema.line", "The match group index of the problem's line. Defaults to 2")
       },
       column: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.column",
-          "The match group index of the problem's line character. Defaults to 3"
-        )
+        description: localize("ProblemPatternSchema.column", "The match group index of the problem's line character. Defaults to 3")
       },
       endLine: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.endLine",
-          "The match group index of the problem's end line. Defaults to undefined"
-        )
+        description: localize("ProblemPatternSchema.endLine", "The match group index of the problem's end line. Defaults to undefined")
       },
       endColumn: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.endColumn",
-          "The match group index of the problem's end line character. Defaults to undefined"
-        )
+        description: localize("ProblemPatternSchema.endColumn", "The match group index of the problem's end line character. Defaults to undefined")
       },
       severity: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.severity",
-          "The match group index of the problem's severity. Defaults to undefined"
-        )
+        description: localize("ProblemPatternSchema.severity", "The match group index of the problem's severity. Defaults to undefined")
       },
       code: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.code",
-          "The match group index of the problem's code. Defaults to undefined"
-        )
+        description: localize("ProblemPatternSchema.code", "The match group index of the problem's code. Defaults to undefined")
       },
       message: {
         type: "integer",
-        description: localize(
-          "ProblemPatternSchema.message",
-          "The match group index of the message. If omitted it defaults to 4 if location is specified. Otherwise it defaults to 5."
-        )
+        description: localize("ProblemPatternSchema.message", "The match group index of the message. If omitted it defaults to 4 if location is specified. Otherwise it defaults to 5.")
       },
       loop: {
         type: "boolean",
-        description: localize(
-          "ProblemPatternSchema.loop",
-          "In a multi line matcher loop indicated whether this pattern is executed in a loop as long as it matches. Can only specified on a last pattern in a multi line pattern."
-        )
+        description: localize("ProblemPatternSchema.loop", "In a multi line matcher loop indicated whether this pattern is executed in a loop as long as it matches. Can only specified on a last pattern in a multi line pattern.")
       }
     }
   };
@@ -845,10 +731,7 @@ var Schemas;
   Schemas2.NamedProblemPattern.properties = Objects.deepClone(Schemas2.NamedProblemPattern.properties) || {};
   Schemas2.NamedProblemPattern.properties["name"] = {
     type: "string",
-    description: localize(
-      "NamedProblemPatternSchema.name",
-      "The name of the problem pattern."
-    )
+    description: localize("NamedProblemPatternSchema.name", "The name of the problem pattern.")
   };
   Schemas2.MultiLineProblemPattern = {
     type: "array",
@@ -860,17 +743,11 @@ var Schemas;
     properties: {
       name: {
         type: "string",
-        description: localize(
-          "NamedMultiLineProblemPatternSchema.name",
-          "The name of the problem multi line problem pattern."
-        )
+        description: localize("NamedMultiLineProblemPatternSchema.name", "The name of the problem multi line problem pattern.")
       },
       patterns: {
         type: "array",
-        description: localize(
-          "NamedMultiLineProblemPatternSchema.patterns",
-          "The actual patterns."
-        ),
+        description: localize("NamedMultiLineProblemPatternSchema.patterns", "The actual patterns."),
         items: Schemas2.ProblemPattern
       }
     }
@@ -881,17 +758,11 @@ var Schemas;
     properties: {
       regexp: {
         type: "string",
-        description: localize(
-          "WatchingPatternSchema.regexp",
-          "The regular expression to detect the begin or end of a background task."
-        )
+        description: localize("WatchingPatternSchema.regexp", "The regular expression to detect the begin or end of a background task.")
       },
       file: {
         type: "integer",
-        description: localize(
-          "WatchingPatternSchema.file",
-          "The match group index of the filename. Can be omitted."
-        )
+        description: localize("WatchingPatternSchema.file", "The match group index of the filename. Can be omitted.")
       }
     }
   };
@@ -899,18 +770,12 @@ var Schemas;
     anyOf: [
       {
         type: "string",
-        description: localize(
-          "PatternTypeSchema.name",
-          "The name of a contributed or predefined pattern"
-        )
+        description: localize("PatternTypeSchema.name", "The name of a contributed or predefined pattern")
       },
       Schemas2.ProblemPattern,
       Schemas2.MultiLineProblemPattern
     ],
-    description: localize(
-      "PatternTypeSchema.description",
-      "A problem pattern or the name of a contributed or predefined problem pattern. Can be omitted if base is specified."
-    )
+    description: localize("PatternTypeSchema.description", "A problem pattern or the name of a contributed or predefined problem pattern. Can be omitted if base is specified.")
   };
   Schemas2.ProblemMatcher = {
     type: "object",
@@ -918,40 +783,25 @@ var Schemas;
     properties: {
       base: {
         type: "string",
-        description: localize(
-          "ProblemMatcherSchema.base",
-          "The name of a base problem matcher to use."
-        )
+        description: localize("ProblemMatcherSchema.base", "The name of a base problem matcher to use.")
       },
       owner: {
         type: "string",
-        description: localize(
-          "ProblemMatcherSchema.owner",
-          "The owner of the problem inside Code. Can be omitted if base is specified. Defaults to 'external' if omitted and base is not specified."
-        )
+        description: localize("ProblemMatcherSchema.owner", "The owner of the problem inside Code. Can be omitted if base is specified. Defaults to 'external' if omitted and base is not specified.")
       },
       source: {
         type: "string",
-        description: localize(
-          "ProblemMatcherSchema.source",
-          "A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'."
-        )
+        description: localize("ProblemMatcherSchema.source", "A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'.")
       },
       severity: {
         type: "string",
         enum: ["error", "warning", "info"],
-        description: localize(
-          "ProblemMatcherSchema.severity",
-          "The default severity for captures problems. Is used if the pattern doesn't define a match group for severity."
-        )
+        description: localize("ProblemMatcherSchema.severity", "The default severity for captures problems. Is used if the pattern doesn't define a match group for severity.")
       },
       applyTo: {
         type: "string",
         enum: ["allDocuments", "openDocuments", "closedDocuments"],
-        description: localize(
-          "ProblemMatcherSchema.applyTo",
-          "Controls if a problem reported on a text document is applied only to open, closed or all documents."
-        )
+        description: localize("ProblemMatcherSchema.applyTo", "Controls if a problem reported on a text document is applied only to open, closed or all documents.")
       },
       pattern: Schemas2.PatternType,
       fileLocation: {
@@ -965,12 +815,7 @@ var Schemas;
             prefixItems: [
               {
                 type: "string",
-                enum: [
-                  "absolute",
-                  "relative",
-                  "autoDetect",
-                  "search"
-                ]
+                enum: ["absolute", "relative", "autoDetect", "search"]
               }
             ],
             minItems: 1,
@@ -980,10 +825,7 @@ var Schemas;
           {
             type: "array",
             prefixItems: [
-              {
-                type: "string",
-                enum: ["relative", "autoDetect"]
-              },
+              { type: "string", enum: ["relative", "autoDetect"] },
               { type: "string" }
             ],
             minItems: 2,
@@ -1001,22 +843,16 @@ var Schemas;
               {
                 type: "object",
                 properties: {
-                  include: {
+                  "include": {
                     oneOf: [
                       { type: "string" },
-                      {
-                        type: "array",
-                        items: { type: "string" }
-                      }
+                      { type: "array", items: { type: "string" } }
                     ]
                   },
-                  exclude: {
+                  "exclude": {
                     oneOf: [
                       { type: "string" },
-                      {
-                        type: "array",
-                        items: { type: "string" }
-                      }
+                      { type: "array", items: { type: "string" } }
                     ]
                   }
                 },
@@ -1027,36 +863,21 @@ var Schemas;
             maxItems: 2,
             additionalItems: false,
             examples: [
-              ["search", { include: ["${workspaceFolder}"] }],
-              [
-                "search",
-                {
-                  include: ["${workspaceFolder}"],
-                  exclude: []
-                }
-              ]
+              ["search", { "include": ["${workspaceFolder}"] }],
+              ["search", { "include": ["${workspaceFolder}"], "exclude": [] }]
             ]
           }
         ],
-        description: localize(
-          "ProblemMatcherSchema.fileLocation",
-          "Defines how file names reported in a problem pattern should be interpreted. A relative fileLocation may be an array, where the second element of the array is the path of the relative file location. The search fileLocation mode, performs a deep (and, possibly, heavy) file system search within the directories specified by the include/exclude properties of the second element (or the current workspace directory if not specified)."
-        )
+        description: localize("ProblemMatcherSchema.fileLocation", "Defines how file names reported in a problem pattern should be interpreted. A relative fileLocation may be an array, where the second element of the array is the path of the relative file location. The search fileLocation mode, performs a deep (and, possibly, heavy) file system search within the directories specified by the include/exclude properties of the second element (or the current workspace directory if not specified).")
       },
       background: {
         type: "object",
         additionalProperties: false,
-        description: localize(
-          "ProblemMatcherSchema.background",
-          "Patterns to track the begin and end of a matcher active on a background task."
-        ),
+        description: localize("ProblemMatcherSchema.background", "Patterns to track the begin and end of a matcher active on a background task."),
         properties: {
           activeOnStart: {
             type: "boolean",
-            description: localize(
-              "ProblemMatcherSchema.background.activeOnStart",
-              "If set to true the background monitor is in active mode when the task starts. This is equals of issuing a line that matches the beginsPattern"
-            )
+            description: localize("ProblemMatcherSchema.background.activeOnStart", "If set to true the background monitor is in active mode when the task starts. This is equals of issuing a line that matches the beginsPattern")
           },
           beginsPattern: {
             oneOf: [
@@ -1065,10 +886,7 @@ var Schemas;
               },
               Schemas2.WatchingPattern
             ],
-            description: localize(
-              "ProblemMatcherSchema.background.beginsPattern",
-              "If matched in the output the start of a background task is signaled."
-            )
+            description: localize("ProblemMatcherSchema.background.beginsPattern", "If matched in the output the start of a background task is signaled.")
           },
           endsPattern: {
             oneOf: [
@@ -1077,31 +895,19 @@ var Schemas;
               },
               Schemas2.WatchingPattern
             ],
-            description: localize(
-              "ProblemMatcherSchema.background.endsPattern",
-              "If matched in the output the end of a background task is signaled."
-            )
+            description: localize("ProblemMatcherSchema.background.endsPattern", "If matched in the output the end of a background task is signaled.")
           }
         }
       },
       watching: {
         type: "object",
         additionalProperties: false,
-        deprecationMessage: localize(
-          "ProblemMatcherSchema.watching.deprecated",
-          "The watching property is deprecated. Use background instead."
-        ),
-        description: localize(
-          "ProblemMatcherSchema.watching",
-          "Patterns to track the begin and end of a watching matcher."
-        ),
+        deprecationMessage: localize("ProblemMatcherSchema.watching.deprecated", "The watching property is deprecated. Use background instead."),
+        description: localize("ProblemMatcherSchema.watching", "Patterns to track the begin and end of a watching matcher."),
         properties: {
           activeOnStart: {
             type: "boolean",
-            description: localize(
-              "ProblemMatcherSchema.watching.activeOnStart",
-              "If set to true the watcher is in active mode when the task starts. This is equals of issuing a line that matches the beginPattern"
-            )
+            description: localize("ProblemMatcherSchema.watching.activeOnStart", "If set to true the watcher is in active mode when the task starts. This is equals of issuing a line that matches the beginPattern")
           },
           beginsPattern: {
             oneOf: [
@@ -1110,10 +916,7 @@ var Schemas;
               },
               Schemas2.WatchingPattern
             ],
-            description: localize(
-              "ProblemMatcherSchema.watching.beginsPattern",
-              "If matched in the output the start of a watching task is signaled."
-            )
+            description: localize("ProblemMatcherSchema.watching.beginsPattern", "If matched in the output the start of a watching task is signaled.")
           },
           endsPattern: {
             oneOf: [
@@ -1122,10 +925,7 @@ var Schemas;
               },
               Schemas2.WatchingPattern
             ],
-            description: localize(
-              "ProblemMatcherSchema.watching.endsPattern",
-              "If matched in the output the end of a watching task is signaled."
-            )
+            description: localize("ProblemMatcherSchema.watching.endsPattern", "If matched in the output the end of a watching task is signaled.")
           }
         }
       }
@@ -1135,50 +935,29 @@ var Schemas;
   Schemas2.LegacyProblemMatcher.properties = Objects.deepClone(Schemas2.LegacyProblemMatcher.properties) || {};
   Schemas2.LegacyProblemMatcher.properties["watchedTaskBeginsRegExp"] = {
     type: "string",
-    deprecationMessage: localize(
-      "LegacyProblemMatcherSchema.watchedBegin.deprecated",
-      "This property is deprecated. Use the watching property instead."
-    ),
-    description: localize(
-      "LegacyProblemMatcherSchema.watchedBegin",
-      "A regular expression signaling that a watched tasks begins executing triggered through file watching."
-    )
+    deprecationMessage: localize("LegacyProblemMatcherSchema.watchedBegin.deprecated", "This property is deprecated. Use the watching property instead."),
+    description: localize("LegacyProblemMatcherSchema.watchedBegin", "A regular expression signaling that a watched tasks begins executing triggered through file watching.")
   };
   Schemas2.LegacyProblemMatcher.properties["watchedTaskEndsRegExp"] = {
     type: "string",
-    deprecationMessage: localize(
-      "LegacyProblemMatcherSchema.watchedEnd.deprecated",
-      "This property is deprecated. Use the watching property instead."
-    ),
-    description: localize(
-      "LegacyProblemMatcherSchema.watchedEnd",
-      "A regular expression signaling that a watched tasks ends executing."
-    )
+    deprecationMessage: localize("LegacyProblemMatcherSchema.watchedEnd.deprecated", "This property is deprecated. Use the watching property instead."),
+    description: localize("LegacyProblemMatcherSchema.watchedEnd", "A regular expression signaling that a watched tasks ends executing.")
   };
   Schemas2.NamedProblemMatcher = Objects.deepClone(Schemas2.ProblemMatcher);
   Schemas2.NamedProblemMatcher.properties = Objects.deepClone(Schemas2.NamedProblemMatcher.properties) || {};
   Schemas2.NamedProblemMatcher.properties.name = {
     type: "string",
-    description: localize(
-      "NamedProblemMatcherSchema.name",
-      "The name of the problem matcher used to refer to it."
-    )
+    description: localize("NamedProblemMatcherSchema.name", "The name of the problem matcher used to refer to it.")
   };
   Schemas2.NamedProblemMatcher.properties.label = {
     type: "string",
-    description: localize(
-      "NamedProblemMatcherSchema.label",
-      "A human readable label of the problem matcher."
-    )
+    description: localize("NamedProblemMatcherSchema.label", "A human readable label of the problem matcher.")
   };
 })(Schemas || (Schemas = {}));
 const problemPatternExtPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "problemPatterns",
   jsonSchema: {
-    description: localize(
-      "ProblemPatternExtPoint",
-      "Contributes problem patterns"
-    ),
+    description: localize("ProblemPatternExtPoint", "Contributes problem patterns"),
     type: "array",
     items: {
       anyOf: [
@@ -1210,41 +989,23 @@ class ProblemPatternRegistryImpl {
           });
           delta.added.forEach((extension) => {
             const problemPatterns = extension.value;
-            const parser = new ProblemPatternParser(
-              new ExtensionRegistryReporter(extension.collector)
-            );
+            const parser = new ProblemPatternParser(new ExtensionRegistryReporter(extension.collector));
             for (const pattern of problemPatterns) {
-              if (Config.NamedMultiLineCheckedProblemPattern.is(
-                pattern
-              )) {
+              if (Config.NamedMultiLineCheckedProblemPattern.is(pattern)) {
                 const result = parser.parse(pattern);
                 if (parser.problemReporter.status.state < ValidationState.Error) {
                   this.add(result.name, result.patterns);
                 } else {
-                  extension.collector.error(
-                    localize(
-                      "ProblemPatternRegistry.error",
-                      "Invalid problem pattern. The pattern will be ignored."
-                    )
-                  );
-                  extension.collector.error(
-                    JSON.stringify(pattern, void 0, 4)
-                  );
+                  extension.collector.error(localize("ProblemPatternRegistry.error", "Invalid problem pattern. The pattern will be ignored."));
+                  extension.collector.error(JSON.stringify(pattern, void 0, 4));
                 }
               } else if (Config.NamedProblemPattern.is(pattern)) {
                 const result = parser.parse(pattern);
                 if (parser.problemReporter.status.state < ValidationState.Error) {
                   this.add(pattern.name, result);
                 } else {
-                  extension.collector.error(
-                    localize(
-                      "ProblemPatternRegistry.error",
-                      "Invalid problem pattern. The pattern will be ignored."
-                    )
-                  );
-                  extension.collector.error(
-                    JSON.stringify(pattern, void 0, 4)
-                  );
+                  extension.collector.error(localize("ProblemPatternRegistry.error", "Invalid problem pattern. The pattern will be ignored."));
+                  extension.collector.error(JSON.stringify(pattern, void 0, 4));
                 }
               }
               parser.reset();
@@ -1397,43 +1158,19 @@ class ProblemMatcherParser extends Parser {
   }
   checkProblemMatcherValid(externalProblemMatcher, problemMatcher) {
     if (!problemMatcher) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.noProblemMatcher",
-          "Error: the description can't be converted into a problem matcher:\n{0}\n",
-          JSON.stringify(externalProblemMatcher, null, 4)
-        )
-      );
+      this.error(localize("ProblemMatcherParser.noProblemMatcher", "Error: the description can't be converted into a problem matcher:\n{0}\n", JSON.stringify(externalProblemMatcher, null, 4)));
       return false;
     }
     if (!problemMatcher.pattern) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.noProblemPattern",
-          "Error: the description doesn't define a valid problem pattern:\n{0}\n",
-          JSON.stringify(externalProblemMatcher, null, 4)
-        )
-      );
+      this.error(localize("ProblemMatcherParser.noProblemPattern", "Error: the description doesn't define a valid problem pattern:\n{0}\n", JSON.stringify(externalProblemMatcher, null, 4)));
       return false;
     }
     if (!problemMatcher.owner) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.noOwner",
-          "Error: the description doesn't define an owner:\n{0}\n",
-          JSON.stringify(externalProblemMatcher, null, 4)
-        )
-      );
+      this.error(localize("ProblemMatcherParser.noOwner", "Error: the description doesn't define an owner:\n{0}\n", JSON.stringify(externalProblemMatcher, null, 4)));
       return false;
     }
     if (Types.isUndefined(problemMatcher.fileLocation)) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.noFileLocation",
-          "Error: the description doesn't define a file location:\n{0}\n",
-          JSON.stringify(externalProblemMatcher, null, 4)
-        )
-      );
+      this.error(localize("ProblemMatcherParser.noFileLocation", "Error: the description doesn't define a file location:\n{0}\n", JSON.stringify(externalProblemMatcher, null, 4)));
       return false;
     }
     return true;
@@ -1446,16 +1183,14 @@ class ProblemMatcherParser extends Parser {
     if (!applyTo) {
       applyTo = 0 /* allDocuments */;
     }
-    let fileLocation;
-    let filePrefix;
+    let fileLocation = void 0;
+    let filePrefix = void 0;
     let kind;
     if (Types.isUndefined(description.fileLocation)) {
       fileLocation = 1 /* Relative */;
       filePrefix = "${workspaceFolder}";
     } else if (Types.isString(description.fileLocation)) {
-      kind = FileLocationKind.fromString(
-        description.fileLocation
-      );
+      kind = FileLocationKind.fromString(description.fileLocation);
       if (kind) {
         fileLocation = kind;
         if (kind === 1 /* Relative */ || kind === 3 /* AutoDetect */) {
@@ -1476,34 +1211,22 @@ class ProblemMatcherParser extends Parser {
         }
       }
     } else if (Array.isArray(description.fileLocation)) {
-      const kind2 = FileLocationKind.fromString(
-        description.fileLocation[0]
-      );
+      const kind2 = FileLocationKind.fromString(description.fileLocation[0]);
       if (kind2 === 4 /* Search */) {
         fileLocation = 4 /* Search */;
-        filePrefix = description.fileLocation[1] ?? {
-          include: ["${workspaceFolder}"]
-        };
+        filePrefix = description.fileLocation[1] ?? { include: ["${workspaceFolder}"] };
       }
     }
     const pattern = description.pattern ? this.createProblemPattern(description.pattern) : void 0;
     let severity = description.severity ? Severity.fromValue(description.severity) : void 0;
     if (severity === Severity.Ignore) {
-      this.info(
-        localize(
-          "ProblemMatcherParser.unknownSeverity",
-          "Info: unknown severity {0}. Valid values are error, warning and info.\n",
-          description.severity
-        )
-      );
+      this.info(localize("ProblemMatcherParser.unknownSeverity", "Info: unknown severity {0}. Valid values are error, warning and info.\n", description.severity));
       severity = Severity.Error;
     }
     if (Types.isString(description.base)) {
       const variableName = description.base;
       if (variableName.length > 1 && variableName[0] === "$") {
-        const base = ProblemMatcherRegistry.get(
-          variableName.substring(1)
-        );
+        const base = ProblemMatcherRegistry.get(variableName.substring(1));
         if (base) {
           result = Objects.deepClone(base);
           if (description.owner !== void 0 && owner !== void 0) {
@@ -1546,9 +1269,7 @@ class ProblemMatcherParser extends Parser {
     }
     if (Config.isNamedProblemMatcher(description)) {
       result.name = description.name;
-      result.label = Types.isString(
-        description.label
-      ) ? description.label : description.name;
+      result.label = Types.isString(description.label) ? description.label : description.name;
     }
     return result;
   }
@@ -1556,39 +1277,20 @@ class ProblemMatcherParser extends Parser {
     if (Types.isString(value)) {
       const variableName = value;
       if (variableName.length > 1 && variableName[0] === "$") {
-        const result = ProblemPatternRegistry.get(
-          variableName.substring(1)
-        );
+        const result = ProblemPatternRegistry.get(variableName.substring(1));
         if (!result) {
-          this.error(
-            localize(
-              "ProblemMatcherParser.noDefinedPatter",
-              "Error: the pattern with the identifier {0} doesn't exist.",
-              variableName
-            )
-          );
+          this.error(localize("ProblemMatcherParser.noDefinedPatter", "Error: the pattern with the identifier {0} doesn't exist.", variableName));
         }
         return result;
-      } else if (variableName.length === 0) {
-        this.error(
-          localize(
-            "ProblemMatcherParser.noIdentifier",
-            "Error: the pattern property refers to an empty identifier."
-          )
-        );
       } else {
-        this.error(
-          localize(
-            "ProblemMatcherParser.noValidIdentifier",
-            "Error: the pattern property {0} is not a valid pattern variable name.",
-            variableName
-          )
-        );
+        if (variableName.length === 0) {
+          this.error(localize("ProblemMatcherParser.noIdentifier", "Error: the pattern property refers to an empty identifier."));
+        } else {
+          this.error(localize("ProblemMatcherParser.noValidIdentifier", "Error: the pattern property {0} is not a valid pattern variable name.", variableName));
+        }
       }
     } else if (value) {
-      const problemPatternParser = new ProblemPatternParser(
-        this.problemReporter
-      );
+      const problemPatternParser = new ProblemPatternParser(this.problemReporter);
       if (Array.isArray(value)) {
         return problemPatternParser.parse(value);
       } else {
@@ -1598,12 +1300,8 @@ class ProblemMatcherParser extends Parser {
     return null;
   }
   addWatchingMatcher(external, internal) {
-    const oldBegins = this.createRegularExpression(
-      external.watchedTaskBeginsRegExp
-    );
-    const oldEnds = this.createRegularExpression(
-      external.watchedTaskEndsRegExp
-    );
+    const oldBegins = this.createRegularExpression(external.watchedTaskBeginsRegExp);
+    const oldEnds = this.createRegularExpression(external.watchedTaskEndsRegExp);
     if (oldBegins && oldEnds) {
       internal.watching = {
         activeOnStart: false,
@@ -1616,12 +1314,8 @@ class ProblemMatcherParser extends Parser {
     if (Types.isUndefinedOrNull(backgroundMonitor)) {
       return;
     }
-    const begins = this.createWatchingPattern(
-      backgroundMonitor.beginsPattern
-    );
-    const ends = this.createWatchingPattern(
-      backgroundMonitor.endsPattern
-    );
+    const begins = this.createWatchingPattern(backgroundMonitor.beginsPattern);
+    const ends = this.createWatchingPattern(backgroundMonitor.endsPattern);
     if (begins && ends) {
       internal.watching = {
         activeOnStart: Types.isBoolean(backgroundMonitor.activeOnStart) ? backgroundMonitor.activeOnStart : false,
@@ -1631,12 +1325,7 @@ class ProblemMatcherParser extends Parser {
       return;
     }
     if (begins || ends) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.problemPattern.watchingMatcher",
-          "A problem matcher must define both a begin pattern and an end pattern for watching."
-        )
-      );
+      this.error(localize("ProblemMatcherParser.problemPattern.watchingMatcher", "A problem matcher must define both a begin pattern and an end pattern for watching."));
     }
   }
   createWatchingPattern(external) {
@@ -1666,13 +1355,7 @@ class ProblemMatcherParser extends Parser {
     try {
       result = new RegExp(value);
     } catch (err) {
-      this.error(
-        localize(
-          "ProblemMatcherParser.invalidRegexp",
-          "Error: The string {0} is not a valid regular expression.\n",
-          value
-        )
-      );
+      this.error(localize("ProblemMatcherParser.invalidRegexp", "Error: The string {0} is not a valid regular expression.\n", value));
     }
     return result;
   }
@@ -1681,10 +1364,7 @@ const problemMatchersExtPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "problemMatchers",
   deps: [problemPatternExtPoint],
   jsonSchema: {
-    description: localize(
-      "ProblemMatcherExtPoint",
-      "Contributes problem matchers"
-    ),
+    description: localize("ProblemMatcherExtPoint", "Contributes problem matchers"),
     type: "array",
     items: Schemas.NamedProblemMatcher
   }
@@ -1713,9 +1393,7 @@ class ProblemMatcherRegistryImpl {
           });
           delta.added.forEach((extension) => {
             const problemMatchers = extension.value;
-            const parser = new ProblemMatcherParser(
-              new ExtensionRegistryReporter(extension.collector)
-            );
+            const parser = new ProblemMatcherParser(new ExtensionRegistryReporter(extension.collector));
             for (const matcher2 of problemMatchers) {
               const result = parser.parse(matcher2);
               if (result && isNamedProblemMatcher(result)) {

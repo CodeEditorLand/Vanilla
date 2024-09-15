@@ -1,4 +1,4 @@
-var loading_hc_default = "../../../../../../Asset/loading-hc-XCZZNX7R.svg";
+var loading_hc_default = "../../../../../../Asset/loading-hc-JQIVEQS5.svg";
 export {
   loading_hc_default as default
 };

@@ -10,42 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ILoggerOptions, ILoggerResource, ILoggerService, ILogService, isLogLevel, log, LogLevel, LogLevelToString, parseLogLevel } from "../../../platform/log/common/log.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import {
-  URI
-} from "../../../base/common/uri.js";
+import { ExtHostContext, MainThreadLoggerShape, MainContext } from "../common/extHost.protocol.js";
+import { UriComponents, URI, UriDto } from "../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
 import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
 import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import {
-  ILogService,
-  ILoggerService,
-  LogLevelToString,
-  isLogLevel,
-  log,
-  parseLogLevel
-} from "../../../platform/log/common/log.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadLoggerService = class {
   constructor(extHostContext, loggerService) {
     this.loggerService = loggerService;
-    const proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostLogLevelServiceShape
-    );
-    this.disposables.add(
-      loggerService.onDidChangeLogLevel((arg) => {
-        if (isLogLevel(arg)) {
-          proxy.$setLogLevel(arg);
-        } else {
-          proxy.$setLogLevel(arg[1], arg[0]);
-        }
-      })
-    );
+    const proxy = extHostContext.getProxy(ExtHostContext.ExtHostLogLevelServiceShape);
+    this.disposables.add(loggerService.onDidChangeLogLevel((arg) => {
+      if (isLogLevel(arg)) {
+        proxy.$setLogLevel(arg);
+      } else {
+        proxy.$setLogLevel(arg[1], arg[0]);
+      }
+    }));
   }
   disposables = new DisposableStore();
   $log(file, messages) {
@@ -88,26 +71,20 @@ MainThreadLoggerService = __decorateClass([
   extHostNamedCustomer(MainContext.MainThreadLogger),
   __decorateParam(1, ILoggerService)
 ], MainThreadLoggerService);
-CommandsRegistry.registerCommand(
-  "_extensionTests.setLogLevel",
-  (accessor, level) => {
-    const loggerService = accessor.get(ILoggerService);
-    const environmentService = accessor.get(IEnvironmentService);
-    if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
-      const logLevel = parseLogLevel(level);
-      if (logLevel !== void 0) {
-        loggerService.setLogLevel(logLevel);
-      }
+CommandsRegistry.registerCommand("_extensionTests.setLogLevel", function(accessor, level) {
+  const loggerService = accessor.get(ILoggerService);
+  const environmentService = accessor.get(IEnvironmentService);
+  if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+    const logLevel = parseLogLevel(level);
+    if (logLevel !== void 0) {
+      loggerService.setLogLevel(logLevel);
     }
   }
-);
-CommandsRegistry.registerCommand(
-  "_extensionTests.getLogLevel",
-  (accessor) => {
-    const logService = accessor.get(ILogService);
-    return LogLevelToString(logService.getLevel());
-  }
-);
+});
+CommandsRegistry.registerCommand("_extensionTests.getLogLevel", function(accessor) {
+  const logService = accessor.get(ILogService);
+  return LogLevelToString(logService.getLevel());
+});
 export {
   MainThreadLoggerService
 };

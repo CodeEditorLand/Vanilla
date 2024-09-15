@@ -10,24 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { tail } from "../../../../base/common/arrays.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Schemas } from "../../../../base/common/network.js";
+import { WorkspaceFileEditOptions } from "../../../../editor/common/languages.js";
+import { IFileService, FileSystemProviderCapabilities, IFileContent, IFileStatWithMetadata } from "../../../../platform/files/common/files.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  FileSystemProviderCapabilities,
-  IFileService
-} from "../../../../platform/files/common/files.js";
+import { IWorkingCopyFileService, IFileOperationUndoRedoInfo, IMoveOperation, ICopyOperation, IDeleteOperation, ICreateOperation, ICreateFileOperation } from "../../../services/workingCopy/common/workingCopyFileService.js";
+import { IWorkspaceUndoRedoElement, UndoRedoElementType, IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IUndoRedoService,
-  UndoRedoElementType
-} from "../../../../platform/undoRedo/common/undoRedo.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { tail } from "../../../../base/common/arrays.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import {
-  IWorkingCopyFileService
-} from "../../../services/workingCopy/common/workingCopyFileService.js";
+import { Schemas } from "../../../../base/common/network.js";
 class Noop {
   static {
     __name(this, "Noop");
@@ -74,25 +71,14 @@ let RenameOperation = class {
           file: { source: edit.oldUri, target: edit.newUri },
           overwrite: edit.options.overwrite
         });
-        undoes.push(
-          new RenameEdit(edit.oldUri, edit.newUri, edit.options)
-        );
+        undoes.push(new RenameEdit(edit.oldUri, edit.newUri, edit.options));
       }
     }
     if (moves.length === 0) {
       return new Noop();
     }
-    await this._workingCopyFileService.move(
-      moves,
-      token,
-      this._undoRedoInfo
-    );
-    return new RenameOperation(
-      undoes,
-      { isUndoing: true },
-      this._workingCopyFileService,
-      this._fileService
-    );
+    await this._workingCopyFileService.move(moves, token, this._undoRedoInfo);
+    return new RenameOperation(undoes, { isUndoing: true }, this._workingCopyFileService, this._fileService);
   }
   toString() {
     return `(rename ${this._edits.map((edit) => `${edit.oldUri} to ${edit.newUri}`).join(", ")})`;
@@ -132,39 +118,20 @@ let CopyOperation = class {
     for (const edit of this._edits) {
       const skip = edit.options.overwrite === void 0 && edit.options.ignoreIfExists && await this._fileService.exists(edit.newUri);
       if (!skip) {
-        copies.push({
-          file: { source: edit.oldUri, target: edit.newUri },
-          overwrite: edit.options.overwrite
-        });
+        copies.push({ file: { source: edit.oldUri, target: edit.newUri }, overwrite: edit.options.overwrite });
       }
     }
     if (copies.length === 0) {
       return new Noop();
     }
-    const stats = await this._workingCopyFileService.copy(
-      copies,
-      token,
-      this._undoRedoInfo
-    );
+    const stats = await this._workingCopyFileService.copy(copies, token, this._undoRedoInfo);
     const undoes = [];
     for (let i = 0; i < stats.length; i++) {
       const stat = stats[i];
       const edit = this._edits[i];
-      undoes.push(
-        new DeleteEdit(
-          stat.resource,
-          {
-            recursive: true,
-            folder: this._edits[i].options.folder || stat.isDirectory,
-            ...edit.options
-          },
-          false
-        )
-      );
+      undoes.push(new DeleteEdit(stat.resource, { recursive: true, folder: this._edits[i].options.folder || stat.isDirectory, ...edit.options }, false));
     }
-    return this._instaService.createInstance(DeleteOperation, undoes, {
-      isUndoing: true
-    });
+    return this._instaService.createInstance(DeleteOperation, undoes, { isUndoing: true });
   }
   toString() {
     return `(copy ${this._edits.map((edit) => `${edit.oldUri} to ${edit.newUri}`).join(", ")})`;
@@ -215,39 +182,17 @@ let CreateOperation = class {
       if (edit.options.folder) {
         folderCreates.push({ resource: edit.newUri });
       } else {
-        const encodedReadable = typeof edit.contents !== "undefined" ? edit.contents : await this._textFileService.getEncodedReadable(
-          edit.newUri
-        );
-        fileCreates.push({
-          resource: edit.newUri,
-          contents: encodedReadable,
-          overwrite: edit.options.overwrite
-        });
+        const encodedReadable = typeof edit.contents !== "undefined" ? edit.contents : await this._textFileService.getEncodedReadable(edit.newUri);
+        fileCreates.push({ resource: edit.newUri, contents: encodedReadable, overwrite: edit.options.overwrite });
       }
-      undoes.push(
-        new DeleteEdit(
-          edit.newUri,
-          edit.options,
-          !edit.options.folder && !edit.contents
-        )
-      );
+      undoes.push(new DeleteEdit(edit.newUri, edit.options, !edit.options.folder && !edit.contents));
     }
     if (folderCreates.length === 0 && fileCreates.length === 0) {
       return new Noop();
     }
-    await this._workingCopyFileService.createFolder(
-      folderCreates,
-      token,
-      this._undoRedoInfo
-    );
-    await this._workingCopyFileService.create(
-      fileCreates,
-      token,
-      this._undoRedoInfo
-    );
-    return this._instaService.createInstance(DeleteOperation, undoes, {
-      isUndoing: true
-    });
+    await this._workingCopyFileService.createFolder(folderCreates, token, this._undoRedoInfo);
+    await this._workingCopyFileService.create(fileCreates, token, this._undoRedoInfo);
+    return this._instaService.createInstance(DeleteOperation, undoes, { isUndoing: true });
   }
   toString() {
     return `(create ${this._edits.map((edit) => edit.options.folder ? `folder ${edit.newUri}` : `file ${edit.newUri} with ${edit.contents?.byteLength || 0} bytes`).join(", ")})`;
@@ -292,26 +237,17 @@ let DeleteOperation = class {
     for (const edit of this._edits) {
       let fileStat;
       try {
-        fileStat = await this._fileService.resolve(edit.oldUri, {
-          resolveMetadata: true
-        });
+        fileStat = await this._fileService.resolve(edit.oldUri, { resolveMetadata: true });
       } catch (err) {
         if (!edit.options.ignoreIfNotExists) {
-          throw new Error(
-            `${edit.oldUri} does not exist and can not be deleted`
-          );
+          throw new Error(`${edit.oldUri} does not exist and can not be deleted`);
         }
         continue;
       }
       deletes.push({
         resource: edit.oldUri,
         recursive: edit.options.recursive,
-        useTrash: !edit.options.skipTrashBin && this._fileService.hasCapability(
-          edit.oldUri,
-          FileSystemProviderCapabilities.Trash
-        ) && this._configurationService.getValue(
-          "files.enableTrash"
-        )
+        useTrash: !edit.options.skipTrashBin && this._fileService.hasCapability(edit.oldUri, FileSystemProviderCapabilities.Trash) && this._configurationService.getValue("files.enableTrash")
       });
       let fileContent;
       if (!edit.undoesCreate && !edit.options.folder && !(typeof edit.options.maxSize === "number" && fileStat.size > edit.options.maxSize)) {
@@ -322,29 +258,17 @@ let DeleteOperation = class {
         }
       }
       if (fileContent !== void 0) {
-        undoes.push(
-          new CreateEdit(
-            edit.oldUri,
-            edit.options,
-            fileContent.value
-          )
-        );
+        undoes.push(new CreateEdit(edit.oldUri, edit.options, fileContent.value));
       }
     }
     if (deletes.length === 0) {
       return new Noop();
     }
-    await this._workingCopyFileService.delete(
-      deletes,
-      token,
-      this._undoRedoInfo
-    );
+    await this._workingCopyFileService.delete(deletes, token, this._undoRedoInfo);
     if (undoes.length === 0) {
       return new Noop();
     }
-    return this._instaService.createInstance(CreateOperation, undoes, {
-      isUndoing: true
-    });
+    return this._instaService.createInstance(CreateOperation, undoes, { isUndoing: true });
   }
   toString() {
     return `(delete ${this._edits.map((edit) => edit.oldUri).join(", ")})`;
@@ -409,33 +333,13 @@ let BulkFileEdits = class {
     const edits = [];
     for (const edit of this._edits) {
       if (edit.newResource && edit.oldResource && !edit.options?.copy) {
-        edits.push(
-          new RenameEdit(
-            edit.newResource,
-            edit.oldResource,
-            edit.options ?? {}
-          )
-        );
+        edits.push(new RenameEdit(edit.newResource, edit.oldResource, edit.options ?? {}));
       } else if (edit.newResource && edit.oldResource && edit.options?.copy) {
-        edits.push(
-          new CopyEdit(
-            edit.newResource,
-            edit.oldResource,
-            edit.options ?? {}
-          )
-        );
+        edits.push(new CopyEdit(edit.newResource, edit.oldResource, edit.options ?? {}));
       } else if (!edit.newResource && edit.oldResource) {
-        edits.push(
-          new DeleteEdit(edit.oldResource, edit.options ?? {}, false)
-        );
+        edits.push(new DeleteEdit(edit.oldResource, edit.options ?? {}, false));
       } else if (edit.newResource && !edit.oldResource) {
-        edits.push(
-          new CreateEdit(
-            edit.newResource,
-            edit.options ?? {},
-            await edit.options.contents
-          )
-        );
+        edits.push(new CreateEdit(edit.newResource, edit.options ?? {}, await edit.options.contents));
       }
     }
     if (edits.length === 0) {
@@ -459,32 +363,16 @@ let BulkFileEdits = class {
       let op;
       switch (group[0].type) {
         case "rename":
-          op = this._instaService.createInstance(
-            RenameOperation,
-            group,
-            undoRedoInfo
-          );
+          op = this._instaService.createInstance(RenameOperation, group, undoRedoInfo);
           break;
         case "copy":
-          op = this._instaService.createInstance(
-            CopyOperation,
-            group,
-            undoRedoInfo
-          );
+          op = this._instaService.createInstance(CopyOperation, group, undoRedoInfo);
           break;
         case "delete":
-          op = this._instaService.createInstance(
-            DeleteOperation,
-            group,
-            undoRedoInfo
-          );
+          op = this._instaService.createInstance(DeleteOperation, group, undoRedoInfo);
           break;
         case "create":
-          op = this._instaService.createInstance(
-            CreateOperation,
-            group,
-            undoRedoInfo
-          );
+          op = this._instaService.createInstance(CreateOperation, group, undoRedoInfo);
           break;
       }
       if (op) {
@@ -493,17 +381,8 @@ let BulkFileEdits = class {
       }
       this._progress.report(void 0);
     }
-    const undoRedoElement = new FileUndoRedoElement(
-      this._label,
-      this._code,
-      undoOperations,
-      this._confirmBeforeUndo
-    );
-    this._undoRedoService.pushElement(
-      undoRedoElement,
-      this._undoRedoGroup,
-      this._undoRedoSource
-    );
+    const undoRedoElement = new FileUndoRedoElement(this._label, this._code, undoOperations, this._confirmBeforeUndo);
+    this._undoRedoService.pushElement(undoRedoElement, this._undoRedoGroup, this._undoRedoSource);
     return undoRedoElement.resources;
   }
 };

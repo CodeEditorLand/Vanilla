@@ -10,48 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ThrottledDelayer } from "../../../../base/common/async.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import {
-  pieceToQuery,
-  prepareQuery,
-  scoreFuzzy2
-} from "../../../../base/common/fuzzyScorer.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import {
-  SymbolKind,
-  SymbolKinds,
-  SymbolTag
-} from "../../../../editor/common/languages.js";
-import { getSelectionSearchString } from "../../../../editor/contrib/find/browser/findController.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ThrottledDelayer } from "../../../../base/common/async.js";
+import { getWorkspaceSymbols, IWorkspaceSymbol, IWorkspaceSymbolProvider } from "../common/search.js";
+import { SymbolKinds, SymbolTag, SymbolKind } from "../../../../editor/common/languages.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
+import { Schemas } from "../../../../base/common/network.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  PickerQuickAccessProvider,
-  TriggerAction
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import {
-  ACTIVE_GROUP,
-  IEditorService,
-  SIDE_GROUP
-} from "../../../services/editor/common/editorService.js";
-import {
-  getWorkspaceSymbols
-} from "../common/search.js";
+import { IEditorService, SIDE_GROUP, ACTIVE_GROUP } from "../../../services/editor/common/editorService.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchEditorConfiguration } from "../../../common/editor.js";
+import { IKeyMods, IQuickPickItemWithResource } from "../../../../platform/quickinput/common/quickInput.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { getSelectionSearchString } from "../../../../editor/contrib/find/browser/findController.js";
+import { prepareQuery, IPreparedQuery, scoreFuzzy2, pieceToQuery } from "../../../../base/common/fuzzyScorer.js";
+import { IMatch } from "../../../../base/common/filters.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(labelService, openerService, editorService, configurationService, codeEditorService) {
     super(SymbolsQuickAccessProvider.PREFIX, {
       canAcceptInBackground: true,
       noResultsPick: {
-        label: localize(
-          "noSymbolResults",
-          "No matching workspace symbols"
-        )
+        label: localize("noSymbolResults", "No matching workspace symbols")
       }
     });
     this.labelService = labelService;
@@ -75,11 +60,7 @@ let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
     SymbolKind.Package,
     SymbolKind.Module
   ]);
-  delayer = this._register(
-    new ThrottledDelayer(
-      SymbolsQuickAccessProvider.TYPING_SEARCH_DELAY
-    )
-  );
+  delayer = this._register(new ThrottledDelayer(SymbolsQuickAccessProvider.TYPING_SEARCH_DELAY));
   get defaultFilterValue() {
     const editor = this.codeEditorService.getFocusedCodeEditor();
     if (editor) {
@@ -114,74 +95,55 @@ let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
     } else {
       symbolQuery = query;
     }
-    const workspaceSymbols = await getWorkspaceSymbols(
-      symbolQuery.original,
-      token
-    );
+    const workspaceSymbols = await getWorkspaceSymbols(symbolQuery.original, token);
     if (token.isCancellationRequested) {
       return [];
     }
     const symbolPicks = [];
     const openSideBySideDirection = this.configuration.openSideBySideDirection;
     for (const { symbol, provider } of workspaceSymbols) {
-      if (options?.skipLocal && !SymbolsQuickAccessProvider.TREAT_AS_GLOBAL_SYMBOL_TYPES.has(
-        symbol.kind
-      ) && !!symbol.containerName) {
+      if (options?.skipLocal && !SymbolsQuickAccessProvider.TREAT_AS_GLOBAL_SYMBOL_TYPES.has(symbol.kind) && !!symbol.containerName) {
         continue;
       }
       const symbolLabel = symbol.name;
       const symbolLabelWithIcon = `$(${SymbolKinds.toIcon(symbol.kind).id}) ${symbolLabel}`;
       const symbolLabelIconOffset = symbolLabelWithIcon.length - symbolLabel.length;
-      let symbolScore;
-      let symbolMatches;
+      let symbolScore = void 0;
+      let symbolMatches = void 0;
       let skipContainerQuery = false;
       if (symbolQuery.original.length > 0) {
         if (symbolQuery !== query) {
-          [symbolScore, symbolMatches] = scoreFuzzy2(
-            symbolLabelWithIcon,
-            {
-              ...query,
-              values: void 0
-            },
-            0,
-            symbolLabelIconOffset
-          );
+          [symbolScore, symbolMatches] = scoreFuzzy2(symbolLabelWithIcon, {
+            ...query,
+            values: void 0
+            /* disable multi-query support */
+          }, 0, symbolLabelIconOffset);
           if (typeof symbolScore === "number") {
             skipContainerQuery = true;
           }
         }
         if (typeof symbolScore !== "number") {
-          [symbolScore, symbolMatches] = scoreFuzzy2(
-            symbolLabelWithIcon,
-            symbolQuery,
-            0,
-            symbolLabelIconOffset
-          );
+          [symbolScore, symbolMatches] = scoreFuzzy2(symbolLabelWithIcon, symbolQuery, 0, symbolLabelIconOffset);
           if (typeof symbolScore !== "number") {
             continue;
           }
         }
       }
       const symbolUri = symbol.location.uri;
-      let containerLabel;
+      let containerLabel = void 0;
       if (symbolUri) {
-        const containerPath = this.labelService.getUriLabel(symbolUri, {
-          relative: true
-        });
+        const containerPath = this.labelService.getUriLabel(symbolUri, { relative: true });
         if (symbol.containerName) {
           containerLabel = `${symbol.containerName} \u2022 ${containerPath}`;
         } else {
           containerLabel = containerPath;
         }
       }
-      let containerScore;
-      let containerMatches;
+      let containerScore = void 0;
+      let containerMatches = void 0;
       if (!skipContainerQuery && containerQuery && containerQuery.original.length > 0) {
         if (containerLabel) {
-          [containerScore, containerMatches] = scoreFuzzy2(
-            containerLabel,
-            containerQuery
-          );
+          [containerScore, containerMatches] = scoreFuzzy2(containerLabel, containerQuery);
         }
         if (typeof containerScore !== "number") {
           continue;
@@ -206,30 +168,18 @@ let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
         buttons: [
           {
             iconClass: openSideBySideDirection === "right" ? ThemeIcon.asClassName(Codicon.splitHorizontal) : ThemeIcon.asClassName(Codicon.splitVertical),
-            tooltip: openSideBySideDirection === "right" ? localize("openToSide", "Open to the Side") : localize(
-              "openToBottom",
-              "Open to the Bottom"
-            )
+            tooltip: openSideBySideDirection === "right" ? localize("openToSide", "Open to the Side") : localize("openToBottom", "Open to the Bottom")
           }
         ],
         trigger: /* @__PURE__ */ __name((buttonIndex, keyMods) => {
-          this.openSymbol(provider, symbol, token, {
-            keyMods,
-            forceOpenSideBySide: true
-          });
+          this.openSymbol(provider, symbol, token, { keyMods, forceOpenSideBySide: true });
           return TriggerAction.CLOSE_PICKER;
         }, "trigger"),
-        accept: /* @__PURE__ */ __name(async (keyMods, event) => this.openSymbol(provider, symbol, token, {
-          keyMods,
-          preserveFocus: event.inBackground,
-          forcePinned: event.inBackground
-        }), "accept")
+        accept: /* @__PURE__ */ __name(async (keyMods, event) => this.openSymbol(provider, symbol, token, { keyMods, preserveFocus: event.inBackground, forcePinned: event.inBackground }), "accept")
       });
     }
     if (!options?.skipSorting) {
-      symbolPicks.sort(
-        (symbolA, symbolB) => this.compareSymbols(symbolA, symbolB)
-      );
+      symbolPicks.sort((symbolA, symbolB) => this.compareSymbols(symbolA, symbolB));
     }
     return symbolPicks;
   }
@@ -242,22 +192,16 @@ let SymbolsQuickAccessProvider = class extends PickerQuickAccessProvider {
       }
     }
     if (symbolToOpen.location.uri.scheme === Schemas.http || symbolToOpen.location.uri.scheme === Schemas.https) {
-      await this.openerService.open(symbolToOpen.location.uri, {
-        fromUserGesture: true,
-        allowContributedOpeners: true
-      });
+      await this.openerService.open(symbolToOpen.location.uri, { fromUserGesture: true, allowContributedOpeners: true });
     } else {
-      await this.editorService.openEditor(
-        {
-          resource: symbolToOpen.location.uri,
-          options: {
-            preserveFocus: options?.preserveFocus,
-            pinned: options.keyMods.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
-            selection: symbolToOpen.location.range ? Range.collapseToStart(symbolToOpen.location.range) : void 0
-          }
-        },
-        options.keyMods.alt || this.configuration.openEditorPinned && options.keyMods.ctrlCmd || options?.forceOpenSideBySide ? SIDE_GROUP : ACTIVE_GROUP
-      );
+      await this.editorService.openEditor({
+        resource: symbolToOpen.location.uri,
+        options: {
+          preserveFocus: options?.preserveFocus,
+          pinned: options.keyMods.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
+          selection: symbolToOpen.location.range ? Range.collapseToStart(symbolToOpen.location.range) : void 0
+        }
+      }, options.keyMods.alt || this.configuration.openEditorPinned && options.keyMods.ctrlCmd || options?.forceOpenSideBySide ? SIDE_GROUP : ACTIVE_GROUP);
     }
   }
   compareSymbols(symbolA, symbolB) {

@@ -16,20 +16,11 @@ import { Disposable } from "../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
 import { IProductService } from "../../../platform/product/common/productService.js";
-import {
-  ITelemetryService,
-  TELEMETRY_OLD_SETTING_ID,
-  TELEMETRY_SETTING_ID,
-  TelemetryLevel
-} from "../../../platform/telemetry/common/telemetry.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../platform/telemetry/common/gdprTypings.js";
+import { ITelemetryService, TelemetryLevel, TELEMETRY_OLD_SETTING_ID, TELEMETRY_SETTING_ID } from "../../../platform/telemetry/common/telemetry.js";
 import { supportsTelemetry } from "../../../platform/telemetry/common/telemetryUtils.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, ExtHostTelemetryShape, MainContext, MainThreadTelemetryShape } from "../common/extHost.protocol.js";
 let MainThreadTelemetry = class extends Disposable {
   constructor(extHostContext, _telemetryService, _configurationService, _environmentService, _productService) {
     super();
@@ -39,21 +30,13 @@ let MainThreadTelemetry = class extends Disposable {
     this._productService = _productService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTelemetry);
     if (supportsTelemetry(this._productService, this._environmentService)) {
-      this._register(
-        this._configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration(TELEMETRY_SETTING_ID) || e.affectsConfiguration(TELEMETRY_OLD_SETTING_ID)) {
-            this._proxy.$onDidChangeTelemetryLevel(
-              this.telemetryLevel
-            );
-          }
-        })
-      );
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TELEMETRY_SETTING_ID) || e.affectsConfiguration(TELEMETRY_OLD_SETTING_ID)) {
+          this._proxy.$onDidChangeTelemetryLevel(this.telemetryLevel);
+        }
+      }));
     }
-    this._proxy.$initializeTelemetryLevel(
-      this.telemetryLevel,
-      supportsTelemetry(this._productService, this._environmentService),
-      this._productService.enabledTelemetryLevels
-    );
+    this._proxy.$initializeTelemetryLevel(this.telemetryLevel, supportsTelemetry(this._productService, this._environmentService), this._productService.enabledTelemetryLevels);
   }
   _proxy;
   get telemetryLevel() {

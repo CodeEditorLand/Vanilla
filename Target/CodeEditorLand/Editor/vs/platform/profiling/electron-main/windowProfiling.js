@@ -10,8 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { BrowserWindow } from "electron";
 import { timeout } from "../../../base/common/async.js";
 import { ILogService } from "../../log/common/log.js";
+import { IV8Profile } from "../common/profiling.js";
 let WindowProfiler = class {
   constructor(_window, _sessionId, _logService) {
     this._window = _window;

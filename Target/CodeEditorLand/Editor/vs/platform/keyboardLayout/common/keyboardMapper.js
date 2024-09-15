@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ResolvedKeybinding, Keybinding } from "../../../base/common/keybindings.js";
+import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
 class CachedKeyboardMapper {
   static {
     __name(this, "CachedKeyboardMapper");

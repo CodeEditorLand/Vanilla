@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { defaultGenerator } from "../../../../base/common/idGenerator.js";
+import { IFileQuery } from "../../../services/search/common/search.js";
 import { equals } from "../../../../base/common/objects.js";
 var LoadingPhase = /* @__PURE__ */ ((LoadingPhase2) => {
   LoadingPhase2[LoadingPhase2["Created"] = 1] = "Created";
@@ -18,9 +19,7 @@ class FileQueryCacheState {
     this.previousCacheState = previousCacheState;
     if (this.previousCacheState) {
       const current = Object.assign({}, this.query, { cacheKey: null });
-      const previous = Object.assign({}, this.previousCacheState.query, {
-        cacheKey: null
-      });
+      const previous = Object.assign({}, this.previousCacheState.query, { cacheKey: null });
       if (!equals(current, previous)) {
         this.previousCacheState.dispose();
         this.previousCacheState = void 0;

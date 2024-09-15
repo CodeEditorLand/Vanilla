@@ -1,16 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import * as strings from "../../../../base/common/strings.js";
-import { StringEOL, countEOL } from "../../core/eolCounter.js";
+import { Position } from "../../core/position.js";
 import { Range } from "../../core/range.js";
+import { ApplyEditsResult, EndOfLinePreference, FindMatch, IInternalModelContentChange, ISingleEditOperationIdentifier, ITextBuffer, ITextSnapshot, ValidAnnotatedEditOperation, IValidEditOperation, SearchData } from "../../model.js";
+import { PieceTreeBase, StringBuffer } from "./pieceTreeBase.js";
+import { countEOL, StringEOL } from "../../core/eolCounter.js";
 import { TextChange } from "../../core/textChange.js";
-import {
-  ApplyEditsResult,
-  EndOfLinePreference
-} from "../../model.js";
-import { PieceTreeBase } from "./pieceTreeBase.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 class PieceTreeTextBuffer extends Disposable {
   static {
     __name(this, "PieceTreeTextBuffer");
@@ -20,9 +18,7 @@ class PieceTreeTextBuffer extends Disposable {
   _mightContainRTL;
   _mightContainUnusualLineTerminators;
   _mightContainNonBasicASCII;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
   constructor(chunks, BOM, eol, containsRTL, containsUnusualLineTerminators, isBasicASCII, eolNormalized) {
     super();
@@ -76,12 +72,7 @@ class PieceTreeTextBuffer extends Disposable {
     const end = start + length;
     const startPosition = this.getPositionAt(start);
     const endPosition = this.getPositionAt(end);
-    return new Range(
-      startPosition.lineNumber,
-      startPosition.column,
-      endPosition.lineNumber,
-      endPosition.column
-    );
+    return new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
   }
   getValueInRange(range, eol = EndOfLinePreference.TextDefined) {
     if (range.isEmpty()) {
@@ -97,14 +88,8 @@ class PieceTreeTextBuffer extends Disposable {
     if (range.startLineNumber === range.endLineNumber) {
       return range.endColumn - range.startColumn;
     }
-    const startOffset = this.getOffsetAt(
-      range.startLineNumber,
-      range.startColumn
-    );
-    const endOffset = this.getOffsetAt(
-      range.endLineNumber,
-      range.endColumn
-    );
+    const startOffset = this.getOffsetAt(range.startLineNumber, range.startColumn);
+    const endOffset = this.getOffsetAt(range.endLineNumber, range.endColumn);
     let eolOffsetCompensation = 0;
     const desiredEOL = this._getEndOfLine(eol);
     const actualEOL = this.getEOL();
@@ -169,18 +154,14 @@ class PieceTreeTextBuffer extends Disposable {
     return this.getLineLength(lineNumber) + 1;
   }
   getLineFirstNonWhitespaceColumn(lineNumber) {
-    const result = strings.firstNonWhitespaceIndex(
-      this.getLineContent(lineNumber)
-    );
+    const result = strings.firstNonWhitespaceIndex(this.getLineContent(lineNumber));
     if (result === -1) {
       return 0;
     }
     return result + 1;
   }
   getLineLastNonWhitespaceColumn(lineNumber) {
-    const result = strings.lastNonWhitespaceIndex(
-      this.getLineContent(lineNumber)
-    );
+    const result = strings.lastNonWhitespaceIndex(this.getLineContent(lineNumber));
     if (result === -1) {
       return 0;
     }
@@ -216,9 +197,7 @@ class PieceTreeTextBuffer extends Disposable {
       if (op.text) {
         let textMightContainNonBasicASCII = true;
         if (!mightContainNonBasicASCII) {
-          textMightContainNonBasicASCII = !strings.isBasicASCII(
-            op.text
-          );
+          textMightContainNonBasicASCII = !strings.isBasicASCII(op.text);
           mightContainNonBasicASCII = textMightContainNonBasicASCII;
         }
         if (!mightContainRTL && textMightContainNonBasicASCII) {
@@ -234,9 +213,7 @@ class PieceTreeTextBuffer extends Disposable {
       let lastLineLength = 0;
       if (op.text) {
         let strEOL;
-        [eolCount, firstLineLength, lastLineLength, strEOL] = countEOL(
-          op.text
-        );
+        [eolCount, firstLineLength, lastLineLength, strEOL] = countEOL(op.text);
         const bufferEOL = this.getEOL();
         const expectedStrEOL = bufferEOL === "\r\n" ? StringEOL.CRLF : StringEOL.LF;
         if (strEOL === StringEOL.Unknown || strEOL === expectedStrEOL) {
@@ -249,10 +226,7 @@ class PieceTreeTextBuffer extends Disposable {
         sortIndex: i,
         identifier: op.identifier || null,
         range: validatedRange,
-        rangeOffset: this.getOffsetAt(
-          validatedRange.startLineNumber,
-          validatedRange.startColumn
-        ),
+        rangeOffset: this.getOffsetAt(validatedRange.startLineNumber, validatedRange.startColumn),
         rangeLength: this.getValueLengthInRange(validatedRange),
         text: validText,
         eolCount,
@@ -287,19 +261,12 @@ class PieceTreeTextBuffer extends Disposable {
           for (let lineNumber = reverseRange.startLineNumber; lineNumber <= reverseRange.endLineNumber; lineNumber++) {
             let currentLineContent = "";
             if (lineNumber === reverseRange.startLineNumber) {
-              currentLineContent = this.getLineContent(
-                op.range.startLineNumber
-              );
-              if (strings.firstNonWhitespaceIndex(
-                currentLineContent
-              ) !== -1) {
+              currentLineContent = this.getLineContent(op.range.startLineNumber);
+              if (strings.firstNonWhitespaceIndex(currentLineContent) !== -1) {
                 continue;
               }
             }
-            newTrimAutoWhitespaceCandidates.push({
-              lineNumber,
-              oldContent: currentLineContent
-            });
+            newTrimAutoWhitespaceCandidates.push({ lineNumber, oldContent: currentLineContent });
           }
         }
       }
@@ -319,12 +286,7 @@ class PieceTreeTextBuffer extends Disposable {
           identifier: op.identifier,
           range: reverseRange,
           text: bufferText,
-          textChange: new TextChange(
-            op.rangeOffset,
-            bufferText,
-            reverseRangeOffset,
-            op.text
-          )
+          textChange: new TextChange(op.rangeOffset, bufferText, reverseRangeOffset, op.text)
         };
       }
       if (!hasTouchingRanges) {
@@ -337,9 +299,7 @@ class PieceTreeTextBuffer extends Disposable {
     const contentChanges = this._doApplyEdits(operations);
     let trimAutoWhitespaceLineNumbers = null;
     if (recordTrimAutoWhitespace && newTrimAutoWhitespaceCandidates.length > 0) {
-      newTrimAutoWhitespaceCandidates.sort(
-        (a, b) => b.lineNumber - a.lineNumber
-      );
+      newTrimAutoWhitespaceCandidates.sort((a, b) => b.lineNumber - a.lineNumber);
       trimAutoWhitespaceLineNumbers = [];
       for (let i = 0, len = newTrimAutoWhitespaceCandidates.length; i < len; i++) {
         const lineNumber = newTrimAutoWhitespaceCandidates[i].lineNumber;
@@ -375,12 +335,7 @@ class PieceTreeTextBuffer extends Disposable {
     let forceMoveMarkers = false;
     const firstEditRange = operations[0].range;
     const lastEditRange = operations[operations.length - 1].range;
-    const entireEditRange = new Range(
-      firstEditRange.startLineNumber,
-      firstEditRange.startColumn,
-      lastEditRange.endLineNumber,
-      lastEditRange.endColumn
-    );
+    const entireEditRange = new Range(firstEditRange.startLineNumber, firstEditRange.startColumn, lastEditRange.endLineNumber, lastEditRange.endColumn);
     let lastEndLineNumber = firstEditRange.startLineNumber;
     let lastEndColumn = firstEditRange.startColumn;
     const result = [];
@@ -388,16 +343,7 @@ class PieceTreeTextBuffer extends Disposable {
       const operation = operations[i];
       const range = operation.range;
       forceMoveMarkers = forceMoveMarkers || operation.forceMoveMarkers;
-      result.push(
-        this.getValueInRange(
-          new Range(
-            lastEndLineNumber,
-            lastEndColumn,
-            range.startLineNumber,
-            range.startColumn
-          )
-        )
-      );
+      result.push(this.getValueInRange(new Range(lastEndLineNumber, lastEndColumn, range.startLineNumber, range.startColumn)));
       if (operation.text.length > 0) {
         result.push(operation.text);
       }
@@ -410,14 +356,8 @@ class PieceTreeTextBuffer extends Disposable {
       sortIndex: 0,
       identifier: operations[0].identifier,
       range: entireEditRange,
-      rangeOffset: this.getOffsetAt(
-        entireEditRange.startLineNumber,
-        entireEditRange.startColumn
-      ),
-      rangeLength: this.getValueLengthInRange(
-        entireEditRange,
-        EndOfLinePreference.TextDefined
-      ),
+      rangeOffset: this.getOffsetAt(entireEditRange.startLineNumber, entireEditRange.startColumn),
+      rangeLength: this.getValueLengthInRange(entireEditRange, EndOfLinePreference.TextDefined),
       text,
       eolCount,
       firstLineLength,
@@ -444,12 +384,7 @@ class PieceTreeTextBuffer extends Disposable {
       } else {
         this._pieceTree.delete(op.rangeOffset, op.rangeLength);
       }
-      const contentChangeRange = new Range(
-        startLineNumber,
-        startColumn,
-        endLineNumber,
-        endColumn
-      );
+      const contentChangeRange = new Range(startLineNumber, startColumn, endLineNumber, endColumn);
       contentChanges.push({
         range: contentChangeRange,
         rangeLength: op.rangeLength,
@@ -461,12 +396,7 @@ class PieceTreeTextBuffer extends Disposable {
     return contentChanges;
   }
   findMatchesLineByLine(searchRange, searchData, captureMatches, limitResultCount) {
-    return this._pieceTree.findMatchesLineByLine(
-      searchRange,
-      searchData,
-      captureMatches,
-      limitResultCount
-    );
+    return this._pieceTree.findMatchesLineByLine(searchRange, searchData, captureMatches, limitResultCount);
   }
   // #endregion
   // #region helper
@@ -482,27 +412,12 @@ class PieceTreeTextBuffer extends Disposable {
     if (text.length > 0) {
       const lineCount = eolCount + 1;
       if (lineCount === 1) {
-        resultRange = new Range(
-          startLineNumber,
-          startColumn,
-          startLineNumber,
-          startColumn + firstLineLength
-        );
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn + firstLineLength);
       } else {
-        resultRange = new Range(
-          startLineNumber,
-          startColumn,
-          startLineNumber + lineCount - 1,
-          lastLineLength + 1
-        );
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber + lineCount - 1, lastLineLength + 1);
       }
     } else {
-      resultRange = new Range(
-        startLineNumber,
-        startColumn,
-        startLineNumber,
-        startColumn
-      );
+      resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn);
     }
     return resultRange;
   }
@@ -534,27 +449,12 @@ class PieceTreeTextBuffer extends Disposable {
       if (op.text.length > 0) {
         const lineCount = op.eolCount + 1;
         if (lineCount === 1) {
-          resultRange = new Range(
-            startLineNumber,
-            startColumn,
-            startLineNumber,
-            startColumn + op.firstLineLength
-          );
+          resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn + op.firstLineLength);
         } else {
-          resultRange = new Range(
-            startLineNumber,
-            startColumn,
-            startLineNumber + lineCount - 1,
-            op.lastLineLength + 1
-          );
+          resultRange = new Range(startLineNumber, startColumn, startLineNumber + lineCount - 1, op.lastLineLength + 1);
         }
       } else {
-        resultRange = new Range(
-          startLineNumber,
-          startColumn,
-          startLineNumber,
-          startColumn
-        );
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn);
       }
       prevOpEndLineNumber = resultRange.endLineNumber;
       prevOpEndColumn = resultRange.endColumn;

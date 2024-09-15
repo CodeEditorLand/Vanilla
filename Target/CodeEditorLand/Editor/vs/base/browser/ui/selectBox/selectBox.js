@@ -1,10 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isMacintosh } from "../../../common/platform.js";
-import { unthemedListStyles } from "../list/listWidget.js";
-import { Widget } from "../widget.js";
+import { IContentActionHandler } from "../../formattedTextRenderer.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { IListStyles, unthemedListStyles } from "../list/listWidget.js";
 import { SelectBoxList } from "./selectBoxCustom.js";
 import { SelectBoxNative } from "./selectBoxNative.js";
+import { Widget } from "../widget.js";
+import { Event } from "../../../common/event.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { isMacintosh } from "../../../common/platform.js";
 import "./selectBox.css";
 const unthemedSelectBoxStyles = {
   ...unthemedListStyles,
@@ -24,20 +28,9 @@ class SelectBox extends Widget {
   constructor(options, selected, contextViewProvider, styles, selectBoxOptions) {
     super();
     if (isMacintosh && !selectBoxOptions?.useCustomDrawn) {
-      this.selectBoxDelegate = new SelectBoxNative(
-        options,
-        selected,
-        styles,
-        selectBoxOptions
-      );
+      this.selectBoxDelegate = new SelectBoxNative(options, selected, styles, selectBoxOptions);
     } else {
-      this.selectBoxDelegate = new SelectBoxList(
-        options,
-        selected,
-        contextViewProvider,
-        styles,
-        selectBoxOptions
-      );
+      this.selectBoxDelegate = new SelectBoxList(options, selected, contextViewProvider, styles, selectBoxOptions);
     }
     this._register(this.selectBoxDelegate);
   }

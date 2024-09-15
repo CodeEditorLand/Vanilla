@@ -10,13 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  IExtensionGalleryService,
-  IGlobalExtensionEnablementService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionGalleryService, IGlobalExtensionEnablementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
 import { migrateUnsupportedExtensions } from "../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IExtensionManagementServerService } from "../../../services/extensionManagement/common/extensionManagement.js";
 let UnsupportedExtensionsMigrationContrib = class {
   static {
@@ -24,22 +22,10 @@ let UnsupportedExtensionsMigrationContrib = class {
   }
   constructor(extensionManagementServerService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService) {
     if (extensionManagementServerService.remoteExtensionManagementServer) {
-      migrateUnsupportedExtensions(
-        extensionManagementServerService.remoteExtensionManagementServer.extensionManagementService,
-        extensionGalleryService,
-        extensionStorageService,
-        extensionEnablementService,
-        logService
-      );
+      migrateUnsupportedExtensions(extensionManagementServerService.remoteExtensionManagementServer.extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService);
     }
     if (extensionManagementServerService.webExtensionManagementServer) {
-      migrateUnsupportedExtensions(
-        extensionManagementServerService.webExtensionManagementServer.extensionManagementService,
-        extensionGalleryService,
-        extensionStorageService,
-        extensionEnablementService,
-        logService
-      );
+      migrateUnsupportedExtensions(extensionManagementServerService.webExtensionManagementServer.extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService);
     }
   }
 };

@@ -15,10 +15,10 @@ import * as errors from "../../../base/common/errors.js";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { RemoteAuthorities } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
 import { IProductService } from "../../product/common/productService.js";
-import {
-  RemoteConnectionType
-} from "../common/remoteAuthorityResolver.js";
+import { IRemoteAuthorityResolverService, IRemoteConnectionData, RemoteConnectionType, ResolvedAuthority, ResolvedOptions, ResolverResult } from "../common/remoteAuthorityResolver.js";
+import { ElectronRemoteResourceLoader } from "./electronRemoteResourceLoader.js";
 let RemoteAuthorityResolverService = class extends Disposable {
   constructor(productService, remoteResourceLoader) {
     super();
@@ -32,9 +32,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
   static {
     __name(this, "RemoteAuthorityResolverService");
   }
-  _onDidChangeConnectionData = this._register(
-    new Emitter()
-  );
+  _onDidChangeConnectionData = this._register(new Emitter());
   onDidChangeConnectionData = this._onDidChangeConnectionData.event;
   _resolveAuthorityRequests;
   _connectionTokens;
@@ -42,10 +40,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
   _canonicalURIProvider;
   resolveAuthority(authority) {
     if (!this._resolveAuthorityRequests.has(authority)) {
-      this._resolveAuthorityRequests.set(
-        authority,
-        new DeferredPromise()
-      );
+      this._resolveAuthorityRequests.set(authority, new DeferredPromise());
     }
     return this._resolveAuthorityRequests.get(authority).p;
   }
@@ -56,10 +51,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
       return existing.result.p;
     }
     const result = new DeferredPromise();
-    this._canonicalURIProvider?.(uri).then(
-      (uri2) => result.complete(uri2),
-      (err) => result.error(err)
-    );
+    this._canonicalURIProvider?.(uri).then((uri2) => result.complete(uri2), (err) => result.error(err));
     this._canonicalURIRequests.set(key, { input: uri, result });
     return result.p;
   }
@@ -85,25 +77,14 @@ let RemoteAuthorityResolverService = class extends Disposable {
   }
   _setResolvedAuthority(resolvedAuthority, options) {
     if (this._resolveAuthorityRequests.has(resolvedAuthority.authority)) {
-      const request = this._resolveAuthorityRequests.get(
-        resolvedAuthority.authority
-      );
+      const request = this._resolveAuthorityRequests.get(resolvedAuthority.authority);
       if (resolvedAuthority.connectTo.type === RemoteConnectionType.WebSocket) {
-        RemoteAuthorities.set(
-          resolvedAuthority.authority,
-          resolvedAuthority.connectTo.host,
-          resolvedAuthority.connectTo.port
-        );
+        RemoteAuthorities.set(resolvedAuthority.authority, resolvedAuthority.connectTo.host, resolvedAuthority.connectTo.port);
       } else {
-        RemoteAuthorities.setDelegate(
-          this.remoteResourceLoader.getResourceUriProvider()
-        );
+        RemoteAuthorities.setDelegate(this.remoteResourceLoader.getResourceUriProvider());
       }
       if (resolvedAuthority.connectionToken) {
-        RemoteAuthorities.setConnectionToken(
-          resolvedAuthority.authority,
-          resolvedAuthority.connectionToken
-        );
+        RemoteAuthorities.setConnectionToken(resolvedAuthority.authority, resolvedAuthority.connectionToken);
       }
       request.complete({ authority: resolvedAuthority, options });
       this._onDidChangeConnectionData.fire();
@@ -123,10 +104,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
   _setCanonicalURIProvider(provider) {
     this._canonicalURIProvider = provider;
     this._canonicalURIRequests.forEach(({ result, input }) => {
-      this._canonicalURIProvider(input).then(
-        (uri) => result.complete(uri),
-        (err) => result.error(err)
-      );
+      this._canonicalURIProvider(input).then((uri) => result.complete(uri), (err) => result.error(err));
     });
   }
 };

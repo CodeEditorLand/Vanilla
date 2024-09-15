@@ -10,23 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageEntry, IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  ProfileResourceType
-} from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IUserDataProfileStorageService } from "../../../../platform/userDataProfile/common/userDataProfileStorageService.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import {
-  TreeItemCollapsibleState
-} from "../../../common/views.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem } from "../common/userDataProfile.js";
 let GlobalStateResourceInitializer = class {
   constructor(storageService) {
     this.storageService = storageService;
@@ -40,12 +35,7 @@ let GlobalStateResourceInitializer = class {
     if (storageKeys.length) {
       const storageEntries = [];
       for (const key of storageKeys) {
-        storageEntries.push({
-          key,
-          value: globalState.storage[key],
-          scope: StorageScope.PROFILE,
-          target: StorageTarget.USER
-        });
+        storageEntries.push({ key, value: globalState.storage[key], scope: StorageScope.PROFILE, target: StorageTarget.USER });
       }
       this.storageService.storeAll(storageEntries, true);
     }
@@ -87,33 +77,18 @@ let GlobalStateResource = class {
       const updatedStorage = /* @__PURE__ */ new Map();
       const nonProfileKeys = [
         // Do not include application scope user target keys because they also include default profile user target keys
-        ...this.storageService.keys(
-          StorageScope.APPLICATION,
-          StorageTarget.MACHINE
-        ),
-        ...this.storageService.keys(
-          StorageScope.WORKSPACE,
-          StorageTarget.USER
-        ),
-        ...this.storageService.keys(
-          StorageScope.WORKSPACE,
-          StorageTarget.MACHINE
-        )
+        ...this.storageService.keys(StorageScope.APPLICATION, StorageTarget.MACHINE),
+        ...this.storageService.keys(StorageScope.WORKSPACE, StorageTarget.USER),
+        ...this.storageService.keys(StorageScope.WORKSPACE, StorageTarget.MACHINE)
       ];
       for (const key of storageKeys) {
         if (nonProfileKeys.includes(key)) {
-          this.logService.info(
-            `Importing Profile (${profile.name}): Ignoring global state key '${key}' because it is not a profile key.`
-          );
+          this.logService.info(`Importing Profile (${profile.name}): Ignoring global state key '${key}' because it is not a profile key.`);
         } else {
           updatedStorage.set(key, globalState.storage[key]);
         }
       }
-      await this.userDataProfileStorageService.updateStorageData(
-        profile,
-        updatedStorage,
-        StorageTarget.USER
-      );
+      await this.userDataProfileStorageService.updateStorageData(profile, updatedStorage, StorageTarget.USER);
     }
   }
 };
@@ -136,24 +111,20 @@ class GlobalStateResourceTreeItem {
   collapsibleState = TreeItemCollapsibleState.Collapsed;
   checkbox;
   async getChildren() {
-    return [
-      {
-        handle: this.resource.toString(),
-        resourceUri: this.resource,
-        collapsibleState: TreeItemCollapsibleState.None,
-        accessibilityInformation: {
-          label: this.uriIdentityService.extUri.basename(
-            this.resource
-          )
-        },
-        parent: this,
-        command: {
-          id: API_OPEN_EDITOR_COMMAND_ID,
-          title: "",
-          arguments: [this.resource, void 0, void 0]
-        }
+    return [{
+      handle: this.resource.toString(),
+      resourceUri: this.resource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.resource)
+      },
+      parent: this,
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.resource, void 0, void 0]
       }
-    ];
+    }];
   }
 }
 let GlobalStateResourceExportTreeItem = class extends GlobalStateResourceTreeItem {

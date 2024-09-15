@@ -10,21 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas } from "../../../../base/common/network.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { generateUuid } from "../../../../base/common/uuid.js";
-import { IDownloadService } from "../../../../platform/download/common/download.js";
-import {
-  ExtensionIdentifier,
-  ExtensionType,
-  isResolverExtension
-} from "../../../../platform/extensions/common/extensions.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { DidChangeProfileEvent, IProfileAwareExtensionManagementService } from "../common/extensionManagement.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILocalExtension, InstallOptions } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
 import { ProfileAwareExtensionManagementChannelClient } from "../common/extensionManagementChannelClient.js";
+import { ExtensionIdentifier, ExtensionType, isResolverExtension } from "../../../../platform/extensions/common/extensions.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 let NativeExtensionManagementService = class extends ProfileAwareExtensionManagementChannelClient {
   constructor(channel, userDataProfileService, uriIdentityService, fileService, downloadService, nativeEnvironmentService, logService) {
     super(channel, userDataProfileService, uriIdentityService);
@@ -37,10 +37,7 @@ let NativeExtensionManagementService = class extends ProfileAwareExtensionManage
     __name(this, "NativeExtensionManagementService");
   }
   filterEvent(profileLocation, isApplicationScoped) {
-    return isApplicationScoped || this.uriIdentityService.extUri.isEqual(
-      this.userDataProfileService.currentProfile.extensionsResource,
-      profileLocation
-    );
+    return isApplicationScoped || this.uriIdentityService.extUri.isEqual(this.userDataProfileService.currentProfile.extensionsResource, profileLocation);
   }
   async install(vsix, options) {
     const { location, cleanup } = await this.downloadVsix(vsix);
@@ -56,10 +53,7 @@ let NativeExtensionManagementService = class extends ProfileAwareExtensionManage
       } };
     }
     this.logService.trace("Downloading extension from", vsix.toString());
-    const location = joinPath(
-      this.nativeEnvironmentService.extensionsDownloadLocation,
-      generateUuid()
-    );
+    const location = joinPath(this.nativeEnvironmentService.extensionsDownloadLocation, generateUuid());
     await this.downloadService.download(vsix, location);
     this.logService.info("Downloaded extension to", location.toString());
     const cleanup = /* @__PURE__ */ __name(async () => {
@@ -73,30 +67,16 @@ let NativeExtensionManagementService = class extends ProfileAwareExtensionManage
   }
   async switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions) {
     if (this.nativeEnvironmentService.remoteAuthority) {
-      const previousInstalledExtensions = await this.getInstalled(
-        ExtensionType.User,
-        previousProfileLocation
-      );
-      const resolverExtension = previousInstalledExtensions.find(
-        (e) => isResolverExtension(
-          e.manifest,
-          this.nativeEnvironmentService.remoteAuthority
-        )
-      );
+      const previousInstalledExtensions = await this.getInstalled(ExtensionType.User, previousProfileLocation);
+      const resolverExtension = previousInstalledExtensions.find((e) => isResolverExtension(e.manifest, this.nativeEnvironmentService.remoteAuthority));
       if (resolverExtension) {
         if (!preserveExtensions) {
           preserveExtensions = [];
         }
-        preserveExtensions.push(
-          new ExtensionIdentifier(resolverExtension.identifier.id)
-        );
+        preserveExtensions.push(new ExtensionIdentifier(resolverExtension.identifier.id));
       }
     }
-    return super.switchExtensionsProfile(
-      previousProfileLocation,
-      currentProfileLocation,
-      preserveExtensions
-    );
+    return super.switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions);
   }
 };
 NativeExtensionManagementService = __decorateClass([

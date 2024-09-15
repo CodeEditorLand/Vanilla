@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../../base/common/event.js";
+import { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { ITerminalLinkProviderService } from "./links.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
 class TerminalLinkProviderService {
   static {
     __name(this, "TerminalLinkProviderService");

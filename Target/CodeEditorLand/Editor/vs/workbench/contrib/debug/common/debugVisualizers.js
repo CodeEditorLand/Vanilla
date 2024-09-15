@@ -10,31 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable, IReference, toDisposable } from "../../../../base/common/lifecycle.js";
 import { isDefined } from "../../../../base/common/types.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  ExtensionIdentifier
-} from "../../../../platform/extensions/common/extensions.js";
+import { ContextKeyExpr, ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
-import {
-  CONTEXT_VARIABLE_NAME,
-  CONTEXT_VARIABLE_TYPE,
-  CONTEXT_VARIABLE_VALUE
-} from "./debug.js";
+import { CONTEXT_VARIABLE_NAME, CONTEXT_VARIABLE_TYPE, CONTEXT_VARIABLE_VALUE, MainThreadDebugVisualization, IDebugVisualization, IDebugVisualizationContext, IExpression, IExpressionContainer, IDebugVisualizationTreeItem, IDebugSession } from "./debug.js";
 import { getContextForVariable } from "./debugContext.js";
 import { Scope, Variable, VisualizedExpression } from "./debugModel.js";
-const IDebugVisualizerService = createDecorator(
-  "debugVisualizerService"
-);
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+const IDebugVisualizerService = createDecorator("debugVisualizerService");
 class DebugVisualizer {
   constructor(handle, viz) {
     this.handle = handle;
@@ -59,28 +47,16 @@ class DebugVisualizer {
     await this.handle.executeDebugVisualizerCommand(this.viz.id);
   }
 }
-const emptyRef = {
-  object: [],
-  dispose: /* @__PURE__ */ __name(() => {
-  }, "dispose")
-};
+const emptyRef = { object: [], dispose: /* @__PURE__ */ __name(() => {
+}, "dispose") };
 let DebugVisualizerService = class {
   constructor(contextKeyService, extensionService, logService) {
     this.contextKeyService = contextKeyService;
     this.extensionService = extensionService;
     this.logService = logService;
     visualizersExtensionPoint.setHandler((_, { added, removed }) => {
-      this.registrations = this.registrations.filter(
-        (r) => !removed.some(
-          (e) => ExtensionIdentifier.equals(
-            e.description.identifier,
-            r.extensionId
-          )
-        )
-      );
-      added.forEach(
-        (e) => this.processExtensionRegistration(e.description)
-      );
+      this.registrations = this.registrations.filter((r) => !removed.some((e) => ExtensionIdentifier.equals(e.description.identifier, r.extensionId)));
+      added.forEach((e) => this.processExtensionRegistration(e.description));
     });
   }
   static {
@@ -100,52 +76,32 @@ let DebugVisualizerService = class {
       return emptyRef;
     }
     const context = this.getVariableContext(threadId, variable);
-    const overlay = getContextForVariable(
-      this.contextKeyService,
-      variable,
-      [
-        [CONTEXT_VARIABLE_NAME.key, variable.name],
-        [CONTEXT_VARIABLE_VALUE.key, variable.value],
-        [CONTEXT_VARIABLE_TYPE.key, variable.type]
-      ]
-    );
-    const maybeVisualizers = await Promise.all(
-      this.registrations.map(async (registration) => {
-        if (!overlay.contextMatchesRules(registration.expr)) {
-          return;
-        }
-        let prom = this.didActivate.get(registration.id);
-        if (!prom) {
-          prom = this.extensionService.activateByEvent(
-            `onDebugVisualizer:${registration.id}`
-          );
-          this.didActivate.set(registration.id, prom);
-        }
-        await prom;
-        if (token.isCancellationRequested) {
-          return;
-        }
-        const handle = this.handles.get(
-          toKey(registration.extensionId, registration.id)
-        );
-        return handle && {
-          handle,
-          result: await handle.provideDebugVisualizers(
-            context,
-            token
-          )
-        };
-      })
-    );
+    const overlay = getContextForVariable(this.contextKeyService, variable, [
+      [CONTEXT_VARIABLE_NAME.key, variable.name],
+      [CONTEXT_VARIABLE_VALUE.key, variable.value],
+      [CONTEXT_VARIABLE_TYPE.key, variable.type]
+    ]);
+    const maybeVisualizers = await Promise.all(this.registrations.map(async (registration) => {
+      if (!overlay.contextMatchesRules(registration.expr)) {
+        return;
+      }
+      let prom = this.didActivate.get(registration.id);
+      if (!prom) {
+        prom = this.extensionService.activateByEvent(`onDebugVisualizer:${registration.id}`);
+        this.didActivate.set(registration.id, prom);
+      }
+      await prom;
+      if (token.isCancellationRequested) {
+        return;
+      }
+      const handle = this.handles.get(toKey(registration.extensionId, registration.id));
+      return handle && { handle, result: await handle.provideDebugVisualizers(context, token) };
+    }));
     const ref = {
-      object: maybeVisualizers.filter(isDefined).flatMap(
-        (v) => v.result.map((r) => new DebugVisualizer(v.handle, r))
-      ),
+      object: maybeVisualizers.filter(isDefined).flatMap((v) => v.result.map((r) => new DebugVisualizer(v.handle, r))),
       dispose: /* @__PURE__ */ __name(() => {
         for (const viz of maybeVisualizers) {
-          viz?.handle.disposeDebugVisualizers(
-            viz.result.map((r) => r.id)
-          );
+          viz?.handle.disposeDebugVisualizers(viz.result.map((r) => r.id));
         }
       }, "dispose")
     };
@@ -179,19 +135,11 @@ let DebugVisualizerService = class {
       return;
     }
     try {
-      const treeItem = await tree.getTreeItem(
-        this.getVariableContext(threadId, expr)
-      );
+      const treeItem = await tree.getTreeItem(this.getVariableContext(threadId, expr));
       if (!treeItem) {
         return;
       }
-      return new VisualizedExpression(
-        expr.getSession(),
-        this,
-        treeId,
-        treeItem,
-        expr
-      );
+      return new VisualizedExpression(expr.getSession(), this, treeId, treeItem, expr);
     } catch (e) {
       this.logService.warn("Failed to get visualized node", e);
       return;
@@ -201,9 +149,7 @@ let DebugVisualizerService = class {
   async getVisualizedChildren(session, treeId, treeElementId) {
     const node = this.trees.get(treeId);
     const children = await node?.getChildren(treeElementId) || [];
-    return children.map(
-      (c) => new VisualizedExpression(session, this, treeId, c, void 0)
-    );
+    return children.map((c) => new VisualizedExpression(session, this, treeId, c, void 0));
   }
   /** @inheritdoc */
   async editTreeItem(treeId, treeItem, newValue) {
@@ -245,17 +191,10 @@ let DebugVisualizerService = class {
       try {
         const expr = ContextKeyExpr.deserialize(when);
         if (expr) {
-          this.registrations.push({
-            expr,
-            id,
-            extensionId: ext.identifier
-          });
+          this.registrations.push({ expr, id, extensionId: ext.identifier });
         }
       } catch (e) {
-        this.logService.error(
-          `Error processing debug visualizer registration from extension '${ext.identifier.value}'`,
-          e
-        );
+        this.logService.error(`Error processing debug visualizer registration from extension '${ext.identifier.value}'`, e);
       }
     }
   }

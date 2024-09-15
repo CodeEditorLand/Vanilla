@@ -1,25 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  ActionRunner,
-  Separator
-} from "../../../common/actions.js";
-import { Emitter } from "../../../common/event.js";
-import { KeyCode, KeyMod } from "../../../common/keyCodes.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore,
-  dispose
-} from "../../../common/lifecycle.js";
-import * as types from "../../../common/types.js";
 import * as DOM from "../../dom.js";
 import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { ActionViewItem, BaseActionViewItem, IActionViewItemOptions } from "./actionViewItems.js";
 import { createInstantHoverDelegate } from "../hover/hoverDelegateFactory.js";
-import {
-  ActionViewItem,
-  BaseActionViewItem
-} from "./actionViewItems.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { ActionRunner, IAction, IActionRunner, IRunEvent, Separator } from "../../../common/actions.js";
+import { Emitter } from "../../../common/event.js";
+import { KeyCode, KeyMod } from "../../../common/keyCodes.js";
+import { Disposable, DisposableMap, DisposableStore, dispose, IDisposable } from "../../../common/lifecycle.js";
+import * as types from "../../../common/types.js";
 import "./actionbar.css";
 var ActionsOrientation = /* @__PURE__ */ ((ActionsOrientation2) => {
   ActionsOrientation2[ActionsOrientation2["HORIZONTAL"] = 0] = "HORIZONTAL";
@@ -33,17 +23,13 @@ class ActionBar extends Disposable {
   options;
   _hoverDelegate;
   _actionRunner;
-  _actionRunnerDisposables = this._register(
-    new DisposableStore()
-  );
+  _actionRunnerDisposables = this._register(new DisposableStore());
   _context;
   _orientation;
   _triggerKeys;
   // View Items
   viewItems;
-  viewItemDisposables = this._register(
-    new DisposableMap()
-  );
+  viewItemDisposables = this._register(new DisposableMap());
   previouslyFocusedItem;
   focusedItem;
   focusTracker;
@@ -55,11 +41,7 @@ class ActionBar extends Disposable {
   actionsList;
   _onDidBlur = this._register(new Emitter());
   onDidBlur = this._onDidBlur.event;
-  _onDidCancel = this._register(
-    new Emitter({
-      onWillAddFirstListener: /* @__PURE__ */ __name(() => this.cancelHasListener = true, "onWillAddFirstListener")
-    })
-  );
+  _onDidCancel = this._register(new Emitter({ onWillAddFirstListener: /* @__PURE__ */ __name(() => this.cancelHasListener = true, "onWillAddFirstListener") }));
   onDidCancel = this._onDidCancel.event;
   cancelHasListener = false;
   _onDidRun = this._register(new Emitter());
@@ -73,10 +55,7 @@ class ActionBar extends Disposable {
     this._orientation = this.options.orientation ?? 0 /* HORIZONTAL */;
     this._triggerKeys = {
       keyDown: this.options.triggerKeys?.keyDown ?? false,
-      keys: this.options.triggerKeys?.keys ?? [
-        KeyCode.Enter,
-        KeyCode.Space
-      ]
+      keys: this.options.triggerKeys?.keys ?? [KeyCode.Enter, KeyCode.Space]
     };
     this._hoverDelegate = options.hoverDelegate ?? this._register(createInstantHoverDelegate());
     if (this.options.actionRunner) {
@@ -85,12 +64,8 @@ class ActionBar extends Disposable {
       this._actionRunner = new ActionRunner();
       this._actionRunnerDisposables.add(this._actionRunner);
     }
-    this._actionRunnerDisposables.add(
-      this._actionRunner.onDidRun((e) => this._onDidRun.fire(e))
-    );
-    this._actionRunnerDisposables.add(
-      this._actionRunner.onWillRun((e) => this._onWillRun.fire(e))
-    );
+    this._actionRunnerDisposables.add(this._actionRunner.onDidRun((e) => this._onDidRun.fire(e)));
+    this._actionRunnerDisposables.add(this._actionRunner.onWillRun((e) => this._onWillRun.fire(e)));
     this.viewItems = [];
     this.focusedItem = void 0;
     this.domNode = document.createElement("div");
@@ -108,84 +83,65 @@ class ActionBar extends Disposable {
         this.domNode.className += " vertical";
         break;
     }
-    this._register(
-      DOM.addDisposableListener(
-        this.domNode,
-        DOM.EventType.KEY_DOWN,
-        (e) => {
-          const event = new StandardKeyboardEvent(e);
-          let eventHandled = true;
-          const focusedItem = typeof this.focusedItem === "number" ? this.viewItems[this.focusedItem] : void 0;
-          if (previousKeys && (event.equals(previousKeys[0]) || event.equals(previousKeys[1]))) {
-            eventHandled = this.focusPrevious();
-          } else if (nextKeys && (event.equals(nextKeys[0]) || event.equals(nextKeys[1]))) {
-            eventHandled = this.focusNext();
-          } else if (event.equals(KeyCode.Escape) && this.cancelHasListener) {
-            this._onDidCancel.fire();
-          } else if (event.equals(KeyCode.Home)) {
-            eventHandled = this.focusFirst();
-          } else if (event.equals(KeyCode.End)) {
-            eventHandled = this.focusLast();
-          } else if (event.equals(KeyCode.Tab) && focusedItem instanceof BaseActionViewItem && focusedItem.trapsArrowNavigation) {
-            eventHandled = this.focusNext(void 0, true);
-          } else if (this.isTriggerKeyEvent(event)) {
-            if (this._triggerKeys.keyDown) {
-              this.doTrigger(event);
-            } else {
-              this.triggerKeyDown = true;
-            }
-          } else {
-            eventHandled = false;
-          }
-          if (eventHandled) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      let eventHandled = true;
+      const focusedItem = typeof this.focusedItem === "number" ? this.viewItems[this.focusedItem] : void 0;
+      if (previousKeys && (event.equals(previousKeys[0]) || event.equals(previousKeys[1]))) {
+        eventHandled = this.focusPrevious();
+      } else if (nextKeys && (event.equals(nextKeys[0]) || event.equals(nextKeys[1]))) {
+        eventHandled = this.focusNext();
+      } else if (event.equals(KeyCode.Escape) && this.cancelHasListener) {
+        this._onDidCancel.fire();
+      } else if (event.equals(KeyCode.Home)) {
+        eventHandled = this.focusFirst();
+      } else if (event.equals(KeyCode.End)) {
+        eventHandled = this.focusLast();
+      } else if (event.equals(KeyCode.Tab) && focusedItem instanceof BaseActionViewItem && focusedItem.trapsArrowNavigation) {
+        eventHandled = this.focusNext(void 0, true);
+      } else if (this.isTriggerKeyEvent(event)) {
+        if (this._triggerKeys.keyDown) {
+          this.doTrigger(event);
+        } else {
+          this.triggerKeyDown = true;
         }
-      )
-    );
-    this._register(
-      DOM.addDisposableListener(
-        this.domNode,
-        DOM.EventType.KEY_UP,
-        (e) => {
-          const event = new StandardKeyboardEvent(e);
-          if (this.isTriggerKeyEvent(event)) {
-            if (!this._triggerKeys.keyDown && this.triggerKeyDown) {
-              this.triggerKeyDown = false;
-              this.doTrigger(event);
-            }
-            event.preventDefault();
-            event.stopPropagation();
-          } else if (event.equals(KeyCode.Tab) || event.equals(KeyMod.Shift | KeyCode.Tab) || event.equals(KeyCode.UpArrow) || event.equals(KeyCode.DownArrow) || event.equals(KeyCode.LeftArrow) || event.equals(KeyCode.RightArrow)) {
-            this.updateFocusedItem();
-          }
-        }
-      )
-    );
-    this.focusTracker = this._register(DOM.trackFocus(this.domNode));
-    this._register(
-      this.focusTracker.onDidBlur(() => {
-        if (DOM.getActiveElement() === this.domNode || !DOM.isAncestor(DOM.getActiveElement(), this.domNode)) {
-          this._onDidBlur.fire();
-          this.previouslyFocusedItem = this.focusedItem;
-          this.focusedItem = void 0;
+      } else {
+        eventHandled = false;
+      }
+      if (eventHandled) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }));
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (this.isTriggerKeyEvent(event)) {
+        if (!this._triggerKeys.keyDown && this.triggerKeyDown) {
           this.triggerKeyDown = false;
+          this.doTrigger(event);
         }
-      })
-    );
-    this._register(
-      this.focusTracker.onDidFocus(() => this.updateFocusedItem())
-    );
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (event.equals(KeyCode.Tab) || event.equals(KeyMod.Shift | KeyCode.Tab) || event.equals(KeyCode.UpArrow) || event.equals(KeyCode.DownArrow) || event.equals(KeyCode.LeftArrow) || event.equals(KeyCode.RightArrow)) {
+        this.updateFocusedItem();
+      }
+    }));
+    this.focusTracker = this._register(DOM.trackFocus(this.domNode));
+    this._register(this.focusTracker.onDidBlur(() => {
+      if (DOM.getActiveElement() === this.domNode || !DOM.isAncestor(DOM.getActiveElement(), this.domNode)) {
+        this._onDidBlur.fire();
+        this.previouslyFocusedItem = this.focusedItem;
+        this.focusedItem = void 0;
+        this.triggerKeyDown = false;
+      }
+    }));
+    this._register(this.focusTracker.onDidFocus(() => this.updateFocusedItem()));
     this.actionsList = document.createElement("ul");
     this.actionsList.className = "actions-container";
     if (this.options.highlightToggledItems) {
       this.actionsList.classList.add("highlight-toggled");
     }
-    this.actionsList.setAttribute(
-      "role",
-      this.options.ariaRole || "toolbar"
-    );
+    this.actionsList.setAttribute("role", this.options.ariaRole || "toolbar");
     if (this.options.ariaLabel) {
       this.actionsList.setAttribute("aria-label", this.options.ariaLabel);
     }
@@ -194,10 +150,7 @@ class ActionBar extends Disposable {
   }
   refreshRole() {
     if (this.length() >= 1) {
-      this.actionsList.setAttribute(
-        "role",
-        this.options.ariaRole || "toolbar"
-      );
+      this.actionsList.setAttribute("role", this.options.ariaRole || "toolbar");
     } else {
       this.actionsList.setAttribute("role", "presentation");
     }
@@ -215,9 +168,7 @@ class ActionBar extends Disposable {
   setFocusable(focusable) {
     this.focusable = focusable;
     if (this.focusable) {
-      const firstEnabled = this.viewItems.find(
-        (vi) => vi instanceof BaseActionViewItem && vi.isEnabled()
-      );
+      const firstEnabled = this.viewItems.find((vi) => vi instanceof BaseActionViewItem && vi.isEnabled());
       if (firstEnabled instanceof BaseActionViewItem) {
         firstEnabled.setFocusable(true);
       }
@@ -259,21 +210,15 @@ class ActionBar extends Disposable {
   set actionRunner(actionRunner) {
     this._actionRunner = actionRunner;
     this._actionRunnerDisposables.clear();
-    this._actionRunnerDisposables.add(
-      this._actionRunner.onDidRun((e) => this._onDidRun.fire(e))
-    );
-    this._actionRunnerDisposables.add(
-      this._actionRunner.onWillRun((e) => this._onWillRun.fire(e))
-    );
+    this._actionRunnerDisposables.add(this._actionRunner.onDidRun((e) => this._onDidRun.fire(e)));
+    this._actionRunnerDisposables.add(this._actionRunner.onWillRun((e) => this._onWillRun.fire(e)));
     this.viewItems.forEach((item) => item.actionRunner = actionRunner);
   }
   getContainer() {
     return this.domNode;
   }
   hasAction(action) {
-    return this.viewItems.findIndex(
-      (candidate) => candidate.action.id === action.id
-    ) !== -1;
+    return this.viewItems.findIndex((candidate) => candidate.action.id === action.id) !== -1;
   }
   getAction(indexOrElement) {
     if (typeof indexOrElement === "number") {
@@ -302,35 +247,17 @@ class ActionBar extends Disposable {
       actionViewItemElement.className = "action-item";
       actionViewItemElement.setAttribute("role", "presentation");
       let item;
-      const viewItemOptions = {
-        hoverDelegate: this._hoverDelegate,
-        ...options,
-        isTabList: this.options.ariaRole === "tablist"
-      };
+      const viewItemOptions = { hoverDelegate: this._hoverDelegate, ...options, isTabList: this.options.ariaRole === "tablist" };
       if (this.options.actionViewItemProvider) {
-        item = this.options.actionViewItemProvider(
-          action,
-          viewItemOptions
-        );
+        item = this.options.actionViewItemProvider(action, viewItemOptions);
       }
       if (!item) {
-        item = new ActionViewItem(
-          this.context,
-          action,
-          viewItemOptions
-        );
+        item = new ActionViewItem(this.context, action, viewItemOptions);
       }
       if (!this.options.allowContextMenu) {
-        this.viewItemDisposables.set(
-          item,
-          DOM.addDisposableListener(
-            actionViewItemElement,
-            DOM.EventType.CONTEXT_MENU,
-            (e) => {
-              DOM.EventHelper.stop(e, true);
-            }
-          )
-        );
+        this.viewItemDisposables.set(item, DOM.addDisposableListener(actionViewItemElement, DOM.EventType.CONTEXT_MENU, (e) => {
+          DOM.EventHelper.stop(e, true);
+        }));
       }
       item.actionRunner = this._actionRunner;
       item.setActionContext(this.context);
@@ -342,10 +269,7 @@ class ActionBar extends Disposable {
         this.actionsList.appendChild(actionViewItemElement);
         this.viewItems.push(item);
       } else {
-        this.actionsList.insertBefore(
-          actionViewItemElement,
-          this.actionsList.children[index]
-        );
+        this.actionsList.insertBefore(actionViewItemElement, this.actionsList.children[index]);
         this.viewItems.splice(index, 0, item);
         index++;
       }
@@ -398,7 +322,7 @@ class ActionBar extends Disposable {
   }
   focus(arg) {
     let selectFirst = false;
-    let index;
+    let index = void 0;
     if (arg === void 0) {
       selectFirst = true;
     } else if (typeof arg === "number") {
@@ -407,9 +331,7 @@ class ActionBar extends Disposable {
       selectFirst = arg;
     }
     if (selectFirst && typeof this.focusedItem === "undefined") {
-      const firstEnabled = this.viewItems.findIndex(
-        (item) => item.isEnabled()
-      );
+      const firstEnabled = this.viewItems.findIndex((item) => item.isEnabled());
       this.focusedItem = firstEnabled === -1 ? void 0 : firstEnabled;
       this.updateFocus(void 0, void 0, true);
     } else {

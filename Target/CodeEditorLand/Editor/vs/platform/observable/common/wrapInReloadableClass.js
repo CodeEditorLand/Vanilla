@@ -12,12 +12,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { isHotReloadEnabled } from "../../../base/common/hotReload.js";
 import { readHotReloadableExport } from "../../../base/common/hotReloadHelpers.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { autorunWithStore } from "../../../base/common/observable.js";
-import {
-  IInstantiationService
-} from "../../instantiation/common/instantiation.js";
+import { BrandedService, GetLeadingNonServiceArgs, IInstantiationService } from "../../instantiation/common/instantiation.js";
 function wrapInReloadableClass0(getClass) {
-  return isHotReloadEnabled() ? createWrapper(getClass, BaseClass0) : getClass();
+  return !isHotReloadEnabled() ? getClass() : createWrapper(getClass, BaseClass0);
 }
 __name(wrapInReloadableClass0, "wrapInReloadableClass0");
 class BaseClass {
@@ -39,12 +38,7 @@ function createWrapper(getClass, B) {
     init(...params) {
       this._autorun = autorunWithStore((reader, store) => {
         const clazz = readHotReloadableExport(getClass(), reader);
-        store.add(
-          this.instantiationService.createInstance(
-            clazz,
-            ...params
-          )
-        );
+        store.add(this.instantiationService.createInstance(clazz, ...params));
       });
     }
     dispose() {
@@ -66,7 +60,7 @@ BaseClass0 = __decorateClass([
   __decorateParam(0, IInstantiationService)
 ], BaseClass0);
 function wrapInReloadableClass1(getClass) {
-  return isHotReloadEnabled() ? createWrapper(getClass, BaseClass1) : getClass();
+  return !isHotReloadEnabled() ? getClass() : createWrapper(getClass, BaseClass1);
 }
 __name(wrapInReloadableClass1, "wrapInReloadableClass1");
 let BaseClass1 = class extends BaseClass {

@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { OffsetRange } from "../../../core/offsetRange.js";
-import {
-  DiffAlgorithmResult,
-  InfiniteTimeout,
-  SequenceDiff
-} from "./diffAlgorithm.js";
+import { DiffAlgorithmResult, IDiffAlgorithm, ISequence, ITimeout, InfiniteTimeout, SequenceDiff } from "./diffAlgorithm.js";
 class MyersDiffAlgorithm {
   static {
     __name(this, "MyersDiffAlgorithm");
@@ -28,10 +24,7 @@ class MyersDiffAlgorithm {
     const V = new FastInt32Array();
     V.set(0, getXAfterSnake(0, 0));
     const paths = new FastArrayNegativeIndices();
-    paths.set(
-      0,
-      V.get(0) === 0 ? null : new SnakePath(null, 0, 0, V.get(0))
-    );
+    paths.set(0, V.get(0) === 0 ? null : new SnakePath(null, 0, 0, V.get(0)));
     let k = 0;
     loop: while (true) {
       d++;
@@ -45,10 +38,7 @@ class MyersDiffAlgorithm {
         const maxXofDLineTop = k === upperBound ? -1 : V.get(k + 1);
         const maxXofDLineLeft = k === lowerBound ? -1 : V.get(k - 1) + 1;
         step++;
-        const x = Math.min(
-          Math.max(maxXofDLineTop, maxXofDLineLeft),
-          seqX.length
-        );
+        const x = Math.min(Math.max(maxXofDLineTop, maxXofDLineLeft), seqX.length);
         const y = x - k;
         step++;
         if (x > seqX.length || y > seqY.length) {
@@ -57,10 +47,7 @@ class MyersDiffAlgorithm {
         const newMaxX = getXAfterSnake(x, y);
         V.set(k, newMaxX);
         const lastPath = x === maxXofDLineTop ? paths.get(k + 1) : paths.get(k - 1);
-        paths.set(
-          k,
-          newMaxX !== x ? new SnakePath(lastPath, x, y, newMaxX - x) : lastPath
-        );
+        paths.set(k, newMaxX !== x ? new SnakePath(lastPath, x, y, newMaxX - x) : lastPath);
         if (V.get(k) === seqX.length && V.get(k) - k === seqY.length) {
           break loop;
         }
@@ -74,12 +61,10 @@ class MyersDiffAlgorithm {
       const endX = path ? path.x + path.length : 0;
       const endY = path ? path.y + path.length : 0;
       if (endX !== lastAligningPosS1 || endY !== lastAligningPosS2) {
-        result.push(
-          new SequenceDiff(
-            new OffsetRange(endX, lastAligningPosS1),
-            new OffsetRange(endY, lastAligningPosS2)
-          )
-        );
+        result.push(new SequenceDiff(
+          new OffsetRange(endX, lastAligningPosS1),
+          new OffsetRange(endY, lastAligningPosS2)
+        ));
       }
       if (!path) {
         break;

@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDiffEditorConstructionOptions } from "../../../../../editor/browser/editorBrowser.js";
+import { IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
 const fixedEditorPaddingSingleLineCells = {
   top: 24,
   bottom: 24

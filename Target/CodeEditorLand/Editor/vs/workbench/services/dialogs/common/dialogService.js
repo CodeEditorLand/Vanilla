@@ -10,18 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import Severity from "../../../../base/common/severity.js";
-import {
-  IDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAsyncPromptResult, IAsyncPromptResultWithCancel, IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from "../../../../platform/dialogs/common/dialogs.js";
 import { DialogsModel } from "../../../common/dialogs.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 let DialogService = class extends Disposable {
   constructor(environmentService, logService) {
     super();
@@ -42,9 +37,7 @@ let DialogService = class extends Disposable {
   }
   async confirm(confirmation) {
     if (this.skipDialogs()) {
-      this.logService.trace(
-        "DialogService: refused to show confirmation dialog in tests."
-      );
+      this.logService.trace("DialogService: refused to show confirmation dialog in tests.");
       return { confirmed: true };
     }
     const handle = this.model.show({ confirmArgs: { confirmation } });
@@ -52,9 +45,7 @@ let DialogService = class extends Disposable {
   }
   async prompt(prompt) {
     if (this.skipDialogs()) {
-      throw new Error(
-        `DialogService: refused to show dialog in tests. Contents: ${prompt.message}`
-      );
+      throw new Error(`DialogService: refused to show dialog in tests. Contents: ${prompt.message}`);
     }
     const handle = this.model.show({ promptArgs: { prompt } });
     const dialogResult = await handle.result;
@@ -65,9 +56,7 @@ let DialogService = class extends Disposable {
   }
   async input(input) {
     if (this.skipDialogs()) {
-      throw new Error(
-        "DialogService: refused to show input dialog in tests."
-      );
+      throw new Error("DialogService: refused to show input dialog in tests.");
     }
     const handle = this.model.show({ inputArgs: { input } });
     return await handle.result;
@@ -83,9 +72,7 @@ let DialogService = class extends Disposable {
   }
   async about() {
     if (this.skipDialogs()) {
-      throw new Error(
-        "DialogService: refused to show about dialog in tests."
-      );
+      throw new Error("DialogService: refused to show about dialog in tests.");
     }
     const handle = this.model.show({});
     await handle.result;

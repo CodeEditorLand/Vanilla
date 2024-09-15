@@ -1,24 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../../../base/common/arrays.js";
-import {
-  createCancelablePromise
-} from "../../../../base/common/async.js";
+import { CancelablePromise, createCancelablePromise } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { canceled } from "../../../../base/common/errors.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  compareItemsByFuzzyScore,
-  prepareQuery
-} from "../../../../base/common/fuzzyScorer.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { compareItemsByFuzzyScore, FuzzyScorerCache, IItemAccessor, prepareQuery } from "../../../../base/common/fuzzyScorer.js";
 import { revive } from "../../../../base/common/marshalling.js";
 import { basename, dirname, join, sep } from "../../../../base/common/path.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
-import { URI } from "../../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
 import { ByteSize } from "../../../../platform/files/common/files.js";
-import {
-  DEFAULT_MAX_SEARCH_RESULTS,
-  isFilePatternMatch
-} from "../common/search.js";
+import { DEFAULT_MAX_SEARCH_RESULTS, ICachedSearchStats, IFileQuery, IFileSearchProgressItem, IFileSearchStats, IFolderQuery, IProgressMessage, IRawFileMatch, IRawFileQuery, IRawQuery, IRawSearchService, IRawTextQuery, ISearchEngine, ISearchEngineSuccess, ISerializedFileMatch, ISerializedSearchComplete, ISerializedSearchProgressItem, ISerializedSearchSuccess, isFilePatternMatch, ITextQuery } from "../common/search.js";
 import { Engine as FileSearchEngine } from "./fileSearch.js";
 import { TextSearchEngineAdapter } from "./textSearchAdapter.js";
 class SearchService {
@@ -38,21 +31,11 @@ class SearchService {
       onDidAddFirstListener: /* @__PURE__ */ __name(() => {
         promise = createCancelablePromise(async (token) => {
           const numThreads = await this.getNumThreads?.();
-          return this.doFileSearchWithEngine(
-            FileSearchEngine,
-            query,
-            (p) => emitter.fire(p),
-            token,
-            SearchService.BATCH_SIZE,
-            numThreads
-          );
+          return this.doFileSearchWithEngine(FileSearchEngine, query, (p) => emitter.fire(p), token, SearchService.BATCH_SIZE, numThreads);
         });
         promise.then(
           (c) => emitter.fire(c),
-          (err) => emitter.fire({
-            type: "error",
-            error: { message: err.message, stack: err.stack }
-          })
+          (err) => emitter.fire({ type: "error", error: { message: err.message, stack: err.stack } })
         );
       }, "onDidAddFirstListener"),
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
@@ -67,18 +50,11 @@ class SearchService {
     const emitter = new Emitter({
       onDidAddFirstListener: /* @__PURE__ */ __name(() => {
         promise = createCancelablePromise((token) => {
-          return this.ripgrepTextSearch(
-            query,
-            (p) => emitter.fire(p),
-            token
-          );
+          return this.ripgrepTextSearch(query, (p) => emitter.fire(p), token);
         });
         promise.then(
           (c) => emitter.fire(c),
-          (err) => emitter.fire({
-            type: "error",
-            error: { message: err.message, stack: err.stack }
-          })
+          (err) => emitter.fire({ type: "error", error: { message: err.message, stack: err.stack } })
         );
       }, "onDidAddFirstListener"),
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
@@ -99,70 +75,38 @@ class SearchService {
     };
   }
   doFileSearch(config, numThreads, progressCallback, token) {
-    return this.doFileSearchWithEngine(
-      FileSearchEngine,
-      config,
-      progressCallback,
-      token,
-      SearchService.BATCH_SIZE,
-      numThreads
-    );
+    return this.doFileSearchWithEngine(FileSearchEngine, config, progressCallback, token, SearchService.BATCH_SIZE, numThreads);
   }
   doFileSearchWithEngine(EngineClass, config, progressCallback, token, batchSize = SearchService.BATCH_SIZE, threads) {
     let resultCount = 0;
     const fileProgressCallback = /* @__PURE__ */ __name((progress) => {
       if (Array.isArray(progress)) {
         resultCount += progress.length;
-        progressCallback(
-          progress.map((m) => this.rawMatchToSearchItem(m))
-        );
+        progressCallback(progress.map((m) => this.rawMatchToSearchItem(m)));
       } else if (progress.relativePath) {
         resultCount++;
-        progressCallback(
-          this.rawMatchToSearchItem(progress)
-        );
+        progressCallback(this.rawMatchToSearchItem(progress));
       } else {
         progressCallback(progress);
       }
     }, "fileProgressCallback");
     if (config.sortByScore) {
-      let sortedSearch = this.trySortedSearchFromCache(
-        config,
-        fileProgressCallback,
-        token
-      );
+      let sortedSearch = this.trySortedSearchFromCache(config, fileProgressCallback, token);
       if (!sortedSearch) {
         const walkerConfig = config.maxResults ? Object.assign({}, config, { maxResults: null }) : config;
         const engine2 = new EngineClass(walkerConfig, threads);
-        sortedSearch = this.doSortedSearch(
-          engine2,
-          config,
-          progressCallback,
-          fileProgressCallback,
-          token
-        );
+        sortedSearch = this.doSortedSearch(engine2, config, progressCallback, fileProgressCallback, token);
       }
       return new Promise((c, e) => {
         sortedSearch.then(([result, rawMatches]) => {
-          const serializedMatches = rawMatches.map(
-            (rawMatch) => this.rawMatchToSearchItem(rawMatch)
-          );
-          this.sendProgress(
-            serializedMatches,
-            progressCallback,
-            batchSize
-          );
+          const serializedMatches = rawMatches.map((rawMatch) => this.rawMatchToSearchItem(rawMatch));
+          this.sendProgress(serializedMatches, progressCallback, batchSize);
           c(result);
         }, e);
       });
     }
     const engine = new EngineClass(config, threads);
-    return this.doSearch(
-      engine,
-      fileProgressCallback,
-      batchSize,
-      token
-    ).then((complete) => {
+    return this.doSearch(engine, fileProgressCallback, batchSize, token).then((complete) => {
       return {
         limitHit: complete.limitHit,
         type: "success",
@@ -178,9 +122,7 @@ class SearchService {
     });
   }
   rawMatchToSearchItem(match) {
-    return {
-      path: match.base ? join(match.base, match.relativePath) : match.relativePath
-    };
+    return { path: match.base ? join(match.base, match.relativePath) : match.relativePath };
   }
   doSortedSearch(engine, config, progressCallback, fileProgressCallback, token) {
     const emitter = new Emitter();
@@ -207,14 +149,11 @@ class SearchService {
         resolved: false
       };
       cache.resultsToSearchCache[config.filePattern || ""] = cacheRow;
-      allResultsPromise.then(
-        () => {
-          cacheRow.resolved = true;
-        },
-        (err) => {
-          delete cache.resultsToSearchCache[config.filePattern || ""];
-        }
-      );
+      allResultsPromise.then(() => {
+        cacheRow.resolved = true;
+      }, (err) => {
+        delete cache.resultsToSearchCache[config.filePattern || ""];
+      });
       allResultsPromise = this.preventCancellation(allResultsPromise);
     }
     return allResultsPromise.then(([result, results]) => {
@@ -222,21 +161,18 @@ class SearchService {
       const sortSW = (typeof config.maxResults !== "number" || config.maxResults > 0) && StopWatch.create(false);
       return this.sortResults(config, results, scorerCache, token).then((sortedResults) => {
         const sortingTime = sortSW ? sortSW.elapsed() : -1;
-        return [
-          {
-            type: "success",
-            stats: {
-              detailStats: result.stats,
-              sortingTime,
-              fromCache: false,
-              type: this.processType,
-              resultCount: sortedResults.length
-            },
-            messages: result.messages,
-            limitHit: result.limitHit || typeof config.maxResults === "number" && results.length > config.maxResults
+        return [{
+          type: "success",
+          stats: {
+            detailStats: result.stats,
+            sortingTime,
+            fromCache: false,
+            type: this.processType,
+            resultCount: sortedResults.length
           },
-          sortedResults
-        ];
+          messages: result.messages,
+          limitHit: result.limitHit || typeof config.maxResults === "number" && results.length > config.maxResults
+        }, sortedResults];
       });
     });
   }
@@ -252,55 +188,36 @@ class SearchService {
     if (!cache) {
       return void 0;
     }
-    const cached = this.getResultsFromCache(
-      cache,
-      config.filePattern || "",
-      progressCallback,
-      token
-    );
+    const cached = this.getResultsFromCache(cache, config.filePattern || "", progressCallback, token);
     if (cached) {
       return cached.then(([result, results, cacheStats]) => {
         const sortSW = StopWatch.create(false);
-        return this.sortResults(
-          config,
-          results,
-          cache.scorerCache,
-          token
-        ).then(
-          (sortedResults) => {
-            const sortingTime = sortSW.elapsed();
-            const stats = {
-              fromCache: true,
-              detailStats: cacheStats,
-              type: this.processType,
-              resultCount: results.length,
-              sortingTime
-            };
-            return [
-              {
-                type: "success",
-                limitHit: result.limitHit || typeof config.maxResults === "number" && results.length > config.maxResults,
-                stats,
-                messages: []
-              },
-              sortedResults
-            ];
-          }
-        );
+        return this.sortResults(config, results, cache.scorerCache, token).then((sortedResults) => {
+          const sortingTime = sortSW.elapsed();
+          const stats = {
+            fromCache: true,
+            detailStats: cacheStats,
+            type: this.processType,
+            resultCount: results.length,
+            sortingTime
+          };
+          return [
+            {
+              type: "success",
+              limitHit: result.limitHit || typeof config.maxResults === "number" && results.length > config.maxResults,
+              stats,
+              messages: []
+            },
+            sortedResults
+          ];
+        });
       });
     }
     return void 0;
   }
   sortResults(config, results, scorerCache, token) {
     const query = prepareQuery(config.filePattern || "");
-    const compare = /* @__PURE__ */ __name((matchA, matchB) => compareItemsByFuzzyScore(
-      matchA,
-      matchB,
-      query,
-      true,
-      FileMatchItemAccessor,
-      scorerCache
-    ), "compare");
+    const compare = /* @__PURE__ */ __name((matchA, matchB) => compareItemsByFuzzyScore(matchA, matchB, query, true, FileMatchItemAccessor, scorerCache), "compare");
     const maxResults = typeof config.maxResults === "number" ? config.maxResults : DEFAULT_MAX_SEARCH_RESULTS;
     return arrays.topAsync(results, compare, maxResults, 1e4, token);
   }
@@ -354,56 +271,44 @@ class SearchService {
         }
         results.push(entry);
       }
-      return [
-        complete,
-        results,
-        {
-          cacheWasResolved: cachedRow.resolved,
-          cacheLookupTime,
-          cacheFilterTime: cacheFilterSW.elapsed(),
-          cacheEntryCount: cachedEntries.length
-        }
-      ];
+      return [complete, results, {
+        cacheWasResolved: cachedRow.resolved,
+        cacheLookupTime,
+        cacheFilterTime: cacheFilterSW.elapsed(),
+        cacheEntryCount: cachedEntries.length
+      }];
     });
   }
   doSearch(engine, progressCallback, batchSize, token) {
     return new Promise((c, e) => {
       let batch = [];
       token?.onCancellationRequested(() => engine.cancel());
-      engine.search(
-        (match) => {
-          if (match) {
-            if (batchSize) {
-              batch.push(match);
-              if (batchSize > 0 && batch.length >= batchSize) {
-                progressCallback(batch);
-                batch = [];
-              }
-            } else {
-              progressCallback(match);
+      engine.search((match) => {
+        if (match) {
+          if (batchSize) {
+            batch.push(match);
+            if (batchSize > 0 && batch.length >= batchSize) {
+              progressCallback(batch);
+              batch = [];
             }
-          }
-        },
-        (progress) => {
-          progressCallback(progress);
-        },
-        (error, complete) => {
-          if (batch.length) {
-            progressCallback(batch);
-          }
-          if (error) {
-            progressCallback({
-              message: "Search finished. Error: " + error.message
-            });
-            e(error);
           } else {
-            progressCallback({
-              message: "Search finished. Stats: " + JSON.stringify(complete.stats)
-            });
-            c(complete);
+            progressCallback(match);
           }
         }
-      );
+      }, (progress) => {
+        progressCallback(progress);
+      }, (error, complete) => {
+        if (batch.length) {
+          progressCallback(batch);
+        }
+        if (error) {
+          progressCallback({ message: "Search finished. Error: " + error.message });
+          e(error);
+        } else {
+          progressCallback({ message: "Search finished. Stats: " + JSON.stringify(complete.stats) });
+          c(complete);
+        }
+      });
     });
   }
   clearCache(cacheKey) {
@@ -457,9 +362,7 @@ function reviveQuery(rawQuery) {
     // TODO
     ...{
       folderQueries: rawQuery.folderQueries && rawQuery.folderQueries.map(reviveFolderQuery),
-      extraFileResources: rawQuery.extraFileResources && rawQuery.extraFileResources.map(
-        (components) => URI.revive(components)
-      )
+      extraFileResources: rawQuery.extraFileResources && rawQuery.extraFileResources.map((components) => URI.revive(components))
     }
   };
 }

@@ -1,31 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../../base/common/arrays.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
-import {
-  TextEditorDecorationType
-} from "./extHostTextEditor.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostEditorsShape, IEditorPropertiesChangeData, IMainContext, ITextDocumentShowOptions, ITextEditorPositionData, MainContext, MainThreadTextEditorsShape } from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { ExtHostTextEditor, TextEditorDecorationType } from "./extHostTextEditor.js";
 import * as TypeConverters from "./extHostTypeConverters.js";
 import { TextEditorSelectionChangeKind } from "./extHostTypes.js";
+import * as vscode from "vscode";
 class ExtHostEditors extends Disposable {
   constructor(mainContext, _extHostDocumentsAndEditors) {
     super();
     this._extHostDocumentsAndEditors = _extHostDocumentsAndEditors;
     this._proxy = mainContext.getProxy(MainContext.MainThreadTextEditors);
-    this._register(
-      this._extHostDocumentsAndEditors.onDidChangeVisibleTextEditors(
-        (e) => this._onDidChangeVisibleTextEditors.fire(e)
-      )
-    );
-    this._register(
-      this._extHostDocumentsAndEditors.onDidChangeActiveTextEditor(
-        (e) => this._onDidChangeActiveTextEditor.fire(e)
-      )
-    );
+    this._register(this._extHostDocumentsAndEditors.onDidChangeVisibleTextEditors((e) => this._onDidChangeVisibleTextEditors.fire(e)));
+    this._register(this._extHostDocumentsAndEditors.onDidChangeActiveTextEditor((e) => this._onDidChangeActiveTextEditor.fire(e)));
   }
   static {
     __name(this, "ExtHostEditors");
@@ -59,9 +50,7 @@ class ExtHostEditors extends Disposable {
       };
     } else if (typeof columnOrOptions === "object") {
       options = {
-        position: TypeConverters.ViewColumn.from(
-          columnOrOptions.viewColumn
-        ),
+        position: TypeConverters.ViewColumn.from(columnOrOptions.viewColumn),
         preserveFocus: columnOrOptions.preserveFocus,
         selection: typeof columnOrOptions.selection === "object" ? TypeConverters.Range.from(columnOrOptions.selection) : void 0,
         pinned: typeof columnOrOptions.preview === "boolean" ? !columnOrOptions.preview : void 0
@@ -71,22 +60,15 @@ class ExtHostEditors extends Disposable {
         preserveFocus: false
       };
     }
-    const editorId = await this._proxy.$tryShowTextDocument(
-      document.uri,
-      options
-    );
+    const editorId = await this._proxy.$tryShowTextDocument(document.uri, options);
     const editor = editorId && this._extHostDocumentsAndEditors.getEditor(editorId);
     if (editor) {
       return editor.value;
     }
     if (editorId) {
-      throw new Error(
-        `Could NOT open editor for "${document.uri.toString()}" because another editor opened in the meantime.`
-      );
+      throw new Error(`Could NOT open editor for "${document.uri.toString()}" because another editor opened in the meantime.`);
     } else {
-      throw new Error(
-        `Could NOT open editor for "${document.uri.toString()}".`
-      );
+      throw new Error(`Could NOT open editor for "${document.uri.toString()}".`);
     }
   }
   createTextEditorDecorationType(extension, options) {
@@ -102,35 +84,22 @@ class ExtHostEditors extends Disposable {
       textEditor._acceptOptions(data.options);
     }
     if (data.selections) {
-      const selections = data.selections.selections.map(
-        TypeConverters.Selection.to
-      );
+      const selections = data.selections.selections.map(TypeConverters.Selection.to);
       textEditor._acceptSelections(selections);
     }
     if (data.visibleRanges) {
-      const visibleRanges = arrays.coalesce(
-        data.visibleRanges.map(TypeConverters.Range.to)
-      );
+      const visibleRanges = arrays.coalesce(data.visibleRanges.map(TypeConverters.Range.to));
       textEditor._acceptVisibleRanges(visibleRanges);
     }
     if (data.options) {
       this._onDidChangeTextEditorOptions.fire({
         textEditor: textEditor.value,
-        options: {
-          ...data.options,
-          lineNumbers: TypeConverters.TextEditorLineNumbersStyle.to(
-            data.options.lineNumbers
-          )
-        }
+        options: { ...data.options, lineNumbers: TypeConverters.TextEditorLineNumbersStyle.to(data.options.lineNumbers) }
       });
     }
     if (data.selections) {
-      const kind = TextEditorSelectionChangeKind.fromValue(
-        data.selections.source
-      );
-      const selections = data.selections.selections.map(
-        TypeConverters.Selection.to
-      );
+      const kind = TextEditorSelectionChangeKind.fromValue(data.selections.source);
+      const selections = data.selections.selections.map(TypeConverters.Selection.to);
       this._onDidChangeTextEditorSelection.fire({
         textEditor: textEditor.value,
         selections,
@@ -138,9 +107,7 @@ class ExtHostEditors extends Disposable {
       });
     }
     if (data.visibleRanges) {
-      const visibleRanges = arrays.coalesce(
-        data.visibleRanges.map(TypeConverters.Range.to)
-      );
+      const visibleRanges = arrays.coalesce(data.visibleRanges.map(TypeConverters.Range.to));
       this._onDidChangeTextEditorVisibleRanges.fire({
         textEditor: textEditor.value,
         visibleRanges
@@ -156,10 +123,7 @@ class ExtHostEditors extends Disposable {
       const viewColumn = TypeConverters.ViewColumn.to(data[id]);
       if (textEditor.value.viewColumn !== viewColumn) {
         textEditor._acceptViewColumn(viewColumn);
-        this._onDidChangeTextEditorViewColumn.fire({
-          textEditor: textEditor.value,
-          viewColumn
-        });
+        this._onDidChangeTextEditorViewColumn.fire({ textEditor: textEditor.value, viewColumn });
       }
     }
   }

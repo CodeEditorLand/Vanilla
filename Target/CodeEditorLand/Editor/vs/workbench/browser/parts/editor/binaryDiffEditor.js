@@ -10,48 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { BINARY_DIFF_EDITOR_ID } from "../../../common/editor.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { BINARY_DIFF_EDITOR_ID } from "../../../common/editor.js";
-import {
-  IEditorGroupsService
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { BaseBinaryResourceEditor } from "./binaryEditor.js";
 import { SideBySideEditor } from "./sideBySideEditor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { BaseBinaryResourceEditor } from "./binaryEditor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 let BinaryResourceDiffEditor = class extends SideBySideEditor {
   static {
     __name(this, "BinaryResourceDiffEditor");
   }
   static ID = BINARY_DIFF_EDITOR_ID;
   constructor(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService) {
-    super(
-      group,
-      telemetryService,
-      instantiationService,
-      themeService,
-      storageService,
-      configurationService,
-      textResourceConfigurationService,
-      editorService,
-      editorGroupService
-    );
+    super(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService);
   }
   getMetadata() {
     const primary = this.getPrimaryEditorPane();
     const secondary = this.getSecondaryEditorPane();
     if (primary instanceof BaseBinaryResourceEditor && secondary instanceof BaseBinaryResourceEditor) {
-      return localize(
-        "metadataDiff",
-        "{0} \u2194 {1}",
-        secondary.getMetadata(),
-        primary.getMetadata()
-      );
+      return localize("metadataDiff", "{0} \u2194 {1}", secondary.getMetadata(), primary.getMetadata());
     }
     return void 0;
   }

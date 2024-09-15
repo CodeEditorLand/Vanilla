@@ -11,37 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getZoomLevel } from "../../../../base/browser/browser.js";
-import { mainWindow } from "../../../../base/browser/window.js";
 import { platform } from "../../../../base/common/process.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IProcessMainService
-} from "../../../../platform/issue/common/issue.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IProcessMainService, ProcessExplorerData } from "../../../../platform/issue/common/issue.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  activeContrastBorder,
-  editorBackground,
-  editorForeground,
-  listActiveSelectionBackground,
-  listActiveSelectionForeground,
-  listFocusBackground,
-  listFocusForeground,
-  listFocusOutline,
-  listHoverBackground,
-  listHoverForeground,
-  scrollbarShadow,
-  scrollbarSliderActiveBackground,
-  scrollbarSliderBackground,
-  scrollbarSliderHoverBackground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService
-} from "../../../../platform/theme/common/themeService.js";
+import { activeContrastBorder, editorBackground, editorForeground, listActiveSelectionBackground, listActiveSelectionForeground, listFocusBackground, listFocusForeground, listFocusOutline, listHoverBackground, listHoverForeground, scrollbarShadow, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
 import { IWorkbenchProcessService } from "../common/issue.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 let ProcessService = class {
   constructor(processMainService, themeService, environmentService, productService) {
     this.processMainService = processMainService;
@@ -65,28 +43,13 @@ let ProcessService = class {
         listFocusBackground: getColor(theme, listFocusBackground),
         listFocusForeground: getColor(theme, listFocusForeground),
         listFocusOutline: getColor(theme, listFocusOutline),
-        listActiveSelectionBackground: getColor(
-          theme,
-          listActiveSelectionBackground
-        ),
-        listActiveSelectionForeground: getColor(
-          theme,
-          listActiveSelectionForeground
-        ),
+        listActiveSelectionBackground: getColor(theme, listActiveSelectionBackground),
+        listActiveSelectionForeground: getColor(theme, listActiveSelectionForeground),
         listHoverOutline: getColor(theme, activeContrastBorder),
         scrollbarShadowColor: getColor(theme, scrollbarShadow),
-        scrollbarSliderActiveBackgroundColor: getColor(
-          theme,
-          scrollbarSliderActiveBackground
-        ),
-        scrollbarSliderBackgroundColor: getColor(
-          theme,
-          scrollbarSliderBackground
-        ),
-        scrollbarSliderHoverBackgroundColor: getColor(
-          theme,
-          scrollbarSliderHoverBackground
-        )
+        scrollbarSliderActiveBackgroundColor: getColor(theme, scrollbarSliderActiveBackground),
+        scrollbarSliderBackgroundColor: getColor(theme, scrollbarSliderBackground),
+        scrollbarSliderHoverBackgroundColor: getColor(theme, scrollbarSliderHoverBackground)
       },
       platform,
       applicationName: this.productService.applicationName
@@ -105,11 +68,7 @@ function getColor(theme, key) {
   return color ? color.toString() : void 0;
 }
 __name(getColor, "getColor");
-registerSingleton(
-  IWorkbenchProcessService,
-  ProcessService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkbenchProcessService, ProcessService, InstantiationType.Delayed);
 export {
   ProcessService
 };

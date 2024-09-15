@@ -2,8 +2,8 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as strings from "../../../base/common/strings.js";
 import { Constants } from "../../../base/common/uint.js";
-import { InlineDecorationType } from "../viewModel.js";
 import { LinePartMetadata } from "./linePart.js";
+import { InlineDecoration, InlineDecorationType } from "../viewModel.js";
 class LineDecoration {
   constructor(startColumn, endColumn, className, type) {
     this.startColumn = startColumn;
@@ -44,12 +44,7 @@ class LineDecoration {
       if (dec.endColumn <= startColumn || dec.startColumn >= endColumn) {
         continue;
       }
-      r[rLength++] = new LineDecoration(
-        Math.max(1, dec.startColumn - startColumn + 1),
-        Math.min(lineLength + 1, dec.endColumn - startColumn + 1),
-        dec.className,
-        dec.type
-      );
+      r[rLength++] = new LineDecoration(Math.max(1, dec.startColumn - startColumn + 1), Math.min(lineLength + 1, dec.endColumn - startColumn + 1), dec.className, dec.type);
     }
     return r;
   }
@@ -70,12 +65,7 @@ class LineDecoration {
       }
       const startColumn = range.startLineNumber === lineNumber ? range.startColumn : minLineColumn;
       const endColumn = range.endLineNumber === lineNumber ? range.endColumn : maxLineColumn;
-      result[resultLen++] = new LineDecoration(
-        startColumn,
-        endColumn,
-        d.inlineClassName,
-        d.type
-      );
+      result[resultLen++] = new LineDecoration(startColumn, endColumn, d.inlineClassName, d.type);
     }
     return result;
   }
@@ -142,14 +132,7 @@ class Stack {
       while (i + 1 < this.count && this.stopOffsets[i] === this.stopOffsets[i + 1]) {
         i++;
       }
-      result.push(
-        new DecorationSegment(
-          nextStartOffset,
-          this.stopOffsets[i],
-          this.classNames.join(" "),
-          Stack._metadata(this.metadata)
-        )
-      );
+      result.push(new DecorationSegment(nextStartOffset, this.stopOffsets[i], this.classNames.join(" "), Stack._metadata(this.metadata)));
       nextStartOffset = this.stopOffsets[i] + 1;
       this.stopOffsets.splice(0, i + 1);
       this.classNames.splice(0, i + 1);
@@ -157,14 +140,7 @@ class Stack {
       this.count -= i + 1;
     }
     if (this.count > 0 && nextStartOffset < maxStopOffset) {
-      result.push(
-        new DecorationSegment(
-          nextStartOffset,
-          maxStopOffset - 1,
-          this.classNames.join(" "),
-          Stack._metadata(this.metadata)
-        )
-      );
+      result.push(new DecorationSegment(nextStartOffset, maxStopOffset - 1, this.classNames.join(" "), Stack._metadata(this.metadata)));
       nextStartOffset = maxStopOffset;
     }
     return nextStartOffset;
@@ -222,21 +198,13 @@ class LineDecorationsNormalizer {
       }
       const currentStartOffset = startColumn - 1;
       const currentEndOffset = endColumn - 2;
-      nextStartOffset = stack.consumeLowerThan(
-        currentStartOffset,
-        nextStartOffset,
-        result
-      );
+      nextStartOffset = stack.consumeLowerThan(currentStartOffset, nextStartOffset, result);
       if (stack.count === 0) {
         nextStartOffset = currentStartOffset;
       }
       stack.insert(currentEndOffset, className, metadata);
     }
-    stack.consumeLowerThan(
-      Constants.MAX_SAFE_SMALL_INTEGER,
-      nextStartOffset,
-      result
-    );
+    stack.consumeLowerThan(Constants.MAX_SAFE_SMALL_INTEGER, nextStartOffset, result);
     return result;
   }
 }

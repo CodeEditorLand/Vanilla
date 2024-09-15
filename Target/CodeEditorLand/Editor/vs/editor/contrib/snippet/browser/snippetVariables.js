@@ -13,63 +13,55 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { normalizeDriveLetter } from "../../../../base/common/labels.js";
 import * as path from "../../../../base/common/path.js";
 import { dirname } from "../../../../base/common/resources.js";
-import {
-  commonPrefixLength,
-  getLeadingWhitespace,
-  isFalsyOrWhitespace,
-  splitLines
-} from "../../../../base/common/strings.js";
+import { commonPrefixLength, getLeadingWhitespace, isFalsyOrWhitespace, splitLines } from "../../../../base/common/strings.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import * as nls from "../../../../nls.js";
-import {
-  WORKSPACE_EXTENSION,
-  isEmptyWorkspaceIdentifier,
-  isSingleFolderWorkspaceIdentifier,
-  toWorkspaceIdentifier
-} from "../../../../platform/workspace/common/workspace.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ITextModel } from "../../../common/model.js";
 import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { Text } from "./snippetParser.js";
-const KnownSnippetVariableNames = Object.freeze(
-  {
-    CURRENT_YEAR: true,
-    CURRENT_YEAR_SHORT: true,
-    CURRENT_MONTH: true,
-    CURRENT_DATE: true,
-    CURRENT_HOUR: true,
-    CURRENT_MINUTE: true,
-    CURRENT_SECOND: true,
-    CURRENT_DAY_NAME: true,
-    CURRENT_DAY_NAME_SHORT: true,
-    CURRENT_MONTH_NAME: true,
-    CURRENT_MONTH_NAME_SHORT: true,
-    CURRENT_SECONDS_UNIX: true,
-    CURRENT_TIMEZONE_OFFSET: true,
-    SELECTION: true,
-    CLIPBOARD: true,
-    TM_SELECTED_TEXT: true,
-    TM_CURRENT_LINE: true,
-    TM_CURRENT_WORD: true,
-    TM_LINE_INDEX: true,
-    TM_LINE_NUMBER: true,
-    TM_FILENAME: true,
-    TM_FILENAME_BASE: true,
-    TM_DIRECTORY: true,
-    TM_FILEPATH: true,
-    CURSOR_INDEX: true,
-    // 0-offset
-    CURSOR_NUMBER: true,
-    // 1-offset
-    RELATIVE_FILEPATH: true,
-    BLOCK_COMMENT_START: true,
-    BLOCK_COMMENT_END: true,
-    LINE_COMMENT: true,
-    WORKSPACE_NAME: true,
-    WORKSPACE_FOLDER: true,
-    RANDOM: true,
-    RANDOM_HEX: true,
-    UUID: true
-  }
-);
+import { Text, Variable, VariableResolver } from "./snippetParser.js";
+import { OvertypingCapturer } from "../../suggest/browser/suggestOvertypingCapturer.js";
+import * as nls from "../../../../nls.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { WORKSPACE_EXTENSION, isSingleFolderWorkspaceIdentifier, toWorkspaceIdentifier, IWorkspaceContextService, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, isEmptyWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+const KnownSnippetVariableNames = Object.freeze({
+  "CURRENT_YEAR": true,
+  "CURRENT_YEAR_SHORT": true,
+  "CURRENT_MONTH": true,
+  "CURRENT_DATE": true,
+  "CURRENT_HOUR": true,
+  "CURRENT_MINUTE": true,
+  "CURRENT_SECOND": true,
+  "CURRENT_DAY_NAME": true,
+  "CURRENT_DAY_NAME_SHORT": true,
+  "CURRENT_MONTH_NAME": true,
+  "CURRENT_MONTH_NAME_SHORT": true,
+  "CURRENT_SECONDS_UNIX": true,
+  "CURRENT_TIMEZONE_OFFSET": true,
+  "SELECTION": true,
+  "CLIPBOARD": true,
+  "TM_SELECTED_TEXT": true,
+  "TM_CURRENT_LINE": true,
+  "TM_CURRENT_WORD": true,
+  "TM_LINE_INDEX": true,
+  "TM_LINE_NUMBER": true,
+  "TM_FILENAME": true,
+  "TM_FILENAME_BASE": true,
+  "TM_DIRECTORY": true,
+  "TM_FILEPATH": true,
+  "CURSOR_INDEX": true,
+  // 0-offset
+  "CURSOR_NUMBER": true,
+  // 1-offset
+  "RELATIVE_FILEPATH": true,
+  "BLOCK_COMMENT_START": true,
+  "BLOCK_COMMENT_END": true,
+  "LINE_COMMENT": true,
+  "WORKSPACE_NAME": true,
+  "WORKSPACE_FOLDER": true,
+  "RANDOM": true,
+  "RANDOM_HEX": true,
+  "UUID": true
+});
 class CompositeSnippetVariableResolver {
   constructor(_delegates) {
     this._delegates = _delegates;
@@ -103,39 +95,26 @@ class SelectionBasedVariableResolver {
       let value = this._model.getValueInRange(this._selection) || void 0;
       let isMultiline = this._selection.startLineNumber !== this._selection.endLineNumber;
       if (!value && this._overtypingCapturer) {
-        const info = this._overtypingCapturer.getLastOvertypedInfo(
-          this._selectionIdx
-        );
+        const info = this._overtypingCapturer.getLastOvertypedInfo(this._selectionIdx);
         if (info) {
           value = info.value;
           isMultiline = info.multiline;
         }
       }
       if (value && isMultiline && variable.snippet) {
-        const line = this._model.getLineContent(
-          this._selection.startLineNumber
-        );
-        const lineLeadingWhitespace = getLeadingWhitespace(
-          line,
-          0,
-          this._selection.startColumn - 1
-        );
+        const line = this._model.getLineContent(this._selection.startLineNumber);
+        const lineLeadingWhitespace = getLeadingWhitespace(line, 0, this._selection.startColumn - 1);
         let varLeadingWhitespace = lineLeadingWhitespace;
         variable.snippet.walk((marker) => {
           if (marker === variable) {
             return false;
           }
           if (marker instanceof Text) {
-            varLeadingWhitespace = getLeadingWhitespace(
-              splitLines(marker.value).pop()
-            );
+            varLeadingWhitespace = getLeadingWhitespace(splitLines(marker.value).pop());
           }
           return true;
         });
-        const whitespaceCommonLength = commonPrefixLength(
-          varLeadingWhitespace,
-          lineLeadingWhitespace
-        );
+        const whitespaceCommonLength = commonPrefixLength(varLeadingWhitespace, lineLeadingWhitespace);
         value = value.replace(
           /(\r\n|\r|\n)(.*)/g,
           (m, newline, rest) => `${newline}${varLeadingWhitespace.substr(whitespaceCommonLength)}${rest}`
@@ -143,9 +122,7 @@ class SelectionBasedVariableResolver {
       }
       return value;
     } else if (name === "TM_CURRENT_LINE") {
-      return this._model.getLineContent(
-        this._selection.positionLineNumber
-      );
+      return this._model.getLineContent(this._selection.positionLineNumber);
     } else if (name === "TM_CURRENT_WORD") {
       const info = this._model.getWordAtPosition({
         lineNumber: this._selection.positionLineNumber,
@@ -192,10 +169,7 @@ class ModelBasedVariableResolver {
     } else if (name === "TM_FILEPATH") {
       return this._labelService.getUriLabel(this._model.uri);
     } else if (name === "RELATIVE_FILEPATH") {
-      return this._labelService.getUriLabel(this._model.uri, {
-        relative: true,
-        noPrefix: true
-      });
+      return this._labelService.getUriLabel(this._model.uri, { relative: true, noPrefix: true });
     }
     return void 0;
   }
@@ -238,13 +212,8 @@ let CommentBasedVariableResolver = class {
   }
   resolve(variable) {
     const { name } = variable;
-    const langId = this._model.getLanguageIdAtPosition(
-      this._selection.selectionStartLineNumber,
-      this._selection.selectionStartColumn
-    );
-    const config = this._languageConfigurationService.getLanguageConfiguration(
-      langId
-    ).comments;
+    const langId = this._model.getLanguageIdAtPosition(this._selection.selectionStartLineNumber, this._selection.selectionStartColumn);
+    const config = this._languageConfigurationService.getLanguageConfiguration(langId).comments;
     if (!config) {
       return void 0;
     }
@@ -265,52 +234,10 @@ class TimeBasedVariableResolver {
   static {
     __name(this, "TimeBasedVariableResolver");
   }
-  static dayNames = [
-    nls.localize("Sunday", "Sunday"),
-    nls.localize("Monday", "Monday"),
-    nls.localize("Tuesday", "Tuesday"),
-    nls.localize("Wednesday", "Wednesday"),
-    nls.localize("Thursday", "Thursday"),
-    nls.localize("Friday", "Friday"),
-    nls.localize("Saturday", "Saturday")
-  ];
-  static dayNamesShort = [
-    nls.localize("SundayShort", "Sun"),
-    nls.localize("MondayShort", "Mon"),
-    nls.localize("TuesdayShort", "Tue"),
-    nls.localize("WednesdayShort", "Wed"),
-    nls.localize("ThursdayShort", "Thu"),
-    nls.localize("FridayShort", "Fri"),
-    nls.localize("SaturdayShort", "Sat")
-  ];
-  static monthNames = [
-    nls.localize("January", "January"),
-    nls.localize("February", "February"),
-    nls.localize("March", "March"),
-    nls.localize("April", "April"),
-    nls.localize("May", "May"),
-    nls.localize("June", "June"),
-    nls.localize("July", "July"),
-    nls.localize("August", "August"),
-    nls.localize("September", "September"),
-    nls.localize("October", "October"),
-    nls.localize("November", "November"),
-    nls.localize("December", "December")
-  ];
-  static monthNamesShort = [
-    nls.localize("JanuaryShort", "Jan"),
-    nls.localize("FebruaryShort", "Feb"),
-    nls.localize("MarchShort", "Mar"),
-    nls.localize("AprilShort", "Apr"),
-    nls.localize("MayShort", "May"),
-    nls.localize("JuneShort", "Jun"),
-    nls.localize("JulyShort", "Jul"),
-    nls.localize("AugustShort", "Aug"),
-    nls.localize("SeptemberShort", "Sep"),
-    nls.localize("OctoberShort", "Oct"),
-    nls.localize("NovemberShort", "Nov"),
-    nls.localize("DecemberShort", "Dec")
-  ];
+  static dayNames = [nls.localize("Sunday", "Sunday"), nls.localize("Monday", "Monday"), nls.localize("Tuesday", "Tuesday"), nls.localize("Wednesday", "Wednesday"), nls.localize("Thursday", "Thursday"), nls.localize("Friday", "Friday"), nls.localize("Saturday", "Saturday")];
+  static dayNamesShort = [nls.localize("SundayShort", "Sun"), nls.localize("MondayShort", "Mon"), nls.localize("TuesdayShort", "Tue"), nls.localize("WednesdayShort", "Wed"), nls.localize("ThursdayShort", "Thu"), nls.localize("FridayShort", "Fri"), nls.localize("SaturdayShort", "Sat")];
+  static monthNames = [nls.localize("January", "January"), nls.localize("February", "February"), nls.localize("March", "March"), nls.localize("April", "April"), nls.localize("May", "May"), nls.localize("June", "June"), nls.localize("July", "July"), nls.localize("August", "August"), nls.localize("September", "September"), nls.localize("October", "October"), nls.localize("November", "November"), nls.localize("December", "December")];
+  static monthNamesShort = [nls.localize("JanuaryShort", "Jan"), nls.localize("FebruaryShort", "Feb"), nls.localize("MarchShort", "Mar"), nls.localize("AprilShort", "Apr"), nls.localize("MayShort", "May"), nls.localize("JuneShort", "Jun"), nls.localize("JulyShort", "Jul"), nls.localize("AugustShort", "Aug"), nls.localize("SeptemberShort", "Sep"), nls.localize("OctoberShort", "Oct"), nls.localize("NovemberShort", "Nov"), nls.localize("DecemberShort", "Dec")];
   _date = /* @__PURE__ */ new Date();
   resolve(variable) {
     const { name } = variable;
@@ -361,9 +288,7 @@ class WorkspaceBasedVariableResolver {
     if (!this._workspaceService) {
       return void 0;
     }
-    const workspaceIdentifier = toWorkspaceIdentifier(
-      this._workspaceService.getWorkspace()
-    );
+    const workspaceIdentifier = toWorkspaceIdentifier(this._workspaceService.getWorkspace());
     if (isEmptyWorkspaceIdentifier(workspaceIdentifier)) {
       return void 0;
     }
@@ -380,10 +305,7 @@ class WorkspaceBasedVariableResolver {
     }
     let filename = path.basename(workspaceIdentifier.configPath.path);
     if (filename.endsWith(WORKSPACE_EXTENSION)) {
-      filename = filename.substr(
-        0,
-        filename.length - WORKSPACE_EXTENSION.length - 1
-      );
+      filename = filename.substr(0, filename.length - WORKSPACE_EXTENSION.length - 1);
     }
     return filename;
   }
@@ -394,10 +316,7 @@ class WorkspaceBasedVariableResolver {
     const filename = path.basename(workspaceIdentifier.configPath.path);
     let folderpath = workspaceIdentifier.configPath.fsPath;
     if (folderpath.endsWith(filename)) {
-      folderpath = folderpath.substr(
-        0,
-        folderpath.length - filename.length - 1
-      );
+      folderpath = folderpath.substr(0, folderpath.length - filename.length - 1);
     }
     return folderpath ? normalizeDriveLetter(folderpath) : "/";
   }

@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Emitter } from "../../../base/common/event.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostEmbeddingsShape, IMainContext, MainContext, MainThreadEmbeddingsShape } from "./extHost.protocol.js";
 class ExtHostEmbeddings {
   static {
     __name(this, "ExtHostEmbeddings");
@@ -23,9 +20,7 @@ class ExtHostEmbeddings {
   }
   registerEmbeddingsProvider(_extension, embeddingsModel, provider) {
     if (this._allKnownModels.has(embeddingsModel)) {
-      throw new Error(
-        "An embeddings provider for this model is already registered"
-      );
+      throw new Error("An embeddings provider for this model is already registered");
     }
     const handle = this._handlePool++;
     this._proxy.$registerEmbeddingProvider(handle, embeddingsModel);
@@ -43,11 +38,7 @@ class ExtHostEmbeddings {
       input = [input];
       returnSingle = true;
     }
-    const result = await this._proxy.$computeEmbeddings(
-      embeddingsModel,
-      input,
-      token
-    );
+    const result = await this._proxy.$computeEmbeddings(embeddingsModel, input, token);
     if (result.length !== input.length) {
       throw new Error();
     }

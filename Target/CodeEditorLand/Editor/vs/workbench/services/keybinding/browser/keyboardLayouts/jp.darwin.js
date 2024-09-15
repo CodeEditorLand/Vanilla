@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.inputmethod.Kotoeri.Japanese",
-    lang: "ja",
-    localizedName: "Hiragana"
-  },
+  layout: { id: "com.apple.inputmethod.Kotoeri.Japanese", lang: "ja", localizedName: "Hiragana" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xE5", "\xC5", 0],

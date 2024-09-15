@@ -10,21 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 import { isWeb } from "../../../base/common/platform.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../storage/common/storage.js";
+import { IApplicationStorageValueChangeEvent, IStorageService, StorageScope, StorageTarget } from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import {
-  ALL_SYNC_RESOURCES,
-  IUserDataSyncStoreManagementService,
-  getEnablementKey
-} from "./userDataSync.js";
+import { ALL_SYNC_RESOURCES, getEnablementKey, IUserDataSyncEnablementService, IUserDataSyncStoreManagementService, SyncResource } from "./userDataSync.js";
 const enablementKey = "sync.enable";
 let UserDataSyncEnablementService = class extends Disposable {
   constructor(storageService, telemetryService, environmentService, userDataSyncStoreManagementService) {
@@ -33,13 +25,7 @@ let UserDataSyncEnablementService = class extends Disposable {
     this.telemetryService = telemetryService;
     this.environmentService = environmentService;
     this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
-    this._register(
-      storageService.onDidChangeValue(
-        StorageScope.APPLICATION,
-        void 0,
-        this._register(new DisposableStore())
-      )((e) => this.onDidStorageChange(e))
-    );
+    this._register(storageService.onDidChangeValue(StorageScope.APPLICATION, void 0, this._register(new DisposableStore()))((e) => this.onDidStorageChange(e)));
   }
   static {
     __name(this, "UserDataSyncEnablementService");
@@ -56,11 +42,7 @@ let UserDataSyncEnablementService = class extends Disposable {
       case "off":
         return false;
     }
-    return this.storageService.getBoolean(
-      enablementKey,
-      StorageScope.APPLICATION,
-      false
-    );
+    return this.storageService.getBoolean(enablementKey, StorageScope.APPLICATION, false);
   }
   canToggleEnablement() {
     return this.userDataSyncStoreManagementService.userDataSyncStore !== void 0 && this.environmentService.sync === void 0;
@@ -70,19 +52,10 @@ let UserDataSyncEnablementService = class extends Disposable {
       return;
     }
     this.telemetryService.publicLog2(enablementKey, { enabled });
-    this.storageService.store(
-      enablementKey,
-      enabled,
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(enablementKey, enabled, StorageScope.APPLICATION, StorageTarget.MACHINE);
   }
   isResourceEnabled(resource) {
-    return this.storageService.getBoolean(
-      getEnablementKey(resource),
-      StorageScope.APPLICATION,
-      true
-    );
+    return this.storageService.getBoolean(getEnablementKey(resource), StorageScope.APPLICATION, true);
   }
   setResourceEnablement(resource, enabled) {
     if (this.isResourceEnabled(resource) !== enabled) {
@@ -94,26 +67,16 @@ let UserDataSyncEnablementService = class extends Disposable {
     return void 0;
   }
   storeResourceEnablement(resourceEnablementKey, enabled) {
-    this.storageService.store(
-      resourceEnablementKey,
-      enabled,
-      StorageScope.APPLICATION,
-      isWeb ? StorageTarget.USER : StorageTarget.MACHINE
-    );
+    this.storageService.store(resourceEnablementKey, enabled, StorageScope.APPLICATION, isWeb ? StorageTarget.USER : StorageTarget.MACHINE);
   }
   onDidStorageChange(storageChangeEvent) {
     if (enablementKey === storageChangeEvent.key) {
       this._onDidChangeEnablement.fire(this.isEnabled());
       return;
     }
-    const resourceKey = ALL_SYNC_RESOURCES.filter(
-      (resourceKey2) => getEnablementKey(resourceKey2) === storageChangeEvent.key
-    )[0];
+    const resourceKey = ALL_SYNC_RESOURCES.filter((resourceKey2) => getEnablementKey(resourceKey2) === storageChangeEvent.key)[0];
     if (resourceKey) {
-      this._onDidChangeResourceEnablement.fire([
-        resourceKey,
-        this.isResourceEnabled(resourceKey)
-      ]);
+      this._onDidChangeResourceEnablement.fire([resourceKey, this.isResourceEnabled(resourceKey)]);
       return;
     }
   }

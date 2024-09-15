@@ -10,16 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createSingleCallFunction } from "../../../../base/common/functional.js";
-import { Schemas } from "../../../../base/common/network.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
+import { IExtensionHostProfile, IExtensionService, ProfileSegmentId, ProfileSession } from "../common/extensions.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  IV8InspectProfilingService
-} from "../../../../platform/profiling/common/profiling.js";
-import {
-  IExtensionService
-} from "../common/extensions.js";
+import { IV8InspectProfilingService, IV8Profile, IV8ProfileNode } from "../../../../platform/profiling/common/profiling.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
 let ExtensionHostProfiler = class {
   constructor(_host, _port, _extensionService, _profilingService) {
     this._host = _host;
@@ -31,10 +28,7 @@ let ExtensionHostProfiler = class {
     __name(this, "ExtensionHostProfiler");
   }
   async start() {
-    const id = await this._profilingService.startProfiling({
-      host: this._host,
-      port: this._port
-    });
+    const id = await this._profilingService.startProfiling({ host: this._host, port: this._port });
     return {
       stop: createSingleCallFunction(async () => {
         const profile = await this._profilingService.stopProfiling(id);
@@ -48,10 +42,7 @@ let ExtensionHostProfiler = class {
     const searchTree = TernarySearchTree.forUris();
     for (const extension of extensions) {
       if (extension.extensionLocation.scheme === Schemas.file) {
-        searchTree.set(
-          URI.file(extension.extensionLocation.fsPath),
-          extension
-        );
+        searchTree.set(URI.file(extension.extensionLocation.fsPath), extension);
       }
     }
     const nodes = profile.nodes;
@@ -78,9 +69,7 @@ let ExtensionHostProfiler = class {
       } else if (segmentId === "self" && node.callFrame.url) {
         let extension;
         try {
-          extension = searchTree.findSubstr(
-            URI.parse(node.callFrame.url)
-          );
+          extension = searchTree.findSubstr(URI.parse(node.callFrame.url));
         } catch {
         }
         if (extension) {
@@ -132,10 +121,7 @@ let ExtensionHostProfiler = class {
         const segmentsToTime = /* @__PURE__ */ new Map();
         for (let i = 0; i < distilledIds.length; i++) {
           const id = distilledIds[i];
-          segmentsToTime.set(
-            id,
-            (segmentsToTime.get(id) || 0) + distilledDeltas[i]
-          );
+          segmentsToTime.set(id, (segmentsToTime.get(id) || 0) + distilledDeltas[i]);
         }
         return segmentsToTime;
       }, "getAggregatedTimes")

@@ -1,90 +1,73 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable,
-  dispose
-} from "../../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable, IReference, MutableDisposable, dispose } from "../../../../../base/common/lifecycle.js";
 import { Mimes } from "../../../../../base/common/mime.js";
-import { Range } from "../../../../../editor/common/core/range.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { IEditorCommentsOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { IPosition } from "../../../../../editor/common/core/position.js";
+import { IRange, Range } from "../../../../../editor/common/core/range.js";
 import { Selection } from "../../../../../editor/common/core/selection.js";
 import * as editorCommon from "../../../../../editor/common/editorCommon.js";
+import * as model from "../../../../../editor/common/model.js";
 import { SearchParams } from "../../../../../editor/common/model/textModelSearch.js";
-import {
-  readTransientState,
-  writeTransientState
-} from "../../../codeEditor/browser/toggleWordWrap.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { IWordWrapTransientState, readTransientState, writeTransientState } from "../../../codeEditor/browser/toggleWordWrap.js";
 import { InlineChatController } from "../../../inlineChat/browser/inlineChatController.js";
-import {
-  CellEditState,
-  CellFocusMode,
-  CursorAtBoundary,
-  CursorAtLineBoundary
-} from "../notebookBrowser.js";
+import { CellEditState, CellFocusMode, CellLayoutChangeEvent, CursorAtBoundary, CursorAtLineBoundary, IEditableCellViewModel, INotebookCellDecorationOptions } from "../notebookBrowser.js";
+import { NotebookOptionsChangeEvent } from "../notebookOptions.js";
+import { CellViewModelStateChangeEvent } from "../notebookViewEvents.js";
+import { ViewContext } from "./viewContext.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { CellKind, INotebookCellStatusBarItem, INotebookFindOptions } from "../../common/notebookCommon.js";
 class BaseCellViewModel extends Disposable {
-  constructor(viewType, model, id, _viewContext, _configurationService, _modelService, _undoRedoService, _codeEditorService) {
+  constructor(viewType, model2, id, _viewContext, _configurationService, _modelService, _undoRedoService, _codeEditorService) {
     super();
     this.viewType = viewType;
-    this.model = model;
+    this.model = model2;
     this.id = id;
     this._viewContext = _viewContext;
     this._configurationService = _configurationService;
     this._modelService = _modelService;
     this._undoRedoService = _undoRedoService;
     this._codeEditorService = _codeEditorService;
-    this._register(
-      model.onDidChangeMetadata(() => {
-        this._onDidChangeState.fire({ metadataChanged: true });
-      })
-    );
-    this._register(
-      model.onDidChangeInternalMetadata((e) => {
-        this._onDidChangeState.fire({ internalMetadataChanged: true });
-        if (e.lastRunSuccessChanged) {
-          this.layoutChange({});
-        }
-      })
-    );
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("notebook.lineNumbers")) {
-          this.lineNumbers = "inherit";
-        }
-      })
-    );
+    this._register(model2.onDidChangeMetadata(() => {
+      this._onDidChangeState.fire({ metadataChanged: true });
+    }));
+    this._register(model2.onDidChangeInternalMetadata((e) => {
+      this._onDidChangeState.fire({ internalMetadataChanged: true });
+      if (e.lastRunSuccessChanged) {
+        this.layoutChange({});
+      }
+    }));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("notebook.lineNumbers")) {
+        this.lineNumbers = "inherit";
+      }
+    }));
     if (this.model.collapseState?.inputCollapsed) {
       this._inputCollapsed = true;
     }
     if (this.model.collapseState?.outputCollapsed) {
       this._outputCollapsed = true;
     }
-    this._commentOptions = this._configurationService.getValue(
-      "editor.comments",
-      { overrideIdentifier: this.language }
-    );
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("editor.comments")) {
-          this._commentOptions = this._configurationService.getValue(
-            "editor.comments",
-            { overrideIdentifier: this.language }
-          );
-        }
-      })
-    );
+    this._commentOptions = this._configurationService.getValue("editor.comments", { overrideIdentifier: this.language });
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("editor.comments")) {
+        this._commentOptions = this._configurationService.getValue("editor.comments", { overrideIdentifier: this.language });
+      }
+    }));
   }
   static {
     __name(this, "BaseCellViewModel");
   }
-  _onDidChangeEditorAttachState = this._register(
-    new Emitter()
-  );
+  _onDidChangeEditorAttachState = this._register(new Emitter());
   // Do not merge this event with `onDidChangeState` as we are using `Event.once(onDidChangeEditorAttachState)` elsewhere.
   onDidChangeEditorAttachState = this._onDidChangeEditorAttachState.event;
-  _onDidChangeState = this._register(
-    new Emitter()
-  );
+  _onDidChangeState = this._register(new Emitter());
   onDidChangeState = this._onDidChangeState.event;
   get handle() {
     return this.model.handle;
@@ -152,19 +135,13 @@ class BaseCellViewModel extends Disposable {
   _editorViewStates = null;
   _editorTransientState = null;
   _resolvedCellDecorations = /* @__PURE__ */ new Map();
-  _textModelRefChangeDisposable = this._register(
-    new MutableDisposable()
-  );
-  _cellDecorationsChanged = this._register(
-    new Emitter()
-  );
+  _textModelRefChangeDisposable = this._register(new MutableDisposable());
+  _cellDecorationsChanged = this._register(new Emitter());
   onCellDecorationsChanged = this._cellDecorationsChanged.event;
   _resolvedDecorations = /* @__PURE__ */ new Map();
   _lastDecorationId = 0;
   _cellStatusBarItems = /* @__PURE__ */ new Map();
-  _onDidChangeCellStatusBarItems = this._register(
-    new Emitter()
-  );
+  _onDidChangeCellStatusBarItems = this._register(new Emitter());
   onDidChangeCellStatusBarItems = this._onDidChangeCellStatusBarItems.event;
   _lastStatusBarId = 0;
   get textModel() {
@@ -204,10 +181,7 @@ class BaseCellViewModel extends Disposable {
       return;
     }
     this._commentHeight = height;
-    this.layoutChange(
-      { commentHeight: true },
-      "BaseCellViewModel#commentHeight"
-    );
+    this.layoutChange({ commentHeight: true }, "BaseCellViewModel#commentHeight");
   }
   _isDisposed = false;
   assertTextModelAttached() {
@@ -227,11 +201,9 @@ class BaseCellViewModel extends Disposable {
     }
     if (this._textEditor === editor) {
       if (this._editorListeners.length === 0) {
-        this._editorListeners.push(
-          this._textEditor.onDidChangeCursorSelection(() => {
-            this._onDidChangeState.fire({ selectionChanged: true });
-          })
-        );
+        this._editorListeners.push(this._textEditor.onDidChangeCursorSelection(() => {
+          this._onDidChangeState.fire({ selectionChanged: true });
+        }));
         this._onDidChangeState.fire({ selectionChanged: true });
       }
       return;
@@ -253,11 +225,7 @@ class BaseCellViewModel extends Disposable {
       }
     }
     if (this._editorTransientState) {
-      writeTransientState(
-        editor.getModel(),
-        this._editorTransientState,
-        this._codeEditorService
-      );
+      writeTransientState(editor.getModel(), this._editorTransientState, this._codeEditorService);
     }
     if (this._isDisposed) {
       return;
@@ -265,34 +233,24 @@ class BaseCellViewModel extends Disposable {
     editor.changeDecorations((accessor) => {
       this._resolvedDecorations.forEach((value, key) => {
         if (key.startsWith("_lazy_")) {
-          const ret = accessor.addDecoration(
-            value.options.range,
-            value.options.options
-          );
+          const ret = accessor.addDecoration(value.options.range, value.options.options);
           this._resolvedDecorations.get(key).id = ret;
         } else {
-          const ret = accessor.addDecoration(
-            value.options.range,
-            value.options.options
-          );
+          const ret = accessor.addDecoration(value.options.range, value.options.options);
           this._resolvedDecorations.get(key).id = ret;
         }
       });
     });
-    this._editorListeners.push(
-      editor.onDidChangeCursorSelection(() => {
-        this._onDidChangeState.fire({ selectionChanged: true });
-      })
-    );
+    this._editorListeners.push(editor.onDidChangeCursorSelection(() => {
+      this._onDidChangeState.fire({ selectionChanged: true });
+    }));
     const inlineChatController = InlineChatController.get(this._textEditor);
     if (inlineChatController) {
-      this._editorListeners.push(
-        inlineChatController.onWillStartSession(() => {
-          if (this.textBuffer.getLength() === 0) {
-            this.enableAutoLanguageDetection();
-          }
-        })
-      );
+      this._editorListeners.push(inlineChatController.onWillStartSession(() => {
+        if (this.textBuffer.getLength() === 0) {
+          this.enableAutoLanguageDetection();
+        }
+      }));
     }
     this._onDidChangeState.fire({ selectionChanged: true });
     this._onDidChangeEditorAttachState.fire();
@@ -340,10 +298,7 @@ class BaseCellViewModel extends Disposable {
     if (!this._textEditor || !this._textEditor.hasModel()) {
       return;
     }
-    this._editorTransientState = readTransientState(
-      this._textEditor.getModel(),
-      this._codeEditorService
-    );
+    this._editorTransientState = readTransientState(this._textEditor.getModel(), this._codeEditorService);
   }
   saveEditorViewState() {
     if (this._textEditor) {
@@ -363,9 +318,7 @@ class BaseCellViewModel extends Disposable {
     if (!this._textEditor) {
       const id2 = ++this._lastDecorationId;
       const decorationId = `_lazy_${this.id};${id2}`;
-      this._resolvedDecorations.set(decorationId, {
-        options: decoration
-      });
+      this._resolvedDecorations.set(decorationId, { options: decoration });
       return decorationId;
     }
     let id;
@@ -411,10 +364,7 @@ class BaseCellViewModel extends Disposable {
           options.topClassName = void 0;
         }
       }
-      this._cellDecorationsChanged.fire({
-        added: [],
-        removed: [options]
-      });
+      this._cellDecorationsChanged.fire({ added: [], removed: [options] });
     }
   }
   _addCellDecoration(options) {
@@ -462,10 +412,7 @@ class BaseCellViewModel extends Disposable {
     return Array.from(this._cellStatusBarItems.values());
   }
   revealRangeInCenter(range) {
-    this._textEditor?.revealRangeInCenter(
-      range,
-      editorCommon.ScrollType.Immediate
-    );
+    this._textEditor?.revealRangeInCenter(range, editorCommon.ScrollType.Immediate);
   }
   setSelection(range) {
     this._textEditor?.setSelection(range);
@@ -475,27 +422,18 @@ class BaseCellViewModel extends Disposable {
       if (this._textEditor) {
         this._textEditor?.setSelections(selections);
       } else if (this._editorViewStates) {
-        this._editorViewStates.cursorState = selections.map(
-          (selection) => {
-            return {
-              inSelectionMode: !selection.isEmpty(),
-              selectionStart: selection.getStartPosition(),
-              position: selection.getEndPosition()
-            };
-          }
-        );
+        this._editorViewStates.cursorState = selections.map((selection) => {
+          return {
+            inSelectionMode: !selection.isEmpty(),
+            selectionStart: selection.getStartPosition(),
+            position: selection.getEndPosition()
+          };
+        });
       }
     }
   }
   getSelections() {
-    return this._textEditor?.getSelections() ?? this._editorViewStates?.cursorState.map(
-      (state) => new Selection(
-        state.selectionStart.lineNumber,
-        state.selectionStart.column,
-        state.position.lineNumber,
-        state.position.column
-      )
-    ) ?? [];
+    return this._textEditor?.getSelections() ?? this._editorViewStates?.cursorState.map((state) => new Selection(state.selectionStart.lineNumber, state.selectionStart.column, state.position.lineNumber, state.position.column)) ?? [];
   }
   getSelectionsStartPosition() {
     if (this._textEditor) {
@@ -510,10 +448,7 @@ class BaseCellViewModel extends Disposable {
     if (!this._textEditor) {
       return 0;
     }
-    const editorPadding = this._viewContext.notebookOptions.computeEditorPadding(
-      this.internalMetadata,
-      this.uri
-    );
+    const editorPadding = this._viewContext.notebookOptions.computeEditorPadding(this.internalMetadata, this.uri);
     return this._textEditor.getTopForLineNumber(line) + editorPadding.top;
   }
   getPositionScrollTopOffset(range) {
@@ -521,14 +456,8 @@ class BaseCellViewModel extends Disposable {
       return 0;
     }
     const position = range instanceof Selection ? range.getPosition() : range.getStartPosition();
-    const editorPadding = this._viewContext.notebookOptions.computeEditorPadding(
-      this.internalMetadata,
-      this.uri
-    );
-    return this._textEditor.getTopForPosition(
-      position.lineNumber,
-      position.column
-    ) + editorPadding.top;
+    const editorPadding = this._viewContext.notebookOptions.computeEditorPadding(this.internalMetadata, this.uri);
+    return this._textEditor.getTopForPosition(position.lineNumber, position.column) + editorPadding.top;
   }
   cursorAtLineBoundary() {
     if (!this._textEditor || !this.textModel || !this._textEditor.hasTextFocus()) {
@@ -538,9 +467,7 @@ class BaseCellViewModel extends Disposable {
     if (!selection || !selection.isEmpty()) {
       return CursorAtLineBoundary.None;
     }
-    const currentLineLength = this.textModel.getLineLength(
-      selection.startLineNumber
-    );
+    const currentLineLength = this.textModel.getLineLength(selection.startLineNumber);
     if (currentLineLength === 0) {
       return CursorAtLineBoundary.Both;
     }
@@ -565,24 +492,20 @@ class BaseCellViewModel extends Disposable {
       return CursorAtBoundary.None;
     }
     const firstViewLineTop = this._textEditor.getTopForPosition(1, 1);
-    const lastViewLineTop = this._textEditor.getTopForPosition(
-      this.textModel.getLineCount(),
-      this.textModel.getLineLength(this.textModel.getLineCount())
-    );
-    const selectionTop = this._textEditor.getTopForPosition(
-      selection.startLineNumber,
-      selection.startColumn
-    );
+    const lastViewLineTop = this._textEditor.getTopForPosition(this.textModel.getLineCount(), this.textModel.getLineLength(this.textModel.getLineCount()));
+    const selectionTop = this._textEditor.getTopForPosition(selection.startLineNumber, selection.startColumn);
     if (selectionTop === lastViewLineTop) {
       if (selectionTop === firstViewLineTop) {
         return CursorAtBoundary.Both;
       } else {
         return CursorAtBoundary.Bottom;
       }
-    } else if (selectionTop === firstViewLineTop) {
-      return CursorAtBoundary.Top;
     } else {
-      return CursorAtBoundary.None;
+      if (selectionTop === firstViewLineTop) {
+        return CursorAtBoundary.Top;
+      } else {
+        return CursorAtBoundary.None;
+      }
     }
   }
   _editStateSource = "";
@@ -611,32 +534,21 @@ class BaseCellViewModel extends Disposable {
    */
   async resolveTextModel() {
     if (!this._textModelRef || !this.textModel) {
-      this._textModelRef = await this._modelService.createModelReference(
-        this.uri
-      );
+      this._textModelRef = await this._modelService.createModelReference(this.uri);
       if (this._isDisposed) {
         return this.textModel;
       }
       if (!this._textModelRef) {
         throw new Error(`Cannot resolve text model for ${this.uri}`);
       }
-      this._textModelRefChangeDisposable.value = this.textModel.onDidChangeContent(
-        () => this.onDidChangeTextModelContent()
-      );
+      this._textModelRefChangeDisposable.value = this.textModel.onDidChangeContent(() => this.onDidChangeTextModelContent());
     }
     return this.textModel;
   }
   cellStartFind(value, options) {
     let cellMatches = [];
     const lineCount = this.textBuffer.getLineCount();
-    const findRange = options.findScope?.selectedTextRanges ?? [
-      new Range(
-        1,
-        1,
-        lineCount,
-        this.textBuffer.getLineLength(lineCount) + 1
-      )
-    ];
+    const findRange = options.findScope?.selectedTextRanges ?? [new Range(1, 1, lineCount, this.textBuffer.getLineLength(lineCount) + 1)];
     if (this.assertTextModelAttached()) {
       cellMatches = this.textModel.findMatches(
         value,
@@ -647,30 +559,13 @@ class BaseCellViewModel extends Disposable {
         options.regex || false
       );
     } else {
-      const searchParams = new SearchParams(
-        value,
-        options.regex || false,
-        options.caseSensitive || false,
-        options.wholeWord ? options.wordSeparators || null : null
-      );
+      const searchParams = new SearchParams(value, options.regex || false, options.caseSensitive || false, options.wholeWord ? options.wordSeparators || null : null);
       const searchData = searchParams.parseSearchRequest();
       if (!searchData) {
         return null;
       }
       findRange.forEach((range) => {
-        cellMatches.push(
-          ...this.textBuffer.findMatchesLineByLine(
-            new Range(
-              range.startLineNumber,
-              range.startColumn,
-              range.endLineNumber,
-              range.endColumn
-            ),
-            searchData,
-            options.regex || false,
-            1e3
-          )
-        );
+        cellMatches.push(...this.textBuffer.findMatchesLineByLine(new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn), searchData, options.regex || false, 1e3));
       });
     }
     return cellMatches;

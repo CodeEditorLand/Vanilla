@@ -5,9 +5,8 @@ import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hover
 import { fromNow } from "../../../../base/common/date.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { language } from "../../../../base/common/platform.js";
-import {
-  COMMENTS_SECTION
-} from "../common/commentsConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { COMMENTS_SECTION, ICommentsConfiguration } from "../common/commentsConfiguration.js";
 class TimestampWidget extends Disposable {
   constructor(configurationService, hoverService, container, timeStamp) {
     super();
@@ -15,13 +14,7 @@ class TimestampWidget extends Disposable {
     this._date = dom.append(container, dom.$("span.timestamp"));
     this._date.style.display = "none";
     this._useRelativeTime = this.useRelativeTimeSetting;
-    this.hover = this._register(
-      hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this._date,
-        ""
-      )
-    );
+    this.hover = this._register(hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this._date, ""));
     this.setTimestamp(timeStamp);
   }
   static {
@@ -32,9 +25,7 @@ class TimestampWidget extends Disposable {
   _useRelativeTime;
   hover;
   get useRelativeTimeSetting() {
-    return this.configurationService.getValue(
-      COMMENTS_SECTION
-    ).useRelativeTime;
+    return this.configurationService.getValue(COMMENTS_SECTION).useRelativeTime;
   }
   async setTimestamp(timestamp) {
     if (timestamp !== this._timestamp || this.useRelativeTimeSetting !== this._useRelativeTime) {

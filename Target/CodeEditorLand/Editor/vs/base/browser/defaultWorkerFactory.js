@@ -1,32 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getNLSLanguage, getNLSMessages } from "../../nls.js";
-import { coalesce } from "../common/arrays.js";
-import { onUnexpectedError } from "../common/errors.js";
-import { Disposable, toDisposable } from "../common/lifecycle.js";
-import { COI, FileAccess } from "../common/network.js";
-import {
-  SimpleWorkerClient,
-  logOnceWebWorkerWarning
-} from "../common/worker/simpleWorker.js";
 import { createTrustedTypesPolicy } from "./trustedTypes.js";
+import { onUnexpectedError } from "../common/errors.js";
+import { AppResourcePath, COI, FileAccess } from "../common/network.js";
+import { URI } from "../common/uri.js";
+import { IWorker, IWorkerCallback, IWorkerClient, IWorkerDescriptor, IWorkerFactory, logOnceWebWorkerWarning, SimpleWorkerClient } from "../common/worker/simpleWorker.js";
+import { Disposable, toDisposable } from "../common/lifecycle.js";
+import { coalesce } from "../common/arrays.js";
+import { getNLSLanguage, getNLSMessages } from "../../nls.js";
 const isESM = true;
 let ttPolicy;
 if (typeof self === "object" && self.constructor && self.constructor.name === "DedicatedWorkerGlobalScope" && globalThis.workerttPolicy !== void 0) {
   ttPolicy = globalThis.workerttPolicy;
 } else {
-  ttPolicy = createTrustedTypesPolicy("defaultWorkerFactory", {
-    createScriptURL: /* @__PURE__ */ __name((value) => value, "createScriptURL")
-  });
+  ttPolicy = createTrustedTypesPolicy("defaultWorkerFactory", { createScriptURL: /* @__PURE__ */ __name((value) => value, "createScriptURL") });
 }
 function createBlobWorker(blobUrl, options) {
   if (!blobUrl.startsWith("blob:")) {
     throw new URIError("Not a blob-url: " + blobUrl);
   }
-  return new Worker(
-    ttPolicy ? ttPolicy.createScriptURL(blobUrl) : blobUrl,
-    { ...options, type: isESM ? "module" : void 0 }
-  );
+  return new Worker(ttPolicy ? ttPolicy.createScriptURL(blobUrl) : blobUrl, { ...options, type: isESM ? "module" : void 0 });
 }
 __name(createBlobWorker, "createBlobWorker");
 function getWorker(esmWorkerLocation, label) {
@@ -36,34 +29,20 @@ function getWorker(esmWorkerLocation, label) {
       return monacoEnvironment.getWorker("workerMain.js", label);
     }
     if (typeof monacoEnvironment.getWorkerUrl === "function") {
-      const workerUrl = monacoEnvironment.getWorkerUrl(
-        "workerMain.js",
-        label
-      );
-      return new Worker(
-        ttPolicy ? ttPolicy.createScriptURL(workerUrl) : workerUrl,
-        { name: label, type: isESM ? "module" : void 0 }
-      );
+      const workerUrl = monacoEnvironment.getWorkerUrl("workerMain.js", label);
+      return new Worker(ttPolicy ? ttPolicy.createScriptURL(workerUrl) : workerUrl, { name: label, type: isESM ? "module" : void 0 });
     }
   }
   if (esmWorkerLocation) {
-    const workerUrl = getWorkerBootstrapUrl(
-      label,
-      esmWorkerLocation.toString(true)
-    );
-    const worker = new Worker(
-      ttPolicy ? ttPolicy.createScriptURL(workerUrl) : workerUrl,
-      { name: label, type: isESM ? "module" : void 0 }
-    );
+    const workerUrl = getWorkerBootstrapUrl(label, esmWorkerLocation.toString(true));
+    const worker = new Worker(ttPolicy ? ttPolicy.createScriptURL(workerUrl) : workerUrl, { name: label, type: isESM ? "module" : void 0 });
     if (isESM) {
       return whenESMWorkerReady(worker);
     } else {
       return worker;
     }
   }
-  throw new Error(
-    `You must define a function MonacoEnvironment.getWorkerUrl or MonacoEnvironment.getWorker`
-  );
+  throw new Error(`You must define a function MonacoEnvironment.getWorkerUrl or MonacoEnvironment.getWorker`);
 }
 __name(getWorker, "getWorker");
 function getWorkerBootstrapUrl(label, workerScriptUrl, workerBaseUrl) {
@@ -71,44 +50,34 @@ function getWorkerBootstrapUrl(label, workerScriptUrl, workerBaseUrl) {
   } else {
     const start = workerScriptUrl.lastIndexOf("?");
     const end = workerScriptUrl.lastIndexOf("#", start);
-    const params = start > 0 ? new URLSearchParams(
-      workerScriptUrl.substring(
-        start + 1,
-        ~end ? end : void 0
-      )
-    ) : new URLSearchParams();
+    const params = start > 0 ? new URLSearchParams(workerScriptUrl.substring(start + 1, ~end ? end : void 0)) : new URLSearchParams();
     COI.addSearchParam(params, true, true);
     const search = params.toString();
-    if (search) {
-      workerScriptUrl = `${workerScriptUrl}?${params.toString()}#${label}`;
-    } else {
+    if (!search) {
       workerScriptUrl = `${workerScriptUrl}#${label}`;
+    } else {
+      workerScriptUrl = `${workerScriptUrl}?${params.toString()}#${label}`;
     }
   }
-  const blob = new Blob(
-    [
-      coalesce([
-        `/*${label}*/`,
-        workerBaseUrl ? `globalThis.MonacoEnvironment = { baseUrl: ${JSON.stringify(workerBaseUrl)} };` : void 0,
-        `globalThis._VSCODE_NLS_MESSAGES = ${JSON.stringify(getNLSMessages())};`,
-        `globalThis._VSCODE_NLS_LANGUAGE = ${JSON.stringify(getNLSLanguage())};`,
-        `globalThis._VSCODE_FILE_ROOT = ${JSON.stringify(globalThis._VSCODE_FILE_ROOT)};`,
-        `const ttPolicy = globalThis.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });`,
-        `globalThis.workerttPolicy = ttPolicy;`,
-        isESM ? `await import(ttPolicy?.createScriptURL(${JSON.stringify(workerScriptUrl)}) ?? ${JSON.stringify(workerScriptUrl)});` : `importScripts(ttPolicy?.createScriptURL(${JSON.stringify(workerScriptUrl)}) ?? ${JSON.stringify(workerScriptUrl)});`,
-        isESM ? `globalThis.postMessage({ type: 'vscode-worker-ready' });` : void 0,
-        // in ESM signal we are ready after the async import
-        `/*${label}*/`
-      ]).join("")
-    ],
-    { type: "application/javascript" }
-  );
+  const blob = new Blob([coalesce([
+    `/*${label}*/`,
+    workerBaseUrl ? `globalThis.MonacoEnvironment = { baseUrl: ${JSON.stringify(workerBaseUrl)} };` : void 0,
+    `globalThis._VSCODE_NLS_MESSAGES = ${JSON.stringify(getNLSMessages())};`,
+    `globalThis._VSCODE_NLS_LANGUAGE = ${JSON.stringify(getNLSLanguage())};`,
+    `globalThis._VSCODE_FILE_ROOT = ${JSON.stringify(globalThis._VSCODE_FILE_ROOT)};`,
+    `const ttPolicy = globalThis.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });`,
+    `globalThis.workerttPolicy = ttPolicy;`,
+    isESM ? `await import(ttPolicy?.createScriptURL(${JSON.stringify(workerScriptUrl)}) ?? ${JSON.stringify(workerScriptUrl)});` : `importScripts(ttPolicy?.createScriptURL(${JSON.stringify(workerScriptUrl)}) ?? ${JSON.stringify(workerScriptUrl)});`,
+    isESM ? `globalThis.postMessage({ type: 'vscode-worker-ready' });` : void 0,
+    // in ESM signal we are ready after the async import
+    `/*${label}*/`
+  ]).join("")], { type: "application/javascript" });
   return URL.createObjectURL(blob);
 }
 __name(getWorkerBootstrapUrl, "getWorkerBootstrapUrl");
 function whenESMWorkerReady(worker) {
   return new Promise((resolve, reject) => {
-    worker.onmessage = (e) => {
+    worker.onmessage = function(e) {
       if (e.data.type === "vscode-worker-ready") {
         worker.onmessage = null;
         resolve(worker);
@@ -144,7 +113,7 @@ class WebWorker extends Disposable {
     }
     this.postMessage(amdModuleId, []);
     this.worker.then((w) => {
-      w.onmessage = (ev) => {
+      w.onmessage = function(ev) {
         onMessageCallback(ev.data);
       };
       w.onmessageerror = onErrorCallback;
@@ -152,17 +121,15 @@ class WebWorker extends Disposable {
         w.addEventListener("error", onErrorCallback);
       }
     });
-    this._register(
-      toDisposable(() => {
-        this.worker?.then((w) => {
-          w.onmessage = null;
-          w.onmessageerror = null;
-          w.removeEventListener("error", onErrorCallback);
-          w.terminate();
-        });
-        this.worker = null;
-      })
-    );
+    this._register(toDisposable(() => {
+      this.worker?.then((w) => {
+        w.onmessage = null;
+        w.onmessageerror = null;
+        w.removeEventListener("error", onErrorCallback);
+        w.terminate();
+      });
+      this.worker = null;
+    }));
   }
   getId() {
     return this.id;
@@ -173,12 +140,7 @@ class WebWorker extends Disposable {
         w.postMessage(message, transfer);
       } catch (err) {
         onUnexpectedError(err);
-        onUnexpectedError(
-          new Error(
-            `FAILED to post message to '${this.label}'-worker`,
-            { cause: err }
-          )
-        );
+        onUnexpectedError(new Error(`FAILED to post message to '${this.label}'-worker`, { cause: err }));
       }
     });
   }
@@ -187,9 +149,7 @@ class WorkerDescriptor {
   constructor(amdModuleId, label) {
     this.amdModuleId = amdModuleId;
     this.label = label;
-    this.esmModuleLocation = isESM ? FileAccess.asBrowserUri(
-      `${amdModuleId}.esm.js`
-    ) : void 0;
+    this.esmModuleLocation = isESM ? FileAccess.asBrowserUri(`${amdModuleId}.esm.js`) : void 0;
   }
   static {
     __name(this, "WorkerDescriptor");
@@ -210,26 +170,16 @@ class DefaultWorkerFactory {
     if (this._webWorkerFailedBeforeError) {
       throw this._webWorkerFailedBeforeError;
     }
-    return new WebWorker(
-      desc.esmModuleLocation,
-      desc.amdModuleId,
-      workerId,
-      desc.label || "anonymous" + workerId,
-      onMessageCallback,
-      (err) => {
-        logOnceWebWorkerWarning(err);
-        this._webWorkerFailedBeforeError = err;
-        onErrorCallback(err);
-      }
-    );
+    return new WebWorker(desc.esmModuleLocation, desc.amdModuleId, workerId, desc.label || "anonymous" + workerId, onMessageCallback, (err) => {
+      logOnceWebWorkerWarning(err);
+      this._webWorkerFailedBeforeError = err;
+      onErrorCallback(err);
+    });
   }
 }
 function createWebWorker(arg0, arg1) {
   const workerDescriptor = typeof arg0 === "string" ? new WorkerDescriptor(arg0, arg1) : arg0;
-  return new SimpleWorkerClient(
-    new DefaultWorkerFactory(),
-    workerDescriptor
-  );
+  return new SimpleWorkerClient(new DefaultWorkerFactory(), workerDescriptor);
 }
 __name(createWebWorker, "createWebWorker");
 export {

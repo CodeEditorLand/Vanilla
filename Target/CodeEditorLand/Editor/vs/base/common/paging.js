@@ -1,9 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { range } from "./arrays.js";
-import {
-  CancellationTokenSource
-} from "./cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "./cancellation.js";
 import { CancellationError } from "./errors.js";
 function createPage(elements) {
   return {
@@ -66,20 +64,17 @@ class PagedModel {
     }
     if (!page.promise) {
       page.cts = new CancellationTokenSource();
-      page.promise = this.pager.getPage(pageIndex, page.cts.token).then(
-        (elements) => {
-          page.elements = elements;
-          page.isResolved = true;
-          page.promise = null;
-          page.cts = null;
-        },
-        (err) => {
-          page.isResolved = false;
-          page.promise = null;
-          page.cts = null;
-          return Promise.reject(err);
-        }
-      );
+      page.promise = this.pager.getPage(pageIndex, page.cts.token).then((elements) => {
+        page.elements = elements;
+        page.isResolved = true;
+        page.promise = null;
+        page.cts = null;
+      }, (err) => {
+        page.isResolved = false;
+        page.promise = null;
+        page.cts = null;
+        return Promise.reject(err);
+      });
     }
     const listener = cancellationToken.onCancellationRequested(() => {
       if (!page.cts) {

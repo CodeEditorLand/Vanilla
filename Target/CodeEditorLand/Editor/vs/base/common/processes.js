@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isLinux } from "./platform.js";
+import { IProcessEnvironment, isLinux } from "./platform.js";
 var Source = /* @__PURE__ */ ((Source2) => {
   Source2[Source2["stdout"] = 0] = "stdout";
   Source2[Source2["stderr"] = 1] = "stderr";

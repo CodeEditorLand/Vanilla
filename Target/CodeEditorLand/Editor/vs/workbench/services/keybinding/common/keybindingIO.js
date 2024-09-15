@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeybindingParser } from "../../../../base/common/keybindingParser.js";
-import {
-  ContextKeyExpr
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { Keybinding } from "../../../../base/common/keybindings.js";
+import { ContextKeyExpr, ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
+import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
 class KeybindingIO {
   static {
     __name(this, "KeybindingIO");
@@ -12,29 +12,21 @@ class KeybindingIO {
     if (!item.resolvedKeybinding) {
       return;
     }
-    const quotedSerializedKeybinding = JSON.stringify(
-      item.resolvedKeybinding.getUserSettingsLabel()
-    );
-    out.write(
-      `{ "key": ${rightPaddedString(quotedSerializedKeybinding + ",", 25)} "command": `
-    );
+    const quotedSerializedKeybinding = JSON.stringify(item.resolvedKeybinding.getUserSettingsLabel());
+    out.write(`{ "key": ${rightPaddedString(quotedSerializedKeybinding + ",", 25)} "command": `);
     const quotedSerializedWhen = item.when ? JSON.stringify(item.when.serialize()) : "";
     const quotedSerializeCommand = JSON.stringify(item.command);
     if (quotedSerializedWhen.length > 0) {
       out.write(`${quotedSerializeCommand},`);
       out.writeLine();
-      out.write(
-        `                                     "when": ${quotedSerializedWhen}`
-      );
+      out.write(`                                     "when": ${quotedSerializedWhen}`);
     } else {
       out.write(`${quotedSerializeCommand}`);
     }
     if (item.commandArgs) {
       out.write(",");
       out.writeLine();
-      out.write(
-        `                                     "args": ${JSON.stringify(item.commandArgs)}`
-      );
+      out.write(`                                     "args": ${JSON.stringify(item.commandArgs)}`);
     }
     out.write(" }");
   }

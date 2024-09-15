@@ -10,43 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { isEqual } from "../../../../base/common/resources.js";
-import {
-  getCodeEditor,
-  isCodeEditor,
-  isCompositeEditor,
-  isDiffEditor
-} from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor, isCompositeEditor, getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { AbstractCodeEditorService } from "../../../../editor/browser/services/abstractCodeEditorService.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { ScrollType } from "../../../../editor/common/editorCommon.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkbenchEditorConfiguration } from "../../../common/editor.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../common/editorService.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
-import {
-  ACTIVE_GROUP,
-  IEditorService,
-  SIDE_GROUP
-} from "../common/editorService.js";
 let CodeEditorService = class extends AbstractCodeEditorService {
   constructor(editorService, themeService, configurationService) {
     super(themeService);
     this.editorService = editorService;
     this.configurationService = configurationService;
-    this._register(
-      this.registerCodeEditorOpenHandler(
-        this.doOpenCodeEditor.bind(this)
-      )
-    );
-    this._register(
-      this.registerCodeEditorOpenHandler(
-        this.doOpenCodeEditorFromDiff.bind(this)
-      )
-    );
+    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditor.bind(this)));
+    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditorFromDiff.bind(this)));
   }
   static {
     __name(this, "CodeEditorService");
@@ -73,16 +55,9 @@ let CodeEditorService = class extends AbstractCodeEditorService {
     input.resource && // we need a request resource to compare with
     source === activeTextEditorControl.getModifiedEditor() && // we need the source of this request to be the modified side of the diff editor
     activeTextEditorControl.getModel() && // we need a target model to compare with
-    isEqual(
-      input.resource,
-      activeTextEditorControl.getModel()?.modified.uri
-    )) {
+    isEqual(input.resource, activeTextEditorControl.getModel()?.modified.uri)) {
       const targetEditor = activeTextEditorControl.getModifiedEditor();
-      applyTextEditorOptions(
-        input.options,
-        targetEditor,
-        ScrollType.Smooth
-      );
+      applyTextEditorOptions(input.options, targetEditor, ScrollType.Smooth);
       return targetEditor;
     }
     return null;
@@ -102,10 +77,7 @@ let CodeEditorService = class extends AbstractCodeEditorService {
         }
       }
     }
-    const control = await this.editorService.openEditor(
-      input,
-      sideBySide ? SIDE_GROUP : ACTIVE_GROUP
-    );
+    const control = await this.editorService.openEditor(input, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
     if (control) {
       const widget = control.getControl();
       if (isCodeEditor(widget)) {
@@ -123,11 +95,7 @@ CodeEditorService = __decorateClass([
   __decorateParam(1, IThemeService),
   __decorateParam(2, IConfigurationService)
 ], CodeEditorService);
-registerSingleton(
-  ICodeEditorService,
-  CodeEditorService,
-  InstantiationType.Delayed
-);
+registerSingleton(ICodeEditorService, CodeEditorService, InstantiationType.Delayed);
 export {
   CodeEditorService
 };

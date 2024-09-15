@@ -89,7 +89,7 @@ function deserializeWebviewMessage(jsonMessage, buffers) {
     uint8Array.set(buffer.buffer);
     return arrayBuffer;
   });
-  const reviver = buffers.length ? (_key, value) => {
+  const reviver = !buffers.length ? void 0 : (_key, value) => {
     if (value && typeof value === "object" && value.$$vscode_array_buffer_reference$$) {
       const ref = value;
       const { index } = ref;
@@ -97,81 +97,35 @@ function deserializeWebviewMessage(jsonMessage, buffers) {
       if (ref.view) {
         switch (ref.view.type) {
           case extHostProtocol.WebviewMessageArrayBufferViewType.Int8Array:
-            return new Int8Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Int8Array.BYTES_PER_ELEMENT
-            );
+            return new Int8Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Int8Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Uint8Array:
-            return new Uint8Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Uint8Array.BYTES_PER_ELEMENT
-            );
+            return new Uint8Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Uint8Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Uint8ClampedArray:
-            return new Uint8ClampedArray(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
-            );
+            return new Uint8ClampedArray(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Int16Array:
-            return new Int16Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Int16Array.BYTES_PER_ELEMENT
-            );
+            return new Int16Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Int16Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Uint16Array:
-            return new Uint16Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Uint16Array.BYTES_PER_ELEMENT
-            );
+            return new Uint16Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Uint16Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Int32Array:
-            return new Int32Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Int32Array.BYTES_PER_ELEMENT
-            );
+            return new Int32Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Int32Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Uint32Array:
-            return new Uint32Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Uint32Array.BYTES_PER_ELEMENT
-            );
+            return new Uint32Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Uint32Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Float32Array:
-            return new Float32Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Float32Array.BYTES_PER_ELEMENT
-            );
+            return new Float32Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Float32Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.Float64Array:
-            return new Float64Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / Float64Array.BYTES_PER_ELEMENT
-            );
+            return new Float64Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / Float64Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.BigInt64Array:
-            return new BigInt64Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / BigInt64Array.BYTES_PER_ELEMENT
-            );
+            return new BigInt64Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / BigInt64Array.BYTES_PER_ELEMENT);
           case extHostProtocol.WebviewMessageArrayBufferViewType.BigUint64Array:
-            return new BigUint64Array(
-              arrayBuffer,
-              ref.view.byteOffset,
-              ref.view.byteLength / BigUint64Array.BYTES_PER_ELEMENT
-            );
+            return new BigUint64Array(arrayBuffer, ref.view.byteOffset, ref.view.byteLength / BigUint64Array.BYTES_PER_ELEMENT);
           default:
-            throw new Error(
-              "Unknown array buffer view type"
-            );
+            throw new Error("Unknown array buffer view type");
         }
       }
       return arrayBuffer;
     }
     return value;
-  } : void 0;
+  };
   const message = JSON.parse(jsonMessage, reviver);
   return { message, arrayBuffers };
 }

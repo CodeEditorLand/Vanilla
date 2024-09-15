@@ -10,61 +10,50 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DeferredPromise } from "../../base/common/async.js";
-import { Emitter } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { equals } from "../../base/common/objects.js";
-import { OperatingSystem, isWindows } from "../../base/common/platform.js";
 import { localize } from "../../nls.js";
-import {
-  ConfigurationTarget,
-  IConfigurationService
-} from "../../platform/configuration/common/configuration.js";
-import {
-  Extensions as ConfigurationExtensions,
-  ConfigurationScope
-} from "../../platform/configuration/common/configurationRegistry.js";
+import { ConfigurationScope, IConfigurationNode, IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../platform/configuration/common/configurationRegistry.js";
 import { Registry } from "../../platform/registry/common/platform.js";
-import {
-  IUserDataProfilesService
-} from "../../platform/userDataProfile/common/userDataProfile.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../platform/workspace/common/workspace.js";
+import { IWorkbenchContribution } from "./contributions.js";
+import { IWorkspaceContextService, IWorkspaceFolder, WorkbenchState } from "../../platform/workspace/common/workspace.js";
+import { ConfigurationTarget, IConfigurationService, IConfigurationValue, IInspectValue } from "../../platform/configuration/common/configuration.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { Emitter } from "../../base/common/event.js";
 import { IRemoteAgentService } from "../services/remote/common/remoteAgentService.js";
+import { OperatingSystem, isWindows } from "../../base/common/platform.js";
+import { URI } from "../../base/common/uri.js";
+import { equals } from "../../base/common/objects.js";
+import { DeferredPromise } from "../../base/common/async.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
 const applicationConfigurationNodeBase = Object.freeze({
-  id: "application",
-  order: 100,
-  title: localize("applicationConfigurationTitle", "Application"),
-  type: "object"
+  "id": "application",
+  "order": 100,
+  "title": localize("applicationConfigurationTitle", "Application"),
+  "type": "object"
 });
-const workbenchConfigurationNodeBase = Object.freeze(
-  {
-    id: "workbench",
-    order: 7,
-    title: localize("workbenchConfigurationTitle", "Workbench"),
-    type: "object"
-  }
-);
+const workbenchConfigurationNodeBase = Object.freeze({
+  "id": "workbench",
+  "order": 7,
+  "title": localize("workbenchConfigurationTitle", "Workbench"),
+  "type": "object"
+});
 const securityConfigurationNodeBase = Object.freeze({
-  id: "security",
-  scope: ConfigurationScope.APPLICATION,
-  title: localize("securityConfigurationTitle", "Security"),
-  type: "object",
-  order: 7
+  "id": "security",
+  "scope": ConfigurationScope.APPLICATION,
+  "title": localize("securityConfigurationTitle", "Security"),
+  "type": "object",
+  "order": 7
 });
 const problemsConfigurationNodeBase = Object.freeze({
-  id: "problems",
-  title: localize("problemsConfigurationTitle", "Problems"),
-  type: "object",
-  order: 101
+  "id": "problems",
+  "title": localize("problemsConfigurationTitle", "Problems"),
+  "type": "object",
+  "order": 101
 });
 const windowConfigurationNodeBase = Object.freeze({
-  id: "window",
-  order: 8,
-  title: localize("windowConfigurationTitle", "Window"),
-  type: "object"
+  "id": "window",
+  "order": 8,
+  "title": localize("windowConfigurationTitle", "Window"),
+  "type": "object"
 });
 const Extensions = {
   ConfigurationMigration: "base.contributions.configuration.migration"
@@ -87,22 +76,13 @@ let ConfigurationMigrationWorkbenchContribution = class extends Disposable {
     super();
     this.configurationService = configurationService;
     this.workspaceService = workspaceService;
-    this._register(
-      this.workspaceService.onDidChangeWorkspaceFolders(async (e) => {
-        for (const folder of e.added) {
-          await this.migrateConfigurationsForFolder(
-            folder,
-            configurationMigrationRegistry.migrations
-          );
-        }
-      })
-    );
+    this._register(this.workspaceService.onDidChangeWorkspaceFolders(async (e) => {
+      for (const folder of e.added) {
+        await this.migrateConfigurationsForFolder(folder, configurationMigrationRegistry.migrations);
+      }
+    }));
     this.migrateConfigurations(configurationMigrationRegistry.migrations);
-    this._register(
-      configurationMigrationRegistry.onDidRegisterConfigurationMigration(
-        (migration) => this.migrateConfigurations(migration)
-      )
-    );
+    this._register(configurationMigrationRegistry.onDidRegisterConfigurationMigration((migration) => this.migrateConfigurations(migration)));
   }
   static {
     __name(this, "ConfigurationMigrationWorkbenchContribution");
@@ -115,28 +95,16 @@ let ConfigurationMigrationWorkbenchContribution = class extends Disposable {
     }
   }
   async migrateConfigurationsForFolder(folder, migrations) {
-    await Promise.all([
-      migrations.map(
-        (migration) => this.migrateConfigurationsForFolderAndOverride(
-          migration,
-          folder?.uri
-        )
-      )
-    ]);
+    await Promise.all([migrations.map((migration) => this.migrateConfigurationsForFolderAndOverride(migration, folder?.uri))]);
   }
   async migrateConfigurationsForFolderAndOverride(migration, resource) {
-    const inspectData = this.configurationService.inspect(migration.key, {
-      resource
-    });
+    const inspectData = this.configurationService.inspect(migration.key, { resource });
     const targetPairs = this.workspaceService.getWorkbenchState() === WorkbenchState.WORKSPACE ? [
       ["user", ConfigurationTarget.USER],
       ["userLocal", ConfigurationTarget.USER_LOCAL],
       ["userRemote", ConfigurationTarget.USER_REMOTE],
       ["workspace", ConfigurationTarget.WORKSPACE],
-      [
-        "workspaceFolder",
-        ConfigurationTarget.WORKSPACE_FOLDER
-      ]
+      ["workspaceFolder", ConfigurationTarget.WORKSPACE_FOLDER]
     ] : [
       ["user", ConfigurationTarget.USER],
       ["userLocal", ConfigurationTarget.USER_LOCAL],
@@ -150,50 +118,27 @@ let ConfigurationMigrationWorkbenchContribution = class extends Disposable {
       }
       const migrationValues = [];
       if (inspectValue.value !== void 0) {
-        const keyValuePairs = await this.runMigration(
-          migration,
-          dataKey,
-          inspectValue.value,
-          resource,
-          void 0
-        );
+        const keyValuePairs = await this.runMigration(migration, dataKey, inspectValue.value, resource, void 0);
         for (const keyValuePair of keyValuePairs ?? []) {
           migrationValues.push([keyValuePair, []]);
         }
       }
       for (const { identifiers, value } of inspectValue.overrides ?? []) {
         if (value !== void 0) {
-          const keyValuePairs = await this.runMigration(
-            migration,
-            dataKey,
-            value,
-            resource,
-            identifiers
-          );
+          const keyValuePairs = await this.runMigration(migration, dataKey, value, resource, identifiers);
           for (const keyValuePair of keyValuePairs ?? []) {
             migrationValues.push([keyValuePair, identifiers]);
           }
         }
       }
       if (migrationValues.length) {
-        await Promise.allSettled(
-          migrationValues.map(
-            async ([[key, value], overrideIdentifiers]) => this.configurationService.updateValue(
-              key,
-              value.value,
-              { resource, overrideIdentifiers },
-              target
-            )
-          )
-        );
+        await Promise.allSettled(migrationValues.map(async ([[key, value], overrideIdentifiers]) => this.configurationService.updateValue(key, value.value, { resource, overrideIdentifiers }, target)));
       }
     }
   }
   async runMigration(migration, dataKey, value, resource, overrideIdentifiers) {
     const valueAccessor = /* @__PURE__ */ __name((key) => {
-      const inspectData = this.configurationService.inspect(key, {
-        resource
-      });
+      const inspectData = this.configurationService.inspect(key, { resource });
       const inspectValue = inspectData[dataKey];
       if (!inspectValue) {
         return void 0;
@@ -201,9 +146,7 @@ let ConfigurationMigrationWorkbenchContribution = class extends Disposable {
       if (!overrideIdentifiers) {
         return inspectValue.value;
       }
-      return inspectValue.overrides?.find(
-        ({ identifiers }) => equals(identifiers, overrideIdentifiers)
-      )?.value;
+      return inspectValue.overrides?.find(({ identifiers }) => equals(identifiers, overrideIdentifiers))?.value;
     }, "valueAccessor");
     const result = await migration.migrateFn(value, valueAccessor);
     return Array.isArray(result) ? result : [[migration.key, result]];
@@ -239,37 +182,26 @@ let DynamicWorkbenchSecurityConfiguration = class extends Disposable {
         return;
       }
     }
-    const registry = Registry.as(
-      ConfigurationExtensions.Configuration
-    );
+    const registry = Registry.as(ConfigurationExtensions.Configuration);
     registry.registerConfiguration({
       ...securityConfigurationNodeBase,
-      properties: {
+      "properties": {
         "security.allowedUNCHosts": {
-          type: "array",
-          items: {
-            type: "string",
-            pattern: "^[^\\\\]+$",
-            patternErrorMessage: localize(
-              "security.allowedUNCHosts.patternErrorMessage",
-              "UNC host names must not contain backslashes."
-            )
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[^\\\\]+$",
+            "patternErrorMessage": localize("security.allowedUNCHosts.patternErrorMessage", "UNC host names must not contain backslashes.")
           },
-          default: [],
-          markdownDescription: localize(
-            "security.allowedUNCHosts",
-            "A set of UNC host names (without leading or trailing backslash, for example `192.168.0.1` or `my-server`) to allow without user confirmation. If a UNC host is being accessed that is not allowed via this setting or has not been acknowledged via user confirmation, an error will occur and the operation stopped. A restart is required when changing this setting. Find out more about this setting at https://aka.ms/vscode-windows-unc."
-          ),
-          scope: ConfigurationScope.MACHINE
+          "default": [],
+          "markdownDescription": localize("security.allowedUNCHosts", "A set of UNC host names (without leading or trailing backslash, for example `192.168.0.1` or `my-server`) to allow without user confirmation. If a UNC host is being accessed that is not allowed via this setting or has not been acknowledged via user confirmation, an error will occur and the operation stopped. A restart is required when changing this setting. Find out more about this setting at https://aka.ms/vscode-windows-unc."),
+          "scope": ConfigurationScope.MACHINE
         },
         "security.restrictUNCAccess": {
-          type: "boolean",
-          default: true,
-          markdownDescription: localize(
-            "security.restrictUNCAccess",
-            "If enabled, only allows access to UNC host names that are allowed by the `#security.allowedUNCHosts#` setting or after user confirmation. Find out more about this setting at https://aka.ms/vscode-windows-unc."
-          ),
-          scope: ConfigurationScope.MACHINE
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": localize("security.restrictUNCAccess", "If enabled, only allows access to UNC host names that are allowed by the `#security.allowedUNCHosts#` setting or after user confirmation. Find out more about this setting at https://aka.ms/vscode-windows-unc."),
+          "scope": ConfigurationScope.MACHINE
         }
       }
     });
@@ -285,25 +217,15 @@ let DynamicWindowConfiguration = class extends Disposable {
     this.userDataProfilesService = userDataProfilesService;
     this.configurationService = configurationService;
     this.registerNewWindowProfileConfiguration();
-    this._register(
-      this.userDataProfilesService.onDidChangeProfiles(
-        (e) => this.registerNewWindowProfileConfiguration()
-      )
-    );
+    this._register(this.userDataProfilesService.onDidChangeProfiles((e) => this.registerNewWindowProfileConfiguration()));
     this.setNewWindowProfile();
     this.checkAndResetNewWindowProfileConfig();
-    this._register(
-      configurationService.onDidChangeConfiguration((e) => {
-        if (e.source !== ConfigurationTarget.DEFAULT && e.affectsConfiguration(CONFIG_NEW_WINDOW_PROFILE)) {
-          this.setNewWindowProfile();
-        }
-      })
-    );
-    this._register(
-      this.userDataProfilesService.onDidChangeProfiles(
-        () => this.checkAndResetNewWindowProfileConfig()
-      )
-    );
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.source !== ConfigurationTarget.DEFAULT && e.affectsConfiguration(CONFIG_NEW_WINDOW_PROFILE)) {
+        this.setNewWindowProfile();
+      }
+    }));
+    this._register(this.userDataProfilesService.onDidChangeProfiles(() => this.checkAndResetNewWindowProfileConfig()));
   }
   static {
     __name(this, "DynamicWindowConfiguration");
@@ -312,68 +234,41 @@ let DynamicWindowConfiguration = class extends Disposable {
   configurationNode;
   newWindowProfile;
   registerNewWindowProfileConfiguration() {
-    const registry = Registry.as(
-      ConfigurationExtensions.Configuration
-    );
+    const registry = Registry.as(ConfigurationExtensions.Configuration);
     const configurationNode = {
       ...windowConfigurationNodeBase,
-      properties: {
+      "properties": {
         [CONFIG_NEW_WINDOW_PROFILE]: {
-          type: ["string", "null"],
-          default: null,
-          enum: [
-            ...this.userDataProfilesService.profiles.map(
-              (profile) => profile.name
-            ),
-            null
-          ],
-          enumItemLabels: [
-            ...this.userDataProfilesService.profiles.map((p) => ""),
-            localize("active window", "Active Window")
-          ],
-          description: localize(
-            "newWindowProfile",
-            "Specifies the profile to use when opening a new window. If a profile name is provided, the new window will use that profile. If no profile name is provided, the new window will use the profile of the active window or the Default profile if no active window exists."
-          ),
-          scope: ConfigurationScope.APPLICATION
+          "type": ["string", "null"],
+          "default": null,
+          "enum": [...this.userDataProfilesService.profiles.map((profile) => profile.name), null],
+          "enumItemLabels": [...this.userDataProfilesService.profiles.map((p) => ""), localize("active window", "Active Window")],
+          "description": localize("newWindowProfile", "Specifies the profile to use when opening a new window. If a profile name is provided, the new window will use that profile. If no profile name is provided, the new window will use the profile of the active window or the Default profile if no active window exists."),
+          "scope": ConfigurationScope.APPLICATION
         }
       }
     };
     if (this.configurationNode) {
-      registry.updateConfigurations({
-        add: [configurationNode],
-        remove: [this.configurationNode]
-      });
+      registry.updateConfigurations({ add: [configurationNode], remove: [this.configurationNode] });
     } else {
       registry.registerConfiguration(configurationNode);
     }
     this.configurationNode = configurationNode;
   }
   setNewWindowProfile() {
-    const newWindowProfileName = this.configurationService.getValue(
-      CONFIG_NEW_WINDOW_PROFILE
-    );
-    this.newWindowProfile = newWindowProfileName ? this.userDataProfilesService.profiles.find(
-      (profile) => profile.name === newWindowProfileName
-    ) : void 0;
+    const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
+    this.newWindowProfile = newWindowProfileName ? this.userDataProfilesService.profiles.find((profile) => profile.name === newWindowProfileName) : void 0;
   }
   checkAndResetNewWindowProfileConfig() {
-    const newWindowProfileName = this.configurationService.getValue(
-      CONFIG_NEW_WINDOW_PROFILE
-    );
+    const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
     if (!newWindowProfileName) {
       return;
     }
-    const profile = this.newWindowProfile ? this.userDataProfilesService.profiles.find(
-      (profile2) => profile2.id === this.newWindowProfile.id
-    ) : void 0;
+    const profile = this.newWindowProfile ? this.userDataProfilesService.profiles.find((profile2) => profile2.id === this.newWindowProfile.id) : void 0;
     if (newWindowProfileName === profile?.name) {
       return;
     }
-    this.configurationService.updateValue(
-      CONFIG_NEW_WINDOW_PROFILE,
-      profile?.name
-    );
+    this.configurationService.updateValue(CONFIG_NEW_WINDOW_PROFILE, profile?.name);
   }
 };
 DynamicWindowConfiguration = __decorateClass([

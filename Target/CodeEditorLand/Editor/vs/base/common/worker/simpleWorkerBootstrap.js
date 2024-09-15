@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  SimpleWorkerServer
-} from "./simpleWorker.js";
+import { IRequestHandlerFactory, SimpleWorkerServer } from "./simpleWorker.js";
 let initialized = false;
 function initialize(factory) {
   if (initialized) {

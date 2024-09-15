@@ -1,78 +1,44 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { mainWindow } from "../../../base/browser/window.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
 import { splitLines } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
 import "./standalone-tokens.css";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../platform/actions/common/actions.js";
-import {
-  CommandsRegistry
-} from "../../../platform/commands/common/commands.js";
-import { ContextKeyExpr } from "../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
-import {
-  IMarkerService
-} from "../../../platform/markers/common/markers.js";
-import { IOpenerService } from "../../../platform/opener/common/opener.js";
 import { FontMeasurements } from "../../browser/config/fontMeasurements.js";
-import {
-  EditorCommand
-} from "../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../browser/editorBrowser.js";
+import { EditorCommand, ServicesAccessor } from "../../browser/editorExtensions.js";
 import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
-import { MultiDiffEditorWidget } from "../../browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
-import {
-  ApplyUpdateResult,
-  ConfigurationChangedEvent,
-  EditorOptions
-} from "../../common/config/editorOptions.js";
+import { IWebWorkerOptions, MonacoWebWorker, createWebWorker as actualCreateWebWorker } from "./standaloneWebWorker.js";
+import { ApplyUpdateResult, ConfigurationChangedEvent, EditorOptions } from "../../common/config/editorOptions.js";
 import { EditorZoom } from "../../common/config/editorZoom.js";
 import { BareFontInfo, FontInfo } from "../../common/config/fontInfo.js";
-import { EditorType } from "../../common/editorCommon.js";
+import { IPosition } from "../../common/core/position.js";
+import { IRange } from "../../common/core/range.js";
+import { EditorType, IDiffEditor } from "../../common/editorCommon.js";
 import * as languages from "../../common/languages.js";
 import { ILanguageService } from "../../common/languages/language.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../common/languages/modesRegistry.js";
-import {
-  NullState,
-  nullTokenize
-} from "../../common/languages/nullTokenize.js";
-import {
-  FindMatch,
-  TextModelResolvedOptions
-} from "../../common/model.js";
+import { NullState, nullTokenize } from "../../common/languages/nullTokenize.js";
+import { FindMatch, ITextModel, TextModelResolvedOptions } from "../../common/model.js";
 import { IModelService } from "../../common/services/model.js";
 import * as standaloneEnums from "../../common/standalone/standaloneEnums.js";
-import {
-  IStandaloneThemeService
-} from "../common/standaloneTheme.js";
-import {
-  Colorizer
-} from "./colorizer.js";
-import {
-  StandaloneDiffEditor2,
-  StandaloneEditor,
-  createTextModel
-} from "./standaloneCodeEditor.js";
-import {
-  StandaloneKeybindingService,
-  StandaloneServices
-} from "./standaloneServices.js";
-import {
-  createWebWorker as actualCreateWebWorker
-} from "./standaloneWebWorker.js";
+import { Colorizer, IColorizerElementOptions, IColorizerOptions } from "./colorizer.js";
+import { IActionDescriptor, IStandaloneCodeEditor, IStandaloneDiffEditor, IStandaloneDiffEditorConstructionOptions, IStandaloneEditorConstructionOptions, StandaloneDiffEditor2, StandaloneEditor, createTextModel } from "./standaloneCodeEditor.js";
+import { IEditorOverrideServices, StandaloneKeybindingService, StandaloneServices } from "./standaloneServices.js";
+import { StandaloneThemeService } from "./standaloneThemeService.js";
+import { IStandaloneThemeData, IStandaloneThemeService } from "../common/standaloneTheme.js";
+import { IMenuItem, MenuId, MenuRegistry } from "../../../platform/actions/common/actions.js";
+import { CommandsRegistry, ICommandHandler } from "../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../platform/contextkey/common/contextkey.js";
+import { ITextResourceEditorInput } from "../../../platform/editor/common/editor.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { IMarker, IMarkerData, IMarkerService } from "../../../platform/markers/common/markers.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { MultiDiffEditorWidget } from "../../browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
 function create(domElement, options, override) {
   const instantiationService = StandaloneServices.initialize(override || {});
-  return instantiationService.createInstance(
-    StandaloneEditor,
-    domElement,
-    options
-  );
+  return instantiationService.createInstance(StandaloneEditor, domElement, options);
 }
 __name(create, "create");
 function onDidCreateEditor(listener) {
@@ -101,11 +67,7 @@ function getDiffEditors() {
 __name(getDiffEditors, "getDiffEditors");
 function createDiffEditor(domElement, options, override) {
   const instantiationService = StandaloneServices.initialize(override || {});
-  return instantiationService.createInstance(
-    StandaloneDiffEditor2,
-    domElement,
-    options
-  );
+  return instantiationService.createInstance(StandaloneDiffEditor2, domElement, options);
 }
 __name(createDiffEditor, "createDiffEditor");
 function createMultiFileDiffEditor(domElement, override) {
@@ -115,27 +77,18 @@ function createMultiFileDiffEditor(domElement, override) {
 __name(createMultiFileDiffEditor, "createMultiFileDiffEditor");
 function addCommand(descriptor) {
   if (typeof descriptor.id !== "string" || typeof descriptor.run !== "function") {
-    throw new Error(
-      "Invalid command descriptor, `id` and `run` are required properties!"
-    );
+    throw new Error("Invalid command descriptor, `id` and `run` are required properties!");
   }
   return CommandsRegistry.registerCommand(descriptor.id, descriptor.run);
 }
 __name(addCommand, "addCommand");
 function addEditorAction(descriptor) {
   if (typeof descriptor.id !== "string" || typeof descriptor.label !== "string" || typeof descriptor.run !== "function") {
-    throw new Error(
-      "Invalid action descriptor, `id`, `label` and `run` are required properties!"
-    );
+    throw new Error("Invalid action descriptor, `id`, `label` and `run` are required properties!");
   }
   const precondition = ContextKeyExpr.deserialize(descriptor.precondition);
   const run = /* @__PURE__ */ __name((accessor, ...args) => {
-    return EditorCommand.runEditorCommand(
-      accessor,
-      args,
-      precondition,
-      (accessor2, editor, args2) => Promise.resolve(descriptor.run(editor, ...args2))
-    );
+    return EditorCommand.runEditorCommand(accessor, args, precondition, (accessor2, editor, args2) => Promise.resolve(descriptor.run(editor, ...args2)));
   }, "run");
   const toDispose = new DisposableStore();
   toDispose.add(CommandsRegistry.registerCommand(descriptor.id, run));
@@ -149,32 +102,21 @@ function addEditorAction(descriptor) {
       group: descriptor.contextMenuGroupId,
       order: descriptor.contextMenuOrder || 0
     };
-    toDispose.add(
-      MenuRegistry.appendMenuItem(MenuId.EditorContext, menuItem)
-    );
+    toDispose.add(MenuRegistry.appendMenuItem(MenuId.EditorContext, menuItem));
   }
   if (Array.isArray(descriptor.keybindings)) {
     const keybindingService = StandaloneServices.get(IKeybindingService);
-    if (keybindingService instanceof StandaloneKeybindingService) {
-      const keybindingsWhen = ContextKeyExpr.and(
-        precondition,
-        ContextKeyExpr.deserialize(descriptor.keybindingContext)
-      );
-      toDispose.add(
-        keybindingService.addDynamicKeybindings(
-          descriptor.keybindings.map((keybinding) => {
-            return {
-              keybinding,
-              command: descriptor.id,
-              when: keybindingsWhen
-            };
-          })
-        )
-      );
+    if (!(keybindingService instanceof StandaloneKeybindingService)) {
+      console.warn("Cannot add keybinding because the editor is configured with an unrecognized KeybindingService");
     } else {
-      console.warn(
-        "Cannot add keybinding because the editor is configured with an unrecognized KeybindingService"
-      );
+      const keybindingsWhen = ContextKeyExpr.and(precondition, ContextKeyExpr.deserialize(descriptor.keybindingContext));
+      toDispose.add(keybindingService.addDynamicKeybindings(descriptor.keybindings.map((keybinding) => {
+        return {
+          keybinding,
+          command: descriptor.id,
+          when: keybindingsWhen
+        };
+      })));
     }
   }
   return toDispose;
@@ -187,21 +129,17 @@ __name(addKeybindingRule, "addKeybindingRule");
 function addKeybindingRules(rules) {
   const keybindingService = StandaloneServices.get(IKeybindingService);
   if (!(keybindingService instanceof StandaloneKeybindingService)) {
-    console.warn(
-      "Cannot add keybinding because the editor is configured with an unrecognized KeybindingService"
-    );
+    console.warn("Cannot add keybinding because the editor is configured with an unrecognized KeybindingService");
     return Disposable.None;
   }
-  return keybindingService.addDynamicKeybindings(
-    rules.map((rule) => {
-      return {
-        keybinding: rule.keybinding,
-        command: rule.command,
-        commandArgs: rule.commandArgs,
-        when: ContextKeyExpr.deserialize(rule.when)
-      };
-    })
-  );
+  return keybindingService.addDynamicKeybindings(rules.map((rule) => {
+    return {
+      keybinding: rule.keybinding,
+      command: rule.command,
+      commandArgs: rule.commandArgs,
+      when: ContextKeyExpr.deserialize(rule.when)
+    };
+  }));
 }
 __name(addKeybindingRules, "addKeybindingRules");
 function createModel(value, language, uri) {
@@ -275,21 +213,13 @@ function onDidChangeModelLanguage(listener) {
 }
 __name(onDidChangeModelLanguage, "onDidChangeModelLanguage");
 function createWebWorker(opts) {
-  return actualCreateWebWorker(
-    StandaloneServices.get(IModelService),
-    opts
-  );
+  return actualCreateWebWorker(StandaloneServices.get(IModelService), opts);
 }
 __name(createWebWorker, "createWebWorker");
 function colorizeElement(domNode, options) {
   const languageService = StandaloneServices.get(ILanguageService);
   const themeService = StandaloneServices.get(IStandaloneThemeService);
-  return Colorizer.colorizeElement(
-    themeService,
-    languageService,
-    domNode,
-    options
-  ).then(() => {
+  return Colorizer.colorizeElement(themeService, languageService, domNode, options).then(() => {
     themeService.registerEditorContainer(domNode);
   });
 }
@@ -326,11 +256,7 @@ function tokenize(text, languageId) {
   let state = tokenizationSupport.getInitialState();
   for (let i = 0, len = lines.length; i < len; i++) {
     const line = lines[i];
-    const tokenizationResult = tokenizationSupport.tokenize(
-      line,
-      true,
-      state
-    );
+    const tokenizationResult = tokenizationSupport.tokenize(line, true, state);
     result[i] = tokenizationResult.tokens;
     state = tokenizationResult.endState;
   }
@@ -338,16 +264,12 @@ function tokenize(text, languageId) {
 }
 __name(tokenize, "tokenize");
 function defineTheme(themeName, themeData) {
-  const standaloneThemeService = StandaloneServices.get(
-    IStandaloneThemeService
-  );
+  const standaloneThemeService = StandaloneServices.get(IStandaloneThemeService);
   standaloneThemeService.defineTheme(themeName, themeData);
 }
 __name(defineTheme, "defineTheme");
 function setTheme(themeName) {
-  const standaloneThemeService = StandaloneServices.get(
-    IStandaloneThemeService
-  );
+  const standaloneThemeService = StandaloneServices.get(IStandaloneThemeService);
   standaloneThemeService.setTheme(themeName);
 }
 __name(setTheme, "setTheme");
@@ -373,31 +295,22 @@ function registerLinkOpener(opener) {
 __name(registerLinkOpener, "registerLinkOpener");
 function registerEditorOpener(opener) {
   const codeEditorService = StandaloneServices.get(ICodeEditorService);
-  return codeEditorService.registerCodeEditorOpenHandler(
-    async (input, source, sideBySide) => {
-      if (!source) {
-        return null;
-      }
-      const selection = input.options?.selection;
-      let selectionOrPosition;
-      if (selection && typeof selection.endLineNumber === "number" && typeof selection.endColumn === "number") {
-        selectionOrPosition = selection;
-      } else if (selection) {
-        selectionOrPosition = {
-          lineNumber: selection.startLineNumber,
-          column: selection.startColumn
-        };
-      }
-      if (await opener.openCodeEditor(
-        source,
-        input.resource,
-        selectionOrPosition
-      )) {
-        return source;
-      }
+  return codeEditorService.registerCodeEditorOpenHandler(async (input, source, sideBySide) => {
+    if (!source) {
       return null;
     }
-  );
+    const selection = input.options?.selection;
+    let selectionOrPosition;
+    if (selection && typeof selection.endLineNumber === "number" && typeof selection.endColumn === "number") {
+      selectionOrPosition = selection;
+    } else if (selection) {
+      selectionOrPosition = { lineNumber: selection.startLineNumber, column: selection.startColumn };
+    }
+    if (await opener.openCodeEditor(source, input.resource, selectionOrPosition)) {
+      return source;
+    }
+    return null;
+  });
 }
 __name(registerEditorOpener, "registerEditorOpener");
 function createMonacoEditorAPI() {

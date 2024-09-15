@@ -10,15 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import { isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
 import { localize } from "../../../../nls.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { Event } from "../../../../base/common/event.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 let DiffEditorActiveAnnouncementContribution = class extends Disposable {
   constructor(_editorService, _accessibilityService, _configurationService) {
@@ -26,21 +25,12 @@ let DiffEditorActiveAnnouncementContribution = class extends Disposable {
     this._editorService = _editorService;
     this._accessibilityService = _accessibilityService;
     this._configurationService = _configurationService;
-    this._register(
-      Event.runAndSubscribe(
-        _accessibilityService.onDidChangeScreenReaderOptimized,
-        () => this._updateListener()
-      )
-    );
-    this._register(
-      _configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          AccessibilityVerbositySettingId.DiffEditorActive
-        )) {
-          this._updateListener();
-        }
-      })
-    );
+    this._register(Event.runAndSubscribe(_accessibilityService.onDidChangeScreenReaderOptimized, () => this._updateListener()));
+    this._register(_configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(AccessibilityVerbositySettingId.DiffEditorActive)) {
+        this._updateListener();
+      }
+    }));
   }
   static {
     __name(this, "DiffEditorActiveAnnouncementContribution");
@@ -48,9 +38,7 @@ let DiffEditorActiveAnnouncementContribution = class extends Disposable {
   static ID = "workbench.contrib.diffEditorActiveAnnouncement";
   _onDidActiveEditorChangeListener;
   _updateListener() {
-    const announcementEnabled = this._configurationService.getValue(
-      AccessibilityVerbositySettingId.DiffEditorActive
-    );
+    const announcementEnabled = this._configurationService.getValue(AccessibilityVerbositySettingId.DiffEditorActive);
     const screenReaderOptimized = this._accessibilityService.isScreenReaderOptimized();
     if (!announcementEnabled || !screenReaderOptimized) {
       this._onDidActiveEditorChangeListener?.dispose();
@@ -60,15 +48,11 @@ let DiffEditorActiveAnnouncementContribution = class extends Disposable {
     if (this._onDidActiveEditorChangeListener) {
       return;
     }
-    this._onDidActiveEditorChangeListener = this._register(
-      this._editorService.onDidActiveEditorChange(() => {
-        if (isDiffEditor(this._editorService.activeTextEditorControl)) {
-          this._accessibilityService.alert(
-            localize("openDiffEditorAnnouncement", "Diff editor")
-          );
-        }
-      })
-    );
+    this._onDidActiveEditorChangeListener = this._register(this._editorService.onDidActiveEditorChange(() => {
+      if (isDiffEditor(this._editorService.activeTextEditorControl)) {
+        this._accessibilityService.alert(localize("openDiffEditorAnnouncement", "Diff editor"));
+      }
+    }));
   }
 };
 DiffEditorActiveAnnouncementContribution = __decorateClass([

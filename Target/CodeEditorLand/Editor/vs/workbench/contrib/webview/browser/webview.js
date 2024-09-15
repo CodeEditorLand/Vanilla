@@ -10,19 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
 import { equals } from "../../../../base/common/arrays.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { isEqual } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { Memento } from "../../../common/memento.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { IWebviewPortMapping } from "../../../../platform/webview/common/webviewPortMapping.js";
+import { Memento, MementoObject } from "../../../common/memento.js";
 const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE = new RawContextKey("webviewFindWidgetVisible", false);
 const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED = new RawContextKey("webviewFindWidgetFocused", false);
 const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED = new RawContextKey("webviewFindWidgetEnabled", false);
@@ -34,11 +36,7 @@ var WebviewContentPurpose = /* @__PURE__ */ ((WebviewContentPurpose2) => {
   return WebviewContentPurpose2;
 })(WebviewContentPurpose || {});
 function areWebviewContentOptionsEqual(a, b) {
-  return a.allowMultipleAPIAcquire === b.allowMultipleAPIAcquire && a.allowScripts === b.allowScripts && a.allowForms === b.allowForms && equals(a.localResourceRoots, b.localResourceRoots, isEqual) && equals(
-    a.portMapping,
-    b.portMapping,
-    (a2, b2) => a2.extensionHostPort === b2.extensionHostPort && a2.webviewPort === b2.webviewPort
-  ) && areEnableCommandUrisEqual(a, b);
+  return a.allowMultipleAPIAcquire === b.allowMultipleAPIAcquire && a.allowScripts === b.allowScripts && a.allowForms === b.allowForms && equals(a.localResourceRoots, b.localResourceRoots, isEqual) && equals(a.portMapping, b.portMapping, (a2, b2) => a2.extensionHostPort === b2.extensionHostPort && a2.webviewPort === b2.webviewPort) && areEnableCommandUrisEqual(a, b);
 }
 __name(areWebviewContentOptionsEqual, "areWebviewContentOptionsEqual");
 function areEnableCommandUrisEqual(a, b) {
@@ -59,10 +57,7 @@ let WebviewOriginStore = class {
   _state;
   constructor(rootStorageKey, storageService) {
     this._memento = new Memento(rootStorageKey, storageService);
-    this._state = this._memento.getMemento(
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this._state = this._memento.getMemento(StorageScope.APPLICATION, StorageTarget.MACHINE);
   }
   getOrigin(viewType, additionalKey) {
     const key = this._getKey(viewType, additionalKey);

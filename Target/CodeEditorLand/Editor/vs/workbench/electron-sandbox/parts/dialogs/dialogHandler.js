@@ -10,18 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { localize } from "../../../../nls.js";
 import { fromNow } from "../../../../base/common/date.js";
 import { isLinuxSnap } from "../../../../base/common/platform.js";
-import { process } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
-import { localize } from "../../../../nls.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import {
-  AbstractDialogHandler
-} from "../../../../platform/dialogs/common/dialogs.js";
+import { AbstractDialogHandler, IConfirmation, IConfirmationResult, IPrompt, IAsyncPromptResult } from "../../../../platform/dialogs/common/dialogs.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
+import { process } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
 let NativeDialogHandler = class extends AbstractDialogHandler {
   constructor(logService, nativeHostService, productService, clipboardService) {
     super();
@@ -78,12 +76,7 @@ let NativeDialogHandler = class extends AbstractDialogHandler {
     const osProps = await this.nativeHostService.getOSProperties();
     const detailString = /* @__PURE__ */ __name((useAgo) => {
       return localize(
-        {
-          key: "aboutDetail",
-          comment: [
-            "Electron, Chromium, Node.js and V8 are product names that need no translation"
-          ]
-        },
+        { key: "aboutDetail", comment: ["Electron, Chromium, Node.js and V8 are product names that need no translation"] },
         "Version: {0}\nCommit: {1}\nDate: {2}\nElectron: {3}\nElectronBuildId: {4}\nChromium: {5}\nNode.js: {6}\nV8: {7}\nOS: {8}",
         version,
         this.productService.commit || "Unknown",
@@ -104,10 +97,7 @@ let NativeDialogHandler = class extends AbstractDialogHandler {
       detail: `
 ${detail}`,
       buttons: [
-        localize(
-          { key: "copy", comment: ["&& denotes a mnemonic"] },
-          "&&Copy"
-        ),
+        localize({ key: "copy", comment: ["&& denotes a mnemonic"] }, "&&Copy"),
         localize("okButton", "OK")
       ],
       targetWindowId: getActiveWindow().vscodeWindowId

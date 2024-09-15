@@ -10,9 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
 import { ColorTheme, ColorThemeKind } from "./extHostTypes.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostThemingShape } from "./extHost.protocol.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 let ExtHostTheming = class {
   static {
     __name(this, "ExtHostTheming");

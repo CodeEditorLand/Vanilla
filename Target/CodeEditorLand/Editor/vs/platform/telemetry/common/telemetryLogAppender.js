@@ -13,18 +13,9 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { localize } from "../../../nls.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  ILogService,
-  ILoggerService,
-  LogLevel
-} from "../../log/common/log.js";
+import { ILogService, ILogger, ILoggerService, LogLevel } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
-import {
-  isLoggingOnly,
-  supportsTelemetry,
-  telemetryLogId,
-  validateTelemetryData
-} from "./telemetryUtils.js";
+import { ITelemetryAppender, isLoggingOnly, supportsTelemetry, telemetryLogId, validateTelemetryData } from "./telemetryUtils.js";
 let TelemetryLogAppender = class extends Disposable {
   constructor(logService, loggerService, environmentService, productService, prefix = "") {
     super();
@@ -33,29 +24,13 @@ let TelemetryLogAppender = class extends Disposable {
     if (logger) {
       this.logger = this._register(logger);
     } else {
-      const justLoggingAndNotSending = isLoggingOnly(
-        productService,
-        environmentService
-      );
+      const justLoggingAndNotSending = isLoggingOnly(productService, environmentService);
       const logSuffix = justLoggingAndNotSending ? " (Not Sent)" : "";
       const isVisible = /* @__PURE__ */ __name(() => supportsTelemetry(productService, environmentService) && logService.getLevel() === LogLevel.Trace, "isVisible");
-      this.logger = this._register(
-        loggerService.createLogger(telemetryLogId, {
-          name: localize("telemetryLog", "Telemetry{0}", logSuffix),
-          hidden: !isVisible()
-        })
-      );
-      this._register(
-        logService.onDidChangeLogLevel(
-          () => loggerService.setVisibility(telemetryLogId, isVisible())
-        )
-      );
-      this.logger.info(
-        "Below are logs for every telemetry event sent from VS Code once the log level is set to trace."
-      );
-      this.logger.info(
-        "==========================================================="
-      );
+      this.logger = this._register(loggerService.createLogger(telemetryLogId, { name: localize("telemetryLog", "Telemetry{0}", logSuffix), hidden: !isVisible() }));
+      this._register(logService.onDidChangeLogLevel(() => loggerService.setVisibility(telemetryLogId, isVisible())));
+      this.logger.info("Below are logs for every telemetry event sent from VS Code once the log level is set to trace.");
+      this.logger.info("===========================================================");
     }
   }
   static {
@@ -66,10 +41,7 @@ let TelemetryLogAppender = class extends Disposable {
     return Promise.resolve(void 0);
   }
   log(eventName, data) {
-    this.logger.trace(
-      `${this.prefix}telemetry/${eventName}`,
-      validateTelemetryData(data)
-    );
+    this.logger.trace(`${this.prefix}telemetry/${eventName}`, validateTelemetryData(data));
   }
 };
 TelemetryLogAppender = __decorateClass([

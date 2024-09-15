@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDiffEditorModel } from "../../../editor/common/editorCommon.js";
+import { BaseTextEditorModel } from "./textEditorModel.js";
 import { DiffEditorModel } from "./diffEditorModel.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
 class TextDiffEditorModel extends DiffEditorModel {
   static {
     __name(this, "TextDiffEditorModel");
@@ -29,14 +32,14 @@ class TextDiffEditorModel extends DiffEditorModel {
   }
   updateTextDiffEditorModel() {
     if (this.originalModel?.isResolved() && this.modifiedModel?.isResolved()) {
-      if (this._textDiffEditorModel) {
-        this._textDiffEditorModel.original = this.originalModel.textEditorModel;
-        this._textDiffEditorModel.modified = this.modifiedModel.textEditorModel;
-      } else {
+      if (!this._textDiffEditorModel) {
         this._textDiffEditorModel = {
           original: this.originalModel.textEditorModel,
           modified: this.modifiedModel.textEditorModel
         };
+      } else {
+        this._textDiffEditorModel.original = this.originalModel.textEditorModel;
+        this._textDiffEditorModel.modified = this.modifiedModel.textEditorModel;
       }
     }
   }

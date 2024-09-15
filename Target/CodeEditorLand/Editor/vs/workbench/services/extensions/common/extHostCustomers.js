@@ -1,18 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { BrandedService, IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
+import { ExtensionHostKind } from "./extensionHostKind.js";
+import { IExtensionHostProxy } from "./extensionHostProxy.js";
+import { IInternalExtensionService } from "./extensions.js";
+import { IRPCProtocol, ProxyIdentifier } from "./proxyIdentifier.js";
 function extHostNamedCustomer(id) {
-  return (ctor) => {
-    ExtHostCustomersRegistryImpl.INSTANCE.registerNamedCustomer(
-      id,
-      ctor
-    );
+  return function(ctor) {
+    ExtHostCustomersRegistryImpl.INSTANCE.registerNamedCustomer(id, ctor);
   };
 }
 __name(extHostNamedCustomer, "extHostNamedCustomer");
 function extHostCustomer(ctor) {
-  ExtHostCustomersRegistryImpl.INSTANCE.registerCustomer(
-    ctor
-  );
+  ExtHostCustomersRegistryImpl.INSTANCE.registerCustomer(ctor);
 }
 __name(extHostCustomer, "extHostCustomer");
 var ExtHostCustomersRegistry;

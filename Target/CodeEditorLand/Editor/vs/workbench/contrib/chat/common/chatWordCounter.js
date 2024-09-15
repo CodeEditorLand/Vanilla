@@ -25,14 +25,7 @@ r`)` + // Title
 /**/
 r`\s*(?:"[^"]*"|'[^']*'|\([^\(\)]*\))?\s*` + r`\)`;
 function getNWords(str, numWordsToCount) {
-  const allWordMatches = Array.from(
-    str.matchAll(
-      new RegExp(
-        linkPattern + r`|\p{sc=Han}|=+|\++|-+|[^\s\|\p{sc=Han}|=|\+|\-]+`,
-        "gu"
-      )
-    )
-  );
+  const allWordMatches = Array.from(str.matchAll(new RegExp(linkPattern + r`|\p{sc=Han}|=+|\++|-+|[^\s\|\p{sc=Han}|=|\+|\-]+`, "gu")));
   const targetWords = allWordMatches.slice(0, numWordsToCount);
   const endIndex = numWordsToCount > allWordMatches.length ? str.length : targetWords.length ? targetWords.at(-1).index + targetWords.at(-1)[0].length : 0;
   const value = str.substring(0, endIndex);

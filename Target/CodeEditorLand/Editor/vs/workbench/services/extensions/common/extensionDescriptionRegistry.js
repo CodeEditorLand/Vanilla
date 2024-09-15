@@ -1,17 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { promiseWithResolvers } from "../../../../base/common/async.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap, ExtensionIdentifierSet, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
 import * as path from "../../../../base/common/path.js";
-import {
-  ExtensionIdentifier,
-  ExtensionIdentifierMap,
-  ExtensionIdentifierSet
-} from "../../../../platform/extensions/common/extensions.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { promiseWithResolvers } from "../../../../base/common/async.js";
 class DeltaExtensionsResult {
   constructor(versionId, removedDueToLooping) {
     this.versionId = versionId;
@@ -57,19 +50,12 @@ class ExtensionDescriptionRegistry {
     this._activationMap = /* @__PURE__ */ new Map();
     for (const extensionDescription of this._extensionDescriptions) {
       if (this._extensionsMap.has(extensionDescription.identifier)) {
-        console.error(
-          "Extension `" + extensionDescription.identifier.value + "` is already registered"
-        );
+        console.error("Extension `" + extensionDescription.identifier.value + "` is already registered");
         continue;
       }
-      this._extensionsMap.set(
-        extensionDescription.identifier,
-        extensionDescription
-      );
+      this._extensionsMap.set(extensionDescription.identifier, extensionDescription);
       this._extensionsArr.push(extensionDescription);
-      const activationEvents = this._activationEventsReader.readActivationEvents(
-        extensionDescription
-      );
+      const activationEvents = this._activationEventsReader.readActivationEvents(extensionDescription);
       for (const activationEvent of activationEvents) {
         if (!this._activationMap.has(activationEvent)) {
           this._activationMap.set(activationEvent, []);
@@ -88,18 +74,10 @@ class ExtensionDescriptionRegistry {
     };
   }
   deltaExtensions(toAdd, toRemove) {
-    this._extensionDescriptions = removeExtensions(
-      this._extensionDescriptions,
-      toRemove
-    );
+    this._extensionDescriptions = removeExtensions(this._extensionDescriptions, toRemove);
     this._extensionDescriptions = this._extensionDescriptions.concat(toAdd);
-    const looping = ExtensionDescriptionRegistry._findLoopingExtensions(
-      this._extensionDescriptions
-    );
-    this._extensionDescriptions = removeExtensions(
-      this._extensionDescriptions,
-      looping.map((ext) => ext.identifier)
-    );
+    const looping = ExtensionDescriptionRegistry._findLoopingExtensions(this._extensionDescriptions);
+    this._extensionDescriptions = removeExtensions(this._extensionDescriptions, looping.map((ext) => ext.identifier));
     this._initialize();
     this._versionId++;
     this._onDidChange.fire(void 0);
@@ -149,12 +127,7 @@ class ExtensionDescriptionRegistry {
       descs.set(extensionDescription.identifier, extensionDescription);
       if (extensionDescription.extensionDependencies) {
         for (const depId of extensionDescription.extensionDependencies) {
-          G.addArc(
-            ExtensionIdentifier.toKey(
-              extensionDescription.identifier
-            ),
-            ExtensionIdentifier.toKey(depId)
-          );
+          G.addArc(ExtensionIdentifier.toKey(extensionDescription.identifier), ExtensionIdentifier.toKey(depId));
         }
       }
     }
@@ -227,10 +200,7 @@ class LockableExtensionDescriptionRegistry {
   _actual;
   _lock = new Lock();
   constructor(activationEventsReader) {
-    this._actual = new ExtensionDescriptionRegistry(
-      activationEventsReader,
-      []
-    );
+    this._actual = new ExtensionDescriptionRegistry(activationEventsReader, []);
   }
   async acquireLock(customerName) {
     const lock = await this._lock.acquire(customerName);
@@ -249,9 +219,7 @@ class LockableExtensionDescriptionRegistry {
     return this._actual.containsExtension(extensionId);
   }
   getExtensionDescriptionsForActivationEvent(activationEvent) {
-    return this._actual.getExtensionDescriptionsForActivationEvent(
-      activationEvent
-    );
+    return this._actual.getExtensionDescriptionsForActivationEvent(activationEvent);
   }
   getAllExtensionDescriptions() {
     return this._actual.getAllExtensionDescriptions();
@@ -266,10 +234,7 @@ class LockableExtensionDescriptionRegistry {
     return this._actual.getExtensionDescriptionByUUID(uuid);
   }
   getExtensionDescriptionByIdOrUUID(extensionId, uuid) {
-    return this._actual.getExtensionDescriptionByIdOrUUID(
-      extensionId,
-      uuid
-    );
+    return this._actual.getExtensionDescriptionByIdOrUUID(extensionId, uuid);
   }
 }
 class ExtensionDescriptionRegistryLock extends Disposable {
@@ -327,9 +292,7 @@ class Lock {
     const logLongRunningCustomerTimeout = setTimeout(
       () => {
         if (customerHoldsLock) {
-          console.warn(
-            `The customer named ${customer.name} has been holding on to the lock for 30s. This might be a problem.`
-          );
+          console.warn(`The customer named ${customer.name} has been holding on to the lock for 30s. This might be a problem.`);
         }
       },
       30 * 1e3

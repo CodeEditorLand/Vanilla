@@ -1,12 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { timeout } from "../../../base/common/async.js";
-import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { DefaultURITransformer } from "../../../base/common/uriIpc.js";
 import { ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
 import { Server as ChildProcessServer } from "../../../base/parts/ipc/node/ipc.cp.js";
 import { Server as UtilityProcessServer } from "../../../base/parts/ipc/node/ipc.mp.js";
-import { isUtilityProcess } from "../../../base/parts/sandbox/node/electronTypes.js";
 import { localize } from "../../../nls.js";
 import { OPTIONS, parseArgs } from "../../environment/node/argv.js";
 import { NativeEnvironmentService } from "../../environment/node/environmentService.js";
@@ -15,27 +12,21 @@ import { LoggerChannel } from "../../log/common/logIpc.js";
 import { LogService } from "../../log/common/logService.js";
 import { LoggerService } from "../../log/node/loggerService.js";
 import product from "../../product/common/product.js";
-import {
-  TerminalIpcChannels
-} from "../common/terminal.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IReconnectConstants, TerminalIpcChannels } from "../common/terminal.js";
 import { HeartbeatService } from "./heartbeatService.js";
 import { PtyService } from "./ptyService.js";
+import { isUtilityProcess } from "../../../base/parts/sandbox/node/electronTypes.js";
+import { timeout } from "../../../base/common/async.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
 startPtyHost();
 async function startPtyHost() {
-  const startupDelay = Number.parseInt(
-    process.env.VSCODE_STARTUP_DELAY ?? "0"
-  );
-  const simulatedLatency = Number.parseInt(process.env.VSCODE_LATENCY ?? "0");
+  const startupDelay = parseInt(process.env.VSCODE_STARTUP_DELAY ?? "0");
+  const simulatedLatency = parseInt(process.env.VSCODE_LATENCY ?? "0");
   const reconnectConstants = {
-    graceTime: Number.parseInt(
-      process.env.VSCODE_RECONNECT_GRACE_TIME || "0"
-    ),
-    shortGraceTime: Number.parseInt(
-      process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME || "0"
-    ),
-    scrollback: Number.parseInt(
-      process.env.VSCODE_RECONNECT_SCROLLBACK || "100"
-    )
+    graceTime: parseInt(process.env.VSCODE_RECONNECT_GRACE_TIME || "0"),
+    shortGraceTime: parseInt(process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME || "0"),
+    scrollback: parseInt(process.env.VSCODE_RECONNECT_SCROLLBACK || "100")
   };
   delete process.env.VSCODE_RECONNECT_GRACE_TIME;
   delete process.env.VSCODE_RECONNECT_SHORT_GRACE_TIME;
@@ -52,25 +43,11 @@ async function startPtyHost() {
   } else {
     server = new ChildProcessServer(TerminalIpcChannels.PtyHost);
   }
-  const productService = {
-    _serviceBrand: void 0,
-    ...product
-  };
-  const environmentService = new NativeEnvironmentService(
-    parseArgs(process.argv, OPTIONS),
-    productService
-  );
-  const loggerService = new LoggerService(
-    getLogLevel(environmentService),
-    environmentService.logsHome
-  );
-  server.registerChannel(
-    TerminalIpcChannels.Logger,
-    new LoggerChannel(loggerService, () => DefaultURITransformer)
-  );
-  const logger = loggerService.createLogger("ptyhost", {
-    name: localize("ptyHost", "Pty Host")
-  });
+  const productService = { _serviceBrand: void 0, ...product };
+  const environmentService = new NativeEnvironmentService(parseArgs(process.argv, OPTIONS), productService);
+  const loggerService = new LoggerService(getLogLevel(environmentService), environmentService.logsHome);
+  server.registerChannel(TerminalIpcChannels.Logger, new LoggerChannel(loggerService, () => DefaultURITransformer));
+  const logger = loggerService.createLogger("ptyhost", { name: localize("ptyHost", "Pty Host") });
   const logService = new LogService(logger);
   if (startupDelay) {
     logService.warn(`Pty Host startup is delayed ${startupDelay}ms`);
@@ -80,23 +57,12 @@ async function startPtyHost() {
   }
   const disposables = new DisposableStore();
   const heartbeatService = new HeartbeatService();
-  server.registerChannel(
-    TerminalIpcChannels.Heartbeat,
-    ProxyChannel.fromService(heartbeatService, disposables)
-  );
-  const ptyService = new PtyService(
-    logService,
-    productService,
-    reconnectConstants,
-    simulatedLatency
-  );
+  server.registerChannel(TerminalIpcChannels.Heartbeat, ProxyChannel.fromService(heartbeatService, disposables));
+  const ptyService = new PtyService(logService, productService, reconnectConstants, simulatedLatency);
   const ptyServiceChannel = ProxyChannel.fromService(ptyService, disposables);
   server.registerChannel(TerminalIpcChannels.PtyHost, ptyServiceChannel);
   if (_isUtilityProcess) {
-    server.registerChannel(
-      TerminalIpcChannels.PtyHostWindow,
-      ptyServiceChannel
-    );
+    server.registerChannel(TerminalIpcChannels.PtyHostWindow, ptyServiceChannel);
   }
   process.once("exit", () => {
     logService.trace("Pty host exiting");

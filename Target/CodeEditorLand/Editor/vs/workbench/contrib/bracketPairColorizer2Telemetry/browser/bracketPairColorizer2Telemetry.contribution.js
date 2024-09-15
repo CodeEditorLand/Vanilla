@@ -14,12 +14,10 @@ import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 import { EnablementState } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 let BracketPairColorizer2TelemetryContribution = class {
   constructor(configurationService, extensionsWorkbenchService, telemetryService) {
     this.configurationService = configurationService;
@@ -33,16 +31,12 @@ let BracketPairColorizer2TelemetryContribution = class {
   async init() {
     const bracketPairColorizerId = "coenraads.bracket-pair-colorizer-2";
     await this.extensionsWorkbenchService.queryLocal();
-    const extension = this.extensionsWorkbenchService.installed.find(
-      (e) => e.identifier.id === bracketPairColorizerId
-    );
+    const extension = this.extensionsWorkbenchService.installed.find((e) => e.identifier.id === bracketPairColorizerId);
     if (!extension || extension.enablementState !== EnablementState.EnabledGlobally && extension.enablementState !== EnablementState.EnabledWorkspace) {
       return;
     }
     const nativeBracketPairColorizationEnabledKey = "editor.bracketPairColorization.enabled";
-    const nativeColorizationEnabled = !!this.configurationService.getValue(
-      nativeBracketPairColorizationEnabledKey
-    );
+    const nativeColorizationEnabled = !!this.configurationService.getValue(nativeBracketPairColorizationEnabledKey);
     this.telemetryService.publicLog2("bracketPairColorizerTwoUsage", {
       nativeColorizationEnabled
     });
@@ -53,10 +47,5 @@ BracketPairColorizer2TelemetryContribution = __decorateClass([
   __decorateParam(1, IExtensionsWorkbenchService),
   __decorateParam(2, ITelemetryService)
 ], BracketPairColorizer2TelemetryContribution);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  BracketPairColorizer2TelemetryContribution,
-  LifecyclePhase.Restored
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(BracketPairColorizer2TelemetryContribution, LifecyclePhase.Restored);
 //# sourceMappingURL=bracketPairColorizer2Telemetry.contribution.js.map

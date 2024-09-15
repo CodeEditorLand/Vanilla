@@ -1,26 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AsyncIterableSource
-} from "../../../../base/common/async.js";
 import { EditOperation } from "../../../../editor/common/core/editOperation.js";
-import {
-  TrackedRangeStickiness
-} from "../../../../editor/common/model.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IIdentifiedSingleEditOperation, ITextModel, IValidEditOperation, TrackedRangeStickiness } from "../../../../editor/common/model.js";
+import { IEditObserver } from "./inlineChatStrategies.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IntervalTimer, AsyncIterableSource } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { getNWords } from "../../chat/common/chatWordCounter.js";
 async function performAsyncTextEdit(model, edit, progress, obs) {
-  const [id] = model.deltaDecorations(
-    [],
-    [
-      {
-        range: edit.range,
-        options: {
-          description: "asyncTextEdit",
-          stickiness: TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges
-        }
-      }
-    ]
-  );
+  const [id] = model.deltaDecorations([], [{
+    range: edit.range,
+    options: {
+      description: "asyncTextEdit",
+      stickiness: TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges
+    }
+  }]);
   let first = true;
   for await (const part of edit.newText) {
     if (model.isDisposed()) {
@@ -28,9 +23,7 @@ async function performAsyncTextEdit(model, edit, progress, obs) {
     }
     const range = model.getDecorationRange(id);
     if (!range) {
-      throw new Error(
-        "FAILED to perform async replace edit because the anchor decoration was removed"
-      );
+      throw new Error("FAILED to perform async replace edit because the anchor decoration was removed");
     }
     const edit2 = first ? EditOperation.replace(range, part) : EditOperation.insert(range.getEndPosition(), part);
     obs?.start();

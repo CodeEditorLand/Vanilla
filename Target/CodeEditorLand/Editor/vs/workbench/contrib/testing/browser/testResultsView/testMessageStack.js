@@ -12,46 +12,36 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  CallStackFrame,
-  CallStackWidget
-} from "../../../debug/browser/callStackWidget.js";
+import { AnyStackFrame, CallStackFrame, CallStackWidget } from "../../../debug/browser/callStackWidget.js";
+import { ITestMessageStackFrame } from "../../common/testTypes.js";
 let TestResultStackWidget = class extends Disposable {
   constructor(container, containingEditor, instantiationService) {
     super();
     this.container = container;
-    this.widget = this._register(
-      instantiationService.createInstance(
-        CallStackWidget,
-        container,
-        containingEditor
-      )
-    );
+    this.widget = this._register(instantiationService.createInstance(
+      CallStackWidget,
+      container,
+      containingEditor
+    ));
   }
   static {
     __name(this, "TestResultStackWidget");
   }
   widget;
-  changeStackFrameEmitter = this._register(
-    new Emitter()
-  );
+  changeStackFrameEmitter = this._register(new Emitter());
   onDidChangeStackFrame = this.changeStackFrameEmitter.event;
   collapseAll() {
     this.widget.collapseAll();
   }
   update(messageFrame, stack) {
-    this.widget.setFrames([
-      messageFrame,
-      ...stack.map(
-        (frame) => new CallStackFrame(
-          frame.label,
-          frame.uri,
-          frame.position?.lineNumber,
-          frame.position?.column
-        )
-      )
-    ]);
+    this.widget.setFrames([messageFrame, ...stack.map((frame) => new CallStackFrame(
+      frame.label,
+      frame.uri,
+      frame.position?.lineNumber,
+      frame.position?.column
+    ))]);
   }
   layout(height, width) {
     this.widget.layout(height ?? this.container.clientHeight, width);

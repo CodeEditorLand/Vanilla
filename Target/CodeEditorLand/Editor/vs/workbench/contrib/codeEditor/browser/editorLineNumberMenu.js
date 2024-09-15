@@ -10,28 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Separator } from "../../../../base/common/actions.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { IAction, Separator } from "../../../../base/common/actions.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import { isMacintosh } from "../../../../base/common/platform.js";
-import {
-  MouseTargetType
-} from "../../../../editor/browser/editorBrowser.js";
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../../editor/browser/editorExtensions.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
+import { ICodeEditor, IEditorMouseEvent, MouseTargetType } from "../../../../editor/browser/editorBrowser.js";
+import { registerEditorContribution, EditorContributionInstantiation } from "../../../../editor/browser/editorExtensions.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { TextEditorSelectionSource } from "../../../../platform/editor/common/editor.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 class GutterActionsRegistryImpl {
   static {
@@ -48,9 +37,7 @@ class GutterActionsRegistryImpl {
     this._registeredGutterActionsGenerators.add(gutterActionsGenerator);
     return {
       dispose: /* @__PURE__ */ __name(() => {
-        this._registeredGutterActionsGenerators.delete(
-          gutterActionsGenerator
-        );
+        this._registeredGutterActionsGenerators.delete(gutterActionsGenerator);
       }, "dispose")
     };
   }
@@ -59,9 +46,7 @@ class GutterActionsRegistryImpl {
   }
 }
 Registry.add("gutterActionsRegistry", new GutterActionsRegistryImpl());
-const GutterActionsRegistry = Registry.as(
-  "gutterActionsRegistry"
-);
+const GutterActionsRegistry = Registry.as("gutterActionsRegistry");
 let EditorLineNumberContextMenu = class extends Disposable {
   constructor(editor, contextMenuService, menuService, contextKeyService, instantiationService) {
     super();
@@ -70,11 +55,7 @@ let EditorLineNumberContextMenu = class extends Disposable {
     this.menuService = menuService;
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
-    this._register(
-      this.editor.onMouseDown(
-        (e) => this.doShow(e, false)
-      )
-    );
+    this._register(this.editor.onMouseDown((e) => this.doShow(e, false)));
   }
   static {
     __name(this, "EditorLineNumberContextMenu");
@@ -89,36 +70,25 @@ let EditorLineNumberContextMenu = class extends Disposable {
       return;
     }
     const lineNumber = e.target.position.lineNumber;
-    const contextKeyService = this.contextKeyService.createOverlay([
-      ["editorLineNumber", lineNumber]
-    ]);
-    const menu = this.menuService.createMenu(
-      MenuId.EditorLineNumberContext,
-      contextKeyService
-    );
+    const contextKeyService = this.contextKeyService.createOverlay([["editorLineNumber", lineNumber]]);
+    const menu = this.menuService.createMenu(MenuId.EditorLineNumberContext, contextKeyService);
     const allActions = [];
     this.instantiationService.invokeFunction((accessor) => {
       for (const generator of GutterActionsRegistry.getGutterActionsGenerators()) {
         const collectedActions = /* @__PURE__ */ new Map();
-        generator(
-          { lineNumber, editor: this.editor, accessor },
-          {
-            push: /* @__PURE__ */ __name((action, group = "navigation") => {
-              const actions = collectedActions.get(group) ?? [];
-              actions.push(action);
-              collectedActions.set(group, actions);
-            }, "push")
-          }
-        );
+        generator({ lineNumber, editor: this.editor, accessor }, {
+          push: /* @__PURE__ */ __name((action, group = "navigation") => {
+            const actions = collectedActions.get(group) ?? [];
+            actions.push(action);
+            collectedActions.set(group, actions);
+          }, "push")
+        });
         for (const [group, actions] of collectedActions.entries()) {
           allActions.push([group, actions]);
         }
       }
       allActions.sort((a, b) => a[0].localeCompare(b[0]));
-      const menuActions = menu.getActions({
-        arg: { lineNumber, uri: model.uri },
-        shouldForwardArgs: true
-      });
+      const menuActions = menu.getActions({ arg: { lineNumber, uri: model.uri }, shouldForwardArgs: true });
       allActions.push(...menuActions);
       if (e.target.type === MouseTargetType.GUTTER_LINE_NUMBERS) {
         const currentSelections = this.editor.getSelections();
@@ -128,14 +98,9 @@ let EditorLineNumberContextMenu = class extends Disposable {
           startColumn: 1,
           endColumn: model.getLineLength(lineNumber) + 1
         };
-        const containsSelection = currentSelections?.some(
-          (selection) => !selection.isEmpty() && selection.intersectRanges(lineRange) !== null
-        );
+        const containsSelection = currentSelections?.some((selection) => !selection.isEmpty() && selection.intersectRanges(lineRange) !== null);
         if (!containsSelection) {
-          this.editor.setSelection(
-            lineRange,
-            TextEditorSelectionSource.PROGRAMMATIC
-          );
+          this.editor.setSelection(lineRange, TextEditorSelectionSource.PROGRAMMATIC);
         }
       }
       this.contextMenuService.showContextMenu({
@@ -152,11 +117,7 @@ EditorLineNumberContextMenu = __decorateClass([
   __decorateParam(3, IContextKeyService),
   __decorateParam(4, IInstantiationService)
 ], EditorLineNumberContextMenu);
-registerEditorContribution(
-  EditorLineNumberContextMenu.ID,
-  EditorLineNumberContextMenu,
-  EditorContributionInstantiation.AfterFirstRender
-);
+registerEditorContribution(EditorLineNumberContextMenu.ID, EditorLineNumberContextMenu, EditorContributionInstantiation.AfterFirstRender);
 export {
   EditorLineNumberContextMenu,
   GutterActionsRegistry,

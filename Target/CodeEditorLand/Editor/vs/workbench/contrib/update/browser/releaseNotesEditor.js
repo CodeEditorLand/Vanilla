@@ -15,45 +15,32 @@ import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { escapeMarkdownSyntaxTokens } from "../../../../base/common/htmlContent.js";
 import { KeybindingParser } from "../../../../base/common/keybindingParser.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
 import { escape } from "../../../../base/common/strings.js";
 import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { TokenizationRegistry } from "../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import * as nls from "../../../../nls.js";
-import {
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IRequestService,
-  asTextOrError
-} from "../../../../platform/request/common/request.js";
-import { TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  getTelemetryLevel,
-  supportsTelemetry
-} from "../../../../platform/telemetry/common/telemetryUtils.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import {
-  ACTIVE_GROUP,
-  IEditorService
-} from "../../../services/editor/common/editorService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  DEFAULT_MARKDOWN_STYLES,
-  renderMarkdownDocument
-} from "../../markdown/browser/markdownDocumentRenderer.js";
-import { SimpleSettingRenderer } from "../../markdown/browser/markdownSettingRenderer.js";
+import { asTextOrError, IRequestService } from "../../../../platform/request/common/request.js";
+import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
+import { WebviewInput } from "../../webviewPanel/browser/webviewEditorInput.js";
 import { IWebviewWorkbenchService } from "../../webviewPanel/browser/webviewWorkbenchService.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { getTelemetryLevel, supportsTelemetry } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { SimpleSettingRenderer } from "../../markdown/browser/markdownSettingRenderer.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 let ReleaseNotesManager = class {
   constructor(_environmentService, _keybindingService, _languageService, _openerService, _requestService, _configurationService, _editorService, _editorGroupService, _codeEditorService, _webviewWorkbenchService, _extensionService, _productService, _instantiationService) {
     this._environmentService = _environmentService;
@@ -72,19 +59,9 @@ let ReleaseNotesManager = class {
     TokenizationRegistry.onDidChange(() => {
       return this.updateHtml();
     });
-    _configurationService.onDidChangeConfiguration(
-      this.onDidChangeConfiguration,
-      this,
-      this.disposables
-    );
-    _webviewWorkbenchService.onDidChangeActiveWebviewEditor(
-      this.onDidChangeActiveWebviewEditor,
-      this,
-      this.disposables
-    );
-    this._simpleSettingRenderer = this._instantiationService.createInstance(
-      SimpleSettingRenderer
-    );
+    _configurationService.onDidChangeConfiguration(this.onDidChangeConfiguration, this, this.disposables);
+    _webviewWorkbenchService.onDidChangeActiveWebviewEditor(this.onDidChangeActiveWebviewEditor, this, this.disposables);
+    this._simpleSettingRenderer = this._instantiationService.createInstance(SimpleSettingRenderer);
   }
   static {
     __name(this, "ReleaseNotesManager");
@@ -104,26 +81,15 @@ let ReleaseNotesManager = class {
     }
   }
   async show(version, useCurrentFile) {
-    const releaseNoteText = await this.loadReleaseNotes(
-      version,
-      useCurrentFile
-    );
+    const releaseNoteText = await this.loadReleaseNotes(version, useCurrentFile);
     this._lastText = releaseNoteText;
     const html = await this.renderBody(releaseNoteText);
-    const title = nls.localize(
-      "releaseNotesInputName",
-      "Release Notes: {0}",
-      version
-    );
+    const title = nls.localize("releaseNotesInputName", "Release Notes: {0}", version);
     const activeEditorPane = this._editorService.activeEditorPane;
     if (this._currentReleaseNotes) {
       this._currentReleaseNotes.setName(title);
       this._currentReleaseNotes.webview.setHtml(html);
-      this._webviewWorkbenchService.revealWebview(
-        this._currentReleaseNotes,
-        activeEditorPane ? activeEditorPane.group : this._editorGroupService.activeGroup,
-        false
-      );
+      this._webviewWorkbenchService.revealWebview(this._currentReleaseNotes, activeEditorPane ? activeEditorPane.group : this._editorGroupService.activeGroup, false);
     } else {
       this._currentReleaseNotes = this._webviewWorkbenchService.openWebview(
         {
@@ -143,34 +109,21 @@ let ReleaseNotesManager = class {
         title,
         { group: ACTIVE_GROUP, preserveFocus: false }
       );
-      this._currentReleaseNotes.webview.onDidClickLink(
-        (uri) => this.onDidClickLink(URI.parse(uri))
-      );
+      this._currentReleaseNotes.webview.onDidClickLink((uri) => this.onDidClickLink(URI.parse(uri)));
       const disposables = new DisposableStore();
-      disposables.add(
-        this._currentReleaseNotes.webview.onMessage((e) => {
-          if (e.message.type === "showReleaseNotes") {
-            this._configurationService.updateValue(
-              "update.showReleaseNotes",
-              e.message.value
-            );
-          } else if (e.message.type === "clickSetting") {
-            const x = this._currentReleaseNotes?.webview.container.offsetLeft + e.message.value.x;
-            const y = this._currentReleaseNotes?.webview.container.offsetTop + e.message.value.y;
-            this._simpleSettingRenderer.updateSetting(
-              URI.parse(e.message.value.uri),
-              x,
-              y
-            );
-          }
-        })
-      );
-      disposables.add(
-        this._currentReleaseNotes.onWillDispose(() => {
-          disposables.dispose();
-          this._currentReleaseNotes = void 0;
-        })
-      );
+      disposables.add(this._currentReleaseNotes.webview.onMessage((e) => {
+        if (e.message.type === "showReleaseNotes") {
+          this._configurationService.updateValue("update.showReleaseNotes", e.message.value);
+        } else if (e.message.type === "clickSetting") {
+          const x = this._currentReleaseNotes?.webview.container.offsetLeft + e.message.value.x;
+          const y = this._currentReleaseNotes?.webview.container.offsetTop + e.message.value.y;
+          this._simpleSettingRenderer.updateSetting(URI.parse(e.message.value.uri), x, y);
+        }
+      }));
+      disposables.add(this._currentReleaseNotes.onWillDispose(() => {
+        disposables.dispose();
+        this._currentReleaseNotes = void 0;
+      }));
       this._currentReleaseNotes.webview.setHtml(html);
     }
     return true;
@@ -214,13 +167,7 @@ let ReleaseNotesManager = class {
         const resolved = kbstyle(match2, binding);
         return resolved ? `<code title="${binding}">${escapeMdHtml(resolved)}</code>` : resolved;
       }, "kbstyleCode");
-      return text.replace(/`kb\(([a-z.\d-]+)\)`/gi, kbCode).replace(/`kbstyle\(([^)]+)\)`/gi, kbstyleCode).replace(
-        /kb\(([a-z.\d-]+)\)/gi,
-        (match2, binding) => escapeMarkdownSyntaxTokens(kb(match2, binding))
-      ).replace(
-        /kbstyle\(([^)]+)\)/gi,
-        (match2, binding) => escapeMarkdownSyntaxTokens(kbstyle(match2, binding))
-      );
+      return text.replace(/`kb\(([a-z.\d\-]+)\)`/gi, kbCode).replace(/`kbstyle\(([^\)]+)\)`/gi, kbstyleCode).replace(/kb\(([a-z.\d\-]+)\)/gi, (match2, binding) => escapeMarkdownSyntaxTokens(kb(match2, binding))).replace(/kbstyle\(([^\)]+)\)/gi, (match2, binding) => escapeMarkdownSyntaxTokens(kbstyle(match2, binding)));
     }, "patchKeybindings");
     const fetchReleaseNotes = /* @__PURE__ */ __name(async () => {
       let text;
@@ -229,12 +176,7 @@ let ReleaseNotesManager = class {
           const file = this._codeEditorService.getActiveCodeEditor()?.getModel()?.getValue();
           text = file ? file.substring(file.indexOf("#")) : void 0;
         } else {
-          text = await asTextOrError(
-            await this._requestService.request(
-              { url },
-              CancellationToken.None
-            )
-          );
+          text = await asTextOrError(await this._requestService.request({ url }, CancellationToken.None));
         }
       } catch {
         throw new Error("Failed to fetch release notes");
@@ -248,64 +190,44 @@ let ReleaseNotesManager = class {
       return fetchReleaseNotes();
     }
     if (!this._releaseNotesCache.has(version)) {
-      this._releaseNotesCache.set(
-        version,
-        (async () => {
-          try {
-            return await fetchReleaseNotes();
-          } catch (err) {
-            this._releaseNotesCache.delete(version);
-            throw err;
-          }
-        })()
-      );
+      this._releaseNotesCache.set(version, (async () => {
+        try {
+          return await fetchReleaseNotes();
+        } catch (err) {
+          this._releaseNotesCache.delete(version);
+          throw err;
+        }
+      })());
     }
     return this._releaseNotesCache.get(version);
   }
   async onDidClickLink(uri) {
     if (uri.scheme === Schemas.codeSetting) {
     } else {
-      this.addGAParameters(uri, "ReleaseNotes").then(
-        (updated) => this._openerService.open(updated, {
-          allowCommands: ["workbench.action.openSettings"]
-        })
-      ).then(void 0, onUnexpectedError);
+      this.addGAParameters(uri, "ReleaseNotes").then((updated) => this._openerService.open(updated, { allowCommands: ["workbench.action.openSettings"] })).then(void 0, onUnexpectedError);
     }
   }
   async addGAParameters(uri, origin, experiment = "1") {
     if (supportsTelemetry(this._productService, this._environmentService) && getTelemetryLevel(this._configurationService) === TelemetryLevel.USAGE) {
       if (uri.scheme === "https" && uri.authority === "code.visualstudio.com") {
-        return uri.with({
-          query: `${uri.query ? uri.query + "&" : ""}utm_source=VsCode&utm_medium=${encodeURIComponent(origin)}&utm_content=${encodeURIComponent(experiment)}`
-        });
+        return uri.with({ query: `${uri.query ? uri.query + "&" : ""}utm_source=VsCode&utm_medium=${encodeURIComponent(origin)}&utm_content=${encodeURIComponent(experiment)}` });
       }
     }
     return uri;
   }
   async renderBody(text) {
     const nonce = generateUuid();
-    const content = await renderMarkdownDocument(
-      text,
-      this._extensionService,
-      this._languageService,
-      {
-        shouldSanitize: false,
-        markedExtensions: [
-          {
-            renderer: {
-              html: this._simpleSettingRenderer.getHtmlRenderer()
-            }
-          }
-        ]
-      }
-    );
+    const content = await renderMarkdownDocument(text, this._extensionService, this._languageService, {
+      shouldSanitize: false,
+      markedExtensions: [{
+        renderer: {
+          html: this._simpleSettingRenderer.getHtmlRenderer()
+        }
+      }]
+    });
     const colorMap = TokenizationRegistry.getColorMap();
     const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
-    const showReleaseNotes = Boolean(
-      this._configurationService.getValue(
-        "update.showReleaseNotes"
-      )
-    );
+    const showReleaseNotes = Boolean(this._configurationService.getValue("update.showReleaseNotes"));
     return `<!DOCTYPE html>
 		<html>
 			<head>
@@ -472,9 +394,7 @@ let ReleaseNotesManager = class {
     if (this._currentReleaseNotes) {
       this._currentReleaseNotes.webview.postMessage({
         type: "showReleaseNotes",
-        value: this._configurationService.getValue(
-          "update.showReleaseNotes"
-        )
+        value: this._configurationService.getValue("update.showReleaseNotes")
       });
     }
   }

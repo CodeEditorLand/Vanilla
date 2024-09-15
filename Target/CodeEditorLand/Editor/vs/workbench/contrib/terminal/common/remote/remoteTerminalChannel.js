@@ -10,29 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Event } from "../../../../../base/common/event.js";
+import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { IChannel } from "../../../../../base/parts/ipc/common/ipc.js";
+import { IWorkbenchConfigurationService } from "../../../../services/configuration/common/configuration.js";
+import { IRemoteAuthorityResolverService } from "../../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { serializeEnvironmentDescriptionMap, serializeEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariableShared.js";
+import { IConfigurationResolverService } from "../../../../services/configurationResolver/common/configurationResolver.js";
+import { SideBySideEditor, EditorResourceAccessor } from "../../../../common/editor.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IRemoteAuthorityResolverService } from "../../../../../platform/remote/common/remoteAuthorityResolver.js";
-import {
-  serializeEnvironmentDescriptionMap,
-  serializeEnvironmentVariableCollection
-} from "../../../../../platform/terminal/common/environmentVariableShared.js";
-import {
-  ITerminalLogService
-} from "../../../../../platform/terminal/common/terminal.js";
-import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import {
-  EditorResourceAccessor,
-  SideBySideEditor
-} from "../../../../common/editor.js";
-import { IWorkbenchConfigurationService } from "../../../../services/configuration/common/configuration.js";
-import { IConfigurationResolverService } from "../../../../services/configurationResolver/common/configurationResolver.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { IEnvironmentVariableService } from "../environmentVariable.js";
-import {
-  RemoteTerminalChannelEvent,
-  RemoteTerminalChannelRequest
-} from "./terminal.js";
+import { IProcessDataEvent, IRequestResolveVariablesEvent, IShellLaunchConfigDto, ITerminalLaunchError, ITerminalProfile, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, TerminalIcon, IProcessProperty, ProcessPropertyType, IProcessPropertyMap, TitleEventSource, ISerializedTerminalState, IPtyHostController, ITerminalProcessOptions, IProcessReadyEvent, ITerminalLogService, IPtyHostLatencyMeasurement } from "../../../../../platform/terminal/common/terminal.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../../../../../platform/terminal/common/terminalProcess.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../../../base/common/platform.js";
+import { ICompleteTerminalConfiguration } from "../terminal.js";
+import { IPtyHostProcessReplayEvent } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
+import { RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from "./terminal.js";
 const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
 let RemoteTerminalChannelClient = class {
   constructor(_remoteAuthority, _channel, _configurationService, _workspaceContextService, _resolverService, _environmentVariableService, _remoteAuthorityResolverService, _logService, _editorService, _labelService) {
@@ -51,50 +48,34 @@ let RemoteTerminalChannelClient = class {
     __name(this, "RemoteTerminalChannelClient");
   }
   get onPtyHostExit() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnPtyHostExitEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnPtyHostExitEvent);
   }
   get onPtyHostStart() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnPtyHostStartEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnPtyHostStartEvent);
   }
   get onPtyHostUnresponsive() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnPtyHostUnresponsiveEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnPtyHostUnresponsiveEvent);
   }
   get onPtyHostResponsive() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnPtyHostResponsiveEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnPtyHostResponsiveEvent);
   }
   get onPtyHostRequestResolveVariables() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnPtyHostRequestResolveVariablesEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnPtyHostRequestResolveVariablesEvent);
   }
   get onProcessData() {
     return this._channel.listen(RemoteTerminalChannelEvent.OnProcessDataEvent);
   }
   get onProcessExit() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnProcessExitEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnProcessExitEvent);
   }
   get onProcessReady() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnProcessReadyEvent
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnProcessReadyEvent);
   }
   get onProcessReplay() {
     return this._channel.listen(RemoteTerminalChannelEvent.OnProcessReplayEvent);
   }
   get onProcessOrphanQuestion() {
-    return this._channel.listen(
-      RemoteTerminalChannelEvent.OnProcessOrphanQuestion
-    );
+    return this._channel.listen(RemoteTerminalChannelEvent.OnProcessOrphanQuestion);
   }
   get onExecuteCommand() {
     return this._channel.listen(RemoteTerminalChannelEvent.OnExecuteCommand);
@@ -106,18 +87,13 @@ let RemoteTerminalChannelClient = class {
     return this._channel.listen(RemoteTerminalChannelEvent.OnDidChangeProperty);
   }
   restartPtyHost() {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.RestartPtyHost,
-      []
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.RestartPtyHost, []);
   }
   async createProcess(shellLaunchConfig, configuration, activeWorkspaceRootUri, options, shouldPersistTerminal, cols, rows, unicodeVersion) {
     await this._configurationService.whenRemoteConfigurationLoaded();
     const resolvedVariables = /* @__PURE__ */ Object.create(null);
-    const lastActiveWorkspace = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(
-      activeWorkspaceRootUri
-    ) ?? void 0 : void 0;
-    let allResolvedVariables;
+    const lastActiveWorkspace = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+    let allResolvedVariables = void 0;
     try {
       allResolvedVariables = (await this._resolverService.resolveAnyMap(lastActiveWorkspace, {
         shellLaunchConfig,
@@ -134,36 +110,18 @@ let RemoteTerminalChannelClient = class {
       }
     }
     const envVariableCollections = [];
-    for (const [
-      k,
-      v
-    ] of this._environmentVariableService.collections.entries()) {
-      envVariableCollections.push([
-        k,
-        serializeEnvironmentVariableCollection(v.map),
-        serializeEnvironmentDescriptionMap(v.descriptionMap)
-      ]);
+    for (const [k, v] of this._environmentVariableService.collections.entries()) {
+      envVariableCollections.push([k, serializeEnvironmentVariableCollection(v.map), serializeEnvironmentDescriptionMap(v.descriptionMap)]);
     }
-    const resolverResult = await this._remoteAuthorityResolverService.resolveAuthority(
-      this._remoteAuthority
-    );
+    const resolverResult = await this._remoteAuthorityResolverService.resolveAuthority(this._remoteAuthority);
     const resolverEnv = resolverResult.options && resolverResult.options.extensionHostEnv;
     const workspace = this._workspaceContextService.getWorkspace();
     const workspaceFolders = workspace.folders;
-    const activeWorkspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(
-      activeWorkspaceRootUri
-    ) : null;
-    const activeFileResource = EditorResourceAccessor.getOriginalUri(
-      this._editorService.activeEditor,
-      {
-        supportSideBySide: SideBySideEditor.PRIMARY,
-        filterByScheme: [
-          Schemas.file,
-          Schemas.vscodeUserData,
-          Schemas.vscodeRemote
-        ]
-      }
-    );
+    const activeWorkspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) : null;
+    const activeFileResource = EditorResourceAccessor.getOriginalUri(this._editorService.activeEditor, {
+      supportSideBySide: SideBySideEditor.PRIMARY,
+      filterByScheme: [Schemas.file, Schemas.vscodeUserData, Schemas.vscodeRemote]
+    });
     const args = {
       configuration,
       resolvedVariables,
@@ -181,34 +139,19 @@ let RemoteTerminalChannelClient = class {
       unicodeVersion,
       resolverEnv
     };
-    return await this._channel.call(
-      RemoteTerminalChannelRequest.CreateProcess,
-      args
-    );
+    return await this._channel.call(RemoteTerminalChannelRequest.CreateProcess, args);
   }
   requestDetachInstance(workspaceId, instanceId) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.RequestDetachInstance,
-      [workspaceId, instanceId]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.RequestDetachInstance, [workspaceId, instanceId]);
   }
   acceptDetachInstanceReply(requestId, persistentProcessId) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.AcceptDetachInstanceReply,
-      [requestId, persistentProcessId]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.AcceptDetachInstanceReply, [requestId, persistentProcessId]);
   }
   attachToProcess(id) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.AttachToProcess,
-      [id]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.AttachToProcess, [id]);
   }
   detachFromProcess(id, forcePersist) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.DetachFromProcess,
-      [id, forcePersist]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.DetachFromProcess, [id, forcePersist]);
   }
   listProcesses() {
     return this._channel.call(RemoteTerminalChannelRequest.ListProcesses);
@@ -217,126 +160,70 @@ let RemoteTerminalChannelClient = class {
     return this._channel.call(RemoteTerminalChannelRequest.GetLatency);
   }
   getPerformanceMarks() {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.GetPerformanceMarks
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.GetPerformanceMarks);
   }
   reduceConnectionGraceTime() {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.ReduceConnectionGraceTime
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.ReduceConnectionGraceTime);
   }
   processBinary(id, data) {
-    return this._channel.call(RemoteTerminalChannelRequest.ProcessBinary, [
-      id,
-      data
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.ProcessBinary, [id, data]);
   }
   start(id) {
     return this._channel.call(RemoteTerminalChannelRequest.Start, [id]);
   }
   input(id, data) {
-    return this._channel.call(RemoteTerminalChannelRequest.Input, [
-      id,
-      data
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.Input, [id, data]);
   }
   acknowledgeDataEvent(id, charCount) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.AcknowledgeDataEvent,
-      [id, charCount]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.AcknowledgeDataEvent, [id, charCount]);
   }
   setUnicodeVersion(id, version) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.SetUnicodeVersion,
-      [id, version]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.SetUnicodeVersion, [id, version]);
   }
   shutdown(id, immediate) {
-    return this._channel.call(RemoteTerminalChannelRequest.Shutdown, [
-      id,
-      immediate
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.Shutdown, [id, immediate]);
   }
   resize(id, cols, rows) {
-    return this._channel.call(RemoteTerminalChannelRequest.Resize, [
-      id,
-      cols,
-      rows
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.Resize, [id, cols, rows]);
   }
   clearBuffer(id) {
-    return this._channel.call(RemoteTerminalChannelRequest.ClearBuffer, [
-      id
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.ClearBuffer, [id]);
   }
   getInitialCwd(id) {
-    return this._channel.call(RemoteTerminalChannelRequest.GetInitialCwd, [
-      id
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.GetInitialCwd, [id]);
   }
   getCwd(id) {
     return this._channel.call(RemoteTerminalChannelRequest.GetCwd, [id]);
   }
   orphanQuestionReply(id) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.OrphanQuestionReply,
-      [id]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.OrphanQuestionReply, [id]);
   }
   sendCommandResult(reqId, isError, payload) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.SendCommandResult,
-      [reqId, isError, payload]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.SendCommandResult, [reqId, isError, payload]);
   }
   freePortKillProcess(port) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.FreePortKillProcess,
-      [port]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.FreePortKillProcess, [port]);
   }
   installAutoReply(match, reply) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.InstallAutoReply,
-      [match, reply]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.InstallAutoReply, [match, reply]);
   }
   uninstallAllAutoReplies() {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.UninstallAllAutoReplies,
-      []
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.UninstallAllAutoReplies, []);
   }
   getDefaultSystemShell(osOverride) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.GetDefaultSystemShell,
-      [osOverride]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.GetDefaultSystemShell, [osOverride]);
   }
   getProfiles(profiles, defaultProfile, includeDetectedProfiles) {
-    return this._channel.call(RemoteTerminalChannelRequest.GetProfiles, [
-      this._workspaceContextService.getWorkspace().id,
-      profiles,
-      defaultProfile,
-      includeDetectedProfiles
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.GetProfiles, [this._workspaceContextService.getWorkspace().id, profiles, defaultProfile, includeDetectedProfiles]);
   }
   acceptPtyHostResolvedVariables(requestId, resolved) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.AcceptPtyHostResolvedVariables,
-      [requestId, resolved]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.AcceptPtyHostResolvedVariables, [requestId, resolved]);
   }
   getEnvironment() {
     return this._channel.call(RemoteTerminalChannelRequest.GetEnvironment);
   }
   getWslPath(original, direction) {
-    return this._channel.call(RemoteTerminalChannelRequest.GetWslPath, [
-      original,
-      direction
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.GetWslPath, [original, direction]);
   }
   setTerminalLayoutInfo(layout) {
     const workspace = this._workspaceContextService.getWorkspace();
@@ -344,66 +231,35 @@ let RemoteTerminalChannelClient = class {
       workspaceId: workspace.id,
       tabs: layout ? layout.tabs : []
     };
-    return this._channel.call(
-      RemoteTerminalChannelRequest.SetTerminalLayoutInfo,
-      args
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.SetTerminalLayoutInfo, args);
   }
   updateTitle(id, title, titleSource) {
-    return this._channel.call(RemoteTerminalChannelRequest.UpdateTitle, [
-      id,
-      title,
-      titleSource
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.UpdateTitle, [id, title, titleSource]);
   }
   updateIcon(id, userInitiated, icon, color) {
-    return this._channel.call(RemoteTerminalChannelRequest.UpdateIcon, [
-      id,
-      userInitiated,
-      icon,
-      color
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.UpdateIcon, [id, userInitiated, icon, color]);
   }
   refreshProperty(id, property) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.RefreshProperty,
-      [id, property]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.RefreshProperty, [id, property]);
   }
   updateProperty(id, property, value) {
-    return this._channel.call(RemoteTerminalChannelRequest.UpdateProperty, [
-      id,
-      property,
-      value
-    ]);
+    return this._channel.call(RemoteTerminalChannelRequest.UpdateProperty, [id, property, value]);
   }
   getTerminalLayoutInfo() {
     const workspace = this._workspaceContextService.getWorkspace();
     const args = {
       workspaceId: workspace.id
     };
-    return this._channel.call(
-      RemoteTerminalChannelRequest.GetTerminalLayoutInfo,
-      args
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.GetTerminalLayoutInfo, args);
   }
   reviveTerminalProcesses(workspaceId, state, dateTimeFormatLocate) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.ReviveTerminalProcesses,
-      [workspaceId, state, dateTimeFormatLocate]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.ReviveTerminalProcesses, [workspaceId, state, dateTimeFormatLocate]);
   }
   getRevivedPtyNewId(id) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.GetRevivedPtyNewId,
-      [id]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.GetRevivedPtyNewId, [id]);
   }
   serializeTerminalState(ids) {
-    return this._channel.call(
-      RemoteTerminalChannelRequest.SerializeTerminalState,
-      [ids]
-    );
+    return this._channel.call(RemoteTerminalChannelRequest.SerializeTerminalState, [ids]);
   }
 };
 RemoteTerminalChannelClient = __decorateClass([

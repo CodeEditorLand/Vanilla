@@ -1,15 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AccessibleContentProvider,
-  AccessibleViewProviderId,
-  AccessibleViewType
-} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibleViewProviderId, AccessibleViewType, AccessibleContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { NOTEBOOK_OUTPUT_FOCUSED } from "../common/notebookContextKeys.js";
 import { getNotebookEditorFromEditorPane } from "./notebookBrowser.js";
+import { NOTEBOOK_OUTPUT_FOCUSED } from "../common/notebookContextKeys.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 class NotebookAccessibleView {
   static {
     __name(this, "NotebookAccessibleView");
@@ -17,10 +15,7 @@ class NotebookAccessibleView {
   priority = 100;
   name = "notebook";
   type = AccessibleViewType.View;
-  when = ContextKeyExpr.and(
-    NOTEBOOK_OUTPUT_FOCUSED,
-    ContextKeyExpr.equals("resourceExtname", ".ipynb")
-  );
+  when = ContextKeyExpr.and(NOTEBOOK_OUTPUT_FOCUSED, ContextKeyExpr.equals("resourceExtname", ".ipynb"));
   getProvider(accessor) {
     const editorService = accessor.get(IEditorService);
     return getAccessibleOutputProvider(editorService);
@@ -41,18 +36,11 @@ function getAccessibleOutputProvider(editorService) {
   for (let i = 0; i < viewCell.outputsViewModels.length; i++) {
     const outputViewModel = viewCell.outputsViewModels[i];
     const outputTextModel = viewCell.model.outputs[i];
-    const [mimeTypes, pick] = outputViewModel.resolveMimeTypes(
-      notebookEditor.textModel,
-      void 0
-    );
+    const [mimeTypes, pick] = outputViewModel.resolveMimeTypes(notebookEditor.textModel, void 0);
     const mimeType = mimeTypes[pick].mimeType;
-    let buffer = outputTextModel.outputs.find(
-      (output) => output.mime === mimeType
-    );
+    let buffer = outputTextModel.outputs.find((output) => output.mime === mimeType);
     if (!buffer || mimeType.startsWith("image")) {
-      buffer = outputTextModel.outputs.find(
-        (output) => !output.mime.startsWith("image")
-      );
+      buffer = outputTextModel.outputs.find((output) => !output.mime.startsWith("image"));
     }
     let text = `${mimeType}`;
     if (buffer) {

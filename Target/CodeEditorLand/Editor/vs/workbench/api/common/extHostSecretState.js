@@ -1,10 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ExtHostSecretStateShape, MainContext, MainThreadSecretStateShape } from "./extHost.protocol.js";
 import { Emitter } from "../../../base/common/event.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
 class ExtHostSecretState {
   static {
     __name(this, "ExtHostSecretState");
@@ -28,9 +27,7 @@ class ExtHostSecretState {
     return this._proxy.$deletePassword(extensionId, key);
   }
 }
-const IExtHostSecretState = createDecorator(
-  "IExtHostSecretState"
-);
+const IExtHostSecretState = createDecorator("IExtHostSecretState");
 export {
   ExtHostSecretState,
   IExtHostSecretState

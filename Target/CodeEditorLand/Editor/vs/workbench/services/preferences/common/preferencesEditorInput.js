@@ -12,19 +12,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { IUntypedEditorInput } from "../../../common/editor.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
 import { IPreferencesService } from "./preferences.js";
-const SettingsEditorIcon = registerIcon(
-  "settings-editor-label-icon",
-  Codicon.settings,
-  nls.localize(
-    "settingsEditorLabelIcon",
-    "Icon of the settings editor label."
-  )
-);
+import { Settings2EditorModel } from "./preferencesModels.js";
+const SettingsEditorIcon = registerIcon("settings-editor-label-icon", Codicon.settings, nls.localize("settingsEditorLabelIcon", "Icon of the settings editor label."));
 let SettingsEditor2Input = class extends EditorInput {
   static {
     __name(this, "SettingsEditor2Input");

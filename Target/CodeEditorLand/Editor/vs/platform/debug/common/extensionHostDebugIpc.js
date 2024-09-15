@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IAttachSessionEvent, ICloseSessionEvent, IExtensionHostDebugService, IOpenExtensionWindowResult, IReloadSessionEvent, ITerminateSessionEvent } from "./extensionHostDebug.js";
 class ExtensionHostDebugBroadcastChannel {
   static {
     __name(this, "ExtensionHostDebugBroadcastChannel");
@@ -14,25 +16,13 @@ class ExtensionHostDebugBroadcastChannel {
   call(ctx, command, arg) {
     switch (command) {
       case "close":
-        return Promise.resolve(
-          this._onCloseEmitter.fire({ sessionId: arg[0] })
-        );
+        return Promise.resolve(this._onCloseEmitter.fire({ sessionId: arg[0] }));
       case "reload":
-        return Promise.resolve(
-          this._onReloadEmitter.fire({ sessionId: arg[0] })
-        );
+        return Promise.resolve(this._onReloadEmitter.fire({ sessionId: arg[0] }));
       case "terminate":
-        return Promise.resolve(
-          this._onTerminateEmitter.fire({ sessionId: arg[0] })
-        );
+        return Promise.resolve(this._onTerminateEmitter.fire({ sessionId: arg[0] }));
       case "attach":
-        return Promise.resolve(
-          this._onAttachEmitter.fire({
-            sessionId: arg[0],
-            port: arg[1],
-            subId: arg[2]
-          })
-        );
+        return Promise.resolve(this._onAttachEmitter.fire({ sessionId: arg[0], port: arg[1], subId: arg[2] }));
     }
     throw new Error("Method not implemented.");
   }
@@ -83,10 +73,7 @@ class ExtensionHostDebugChannelClient extends Disposable {
     return this.channel.listen("terminate");
   }
   openExtensionDevelopmentHostWindow(args, debugRenderer) {
-    return this.channel.call("openExtensionDevelopmentHostWindow", [
-      args,
-      debugRenderer
-    ]);
+    return this.channel.call("openExtensionDevelopmentHostWindow", [args, debugRenderer]);
   }
 }
 export {

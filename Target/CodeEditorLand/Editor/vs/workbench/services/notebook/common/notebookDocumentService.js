@@ -1,16 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  VSBuffer,
-  decodeBase64,
-  encodeBase64
-} from "../../../../base/common/buffer.js";
+import { VSBuffer, decodeBase64, encodeBase64 } from "../../../../base/common/buffer.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 const INotebookDocumentService = createDecorator("notebookDocumentService");
 const _lengths = ["W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f"];
@@ -24,10 +18,7 @@ function parse(cell) {
   if (idx < 0) {
     return void 0;
   }
-  const handle = Number.parseInt(
-    cell.fragment.substring(0, idx).replace(_padRegexp, ""),
-    _radix
-  );
+  const handle = parseInt(cell.fragment.substring(0, idx).replace(_padRegexp, ""), _radix);
   const _scheme = decodeBase64(cell.fragment.substring(idx + 1)).toString();
   if (isNaN(handle)) {
     return void 0;
@@ -82,11 +73,7 @@ class NotebookDocumentWorkbenchService {
     this._documents.delete(document.uri);
   }
 }
-registerSingleton(
-  INotebookDocumentService,
-  NotebookDocumentWorkbenchService,
-  InstantiationType.Delayed
-);
+registerSingleton(INotebookDocumentService, NotebookDocumentWorkbenchService, InstantiationType.Delayed);
 export {
   INotebookDocumentService,
   NotebookDocumentWorkbenchService,

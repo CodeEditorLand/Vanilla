@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { localize } from "../../../../nls.js";
+import { ExtensionToggleData } from "../common/preferences.js";
 const defaultCommonlyUsedSettings = [
   "files.autoSave",
   "editor.fontSize",
@@ -59,10 +60,7 @@ const tocData = {
         },
         {
           id: "editor/multiDiffEditor",
-          label: localize(
-            "multiDiffEditor",
-            "Multi-File Diff Editor"
-          ),
+          label: localize("multiDiffEditor", "Multi-File Diff Editor"),
           settings: ["multiDiffEditor.*"]
         },
         {
@@ -90,17 +88,7 @@ const tocData = {
         {
           id: "workbench/appearance",
           label: localize("appearance", "Appearance"),
-          settings: [
-            "workbench.activityBar.*",
-            "workbench.*color*",
-            "workbench.fontAliasing",
-            "workbench.iconTheme",
-            "workbench.sidebar.location",
-            "workbench.*.visible",
-            "workbench.tips.enabled",
-            "workbench.tree.*",
-            "workbench.view.*"
-          ]
+          settings: ["workbench.activityBar.*", "workbench.*color*", "workbench.fontAliasing", "workbench.iconTheme", "workbench.sidebar.location", "workbench.*.visible", "workbench.tips.enabled", "workbench.tree.*", "workbench.view.*"]
         },
         {
           id: "workbench/breadcrumbs",
@@ -147,10 +135,7 @@ const tocData = {
       children: [
         {
           id: "features/accessibilitySignals",
-          label: localize(
-            "accessibility.signals",
-            "Accessibility Signals"
-          ),
+          label: localize("accessibility.signals", "Accessibility Signals"),
           settings: ["accessibility.signal*"]
         },
         {

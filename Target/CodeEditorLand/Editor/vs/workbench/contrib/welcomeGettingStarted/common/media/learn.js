@@ -1,4 +1,4 @@
-var learn_default = "../../../../../../Asset/learn-VF7KMSZV.svg";
+var learn_default = "../../../../../../Asset/learn-TDODY776.svg";
 export {
   learn_default as default
 };

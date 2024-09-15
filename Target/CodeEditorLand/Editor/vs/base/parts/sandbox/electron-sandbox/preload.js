@@ -1,12 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(() => {
-  const {
-    ipcRenderer,
-    webFrame,
-    contextBridge,
-    webUtils
-  } = require("electron");
+(function() {
+  "use strict";
+  const { ipcRenderer, webFrame, contextBridge, webUtils } = require("electron");
   function validateIPC(channel) {
     if (!channel || !channel.startsWith("vscode:")) {
       throw new Error(`Unsupported event IPC channel '${channel}'`);
@@ -23,13 +19,11 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
     return void 0;
   }
   __name(parseArgv, "parseArgv");
-  let configuration;
+  let configuration = void 0;
   const resolveConfiguration = (async () => {
     const windowConfigIpcChannel = parseArgv("vscode-window-config");
     if (!windowConfigIpcChannel) {
-      throw new Error(
-        "Preload: did not find expected vscode-window-config in renderer process arguments list."
-      );
+      throw new Error("Preload: did not find expected vscode-window-config in renderer process arguments list.");
     }
     try {
       validateIPC(windowConfigIpcChannel);
@@ -38,9 +32,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       webFrame.setZoomLevel(resolvedConfiguration.zoomLevel ?? 0);
       return resolvedConfiguration;
     } catch (error) {
-      throw new Error(
-        `Preload: unable to fetch vscode-window-config: ${error}`
-      );
+      throw new Error(`Preload: unable to fetch vscode-window-config: ${error}`);
     }
   })();
   const resolveShellEnv = (async () => {
@@ -184,12 +176,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
        * @returns {string}
        */
       cwd() {
-        return process.env["VSCODE_CWD"] || process.execPath.substr(
-          0,
-          process.execPath.lastIndexOf(
-            process.platform === "win32" ? "\\" : "/"
-          )
-        );
+        return process.env["VSCODE_CWD"] || process.execPath.substr(0, process.execPath.lastIndexOf(process.platform === "win32" ? "\\" : "/"));
       },
       /**
        * @returns {Promise<typeof process.env>}

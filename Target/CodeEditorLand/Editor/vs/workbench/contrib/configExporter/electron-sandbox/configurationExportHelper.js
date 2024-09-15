@@ -10,17 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IConfigurationNode, IConfigurationRegistry, Extensions, IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import { URI } from "../../../../base/common/uri.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import {
-  Extensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 let DefaultConfigurationExportHelper = class {
   constructor(environmentService, extensionService, commandService, fileService, productService) {
     this.extensionService = extensionService;
@@ -29,9 +27,7 @@ let DefaultConfigurationExportHelper = class {
     this.productService = productService;
     const exportDefaultConfigurationPath = environmentService.args["export-default-configuration"];
     if (exportDefaultConfigurationPath) {
-      this.writeConfigModelAndQuit(
-        URI.file(exportDefaultConfigurationPath)
-      );
+      this.writeConfigModelAndQuit(URI.file(exportDefaultConfigurationPath));
     }
   }
   static {
@@ -48,15 +44,10 @@ let DefaultConfigurationExportHelper = class {
   async writeConfigModel(target) {
     const config = this.getConfigModel();
     const resultString = JSON.stringify(config, void 0, "  ");
-    await this.fileService.writeFile(
-      target,
-      VSBuffer.fromString(resultString)
-    );
+    await this.fileService.writeFile(target, VSBuffer.fromString(resultString));
   }
   getConfigModel() {
-    const configRegistry = Registry.as(
-      Extensions.Configuration
-    );
+    const configRegistry = Registry.as(Extensions.Configuration);
     const configurations = configRegistry.getConfigurations().slice();
     const settings = [];
     const processedNames = /* @__PURE__ */ new Set();

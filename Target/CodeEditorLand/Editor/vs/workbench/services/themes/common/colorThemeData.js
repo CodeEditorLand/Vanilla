@@ -1,69 +1,34 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CharCode } from "../../../../base/common/charCode.js";
-import { Color } from "../../../../base/common/color.js";
-import * as Json from "../../../../base/common/json.js";
-import { getParseErrorMessage } from "../../../../base/common/jsonErrorMessages.js";
 import { basename } from "../../../../base/common/path.js";
-import * as resources from "../../../../base/common/resources.js";
-import * as types from "../../../../base/common/types.js";
-import * as nls from "../../../../nls.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  Extensions as ColorRegistryExtensions,
-  DEFAULT_COLOR_CONFIG_VALUE,
-  editorBackground,
-  editorForeground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import { ColorScheme } from "../../../../platform/theme/common/theme.js";
-import {
-  getThemeTypeSelector
-} from "../../../../platform/theme/common/themeService.js";
-import {
-  SemanticTokenRule,
-  TokenStyle,
-  getTokenClassificationRegistry,
-  parseClassifierString
-} from "../../../../platform/theme/common/tokenClassificationRegistry.js";
-import { parse as parsePList } from "./plistParser.js";
-import {
-  createMatchers
-} from "./textMateScopeMatcher.js";
+import * as Json from "../../../../base/common/json.js";
+import { Color } from "../../../../base/common/color.js";
+import { ExtensionData, ITokenColorCustomizations, ITextMateThemingRule, IWorkbenchColorTheme, IColorMap, IThemeExtensionPoint, VS_LIGHT_THEME, VS_HC_THEME, IColorCustomizations, ISemanticTokenRules, ISemanticTokenColorizationSetting, ISemanticTokenColorCustomizations, IThemeScopableCustomizations, IThemeScopedCustomizations, THEME_SCOPE_CLOSE_PAREN, THEME_SCOPE_OPEN_PAREN, themeScopeRegex, THEME_SCOPE_WILDCARD, VS_HC_LIGHT_THEME } from "./workbenchThemeService.js";
 import { convertSettings } from "./themeCompatibility.js";
-import {
-  ExtensionData,
-  THEME_SCOPE_CLOSE_PAREN,
-  THEME_SCOPE_OPEN_PAREN,
-  THEME_SCOPE_WILDCARD,
-  VS_HC_LIGHT_THEME,
-  VS_HC_THEME,
-  VS_LIGHT_THEME,
-  themeScopeRegex
-} from "./workbenchThemeService.js";
-const colorRegistry = Registry.as(
-  ColorRegistryExtensions.ColorContribution
-);
+import * as nls from "../../../../nls.js";
+import * as types from "../../../../base/common/types.js";
+import * as resources from "../../../../base/common/resources.js";
+import { Extensions as ColorRegistryExtensions, IColorRegistry, ColorIdentifier, editorBackground, editorForeground, DEFAULT_COLOR_CONFIG_VALUE } from "../../../../platform/theme/common/colorRegistry.js";
+import { ITokenStyle, getThemeTypeSelector } from "../../../../platform/theme/common/themeService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { getParseErrorMessage } from "../../../../base/common/jsonErrorMessages.js";
+import { URI } from "../../../../base/common/uri.js";
+import { parse as parsePList } from "./plistParser.js";
+import { TokenStyle, SemanticTokenRule, ProbeScope, getTokenClassificationRegistry, TokenStyleValue, TokenStyleData, parseClassifierString } from "../../../../platform/theme/common/tokenClassificationRegistry.js";
+import { MatcherWithPriority, Matcher, createMatchers } from "./textMateScopeMatcher.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { CharCode } from "../../../../base/common/charCode.js";
+import { StorageScope, IStorageService, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ThemeConfiguration } from "./themeConfiguration.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+const colorRegistry = Registry.as(ColorRegistryExtensions.ColorContribution);
 const tokenClassificationRegistry = getTokenClassificationRegistry();
 const tokenGroupToScopesMap = {
   comments: ["comment", "punctuation.definition.comment"],
   strings: ["string", "meta.embedded.assembly"],
-  keywords: [
-    "keyword - keyword.operator",
-    "keyword.control",
-    "storage",
-    "storage.type"
-  ],
+  keywords: ["keyword - keyword.operator", "keyword.control", "storage", "storage.type"],
   numbers: ["constant.numeric"],
-  types: [
-    "entity.name.type",
-    "entity.name.class",
-    "support.type",
-    "support.class"
-  ],
+  types: ["entity.name.type", "entity.name.class", "support.type", "support.class"],
   functions: ["entity.name.function", "support.function"],
   variables: ["variable", "entity.name.variable"]
 };
@@ -118,18 +83,7 @@ class ColorThemeData {
           if (rule.scope === "token.info-token") {
             hasDefaultTokens = true;
           }
-          result.push({
-            scope: rule.scope,
-            settings: {
-              foreground: normalizeColor(
-                rule.settings.foreground
-              ),
-              background: normalizeColor(
-                rule.settings.background
-              ),
-              fontStyle: rule.settings.fontStyle
-            }
-          });
+          result.push({ scope: rule.scope, settings: { foreground: normalizeColor(rule.settings.foreground), background: normalizeColor(rule.settings.background), fontStyle: rule.settings.fontStyle } });
         }
       };
       var addRule = addRule2;
@@ -223,21 +177,13 @@ class ColorThemeData {
     }
     if (hasUndefinedStyleProperty) {
       for (const rule of tokenClassificationRegistry.getTokenStylingDefaultRules()) {
-        const matchScore = rule.selector.match(
-          type,
-          modifiers,
-          language
-        );
+        const matchScore = rule.selector.match(type, modifiers, language);
         if (matchScore >= 0) {
           let style;
           if (rule.defaults.scopesToProbe) {
             style = this.resolveScopes(rule.defaults.scopesToProbe);
             if (style) {
-              _processStyle(
-                matchScore,
-                style,
-                rule.defaults.scopesToProbe
-              );
+              _processStyle(matchScore, style, rule.defaults.scopesToProbe);
             }
           }
           if (!style && useDefault !== false) {
@@ -259,10 +205,7 @@ class ColorThemeData {
     if (tokenStyleValue === void 0) {
       return void 0;
     } else if (typeof tokenStyleValue === "string") {
-      const { type, modifiers, language } = parseClassifierString(
-        tokenStyleValue,
-        ""
-      );
+      const { type, modifiers, language } = parseClassifierString(tokenStyleValue, "");
       return this.getTokenStyle(type, modifiers, language);
     } else if (typeof tokenStyleValue === "object") {
       return tokenStyleValue;
@@ -276,18 +219,14 @@ class ColorThemeData {
         index.add(rule.settings.foreground);
         index.add(rule.settings.background);
       });
-      this.semanticTokenRules.forEach(
-        (r) => index.add(r.style.foreground)
-      );
+      this.semanticTokenRules.forEach((r) => index.add(r.style.foreground));
       tokenClassificationRegistry.getTokenStylingDefaultRules().forEach((r) => {
         const defaultColor = r.defaults[this.type];
         if (defaultColor && typeof defaultColor === "object") {
           index.add(defaultColor.foreground);
         }
       });
-      this.customSemanticTokenRules.forEach(
-        (r) => index.add(r.style.foreground)
-      );
+      this.customSemanticTokenRules.forEach((r) => index.add(r.style.foreground));
       this.tokenColorIndex = index;
     }
     return this.tokenColorIndex;
@@ -296,17 +235,8 @@ class ColorThemeData {
     return this.getTokenColorIndex().asArray();
   }
   getTokenStyleMetadata(typeWithLanguage, modifiers, defaultLanguage, useDefault = true, definitions = {}) {
-    const { type, language } = parseClassifierString(
-      typeWithLanguage,
-      defaultLanguage
-    );
-    const style = this.getTokenStyle(
-      type,
-      modifiers,
-      language,
-      useDefault,
-      definitions
-    );
+    const { type, language } = parseClassifierString(typeWithLanguage, defaultLanguage);
+    const style = this.getTokenStyle(type, modifiers, language, useDefault, definitions);
     if (!style) {
       return void 0;
     }
@@ -359,20 +289,14 @@ class ColorThemeData {
       };
       var findTokenStyleForScopeInScopes = findTokenStyleForScopeInScopes2;
       __name(findTokenStyleForScopeInScopes2, "findTokenStyleForScopeInScopes");
-      let foreground;
-      let fontStyle;
+      let foreground = void 0;
+      let fontStyle = void 0;
       let foregroundScore = -1;
       let fontStyleScore = -1;
-      let fontStyleThemingRule;
-      let foregroundThemingRule;
-      findTokenStyleForScopeInScopes2(
-        this.themeTokenScopeMatchers,
-        this.themeTokenColors
-      );
-      findTokenStyleForScopeInScopes2(
-        this.customTokenScopeMatchers,
-        this.customTokenColors
-      );
+      let fontStyleThemingRule = void 0;
+      let foregroundThemingRule = void 0;
+      findTokenStyleForScopeInScopes2(this.themeTokenScopeMatchers, this.themeTokenColors);
+      findTokenStyleForScopeInScopes2(this.customTokenScopeMatchers, this.customTokenColors);
       if (foreground !== void 0 || fontStyle !== void 0) {
         if (definitions) {
           definitions.foreground = foregroundThemingRule;
@@ -394,16 +318,12 @@ class ColorThemeData {
   setCustomizations(settings) {
     this.setCustomColors(settings.colorCustomizations);
     this.setCustomTokenColors(settings.tokenColorCustomizations);
-    this.setCustomSemanticTokenColors(
-      settings.semanticTokenColorCustomizations
-    );
+    this.setCustomSemanticTokenColors(settings.semanticTokenColorCustomizations);
   }
   setCustomColors(colors) {
     this.customColorMap = {};
     this.overwriteCustomColors(colors);
-    const themeSpecificColors = this.getThemeSpecificColors(
-      colors
-    );
+    const themeSpecificColors = this.getThemeSpecificColors(colors);
     if (types.isObject(themeSpecificColors)) {
       this.overwriteCustomColors(themeSpecificColors);
     }
@@ -425,9 +345,7 @@ class ColorThemeData {
     this.customTokenColors = [];
     this.customSemanticHighlightingDeprecated = void 0;
     this.addCustomTokenColors(customTokenColors);
-    const themeSpecificTokenColors = this.getThemeSpecificColors(
-      customTokenColors
-    );
+    const themeSpecificTokenColors = this.getThemeSpecificColors(customTokenColors);
     if (types.isObject(themeSpecificTokenColors)) {
       this.addCustomTokenColors(themeSpecificTokenColors);
     }
@@ -443,9 +361,7 @@ class ColorThemeData {
       if (semanticTokenColors.rules) {
         this.readSemanticTokenRules(semanticTokenColors.rules);
       }
-      const themeSpecificColors = this.getThemeSpecificColors(
-        semanticTokenColors
-      );
+      const themeSpecificColors = this.getThemeSpecificColors(semanticTokenColors);
       if (types.isObject(themeSpecificColors)) {
         if (themeSpecificColors.enabled !== void 0) {
           this.customSemanticHighlighting = themeSpecificColors.enabled;
@@ -476,10 +392,7 @@ class ColorThemeData {
       if (this.isThemeScope(key) && scopedColors instanceof Object && !Array.isArray(scopedColors)) {
         const themeScopeList = key.match(themeScopeRegex) || [];
         for (const themeScope of themeScopeList) {
-          const themeId = themeScope.substring(
-            1,
-            themeScope.length - 1
-          );
+          const themeId = themeScope.substring(1, themeScope.length - 1);
           if (this.isThemeScopeMatch(themeId)) {
             if (!themeSpecificColors) {
               themeSpecificColors = {};
@@ -504,10 +417,7 @@ class ColorThemeData {
     for (const key in tokenStylingRuleSection) {
       if (!this.isThemeScope(key)) {
         try {
-          const rule = readSemanticTokenRule(
-            key,
-            tokenStylingRuleSection[key]
-          );
+          const rule = readSemanticTokenRule(key, tokenStylingRuleSection[key]);
           if (rule) {
             this.customSemanticTokenRules.push(rule);
           }
@@ -540,7 +450,7 @@ class ColorThemeData {
     }
   }
   ensureLoaded(extensionResourceLoaderService) {
-    return this.isLoaded ? Promise.resolve(void 0) : this.load(extensionResourceLoaderService);
+    return !this.isLoaded ? this.load(extensionResourceLoaderService) : Promise.resolve(void 0);
   }
   reload(extensionResourceLoaderService) {
     return this.load(extensionResourceLoaderService);
@@ -557,11 +467,7 @@ class ColorThemeData {
       semanticTokenRules: [],
       semanticHighlighting: false
     };
-    return _loadColorTheme(
-      extensionResourceLoaderService,
-      this.location,
-      result
-    ).then((_) => {
+    return _loadColorTheme(extensionResourceLoaderService, this.location, result).then((_) => {
       this.isLoaded = true;
       this.semanticTokenRules = result.semanticTokenRules;
       this.colorMap = result.colors;
@@ -578,34 +484,21 @@ class ColorThemeData {
   toStorage(storageService) {
     const colorMapData = {};
     for (const key in this.colorMap) {
-      colorMapData[key] = Color.Format.CSS.formatHexA(
-        this.colorMap[key],
-        true
-      );
+      colorMapData[key] = Color.Format.CSS.formatHexA(this.colorMap[key], true);
     }
     const value = JSON.stringify({
       id: this.id,
       label: this.label,
       settingsId: this.settingsId,
-      themeTokenColors: this.themeTokenColors.map((tc) => ({
-        settings: tc.settings,
-        scope: tc.scope
-      })),
+      themeTokenColors: this.themeTokenColors.map((tc) => ({ settings: tc.settings, scope: tc.scope })),
       // don't persist names
-      semanticTokenRules: this.semanticTokenRules.map(
-        SemanticTokenRule.toJSONObject
-      ),
+      semanticTokenRules: this.semanticTokenRules.map(SemanticTokenRule.toJSONObject),
       extensionData: ExtensionData.toJSONObject(this.extensionData),
       themeSemanticHighlighting: this.themeSemanticHighlighting,
       colorMap: colorMapData,
       watch: this.watch
     });
-    storageService.store(
-      ColorThemeData.STORAGE_KEY,
-      value,
-      StorageScope.PROFILE,
-      StorageTarget.USER
-    );
+    storageService.store(ColorThemeData.STORAGE_KEY, value, StorageScope.PROFILE, StorageTarget.USER);
   }
   get baseTheme() {
     return this.classNames[0];
@@ -627,10 +520,7 @@ class ColorThemeData {
   }
   // constructors
   static createUnloadedThemeForThemeType(themeType, colorMap) {
-    return ColorThemeData.createUnloadedTheme(
-      getThemeTypeSelector(themeType),
-      colorMap
-    );
+    return ColorThemeData.createUnloadedTheme(getThemeTypeSelector(themeType), colorMap);
   }
   static createUnloadedTheme(id, colorMap) {
     const themeData = new ColorThemeData(id, "", "__" + id);
@@ -652,10 +542,7 @@ class ColorThemeData {
     return themeData;
   }
   static fromStorageData(storageService) {
-    const input = storageService.get(
-      ColorThemeData.STORAGE_KEY,
-      StorageScope.PROFILE
-    );
+    const input = storageService.get(ColorThemeData.STORAGE_KEY, StorageScope.PROFILE);
     if (!input) {
       return void 0;
     }
@@ -667,9 +554,7 @@ class ColorThemeData {
           case "colorMap": {
             const colorMapData = data[key];
             for (const id in colorMapData) {
-              theme.colorMap[id] = Color.fromHex(
-                colorMapData[id]
-              );
+              theme.colorMap[id] = Color.fromHex(colorMapData[id]);
             }
             break;
           }
@@ -685,10 +570,7 @@ class ColorThemeData {
             const rulesData = data[key];
             if (Array.isArray(rulesData)) {
               for (const d of rulesData) {
-                const rule = SemanticTokenRule.fromJSONObject(
-                  tokenClassificationRegistry,
-                  d
-                );
+                const rule = SemanticTokenRule.fromJSONObject(tokenClassificationRegistry, d);
                 if (rule) {
                   theme.semanticTokenRules.push(rule);
                 }
@@ -699,9 +581,7 @@ class ColorThemeData {
           case "location":
             break;
           case "extensionData":
-            theme.extensionData = ExtensionData.fromJSONObject(
-              data.extensionData
-            );
+            theme.extensionData = ExtensionData.fromJSONObject(data.extensionData);
             break;
         }
       }
@@ -715,10 +595,7 @@ class ColorThemeData {
   }
   static fromExtensionTheme(theme, colorThemeLocation, extensionData) {
     const baseTheme = theme["uiTheme"] || "vs-dark";
-    const themeSelector = toCSSSelector(
-      extensionData.extensionId,
-      theme.path
-    );
+    const themeSelector = toCSSSelector(extensionData.extensionId, theme.path);
     const id = `${baseTheme} ${themeSelector}`;
     const label = theme.label || basename(theme.path);
     const settingsId = theme.id || label;
@@ -745,40 +622,16 @@ function toCSSSelector(extensionId, path) {
 __name(toCSSSelector, "toCSSSelector");
 async function _loadColorTheme(extensionResourceLoaderService, themeLocation, result) {
   if (resources.extname(themeLocation) === ".json") {
-    const content = await extensionResourceLoaderService.readExtensionResource(
-      themeLocation
-    );
+    const content = await extensionResourceLoaderService.readExtensionResource(themeLocation);
     const errors = [];
     const contentValue = Json.parse(content, errors);
     if (errors.length > 0) {
-      return Promise.reject(
-        new Error(
-          nls.localize(
-            "error.cannotparsejson",
-            "Problems parsing JSON theme file: {0}",
-            errors.map((e) => getParseErrorMessage(e.error)).join(", ")
-          )
-        )
-      );
+      return Promise.reject(new Error(nls.localize("error.cannotparsejson", "Problems parsing JSON theme file: {0}", errors.map((e) => getParseErrorMessage(e.error)).join(", "))));
     } else if (Json.getNodeType(contentValue) !== "object") {
-      return Promise.reject(
-        new Error(
-          nls.localize(
-            "error.invalidformat",
-            "Invalid format for JSON theme file: Object expected."
-          )
-        )
-      );
+      return Promise.reject(new Error(nls.localize("error.invalidformat", "Invalid format for JSON theme file: Object expected.")));
     }
     if (contentValue.include) {
-      await _loadColorTheme(
-        extensionResourceLoaderService,
-        resources.joinPath(
-          resources.dirname(themeLocation),
-          contentValue.include
-        ),
-        result
-      );
+      await _loadColorTheme(extensionResourceLoaderService, resources.joinPath(resources.dirname(themeLocation), contentValue.include), result);
     }
     if (Array.isArray(contentValue.settings)) {
       convertSettings(contentValue.settings, result);
@@ -788,20 +641,7 @@ async function _loadColorTheme(extensionResourceLoaderService, themeLocation, re
     const colors = contentValue.colors;
     if (colors) {
       if (typeof colors !== "object") {
-        return Promise.reject(
-          new Error(
-            nls.localize(
-              {
-                key: "error.invalidformat.colors",
-                comment: [
-                  "{0} will be replaced by a path. Values in quotes should not be translated."
-                ]
-              },
-              "Problem parsing color theme file: {0}. Property 'colors' is not of type 'object'.",
-              themeLocation.toString()
-            )
-          )
-        );
+        return Promise.reject(new Error(nls.localize({ key: "error.invalidformat.colors", comment: ["{0} will be replaced by a path. Values in quotes should not be translated."] }, "Problem parsing color theme file: {0}. Property 'colors' is not of type 'object'.", themeLocation.toString())));
       }
       for (const colorId in colors) {
         const colorVal = colors[colorId];
@@ -817,134 +657,67 @@ async function _loadColorTheme(extensionResourceLoaderService, themeLocation, re
       if (Array.isArray(tokenColors)) {
         result.textMateRules.push(...tokenColors);
       } else if (typeof tokenColors === "string") {
-        await _loadSyntaxTokens(
-          extensionResourceLoaderService,
-          resources.joinPath(
-            resources.dirname(themeLocation),
-            tokenColors
-          ),
-          result
-        );
+        await _loadSyntaxTokens(extensionResourceLoaderService, resources.joinPath(resources.dirname(themeLocation), tokenColors), result);
       } else {
-        return Promise.reject(
-          new Error(
-            nls.localize(
-              {
-                key: "error.invalidformat.tokenColors",
-                comment: [
-                  "{0} will be replaced by a path. Values in quotes should not be translated."
-                ]
-              },
-              "Problem parsing color theme file: {0}. Property 'tokenColors' should be either an array specifying colors or a path to a TextMate theme file",
-              themeLocation.toString()
-            )
-          )
-        );
+        return Promise.reject(new Error(nls.localize({ key: "error.invalidformat.tokenColors", comment: ["{0} will be replaced by a path. Values in quotes should not be translated."] }, "Problem parsing color theme file: {0}. Property 'tokenColors' should be either an array specifying colors or a path to a TextMate theme file", themeLocation.toString())));
       }
     }
     const semanticTokenColors = contentValue.semanticTokenColors;
     if (semanticTokenColors && typeof semanticTokenColors === "object") {
       for (const key in semanticTokenColors) {
         try {
-          const rule = readSemanticTokenRule(
-            key,
-            semanticTokenColors[key]
-          );
+          const rule = readSemanticTokenRule(key, semanticTokenColors[key]);
           if (rule) {
             result.semanticTokenRules.push(rule);
           }
         } catch (e) {
-          return Promise.reject(
-            new Error(
-              nls.localize(
-                {
-                  key: "error.invalidformat.semanticTokenColors",
-                  comment: [
-                    "{0} will be replaced by a path. Values in quotes should not be translated."
-                  ]
-                },
-                "Problem parsing color theme file: {0}. Property 'semanticTokenColors' contains a invalid selector",
-                themeLocation.toString()
-              )
-            )
-          );
+          return Promise.reject(new Error(nls.localize({ key: "error.invalidformat.semanticTokenColors", comment: ["{0} will be replaced by a path. Values in quotes should not be translated."] }, "Problem parsing color theme file: {0}. Property 'semanticTokenColors' contains a invalid selector", themeLocation.toString())));
         }
       }
     }
   } else {
-    return _loadSyntaxTokens(
-      extensionResourceLoaderService,
-      themeLocation,
-      result
-    );
+    return _loadSyntaxTokens(extensionResourceLoaderService, themeLocation, result);
   }
 }
 __name(_loadColorTheme, "_loadColorTheme");
 function _loadSyntaxTokens(extensionResourceLoaderService, themeLocation, result) {
-  return extensionResourceLoaderService.readExtensionResource(themeLocation).then(
-    (content) => {
-      try {
-        const contentValue = parsePList(content);
-        const settings = contentValue.settings;
-        if (!Array.isArray(settings)) {
-          return Promise.reject(
-            new Error(
-              nls.localize(
-                "error.plist.invalidformat",
-                "Problem parsing tmTheme file: {0}. 'settings' is not array."
-              )
-            )
-          );
-        }
-        convertSettings(settings, result);
-        return Promise.resolve(null);
-      } catch (e) {
-        return Promise.reject(
-          new Error(
-            nls.localize(
-              "error.cannotparse",
-              "Problems parsing tmTheme file: {0}",
-              e.message
-            )
-          )
-        );
+  return extensionResourceLoaderService.readExtensionResource(themeLocation).then((content) => {
+    try {
+      const contentValue = parsePList(content);
+      const settings = contentValue.settings;
+      if (!Array.isArray(settings)) {
+        return Promise.reject(new Error(nls.localize("error.plist.invalidformat", "Problem parsing tmTheme file: {0}. 'settings' is not array.")));
       }
-    },
-    (error) => {
-      return Promise.reject(
-        new Error(
-          nls.localize(
-            "error.cannotload",
-            "Problems loading tmTheme file {0}: {1}",
-            themeLocation.toString(),
-            error.message
-          )
-        )
-      );
+      convertSettings(settings, result);
+      return Promise.resolve(null);
+    } catch (e) {
+      return Promise.reject(new Error(nls.localize("error.cannotparse", "Problems parsing tmTheme file: {0}", e.message)));
     }
-  );
+  }, (error) => {
+    return Promise.reject(new Error(nls.localize("error.cannotload", "Problems loading tmTheme file {0}: {1}", themeLocation.toString(), error.message)));
+  });
 }
 __name(_loadSyntaxTokens, "_loadSyntaxTokens");
 const defaultThemeColors = {
-  light: [
+  "light": [
     { scope: "token.info-token", settings: { foreground: "#316bcd" } },
     { scope: "token.warn-token", settings: { foreground: "#cd9731" } },
     { scope: "token.error-token", settings: { foreground: "#cd3131" } },
     { scope: "token.debug-token", settings: { foreground: "#800080" } }
   ],
-  dark: [
+  "dark": [
     { scope: "token.info-token", settings: { foreground: "#6796e6" } },
     { scope: "token.warn-token", settings: { foreground: "#cd9731" } },
     { scope: "token.error-token", settings: { foreground: "#f44747" } },
     { scope: "token.debug-token", settings: { foreground: "#b267e6" } }
   ],
-  hcLight: [
+  "hcLight": [
     { scope: "token.info-token", settings: { foreground: "#316bcd" } },
     { scope: "token.warn-token", settings: { foreground: "#cd9731" } },
     { scope: "token.error-token", settings: { foreground: "#cd3131" } },
     { scope: "token.debug-token", settings: { foreground: "#800080" } }
   ],
-  hcDark: [
+  "hcDark": [
     { scope: "token.info-token", settings: { foreground: "#6796e6" } },
     { scope: "token.warn-token", settings: { foreground: "#008000" } },
     { scope: "token.error-token", settings: { foreground: "#FF0000" } },
@@ -966,17 +739,11 @@ function nameMatcher(identifers, scope) {
     return -1;
   }
   let lastScopeIndex = scope.length - 1;
-  let lastIdentifierIndex = findInIdents(
-    scope[lastScopeIndex--],
-    identifers.length
-  );
+  let lastIdentifierIndex = findInIdents(scope[lastScopeIndex--], identifers.length);
   if (lastIdentifierIndex >= 0) {
     const score = (lastIdentifierIndex + 1) * 65536 + identifers[lastIdentifierIndex].length;
     while (lastScopeIndex >= 0) {
-      lastIdentifierIndex = findInIdents(
-        scope[lastScopeIndex--],
-        lastIdentifierIndex
-      );
+      lastIdentifierIndex = findInIdents(scope[lastScopeIndex--], lastIdentifierIndex);
       if (lastIdentifierIndex === -1) {
         return -1;
       }
@@ -1028,14 +795,7 @@ function readSemanticTokenRule(selectorString, settings) {
   if (typeof settings === "string") {
     style = TokenStyle.fromSettings(settings, void 0);
   } else if (isSemanticTokenColorizationSetting(settings)) {
-    style = TokenStyle.fromSettings(
-      settings.foreground,
-      settings.fontStyle,
-      settings.bold,
-      settings.underline,
-      settings.strikethrough,
-      settings.italic
-    );
+    style = TokenStyle.fromSettings(settings.foreground, settings.fontStyle, settings.bold, settings.underline, settings.strikethrough, settings.italic);
   }
   if (style) {
     return { selector, style };

@@ -10,25 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { EndOfLinePreference } from "../../../../editor/common/model.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
-import {
-  extractCodeblockUrisFromText,
-  extractVulnerabilitiesFromText
-} from "./annotations.js";
-import {
-  isResponseVM
-} from "./chatViewModel.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { extractCodeblockUrisFromText, extractVulnerabilitiesFromText, IMarkdownVulnerability } from "./annotations.js";
+import { IChatRequestViewModel, IChatResponseViewModel, isResponseVM } from "./chatViewModel.js";
 let CodeBlockModelCollection = class extends Disposable {
   constructor(languageService, textModelService) {
     super();
@@ -55,11 +46,7 @@ let CodeBlockModelCollection = class extends Disposable {
     if (!entry) {
       return;
     }
-    return {
-      model: entry.model.then((ref) => ref.object),
-      vulns: entry.vulns,
-      codemapperUri: entry.codemapperUri
-    };
+    return { model: entry.model.then((ref) => ref.object), vulns: entry.vulns, codemapperUri: entry.codemapperUri };
   }
   getOrCreate(sessionId, chat, codeBlockIndex) {
     const existing = this.get(sessionId, chat, codeBlockIndex);
@@ -68,11 +55,7 @@ let CodeBlockModelCollection = class extends Disposable {
     }
     const uri = this.getUri(sessionId, chat, codeBlockIndex);
     const ref = this.textModelService.createModelReference(uri);
-    this._models.set(uri, {
-      model: ref,
-      vulns: [],
-      codemapperUri: void 0
-    });
+    this._models.set(uri, { model: ref, vulns: [], codemapperUri: void 0 });
     while (this._models.size > this.maxModelCount) {
       const first = Array.from(this._models.keys()).at(0);
       if (!first) {
@@ -80,11 +63,7 @@ let CodeBlockModelCollection = class extends Disposable {
       }
       this.delete(first);
     }
-    return {
-      model: ref.then((ref2) => ref2.object),
-      vulns: [],
-      codemapperUri: void 0
-    };
+    return { model: ref.then((ref2) => ref2.object), vulns: [], codemapperUri: void 0 };
   }
   delete(codeBlockUri) {
     const entry = this._models.get(codeBlockUri);
@@ -102,27 +81,15 @@ let CodeBlockModelCollection = class extends Disposable {
     const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
     const extractedVulns = extractVulnerabilitiesFromText(content.text);
     let newText = fixCodeText(extractedVulns.newText, content.languageId);
-    this.setVulns(
-      sessionId,
-      chat,
-      codeBlockIndex,
-      extractedVulns.vulnerabilities
-    );
+    this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
     const codeblockUri = extractCodeblockUrisFromText(newText);
     if (codeblockUri) {
-      this.setCodemapperUri(
-        sessionId,
-        chat,
-        codeBlockIndex,
-        codeblockUri.uri
-      );
+      this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri);
       newText = codeblockUri.textWithoutResult;
     }
     const textModel = (await entry.model).textEditorModel;
     if (content.languageId) {
-      const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(
-        content.languageId
-      );
+      const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(content.languageId);
       if (vscodeLanguageId && vscodeLanguageId !== textModel.getLanguageId()) {
         textModel.setLanguage(vscodeLanguageId);
       }
@@ -135,12 +102,7 @@ let CodeBlockModelCollection = class extends Disposable {
       const text = newText.slice(currentText.length);
       const lastLine = textModel.getLineCount();
       const lastCol = textModel.getLineMaxColumn(lastLine);
-      textModel.applyEdits([
-        {
-          range: new Range(lastLine, lastCol, lastLine, lastCol),
-          text
-        }
-      ]);
+      textModel.applyEdits([{ range: new Range(lastLine, lastCol, lastLine, lastCol), text }]);
     } else {
       textModel.setValue(newText);
     }

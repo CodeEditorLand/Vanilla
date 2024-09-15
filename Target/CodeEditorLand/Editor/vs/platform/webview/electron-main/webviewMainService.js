@@ -10,11 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { webContents } from "electron";
+import { WebContents, webContents, WebFrameMain } from "electron";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { FindInFrameOptions, FoundInFrameResult, IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from "../common/webviewManagerService.js";
 import { WebviewProtocolProvider } from "./webviewProtocolProvider.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
 let WebviewMainService = class extends Disposable {
   constructor(windowsMainService) {
     super();
@@ -24,9 +25,7 @@ let WebviewMainService = class extends Disposable {
   static {
     __name(this, "WebviewMainService");
   }
-  _onFoundInFrame = this._register(
-    new Emitter()
-  );
+  _onFoundInFrame = this._register(new Emitter());
   onFoundInFrame = this._onFoundInFrame.event;
   async setIgnoreMenuShortcuts(id, enabled) {
     let contents;
@@ -69,9 +68,7 @@ let WebviewMainService = class extends Disposable {
     const initialFrame = this.getFrameByName(windowId, frameName);
     const frame = initialFrame;
     if (typeof frame.stopFindInFrame === "function") {
-      frame.stopFindInFrame(
-        options.keepSelection ? "keepSelection" : "clearSelection"
-      );
+      frame.stopFindInFrame(options.keepSelection ? "keepSelection" : "clearSelection");
     }
   }
   getFrameByName(windowId, frameName) {
@@ -79,11 +76,9 @@ let WebviewMainService = class extends Disposable {
     if (!window?.win) {
       throw new Error(`Invalid windowId: ${windowId}`);
     }
-    const frame = window.win.webContents.mainFrame.framesInSubtree.find(
-      (frame2) => {
-        return frame2.name === frameName;
-      }
-    );
+    const frame = window.win.webContents.mainFrame.framesInSubtree.find((frame2) => {
+      return frame2.name === frameName;
+    });
     if (!frame) {
       throw new Error(`Unknown frame: ${frameName}`);
     }

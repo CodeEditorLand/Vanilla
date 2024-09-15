@@ -13,42 +13,25 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as dom from "../../../../../base/browser/dom.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable,
-  combinedDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { combinedDisposable, Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
 import { sep } from "../../../../../base/common/path.js";
 import { commonPrefixLength } from "../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { editorSuggestWidgetSelectedBackground } from "../../../../../editor/contrib/suggest/browser/suggestWidget.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../../platform/storage/common/storage.js";
-import {
-  TerminalCapability
-} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../../platform/storage/common/storage.js";
+import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { ShellIntegrationOscPs } from "../../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";
 import { getListStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
 import { activeContrastBorder } from "../../../../../platform/theme/common/colorRegistry.js";
-import {
-  SimpleCompletionItem
-} from "../../../../services/suggest/browser/simpleCompletionItem.js";
-import {
-  LineContext,
-  SimpleCompletionModel
-} from "../../../../services/suggest/browser/simpleCompletionModel.js";
-import {
-  SimpleSuggestWidget
-} from "../../../../services/suggest/browser/simpleSuggestWidget.js";
 import { ITerminalConfigurationService } from "../../../terminal/browser/terminal.js";
 import { TerminalStorageKeys } from "../../../terminal/common/terminalStorageKeys.js";
-import {
-  terminalSuggestConfigSection
-} from "../common/terminalSuggestConfiguration.js";
+import { terminalSuggestConfigSection } from "../common/terminalSuggestConfiguration.js";
+import { SimpleCompletionItem } from "../../../../services/suggest/browser/simpleCompletionItem.js";
+import { LineContext, SimpleCompletionModel } from "../../../../services/suggest/browser/simpleCompletionModel.js";
+import { ISimpleSelectedSuggestion, SimpleSuggestWidget } from "../../../../services/suggest/browser/simpleSuggestWidget.js";
 var VSCodeSuggestOscPt = /* @__PURE__ */ ((VSCodeSuggestOscPt2) => {
   VSCodeSuggestOscPt2["Completions"] = "Completions";
   VSCodeSuggestOscPt2["CompletionsPwshCommands"] = "CompletionsPwshCommands";
@@ -81,43 +64,30 @@ let SuggestAddon = class extends Disposable {
     this._configurationService = _configurationService;
     this._instantiationService = _instantiationService;
     this._terminalConfigurationService = _terminalConfigurationService;
-    this._register(
-      Event.runAndSubscribe(
-        Event.any(
-          this._capabilities.onDidAddCapabilityType,
-          this._capabilities.onDidRemoveCapabilityType
-        ),
-        () => {
-          const commandDetection = this._capabilities.get(
-            TerminalCapability.CommandDetection
+    this._register(Event.runAndSubscribe(Event.any(
+      this._capabilities.onDidAddCapabilityType,
+      this._capabilities.onDidRemoveCapabilityType
+    ), () => {
+      const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
+      if (commandDetection) {
+        if (this._promptInputModel !== commandDetection.promptInputModel) {
+          this._promptInputModel = commandDetection.promptInputModel;
+          this._promptInputModelSubscriptions.value = combinedDisposable(
+            this._promptInputModel.onDidChangeInput((e) => this._sync(e)),
+            this._promptInputModel.onDidFinishInput(() => this.hideSuggestWidget())
           );
-          if (commandDetection) {
-            if (this._promptInputModel !== commandDetection.promptInputModel) {
-              this._promptInputModel = commandDetection.promptInputModel;
-              this._promptInputModelSubscriptions.value = combinedDisposable(
-                this._promptInputModel.onDidChangeInput(
-                  (e) => this._sync(e)
-                ),
-                this._promptInputModel.onDidFinishInput(
-                  () => this.hideSuggestWidget()
-                )
-              );
-            }
-          } else {
-            this._promptInputModel = void 0;
-          }
         }
-      )
-    );
+      } else {
+        this._promptInputModel = void 0;
+      }
+    }));
   }
   static {
     __name(this, "SuggestAddon");
   }
   _terminal;
   _promptInputModel;
-  _promptInputModelSubscriptions = this._register(
-    new MutableDisposable()
-  );
+  _promptInputModelSubscriptions = this._register(new MutableDisposable());
   _mostRecentPromptInputState;
   _currentPromptInputState;
   _model;
@@ -147,34 +117,21 @@ let SuggestAddon = class extends Disposable {
   // F12,h
   _onBell = this._register(new Emitter());
   onBell = this._onBell.event;
-  _onAcceptedCompletion = this._register(
-    new Emitter()
-  );
+  _onAcceptedCompletion = this._register(new Emitter());
   onAcceptedCompletion = this._onAcceptedCompletion.event;
-  _onDidRequestCompletions = this._register(
-    new Emitter()
-  );
+  _onDidRequestCompletions = this._register(new Emitter());
   onDidRequestCompletions = this._onDidRequestCompletions.event;
-  _onDidReceiveCompletions = this._register(
-    new Emitter()
-  );
+  _onDidReceiveCompletions = this._register(new Emitter());
   onDidReceiveCompletions = this._onDidReceiveCompletions.event;
   activate(xterm) {
     this._terminal = xterm;
-    this._register(
-      xterm.parser.registerOscHandler(
-        ShellIntegrationOscPs.VSCode,
-        (data) => {
-          return this._handleVSCodeSequence(data);
-        }
-      )
-    );
-    this._register(
-      xterm.onData((e) => {
-        this._lastUserData = e;
-        this._lastUserDataTimestamp = Date.now();
-      })
-    );
+    this._register(xterm.parser.registerOscHandler(ShellIntegrationOscPs.VSCode, (data) => {
+      return this._handleVSCodeSequence(data);
+    }));
+    this._register(xterm.onData((e) => {
+      this._lastUserData = e;
+      this._lastUserDataTimestamp = Date.now();
+    }));
   }
   setContainerWithOverflow(container) {
     this._container = container;
@@ -189,46 +146,34 @@ let SuggestAddon = class extends Disposable {
     if (this.isPasting) {
       return;
     }
-    const builtinCompletionsConfig = this._configurationService.getValue(
-      terminalSuggestConfigSection
-    ).builtinCompletions;
+    const builtinCompletionsConfig = this._configurationService.getValue(terminalSuggestConfigSection).builtinCompletions;
     if (!this._codeCompletionsRequested && builtinCompletionsConfig.pwshCode) {
-      this._onAcceptedCompletion.fire(
-        SuggestAddon.requestEnableCodeCompletionsSequence
-      );
+      this._onAcceptedCompletion.fire(SuggestAddon.requestEnableCodeCompletionsSequence);
       this._codeCompletionsRequested = true;
     }
     if (!this._gitCompletionsRequested && builtinCompletionsConfig.pwshGit) {
-      this._onAcceptedCompletion.fire(
-        SuggestAddon.requestEnableGitCompletionsSequence
-      );
+      this._onAcceptedCompletion.fire(SuggestAddon.requestEnableGitCompletionsSequence);
       this._gitCompletionsRequested = true;
     }
     if (this._cachedPwshCommands.size === 0) {
       this._requestGlobalCompletions();
     }
     if (this._lastUserDataTimestamp > this._lastAcceptedCompletionTimestamp) {
-      this._onAcceptedCompletion.fire(
-        SuggestAddon.requestCompletionsSequence
-      );
+      this._onAcceptedCompletion.fire(SuggestAddon.requestCompletionsSequence);
       this._onDidRequestCompletions.fire();
     }
   }
   _requestGlobalCompletions() {
-    this._onAcceptedCompletion.fire(
-      SuggestAddon.requestGlobalCompletionsSequence
-    );
+    this._onAcceptedCompletion.fire(SuggestAddon.requestGlobalCompletionsSequence);
   }
   _sync(promptInputState) {
-    const config = this._configurationService.getValue(
-      terminalSuggestConfigSection
-    );
+    const config = this._configurationService.getValue(terminalSuggestConfigSection);
     if (!this._mostRecentPromptInputState || promptInputState.cursorIndex > this._mostRecentPromptInputState.cursorIndex) {
       let sent = false;
       if (!this._terminalSuggestWidgetVisibleContextKey.get()) {
         if (config.quickSuggestions) {
-          if (promptInputState.cursorIndex === 1 || promptInputState.prefix.match(/([\s[])[^\s]$/)) {
-            if (!this._lastUserData?.match(/^\x1b[[O]?[A-D]$/)) {
+          if (promptInputState.cursorIndex === 1 || promptInputState.prefix.match(/([\s\[])[^\s]$/)) {
+            if (!this._lastUserData?.match(/^\x1b[\[O]?[A-D]$/)) {
               this._requestCompletions();
               sent = true;
             }
@@ -240,9 +185,9 @@ let SuggestAddon = class extends Disposable {
         if (
           // Only trigger on `-` if it's after a space. This is required to not clear
           // completions when typing the `-` in `git cherry-pick`
-          prefix?.match(/\s[-]$/) || // Only trigger on `\` and `/` if it's a directory. Not doing so causes problems
+          prefix?.match(/\s[\-]$/) || // Only trigger on `\` and `/` if it's a directory. Not doing so causes problems
           // with git branches in particular
-          this._isFilteringDirectories && prefix?.match(/[\\/]$/)
+          this._isFilteringDirectories && prefix?.match(/[\\\/]$/)
         ) {
           this._requestCompletions();
           sent = true;
@@ -254,9 +199,7 @@ let SuggestAddon = class extends Disposable {
       return;
     }
     this._currentPromptInputState = promptInputState;
-    if (this._currentPromptInputState.cursorIndex > 1 && this._currentPromptInputState.value.at(
-      this._currentPromptInputState.cursorIndex - 1
-    ) === " ") {
+    if (this._currentPromptInputState.cursorIndex > 1 && this._currentPromptInputState.value.at(this._currentPromptInputState.cursorIndex - 1) === " ") {
       this.hideSuggestWidget();
       return;
     }
@@ -266,20 +209,11 @@ let SuggestAddon = class extends Disposable {
     }
     if (this._terminalSuggestWidgetVisibleContextKey.get()) {
       this._cursorIndexDelta = this._currentPromptInputState.cursorIndex - (this._replacementIndex + this._replacementLength);
-      let normalizedLeadingLineContent = this._currentPromptInputState.value.substring(
-        this._replacementIndex,
-        this._replacementIndex + this._replacementLength + this._cursorIndexDelta
-      );
+      let normalizedLeadingLineContent = this._currentPromptInputState.value.substring(this._replacementIndex, this._replacementIndex + this._replacementLength + this._cursorIndexDelta);
       if (this._isFilteringDirectories) {
-        normalizedLeadingLineContent = normalizePathSeparator(
-          normalizedLeadingLineContent,
-          this._pathSeparator
-        );
+        normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
       }
-      const lineContext = new LineContext(
-        normalizedLeadingLineContent,
-        this._cursorIndexDelta
-      );
+      const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
       this._suggestWidget.setLineContext(lineContext);
     }
     if (!this._suggestWidget.hasCompletions()) {
@@ -304,28 +238,13 @@ let SuggestAddon = class extends Disposable {
     const [command, ...args] = data.split(";");
     switch (command) {
       case "Completions" /* Completions */:
-        this._handleCompletionsSequence(
-          this._terminal,
-          data,
-          command,
-          args
-        );
+        this._handleCompletionsSequence(this._terminal, data, command, args);
         return true;
       case "CompletionsBash" /* CompletionsBash */:
-        this._handleCompletionsBashSequence(
-          this._terminal,
-          data,
-          command,
-          args
-        );
+        this._handleCompletionsBashSequence(this._terminal, data, command, args);
         return true;
       case "CompletionsBashFirstWord" /* CompletionsBashFirstWord */:
-        return this._handleCompletionsBashFirstWordSequence(
-          this._terminal,
-          data,
-          command,
-          args
-        );
+        return this._handleCompletionsBashFirstWordSequence(this._terminal, data, command, args);
     }
     return false;
   }
@@ -348,19 +267,17 @@ let SuggestAddon = class extends Disposable {
       cursorIndex: this._promptInputModel.cursorIndex,
       ghostTextIndex: this._promptInputModel.ghostTextIndex
     };
-    this._leadingLineContent = this._currentPromptInputState.prefix.substring(
-      replacementIndex,
-      replacementIndex + replacementLength + this._cursorIndexDelta
-    );
+    this._leadingLineContent = this._currentPromptInputState.prefix.substring(replacementIndex, replacementIndex + replacementLength + this._cursorIndexDelta);
     const payload = data.slice(
       command.length + args[0].length + args[1].length + args[2].length + 4
+      /*semi-colons*/
     );
     const rawCompletions = args.length === 0 || payload.length === 0 ? void 0 : JSON.parse(payload);
     const completions = parseCompletionsFromShell(rawCompletions);
     const firstChar = this._leadingLineContent.length === 0 ? "" : this._leadingLineContent[0];
     if (this._leadingLineContent.includes(" ") || firstChar === "[") {
-      replacementIndex = Number.parseInt(args[0]);
-      replacementLength = Number.parseInt(args[1]);
+      replacementIndex = parseInt(args[0]);
+      replacementLength = parseInt(args[1]);
       this._leadingLineContent = this._promptInputModel.prefix;
     } else {
       completions.push(...this._cachedPwshCommands);
@@ -368,34 +285,19 @@ let SuggestAddon = class extends Disposable {
     this._replacementIndex = replacementIndex;
     this._replacementLength = replacementLength;
     if (this._mostRecentCompletion?.isDirectory && completions.every((e) => e.completion.isDirectory)) {
-      completions.push(
-        new SimpleCompletionItem(this._mostRecentCompletion)
-      );
+      completions.push(new SimpleCompletionItem(this._mostRecentCompletion));
     }
     this._mostRecentCompletion = void 0;
     this._cursorIndexDelta = this._currentPromptInputState.cursorIndex - (replacementIndex + replacementLength);
     let normalizedLeadingLineContent = this._leadingLineContent;
-    this._isFilteringDirectories = completions.some(
-      (e) => e.completion.isDirectory
-    );
+    this._isFilteringDirectories = completions.some((e) => e.completion.isDirectory);
     if (this._isFilteringDirectories) {
       const firstDir = completions.find((e) => e.completion.isDirectory);
-      this._pathSeparator = firstDir?.completion.label.match(/(?<sep>[\\/])/)?.groups?.sep ?? sep;
-      normalizedLeadingLineContent = normalizePathSeparator(
-        normalizedLeadingLineContent,
-        this._pathSeparator
-      );
+      this._pathSeparator = firstDir?.completion.label.match(/(?<sep>[\\\/])/)?.groups?.sep ?? sep;
+      normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
     }
-    const lineContext = new LineContext(
-      normalizedLeadingLineContent,
-      this._cursorIndexDelta
-    );
-    const model = new SimpleCompletionModel(
-      completions,
-      lineContext,
-      replacementIndex,
-      replacementLength
-    );
+    const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
+    const model = new SimpleCompletionModel(completions, lineContext, replacementIndex, replacementLength);
     this._handleCompletionModel(model);
   }
   // TODO: These aren't persisted across reloads
@@ -434,13 +336,11 @@ let SuggestAddon = class extends Disposable {
       distinctLabels.add(label);
     }
     for (const label of distinctLabels) {
-      set.add(
-        new SimpleCompletionItem({
-          label,
-          icon: Codicon.symbolString,
-          detail: type
-        })
-      );
+      set.add(new SimpleCompletionItem({
+        label,
+        icon: Codicon.symbolString,
+        detail: type
+      }));
     }
     this._cachedFirstWord = void 0;
     return true;
@@ -449,14 +349,15 @@ let SuggestAddon = class extends Disposable {
     if (!terminal.element) {
       return;
     }
-    let replacementIndex = Number.parseInt(args[0]);
-    const replacementLength = Number.parseInt(args[1]);
+    let replacementIndex = parseInt(args[0]);
+    const replacementLength = parseInt(args[1]);
     if (!args[2]) {
       this._onBell.fire();
       return;
     }
     const completionList = data.slice(
       command.length + args[0].length + args[1].length + args[2].length + 4
+      /*semi-colons*/
     ).split(";");
     let completions;
     if (replacementIndex !== 100 && completionList.length > 0) {
@@ -491,16 +392,8 @@ let SuggestAddon = class extends Disposable {
     if (completions.length === 0) {
       return;
     }
-    this._leadingLineContent = completions[0].completion.label.slice(
-      0,
-      replacementLength
-    );
-    const model = new SimpleCompletionModel(
-      completions,
-      new LineContext(this._leadingLineContent, replacementIndex),
-      replacementIndex,
-      replacementLength
-    );
+    this._leadingLineContent = completions[0].completion.label.slice(0, replacementLength);
+    const model = new SimpleCompletionModel(completions, new LineContext(this._leadingLineContent, replacementIndex), replacementIndex, replacementLength);
     if (completions.length === 1) {
       const insertText = completions[0].completion.label.substring(replacementLength);
       if (insertText.length === 0) {
@@ -542,9 +435,7 @@ let SuggestAddon = class extends Disposable {
     this._terminalSuggestWidgetVisibleContextKey.set(true);
     if (!this._suggestWidget) {
       const c = this._terminalConfigurationService.config;
-      const font = this._terminalConfigurationService.getFont(
-        dom.getActiveWindow()
-      );
+      const font = this._terminalConfigurationService.getFont(dom.getActiveWindow());
       const fontInfo = {
         fontFamily: font.fontFamily,
         fontSize: font.fontSize,
@@ -552,38 +443,20 @@ let SuggestAddon = class extends Disposable {
         fontWeight: c.fontWeight.toString(),
         letterSpacing: font.letterSpacing
       };
-      this._suggestWidget = this._register(
-        this._instantiationService.createInstance(
-          SimpleSuggestWidget,
-          this._container,
-          this._instantiationService.createInstance(
-            PersistedWidgetSize
-          ),
-          () => fontInfo,
-          {}
-        )
-      );
-      this._suggestWidget.list.style(
-        getListStyles({
-          listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
-          listInactiveFocusOutline: activeContrastBorder
-        })
-      );
-      this._register(
-        this._suggestWidget.onDidSelect(
-          async (e) => this.acceptSelectedSuggestion(e)
-        )
-      );
-      this._register(
-        this._suggestWidget.onDidHide(
-          () => this._terminalSuggestWidgetVisibleContextKey.set(false)
-        )
-      );
-      this._register(
-        this._suggestWidget.onDidShow(
-          () => this._terminalSuggestWidgetVisibleContextKey.set(true)
-        )
-      );
+      this._suggestWidget = this._register(this._instantiationService.createInstance(
+        SimpleSuggestWidget,
+        this._container,
+        this._instantiationService.createInstance(PersistedWidgetSize),
+        () => fontInfo,
+        {}
+      ));
+      this._suggestWidget.list.style(getListStyles({
+        listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
+        listInactiveFocusOutline: activeContrastBorder
+      }));
+      this._register(this._suggestWidget.onDidSelect(async (e) => this.acceptSelectedSuggestion(e)));
+      this._register(this._suggestWidget.onDidHide(() => this._terminalSuggestWidgetVisibleContextKey.set(false)));
+      this._register(this._suggestWidget.onDidShow(() => this._terminalSuggestWidgetVisibleContextKey.set(true)));
     }
     return this._suggestWidget;
   }
@@ -610,35 +483,22 @@ let SuggestAddon = class extends Disposable {
     this._lastAcceptedCompletionTimestamp = Date.now();
     this._suggestWidget?.hide();
     const currentPromptInputState = this._currentPromptInputState ?? initialPromptInputState;
-    const replacementText = currentPromptInputState.value.substring(
-      this._model.replacementIndex,
-      currentPromptInputState.cursorIndex
-    );
+    const replacementText = currentPromptInputState.value.substring(this._model.replacementIndex, currentPromptInputState.cursorIndex);
     let rightSideReplacementText = "";
     if (
       // The line didn't end with ghost text
       (currentPromptInputState.ghostTextIndex === -1 || currentPromptInputState.ghostTextIndex > currentPromptInputState.cursorIndex) && // There is more than one charatcer
       currentPromptInputState.value.length > currentPromptInputState.cursorIndex + 1 && // THe next character is not a space
-      currentPromptInputState.value.at(
-        currentPromptInputState.cursorIndex
-      ) !== " "
+      currentPromptInputState.value.at(currentPromptInputState.cursorIndex) !== " "
     ) {
-      const spaceIndex = currentPromptInputState.value.substring(
-        currentPromptInputState.cursorIndex,
-        currentPromptInputState.ghostTextIndex === -1 ? void 0 : currentPromptInputState.ghostTextIndex
-      ).indexOf(" ");
-      rightSideReplacementText = currentPromptInputState.value.substring(
-        currentPromptInputState.cursorIndex,
-        spaceIndex === -1 ? void 0 : currentPromptInputState.cursorIndex + spaceIndex
-      );
+      const spaceIndex = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, currentPromptInputState.ghostTextIndex === -1 ? void 0 : currentPromptInputState.ghostTextIndex).indexOf(" ");
+      rightSideReplacementText = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, spaceIndex === -1 ? void 0 : currentPromptInputState.cursorIndex + spaceIndex);
     }
     const completion = suggestion.item.completion;
     const completionText = completion.label;
     let runOnEnter = false;
     if (respectRunOnEnter) {
-      const runOnEnterConfig = this._configurationService.getValue(
-        terminalSuggestConfigSection
-      ).runOnEnter;
+      const runOnEnterConfig = this._configurationService.getValue(terminalSuggestConfigSection).runOnEnter;
       switch (runOnEnterConfig) {
         case "always": {
           runOnEnter = true;
@@ -651,7 +511,7 @@ let SuggestAddon = class extends Disposable {
         case "exactMatchIgnoreExtension": {
           runOnEnter = replacementText.toLowerCase() === completionText.toLowerCase();
           if (completion.isFile) {
-            runOnEnter ||= replacementText.toLowerCase() === completionText.toLowerCase().replace(/\.[^.]+$/, "");
+            runOnEnter ||= replacementText.toLowerCase() === completionText.toLowerCase().replace(/\.[^\.]+$/, "");
           }
           break;
         }
@@ -661,20 +521,12 @@ let SuggestAddon = class extends Disposable {
       this._lastAcceptedCompletionTimestamp = 0;
     }
     this._mostRecentCompletion = completion;
-    const commonPrefixLen = commonPrefixLength(
-      replacementText,
-      completion.label
-    );
-    const commonPrefix = replacementText.substring(
-      replacementText.length - 1 - commonPrefixLen,
-      replacementText.length - 1
-    );
+    const commonPrefixLen = commonPrefixLength(replacementText, completion.label);
+    const commonPrefix = replacementText.substring(replacementText.length - 1 - commonPrefixLen, replacementText.length - 1);
     const completionSuffix = completion.label.substring(commonPrefixLen);
     let resultSequence;
     if (currentPromptInputState.suffix.length > 0 && currentPromptInputState.prefix.endsWith(commonPrefix) && currentPromptInputState.suffix.startsWith(completionSuffix)) {
-      resultSequence = "\x1BOC".repeat(
-        completion.label.length - commonPrefixLen
-      );
+      resultSequence = "\x1BOC".repeat(completion.label.length - commonPrefixLen);
     } else {
       resultSequence = [
         // Backspace (left) to remove all additional input
@@ -721,12 +573,7 @@ let PersistedWidgetSize = class {
     return void 0;
   }
   store(size) {
-    this._storageService.store(
-      this._key,
-      JSON.stringify(size),
-      StorageScope.PROFILE,
-      StorageTarget.MACHINE
-    );
+    this._storageService.store(this._key, JSON.stringify(size), StorageScope.PROFILE, StorageTarget.MACHINE);
   }
   reset() {
     this._storageService.remove(this._key, StorageScope.PROFILE);
@@ -740,14 +587,14 @@ function parseCompletionsFromShell(rawCompletions) {
     return [];
   }
   let typedRawCompletions;
-  if (Array.isArray(rawCompletions)) {
+  if (!Array.isArray(rawCompletions)) {
+    typedRawCompletions = [rawCompletions];
+  } else {
     if (rawCompletions.length === 0) {
       return [];
     }
     if (typeof rawCompletions[0] === "string") {
-      typedRawCompletions = [
-        rawCompletions
-      ].map((e) => ({
+      typedRawCompletions = [rawCompletions].map((e) => ({
         CompletionText: e[0],
         ResultType: e[1],
         ToolTip: e[2],
@@ -763,19 +610,15 @@ function parseCompletionsFromShell(rawCompletions) {
     } else {
       typedRawCompletions = rawCompletions;
     }
-  } else {
-    typedRawCompletions = [rawCompletions];
   }
-  return typedRawCompletions.map(
-    (e) => rawCompletionToSimpleCompletionItem(e)
-  );
+  return typedRawCompletions.map((e) => rawCompletionToSimpleCompletionItem(e));
 }
 __name(parseCompletionsFromShell, "parseCompletionsFromShell");
 function rawCompletionToSimpleCompletionItem(rawCompletion) {
   let label = rawCompletion.CompletionText;
-  if (rawCompletion.ResultType === 4 && !label.match(/^[-+]$/) && // Don't add a `/` to `-` or `+` (navigate location history)
-  !label.match(/^\.\.?$/) && !label.match(/[\\/]$/)) {
-    const separator = label.match(/(?<sep>[\\/])/)?.groups?.sep ?? sep;
+  if (rawCompletion.ResultType === 4 && !label.match(/^[\-+]$/) && // Don't add a `/` to `-` or `+` (navigate location history)
+  !label.match(/^\.\.?$/) && !label.match(/[\\\/]$/)) {
+    const separator = label.match(/(?<sep>[\\\/])/)?.groups?.sep ?? sep;
     label = label + separator;
   }
   const detail = rawCompletion.ToolTip ?? label;

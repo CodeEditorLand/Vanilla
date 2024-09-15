@@ -1,46 +1,39 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { asArray } from "../../base/common/arrays.js";
-import { DeferredPromise } from "../../base/common/async.js";
-import { toDisposable } from "../../base/common/lifecycle.js";
-import { mark } from "../../base/common/performance.js";
-import { MenuId, MenuRegistry } from "../../platform/actions/common/actions.js";
-import { CommandsRegistry } from "../../platform/commands/common/commands.js";
-import {
-  Menu
-} from "./web.api.js";
+import { ITunnel, ITunnelOptions, IWorkbench, IWorkbenchConstructionOptions, Menu } from "./web.api.js";
 import { BrowserMain } from "./web.main.js";
+import { URI } from "../../base/common/uri.js";
+import { IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { CommandsRegistry } from "../../platform/commands/common/commands.js";
+import { mark, PerformanceMark } from "../../base/common/performance.js";
+import { MenuId, MenuRegistry } from "../../platform/actions/common/actions.js";
+import { DeferredPromise } from "../../base/common/async.js";
+import { asArray } from "../../base/common/arrays.js";
+import { IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "../../platform/progress/common/progress.js";
+import { LogLevel } from "../../platform/log/common/log.js";
+import { IEmbedderTerminalOptions } from "../services/terminal/common/embedderTerminalService.js";
 let created = false;
 const workbenchPromise = new DeferredPromise();
 function create(domElement, options) {
   mark("code/didLoadWorkbenchMain");
   if (created) {
-    throw new Error(
-      "Unable to create the VSCode workbench more than once."
-    );
+    throw new Error("Unable to create the VSCode workbench more than once.");
   } else {
     created = true;
   }
   if (Array.isArray(options.commands)) {
     for (const command of options.commands) {
-      CommandsRegistry.registerCommand(
-        command.id,
-        (accessor, ...args) => {
-          return command.handler(...args);
-        }
-      );
+      CommandsRegistry.registerCommand(command.id, (accessor, ...args) => {
+        return command.handler(...args);
+      });
       if (command.label) {
-        for (const menu of asArray(
-          command.menu ?? Menu.CommandPalette
-        )) {
-          MenuRegistry.appendMenuItem(asMenuId(menu), {
-            command: { id: command.id, title: command.label }
-          });
+        for (const menu of asArray(command.menu ?? Menu.CommandPalette)) {
+          MenuRegistry.appendMenuItem(asMenuId(menu), { command: { id: command.id, title: command.label } });
         }
       }
     }
   }
-  let instantiatedWorkbench;
+  let instantiatedWorkbench = void 0;
   new BrowserMain(domElement, options).open().then((workbench) => {
     instantiatedWorkbench = workbench;
     workbenchPromise.complete(workbench);
@@ -49,9 +42,7 @@ function create(domElement, options) {
     if (instantiatedWorkbench) {
       instantiatedWorkbench.shutdown();
     } else {
-      workbenchPromise.p.then(
-        (instantiatedWorkbench2) => instantiatedWorkbench2.shutdown()
-      );
+      workbenchPromise.p.then((instantiatedWorkbench2) => instantiatedWorkbench2.shutdown());
     }
   });
 }
@@ -77,9 +68,7 @@ var commands;
 var logger;
 ((logger2) => {
   function log(level, message) {
-    workbenchPromise.p.then(
-      (workbench) => workbench.logger.log(level, message)
-    );
+    workbenchPromise.p.then((workbench) => workbench.logger.log(level, message));
   }
   logger2.log = log;
   __name(log, "log");

@@ -17,177 +17,94 @@ import "../../common/services/languageFeatureDebounce.js";
 import "../../common/services/semanticTokensStylingService.js";
 import "../../common/services/languageFeaturesService.js";
 import "../../browser/services/hoverService/hoverService.js";
+import * as strings from "../../../base/common/strings.js";
 import * as dom from "../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
-import { mainWindow } from "../../../base/browser/window.js";
-import { onUnexpectedError } from "../../../base/common/errors.js";
-import {
-  Emitter,
-  Event,
-  ValueWithChangeEvent
-} from "../../../base/common/event.js";
-import {
-  KeyCodeChord,
-  decodeKeybinding
-} from "../../../base/common/keybindings.js";
-import {
-  Disposable,
-  DisposableStore,
-  ImmortalReference,
-  combinedDisposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../base/common/map.js";
+import { Emitter, Event, IValueWithChangeEvent, ValueWithChangeEvent } from "../../../base/common/event.js";
+import { ResolvedKeybinding, KeyCodeChord, Keybinding, decodeKeybinding } from "../../../base/common/keybindings.js";
+import { IDisposable, IReference, ImmortalReference, toDisposable, DisposableStore, Disposable, combinedDisposable } from "../../../base/common/lifecycle.js";
 import { OS, isLinux, isMacintosh } from "../../../base/common/platform.js";
-import { basename } from "../../../base/common/resources.js";
 import Severity from "../../../base/common/severity.js";
-import * as strings from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
+import { IBulkEditOptions, IBulkEditResult, IBulkEditService, ResourceEdit, ResourceTextEdit } from "../../browser/services/bulkEditService.js";
+import { isDiffEditorConfigurationKey, isEditorConfigurationKey } from "../../common/config/editorConfigurationSchema.js";
+import { EditOperation, ISingleEditOperation } from "../../common/core/editOperation.js";
+import { IPosition, Position as Pos } from "../../common/core/position.js";
+import { Range } from "../../common/core/range.js";
+import { ITextModel, ITextSnapshot } from "../../common/model.js";
+import { IModelService } from "../../common/services/model.js";
+import { IResolvedTextEditorModel, ITextModelContentProvider, ITextModelService } from "../../common/services/resolverService.js";
+import { ITextResourceConfigurationService, ITextResourcePropertiesService, ITextResourceConfigurationChangeEvent } from "../../common/services/textResourceConfiguration.js";
+import { CommandsRegistry, ICommandEvent, ICommandHandler, ICommandService } from "../../../platform/commands/common/commands.js";
+import { IConfigurationChangeEvent, IConfigurationData, IConfigurationOverrides, IConfigurationService, IConfigurationModel, IConfigurationValue, ConfigurationTarget } from "../../../platform/configuration/common/configuration.js";
+import { Configuration, ConfigurationModel, ConfigurationChangeEvent } from "../../../platform/configuration/common/configurationModels.js";
+import { IContextKeyService, ContextKeyExpression } from "../../../platform/contextkey/common/contextkey.js";
+import { IConfirmation, IConfirmationResult, IDialogService, IInputResult, IPrompt, IPromptResult, IPromptWithCustomCancel, IPromptResultWithCancel, IPromptWithDefaultCancel, IPromptBaseButton } from "../../../platform/dialogs/common/dialogs.js";
+import { createDecorator, IInstantiationService, ServiceIdentifier } from "../../../platform/instantiation/common/instantiation.js";
+import { AbstractKeybindingService } from "../../../platform/keybinding/common/abstractKeybindingService.js";
+import { IKeybindingService, IKeyboardEvent, KeybindingsSchemaContribution } from "../../../platform/keybinding/common/keybinding.js";
+import { KeybindingResolver } from "../../../platform/keybinding/common/keybindingResolver.js";
+import { IKeybindingItem, KeybindingsRegistry } from "../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ResolvedKeybindingItem } from "../../../platform/keybinding/common/resolvedKeybindingItem.js";
+import { USLayoutResolvedKeybinding } from "../../../platform/keybinding/common/usLayoutResolvedKeybinding.js";
+import { ILabelService, ResourceLabelFormatter, IFormatterChangeEvent, Verbosity } from "../../../platform/label/common/label.js";
+import { INotification, INotificationHandle, INotificationService, IPromptChoice, IPromptOptions, NoOpNotification, IStatusMessageOptions, INotificationSource, INotificationSourceFilter, NotificationsFilter } from "../../../platform/notification/common/notification.js";
+import { IProgressRunner, IEditorProgressService, IProgressService, IProgress, IProgressCompositeOptions, IProgressDialogOptions, IProgressNotificationOptions, IProgressOptions, IProgressStep, IProgressWindowOptions } from "../../../platform/progress/common/progress.js";
+import { ITelemetryService, TelemetryLevel } from "../../../platform/telemetry/common/telemetry.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, IWorkspace, IWorkspaceContextService, IWorkspaceFolder, IWorkspaceFoldersChangeEvent, IWorkspaceFoldersWillChangeEvent, WorkbenchState, WorkspaceFolder, STANDALONE_EDITOR_WORKSPACE_ID } from "../../../platform/workspace/common/workspace.js";
+import { ILayoutService } from "../../../platform/layout/browser/layoutService.js";
+import { StandaloneServicesNLS } from "../../common/standaloneStrings.js";
+import { basename } from "../../../base/common/resources.js";
+import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
+import { ConsoleLogger, ILogService } from "../../../platform/log/common/log.js";
+import { IWorkspaceTrustManagementService, IWorkspaceTrustTransitionParticipant, IWorkspaceTrustUriInfo } from "../../../platform/workspace/common/workspaceTrust.js";
+import { EditorOption } from "../../common/config/editorOptions.js";
+import { ICodeEditor, IDiffEditor } from "../../browser/editorBrowser.js";
+import { IContextMenuService, IContextViewDelegate, IContextViewService, IOpenContextView } from "../../../platform/contextview/browser/contextView.js";
+import { ContextViewService } from "../../../platform/contextview/browser/contextViewService.js";
+import { LanguageService } from "../../common/services/languageService.js";
+import { ContextMenuService } from "../../../platform/contextview/browser/contextMenuService.js";
+import { getSingletonServiceDescriptors, InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { OpenerService } from "../../browser/services/openerService.js";
+import { IEditorWorkerService } from "../../common/services/editorWorker.js";
+import { EditorWorkerService } from "../../browser/services/editorWorkerService.js";
+import { ILanguageService } from "../../common/languages/language.js";
+import { MarkerDecorationsService } from "../../common/services/markerDecorationsService.js";
+import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
+import { ModelService } from "../../common/services/modelService.js";
+import { StandaloneQuickInputService } from "./quickInput/standaloneQuickInputService.js";
+import { StandaloneThemeService } from "./standaloneThemeService.js";
+import { IStandaloneThemeService } from "../common/standaloneTheme.js";
 import { AccessibilityService } from "../../../platform/accessibility/browser/accessibilityService.js";
 import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
-import {
-  IAccessibilitySignalService
-} from "../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { IMenuService } from "../../../platform/actions/common/actions.js";
 import { MenuService } from "../../../platform/actions/common/menuService.js";
 import { BrowserClipboardService } from "../../../platform/clipboard/browser/clipboardService.js";
 import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
-import {
-  CommandsRegistry,
-  ICommandService
-} from "../../../platform/commands/common/commands.js";
-import {
-  ConfigurationTarget,
-  IConfigurationService
-} from "../../../platform/configuration/common/configuration.js";
-import {
-  Configuration,
-  ConfigurationChangeEvent,
-  ConfigurationModel
-} from "../../../platform/configuration/common/configurationModels.js";
-import { DefaultConfiguration } from "../../../platform/configuration/common/configurations.js";
 import { ContextKeyService } from "../../../platform/contextkey/browser/contextKeyService.js";
-import {
-  IContextKeyService
-} from "../../../platform/contextkey/common/contextkey.js";
-import { ContextMenuService } from "../../../platform/contextview/browser/contextMenuService.js";
-import {
-  IContextMenuService,
-  IContextViewService
-} from "../../../platform/contextview/browser/contextView.js";
-import { ContextViewService } from "../../../platform/contextview/browser/contextViewService.js";
-import {
-  IDialogService
-} from "../../../platform/dialogs/common/dialogs.js";
-import {
-  IEnvironmentService
-} from "../../../platform/environment/common/environment.js";
 import { SyncDescriptor } from "../../../platform/instantiation/common/descriptors.js";
-import {
-  InstantiationType,
-  getSingletonServiceDescriptors,
-  registerSingleton
-} from "../../../platform/instantiation/common/extensions.js";
-import {
-  IInstantiationService,
-  createDecorator
-} from "../../../platform/instantiation/common/instantiation.js";
 import { InstantiationService } from "../../../platform/instantiation/common/instantiationService.js";
 import { ServiceCollection } from "../../../platform/instantiation/common/serviceCollection.js";
-import { AbstractKeybindingService } from "../../../platform/keybinding/common/abstractKeybindingService.js";
-import {
-  IKeybindingService
-} from "../../../platform/keybinding/common/keybinding.js";
-import { KeybindingResolver } from "../../../platform/keybinding/common/keybindingResolver.js";
-import {
-  KeybindingsRegistry
-} from "../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ResolvedKeybindingItem } from "../../../platform/keybinding/common/resolvedKeybindingItem.js";
-import { USLayoutResolvedKeybinding } from "../../../platform/keybinding/common/usLayoutResolvedKeybinding.js";
-import {
-  ILabelService
-} from "../../../platform/label/common/label.js";
-import { ILayoutService } from "../../../platform/layout/browser/layoutService.js";
-import {
-  IListService,
-  ListService
-} from "../../../platform/list/browser/listService.js";
-import {
-  ConsoleLogger,
-  ILogService
-} from "../../../platform/log/common/log.js";
-import { LogService } from "../../../platform/log/common/logService.js";
-import { MarkerService } from "../../../platform/markers/common/markerService.js";
+import { IListService, ListService } from "../../../platform/list/browser/listService.js";
 import { IMarkerService } from "../../../platform/markers/common/markers.js";
-import {
-  INotificationService,
-  NoOpNotification,
-  NotificationsFilter
-} from "../../../platform/notification/common/notification.js";
+import { MarkerService } from "../../../platform/markers/common/markerService.js";
 import { IOpenerService } from "../../../platform/opener/common/opener.js";
-import {
-  IEditorProgressService,
-  IProgressService
-} from "../../../platform/progress/common/progress.js";
 import { IQuickInputService } from "../../../platform/quickinput/common/quickInput.js";
-import {
-  IStorageService,
-  InMemoryStorageService
-} from "../../../platform/storage/common/storage.js";
-import {
-  ITelemetryService,
-  TelemetryLevel
-} from "../../../platform/telemetry/common/telemetry.js";
-import {
-  IWorkspaceContextService,
-  STANDALONE_EDITOR_WORKSPACE_ID,
-  WorkbenchState,
-  WorkspaceFolder
-} from "../../../platform/workspace/common/workspace.js";
-import {
-  IWorkspaceTrustManagementService
-} from "../../../platform/workspace/common/workspaceTrust.js";
-import {
-  IBulkEditService,
-  ResourceEdit,
-  ResourceTextEdit
-} from "../../browser/services/bulkEditService.js";
-import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
-import { EditorWorkerService } from "../../browser/services/editorWorkerService.js";
-import { OpenerService } from "../../browser/services/openerService.js";
-import {
-  isDiffEditorConfigurationKey,
-  isEditorConfigurationKey
-} from "../../common/config/editorConfigurationSchema.js";
-import { EditorOption } from "../../common/config/editorOptions.js";
-import {
-  EditOperation
-} from "../../common/core/editOperation.js";
-import { Position as Pos } from "../../common/core/position.js";
-import { Range } from "../../common/core/range.js";
-import { getEditorFeatures } from "../../common/editorFeatures.js";
-import { ILanguageService } from "../../common/languages/language.js";
-import { ILanguageConfigurationService } from "../../common/languages/languageConfigurationRegistry.js";
-import { IEditorWorkerService } from "../../common/services/editorWorker.js";
+import { IStorageService, InMemoryStorageService } from "../../../platform/storage/common/storage.js";
+import { DefaultConfiguration } from "../../../platform/configuration/common/configurations.js";
+import { WorkspaceEdit } from "../../common/languages.js";
+import { AccessibilitySignal, AccessibilityModality, IAccessibilitySignalService, Sound } from "../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { ILanguageFeaturesService } from "../../common/services/languageFeatures.js";
-import { LanguageService } from "../../common/services/languageService.js";
-import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
-import { MarkerDecorationsService } from "../../common/services/markerDecorationsService.js";
-import { IModelService } from "../../common/services/model.js";
-import { ModelService } from "../../common/services/modelService.js";
-import {
-  ITextModelService
-} from "../../common/services/resolverService.js";
-import {
-  ITextResourceConfigurationService,
-  ITextResourcePropertiesService
-} from "../../common/services/textResourceConfiguration.js";
+import { ILanguageConfigurationService } from "../../common/languages/languageConfigurationRegistry.js";
+import { LogService } from "../../../platform/log/common/logService.js";
+import { getEditorFeatures } from "../../common/editorFeatures.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { ExtensionKind, IEnvironmentService, IExtensionHostDebugParams } from "../../../platform/environment/common/environment.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { ResourceMap } from "../../../base/common/map.js";
 import { ITreeSitterParserService } from "../../common/services/treeSitterParserService.js";
-import { StandaloneServicesNLS } from "../../common/standaloneStrings.js";
-import { IStandaloneThemeService } from "../common/standaloneTheme.js";
-import { StandaloneQuickInputService } from "./quickInput/standaloneQuickInputService.js";
-import { StandaloneThemeService } from "./standaloneThemeService.js";
 import { StandaloneTreeSitterParserService } from "./standaloneTreeSitterService.js";
+import { IWorkerDescriptor } from "../../../base/common/worker/simpleWorker.js";
 class SimpleModel {
   static {
     __name(this, "SimpleModel");
@@ -245,7 +162,7 @@ let StandaloneTextModelService = class {
   }
   registerTextModelContentProvider(scheme, provider) {
     return {
-      dispose: /* @__PURE__ */ __name(() => {
+      dispose: /* @__PURE__ */ __name(function() {
       }, "dispose")
     };
   }
@@ -290,68 +207,32 @@ class StandaloneEnvironmentService {
   static {
     __name(this, "StandaloneEnvironmentService");
   }
-  stateResource = URI.from({
-    scheme: "monaco",
-    authority: "stateResource"
-  });
-  userRoamingDataHome = URI.from({
-    scheme: "monaco",
-    authority: "userRoamingDataHome"
-  });
-  keyboardLayoutResource = URI.from({
-    scheme: "monaco",
-    authority: "keyboardLayoutResource"
-  });
-  argvResource = URI.from({
-    scheme: "monaco",
-    authority: "argvResource"
-  });
-  untitledWorkspacesHome = URI.from({
-    scheme: "monaco",
-    authority: "untitledWorkspacesHome"
-  });
-  workspaceStorageHome = URI.from({
-    scheme: "monaco",
-    authority: "workspaceStorageHome"
-  });
-  localHistoryHome = URI.from({
-    scheme: "monaco",
-    authority: "localHistoryHome"
-  });
-  cacheHome = URI.from({
-    scheme: "monaco",
-    authority: "cacheHome"
-  });
-  userDataSyncHome = URI.from({
-    scheme: "monaco",
-    authority: "userDataSyncHome"
-  });
+  stateResource = URI.from({ scheme: "monaco", authority: "stateResource" });
+  userRoamingDataHome = URI.from({ scheme: "monaco", authority: "userRoamingDataHome" });
+  keyboardLayoutResource = URI.from({ scheme: "monaco", authority: "keyboardLayoutResource" });
+  argvResource = URI.from({ scheme: "monaco", authority: "argvResource" });
+  untitledWorkspacesHome = URI.from({ scheme: "monaco", authority: "untitledWorkspacesHome" });
+  workspaceStorageHome = URI.from({ scheme: "monaco", authority: "workspaceStorageHome" });
+  localHistoryHome = URI.from({ scheme: "monaco", authority: "localHistoryHome" });
+  cacheHome = URI.from({ scheme: "monaco", authority: "cacheHome" });
+  userDataSyncHome = URI.from({ scheme: "monaco", authority: "userDataSyncHome" });
   sync = void 0;
   continueOn = void 0;
   editSessionId = void 0;
-  debugExtensionHost = {
-    port: null,
-    break: false
-  };
+  debugExtensionHost = { port: null, break: false };
   isExtensionDevelopment = false;
   disableExtensions = false;
   enableExtensions = void 0;
   extensionDevelopmentLocationURI = void 0;
   extensionDevelopmentKind = void 0;
   extensionTestsLocationURI = void 0;
-  logsHome = URI.from({
-    scheme: "monaco",
-    authority: "logsHome"
-  });
+  logsHome = URI.from({ scheme: "monaco", authority: "logsHome" });
   logLevel = void 0;
   extensionLogLevel = void 0;
   verbose = false;
   isBuilt = false;
   disableTelemetry = false;
-  serviceMachineIdResource = URI.from({
-    scheme: "monaco",
-    authority: "serviceMachineIdResource"
-  });
+  serviceMachineIdResource = URI.from({ scheme: "monaco", authority: "serviceMachineIdResource" });
   policyFile = void 0;
 }
 class StandaloneDialogService {
@@ -362,10 +243,7 @@ class StandaloneDialogService {
   onWillShowDialog = Event.None;
   onDidShowDialog = Event.None;
   async confirm(confirmation) {
-    const confirmed = this.doConfirm(
-      confirmation.message,
-      confirmation.detail
-    );
+    const confirmed = this.doConfirm(confirmation.message, confirmation.detail);
     return {
       confirmed,
       checkboxChecked: false
@@ -380,12 +258,10 @@ class StandaloneDialogService {
     return mainWindow.confirm(messageText);
   }
   async prompt(prompt) {
-    let result;
+    let result = void 0;
     const confirmed = this.doConfirm(prompt.message, prompt.detail);
     if (confirmed) {
-      const promptButtons = [
-        ...prompt.buttons ?? []
-      ];
+      const promptButtons = [...prompt.buttons ?? []];
       if (prompt.cancelButton && typeof prompt.cancelButton !== "string" && typeof prompt.cancelButton !== "boolean") {
         promptButtons.push(prompt.cancelButton);
       }
@@ -477,10 +353,7 @@ let StandaloneCommandService = class {
     }
     try {
       this._onWillExecuteCommand.fire({ commandId: id, args });
-      const result = this._instantiationService.invokeFunction.apply(
-        this._instantiationService,
-        [command.handler, ...args]
-      );
+      const result = this._instantiationService.invokeFunction.apply(this._instantiationService, [command.handler, ...args]);
       this._onDidExecuteCommand.fire({ commandId: id, args });
       return Promise.resolve(result);
     } catch (err) {
@@ -499,54 +372,28 @@ let StandaloneKeybindingService = class extends AbstractKeybindingService {
   _dynamicKeybindings;
   _domNodeListeners;
   constructor(contextKeyService, commandService, telemetryService, notificationService, logService, codeEditorService) {
-    super(
-      contextKeyService,
-      commandService,
-      telemetryService,
-      notificationService,
-      logService
-    );
+    super(contextKeyService, commandService, telemetryService, notificationService, logService);
     this._cachedResolver = null;
     this._dynamicKeybindings = [];
     this._domNodeListeners = [];
     const addContainer = /* @__PURE__ */ __name((domNode) => {
       const disposables = new DisposableStore();
-      disposables.add(
-        dom.addDisposableListener(
-          domNode,
-          dom.EventType.KEY_DOWN,
-          (e) => {
-            const keyEvent = new StandardKeyboardEvent(e);
-            const shouldPreventDefault = this._dispatch(
-              keyEvent,
-              keyEvent.target
-            );
-            if (shouldPreventDefault) {
-              keyEvent.preventDefault();
-              keyEvent.stopPropagation();
-            }
-          }
-        )
-      );
-      disposables.add(
-        dom.addDisposableListener(
-          domNode,
-          dom.EventType.KEY_UP,
-          (e) => {
-            const keyEvent = new StandardKeyboardEvent(e);
-            const shouldPreventDefault = this._singleModifierDispatch(
-              keyEvent,
-              keyEvent.target
-            );
-            if (shouldPreventDefault) {
-              keyEvent.preventDefault();
-            }
-          }
-        )
-      );
-      this._domNodeListeners.push(
-        new DomNodeListeners(domNode, disposables)
-      );
+      disposables.add(dom.addDisposableListener(domNode, dom.EventType.KEY_DOWN, (e) => {
+        const keyEvent = new StandardKeyboardEvent(e);
+        const shouldPreventDefault = this._dispatch(keyEvent, keyEvent.target);
+        if (shouldPreventDefault) {
+          keyEvent.preventDefault();
+          keyEvent.stopPropagation();
+        }
+      }));
+      disposables.add(dom.addDisposableListener(domNode, dom.EventType.KEY_UP, (e) => {
+        const keyEvent = new StandardKeyboardEvent(e);
+        const shouldPreventDefault = this._singleModifierDispatch(keyEvent, keyEvent.target);
+        if (shouldPreventDefault) {
+          keyEvent.preventDefault();
+        }
+      }));
+      this._domNodeListeners.push(new DomNodeListeners(domNode, disposables));
     }, "addContainer");
     const removeContainer = /* @__PURE__ */ __name((domNode) => {
       for (let i = 0; i < this._domNodeListeners.length; i++) {
@@ -585,13 +432,11 @@ let StandaloneKeybindingService = class extends AbstractKeybindingService {
   addDynamicKeybinding(command, keybinding, handler, when) {
     return combinedDisposable(
       CommandsRegistry.registerCommand(command, handler),
-      this.addDynamicKeybindings([
-        {
-          keybinding,
-          command,
-          when
-        }
-      ])
+      this.addDynamicKeybindings([{
+        keybinding,
+        command,
+        when
+      }])
     );
   }
   addDynamicKeybindings(rules) {
@@ -626,19 +471,9 @@ let StandaloneKeybindingService = class extends AbstractKeybindingService {
   }
   _getResolver() {
     if (!this._cachedResolver) {
-      const defaults = this._toNormalizedKeybindingItems(
-        KeybindingsRegistry.getDefaultKeybindings(),
-        true
-      );
-      const overrides = this._toNormalizedKeybindingItems(
-        this._dynamicKeybindings,
-        false
-      );
-      this._cachedResolver = new KeybindingResolver(
-        defaults,
-        overrides,
-        (str) => this._log(str)
-      );
+      const defaults = this._toNormalizedKeybindingItems(KeybindingsRegistry.getDefaultKeybindings(), true);
+      const overrides = this._toNormalizedKeybindingItems(this._dynamicKeybindings, false);
+      this._cachedResolver = new KeybindingResolver(defaults, overrides, (str) => this._log(str));
     }
     return this._cachedResolver;
   }
@@ -651,32 +486,13 @@ let StandaloneKeybindingService = class extends AbstractKeybindingService {
     for (const item of items) {
       const when = item.when || void 0;
       const keybinding = item.keybinding;
-      if (keybinding) {
-        const resolvedKeybindings = USLayoutResolvedKeybinding.resolveKeybinding(
-          keybinding,
-          OS
-        );
-        for (const resolvedKeybinding of resolvedKeybindings) {
-          result[resultLen++] = new ResolvedKeybindingItem(
-            resolvedKeybinding,
-            item.command,
-            item.commandArgs,
-            when,
-            isDefault,
-            null,
-            false
-          );
-        }
+      if (!keybinding) {
+        result[resultLen++] = new ResolvedKeybindingItem(void 0, item.command, item.commandArgs, when, isDefault, null, false);
       } else {
-        result[resultLen++] = new ResolvedKeybindingItem(
-          void 0,
-          item.command,
-          item.commandArgs,
-          when,
-          isDefault,
-          null,
-          false
-        );
+        const resolvedKeybindings = USLayoutResolvedKeybinding.resolveKeybinding(keybinding, OS);
+        for (const resolvedKeybinding of resolvedKeybindings) {
+          result[resultLen++] = new ResolvedKeybindingItem(resolvedKeybinding, item.command, item.commandArgs, when, isDefault, null, false);
+        }
       }
     }
     return result;
@@ -775,13 +591,7 @@ let StandaloneConfigurationService = class {
       changedKeys.push(key);
     }
     if (changedKeys.length > 0) {
-      const configurationChangeEvent = new ConfigurationChangeEvent(
-        { keys: changedKeys, overrides: [] },
-        previous,
-        this._configuration,
-        void 0,
-        this.logService
-      );
+      const configurationChangeEvent = new ConfigurationChangeEvent({ keys: changedKeys, overrides: [] }, previous, this._configuration, void 0, this.logService);
       configurationChangeEvent.source = ConfigurationTarget.MEMORY;
       this._onDidChangeConfiguration.fire(configurationChangeEvent);
     }
@@ -849,30 +659,17 @@ let StandaloneResourceConfigurationService = class {
   }
   inspect(resource, position, section) {
     const language = resource ? this.getLanguage(resource, position) : void 0;
-    return this.configurationService.inspect(section, {
-      resource,
-      overrideIdentifier: language
-    });
+    return this.configurationService.inspect(section, { resource, overrideIdentifier: language });
   }
   getLanguage(resource, position) {
     const model = this.modelService.getModel(resource);
     if (model) {
-      return position ? model.getLanguageIdAtPosition(
-        position.lineNumber,
-        position.column
-      ) : model.getLanguageId();
+      return position ? model.getLanguageIdAtPosition(position.lineNumber, position.column) : model.getLanguageId();
     }
-    return this.languageService.guessLanguageIdByFilepathOrFirstLine(
-      resource
-    );
+    return this.languageService.guessLanguageIdByFilepathOrFirstLine(resource);
   }
   updateValue(resource, key, value, configurationTarget) {
-    return this.configurationService.updateValue(
-      key,
-      value,
-      { resource },
-      configurationTarget
-    );
+    return this.configurationService.updateValue(key, value, { resource }, configurationTarget);
   }
 };
 StandaloneResourceConfigurationService = __decorateClass([
@@ -888,10 +685,7 @@ let StandaloneResourcePropertiesService = class {
     __name(this, "StandaloneResourcePropertiesService");
   }
   getEOL(resource, language) {
-    const eol = this.configurationService.getValue("files.eol", {
-      overrideIdentifier: language,
-      resource
-    });
+    const eol = this.configurationService.getValue("files.eol", { overrideIdentifier: language, resource });
     if (eol && typeof eol === "string" && eol !== "auto") {
       return eol;
     }
@@ -941,17 +735,8 @@ class StandaloneWorkspaceContextService {
   onDidChangeWorkbenchState = this._onDidChangeWorkbenchState.event;
   workspace;
   constructor() {
-    const resource = URI.from({
-      scheme: StandaloneWorkspaceContextService.SCHEME,
-      authority: "model",
-      path: "/"
-    });
-    this.workspace = {
-      id: STANDALONE_EDITOR_WORKSPACE_ID,
-      folders: [
-        new WorkspaceFolder({ uri: resource, name: "", index: 0 })
-      ]
-    };
+    const resource = URI.from({ scheme: StandaloneWorkspaceContextService.SCHEME, authority: "model", path: "/" });
+    this.workspace = { id: STANDALONE_EDITOR_WORKSPACE_ID, folders: [new WorkspaceFolder({ uri: resource, name: "", index: 0 })] };
   }
   getCompleteWorkspace() {
     return Promise.resolve(this.getWorkspace());
@@ -1031,12 +816,7 @@ let StandaloneBulkEditService = class {
         array = [];
         textEdits.set(model, array);
       }
-      array.push(
-        EditOperation.replaceMove(
-          Range.lift(edit.textEdit.range),
-          edit.textEdit.text
-        )
-      );
+      array.push(EditOperation.replaceMove(Range.lift(edit.textEdit.range), edit.textEdit.text));
     }
     let totalEdits = 0;
     let totalFiles = 0;
@@ -1048,11 +828,7 @@ let StandaloneBulkEditService = class {
       totalEdits += edits2.length;
     }
     return {
-      ariaSummary: strings.format(
-        StandaloneServicesNLS.bulkEditServiceSummary,
-        totalEdits,
-        totalFiles
-      ),
+      ariaSummary: strings.format(StandaloneServicesNLS.bulkEditServiceSummary, totalEdits, totalFiles),
       isApplied: totalEdits > 0
     };
   }
@@ -1177,14 +953,7 @@ let StandaloneContextMenuService = class extends ContextMenuService {
     __name(this, "StandaloneContextMenuService");
   }
   constructor(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService) {
-    super(
-      telemetryService,
-      notificationService,
-      contextViewService,
-      keybindingService,
-      menuService,
-      contextKeyService
-    );
+    super(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService);
     this.configure({ blockMouse: false });
   }
 };
@@ -1206,14 +975,7 @@ let StandaloneEditorWorkerService = class extends EditorWorkerService {
     __name(this, "StandaloneEditorWorkerService");
   }
   constructor(modelService, configurationService, logService, languageConfigurationService, languageFeaturesService) {
-    super(
-      standaloneEditorWorkerDescriptor,
-      modelService,
-      configurationService,
-      logService,
-      languageConfigurationService,
-      languageFeaturesService
-    );
+    super(standaloneEditorWorkerDescriptor, modelService, configurationService, logService, languageConfigurationService, languageFeaturesService);
   }
 };
 StandaloneEditorWorkerService = __decorateClass([
@@ -1255,166 +1017,47 @@ class StandaloneAccessbilitySignalService {
   }
 }
 registerSingleton(ILogService, StandaloneLogService, InstantiationType.Eager);
-registerSingleton(
-  IConfigurationService,
-  StandaloneConfigurationService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ITextResourceConfigurationService,
-  StandaloneResourceConfigurationService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ITextResourcePropertiesService,
-  StandaloneResourcePropertiesService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IWorkspaceContextService,
-  StandaloneWorkspaceContextService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ILabelService,
-  StandaloneUriLabelService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ITelemetryService,
-  StandaloneTelemetryService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IDialogService,
-  StandaloneDialogService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IEnvironmentService,
-  StandaloneEnvironmentService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  INotificationService,
-  StandaloneNotificationService,
-  InstantiationType.Eager
-);
+registerSingleton(IConfigurationService, StandaloneConfigurationService, InstantiationType.Eager);
+registerSingleton(ITextResourceConfigurationService, StandaloneResourceConfigurationService, InstantiationType.Eager);
+registerSingleton(ITextResourcePropertiesService, StandaloneResourcePropertiesService, InstantiationType.Eager);
+registerSingleton(IWorkspaceContextService, StandaloneWorkspaceContextService, InstantiationType.Eager);
+registerSingleton(ILabelService, StandaloneUriLabelService, InstantiationType.Eager);
+registerSingleton(ITelemetryService, StandaloneTelemetryService, InstantiationType.Eager);
+registerSingleton(IDialogService, StandaloneDialogService, InstantiationType.Eager);
+registerSingleton(IEnvironmentService, StandaloneEnvironmentService, InstantiationType.Eager);
+registerSingleton(INotificationService, StandaloneNotificationService, InstantiationType.Eager);
 registerSingleton(IMarkerService, MarkerService, InstantiationType.Eager);
-registerSingleton(
-  ILanguageService,
-  StandaloneLanguageService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IStandaloneThemeService,
-  StandaloneThemeService,
-  InstantiationType.Eager
-);
+registerSingleton(ILanguageService, StandaloneLanguageService, InstantiationType.Eager);
+registerSingleton(IStandaloneThemeService, StandaloneThemeService, InstantiationType.Eager);
 registerSingleton(IModelService, ModelService, InstantiationType.Eager);
-registerSingleton(
-  IMarkerDecorationsService,
-  MarkerDecorationsService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IContextKeyService,
-  ContextKeyService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IProgressService,
-  StandaloneProgressService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IEditorProgressService,
-  StandaloneEditorProgressService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IStorageService,
-  InMemoryStorageService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IEditorWorkerService,
-  StandaloneEditorWorkerService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IBulkEditService,
-  StandaloneBulkEditService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IWorkspaceTrustManagementService,
-  StandaloneWorkspaceTrustManagementService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ITextModelService,
-  StandaloneTextModelService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IAccessibilityService,
-  AccessibilityService,
-  InstantiationType.Eager
-);
+registerSingleton(IMarkerDecorationsService, MarkerDecorationsService, InstantiationType.Eager);
+registerSingleton(IContextKeyService, ContextKeyService, InstantiationType.Eager);
+registerSingleton(IProgressService, StandaloneProgressService, InstantiationType.Eager);
+registerSingleton(IEditorProgressService, StandaloneEditorProgressService, InstantiationType.Eager);
+registerSingleton(IStorageService, InMemoryStorageService, InstantiationType.Eager);
+registerSingleton(IEditorWorkerService, StandaloneEditorWorkerService, InstantiationType.Eager);
+registerSingleton(IBulkEditService, StandaloneBulkEditService, InstantiationType.Eager);
+registerSingleton(IWorkspaceTrustManagementService, StandaloneWorkspaceTrustManagementService, InstantiationType.Eager);
+registerSingleton(ITextModelService, StandaloneTextModelService, InstantiationType.Eager);
+registerSingleton(IAccessibilityService, AccessibilityService, InstantiationType.Eager);
 registerSingleton(IListService, ListService, InstantiationType.Eager);
-registerSingleton(
-  ICommandService,
-  StandaloneCommandService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IKeybindingService,
-  StandaloneKeybindingService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IQuickInputService,
-  StandaloneQuickInputService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IContextViewService,
-  StandaloneContextViewService,
-  InstantiationType.Eager
-);
+registerSingleton(ICommandService, StandaloneCommandService, InstantiationType.Eager);
+registerSingleton(IKeybindingService, StandaloneKeybindingService, InstantiationType.Eager);
+registerSingleton(IQuickInputService, StandaloneQuickInputService, InstantiationType.Eager);
+registerSingleton(IContextViewService, StandaloneContextViewService, InstantiationType.Eager);
 registerSingleton(IOpenerService, OpenerService, InstantiationType.Eager);
-registerSingleton(
-  IClipboardService,
-  BrowserClipboardService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  IContextMenuService,
-  StandaloneContextMenuService,
-  InstantiationType.Eager
-);
+registerSingleton(IClipboardService, BrowserClipboardService, InstantiationType.Eager);
+registerSingleton(IContextMenuService, StandaloneContextMenuService, InstantiationType.Eager);
 registerSingleton(IMenuService, MenuService, InstantiationType.Eager);
-registerSingleton(
-  IAccessibilitySignalService,
-  StandaloneAccessbilitySignalService,
-  InstantiationType.Eager
-);
-registerSingleton(
-  ITreeSitterParserService,
-  StandaloneTreeSitterParserService,
-  InstantiationType.Eager
-);
+registerSingleton(IAccessibilitySignalService, StandaloneAccessbilitySignalService, InstantiationType.Eager);
+registerSingleton(ITreeSitterParserService, StandaloneTreeSitterParserService, InstantiationType.Eager);
 var StandaloneServices;
 ((StandaloneServices2) => {
   const serviceCollection = new ServiceCollection();
   for (const [id, descriptor] of getSingletonServiceDescriptors()) {
     serviceCollection.set(id, descriptor);
   }
-  const instantiationService = new InstantiationService(
-    serviceCollection,
-    true
-  );
+  const instantiationService = new InstantiationService(serviceCollection, true);
   serviceCollection.set(IInstantiationService, instantiationService);
   function get(serviceId) {
     if (!initialized) {
@@ -1425,9 +1068,7 @@ var StandaloneServices;
       throw new Error("Missing service " + serviceId);
     }
     if (r instanceof SyncDescriptor) {
-      return instantiationService.invokeFunction(
-        (accessor) => accessor.get(serviceId)
-      );
+      return instantiationService.invokeFunction((accessor) => accessor.get(serviceId));
     } else {
       return r;
     }
@@ -1451,10 +1092,7 @@ var StandaloneServices;
         const serviceIdentifier = createDecorator(serviceId);
         const r = serviceCollection.get(serviceIdentifier);
         if (r instanceof SyncDescriptor) {
-          serviceCollection.set(
-            serviceIdentifier,
-            overrides[serviceId]
-          );
+          serviceCollection.set(serviceIdentifier, overrides[serviceId]);
         }
       }
     }
@@ -1476,12 +1114,10 @@ var StandaloneServices;
       return callback();
     }
     const disposable = new DisposableStore();
-    const listener = disposable.add(
-      onDidInitialize.event(() => {
-        listener.dispose();
-        disposable.add(callback());
-      })
-    );
+    const listener = disposable.add(onDidInitialize.event(() => {
+      listener.dispose();
+      disposable.add(callback());
+    }));
     return disposable;
   }
   StandaloneServices2.withServices = withServices;

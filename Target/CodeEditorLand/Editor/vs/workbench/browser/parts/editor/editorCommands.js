@@ -1,92 +1,42 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
 import { KeyChord, KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { Schemas, matchesScheme } from "../../../../base/common/network.js";
 import { extname } from "../../../../base/common/resources.js";
-import {
-  isNumber,
-  isObject,
-  isString,
-  isUndefined
-} from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
+import { isNumber, isObject, isString, isUndefined } from "../../../../base/common/types.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
 import { isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import {
-  CommandsRegistry,
-  ICommandService
-} from "../../../../platform/commands/common/commands.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry, ICommandHandler, ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  EditorResolution
-} from "../../../../platform/editor/common/editor.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  KeybindingWeight,
-  KeybindingsRegistry
-} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  IListService
-} from "../../../../platform/list/browser/listService.js";
+import { EditorResolution, IEditorOptions, IResourceEditorInput, ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight, KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IListService, IOpenEvent } from "../../../../platform/list/browser/listService.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  ActiveEditorCanSplitInGroupContext,
-  ActiveEditorGroupEmptyContext,
-  ActiveEditorGroupLockedContext,
-  ActiveEditorStickyContext,
-  MultipleEditorGroupsContext,
-  SideBySideEditorActiveContext,
-  TextCompareEditorActiveContext
-} from "../../../common/contextkeys.js";
-import {
-  CloseDirection,
-  EditorInputCapabilities,
-  EditorsOrder,
-  isEditorInputWithOptionsAndGroup
-} from "../../../common/editor.js";
-import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
-import {
-  columnToEditorGroup
-} from "../../../services/editor/common/editorGroupColumn.js";
-import {
-  GroupDirection,
-  GroupLocation,
-  GroupsOrder,
-  IEditorGroupsService,
-  preferredSideBySideGroupDirection
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
-import {
-  IEditorService,
-  SIDE_GROUP
-} from "../../../services/editor/common/editorService.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
-import { IUntitledTextEditorService } from "../../../services/untitled/common/untitledTextEditorService.js";
-import {
-  DIFF_FOCUS_OTHER_SIDE,
-  DIFF_FOCUS_PRIMARY_SIDE,
-  DIFF_FOCUS_SECONDARY_SIDE,
-  DIFF_OPEN_SIDE,
-  registerDiffEditorCommands
-} from "./diffEditorCommands.js";
-import {
-  resolveCommandsContext
-} from "./editorCommandsContext.js";
 import { ActiveGroupEditorsByMostRecentlyUsedQuickAccess } from "./editorQuickAccess.js";
 import { SideBySideEditor } from "./sideBySideEditor.js";
 import { TextDiffEditor } from "./textDiffEditor.js";
+import { ActiveEditorCanSplitInGroupContext, ActiveEditorGroupEmptyContext, ActiveEditorGroupLockedContext, ActiveEditorStickyContext, MultipleEditorGroupsContext, SideBySideEditorActiveContext, TextCompareEditorActiveContext } from "../../../common/contextkeys.js";
+import { CloseDirection, EditorInputCapabilities, EditorsOrder, IResourceDiffEditorInput, IUntitledTextResourceEditorInput, IVisibleEditorPane, isEditorInputWithOptionsAndGroup } from "../../../common/editor.js";
+import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import { EditorGroupColumn, columnToEditorGroup } from "../../../services/editor/common/editorGroupColumn.js";
+import { EditorGroupLayout, GroupDirection, GroupLocation, GroupsOrder, IEditorGroup, IEditorGroupsService, IEditorReplacement, preferredSideBySideGroupDirection } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IUntitledTextEditorService } from "../../../services/untitled/common/untitledTextEditorService.js";
+import { DIFF_FOCUS_OTHER_SIDE, DIFF_FOCUS_PRIMARY_SIDE, DIFF_FOCUS_SECONDARY_SIDE, DIFF_OPEN_SIDE, registerDiffEditorCommands } from "./diffEditorCommands.js";
+import { IResolvedEditorCommandsContext, resolveCommandsContext } from "./editorCommandsContext.js";
 const CLOSE_SAVED_EDITORS_COMMAND_ID = "workbench.action.closeUnmodifiedEditors";
 const CLOSE_EDITORS_IN_GROUP_COMMAND_ID = "workbench.action.closeEditorsInGroup";
 const CLOSE_EDITORS_AND_GROUP_COMMAND_ID = "workbench.action.closeEditorsAndGroup";
@@ -140,7 +90,7 @@ const EDITOR_CORE_NAVIGATION_COMMANDS = [
   UNLOCK_GROUP_COMMAND_ID,
   TOGGLE_MAXIMIZE_EDITOR_GROUP
 ];
-const isActiveEditorMoveCopyArg = /* @__PURE__ */ __name((arg) => {
+const isActiveEditorMoveCopyArg = /* @__PURE__ */ __name(function(arg) {
   if (!isObject(arg)) {
     return false;
   }
@@ -157,19 +107,19 @@ const isActiveEditorMoveCopyArg = /* @__PURE__ */ __name((arg) => {
 }, "isActiveEditorMoveCopyArg");
 function registerActiveEditorMoveCopyCommand() {
   const moveCopyJSONSchema = {
-    type: "object",
-    required: ["to"],
-    properties: {
-      to: {
-        type: "string",
-        enum: ["left", "right"]
+    "type": "object",
+    "required": ["to"],
+    "properties": {
+      "to": {
+        "type": "string",
+        "enum": ["left", "right"]
       },
-      by: {
-        type: "string",
-        enum: ["tab", "group"]
+      "by": {
+        "type": "string",
+        "enum": ["tab", "group"]
       },
-      value: {
-        type: "number"
+      "value": {
+        "type": "number"
       }
     }
   };
@@ -180,20 +130,11 @@ function registerActiveEditorMoveCopyCommand() {
     primary: 0,
     handler: /* @__PURE__ */ __name((accessor, args) => moveCopyActiveEditor(true, args, accessor), "handler"),
     metadata: {
-      description: localize(
-        "editorCommand.activeEditorMove.description",
-        "Move the active editor by tabs or groups"
-      ),
+      description: localize("editorCommand.activeEditorMove.description", "Move the active editor by tabs or groups"),
       args: [
         {
-          name: localize(
-            "editorCommand.activeEditorMove.arg.name",
-            "Active editor move argument"
-          ),
-          description: localize(
-            "editorCommand.activeEditorMove.arg.description",
-            "Argument Properties:\n	* 'to': String value providing where to move.\n	* 'by': String value providing the unit for move (by tab or by group).\n	* 'value': Number value providing how many positions or an absolute position to move."
-          ),
+          name: localize("editorCommand.activeEditorMove.arg.name", "Active editor move argument"),
+          description: localize("editorCommand.activeEditorMove.arg.description", "Argument Properties:\n	* 'to': String value providing where to move.\n	* 'by': String value providing the unit for move (by tab or by group).\n	* 'value': Number value providing how many positions or an absolute position to move."),
           constraint: isActiveEditorMoveCopyArg,
           schema: moveCopyJSONSchema
         }
@@ -207,20 +148,11 @@ function registerActiveEditorMoveCopyCommand() {
     primary: 0,
     handler: /* @__PURE__ */ __name((accessor, args) => moveCopyActiveEditor(false, args, accessor), "handler"),
     metadata: {
-      description: localize(
-        "editorCommand.activeEditorCopy.description",
-        "Copy the active editor by groups"
-      ),
+      description: localize("editorCommand.activeEditorCopy.description", "Copy the active editor by groups"),
       args: [
         {
-          name: localize(
-            "editorCommand.activeEditorCopy.arg.name",
-            "Active editor copy argument"
-          ),
-          description: localize(
-            "editorCommand.activeEditorCopy.arg.description",
-            "Argument Properties:\n	* 'to': String value providing where to copy.\n	* 'value': Number value providing how many positions or an absolute position to copy."
-          ),
+          name: localize("editorCommand.activeEditorCopy.arg.name", "Active editor copy argument"),
+          description: localize("editorCommand.activeEditorCopy.arg.description", "Argument Properties:\n	* 'to': String value providing where to copy.\n	* 'value': Number value providing how many positions or an absolute position to copy."),
           constraint: isActiveEditorMoveCopyArg,
           schema: moveCopyJSONSchema
         }
@@ -240,12 +172,7 @@ function registerActiveEditorMoveCopyCommand() {
           }
           break;
         case "group":
-          return moveCopyActiveEditorToGroup(
-            isMove,
-            args,
-            activeEditorPane,
-            accessor
-          );
+          return moveCopyActiveEditorToGroup(isMove, args, activeEditorPane, accessor);
       }
     }
   }
@@ -284,92 +211,49 @@ function registerActiveEditorMoveCopyCommand() {
     let targetGroup;
     switch (args.to) {
       case "left":
-        targetGroup = editorGroupsService.findGroup(
-          { direction: GroupDirection.LEFT },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ direction: GroupDirection.LEFT }, sourceGroup);
         if (!targetGroup) {
-          targetGroup = editorGroupsService.addGroup(
-            sourceGroup,
-            GroupDirection.LEFT
-          );
+          targetGroup = editorGroupsService.addGroup(sourceGroup, GroupDirection.LEFT);
         }
         break;
       case "right":
-        targetGroup = editorGroupsService.findGroup(
-          { direction: GroupDirection.RIGHT },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ direction: GroupDirection.RIGHT }, sourceGroup);
         if (!targetGroup) {
-          targetGroup = editorGroupsService.addGroup(
-            sourceGroup,
-            GroupDirection.RIGHT
-          );
+          targetGroup = editorGroupsService.addGroup(sourceGroup, GroupDirection.RIGHT);
         }
         break;
       case "up":
-        targetGroup = editorGroupsService.findGroup(
-          { direction: GroupDirection.UP },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ direction: GroupDirection.UP }, sourceGroup);
         if (!targetGroup) {
-          targetGroup = editorGroupsService.addGroup(
-            sourceGroup,
-            GroupDirection.UP
-          );
+          targetGroup = editorGroupsService.addGroup(sourceGroup, GroupDirection.UP);
         }
         break;
       case "down":
-        targetGroup = editorGroupsService.findGroup(
-          { direction: GroupDirection.DOWN },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ direction: GroupDirection.DOWN }, sourceGroup);
         if (!targetGroup) {
-          targetGroup = editorGroupsService.addGroup(
-            sourceGroup,
-            GroupDirection.DOWN
-          );
+          targetGroup = editorGroupsService.addGroup(sourceGroup, GroupDirection.DOWN);
         }
         break;
       case "first":
-        targetGroup = editorGroupsService.findGroup(
-          { location: GroupLocation.FIRST },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ location: GroupLocation.FIRST }, sourceGroup);
         break;
       case "last":
-        targetGroup = editorGroupsService.findGroup(
-          { location: GroupLocation.LAST },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ location: GroupLocation.LAST }, sourceGroup);
         break;
       case "previous":
-        targetGroup = editorGroupsService.findGroup(
-          { location: GroupLocation.PREVIOUS },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ location: GroupLocation.PREVIOUS }, sourceGroup);
         break;
       case "next":
-        targetGroup = editorGroupsService.findGroup(
-          { location: GroupLocation.NEXT },
-          sourceGroup
-        );
+        targetGroup = editorGroupsService.findGroup({ location: GroupLocation.NEXT }, sourceGroup);
         if (!targetGroup) {
-          targetGroup = editorGroupsService.addGroup(
-            sourceGroup,
-            preferredSideBySideGroupDirection(configurationService)
-          );
+          targetGroup = editorGroupsService.addGroup(sourceGroup, preferredSideBySideGroupDirection(configurationService));
         }
         break;
       case "center":
-        targetGroup = editorGroupsService.getGroups(
-          GroupsOrder.GRID_APPEARANCE
-        )[editorGroupsService.count / 2 - 1];
+        targetGroup = editorGroupsService.getGroups(GroupsOrder.GRID_APPEARANCE)[editorGroupsService.count / 2 - 1];
         break;
       case "position":
-        targetGroup = editorGroupsService.getGroups(
-          GroupsOrder.GRID_APPEARANCE
-        )[(args.value ?? 1) - 1];
+        targetGroup = editorGroupsService.getGroups(GroupsOrder.GRID_APPEARANCE)[(args.value ?? 1) - 1];
         break;
     }
     if (targetGroup) {
@@ -393,37 +277,32 @@ function registerEditorGroupsLayoutCommands() {
     editorGroupsService.applyLayout(layout);
   }
   __name(applyEditorLayout, "applyEditorLayout");
-  CommandsRegistry.registerCommand(
-    LAYOUT_EDITOR_GROUPS_COMMAND_ID,
-    (accessor, args) => {
-      applyEditorLayout(accessor, args);
-    }
-  );
+  CommandsRegistry.registerCommand(LAYOUT_EDITOR_GROUPS_COMMAND_ID, (accessor, args) => {
+    applyEditorLayout(accessor, args);
+  });
   CommandsRegistry.registerCommand({
     id: "vscode.setEditorLayout",
     handler: /* @__PURE__ */ __name((accessor, args) => applyEditorLayout(accessor, args), "handler"),
     metadata: {
       description: "Set Editor Layout",
-      args: [
-        {
-          name: "args",
-          schema: {
-            type: "object",
-            required: ["groups"],
-            properties: {
-              orientation: {
-                type: "number",
-                default: 0,
-                enum: [0, 1]
-              },
-              groups: {
-                $ref: "#/definitions/editorGroupsSchema",
-                default: [{}, {}]
-              }
+      args: [{
+        name: "args",
+        schema: {
+          "type": "object",
+          "required": ["groups"],
+          "properties": {
+            "orientation": {
+              "type": "number",
+              "default": 0,
+              "enum": [0, 1]
+            },
+            "groups": {
+              "$ref": "#/definitions/editorGroupsSchema",
+              "default": [{}, {}]
             }
           }
         }
-      ]
+      }]
     }
   });
   CommandsRegistry.registerCommand({
@@ -461,143 +340,74 @@ function registerOpenEditorAPICommands() {
       args: [{ name: "Uri" }]
     }
   });
-  CommandsRegistry.registerCommand(
-    API_OPEN_EDITOR_COMMAND_ID,
-    async (accessor, resourceArg, columnAndOptions, label, context) => {
-      const editorService = accessor.get(IEditorService);
-      const editorGroupsService = accessor.get(IEditorGroupsService);
-      const openerService = accessor.get(IOpenerService);
-      const pathService = accessor.get(IPathService);
-      const configurationService = accessor.get(IConfigurationService);
-      const untitledTextEditorService = accessor.get(
-        IUntitledTextEditorService
-      );
-      const resourceOrString = typeof resourceArg === "string" ? resourceArg : URI.from(resourceArg, true);
-      const [columnArg, optionsArg] = columnAndOptions ?? [];
-      if (optionsArg || typeof columnArg === "number" || matchesScheme(resourceOrString, Schemas.untitled)) {
-        const [options, column] = mixinContext(
-          context,
-          optionsArg,
-          columnArg
-        );
-        const resource = URI.isUri(resourceOrString) ? resourceOrString : URI.parse(resourceOrString);
-        let input;
-        if (untitledTextEditorService.isUntitledWithAssociatedResource(
-          resource
-        )) {
-          input = {
-            resource: resource.with({
-              scheme: pathService.defaultUriScheme
-            }),
-            forceUntitled: true,
-            options,
-            label
-          };
-        } else {
-          input = { resource, options, label };
-        }
-        await editorService.openEditor(
-          input,
-          columnToEditorGroup(
-            editorGroupsService,
-            configurationService,
-            column
-          )
-        );
-      } else if (matchesScheme(resourceOrString, Schemas.command)) {
-        return;
+  CommandsRegistry.registerCommand(API_OPEN_EDITOR_COMMAND_ID, async function(accessor, resourceArg, columnAndOptions, label, context) {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const openerService = accessor.get(IOpenerService);
+    const pathService = accessor.get(IPathService);
+    const configurationService = accessor.get(IConfigurationService);
+    const untitledTextEditorService = accessor.get(IUntitledTextEditorService);
+    const resourceOrString = typeof resourceArg === "string" ? resourceArg : URI.from(resourceArg, true);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    if (optionsArg || typeof columnArg === "number" || matchesScheme(resourceOrString, Schemas.untitled)) {
+      const [options, column] = mixinContext(context, optionsArg, columnArg);
+      const resource = URI.isUri(resourceOrString) ? resourceOrString : URI.parse(resourceOrString);
+      let input;
+      if (untitledTextEditorService.isUntitledWithAssociatedResource(resource)) {
+        input = { resource: resource.with({ scheme: pathService.defaultUriScheme }), forceUntitled: true, options, label };
       } else {
-        await openerService.open(resourceOrString, {
-          openToSide: context?.sideBySide,
-          editorOptions: context?.editorOptions
-        });
+        input = { resource, options, label };
       }
+      await editorService.openEditor(input, columnToEditorGroup(editorGroupsService, configurationService, column));
+    } else if (matchesScheme(resourceOrString, Schemas.command)) {
+      return;
+    } else {
+      await openerService.open(resourceOrString, { openToSide: context?.sideBySide, editorOptions: context?.editorOptions });
     }
-  );
+  });
   CommandsRegistry.registerCommand({
     id: "vscode.diff",
     handler: /* @__PURE__ */ __name((accessor, left, right, label) => {
-      accessor.get(ICommandService).executeCommand(
-        API_OPEN_DIFF_EDITOR_COMMAND_ID,
-        left,
-        right,
-        label
-      );
+      accessor.get(ICommandService).executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, left, right, label);
     }, "handler"),
     metadata: {
       description: "Opens the provided resources in the diff editor to compare their contents.",
       args: [
-        {
-          name: "left",
-          description: "Left-hand side resource of the diff editor"
-        },
-        {
-          name: "right",
-          description: "Right-hand side resource of the diff editor"
-        },
-        {
-          name: "title",
-          description: "Human readable title for the diff editor"
-        }
+        { name: "left", description: "Left-hand side resource of the diff editor" },
+        { name: "right", description: "Right-hand side resource of the diff editor" },
+        { name: "title", description: "Human readable title for the diff editor" }
       ]
     }
   });
-  CommandsRegistry.registerCommand(
-    API_OPEN_DIFF_EDITOR_COMMAND_ID,
-    async (accessor, originalResource, modifiedResource, labelAndOrDescription, columnAndOptions, context) => {
-      const editorService = accessor.get(IEditorService);
-      const editorGroupsService = accessor.get(IEditorGroupsService);
-      const configurationService = accessor.get(IConfigurationService);
-      const [columnArg, optionsArg] = columnAndOptions ?? [];
-      const [options, column] = mixinContext(
-        context,
-        optionsArg,
-        columnArg
-      );
-      let label;
-      let description;
-      if (typeof labelAndOrDescription === "string") {
-        label = labelAndOrDescription;
-      } else if (labelAndOrDescription) {
-        label = labelAndOrDescription.label;
-        description = labelAndOrDescription.description;
-      }
-      await editorService.openEditor(
-        {
-          original: { resource: URI.from(originalResource, true) },
-          modified: { resource: URI.from(modifiedResource, true) },
-          label,
-          description,
-          options
-        },
-        columnToEditorGroup(
-          editorGroupsService,
-          configurationService,
-          column
-        )
-      );
+  CommandsRegistry.registerCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, async function(accessor, originalResource, modifiedResource, labelAndOrDescription, columnAndOptions, context) {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    const [options, column] = mixinContext(context, optionsArg, columnArg);
+    let label = void 0;
+    let description = void 0;
+    if (typeof labelAndOrDescription === "string") {
+      label = labelAndOrDescription;
+    } else if (labelAndOrDescription) {
+      label = labelAndOrDescription.label;
+      description = labelAndOrDescription.description;
     }
-  );
-  CommandsRegistry.registerCommand(
-    API_OPEN_WITH_EDITOR_COMMAND_ID,
-    async (accessor, resource, id, columnAndOptions) => {
-      const editorService = accessor.get(IEditorService);
-      const editorGroupsService = accessor.get(IEditorGroupsService);
-      const configurationService = accessor.get(IConfigurationService);
-      const [columnArg, optionsArg] = columnAndOptions ?? [];
-      await editorService.openEditor(
-        {
-          resource: URI.from(resource, true),
-          options: { ...optionsArg, pinned: true, override: id }
-        },
-        columnToEditorGroup(
-          editorGroupsService,
-          configurationService,
-          columnArg
-        )
-      );
-    }
-  );
+    await editorService.openEditor({
+      original: { resource: URI.from(originalResource, true) },
+      modified: { resource: URI.from(modifiedResource, true) },
+      label,
+      description,
+      options
+    }, columnToEditorGroup(editorGroupsService, configurationService, column));
+  });
+  CommandsRegistry.registerCommand(API_OPEN_WITH_EDITOR_COMMAND_ID, async (accessor, resource, id, columnAndOptions) => {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    await editorService.openEditor({ resource: URI.from(resource, true), options: { ...optionsArg, pinned: true, override: id } }, columnToEditorGroup(editorGroupsService, configurationService, columnArg));
+  });
   CommandsRegistry.registerCommand({
     id: "vscode.changes",
     handler: /* @__PURE__ */ __name((accessor, title, resources) => {
@@ -606,46 +416,31 @@ function registerOpenEditorAPICommands() {
     metadata: {
       description: "Opens a list of resources in the changes editor to compare their contents.",
       args: [
-        {
-          name: "title",
-          description: "Human readable title for the diff editor"
-        },
-        {
-          name: "resources",
-          description: "List of resources to open in the changes editor"
-        }
+        { name: "title", description: "Human readable title for the diff editor" },
+        { name: "resources", description: "List of resources to open in the changes editor" }
       ]
     }
   });
-  CommandsRegistry.registerCommand(
-    "_workbench.changes",
-    async (accessor, title, resources) => {
-      const editorService = accessor.get(IEditorService);
-      const editor = [];
-      for (const [label, original, modified] of resources) {
-        editor.push({
-          resource: URI.revive(label),
-          original: { resource: URI.revive(original) },
-          modified: { resource: URI.revive(modified) }
-        });
-      }
-      await editorService.openEditor({ resources: editor, label: title });
-    }
-  );
-  CommandsRegistry.registerCommand(
-    "_workbench.openMultiDiffEditor",
-    async (accessor, options) => {
-      const editorService = accessor.get(IEditorService);
-      await editorService.openEditor({
-        multiDiffSource: options.multiDiffSourceUri ? URI.revive(options.multiDiffSourceUri) : void 0,
-        resources: options.resources?.map((r) => ({
-          original: { resource: URI.revive(r.originalUri) },
-          modified: { resource: URI.revive(r.modifiedUri) }
-        })),
-        label: options.title
+  CommandsRegistry.registerCommand("_workbench.changes", async (accessor, title, resources) => {
+    const editorService = accessor.get(IEditorService);
+    const editor = [];
+    for (const [label, original, modified] of resources) {
+      editor.push({
+        resource: URI.revive(label),
+        original: { resource: URI.revive(original) },
+        modified: { resource: URI.revive(modified) }
       });
     }
-  );
+    await editorService.openEditor({ resources: editor, label: title });
+  });
+  CommandsRegistry.registerCommand("_workbench.openMultiDiffEditor", async (accessor, options) => {
+    const editorService = accessor.get(IEditorService);
+    await editorService.openEditor({
+      multiDiffSource: options.multiDiffSourceUri ? URI.revive(options.multiDiffSourceUri) : void 0,
+      resources: options.resources?.map((r) => ({ original: { resource: URI.revive(r.originalUri) }, modified: { resource: URI.revive(r.modifiedUri) } })),
+      label: options.title
+    });
+  });
 }
 __name(registerOpenEditorAPICommands, "registerOpenEditorAPICommands");
 function registerOpenEditorAtIndexCommands() {
@@ -712,29 +507,20 @@ function registerFocusEditorGroupAtIndexCommands() {
       primary: KeyMod.CtrlCmd | toKeyCode(groupIndex),
       handler: /* @__PURE__ */ __name((accessor) => {
         const editorGroupsService = accessor.get(IEditorGroupsService);
-        const configurationService = accessor.get(
-          IConfigurationService
-        );
+        const configurationService = accessor.get(IConfigurationService);
         if (groupIndex > editorGroupsService.count) {
           return;
         }
-        const groups = editorGroupsService.getGroups(
-          GroupsOrder.GRID_APPEARANCE
-        );
+        const groups = editorGroupsService.getGroups(GroupsOrder.GRID_APPEARANCE);
         if (groups[groupIndex]) {
           return groups[groupIndex].focus();
         }
         const direction = preferredSideBySideGroupDirection(configurationService);
-        const lastGroup = editorGroupsService.findGroup({
-          location: GroupLocation.LAST
-        });
+        const lastGroup = editorGroupsService.findGroup({ location: GroupLocation.LAST });
         if (!lastGroup) {
           return;
         }
-        const newGroup = editorGroupsService.addGroup(
-          lastGroup,
-          direction
-        );
+        const newGroup = editorGroupsService.addGroup(lastGroup, direction);
         newGroup.focus();
       }, "handler")
     });
@@ -803,18 +589,9 @@ function registerSplitEditorCommands() {
     { id: SPLIT_EDITOR_LEFT, direction: GroupDirection.LEFT },
     { id: SPLIT_EDITOR_RIGHT, direction: GroupDirection.RIGHT }
   ].forEach(({ id, direction }) => {
-    CommandsRegistry.registerCommand(id, (accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
-      splitEditor(
-        accessor.get(IEditorGroupsService),
-        direction,
-        resolvedContext
-      );
+    CommandsRegistry.registerCommand(id, function(accessor, ...args) {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      splitEditor(accessor.get(IEditorGroupsService), direction, resolvedContext);
     });
   });
 }
@@ -823,7 +600,7 @@ function registerCloseEditorCommands() {
   function closeEditorHandler(accessor, forceCloseStickyEditors, ...args) {
     const editorGroupsService = accessor.get(IEditorGroupsService);
     const editorService = accessor.get(IEditorService);
-    let keepStickyEditors;
+    let keepStickyEditors = void 0;
     if (forceCloseStickyEditors) {
       keepStickyEditors = false;
     } else if (args.length) {
@@ -835,39 +612,22 @@ function registerCloseEditorCommands() {
       const activeGroup = editorGroupsService.activeGroup;
       const activeEditor = activeGroup.activeEditor;
       if (activeEditor && activeGroup.isSticky(activeEditor)) {
-        const nextNonStickyEditorInGroup = activeGroup.getEditors(
-          EditorsOrder.MOST_RECENTLY_ACTIVE,
-          { excludeSticky: true }
-        )[0];
+        const nextNonStickyEditorInGroup = activeGroup.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE, { excludeSticky: true })[0];
         if (nextNonStickyEditorInGroup) {
           return activeGroup.openEditor(nextNonStickyEditorInGroup);
         }
-        const nextNonStickyEditorInAllGroups = editorService.getEditors(
-          EditorsOrder.MOST_RECENTLY_ACTIVE,
-          { excludeSticky: true }
-        )[0];
+        const nextNonStickyEditorInAllGroups = editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE, { excludeSticky: true })[0];
         if (nextNonStickyEditorInAllGroups) {
-          return Promise.resolve(
-            editorGroupsService.getGroup(nextNonStickyEditorInAllGroups.groupId)?.openEditor(nextNonStickyEditorInAllGroups.editor)
-          );
+          return Promise.resolve(editorGroupsService.getGroup(nextNonStickyEditorInAllGroups.groupId)?.openEditor(nextNonStickyEditorInAllGroups.editor));
         }
       }
     }
-    const resolvedContext = resolveCommandsContext(
-      args,
-      accessor.get(IEditorService),
-      accessor.get(IEditorGroupsService),
-      accessor.get(IListService)
-    );
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
     const preserveFocus = resolvedContext.preserveFocus;
-    return Promise.all(
-      resolvedContext.groupedEditors.map(async ({ group, editors }) => {
-        const editorsToClose = editors.filter(
-          (editor) => !keepStickyEditors || !group.isSticky(editor)
-        );
-        await group.closeEditors(editorsToClose, { preserveFocus });
-      })
-    );
+    return Promise.all(resolvedContext.groupedEditors.map(async ({ group, editors }) => {
+      const editorsToClose = editors.filter((editor) => !keepStickyEditors || !group.isSticky(editor));
+      await group.closeEditors(editorsToClose, { preserveFocus });
+    }));
   }
   __name(closeEditorHandler, "closeEditorHandler");
   KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -875,67 +635,37 @@ function registerCloseEditorCommands() {
     weight: KeybindingWeight.WorkbenchContrib,
     when: void 0,
     primary: KeyMod.CtrlCmd | KeyCode.KeyW,
-    win: {
-      primary: KeyMod.CtrlCmd | KeyCode.F4,
-      secondary: [KeyMod.CtrlCmd | KeyCode.KeyW]
-    },
+    win: { primary: KeyMod.CtrlCmd | KeyCode.F4, secondary: [KeyMod.CtrlCmd | KeyCode.KeyW] },
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
       return closeEditorHandler(accessor, false, ...args);
     }, "handler")
   });
-  CommandsRegistry.registerCommand(
-    CLOSE_PINNED_EDITOR_COMMAND_ID,
-    (accessor, ...args) => {
-      return closeEditorHandler(
-        accessor,
-        true,
-        ...args
-      );
-    }
-  );
+  CommandsRegistry.registerCommand(CLOSE_PINNED_EDITOR_COMMAND_ID, (accessor, ...args) => {
+    return closeEditorHandler(accessor, true, ...args);
+  });
   KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID,
     weight: KeybindingWeight.WorkbenchContrib,
     when: void 0,
     primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyCode.KeyW),
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
-      return Promise.all(
-        resolvedContext.groupedEditors.map(async ({ group }) => {
-          await group.closeAllEditors({ excludeSticky: true });
-        })
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group }) => {
+        await group.closeAllEditors({ excludeSticky: true });
+      }));
     }, "handler")
   });
   KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: CLOSE_EDITOR_GROUP_COMMAND_ID,
     weight: KeybindingWeight.WorkbenchContrib,
-    when: ContextKeyExpr.and(
-      ActiveEditorGroupEmptyContext,
-      MultipleEditorGroupsContext
-    ),
+    when: ContextKeyExpr.and(ActiveEditorGroupEmptyContext, MultipleEditorGroupsContext),
     primary: KeyMod.CtrlCmd | KeyCode.KeyW,
-    win: {
-      primary: KeyMod.CtrlCmd | KeyCode.F4,
-      secondary: [KeyMod.CtrlCmd | KeyCode.KeyW]
-    },
+    win: { primary: KeyMod.CtrlCmd | KeyCode.F4, secondary: [KeyMod.CtrlCmd | KeyCode.KeyW] },
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
       const editorGroupsService = accessor.get(IEditorGroupsService);
-      const commandsContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        editorGroupsService,
-        accessor.get(IListService)
-      );
+      const commandsContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
       if (commandsContext.groupedEditors.length) {
-        editorGroupsService.removeGroup(
-          commandsContext.groupedEditors[0].group
-        );
+        editorGroupsService.removeGroup(commandsContext.groupedEditors[0].group);
       }
     }, "handler")
   });
@@ -945,20 +675,10 @@ function registerCloseEditorCommands() {
     when: void 0,
     primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyCode.KeyU),
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
-      return Promise.all(
-        resolvedContext.groupedEditors.map(async ({ group }) => {
-          await group.closeEditors(
-            { savedOnly: true, excludeSticky: true },
-            { preserveFocus: resolvedContext.preserveFocus }
-          );
-        })
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group }) => {
+        await group.closeEditors({ savedOnly: true, excludeSticky: true }, { preserveFocus: resolvedContext.preserveFocus });
+      }));
     }, "handler")
   });
   KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -968,29 +688,16 @@ function registerCloseEditorCommands() {
     primary: void 0,
     mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyT },
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
-      return Promise.all(
-        resolvedContext.groupedEditors.map(
-          async ({ group, editors }) => {
-            const editorsToClose = group.getEditors(EditorsOrder.SEQUENTIAL, {
-              excludeSticky: true
-            }).filter((editor) => !editors.includes(editor));
-            for (const editorToKeep of editors) {
-              if (editorToKeep) {
-                group.pinEditor(editorToKeep);
-              }
-            }
-            await group.closeEditors(editorsToClose, {
-              preserveFocus: resolvedContext.preserveFocus
-            });
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group, editors }) => {
+        const editorsToClose = group.getEditors(EditorsOrder.SEQUENTIAL, { excludeSticky: true }).filter((editor) => !editors.includes(editor));
+        for (const editorToKeep of editors) {
+          if (editorToKeep) {
+            group.pinEditor(editorToKeep);
           }
-        )
-      );
+        }
+        await group.closeEditors(editorsToClose, { preserveFocus: resolvedContext.preserveFocus });
+      }));
     }, "handler")
   });
   KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -999,25 +706,13 @@ function registerCloseEditorCommands() {
     when: void 0,
     primary: void 0,
     handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
       if (resolvedContext.groupedEditors.length) {
         const { group, editors } = resolvedContext.groupedEditors[0];
         if (group.activeEditor) {
           group.pinEditor(group.activeEditor);
         }
-        await group.closeEditors(
-          {
-            direction: CloseDirection.RIGHT,
-            except: editors[0],
-            excludeSticky: true
-          },
-          { preserveFocus: resolvedContext.preserveFocus }
-        );
+        await group.closeEditors({ direction: CloseDirection.RIGHT, except: editors[0], excludeSticky: true }, { preserveFocus: resolvedContext.preserveFocus });
       }
     }, "handler")
   });
@@ -1030,12 +725,7 @@ function registerCloseEditorCommands() {
       const editorService = accessor.get(IEditorService);
       const editorResolverService = accessor.get(IEditorResolverService);
       const telemetryService = accessor.get(ITelemetryService);
-      const resolvedContext = resolveCommandsContext(
-        args,
-        editorService,
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
+      const resolvedContext = resolveCommandsContext(args, editorService, accessor.get(IEditorGroupsService), accessor.get(IListService));
       const editorReplacements = /* @__PURE__ */ new Map();
       for (const { group, editors } of resolvedContext.groupedEditors) {
         for (const editor of editors) {
@@ -1043,24 +733,15 @@ function registerCloseEditorCommands() {
           if (!untypedEditor) {
             return;
           }
-          untypedEditor.options = {
-            ...editorService.activeEditorPane?.options,
-            override: EditorResolution.PICK
-          };
-          const resolvedEditor = await editorResolverService.resolveEditor(
-            untypedEditor,
-            group
-          );
+          untypedEditor.options = { ...editorService.activeEditorPane?.options, override: EditorResolution.PICK };
+          const resolvedEditor = await editorResolverService.resolveEditor(untypedEditor, group);
           if (!isEditorInputWithOptionsAndGroup(resolvedEditor)) {
             return;
           }
           let editorReplacementsInGroup = editorReplacements.get(group);
           if (!editorReplacementsInGroup) {
             editorReplacementsInGroup = [];
-            editorReplacements.set(
-              group,
-              editorReplacementsInGroup
-            );
+            editorReplacements.set(group, editorReplacementsInGroup);
           }
           editorReplacementsInGroup.push({
             editor,
@@ -1082,27 +763,17 @@ function registerCloseEditorCommands() {
       }
     }, "handler")
   });
-  CommandsRegistry.registerCommand(
-    CLOSE_EDITORS_AND_GROUP_COMMAND_ID,
-    async (accessor, ...args) => {
-      const editorGroupsService = accessor.get(IEditorGroupsService);
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        editorGroupsService,
-        accessor.get(IListService)
-      );
-      if (resolvedContext.groupedEditors.length) {
-        const { group } = resolvedContext.groupedEditors[0];
-        await group.closeAllEditors();
-        if (group.count === 0 && editorGroupsService.getGroup(
-          group.id
-        )) {
-          editorGroupsService.removeGroup(group);
-        }
+  CommandsRegistry.registerCommand(CLOSE_EDITORS_AND_GROUP_COMMAND_ID, async (accessor, ...args) => {
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
+    if (resolvedContext.groupedEditors.length) {
+      const { group } = resolvedContext.groupedEditors[0];
+      await group.closeAllEditors();
+      if (group.count === 0 && editorGroupsService.getGroup(group.id)) {
+        editorGroupsService.removeGroup(group);
       }
     }
-  );
+  });
 }
 __name(registerCloseEditorCommands, "registerCloseEditorCommands");
 function registerFocusEditorGroupWihoutWrapCommands() {
@@ -1125,18 +796,11 @@ function registerFocusEditorGroupWihoutWrapCommands() {
     }
   ];
   for (const command of commands) {
-    CommandsRegistry.registerCommand(
-      command.id,
-      async (accessor) => {
-        const editorGroupsService = accessor.get(IEditorGroupsService);
-        const group = editorGroupsService.findGroup(
-          { direction: command.direction },
-          editorGroupsService.activeGroup,
-          false
-        );
-        group?.focus();
-      }
-    );
+    CommandsRegistry.registerCommand(command.id, async (accessor) => {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const group = editorGroupsService.findGroup({ direction: command.direction }, editorGroupsService.activeGroup, false);
+      group?.focus();
+    });
   }
 }
 __name(registerFocusEditorGroupWihoutWrapCommands, "registerFocusEditorGroupWihoutWrapCommands");
@@ -1151,56 +815,32 @@ function registerSplitEditorInGroupCommands() {
     if (!editor) {
       return;
     }
-    await group.replaceEditors([
-      {
-        editor,
-        replacement: instantiationService.createInstance(
-          SideBySideEditorInput,
-          void 0,
-          void 0,
-          editor,
-          editor
-        ),
-        forceReplaceDirty: true
-      }
-    ]);
+    await group.replaceEditors([{
+      editor,
+      replacement: instantiationService.createInstance(SideBySideEditorInput, void 0, void 0, editor, editor),
+      forceReplaceDirty: true
+    }]);
   }
   __name(splitEditorInGroup, "splitEditorInGroup");
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: SPLIT_EDITOR_IN_GROUP,
-          title: localize2(
-            "splitEditorInGroup",
-            "Split Editor in Group"
-          ),
-          category: Categories.View,
-          precondition: ActiveEditorCanSplitInGroupContext,
-          f1: true,
-          keybinding: {
-            weight: KeybindingWeight.WorkbenchContrib,
-            when: ActiveEditorCanSplitInGroupContext,
-            primary: KeyChord(
-              KeyMod.CtrlCmd | KeyCode.KeyK,
-              KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Backslash
-            )
-          }
-        });
-      }
-      run(accessor, ...args) {
-        return splitEditorInGroup(
-          accessor,
-          resolveCommandsContext(
-            args,
-            accessor.get(IEditorService),
-            accessor.get(IEditorGroupsService),
-            accessor.get(IListService)
-          )
-        );
-      }
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: SPLIT_EDITOR_IN_GROUP,
+        title: localize2("splitEditorInGroup", "Split Editor in Group"),
+        category: Categories.View,
+        precondition: ActiveEditorCanSplitInGroupContext,
+        f1: true,
+        keybinding: {
+          weight: KeybindingWeight.WorkbenchContrib,
+          when: ActiveEditorCanSplitInGroupContext,
+          primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Backslash)
+        }
+      });
     }
-  );
+    run(accessor, ...args) {
+      return splitEditorInGroup(accessor, resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
+    }
+  });
   async function joinEditorInGroup(resolvedContext) {
     if (!resolvedContext.groupedEditors.length) {
       return;
@@ -1213,230 +853,157 @@ function registerSplitEditorInGroupCommands() {
     if (!(editor instanceof SideBySideEditorInput)) {
       return;
     }
-    let options;
+    let options = void 0;
     const activeEditorPane = group.activeEditorPane;
     if (activeEditorPane instanceof SideBySideEditor && group.activeEditor === editor) {
-      for (const pane of [
-        activeEditorPane.getPrimaryEditorPane(),
-        activeEditorPane.getSecondaryEditorPane()
-      ]) {
+      for (const pane of [activeEditorPane.getPrimaryEditorPane(), activeEditorPane.getSecondaryEditorPane()]) {
         if (pane?.hasFocus()) {
           options = { viewState: pane.getViewState() };
           break;
         }
       }
     }
-    await group.replaceEditors([
-      {
-        editor,
-        replacement: editor.primary,
-        options
-      }
-    ]);
+    await group.replaceEditors([{
+      editor,
+      replacement: editor.primary,
+      options
+    }]);
   }
   __name(joinEditorInGroup, "joinEditorInGroup");
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: JOIN_EDITOR_IN_GROUP,
-          title: localize2(
-            "joinEditorInGroup",
-            "Join Editor in Group"
-          ),
-          category: Categories.View,
-          precondition: SideBySideEditorActiveContext,
-          f1: true,
-          keybinding: {
-            weight: KeybindingWeight.WorkbenchContrib,
-            when: SideBySideEditorActiveContext,
-            primary: KeyChord(
-              KeyMod.CtrlCmd | KeyCode.KeyK,
-              KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Backslash
-            )
-          }
-        });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: JOIN_EDITOR_IN_GROUP,
+        title: localize2("joinEditorInGroup", "Join Editor in Group"),
+        category: Categories.View,
+        precondition: SideBySideEditorActiveContext,
+        f1: true,
+        keybinding: {
+          weight: KeybindingWeight.WorkbenchContrib,
+          when: SideBySideEditorActiveContext,
+          primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Backslash)
+        }
+      });
+    }
+    run(accessor, ...args) {
+      return joinEditorInGroup(resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_SPLIT_EDITOR_IN_GROUP,
+        title: localize2("toggleJoinEditorInGroup", "Toggle Split Editor in Group"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(ActiveEditorCanSplitInGroupContext, SideBySideEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      if (!resolvedContext.groupedEditors.length) {
+        return;
       }
-      run(accessor, ...args) {
-        return joinEditorInGroup(
-          resolveCommandsContext(
-            args,
-            accessor.get(IEditorService),
-            accessor.get(IEditorGroupsService),
-            accessor.get(IListService)
-          )
-        );
+      const { editors } = resolvedContext.groupedEditors[0];
+      if (editors[0] instanceof SideBySideEditorInput) {
+        await joinEditorInGroup(resolvedContext);
+      } else if (editors[0]) {
+        await splitEditorInGroup(accessor, resolvedContext);
       }
     }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: TOGGLE_SPLIT_EDITOR_IN_GROUP,
-          title: localize2(
-            "toggleJoinEditorInGroup",
-            "Toggle Split Editor in Group"
-          ),
-          category: Categories.View,
-          precondition: ContextKeyExpr.or(
-            ActiveEditorCanSplitInGroupContext,
-            SideBySideEditorActiveContext
-          ),
-          f1: true
-        });
-      }
-      async run(accessor, ...args) {
-        const resolvedContext = resolveCommandsContext(
-          args,
-          accessor.get(IEditorService),
-          accessor.get(IEditorGroupsService),
-          accessor.get(IListService)
-        );
-        if (!resolvedContext.groupedEditors.length) {
-          return;
-        }
-        const { editors } = resolvedContext.groupedEditors[0];
-        if (editors[0] instanceof SideBySideEditorInput) {
-          await joinEditorInGroup(resolvedContext);
-        } else if (editors[0]) {
-          await splitEditorInGroup(accessor, resolvedContext);
-        }
-      }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
+        title: localize2("toggleSplitEditorInGroupLayout", "Toggle Layout of Split Editor in Group"),
+        category: Categories.View,
+        precondition: SideBySideEditorActiveContext,
+        f1: true
+      });
     }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
-          title: localize2(
-            "toggleSplitEditorInGroupLayout",
-            "Toggle Layout of Split Editor in Group"
-          ),
-          category: Categories.View,
-          precondition: SideBySideEditorActiveContext,
-          f1: true
-        });
+    async run(accessor) {
+      const configurationService = accessor.get(IConfigurationService);
+      const currentSetting = configurationService.getValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING);
+      let newSetting;
+      if (currentSetting !== "horizontal") {
+        newSetting = "horizontal";
+      } else {
+        newSetting = "vertical";
       }
-      async run(accessor) {
-        const configurationService = accessor.get(
-          IConfigurationService
-        );
-        const currentSetting = configurationService.getValue(
-          SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
-        );
-        let newSetting;
-        if (currentSetting !== "horizontal") {
-          newSetting = "horizontal";
-        } else {
-          newSetting = "vertical";
-        }
-        return configurationService.updateValue(
-          SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING,
-          newSetting
-        );
-      }
+      return configurationService.updateValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING, newSetting);
     }
-  );
+  });
 }
 __name(registerSplitEditorInGroupCommands, "registerSplitEditorInGroupCommands");
 function registerFocusSideEditorsCommands() {
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: FOCUS_FIRST_SIDE_EDITOR,
-          title: localize2(
-            "focusLeftSideEditor",
-            "Focus First Side in Active Editor"
-          ),
-          category: Categories.View,
-          precondition: ContextKeyExpr.or(
-            SideBySideEditorActiveContext,
-            TextCompareEditorActiveContext
-          ),
-          f1: true
-        });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_FIRST_SIDE_EDITOR,
+        title: localize2("focusLeftSideEditor", "Focus First Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        activeEditorPane.getSecondaryEditorPane()?.focus();
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_SECONDARY_SIDE);
       }
-      async run(accessor) {
-        const editorService = accessor.get(IEditorService);
-        const commandService = accessor.get(ICommandService);
-        const activeEditorPane = editorService.activeEditorPane;
-        if (activeEditorPane instanceof SideBySideEditor) {
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_SECOND_SIDE_EDITOR,
+        title: localize2("focusRightSideEditor", "Focus Second Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        activeEditorPane.getPrimaryEditorPane()?.focus();
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_PRIMARY_SIDE);
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_OTHER_SIDE_EDITOR,
+        title: localize2("focusOtherSideEditor", "Focus Other Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        if (activeEditorPane.getPrimaryEditorPane()?.hasFocus()) {
           activeEditorPane.getSecondaryEditorPane()?.focus();
-        } else if (activeEditorPane instanceof TextDiffEditor) {
-          await commandService.executeCommand(
-            DIFF_FOCUS_SECONDARY_SIDE
-          );
-        }
-      }
-    }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: FOCUS_SECOND_SIDE_EDITOR,
-          title: localize2(
-            "focusRightSideEditor",
-            "Focus Second Side in Active Editor"
-          ),
-          category: Categories.View,
-          precondition: ContextKeyExpr.or(
-            SideBySideEditorActiveContext,
-            TextCompareEditorActiveContext
-          ),
-          f1: true
-        });
-      }
-      async run(accessor) {
-        const editorService = accessor.get(IEditorService);
-        const commandService = accessor.get(ICommandService);
-        const activeEditorPane = editorService.activeEditorPane;
-        if (activeEditorPane instanceof SideBySideEditor) {
+        } else {
           activeEditorPane.getPrimaryEditorPane()?.focus();
-        } else if (activeEditorPane instanceof TextDiffEditor) {
-          await commandService.executeCommand(
-            DIFF_FOCUS_PRIMARY_SIDE
-          );
         }
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_OTHER_SIDE);
       }
     }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: FOCUS_OTHER_SIDE_EDITOR,
-          title: localize2(
-            "focusOtherSideEditor",
-            "Focus Other Side in Active Editor"
-          ),
-          category: Categories.View,
-          precondition: ContextKeyExpr.or(
-            SideBySideEditorActiveContext,
-            TextCompareEditorActiveContext
-          ),
-          f1: true
-        });
-      }
-      async run(accessor) {
-        const editorService = accessor.get(IEditorService);
-        const commandService = accessor.get(ICommandService);
-        const activeEditorPane = editorService.activeEditorPane;
-        if (activeEditorPane instanceof SideBySideEditor) {
-          if (activeEditorPane.getPrimaryEditorPane()?.hasFocus()) {
-            activeEditorPane.getSecondaryEditorPane()?.focus();
-          } else {
-            activeEditorPane.getPrimaryEditorPane()?.focus();
-          }
-        } else if (activeEditorPane instanceof TextDiffEditor) {
-          await commandService.executeCommand(DIFF_FOCUS_OTHER_SIDE);
-        }
-      }
-    }
-  );
+  });
 }
 __name(registerFocusSideEditorsCommands, "registerFocusSideEditorsCommands");
 function registerOtherEditorCommands() {
@@ -1446,12 +1013,7 @@ function registerOtherEditorCommands() {
     when: void 0,
     primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyCode.Enter),
     handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
       for (const { group, editors } of resolvedContext.groupedEditors) {
         for (const editor of editors) {
           group.pinEditor(editor);
@@ -1463,95 +1025,65 @@ function registerOtherEditorCommands() {
     id: TOGGLE_KEEP_EDITORS_COMMAND_ID,
     handler: /* @__PURE__ */ __name((accessor) => {
       const configurationService = accessor.get(IConfigurationService);
-      const currentSetting = configurationService.getValue(
-        "workbench.editor.enablePreview"
-      );
+      const currentSetting = configurationService.getValue("workbench.editor.enablePreview");
       const newSetting = currentSetting === true ? false : true;
-      configurationService.updateValue(
-        "workbench.editor.enablePreview",
-        newSetting
-      );
+      configurationService.updateValue("workbench.editor.enablePreview", newSetting);
     }, "handler")
   });
   function setEditorGroupLock(accessor, locked, ...args) {
-    const resolvedContext = resolveCommandsContext(
-      args,
-      accessor.get(IEditorService),
-      accessor.get(IEditorGroupsService),
-      accessor.get(IListService)
-    );
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
     const group = resolvedContext.groupedEditors[0]?.group;
     group?.lock(locked ?? !group.isLocked);
   }
   __name(setEditorGroupLock, "setEditorGroupLock");
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: TOGGLE_LOCK_GROUP_COMMAND_ID,
-          title: localize2(
-            "toggleEditorGroupLock",
-            "Toggle Editor Group Lock"
-          ),
-          category: Categories.View,
-          f1: true
-        });
-      }
-      async run(accessor, ...args) {
-        setEditorGroupLock(accessor, void 0, ...args);
-      }
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_LOCK_GROUP_COMMAND_ID,
+        title: localize2("toggleEditorGroupLock", "Toggle Editor Group Lock"),
+        category: Categories.View,
+        f1: true
+      });
     }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: LOCK_GROUP_COMMAND_ID,
-          title: localize2("lockEditorGroup", "Lock Editor Group"),
-          category: Categories.View,
-          precondition: ActiveEditorGroupLockedContext.toNegated(),
-          f1: true
-        });
-      }
-      async run(accessor, ...args) {
-        setEditorGroupLock(accessor, true, ...args);
-      }
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, void 0, ...args);
     }
-  );
-  registerAction2(
-    class extends Action2 {
-      constructor() {
-        super({
-          id: UNLOCK_GROUP_COMMAND_ID,
-          title: localize2(
-            "unlockEditorGroup",
-            "Unlock Editor Group"
-          ),
-          precondition: ActiveEditorGroupLockedContext,
-          category: Categories.View,
-          f1: true
-        });
-      }
-      async run(accessor, ...args) {
-        setEditorGroupLock(accessor, false, ...args);
-      }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: LOCK_GROUP_COMMAND_ID,
+        title: localize2("lockEditorGroup", "Lock Editor Group"),
+        category: Categories.View,
+        precondition: ActiveEditorGroupLockedContext.toNegated(),
+        f1: true
+      });
     }
-  );
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, true, ...args);
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: UNLOCK_GROUP_COMMAND_ID,
+        title: localize2("unlockEditorGroup", "Unlock Editor Group"),
+        precondition: ActiveEditorGroupLockedContext,
+        category: Categories.View,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, false, ...args);
+    }
+  });
   KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: PIN_EDITOR_COMMAND_ID,
     weight: KeybindingWeight.WorkbenchContrib,
     when: ActiveEditorStickyContext.toNegated(),
-    primary: KeyChord(
-      KeyMod.CtrlCmd | KeyCode.KeyK,
-      KeyMod.Shift | KeyCode.Enter
-    ),
+    primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.Shift | KeyCode.Enter),
     handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
       for (const { group, editors } of resolvedContext.groupedEditors) {
         for (const editor of editors) {
           group.stickEditor(editor);
@@ -1563,10 +1095,7 @@ function registerOtherEditorCommands() {
     id: DIFF_OPEN_SIDE,
     weight: KeybindingWeight.WorkbenchContrib,
     when: EditorContextKeys.inDiffEditor,
-    primary: KeyChord(
-      KeyMod.CtrlCmd | KeyCode.KeyK,
-      KeyMod.Shift | KeyCode.KeyO
-    ),
+    primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.Shift | KeyCode.KeyO),
     handler: /* @__PURE__ */ __name(async (accessor) => {
       const editorService = accessor.get(IEditorService);
       const editorGroupsService = accessor.get(IEditorGroupsService);
@@ -1589,17 +1118,9 @@ function registerOtherEditorCommands() {
     id: UNPIN_EDITOR_COMMAND_ID,
     weight: KeybindingWeight.WorkbenchContrib,
     when: ActiveEditorStickyContext,
-    primary: KeyChord(
-      KeyMod.CtrlCmd | KeyCode.KeyK,
-      KeyMod.Shift | KeyCode.Enter
-    ),
+    primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.Shift | KeyCode.Enter),
     handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
-      const resolvedContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        accessor.get(IEditorGroupsService),
-        accessor.get(IListService)
-      );
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
       for (const { group, editors } of resolvedContext.groupedEditors) {
         for (const editor of editors) {
           group.unstickEditor(editor);
@@ -1615,19 +1136,12 @@ function registerOtherEditorCommands() {
     handler: /* @__PURE__ */ __name((accessor, ...args) => {
       const editorGroupsService = accessor.get(IEditorGroupsService);
       const quickInputService = accessor.get(IQuickInputService);
-      const commandsContext = resolveCommandsContext(
-        args,
-        accessor.get(IEditorService),
-        editorGroupsService,
-        accessor.get(IListService)
-      );
+      const commandsContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
       const group = commandsContext.groupedEditors[0]?.group;
       if (group) {
         editorGroupsService.activateGroup(group);
       }
-      return quickInputService.quickAccess.show(
-        ActiveGroupEditorsByMostRecentlyUsedQuickAccess.PREFIX
-      );
+      return quickInputService.quickAccess.show(ActiveGroupEditorsByMostRecentlyUsedQuickAccess.PREFIX);
     }, "handler")
   });
 }

@@ -22,24 +22,18 @@ import { ServiceCollection } from "../../../../platform/instantiation/common/ser
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { hasCustomTitlebar } from "../../../../platform/window/common/window.js";
-import {
-  IAuxiliaryWindowService
-} from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
-import {
-  GroupDirection,
-  GroupsOrder
-} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorGroupView, IEditorPartsView } from "./editor.js";
+import { EditorPart, IEditorPartUIState } from "./editorPart.js";
+import { IAuxiliaryTitlebarPart } from "../titlebar/titlebarPart.js";
+import { WindowTitle } from "../titlebar/windowTitle.js";
+import { IAuxiliaryWindowOpenOptions, IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { GroupDirection, GroupsOrder, IAuxiliaryEditorPart } from "../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
-import {
-  IWorkbenchLayoutService,
-  shouldShowCustomTitleBar
-} from "../../../services/layout/browser/layoutService.js";
+import { IWorkbenchLayoutService, shouldShowCustomTitleBar } from "../../../services/layout/browser/layoutService.js";
 import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 import { ITitleService } from "../../../services/title/browser/titleService.js";
-import { WindowTitle } from "../titlebar/windowTitle.js";
-import { EditorPart } from "./editorPart.js";
 let AuxiliaryEditorPart = class {
   constructor(editorPartsView, instantiationService, auxiliaryWindowService, lifecycleService, configurationService, statusbarService, titleService, editorService, layoutService) {
     this.editorPartsView = editorPartsView;
@@ -94,177 +88,83 @@ let AuxiliaryEditorPart = class {
     }
     __name(updateTitlebarVisibility, "updateTitlebarVisibility");
     const disposables = new DisposableStore();
-    const auxiliaryWindow = disposables.add(
-      await this.auxiliaryWindowService.open(options)
-    );
+    const auxiliaryWindow = disposables.add(await this.auxiliaryWindowService.open(options));
     const editorPartContainer = document.createElement("div");
     editorPartContainer.classList.add("part", "editor");
     editorPartContainer.setAttribute("role", "main");
     editorPartContainer.style.position = "relative";
     auxiliaryWindow.container.appendChild(editorPartContainer);
-    const editorPart = disposables.add(
-      this.instantiationService.createInstance(
-        AuxiliaryEditorPartImpl,
-        auxiliaryWindow.window.vscodeWindowId,
-        this.editorPartsView,
-        options?.state,
-        label
-      )
-    );
+    const editorPart = disposables.add(this.instantiationService.createInstance(AuxiliaryEditorPartImpl, auxiliaryWindow.window.vscodeWindowId, this.editorPartsView, options?.state, label));
     disposables.add(this.editorPartsView.registerPart(editorPart));
     editorPart.create(editorPartContainer);
-    let titlebarPart;
+    let titlebarPart = void 0;
     let titlebarVisible = false;
     const useCustomTitle = isNative && hasCustomTitlebar(this.configurationService);
     if (useCustomTitle) {
-      titlebarPart = disposables.add(
-        this.titleService.createAuxiliaryTitlebarPart(
-          auxiliaryWindow.container,
-          editorPart
-        )
-      );
-      titlebarVisible = shouldShowCustomTitleBar(
-        this.configurationService,
-        auxiliaryWindow.window,
-        void 0,
-        false
-      );
+      titlebarPart = disposables.add(this.titleService.createAuxiliaryTitlebarPart(auxiliaryWindow.container, editorPart));
+      titlebarVisible = shouldShowCustomTitleBar(this.configurationService, auxiliaryWindow.window, void 0, false);
       const handleTitleBarVisibilityEvent = /* @__PURE__ */ __name(() => {
         const oldTitlebarPartVisible = titlebarVisible;
-        titlebarVisible = shouldShowCustomTitleBar(
-          this.configurationService,
-          auxiliaryWindow.window,
-          void 0,
-          false
-        );
+        titlebarVisible = shouldShowCustomTitleBar(this.configurationService, auxiliaryWindow.window, void 0, false);
         if (oldTitlebarPartVisible !== titlebarVisible) {
           updateTitlebarVisibility(true);
         }
       }, "handleTitleBarVisibilityEvent");
-      disposables.add(
-        titlebarPart.onDidChange(() => auxiliaryWindow.layout())
-      );
-      disposables.add(
-        this.layoutService.onDidChangePartVisibility(
-          () => handleTitleBarVisibilityEvent()
-        )
-      );
-      disposables.add(
-        onDidChangeFullscreen((windowId) => {
-          if (windowId !== auxiliaryWindow.window.vscodeWindowId) {
-            return;
-          }
-          handleTitleBarVisibilityEvent();
-        })
-      );
-      updateTitlebarVisibility(false);
-    } else {
-      disposables.add(
-        this.instantiationService.createInstance(
-          WindowTitle,
-          auxiliaryWindow.window,
-          editorPart
-        )
-      );
-    }
-    const statusbarPart = disposables.add(
-      this.statusbarService.createAuxiliaryStatusbarPart(
-        auxiliaryWindow.container
-      )
-    );
-    let statusbarVisible = this.configurationService.getValue(
-      AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
-    ) !== false;
-    disposables.add(
-      this.configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
-        )) {
-          statusbarVisible = this.configurationService.getValue(
-            AuxiliaryEditorPart.STATUS_BAR_VISIBILITY
-          ) !== false;
-          updateStatusbarVisibility(true);
-        }
-      })
-    );
-    updateStatusbarVisibility(false);
-    const editorCloseListener = disposables.add(
-      Event.once(editorPart.onWillClose)(
-        () => auxiliaryWindow.window.close()
-      )
-    );
-    disposables.add(
-      Event.once(auxiliaryWindow.onUnload)(() => {
-        if (disposables.isDisposed) {
+      disposables.add(titlebarPart.onDidChange(() => auxiliaryWindow.layout()));
+      disposables.add(this.layoutService.onDidChangePartVisibility(() => handleTitleBarVisibilityEvent()));
+      disposables.add(onDidChangeFullscreen((windowId) => {
+        if (windowId !== auxiliaryWindow.window.vscodeWindowId) {
           return;
         }
-        editorCloseListener.dispose();
-        editorPart.close();
-        disposables.dispose();
-      })
-    );
-    disposables.add(
-      Event.once(this.lifecycleService.onDidShutdown)(
-        () => disposables.dispose()
-      )
-    );
-    disposables.add(
-      auxiliaryWindow.onBeforeUnload((event) => {
-        for (const group of editorPart.groups) {
-          for (const editor of group.editors) {
-            const canMoveVeto = editor.canMove(
-              group.id,
-              this.editorPartsView.mainPart.activeGroup.id
-            );
-            if (typeof canMoveVeto === "string") {
-              group.openEditor(editor);
-              event.veto(canMoveVeto);
-              break;
-            }
+        handleTitleBarVisibilityEvent();
+      }));
+      updateTitlebarVisibility(false);
+    } else {
+      disposables.add(this.instantiationService.createInstance(WindowTitle, auxiliaryWindow.window, editorPart));
+    }
+    const statusbarPart = disposables.add(this.statusbarService.createAuxiliaryStatusbarPart(auxiliaryWindow.container));
+    let statusbarVisible = this.configurationService.getValue(AuxiliaryEditorPart.STATUS_BAR_VISIBILITY) !== false;
+    disposables.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(AuxiliaryEditorPart.STATUS_BAR_VISIBILITY)) {
+        statusbarVisible = this.configurationService.getValue(AuxiliaryEditorPart.STATUS_BAR_VISIBILITY) !== false;
+        updateStatusbarVisibility(true);
+      }
+    }));
+    updateStatusbarVisibility(false);
+    const editorCloseListener = disposables.add(Event.once(editorPart.onWillClose)(() => auxiliaryWindow.window.close()));
+    disposables.add(Event.once(auxiliaryWindow.onUnload)(() => {
+      if (disposables.isDisposed) {
+        return;
+      }
+      editorCloseListener.dispose();
+      editorPart.close();
+      disposables.dispose();
+    }));
+    disposables.add(Event.once(this.lifecycleService.onDidShutdown)(() => disposables.dispose()));
+    disposables.add(auxiliaryWindow.onBeforeUnload((event) => {
+      for (const group of editorPart.groups) {
+        for (const editor of group.editors) {
+          const canMoveVeto = editor.canMove(group.id, this.editorPartsView.mainPart.activeGroup.id);
+          if (typeof canMoveVeto === "string") {
+            group.openEditor(editor);
+            event.veto(canMoveVeto);
+            break;
           }
         }
-      })
-    );
-    disposables.add(
-      auxiliaryWindow.onWillLayout((dimension) => {
-        const titlebarPartHeight = titlebarPart?.height ?? 0;
-        titlebarPart?.layout(dimension.width, titlebarPartHeight, 0, 0);
-        const editorPartHeight = dimension.height - computeEditorPartHeightOffset();
-        editorPart.layout(
-          dimension.width,
-          editorPartHeight,
-          titlebarPartHeight,
-          0
-        );
-        statusbarPart.layout(
-          dimension.width,
-          statusbarPart.height,
-          dimension.height - statusbarPart.height,
-          0
-        );
-      })
-    );
+      }
+    }));
+    disposables.add(auxiliaryWindow.onWillLayout((dimension) => {
+      const titlebarPartHeight = titlebarPart?.height ?? 0;
+      titlebarPart?.layout(dimension.width, titlebarPartHeight, 0, 0);
+      const editorPartHeight = dimension.height - computeEditorPartHeightOffset();
+      editorPart.layout(dimension.width, editorPartHeight, titlebarPartHeight, 0);
+      statusbarPart.layout(dimension.width, statusbarPart.height, dimension.height - statusbarPart.height, 0);
+    }));
     auxiliaryWindow.layout();
-    const instantiationService = disposables.add(
-      this.instantiationService.createChild(
-        new ServiceCollection(
-          [
-            IStatusbarService,
-            this.statusbarService.createScoped(
-              statusbarPart,
-              disposables
-            )
-          ],
-          [
-            IEditorService,
-            this.editorService.createScoped(
-              editorPart,
-              disposables
-            )
-          ]
-        )
-      )
-    );
+    const instantiationService = disposables.add(this.instantiationService.createChild(new ServiceCollection(
+      [IStatusbarService, this.statusbarService.createScoped(statusbarPart, disposables)],
+      [IEditorService, this.editorService.createScoped(editorPart, disposables)]
+    )));
     return {
       part: editorPart,
       instantiationService,
@@ -285,19 +185,7 @@ AuxiliaryEditorPart = __decorateClass([
 let AuxiliaryEditorPartImpl = class extends EditorPart {
   constructor(windowId, editorPartsView, state, groupsLabel, instantiationService, themeService, configurationService, storageService, layoutService, hostService, contextKeyService) {
     const id = AuxiliaryEditorPartImpl.COUNTER++;
-    super(
-      editorPartsView,
-      `workbench.parts.auxiliaryEditor.${id}`,
-      groupsLabel,
-      windowId,
-      instantiationService,
-      themeService,
-      configurationService,
-      storageService,
-      layoutService,
-      hostService,
-      contextKeyService
-    );
+    super(editorPartsView, `workbench.parts.auxiliaryEditor.${id}`, groupsLabel, windowId, instantiationService, themeService, configurationService, storageService, layoutService, hostService, contextKeyService);
     this.state = state;
   }
   static {
@@ -316,9 +204,7 @@ let AuxiliaryEditorPartImpl = class extends EditorPart {
   }
   doRemoveLastGroup(preserveFocus) {
     const restoreFocus = !preserveFocus && this.shouldRestoreFocus(this.container);
-    const mostRecentlyActiveGroups = this.editorPartsView.getGroups(
-      GroupsOrder.MOST_RECENTLY_ACTIVE
-    );
+    const mostRecentlyActiveGroups = this.editorPartsView.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
     const nextActiveGroup = mostRecentlyActiveGroups[1];
     if (nextActiveGroup) {
       nextActiveGroup.groupsView.activateGroup(nextActiveGroup);
@@ -355,20 +241,15 @@ let AuxiliaryEditorPartImpl = class extends EditorPart {
     if (!this.groups.some((group) => group.count > 0)) {
       return true;
     }
-    let targetGroup;
-    for (const group of this.editorPartsView.mainPart.getGroups(
-      GroupsOrder.MOST_RECENTLY_ACTIVE
-    )) {
+    let targetGroup = void 0;
+    for (const group of this.editorPartsView.mainPart.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE)) {
       if (!group.isLocked) {
         targetGroup = group;
         break;
       }
     }
     if (!targetGroup) {
-      targetGroup = this.editorPartsView.mainPart.addGroup(
-        this.editorPartsView.mainPart.activeGroup,
-        this.partOptions.openSideBySideDirection === "right" ? GroupDirection.RIGHT : GroupDirection.DOWN
-      );
+      targetGroup = this.editorPartsView.mainPart.addGroup(this.editorPartsView.mainPart.activeGroup, this.partOptions.openSideBySideDirection === "right" ? GroupDirection.RIGHT : GroupDirection.DOWN);
     }
     const result = this.mergeAllGroups(targetGroup);
     targetGroup.focus();

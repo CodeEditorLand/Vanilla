@@ -10,33 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { deepClone, distinct } from "../../../../base/common/objects.js";
-import { assertIsDefined, isObject } from "../../../../base/common/types.js";
-import {
-  ITextResourceConfigurationService
-} from "../../../../editor/common/services/textResourceConfiguration.js";
 import { localize } from "../../../../nls.js";
-import {
-  TextEditorSelectionRevealType,
-  TextEditorSelectionSource
-} from "../../../../platform/editor/common/editor.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  EditorPaneSelectionChangeReason,
-  EditorPaneSelectionCompareResult
-} from "../../../common/editor.js";
-import {
-  IEditorGroupsService
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { distinct, deepClone } from "../../../../base/common/objects.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { isObject, assertIsDefined } from "../../../../base/common/types.js";
+import { MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorOpenContext, IEditorPaneSelection, EditorPaneSelectionCompareResult, EditorPaneSelectionChangeReason, IEditorPaneWithSelection, IEditorPaneSelectionChangeEvent, IEditorPaneScrollPosition, IEditorPaneWithScrolling } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 import { computeEditorAriaLabel } from "../../editor.js";
 import { AbstractEditorWithViewState } from "./editorWithViewState.js";
+import { IEditorViewState } from "../../../../editor/common/editorCommon.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IEditorOptions, ITextEditorOptions, TextEditorSelectionRevealType, TextEditorSelectionSource } from "../../../../platform/editor/common/editor.js";
+import { ICursorPositionChangedEvent } from "../../../../editor/common/cursorEvents.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
 let AbstractTextEditor = class extends AbstractEditorWithViewState {
   constructor(id, group, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService) {
     super(id, group, AbstractTextEditor.VIEW_STATE_PREFERENCE_KEY, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
@@ -54,9 +53,7 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
     __name(this, "AbstractTextEditor");
   }
   static VIEW_STATE_PREFERENCE_KEY = "textEditorViewState";
-  _onDidChangeSelection = this._register(
-    new Emitter()
-  );
+  _onDidChangeSelection = this._register(new Emitter());
   onDidChangeSelection = this._onDidChangeSelection.event;
   _onDidChangeScroll = this._register(new Emitter());
   onDidChangeScroll = this._onDidChangeScroll.event;
@@ -85,23 +82,13 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
     }
   }
   computeConfiguration(configuration) {
-    const editorConfiguration = isObject(
-      configuration.editor
-    ) ? deepClone(configuration.editor) : /* @__PURE__ */ Object.create(null);
-    Object.assign(
-      editorConfiguration,
-      this.getConfigurationOverrides(configuration)
-    );
+    const editorConfiguration = isObject(configuration.editor) ? deepClone(configuration.editor) : /* @__PURE__ */ Object.create(null);
+    Object.assign(editorConfiguration, this.getConfigurationOverrides(configuration));
     editorConfiguration.ariaLabel = this.computeAriaLabel();
     return editorConfiguration;
   }
   computeAriaLabel() {
-    return this.input ? computeEditorAriaLabel(
-      this.input,
-      void 0,
-      this.group,
-      this.editorGroupService.count
-    ) : localize("editor", "Editor");
+    return this.input ? computeEditorAriaLabel(this.input, void 0, this.group, this.editorGroupService.count) : localize("editor", "Editor");
   }
   onDidChangeFileSystemProvider(scheme) {
     if (!this.input) {
@@ -117,9 +104,7 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
     }
   }
   updateReadonly(input) {
-    this.updateEditorControlOptions({
-      ...this.getReadonlyConfiguration(input.isReadonly())
-    });
+    this.updateEditorControlOptions({ ...this.getReadonlyConfiguration(input.isReadonly()) });
   }
   getReadonlyConfiguration(isReadonly) {
     return {
@@ -138,48 +123,17 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
   }
   createEditor(parent) {
     this.editorContainer = parent;
-    this.createEditorControl(
-      parent,
-      this.computeConfiguration(
-        this.textResourceConfigurationService.getValue(
-          this.getActiveResource()
-        )
-      )
-    );
+    this.createEditorControl(parent, this.computeConfiguration(this.textResourceConfigurationService.getValue(this.getActiveResource())));
     this.registerCodeEditorListeners();
   }
   registerCodeEditorListeners() {
     const mainControl = this.getMainControl();
     if (mainControl) {
-      this._register(
-        mainControl.onDidChangeModelLanguage(
-          () => this.updateEditorConfiguration()
-        )
-      );
-      this._register(
-        mainControl.onDidChangeModel(
-          () => this.updateEditorConfiguration()
-        )
-      );
-      this._register(
-        mainControl.onDidChangeCursorPosition(
-          (e) => this._onDidChangeSelection.fire({
-            reason: this.toEditorPaneSelectionChangeReason(e)
-          })
-        )
-      );
-      this._register(
-        mainControl.onDidChangeModelContent(
-          () => this._onDidChangeSelection.fire({
-            reason: EditorPaneSelectionChangeReason.EDIT
-          })
-        )
-      );
-      this._register(
-        mainControl.onDidScrollChange(
-          () => this._onDidChangeScroll.fire()
-        )
-      );
+      this._register(mainControl.onDidChangeModelLanguage(() => this.updateEditorConfiguration()));
+      this._register(mainControl.onDidChangeModel(() => this.updateEditorConfiguration()));
+      this._register(mainControl.onDidChangeCursorPosition((e) => this._onDidChangeSelection.fire({ reason: this.toEditorPaneSelectionChangeReason(e) })));
+      this._register(mainControl.onDidChangeModelContent(() => this._onDidChangeSelection.fire({ reason: EditorPaneSelectionChangeReason.EDIT })));
+      this._register(mainControl.onDidScrollChange(() => this._onDidChangeScroll.fire()));
     }
   }
   toEditorPaneSelectionChangeReason(e) {
@@ -206,9 +160,7 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
   }
   async setInput(input, options, context, token) {
     await super.setInput(input, options, context, token);
-    this.inputListener.value = input.onDidChangeCapabilities(
-      () => this.onDidChangeInputCapabilities(input)
-    );
+    this.inputListener.value = input.onDidChangeCapabilities(() => this.onDidChangeInputCapabilities(input));
     this.updateEditorConfiguration();
     const editorContainer = assertIsDefined(this.editorContainer);
     editorContainer.setAttribute("aria-label", this.computeAriaLabel());
@@ -248,11 +200,9 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
     return input.resource;
   }
   updateEditorConfiguration(resource = this.getActiveResource()) {
-    let configuration;
+    let configuration = void 0;
     if (resource) {
-      configuration = this.textResourceConfigurationService.getValue(
-        resource
-      );
+      configuration = this.textResourceConfigurationService.getValue(resource);
     }
     if (!configuration) {
       return;
@@ -260,10 +210,7 @@ let AbstractTextEditor = class extends AbstractEditorWithViewState {
     const editorConfiguration = this.computeConfiguration(configuration);
     let editorSettingsToApply = editorConfiguration;
     if (this.lastAppliedEditorOptions) {
-      editorSettingsToApply = distinct(
-        this.lastAppliedEditorOptions,
-        editorSettingsToApply
-      );
+      editorSettingsToApply = distinct(this.lastAppliedEditorOptions, editorSettingsToApply);
     }
     if (Object.keys(editorSettingsToApply).length > 0) {
       this.lastAppliedEditorOptions = editorConfiguration;
@@ -311,14 +258,8 @@ class TextEditorPaneSelection {
     if (!(other instanceof TextEditorPaneSelection)) {
       return EditorPaneSelectionCompareResult.DIFFERENT;
     }
-    const thisLineNumber = Math.min(
-      this.textSelection.selectionStartLineNumber,
-      this.textSelection.positionLineNumber
-    );
-    const otherLineNumber = Math.min(
-      other.textSelection.selectionStartLineNumber,
-      other.textSelection.positionLineNumber
-    );
+    const thisLineNumber = Math.min(this.textSelection.selectionStartLineNumber, this.textSelection.positionLineNumber);
+    const otherLineNumber = Math.min(other.textSelection.selectionStartLineNumber, other.textSelection.positionLineNumber);
     if (thisLineNumber === otherLineNumber) {
       return EditorPaneSelectionCompareResult.IDENTICAL;
     }

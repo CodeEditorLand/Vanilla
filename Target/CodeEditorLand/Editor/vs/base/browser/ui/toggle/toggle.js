@@ -1,22 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Codicon } from "../../../common/codicons.js";
-import { Emitter } from "../../../common/event.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import {
-  BaseActionViewItem
-} from "../actionbar/actionViewItems.js";
+import { IKeyboardEvent } from "../../keyboardEvent.js";
+import { BaseActionViewItem, IActionViewItemOptions } from "../actionbar/actionViewItems.js";
 import { Widget } from "../widget.js";
+import { IAction } from "../../../common/actions.js";
+import { Codicon } from "../../../common/codicons.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { KeyCode } from "../../../common/keyCodes.js";
 import "./toggle.css";
-import {
-  $,
-  EventType,
-  addDisposableListener,
-  isActiveElement
-} from "../../dom.js";
-import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+import { isActiveElement, $, addDisposableListener, EventType } from "../../dom.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 const unthemedToggleStyles = {
   inputActiveOptionBorder: "#007ACC00",
   inputActiveOptionForeground: "#FFFFFF",
@@ -29,23 +25,17 @@ class ToggleActionViewItem extends BaseActionViewItem {
   toggle;
   constructor(context, action, options) {
     super(context, action, options);
-    this.toggle = this._register(
-      new Toggle({
-        actionClassName: this._action.class,
-        isChecked: !!this._action.checked,
-        title: this.options.keybinding ? `${this._action.label} (${this.options.keybinding})` : this._action.label,
-        notFocusable: true,
-        inputActiveOptionBackground: options.toggleStyles?.inputActiveOptionBackground,
-        inputActiveOptionBorder: options.toggleStyles?.inputActiveOptionBorder,
-        inputActiveOptionForeground: options.toggleStyles?.inputActiveOptionForeground,
-        hoverDelegate: options.hoverDelegate
-      })
-    );
-    this._register(
-      this.toggle.onChange(
-        () => this._action.checked = !!this.toggle && this.toggle.checked
-      )
-    );
+    this.toggle = this._register(new Toggle({
+      actionClassName: this._action.class,
+      isChecked: !!this._action.checked,
+      title: this.options.keybinding ? `${this._action.label} (${this.options.keybinding})` : this._action.label,
+      notFocusable: true,
+      inputActiveOptionBackground: options.toggleStyles?.inputActiveOptionBackground,
+      inputActiveOptionBorder: options.toggleStyles?.inputActiveOptionBorder,
+      inputActiveOptionForeground: options.toggleStyles?.inputActiveOptionForeground,
+      hoverDelegate: options.hoverDelegate
+    }));
+    this._register(this.toggle.onChange(() => this._action.checked = !!this.toggle && this.toggle.checked));
   }
   render(container) {
     this.element = container;
@@ -104,13 +94,7 @@ class Toggle extends Widget {
       classes.push("checked");
     }
     this.domNode = document.createElement("div");
-    this._hover = this._register(
-      getBaseLayerHoverDelegate().setupManagedHover(
-        opts.hoverDelegate ?? getDefaultHoverDelegate("mouse"),
-        this.domNode,
-        this._opts.title
-      )
-    );
+    this._hover = this._register(getBaseLayerHoverDelegate().setupManagedHover(opts.hoverDelegate ?? getDefaultHoverDelegate("mouse"), this.domNode, this._opts.title));
     this.domNode.classList.add(...classes);
     if (!this._opts.notFocusable) {
       this.domNode.tabIndex = 0;
@@ -155,15 +139,11 @@ class Toggle extends Widget {
   }
   setIcon(icon) {
     if (this._icon) {
-      this.domNode.classList.remove(
-        ...ThemeIcon.asClassNameArray(this._icon)
-      );
+      this.domNode.classList.remove(...ThemeIcon.asClassNameArray(this._icon));
     }
     this._icon = icon;
     if (this._icon) {
-      this.domNode.classList.add(
-        ...ThemeIcon.asClassNameArray(this._icon)
-      );
+      this.domNode.classList.add(...ThemeIcon.asClassNameArray(this._icon));
     }
   }
   width() {
@@ -198,24 +178,14 @@ class Checkbox extends Widget {
     super();
     this.title = title;
     this.isChecked = isChecked;
-    this.checkbox = this._register(
-      new Toggle({
-        title: this.title,
-        isChecked: this.isChecked,
-        icon: Codicon.check,
-        actionClassName: Checkbox.CLASS_NAME,
-        ...unthemedToggleStyles
-      })
-    );
+    this.checkbox = this._register(new Toggle({ title: this.title, isChecked: this.isChecked, icon: Codicon.check, actionClassName: Checkbox.CLASS_NAME, ...unthemedToggleStyles }));
     this.domNode = this.checkbox.domNode;
     this.styles = styles;
     this.applyStyles();
-    this._register(
-      this.checkbox.onChange((keyboard) => {
-        this.applyStyles();
-        this._onChange.fire(keyboard);
-      })
-    );
+    this._register(this.checkbox.onChange((keyboard) => {
+      this.applyStyles();
+      this._onChange.fire(keyboard);
+    }));
   }
   static {
     __name(this, "Checkbox");
@@ -259,13 +229,7 @@ class CheckboxActionViewItem extends BaseActionViewItem {
   cssClass;
   constructor(context, action, options) {
     super(context, action, options);
-    this.toggle = this._register(
-      new Checkbox(
-        this._action.label,
-        !!this._action.checked,
-        options.checkboxStyles
-      )
-    );
+    this.toggle = this._register(new Checkbox(this._action.label, !!this._action.checked, options.checkboxStyles));
     this._register(this.toggle.onChange(() => this.onChange()));
   }
   render(container) {
@@ -273,21 +237,13 @@ class CheckboxActionViewItem extends BaseActionViewItem {
     this.element.classList.add("checkbox-action-item");
     this.element.appendChild(this.toggle.domNode);
     if (this.options.label && this._action.label) {
-      const label = this.element.appendChild(
-        $("span.checkbox-label", void 0, this._action.label)
-      );
-      this._register(
-        addDisposableListener(
-          label,
-          EventType.CLICK,
-          (e) => {
-            this.toggle.checked = !this.toggle.checked;
-            e.stopPropagation();
-            e.preventDefault();
-            this.onChange();
-          }
-        )
-      );
+      const label = this.element.appendChild($("span.checkbox-label", void 0, this._action.label));
+      this._register(addDisposableListener(label, EventType.CLICK, (e) => {
+        this.toggle.checked = !this.toggle.checked;
+        e.stopPropagation();
+        e.preventDefault();
+        this.onChange();
+      }));
     }
     this.updateEnabled();
     this.updateClass();

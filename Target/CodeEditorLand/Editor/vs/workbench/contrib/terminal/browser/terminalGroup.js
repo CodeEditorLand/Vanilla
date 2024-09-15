@@ -10,41 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindow } from "../../../../base/browser/dom.js";
-import {
-  Orientation,
-  Sizing,
-  SplitView
-} from "../../../../base/browser/ui/splitview/splitview.js";
-import { asArray } from "../../../../base/common/arrays.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  TerminalLocation
-} from "../../../../platform/terminal/common/terminal.js";
-import {
-  IViewDescriptorService,
-  ViewContainerLocation
-} from "../../../common/views.js";
-import {
-  IWorkbenchLayoutService,
-  Position,
-  isHorizontal
-} from "../../../services/layout/browser/layoutService.js";
-import { getPartByLocation } from "../../../services/views/browser/viewsService.js";
 import { TERMINAL_VIEW_ID } from "../common/terminal.js";
-import {
-  Direction,
-  ITerminalConfigurationService,
-  ITerminalInstanceService
-} from "./terminal.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { IDisposable, Disposable, DisposableStore, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { SplitView, Orientation, IView, Sizing } from "../../../../base/browser/ui/splitview/splitview.js";
+import { isHorizontal, IWorkbenchLayoutService, Position } from "../../../services/layout/browser/layoutService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalInstance, Direction, ITerminalGroup, ITerminalInstanceService, ITerminalConfigurationService } from "./terminal.js";
+import { ViewContainerLocation, IViewDescriptorService } from "../../../common/views.js";
+import { IShellLaunchConfig, ITerminalTabLayoutInfoById, TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
 import { TerminalStatus } from "./terminalStatusList.js";
+import { getWindow } from "../../../../base/browser/dom.js";
+import { getPartByLocation } from "../../../services/views/browser/viewsService.js";
+import { asArray } from "../../../../base/common/arrays.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["SplitPaneMinSize"] = 80] = "SplitPaneMinSize";
   Constants2[Constants2["ResizePartCellCount"] = 4] = "ResizePartCellCount";
@@ -58,9 +36,7 @@ class SplitPaneContainer extends Disposable {
     this._width = this._container.offsetWidth;
     this._height = this._container.offsetHeight;
     this._createSplitView();
-    this._splitView.layout(
-      this.orientation === Orientation.HORIZONTAL ? this._width : this._height
-    );
+    this._splitView.layout(this.orientation === Orientation.HORIZONTAL ? this._width : this._height);
   }
   static {
     __name(this, "SplitPaneContainer");
@@ -68,9 +44,7 @@ class SplitPaneContainer extends Disposable {
   _height;
   _width;
   _splitView;
-  _splitViewDisposables = this._register(
-    new DisposableStore()
-  );
+  _splitViewDisposables = this._register(new DisposableStore());
   _children = [];
   _terminalToPane = /* @__PURE__ */ new Map();
   _onDidChange = Event.None;
@@ -78,15 +52,9 @@ class SplitPaneContainer extends Disposable {
     return this._onDidChange;
   }
   _createSplitView() {
-    this._splitView = new SplitView(this._container, {
-      orientation: this.orientation
-    });
+    this._splitView = new SplitView(this._container, { orientation: this.orientation });
     this._splitViewDisposables.clear();
-    this._splitViewDisposables.add(
-      this._splitView.onDidSashReset(
-        () => this._splitView.distributeViewSizes()
-      )
-    );
+    this._splitViewDisposables.add(this._splitView.onDidSashReset(() => this._splitView.distributeViewSizes()));
   }
   split(instance, index) {
     this._addChild(instance, index);
@@ -125,10 +93,7 @@ class SplitPaneContainer extends Disposable {
     if (this._children.length <= 1) {
       return;
     }
-    relativeSizes[relativeSizes.length - 1] += 1 - relativeSizes.reduce(
-      (totalValue, currentValue) => totalValue + currentValue,
-      0
-    );
+    relativeSizes[relativeSizes.length - 1] += 1 - relativeSizes.reduce((totalValue, currentValue) => totalValue + currentValue, 0);
     let totalSize = 0;
     for (let i = 0; i < this._splitView.length; i++) {
       totalSize += this._splitView.getViewSize(i);
@@ -146,27 +111,17 @@ class SplitPaneContainer extends Disposable {
     return this._splitView.getViewSize(index);
   }
   _addChild(instance, index) {
-    const child = new SplitPane(
-      instance,
-      this.orientation === Orientation.HORIZONTAL ? this._height : this._width
-    );
+    const child = new SplitPane(instance, this.orientation === Orientation.HORIZONTAL ? this._height : this._width);
     child.orientation = this.orientation;
     if (typeof index === "number") {
       this._children.splice(index, 0, child);
     } else {
       this._children.push(child);
     }
-    this._terminalToPane.set(
-      instance,
-      this._children[this._children.indexOf(child)]
-    );
-    this._withDisabledLayout(
-      () => this._splitView.addView(child, Sizing.Distribute, index)
-    );
+    this._terminalToPane.set(instance, this._children[this._children.indexOf(child)]);
+    this._withDisabledLayout(() => this._splitView.addView(child, Sizing.Distribute, index));
     this.layout(this._width, this._height);
-    this._onDidChange = Event.any(
-      ...this._children.map((c) => c.onDidChange)
-    );
+    this._onDidChange = Event.any(...this._children.map((c) => c.onDidChange));
   }
   remove(instance) {
     let index = null;
@@ -265,17 +220,13 @@ let TerminalGroup = class extends Disposable {
     if (this._container) {
       this.attachToElement(this._container);
     }
-    this._onPanelOrientationChanged.fire(
-      this._terminalLocation === ViewContainerLocation.Panel && isHorizontal(this._panelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL
-    );
-    this._register(
-      toDisposable(() => {
-        if (this._container && this._groupElement) {
-          this._groupElement.remove();
-          this._groupElement = void 0;
-        }
-      })
-    );
+    this._onPanelOrientationChanged.fire(this._terminalLocation === ViewContainerLocation.Panel && isHorizontal(this._panelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL);
+    this._register(toDisposable(() => {
+      if (this._container && this._groupElement) {
+        this._groupElement.remove();
+        this._groupElement = void 0;
+      }
+    }));
   }
   static {
     __name(this, "TerminalGroup");
@@ -298,34 +249,21 @@ let TerminalGroup = class extends Disposable {
   onDidFocusInstance = this._onDidFocusInstance.event;
   _onDidChangeInstanceCapability = this._register(new Emitter());
   onDidChangeInstanceCapability = this._onDidChangeInstanceCapability.event;
-  _onDisposed = this._register(
-    new Emitter()
-  );
+  _onDisposed = this._register(new Emitter());
   onDisposed = this._onDisposed.event;
-  _onInstancesChanged = this._register(
-    new Emitter()
-  );
+  _onInstancesChanged = this._register(new Emitter());
   onInstancesChanged = this._onInstancesChanged.event;
-  _onDidChangeActiveInstance = this._register(
-    new Emitter()
-  );
+  _onDidChangeActiveInstance = this._register(new Emitter());
   onDidChangeActiveInstance = this._onDidChangeActiveInstance.event;
-  _onPanelOrientationChanged = this._register(
-    new Emitter()
-  );
+  _onPanelOrientationChanged = this._register(new Emitter());
   onPanelOrientationChanged = this._onPanelOrientationChanged.event;
   addInstance(shellLaunchConfigOrInstance, parentTerminalId) {
     let instance;
-    const parentIndex = parentTerminalId ? this._terminalInstances.findIndex(
-      (t) => t.instanceId === parentTerminalId
-    ) : this._activeInstanceIndex;
+    const parentIndex = parentTerminalId ? this._terminalInstances.findIndex((t) => t.instanceId === parentTerminalId) : this._activeInstanceIndex;
     if ("instanceId" in shellLaunchConfigOrInstance) {
       instance = shellLaunchConfigOrInstance;
     } else {
-      instance = this._terminalInstanceService.createInstance(
-        shellLaunchConfigOrInstance,
-        TerminalLocation.Panel
-      );
+      instance = this._terminalInstanceService.createInstance(shellLaunchConfigOrInstance, TerminalLocation.Panel);
     }
     if (this._terminalInstances.length === 0) {
       this._terminalInstances.push(instance);
@@ -351,9 +289,7 @@ let TerminalGroup = class extends Disposable {
     return this._terminalInstances[this._activeInstanceIndex];
   }
   getLayoutInfo(isActive) {
-    const instances = this.terminalInstances.filter(
-      (instance) => typeof instance.persistentProcessId === "number" && instance.shouldPersist
-    );
+    const instances = this.terminalInstances.filter((instance) => typeof instance.persistentProcessId === "number" && instance.shouldPersist);
     const totalSize = instances.map((t) => this._splitPaneContainer?.getPaneSize(t) || 0).reduce((total, size) => total += size, 0);
     return {
       isActive,
@@ -376,12 +312,8 @@ let TerminalGroup = class extends Disposable {
         this._setActiveInstance(instance2);
         this._onDidFocusInstance.fire(instance2);
       }),
-      instance.capabilities.onDidAddCapabilityType(
-        () => this._onDidChangeInstanceCapability.fire(instance)
-      ),
-      instance.capabilities.onDidRemoveCapabilityType(
-        () => this._onDidChangeInstanceCapability.fire(instance)
-      )
+      instance.capabilities.onDidAddCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance)),
+      instance.capabilities.onDidRemoveCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance))
     ]);
   }
   _handleOnDidDisposeInstance(instance) {
@@ -419,9 +351,7 @@ let TerminalGroup = class extends Disposable {
   }
   moveInstance(instances, index, position) {
     instances = asArray(instances);
-    const hasInvalidInstance = instances.some(
-      (instance) => !this.terminalInstances.includes(instance)
-    );
+    const hasInvalidInstance = instances.some((instance) => !this.terminalInstances.includes(instance));
     if (hasInvalidInstance) {
       return;
     }
@@ -435,18 +365,13 @@ let TerminalGroup = class extends Disposable {
       for (let i = 0; i < instances.length; i++) {
         const item = instances[i];
         this._splitPaneContainer.remove(item);
-        this._splitPaneContainer.split(
-          item,
-          index + (position === "before" ? i : 0)
-        );
+        this._splitPaneContainer.split(item, index + (position === "before" ? i : 0));
       }
     }
     this._onInstancesChanged.fire();
   }
   _setActiveInstance(instance) {
-    this.setActiveInstanceByIndex(
-      this._getIndexFromId(instance.instanceId)
-    );
+    this.setActiveInstanceByIndex(this._getIndexFromId(instance.instanceId));
   }
   _getIndexFromId(terminalId) {
     let terminalIndex = -1;
@@ -456,9 +381,7 @@ let TerminalGroup = class extends Disposable {
       }
     });
     if (terminalIndex === -1) {
-      throw new Error(
-        `Terminal with ID ${terminalId} does not exist (has it already been disposed?)`
-      );
+      throw new Error(`Terminal with ID ${terminalId} does not exist (has it already been disposed?)`);
     }
     return terminalIndex;
   }
@@ -482,21 +405,10 @@ let TerminalGroup = class extends Disposable {
     this._container.appendChild(this._groupElement);
     if (!this._splitPaneContainer) {
       this._panelPosition = this._layoutService.getPanelPosition();
-      this._terminalLocation = this._viewDescriptorService.getViewLocationById(
-        TERMINAL_VIEW_ID
-      );
+      this._terminalLocation = this._viewDescriptorService.getViewLocationById(TERMINAL_VIEW_ID);
       const orientation = this._terminalLocation === ViewContainerLocation.Panel && isHorizontal(this._panelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-      this._splitPaneContainer = this._instantiationService.createInstance(
-        SplitPaneContainer,
-        this._groupElement,
-        orientation
-      );
-      this.terminalInstances.forEach(
-        (instance) => this._splitPaneContainer.split(
-          instance,
-          this._activeInstanceIndex + 1
-        )
-      );
+      this._splitPaneContainer = this._instantiationService.createInstance(SplitPaneContainer, this._groupElement, orientation);
+      this.terminalInstances.forEach((instance) => this._splitPaneContainer.split(instance, this._activeInstanceIndex + 1));
     }
   }
   get title() {
@@ -519,9 +431,7 @@ let TerminalGroup = class extends Disposable {
     return title;
   }
   _getBellTitle(instance) {
-    if (this._terminalConfigurationService.config.enableBell && instance.statusList.statuses.some(
-      (e) => e.id === TerminalStatus.Bell
-    )) {
+    if (this._terminalConfigurationService.config.enableBell && instance.statusList.statuses.some((e) => e.id === TerminalStatus.Bell)) {
       return "*";
     }
     return "";
@@ -534,10 +444,7 @@ let TerminalGroup = class extends Disposable {
     this.terminalInstances.forEach((i) => i.setVisible(visible));
   }
   split(shellLaunchConfig) {
-    const instance = this._terminalInstanceService.createInstance(
-      shellLaunchConfig,
-      TerminalLocation.Panel
-    );
+    const instance = this._terminalInstanceService.createInstance(shellLaunchConfig, TerminalLocation.Panel);
     this.addInstance(instance, shellLaunchConfig.parentTerminalId);
     this._setActiveInstance(instance);
     return instance;
@@ -548,18 +455,14 @@ let TerminalGroup = class extends Disposable {
   layout(width, height) {
     if (this._splitPaneContainer) {
       const newPanelPosition = this._layoutService.getPanelPosition();
-      const newTerminalLocation = this._viewDescriptorService.getViewLocationById(
-        TERMINAL_VIEW_ID
-      );
+      const newTerminalLocation = this._viewDescriptorService.getViewLocationById(TERMINAL_VIEW_ID);
       const terminalPositionChanged = newPanelPosition !== this._panelPosition || newTerminalLocation !== this._terminalLocation;
       if (terminalPositionChanged) {
         const newOrientation = newTerminalLocation === ViewContainerLocation.Panel && isHorizontal(newPanelPosition) ? Orientation.HORIZONTAL : Orientation.VERTICAL;
         this._splitPaneContainer.setOrientation(newOrientation);
         this._panelPosition = newPanelPosition;
         this._terminalLocation = newTerminalLocation;
-        this._onPanelOrientationChanged.fire(
-          this._splitPaneContainer.orientation
-        );
+        this._onPanelOrientationChanged.fire(this._splitPaneContainer.orientation);
       }
       this._splitPaneContainer.layout(width, height);
       if (this._initialRelativeSizes && this._visible) {
@@ -596,9 +499,7 @@ let TerminalGroup = class extends Disposable {
     const isHorizontalResize = direction === Direction.Left || direction === Direction.Right;
     const groupOrientation = this._getOrientation();
     const shouldResizePart = isHorizontalResize && groupOrientation === Orientation.VERTICAL || !isHorizontalResize && groupOrientation === Orientation.HORIZONTAL;
-    const font = this._terminalConfigurationService.getFont(
-      getWindow(this._groupElement)
-    );
+    const font = this._terminalConfigurationService.getFont(getWindow(this._groupElement));
     const charSize = isHorizontalResize ? font.charWidth : font.charHeight;
     if (charSize) {
       let resizeAmount = charSize * 4 /* ResizePartCellCount */;
@@ -608,17 +509,9 @@ let TerminalGroup = class extends Disposable {
         if (shouldShrink) {
           resizeAmount *= -1;
         }
-        this._layoutService.resizePart(
-          getPartByLocation(this._terminalLocation),
-          resizeAmount,
-          resizeAmount
-        );
+        this._layoutService.resizePart(getPartByLocation(this._terminalLocation), resizeAmount, resizeAmount);
       } else {
-        this._splitPaneContainer.resizePane(
-          this._activeInstanceIndex,
-          direction,
-          resizeAmount
-        );
+        this._splitPaneContainer.resizePane(this._activeInstanceIndex, direction, resizeAmount);
       }
     }
   }

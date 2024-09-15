@@ -1,7 +1,6 @@
+import { IExtensionDescription } from "../../extensions/common/extensions.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IRemoteExtensionsScannerService = createDecorator(
-  "IRemoteExtensionsScannerService"
-);
+const IRemoteExtensionsScannerService = createDecorator("IRemoteExtensionsScannerService");
 const RemoteExtensionsScannerChannelName = "remoteExtensionsScanner";
 export {
   IRemoteExtensionsScannerService,

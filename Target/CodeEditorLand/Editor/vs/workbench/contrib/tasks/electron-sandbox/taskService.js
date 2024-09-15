@@ -10,24 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { TerminateResponseCode } from "../../../../base/common/processes.js";
+import * as nls from "../../../../nls.js";
 import * as semver from "../../../../base/common/semver/semver.js";
+import { IWorkspaceFolder, IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ITaskSystem } from "../common/taskSystem.js";
+import { ExecutionEngine } from "../common/tasks.js";
+import * as TaskConfig from "../common/taskConfiguration.js";
+import { AbstractTaskService } from "../browser/abstractTaskService.js";
+import { ITaskFilter, ITaskService } from "../common/taskService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { TerminalTaskSystem } from "../browser/terminalTaskSystem.js";
+import { IConfirmationResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { TerminateResponseCode } from "../../../../base/common/processes.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import * as nls from "../../../../nls.js";
-import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  IDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IMarkerService } from "../../../../platform/markers/common/markers.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
@@ -36,36 +36,25 @@ import { IProgressService } from "../../../../platform/progress/common/progress.
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  IWorkspaceTrustManagementService,
-  IWorkspaceTrustRequestService
-} from "../../../../platform/workspace/common/workspaceTrust.js";
 import { IViewDescriptorService } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { ITerminalGroupService, ITerminalService } from "../../terminal/browser/terminal.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { IOutputService } from "../../../services/output/common/output.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
-  ITerminalGroupService,
-  ITerminalService
-} from "../../terminal/browser/terminal.js";
+import { IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { ITerminalProfileResolverService } from "../../terminal/common/terminal.js";
-import { AbstractTaskService } from "../browser/abstractTaskService.js";
-import { TerminalTaskSystem } from "../browser/terminalTaskSystem.js";
-import { ITaskService } from "../common/taskService.js";
-import { ExecutionEngine } from "../common/tasks.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 let TaskService = class extends AbstractTaskService {
   static {
     __name(this, "TaskService");
@@ -109,11 +98,7 @@ let TaskService = class extends AbstractTaskService {
       remoteAgentService,
       instantiationService
     );
-    this._register(
-      lifecycleService.onBeforeShutdown(
-        (event) => event.veto(this.beforeShutdown(), "veto.tasks")
-      )
-    );
+    this._register(lifecycleService.onBeforeShutdown((event) => event.veto(this.beforeShutdown(), "veto.tasks")));
   }
   _getTaskSystem() {
     if (this._taskSystem) {
@@ -132,30 +117,18 @@ let TaskService = class extends AbstractTaskService {
   _computeLegacyConfiguration(workspaceFolder) {
     const { config, hasParseErrors } = this._getConfiguration(workspaceFolder);
     if (hasParseErrors) {
-      return Promise.resolve({
-        workspaceFolder,
-        hasErrors: true,
-        config: void 0
-      });
+      return Promise.resolve({ workspaceFolder, hasErrors: true, config: void 0 });
     }
     if (config) {
-      return Promise.resolve({
-        workspaceFolder,
-        config,
-        hasErrors: false
-      });
+      return Promise.resolve({ workspaceFolder, config, hasErrors: false });
     } else {
-      return Promise.resolve({
-        workspaceFolder,
-        hasErrors: true,
-        config: void 0
-      });
+      return Promise.resolve({ workspaceFolder, hasErrors: true, config: void 0 });
     }
   }
   _versionAndEngineCompatible(filter) {
     const range = filter && filter.version ? filter.version : void 0;
     const engine = this.executionEngine;
-    return range === void 0 || semver.satisfies("0.1.0", range) && engine === ExecutionEngine.Process || semver.satisfies("2.0.0", range) && engine === ExecutionEngine.Terminal;
+    return range === void 0 || (semver.satisfies("0.1.0", range) && engine === ExecutionEngine.Process || semver.satisfies("2.0.0", range) && engine === ExecutionEngine.Terminal);
   }
   beforeShutdown() {
     if (!this._taskSystem) {
@@ -172,57 +145,36 @@ let TaskService = class extends AbstractTaskService {
       terminatePromise = Promise.resolve({ confirmed: true });
     } else {
       terminatePromise = this._dialogService.confirm({
-        message: nls.localize(
-          "TaskSystem.runningTask",
-          "There is a task running. Do you want to terminate it?"
-        ),
-        primaryButton: nls.localize(
-          {
-            key: "TaskSystem.terminateTask",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Terminate Task"
-        )
+        message: nls.localize("TaskSystem.runningTask", "There is a task running. Do you want to terminate it?"),
+        primaryButton: nls.localize({ key: "TaskSystem.terminateTask", comment: ["&& denotes a mnemonic"] }, "&&Terminate Task")
       });
     }
     return terminatePromise.then((res) => {
       if (res.confirmed) {
-        return this._taskSystem.terminateAll().then(
-          (responses) => {
-            let success = true;
-            let code;
-            for (const response of responses) {
-              success = success && response.success;
-              if (code === void 0 && response.code !== void 0) {
-                code = response.code;
-              }
+        return this._taskSystem.terminateAll().then((responses) => {
+          let success = true;
+          let code = void 0;
+          for (const response of responses) {
+            success = success && response.success;
+            if (code === void 0 && response.code !== void 0) {
+              code = response.code;
             }
-            if (success) {
-              this._taskSystem = void 0;
-              this._disposeTaskSystemListeners();
-              return false;
-            } else if (code && code === TerminateResponseCode.ProcessNotFound) {
-              return this._dialogService.confirm({
-                message: nls.localize(
-                  "TaskSystem.noProcess",
-                  "The launched task doesn't exist anymore. If the task spawned background processes exiting VS Code might result in orphaned processes. To avoid this start the last background process with a wait flag."
-                ),
-                primaryButton: nls.localize(
-                  {
-                    key: "TaskSystem.exitAnyways",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "&&Exit Anyways"
-                ),
-                type: "info"
-              }).then((res2) => !res2.confirmed);
-            }
-            return true;
-          },
-          (err) => {
-            return true;
           }
-        );
+          if (success) {
+            this._taskSystem = void 0;
+            this._disposeTaskSystemListeners();
+            return false;
+          } else if (code && code === TerminateResponseCode.ProcessNotFound) {
+            return this._dialogService.confirm({
+              message: nls.localize("TaskSystem.noProcess", "The launched task doesn't exist anymore. If the task spawned background processes exiting VS Code might result in orphaned processes. To avoid this start the last background process with a wait flag."),
+              primaryButton: nls.localize({ key: "TaskSystem.exitAnyways", comment: ["&& denotes a mnemonic"] }, "&&Exit Anyways"),
+              type: "info"
+            }).then((res2) => !res2.confirmed);
+          }
+          return true;
+        }, (err) => {
+          return true;
+        });
       }
       return true;
     });

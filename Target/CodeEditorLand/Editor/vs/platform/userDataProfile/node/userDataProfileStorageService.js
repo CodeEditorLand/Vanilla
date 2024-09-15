@@ -10,23 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
-import { ILogService } from "../../log/common/log.js";
 import { IStorageService } from "../../storage/common/storage.js";
+import { ILogService } from "../../log/common/log.js";
 import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
 import { RemoteUserDataProfileStorageService } from "../common/userDataProfileStorageService.js";
 let SharedProcessUserDataProfileStorageService = class extends RemoteUserDataProfileStorageService {
   static {
     __name(this, "SharedProcessUserDataProfileStorageService");
   }
   constructor(mainProcessService, userDataProfilesService, storageService, logService) {
-    super(
-      true,
-      mainProcessService,
-      userDataProfilesService,
-      storageService,
-      logService
-    );
+    super(true, mainProcessService, userDataProfilesService, storageService, logService);
   }
 };
 SharedProcessUserDataProfileStorageService = __decorateClass([

@@ -1,16 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IMessagePassingProtocol } from "../../../base/parts/ipc/common/ipc.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
 import { Emitter } from "../../../base/common/event.js";
+import { isMessageOfType, MessageType, createMessageOfType, IExtensionHostInitData } from "../../services/extensions/common/extensionHostProtocol.js";
+import { ExtensionHostMain } from "../common/extensionHostMain.js";
+import { IHostUtils } from "../common/extHostExtensionService.js";
+import { NestedWorker } from "../../services/extensions/worker/polyfillNestedWorker.js";
 import * as path from "../../../base/common/path.js";
 import * as performance from "../../../base/common/performance.js";
-import {
-  MessageType,
-  createMessageOfType,
-  isMessageOfType
-} from "../../services/extensions/common/extensionHostProtocol.js";
-import { NestedWorker } from "../../services/extensions/worker/polyfillNestedWorker.js";
-import { ExtensionHostMain } from "../common/extensionHostMain.js";
 import "../common/extHost.common.services.js";
 import "./extHost.worker.services.js";
 import { FileAccess } from "../../../base/common/network.js";
@@ -25,14 +23,12 @@ function shouldTransformUri(uri) {
 __name(shouldTransformUri, "shouldTransformUri");
 const nativeFetch = fetch.bind(self);
 function patchFetching(asBrowserUri) {
-  self.fetch = async (input, init) => {
+  self.fetch = async function(input, init) {
     if (input instanceof Request) {
       return nativeFetch(input, init);
     }
     if (shouldTransformUri(String(input))) {
-      input = (await asBrowserUri(URI.parse(String(input)))).toString(
-        true
-      );
+      input = (await asBrowserUri(URI.parse(String(input)))).toString(true);
     }
     return nativeFetch(input, init);
   };
@@ -62,29 +58,22 @@ self["webkitResolveLocalFileSystemSyncURL"] = void 0;
 self["webkitResolveLocalFileSystemURL"] = void 0;
 if (self.Worker) {
   const _Worker = self.Worker;
-  Worker = /* @__PURE__ */ __name((stringUrl, options) => {
+  Worker = /* @__PURE__ */ __name(function(stringUrl, options) {
     if (/^file:/i.test(stringUrl.toString())) {
-      stringUrl = FileAccess.uriToBrowserUri(
-        URI.parse(stringUrl.toString())
-      ).toString(true);
+      stringUrl = FileAccess.uriToBrowserUri(URI.parse(stringUrl.toString())).toString(true);
     } else if (/^vscode-remote:/i.test(stringUrl.toString())) {
-      throw new Error(
-        `Creating workers from remote extensions is currently not supported.`
-      );
+      throw new Error(`Creating workers from remote extensions is currently not supported.`);
     }
     const bootstrapFnSource = (/* @__PURE__ */ __name(function bootstrapFn(workerUrl) {
       function asWorkerBrowserUrl(url) {
         if (typeof url === "string" || url instanceof URL) {
-          return String(url).replace(
-            /^file:\/\//i,
-            "vscode-file://vscode-app"
-          );
+          return String(url).replace(/^file:\/\//i, "vscode-file://vscode-app");
         }
         return url;
       }
       __name(asWorkerBrowserUrl, "asWorkerBrowserUrl");
       const nativeFetch2 = fetch.bind(self);
-      self.fetch = (input, init) => {
+      self.fetch = function(input, init) {
         if (input instanceof Request) {
           return nativeFetch2(input, init);
         }
@@ -92,13 +81,7 @@ if (self.Worker) {
       };
       self.XMLHttpRequest = class extends XMLHttpRequest {
         open(method, url, async, username, password) {
-          return super.open(
-            method,
-            asWorkerBrowserUrl(url),
-            async ?? true,
-            username,
-            password
-          );
+          return super.open(method, asWorkerBrowserUrl(url), async ?? true, username, password);
         }
       };
       const nativeImportScripts = importScripts.bind(self);
@@ -117,10 +100,7 @@ if (self.Worker) {
 } else {
   self.Worker = class extends NestedWorker {
     constructor(stringOrUrl, options) {
-      super(nativePostMessage, stringOrUrl, {
-        name: path.basename(stringOrUrl.toString()),
-        ...options
-      });
+      super(nativePostMessage, stringOrUrl, { name: path.basename(stringOrUrl.toString()), ...options });
     }
   };
 }
@@ -159,10 +139,7 @@ class ExtensionWorker {
       onMessage: emitter.event,
       send: /* @__PURE__ */ __name((vsbuf) => {
         if (!terminating) {
-          const data = vsbuf.buffer.buffer.slice(
-            vsbuf.buffer.byteOffset,
-            vsbuf.buffer.byteOffset + vsbuf.buffer.byteLength
-          );
+          const data = vsbuf.buffer.buffer.slice(vsbuf.buffer.byteOffset, vsbuf.buffer.byteOffset + vsbuf.buffer.byteLength);
           channel.port1.postMessage(data, [data]);
         }
       }, "send")

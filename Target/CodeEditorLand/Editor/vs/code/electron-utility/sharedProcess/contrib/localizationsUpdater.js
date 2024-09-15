@@ -12,6 +12,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { NativeLanguagePackService } from "../../../../platform/languagePacks/node/languagePacks.js";
 let LocalizationsUpdater = class extends Disposable {
   constructor(localizationsService) {
     super();

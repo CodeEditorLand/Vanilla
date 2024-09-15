@@ -37,8 +37,8 @@ function toIconvLiteEncoding(encodingName) {
 }
 __name(toIconvLiteEncoding, "toIconvLiteEncoding");
 const JSCHARDET_TO_ICONV_ENCODINGS = {
-  ibm866: "cp866",
-  big5: "cp950"
+  "ibm866": "cp866",
+  "big5": "cp950"
 };
 const UTF8 = "utf8";
 async function resolveTerminalEncoding(verbose) {
@@ -46,9 +46,7 @@ async function resolveTerminalEncoding(verbose) {
   const cliEncodingEnv = process.env["VSCODE_CLI_ENCODING"];
   if (cliEncodingEnv) {
     if (verbose) {
-      console.log(
-        `Found VSCODE_CLI_ENCODING variable: ${cliEncodingEnv}`
-      );
+      console.log(`Found VSCODE_CLI_ENCODING variable: ${cliEncodingEnv}`);
     }
     rawEncodingPromise = Promise.resolve(cliEncodingEnv);
   } else if (isWindows) {
@@ -61,9 +59,7 @@ async function resolveTerminalEncoding(verbose) {
           if (verbose) {
             console.log(`Output from "chcp" command is: ${stdout}`);
           }
-          const windowsTerminalEncodingKeys = Object.keys(
-            windowsTerminalEncodings
-          );
+          const windowsTerminalEncodingKeys = Object.keys(windowsTerminalEncodings);
           for (const key of windowsTerminalEncodingKeys) {
             if (stdout.indexOf(key) >= 0) {
               return resolve(windowsTerminalEncodings[key]);
@@ -76,9 +72,7 @@ async function resolveTerminalEncoding(verbose) {
   } else {
     rawEncodingPromise = new Promise((resolve) => {
       if (verbose) {
-        console.log(
-          'Running "locale charmap" to detect terminal encoding...'
-        );
+        console.log('Running "locale charmap" to detect terminal encoding...');
       }
       exec("locale charmap", (err, stdout, stderr) => resolve(stdout));
     });

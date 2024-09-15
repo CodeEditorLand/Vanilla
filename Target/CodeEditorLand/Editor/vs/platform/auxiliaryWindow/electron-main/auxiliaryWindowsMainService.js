@@ -10,30 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  BrowserWindow,
-  app
-} from "electron";
+import { BrowserWindow, BrowserWindowConstructorOptions, HandlerDetails, WebContents, app } from "electron";
 import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
 import { FileAccess } from "../../../base/common/network.js";
 import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
+import { AuxiliaryWindow, IAuxiliaryWindow } from "./auxiliaryWindow.js";
+import { IAuxiliaryWindowsMainService } from "./auxiliaryWindows.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
-import {
-  WindowMode,
-  defaultAuxWindowState
-} from "../../window/electron-main/window.js";
-import {
-  WindowStateValidator,
-  defaultBrowserWindowOptions,
-  getLastFocused
-} from "../../windows/electron-main/windows.js";
-import { AuxiliaryWindow } from "./auxiliaryWindow.js";
+import { IWindowState, WindowMode, defaultAuxWindowState } from "../../window/electron-main/window.js";
+import { IDefaultBrowserWindowOptionsOverrides, WindowStateValidator, defaultBrowserWindowOptions, getLastFocused } from "../../windows/electron-main/windows.js";
 let AuxiliaryWindowsMainService = class extends Disposable {
   constructor(instantiationService, logService) {
     super();
@@ -44,91 +31,47 @@ let AuxiliaryWindowsMainService = class extends Disposable {
   static {
     __name(this, "AuxiliaryWindowsMainService");
   }
-  _onDidMaximizeWindow = this._register(
-    new Emitter()
-  );
+  _onDidMaximizeWindow = this._register(new Emitter());
   onDidMaximizeWindow = this._onDidMaximizeWindow.event;
-  _onDidUnmaximizeWindow = this._register(
-    new Emitter()
-  );
+  _onDidUnmaximizeWindow = this._register(new Emitter());
   onDidUnmaximizeWindow = this._onDidUnmaximizeWindow.event;
-  _onDidChangeFullScreen = this._register(
-    new Emitter()
-  );
+  _onDidChangeFullScreen = this._register(new Emitter());
   onDidChangeFullScreen = this._onDidChangeFullScreen.event;
-  _onDidTriggerSystemContextMenu = this._register(
-    new Emitter()
-  );
+  _onDidTriggerSystemContextMenu = this._register(new Emitter());
   onDidTriggerSystemContextMenu = this._onDidTriggerSystemContextMenu.event;
   windows = /* @__PURE__ */ new Map();
   registerListeners() {
     app.on("browser-window-created", (_event, browserWindow) => {
-      const auxiliaryWindow = this.getWindowByWebContents(
-        browserWindow.webContents
-      );
+      const auxiliaryWindow = this.getWindowByWebContents(browserWindow.webContents);
       if (auxiliaryWindow) {
-        this.logService.trace(
-          '[aux window] app.on("browser-window-created"): Trying to claim auxiliary window'
-        );
+        this.logService.trace('[aux window] app.on("browser-window-created"): Trying to claim auxiliary window');
         auxiliaryWindow.tryClaimWindow();
       } else {
         const disposables = new DisposableStore();
-        disposables.add(
-          Event.fromNodeEventEmitter(
-            browserWindow.webContents,
-            "did-create-window",
-            (browserWindow2, details) => ({
-              browserWindow: browserWindow2,
-              details
-            })
-          )(({ browserWindow: browserWindow2, details }) => {
-            const auxiliaryWindow2 = this.getWindowByWebContents(
-              browserWindow2.webContents
-            );
-            if (auxiliaryWindow2) {
-              this.logService.trace(
-                '[aux window] window.on("did-create-window"): Trying to claim auxiliary window'
-              );
-              auxiliaryWindow2.tryClaimWindow(details.options);
-            }
-          })
-        );
-        disposables.add(
-          Event.fromNodeEventEmitter(
-            browserWindow,
-            "closed"
-          )(() => disposables.dispose())
-        );
+        disposables.add(Event.fromNodeEventEmitter(browserWindow.webContents, "did-create-window", (browserWindow2, details) => ({ browserWindow: browserWindow2, details }))(({ browserWindow: browserWindow2, details }) => {
+          const auxiliaryWindow2 = this.getWindowByWebContents(browserWindow2.webContents);
+          if (auxiliaryWindow2) {
+            this.logService.trace('[aux window] window.on("did-create-window"): Trying to claim auxiliary window');
+            auxiliaryWindow2.tryClaimWindow(details.options);
+          }
+        }));
+        disposables.add(Event.fromNodeEventEmitter(browserWindow, "closed")(() => disposables.dispose()));
       }
     });
-    validatedIpcMain.handle(
-      "vscode:registerAuxiliaryWindow",
-      async (event, mainWindowId) => {
-        const auxiliaryWindow = this.getWindowByWebContents(
-          event.sender
-        );
-        if (auxiliaryWindow) {
-          this.logService.trace(
-            "[aux window] vscode:registerAuxiliaryWindow: Registering auxiliary window to main window"
-          );
-          auxiliaryWindow.parentId = mainWindowId;
-        }
-        return event.sender.id;
+    validatedIpcMain.handle("vscode:registerAuxiliaryWindow", async (event, mainWindowId) => {
+      const auxiliaryWindow = this.getWindowByWebContents(event.sender);
+      if (auxiliaryWindow) {
+        this.logService.trace("[aux window] vscode:registerAuxiliaryWindow: Registering auxiliary window to main window");
+        auxiliaryWindow.parentId = mainWindowId;
       }
-    );
+      return event.sender.id;
+    });
   }
   createWindow(details) {
     const { state, overrides } = this.computeWindowStateAndOverrides(details);
-    return this.instantiationService.invokeFunction(
-      defaultBrowserWindowOptions,
-      state,
-      overrides,
-      {
-        preload: FileAccess.asFileUri(
-          "vs/base/parts/sandbox/electron-sandbox/preload-aux.js"
-        ).fsPath
-      }
-    );
+    return this.instantiationService.invokeFunction(defaultBrowserWindowOptions, state, overrides, {
+      preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-sandbox/preload-aux.js").fsPath
+    });
   }
   computeWindowStateAndOverrides(details) {
     const windowState = {};
@@ -138,16 +81,16 @@ let AuxiliaryWindowsMainService = class extends Disposable {
       const [key, value] = feature.split("=");
       switch (key) {
         case "width":
-          windowState.width = Number.parseInt(value, 10);
+          windowState.width = parseInt(value, 10);
           break;
         case "height":
-          windowState.height = Number.parseInt(value, 10);
+          windowState.height = parseInt(value, 10);
           break;
         case "left":
-          windowState.x = Number.parseInt(value, 10);
+          windowState.x = parseInt(value, 10);
           break;
         case "top":
-          windowState.y = Number.parseInt(value, 10);
+          windowState.y = parseInt(value, 10);
           break;
         case "window-maximized":
           windowState.mode = WindowMode.Maximized;
@@ -163,58 +106,20 @@ let AuxiliaryWindowsMainService = class extends Disposable {
           break;
       }
     }
-    const state = WindowStateValidator.validateWindowState(
-      this.logService,
-      windowState
-    ) ?? defaultAuxWindowState();
+    const state = WindowStateValidator.validateWindowState(this.logService, windowState) ?? defaultAuxWindowState();
     this.logService.trace("[aux window] using window state", state);
     return { state, overrides };
   }
   registerWindow(webContents) {
     const disposables = new DisposableStore();
-    const auxiliaryWindow = this.instantiationService.createInstance(
-      AuxiliaryWindow,
-      webContents
-    );
+    const auxiliaryWindow = this.instantiationService.createInstance(AuxiliaryWindow, webContents);
     this.windows.set(auxiliaryWindow.id, auxiliaryWindow);
-    disposables.add(
-      toDisposable(() => this.windows.delete(auxiliaryWindow.id))
-    );
-    disposables.add(
-      auxiliaryWindow.onDidMaximize(
-        () => this._onDidMaximizeWindow.fire(auxiliaryWindow)
-      )
-    );
-    disposables.add(
-      auxiliaryWindow.onDidUnmaximize(
-        () => this._onDidUnmaximizeWindow.fire(auxiliaryWindow)
-      )
-    );
-    disposables.add(
-      auxiliaryWindow.onDidEnterFullScreen(
-        () => this._onDidChangeFullScreen.fire({
-          window: auxiliaryWindow,
-          fullscreen: true
-        })
-      )
-    );
-    disposables.add(
-      auxiliaryWindow.onDidLeaveFullScreen(
-        () => this._onDidChangeFullScreen.fire({
-          window: auxiliaryWindow,
-          fullscreen: false
-        })
-      )
-    );
-    disposables.add(
-      auxiliaryWindow.onDidTriggerSystemContextMenu(
-        ({ x, y }) => this._onDidTriggerSystemContextMenu.fire({
-          window: auxiliaryWindow,
-          x,
-          y
-        })
-      )
-    );
+    disposables.add(toDisposable(() => this.windows.delete(auxiliaryWindow.id)));
+    disposables.add(auxiliaryWindow.onDidMaximize(() => this._onDidMaximizeWindow.fire(auxiliaryWindow)));
+    disposables.add(auxiliaryWindow.onDidUnmaximize(() => this._onDidUnmaximizeWindow.fire(auxiliaryWindow)));
+    disposables.add(auxiliaryWindow.onDidEnterFullScreen(() => this._onDidChangeFullScreen.fire({ window: auxiliaryWindow, fullscreen: true })));
+    disposables.add(auxiliaryWindow.onDidLeaveFullScreen(() => this._onDidChangeFullScreen.fire({ window: auxiliaryWindow, fullscreen: false })));
+    disposables.add(auxiliaryWindow.onDidTriggerSystemContextMenu(({ x, y }) => this._onDidTriggerSystemContextMenu.fire({ window: auxiliaryWindow, x, y })));
     Event.once(auxiliaryWindow.onDidClose)(() => disposables.dispose());
   }
   getWindowByWebContents(webContents) {

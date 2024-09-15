@@ -1,5 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDragAndDropData } from "../../dnd.js";
+import { IKeyboardEvent } from "../../keyboardEvent.js";
+import { IMouseEvent } from "../../mouseEvent.js";
+import { GestureEvent } from "../../touch.js";
+import { ListViewTargetSector } from "./listView.js";
+import { IDisposable } from "../../../common/lifecycle.js";
 var ListDragOverEffectType = /* @__PURE__ */ ((ListDragOverEffectType2) => {
   ListDragOverEffectType2[ListDragOverEffectType2["Copy"] = 0] = "Copy";
   ListDragOverEffectType2[ListDragOverEffectType2["Move"] = 1] = "Move";

@@ -10,43 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  AsyncIterableObject,
-  AsyncIterableSource
-} from "../../../base/common/async.js";
+import { AsyncIterableObject, AsyncIterableSource } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
-import {
-  CancellationError,
-  transformErrorForSerialization,
-  transformErrorFromSerialization
-} from "../../../base/common/errors.js";
+import { CancellationError, SerializedError, transformErrorForSerialization, transformErrorFromSerialization } from "../../../base/common/errors.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Iterable } from "../../../base/common/iterator.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { localize } from "../../../nls.js";
-import {
-  ExtensionIdentifier,
-  ExtensionIdentifierMap,
-  ExtensionIdentifierSet
-} from "../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap, ExtensionIdentifierSet, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import { Progress } from "../../../platform/progress/common/progress.js";
-import { INTERNAL_AUTH_PROVIDER_PREFIX } from "../../services/authentication/common/authentication.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ExtHostLanguageModelsShape, MainContext, MainThreadLanguageModelsShape } from "./extHost.protocol.js";
 import { IExtHostAuthentication } from "./extHostAuthentication.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import * as typeConvert from "./extHostTypeConverters.js";
 import * as extHostTypes from "./extHostTypes.js";
-const IExtHostLanguageModels = createDecorator(
-  "IExtHostLanguageModels"
-);
+import { IChatMessage, IChatResponseFragment, IChatResponsePart, ILanguageModelChatMetadata } from "../../contrib/chat/common/languageModels.js";
+import { INTERNAL_AUTH_PROVIDER_PREFIX } from "../../services/authentication/common/authentication.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+const IExtHostLanguageModels = createDecorator("IExtHostLanguageModels");
 class LanguageModelResponseStream {
   constructor(option, stream) {
     this.option = option;
@@ -73,16 +57,13 @@ class LanguageModelResponse {
         return that._defaultStream.asyncIterable;
       },
       get text() {
-        return AsyncIterableObject.map(
-          that._defaultStream.asyncIterable,
-          (part) => {
-            if (part instanceof extHostTypes.LanguageModelTextPart) {
-              return part.value;
-            } else {
-              return void 0;
-            }
+        return AsyncIterableObject.map(that._defaultStream.asyncIterable, (part) => {
+          if (part instanceof extHostTypes.LanguageModelTextPart) {
+            return part.value;
+          } else {
+            return void 0;
           }
-        ).coalesce();
+        }).coalesce();
       }
     };
   }
@@ -102,10 +83,7 @@ class LanguageModelResponse {
     let res = this._responseStreams.get(fragment.index);
     if (!res) {
       if (this._responseStreams.size === 0) {
-        res = new LanguageModelResponseStream(
-          fragment.index,
-          this._defaultStream
-        );
+        res = new LanguageModelResponseStream(fragment.index, this._defaultStream);
       } else {
         res = new LanguageModelResponseStream(fragment.index);
       }
@@ -115,11 +93,7 @@ class LanguageModelResponse {
     if (fragment.part.type === "text") {
       out = new extHostTypes.LanguageModelTextPart(fragment.part.value);
     } else {
-      out = new extHostTypes.LanguageModelToolCallPart(
-        fragment.part.name,
-        fragment.part.toolCallId,
-        fragment.part.parameters
-      );
+      out = new extHostTypes.LanguageModelToolCallPart(fragment.part.name, fragment.part.toolCallId, fragment.part.parameters);
     }
     res.stream.emitOne(out);
   }
@@ -161,11 +135,7 @@ let ExtHostLanguageModels = class {
   }
   registerLanguageModel(extension, identifier, provider, metadata) {
     const handle = ExtHostLanguageModels._idPool++;
-    this._languageModels.set(handle, {
-      extension: extension.identifier,
-      provider,
-      languageModelId: identifier
-    });
+    this._languageModels.set(handle, { extension: extension.identifier, provider, languageModelId: identifier });
     let auth;
     if (metadata.auth) {
       auth = {
@@ -173,32 +143,21 @@ let ExtHostLanguageModels = class {
         accountLabel: typeof metadata.auth === "object" ? metadata.auth.label : void 0
       };
     }
-    this._proxy.$registerLanguageModelProvider(
-      handle,
-      `${ExtensionIdentifier.toKey(extension.identifier)}/${handle}/${identifier}`,
-      {
-        extension: extension.identifier,
-        id: identifier,
-        vendor: metadata.vendor ?? ExtensionIdentifier.toKey(extension.identifier),
-        name: metadata.name ?? "",
-        family: metadata.family ?? "",
-        version: metadata.version,
-        maxInputTokens: metadata.maxInputTokens,
-        maxOutputTokens: metadata.maxOutputTokens,
-        auth,
-        targetExtensions: metadata.extensions
-      }
-    );
-    const responseReceivedListener = provider.onDidReceiveLanguageModelResponse2?.(
-      ({ extensionId, participant, tokenCount }) => {
-        this._proxy.$whenLanguageModelChatRequestMade(
-          identifier,
-          new ExtensionIdentifier(extensionId),
-          participant,
-          tokenCount
-        );
-      }
-    );
+    this._proxy.$registerLanguageModelProvider(handle, `${ExtensionIdentifier.toKey(extension.identifier)}/${handle}/${identifier}`, {
+      extension: extension.identifier,
+      id: identifier,
+      vendor: metadata.vendor ?? ExtensionIdentifier.toKey(extension.identifier),
+      name: metadata.name ?? "",
+      family: metadata.family ?? "",
+      version: metadata.version,
+      maxInputTokens: metadata.maxInputTokens,
+      maxOutputTokens: metadata.maxOutputTokens,
+      auth,
+      targetExtensions: metadata.extensions
+    });
+    const responseReceivedListener = provider.onDidReceiveLanguageModelResponse2?.(({ extensionId, participant, tokenCount }) => {
+      this._proxy.$whenLanguageModelChatRequestMade(identifier, new ExtensionIdentifier(extensionId), participant, tokenCount);
+    });
     return toDisposable(() => {
       this._languageModels.delete(handle);
       this._proxy.$unregisterProvider(handle);
@@ -210,80 +169,49 @@ let ExtHostLanguageModels = class {
     if (!data) {
       throw new Error("Provider not found");
     }
-    const progress = new Progress(
-      async (fragment) => {
-        if (token.isCancellationRequested) {
-          this._logService.warn(
-            `[CHAT](${data.extension.value}) CANNOT send progress because the REQUEST IS CANCELLED`
-          );
-          return;
-        }
-        let part;
-        if (fragment.part instanceof extHostTypes.LanguageModelToolCallPart) {
-          part = {
-            type: "tool_use",
-            name: fragment.part.name,
-            parameters: fragment.part.parameters,
-            toolCallId: fragment.part.toolCallId
-          };
-        } else if (fragment.part instanceof extHostTypes.LanguageModelTextPart) {
-          part = { type: "text", value: fragment.part.value };
-        }
-        if (!part) {
-          this._logService.warn(
-            `[CHAT](${data.extension.value}) UNKNOWN part ${JSON.stringify(fragment)}`
-          );
-          return;
-        }
-        this._proxy.$reportResponsePart(requestId, {
-          index: fragment.index,
-          part
-        });
+    const progress = new Progress(async (fragment) => {
+      if (token.isCancellationRequested) {
+        this._logService.warn(`[CHAT](${data.extension.value}) CANNOT send progress because the REQUEST IS CANCELLED`);
+        return;
       }
-    );
+      let part;
+      if (fragment.part instanceof extHostTypes.LanguageModelToolCallPart) {
+        part = { type: "tool_use", name: fragment.part.name, parameters: fragment.part.parameters, toolCallId: fragment.part.toolCallId };
+      } else if (fragment.part instanceof extHostTypes.LanguageModelTextPart) {
+        part = { type: "text", value: fragment.part.value };
+      }
+      if (!part) {
+        this._logService.warn(`[CHAT](${data.extension.value}) UNKNOWN part ${JSON.stringify(fragment)}`);
+        return;
+      }
+      this._proxy.$reportResponsePart(requestId, { index: fragment.index, part });
+    });
     let p;
     if (data.provider.provideLanguageModelResponse2) {
-      p = Promise.resolve(
-        data.provider.provideLanguageModelResponse2(
-          messages.map(typeConvert.LanguageModelChatMessage.to),
-          options,
-          ExtensionIdentifier.toKey(from),
-          progress,
-          token
-        )
-      );
+      p = Promise.resolve(data.provider.provideLanguageModelResponse2(
+        messages.map(typeConvert.LanguageModelChatMessage.to),
+        options,
+        ExtensionIdentifier.toKey(from),
+        progress,
+        token
+      ));
     } else {
-      const progress2 = new Progress(
-        async (fragment) => {
-          progress.report({
-            index: fragment.index,
-            part: new extHostTypes.LanguageModelTextPart(
-              fragment.part
-            )
-          });
-        }
-      );
-      p = Promise.resolve(
-        data.provider.provideLanguageModelResponse(
-          messages.map(typeConvert.LanguageModelChatMessage.to),
-          options?.modelOptions ?? {},
-          ExtensionIdentifier.toKey(from),
-          progress2,
-          token
-        )
-      );
+      const progress2 = new Progress(async (fragment) => {
+        progress.report({ index: fragment.index, part: new extHostTypes.LanguageModelTextPart(fragment.part) });
+      });
+      p = Promise.resolve(data.provider.provideLanguageModelResponse(
+        messages.map(typeConvert.LanguageModelChatMessage.to),
+        options?.modelOptions ?? {},
+        ExtensionIdentifier.toKey(from),
+        progress2,
+        token
+      ));
     }
-    p.then(
-      () => {
-        this._proxy.$reportResponseDone(requestId, void 0);
-      },
-      (err) => {
-        this._proxy.$reportResponseDone(
-          requestId,
-          transformErrorForSerialization(err)
-        );
-      }
-    );
+    p.then(() => {
+      this._proxy.$reportResponseDone(requestId, void 0);
+    }, (err) => {
+      this._proxy.$reportResponseDone(requestId, transformErrorForSerialization(err));
+    });
   }
   //#region --- token counting
   $provideTokenLength(handle, value, token) {
@@ -297,10 +225,7 @@ let ExtHostLanguageModels = class {
   $acceptChatModelMetadata(data) {
     if (data.added) {
       for (const { identifier, metadata } of data.added) {
-        this._allLanguageModelData.set(identifier, {
-          metadata,
-          apiObjects: new ExtensionIdentifierMap()
-        });
+        this._allLanguageModelData.set(identifier, { metadata, apiObjects: new ExtensionIdentifierMap() });
       }
     }
     if (data.removed) {
@@ -318,10 +243,7 @@ let ExtHostLanguageModels = class {
     this._onDidChangeProviders.fire(void 0);
   }
   async selectLanguageModels(extension, selector) {
-    const models = await this._proxy.$selectChatModels({
-      ...selector,
-      extension: extension.identifier
-    });
+    const models = await this._proxy.$selectChatModels({ ...selector, extension: extension.identifier });
     const result = [];
     const that = this;
     for (const identifier of models) {
@@ -343,29 +265,15 @@ let ExtHostLanguageModels = class {
           maxInputTokens: data.metadata.maxInputTokens,
           countTokens(text, token) {
             if (!that._allLanguageModelData.has(identifier)) {
-              throw extHostTypes.LanguageModelError.NotFound(
-                identifier
-              );
+              throw extHostTypes.LanguageModelError.NotFound(identifier);
             }
-            return that._computeTokenLength(
-              identifier,
-              text,
-              token ?? CancellationToken.None
-            );
+            return that._computeTokenLength(identifier, text, token ?? CancellationToken.None);
           },
           sendRequest(messages, options, token) {
             if (!that._allLanguageModelData.has(identifier)) {
-              throw extHostTypes.LanguageModelError.NotFound(
-                identifier
-              );
+              throw extHostTypes.LanguageModelError.NotFound(identifier);
             }
-            return that._sendChatRequest(
-              extension,
-              identifier,
-              messages,
-              options ?? {},
-              token ?? CancellationToken.None
-            );
+            return that._sendChatRequest(extension, identifier, messages, options ?? {}, token ?? CancellationToken.None);
           }
         };
         Object.freeze(apiObject);
@@ -376,31 +284,16 @@ let ExtHostLanguageModels = class {
     return result;
   }
   async _sendChatRequest(extension, languageModelId, messages, options, token) {
-    const internalMessages = this._convertMessages(
-      extension,
-      messages
-    );
+    const internalMessages = this._convertMessages(extension, messages);
     const from = extension.identifier;
     const metadata = this._allLanguageModelData.get(languageModelId)?.metadata;
     if (!metadata || !this._allLanguageModelData.has(languageModelId)) {
-      throw extHostTypes.LanguageModelError.NotFound(
-        `Language model '${languageModelId}' is unknown.`
-      );
+      throw extHostTypes.LanguageModelError.NotFound(`Language model '${languageModelId}' is unknown.`);
     }
     if (this._isUsingAuth(from, metadata)) {
-      const success = await this._getAuthAccess(
-        extension,
-        {
-          identifier: metadata.extension,
-          displayName: metadata.auth.providerLabel
-        },
-        options.justification,
-        false
-      );
+      const success = await this._getAuthAccess(extension, { identifier: metadata.extension, displayName: metadata.auth.providerLabel }, options.justification, false);
       if (!success || !this._modelAccessList.get(from)?.has(metadata.extension)) {
-        throw extHostTypes.LanguageModelError.NoPermissions(
-          `Language model '${languageModelId}' cannot be used by '${from.value}'.`
-        );
+        throw extHostTypes.LanguageModelError.NoPermissions(`Language model '${languageModelId}' cannot be used by '${from.value}'.`);
       }
     }
     try {
@@ -408,14 +301,7 @@ let ExtHostLanguageModels = class {
       const res = new LanguageModelResponse();
       this._pendingRequest.set(requestId, { languageModelId, res });
       try {
-        await this._proxy.$tryStartChatRequest(
-          from,
-          languageModelId,
-          requestId,
-          internalMessages,
-          options,
-          token
-        );
+        await this._proxy.$tryStartChatRequest(from, languageModelId, requestId, internalMessages, options, token);
       } catch (error) {
         this._pendingRequest.delete(requestId);
         throw error;
@@ -438,14 +324,10 @@ let ExtHostLanguageModels = class {
       if (message.role === extHostTypes.LanguageModelChatMessageRole.System) {
         checkProposedApiEnabled(extension, "languageModelSystem");
       }
-      if (message.content2.some(
-        (part) => part instanceof extHostTypes.LanguageModelToolResultPart
-      )) {
+      if (message.content2.some((part) => part instanceof extHostTypes.LanguageModelToolResultPart)) {
         checkProposedApiEnabled(extension, "lmTools");
       }
-      internalMessages.push(
-        typeConvert.LanguageModelChatMessage.from(message)
-      );
+      internalMessages.push(typeConvert.LanguageModelChatMessage.from(message));
     }
     return internalMessages;
   }
@@ -470,42 +352,25 @@ let ExtHostLanguageModels = class {
   // BIG HACK: Using AuthenticationProviders to check access to Language Models
   async _getAuthAccess(from, to, justification, silent) {
     const providerId = INTERNAL_AUTH_PROVIDER_PREFIX + to.identifier.value;
-    const session = await this._extHostAuthentication.getSession(
-      from,
-      providerId,
-      [],
-      { silent: true }
-    );
+    const session = await this._extHostAuthentication.getSession(from, providerId, [], { silent: true });
     if (session) {
-      this.$updateModelAccesslist([
-        { from: from.identifier, to: to.identifier, enabled: true }
-      ]);
+      this.$updateModelAccesslist([{ from: from.identifier, to: to.identifier, enabled: true }]);
       return true;
     }
     if (silent) {
       return false;
     }
     try {
-      const detail = justification ? localize(
-        "chatAccessWithJustification",
-        "Justification: {1}",
-        to.displayName,
-        justification
-      ) : void 0;
-      await this._extHostAuthentication.getSession(from, providerId, [], {
-        forceNewSession: { detail }
-      });
-      this.$updateModelAccesslist([
-        { from: from.identifier, to: to.identifier, enabled: true }
-      ]);
+      const detail = justification ? localize("chatAccessWithJustification", "Justification: {1}", to.displayName, justification) : void 0;
+      await this._extHostAuthentication.getSession(from, providerId, [], { forceNewSession: { detail } });
+      this.$updateModelAccesslist([{ from: from.identifier, to: to.identifier, enabled: true }]);
       return true;
     } catch (err) {
       return false;
     }
   }
   _isUsingAuth(from, toMetadata) {
-    return !!toMetadata.auth && // And we're asking from a different extension
-    !ExtensionIdentifier.equals(toMetadata.extension, from);
+    return !!toMetadata.auth && !ExtensionIdentifier.equals(toMetadata.extension, from);
   }
   async _fakeAuthPopulate(metadata) {
     if (!metadata.auth) {
@@ -513,12 +378,7 @@ let ExtHostLanguageModels = class {
     }
     for (const from of this._languageAccessInformationExtensions) {
       try {
-        await this._getAuthAccess(
-          from,
-          { identifier: metadata.extension, displayName: "" },
-          void 0,
-          true
-        );
+        await this._getAuthAccess(from, { identifier: metadata.extension, displayName: "" }, void 0, true);
       } catch (err) {
         this._logService.error("Fake Auth request failed");
         this._logService.error(err);
@@ -528,22 +388,13 @@ let ExtHostLanguageModels = class {
   async _computeTokenLength(languageModelId, value, token) {
     const data = this._allLanguageModelData.get(languageModelId);
     if (!data) {
-      throw extHostTypes.LanguageModelError.NotFound(
-        `Language model '${languageModelId}' is unknown.`
-      );
+      throw extHostTypes.LanguageModelError.NotFound(`Language model '${languageModelId}' is unknown.`);
     }
-    const local = Iterable.find(
-      this._languageModels.values(),
-      (candidate) => candidate.languageModelId === languageModelId
-    );
+    const local = Iterable.find(this._languageModels.values(), (candidate) => candidate.languageModelId === languageModelId);
     if (local) {
       return local.provider.provideTokenCount(value, token);
     }
-    return this._proxy.$countTokens(
-      languageModelId,
-      typeof value === "string" ? value : typeConvert.LanguageModelChatMessage.from(value),
-      token
-    );
+    return this._proxy.$countTokens(languageModelId, typeof value === "string" ? value : typeConvert.LanguageModelChatMessage.from(value), token);
   }
   $updateModelAccesslist(data) {
     const updated = new Array();
@@ -567,12 +418,7 @@ let ExtHostLanguageModels = class {
   createLanguageModelAccessInformation(from) {
     this._languageAccessInformationExtensions.add(from);
     const that = this;
-    const _onDidChangeAccess = Event.signal(
-      Event.filter(
-        this._onDidChangeModelAccess.event,
-        (e) => ExtensionIdentifier.equals(e.from, from.identifier)
-      )
-    );
+    const _onDidChangeAccess = Event.signal(Event.filter(this._onDidChangeModelAccess.event, (e) => ExtensionIdentifier.equals(e.from, from.identifier)));
     const _onDidAddRemove = Event.signal(this._onDidChangeProviders.event);
     return {
       get onDidChange() {

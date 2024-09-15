@@ -1,7 +1,10 @@
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import * as languages from "../../../../editor/common/languages.js";
 CommandsRegistry.registerCommand(
   "_executeMappedEditsProvider",
   async (accessor, documentUri, codeBlocks, context) => {
@@ -10,9 +13,7 @@ CommandsRegistry.registerCommand(
     const document = await modelService.createModelReference(documentUri);
     let result = null;
     try {
-      const providers = langFeaturesService.mappedEditsProvider.ordered(
-        document.object.textEditorModel
-      );
+      const providers = langFeaturesService.mappedEditsProvider.ordered(document.object.textEditorModel);
       if (providers.length > 0) {
         const mostRelevantProvider = providers[0];
         const cancellationTokenSource = new CancellationTokenSource();

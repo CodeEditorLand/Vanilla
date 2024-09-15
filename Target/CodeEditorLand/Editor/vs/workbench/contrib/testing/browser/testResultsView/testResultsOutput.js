@@ -12,23 +12,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
 import { Delayer } from "../../../../../base/common/async.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
 import { Event } from "../../../../../base/common/event.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
 import { Lazy } from "../../../../../base/common/lazy.js";
-import {
-  Disposable,
-  MutableDisposable,
-  combinedDisposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable, IReference, MutableDisposable, combinedDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ICodeEditor, IDiffEditorConstructionOptions } from "../../../../../editor/browser/editorBrowser.js";
 import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
 import { EmbeddedCodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
 import { EmbeddedDiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";
 import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import {
-  ITextModelService
-} from "../../../../../editor/common/services/resolverService.js";
+import { IDiffEditorOptions, IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { peekViewResultsBackground } from "../../../../../editor/contrib/peekView/browser/peekView.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
@@ -37,37 +34,18 @@ import { TerminalCapabilityStore } from "../../../../../platform/terminal/common
 import { formatMessageForTerminal } from "../../../../../platform/terminal/common/terminalStrings.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { EditorModel } from "../../../../common/editor/editorModel.js";
-import {
-  PANEL_BACKGROUND,
-  SIDE_BAR_BACKGROUND
-} from "../../../../common/theme.js";
-import {
-  IViewDescriptorService,
-  ViewContainerLocation
-} from "../../../../common/views.js";
+import { PANEL_BACKGROUND, SIDE_BAR_BACKGROUND } from "../../../../common/theme.js";
+import { IViewDescriptorService, ViewContainerLocation } from "../../../../common/views.js";
 import { DetachedProcessInfo } from "../../../terminal/browser/detachedTerminal.js";
-import {
-  ITerminalService
-} from "../../../terminal/browser/terminal.js";
+import { IDetachedTerminalInstance, ITerminalService } from "../../../terminal/browser/terminal.js";
 import { getXtermScaledDimensions } from "../../../terminal/browser/xterm/xtermTerminal.js";
 import { TERMINAL_BACKGROUND_COLOR } from "../../../terminal/common/terminalColorRegistry.js";
+import { colorizeTestMessageInEditor } from "../testMessageColorizer.js";
+import { InspectSubject, MessageSubject, TaskSubject, TestOutputSubject } from "./testResultsSubject.js";
 import { Testing } from "../../common/constants.js";
 import { MutableObservableValue } from "../../common/observableValue.js";
-import {
-  LiveTestResult,
-  TestResultItemChangeReason
-} from "../../common/testResult.js";
-import {
-  ITestMessage,
-  TestMessageType,
-  getMarkId
-} from "../../common/testTypes.js";
-import { colorizeTestMessageInEditor } from "../testMessageColorizer.js";
-import {
-  MessageSubject,
-  TaskSubject,
-  TestOutputSubject
-} from "./testResultsSubject.js";
+import { ITaskRawOutput, ITestResult, ITestRunTaskResults, LiveTestResult, TestResultItemChangeReason } from "../../common/testResult.js";
+import { ITestMessage, TestMessageType, getMarkId } from "../../common/testTypes.js";
 class SimpleDiffEditorModel extends EditorModel {
   constructor(_original, _modified) {
     super();
@@ -128,9 +106,7 @@ let DiffContentProvider = class extends Disposable {
   static {
     __name(this, "DiffContentProvider");
   }
-  widget = this._register(
-    new MutableDisposable()
-  );
+  widget = this._register(new MutableDisposable());
   model = this._register(new MutableDisposable());
   dimension;
   get onDidContentSizeChange() {
@@ -150,10 +126,7 @@ let DiffContentProvider = class extends Disposable {
       this.modelService.createModelReference(subject.expectedUri),
       this.modelService.createModelReference(subject.actualUri)
     ]);
-    const model = this.model.value = new SimpleDiffEditorModel(
-      original,
-      modified
-    );
+    const model = this.model.value = new SimpleDiffEditorModel(original, modified);
     if (!this.widget.value) {
       this.widget.value = this.editor ? this.instantiationService.createInstance(
         EmbeddedDiffEditorWidget,
@@ -172,11 +145,9 @@ let DiffContentProvider = class extends Disposable {
       }
     }
     this.widget.value.setModel(model);
-    this.widget.value.updateOptions(
-      this.getOptions(
-        isMultiline(message.expected) || isMultiline(message.actual)
-      )
-    );
+    this.widget.value.updateOptions(this.getOptions(
+      isMultiline(message.expected) || isMultiline(message.actual)
+    ));
     return true;
   }
   clear() {
@@ -193,13 +164,7 @@ let DiffContentProvider = class extends Disposable {
     if (!hasMultipleFrames) {
       return dimensions.height;
     }
-    const height = Math.min(
-      1e4,
-      Math.max(
-        editor.getOriginalEditor().getContentHeight(),
-        editor.getModifiedEditor().getContentHeight()
-      )
-    );
+    const height = Math.min(1e4, Math.max(editor.getOriginalEditor().getContentHeight(), editor.getModifiedEditor().getContentHeight()));
     editor.layout({ height, width: dimensions.width });
     return height;
   }
@@ -222,9 +187,7 @@ let MarkdownTestMessagePeek = class extends Disposable {
     __name(this, "MarkdownTestMessagePeek");
   }
   markdown = new Lazy(
-    () => this._register(
-      this.instantiationService.createInstance(MarkdownRenderer, {})
-    )
+    () => this._register(this.instantiationService.createInstance(MarkdownRenderer, {}))
   );
   element;
   async update(subject) {
@@ -237,9 +200,7 @@ let MarkdownTestMessagePeek = class extends Disposable {
       this.clear();
       return false;
     }
-    const rendered = this._register(
-      this.markdown.value.render(message.message, {})
-    );
+    const rendered = this._register(this.markdown.value.render(message.message, {}));
     rendered.element.style.userSelect = "text";
     rendered.element.classList.add("preview-text");
     this.container.appendChild(rendered.element);
@@ -274,12 +235,8 @@ let PlainTextMessagePeek = class extends Disposable {
   static {
     __name(this, "PlainTextMessagePeek");
   }
-  widgetDecorations = this._register(
-    new MutableDisposable()
-  );
-  widget = this._register(
-    new MutableDisposable()
-  );
+  widgetDecorations = this._register(new MutableDisposable());
+  widget = this._register(new MutableDisposable());
   model = this._register(new MutableDisposable());
   dimension;
   get onDidContentSizeChange() {
@@ -315,10 +272,7 @@ let PlainTextMessagePeek = class extends Disposable {
     }
     this.widget.value.setModel(modelRef.object.textEditorModel);
     this.widget.value.updateOptions(commonEditorOptions);
-    this.widgetDecorations.value = colorizeTestMessageInEditor(
-      message.message,
-      this.widget.value
-    );
+    this.widgetDecorations.value = colorizeTestMessageInEditor(message.message, this.widget.value);
     return true;
   }
   clear() {
@@ -358,18 +312,12 @@ let TerminalMessagePeek = class extends Disposable {
     __name(this, "TerminalMessagePeek");
   }
   dimensions;
-  terminalCwd = this._register(
-    new MutableObservableValue("")
-  );
+  terminalCwd = this._register(new MutableObservableValue(""));
   xtermLayoutDelayer = this._register(new Delayer(50));
   /** Active terminal instance. */
-  terminal = this._register(
-    new MutableDisposable()
-  );
+  terminal = this._register(new MutableDisposable());
   /** Listener for streaming result data */
-  outputDataListener = this._register(
-    new MutableDisposable()
-  );
+  outputDataListener = this._register(new MutableDisposable());
   async makeTerminal() {
     const prev = this.terminal.value;
     if (prev) {
@@ -398,18 +346,14 @@ let TerminalMessagePeek = class extends Disposable {
       processInfo: new DetachedProcessInfo({ initialCwd: cwd.value }),
       colorProvider: {
         getBackgroundColor: /* @__PURE__ */ __name((theme) => {
-          const terminalBackground = theme.getColor(
-            TERMINAL_BACKGROUND_COLOR
-          );
+          const terminalBackground = theme.getColor(TERMINAL_BACKGROUND_COLOR);
           if (terminalBackground) {
             return terminalBackground;
           }
           if (this.isInPeekView) {
             return theme.getColor(peekViewResultsBackground);
           }
-          const location = this.viewDescriptorService.getViewLocationById(
-            Testing.ResultsViewId
-          );
+          const location = this.viewDescriptorService.getViewLocationById(Testing.ResultsViewId);
           return location === ViewContainerLocation.Panel ? theme.getColor(PANEL_BACKGROUND) : theme.getColor(SIDE_BAR_BACKGROUND);
         }, "getBackgroundColor")
       }
@@ -432,10 +376,7 @@ let TerminalMessagePeek = class extends Disposable {
     const testItem = subject instanceof TestOutputSubject ? subject.test.item : subject.test;
     const terminal = await this.updateGenerically({
       subject,
-      noOutputMessage: localize(
-        "caseNoOutput",
-        "The test case did not report any output."
-      ),
+      noOutputMessage: localize("caseNoOutput", "The test case did not report any output."),
       getTarget: /* @__PURE__ */ __name((result) => result?.tasks[subject.taskIndex].output, "getTarget"),
       *doInitialWrite(output, results) {
         that.updateCwd(testItem.uri);
@@ -445,19 +386,13 @@ let TerminalMessagePeek = class extends Disposable {
         }
         for (const message of state.tasks[subject.taskIndex].messages) {
           if (message.type === TestMessageType.Output) {
-            yield* output.getRangeIter(
-              message.offset,
-              message.length
-            );
+            yield* output.getRangeIter(message.offset, message.length);
           }
         }
       },
       doListenForMoreData: /* @__PURE__ */ __name((output, result, write) => result.onChange((e) => {
         if (e.reason === TestResultItemChangeReason.NewMessage && e.item.item.extId === testItem.extId && e.message.type === TestMessageType.Output) {
-          for (const chunk of output.getRangeIter(
-            e.message.offset,
-            e.message.length
-          )) {
+          for (const chunk of output.getRangeIter(e.message.offset, e.message.length)) {
             write(chunk.buffer);
           }
         }
@@ -475,15 +410,10 @@ let TerminalMessagePeek = class extends Disposable {
   updateForTaskSubject(subject) {
     return this.updateGenerically({
       subject,
-      noOutputMessage: localize(
-        "runNoOutput",
-        "The test run did not record any output."
-      ),
+      noOutputMessage: localize("runNoOutput", "The test run did not record any output."),
       getTarget: /* @__PURE__ */ __name((result) => result?.tasks[subject.taskIndex], "getTarget"),
       doInitialWrite: /* @__PURE__ */ __name((task, result) => {
-        this.updateCwd(
-          Iterable.find(result.tests, (t) => !!t.item.uri)?.item.uri
-        );
+        this.updateCwd(Iterable.find(result.tests, (t) => !!t.item.uri)?.item.uri);
         return task.output.buffers;
       }, "doInitialWrite"),
       doListenForMoreData: /* @__PURE__ */ __name((task, _result, write) => task.output.onDidWriteData((e) => write(e.buffer)), "doListenForMoreData")
@@ -506,13 +436,7 @@ let TerminalMessagePeek = class extends Disposable {
       }
     } else {
       didWriteData = true;
-      this.writeNotice(
-        terminal,
-        localize(
-          "runNoOutputForPast",
-          "Test output is only available for new test runs."
-        )
-      );
+      this.writeNotice(terminal, localize("runNoOutputForPast", "Test output is only available for new test runs."));
     }
     this.attachTerminalToDom(terminal);
     this.outputDataListener.clear();
@@ -554,10 +478,7 @@ let TerminalMessagePeek = class extends Disposable {
   }
   attachTerminalToDom(terminal) {
     terminal.xterm.write("\x1B[?25l");
-    dom.scheduleAtNextAnimationFrame(
-      dom.getWindow(this.container),
-      () => this.layoutTerminal(terminal)
-    );
+    dom.scheduleAtNextAnimationFrame(dom.getWindow(this.container), () => this.layoutTerminal(terminal));
     terminal.attachToElement(this.container, { enableGpu: false });
   }
   clear() {
@@ -568,11 +489,7 @@ let TerminalMessagePeek = class extends Disposable {
   layout(dimensions) {
     this.dimensions = dimensions;
     if (this.terminal.value) {
-      this.layoutTerminal(
-        this.terminal.value,
-        dimensions.width,
-        dimensions.height
-      );
+      this.layoutTerminal(this.terminal.value, dimensions.width, dimensions.height);
       return dimensions.height;
     }
     return void 0;
@@ -580,12 +497,7 @@ let TerminalMessagePeek = class extends Disposable {
   layoutTerminal({ xterm }, width = this.dimensions?.width ?? this.container.clientWidth, height = this.dimensions?.height ?? this.container.clientHeight) {
     width -= 10 + 20;
     this.xtermLayoutDelayer.trigger(() => {
-      const scaled = getXtermScaledDimensions(
-        dom.getWindow(this.container),
-        xterm.getFont(),
-        width,
-        height
-      );
+      const scaled = getXtermScaledDimensions(dom.getWindow(this.container), xterm.getFont(), width, height);
       if (scaled) {
         xterm.resize(scaled.cols, scaled.rows);
       }

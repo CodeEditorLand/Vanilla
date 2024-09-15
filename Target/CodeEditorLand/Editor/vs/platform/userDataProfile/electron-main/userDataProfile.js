@@ -10,29 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Event } from "../../../base/common/event.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
 import { IFileService } from "../../files/common/files.js";
 import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
-import { IStateService } from "../../state/node/state.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  IUserDataProfilesService
-} from "../common/userDataProfile.js";
+import { IUserDataProfilesService, WillCreateProfileEvent, WillRemoveProfileEvent, IUserDataProfile } from "../common/userDataProfile.js";
 import { UserDataProfilesService } from "../node/userDataProfile.js";
+import { IAnyWorkspaceIdentifier, IEmptyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IStateService } from "../../state/node/state.js";
 const IUserDataProfilesMainService = refineServiceDecorator(IUserDataProfilesService);
 let UserDataProfilesMainService = class extends UserDataProfilesService {
   static {
     __name(this, "UserDataProfilesMainService");
   }
   constructor(stateService, uriIdentityService, environmentService, fileService, logService) {
-    super(
-      stateService,
-      uriIdentityService,
-      environmentService,
-      fileService,
-      logService
-    );
+    super(stateService, uriIdentityService, environmentService, fileService, logService);
   }
   getAssociatedEmptyWindows() {
     const emptyWindows = [];

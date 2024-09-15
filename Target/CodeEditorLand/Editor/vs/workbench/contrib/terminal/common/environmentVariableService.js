@@ -10,64 +10,41 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Event, Emitter } from "../../../../base/common/event.js";
 import { debounce, throttle } from "../../../../base/common/decorators.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { MergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariableCollection.js";
-import {
-  deserializeEnvironmentDescriptionMap,
-  deserializeEnvironmentVariableCollection,
-  serializeEnvironmentDescriptionMap,
-  serializeEnvironmentVariableCollection
-} from "../../../../platform/terminal/common/environmentVariableShared.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { MergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariableCollection.js";
+import { deserializeEnvironmentDescriptionMap, deserializeEnvironmentVariableCollection, serializeEnvironmentDescriptionMap, serializeEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariableShared.js";
+import { IEnvironmentVariableCollectionWithPersistence, IEnvironmentVariableService } from "./environmentVariable.js";
 import { TerminalStorageKeys } from "./terminalStorageKeys.js";
+import { IMergedEnvironmentVariableCollection, ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 let EnvironmentVariableService = class extends Disposable {
   constructor(_extensionService, _storageService) {
     super();
     this._extensionService = _extensionService;
     this._storageService = _storageService;
-    this._storageService.remove(
-      TerminalStorageKeys.DeprecatedEnvironmentVariableCollections,
-      StorageScope.WORKSPACE
-    );
-    const serializedPersistedCollections = this._storageService.get(
-      TerminalStorageKeys.EnvironmentVariableCollections,
-      StorageScope.WORKSPACE
-    );
+    this._storageService.remove(TerminalStorageKeys.DeprecatedEnvironmentVariableCollections, StorageScope.WORKSPACE);
+    const serializedPersistedCollections = this._storageService.get(TerminalStorageKeys.EnvironmentVariableCollections, StorageScope.WORKSPACE);
     if (serializedPersistedCollections) {
       const collectionsJson = JSON.parse(serializedPersistedCollections);
-      collectionsJson.forEach(
-        (c) => this.collections.set(c.extensionIdentifier, {
-          persistent: true,
-          map: deserializeEnvironmentVariableCollection(c.collection),
-          descriptionMap: deserializeEnvironmentDescriptionMap(
-            c.description
-          )
-        })
-      );
+      collectionsJson.forEach((c) => this.collections.set(c.extensionIdentifier, {
+        persistent: true,
+        map: deserializeEnvironmentVariableCollection(c.collection),
+        descriptionMap: deserializeEnvironmentDescriptionMap(c.description)
+      }));
       this._invalidateExtensionCollections();
     }
     this.mergedCollection = this._resolveMergedCollection();
-    this._register(
-      this._extensionService.onDidChangeExtensions(
-        () => this._invalidateExtensionCollections()
-      )
-    );
+    this._register(this._extensionService.onDidChangeExtensions(() => this._invalidateExtensionCollections()));
   }
   static {
     __name(this, "EnvironmentVariableService");
   }
   collections = /* @__PURE__ */ new Map();
   mergedCollection;
-  _onDidChangeCollections = this._register(
-    new Emitter()
-  );
+  _onDidChangeCollections = this._register(new Emitter());
   get onDidChangeCollections() {
     return this._onDidChangeCollections.event;
   }
@@ -93,22 +70,13 @@ let EnvironmentVariableService = class extends Disposable {
       if (collection.persistent) {
         collectionsJson.push({
           extensionIdentifier,
-          collection: serializeEnvironmentVariableCollection(
-            this.collections.get(extensionIdentifier).map
-          ),
-          description: serializeEnvironmentDescriptionMap(
-            collection.descriptionMap
-          )
+          collection: serializeEnvironmentVariableCollection(this.collections.get(extensionIdentifier).map),
+          description: serializeEnvironmentDescriptionMap(collection.descriptionMap)
         });
       }
     });
     const stringifiedJson = JSON.stringify(collectionsJson);
-    this._storageService.store(
-      TerminalStorageKeys.EnvironmentVariableCollections,
-      stringifiedJson,
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this._storageService.store(TerminalStorageKeys.EnvironmentVariableCollections, stringifiedJson, StorageScope.WORKSPACE, StorageTarget.MACHINE);
   }
   _notifyCollectionUpdatesEventually() {
     this._notifyCollectionUpdates();
@@ -124,9 +92,7 @@ let EnvironmentVariableService = class extends Disposable {
     const registeredExtensions = this._extensionService.extensions;
     let changes = false;
     this.collections.forEach((_, extensionIdentifier) => {
-      const isExtensionRegistered = registeredExtensions.some(
-        (r) => r.identifier.value === extensionIdentifier
-      );
+      const isExtensionRegistered = registeredExtensions.some((r) => r.identifier.value === extensionIdentifier);
       if (!isExtensionRegistered) {
         this.collections.delete(extensionIdentifier);
         changes = true;

@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../../base/common/network.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 function parseExtensionDevOptions(environmentService) {
   const isExtensionDevHost = environmentService.isExtensionDevelopment;
   let debugOk = true;

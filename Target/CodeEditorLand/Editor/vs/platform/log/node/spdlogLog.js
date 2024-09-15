@@ -1,10 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ByteSize } from "../../files/common/files.js";
-import {
-  AbstractMessageLogger,
-  LogLevel
-} from "../common/log.js";
+import { AbstractMessageLogger, ILogger, LogLevel } from "../common/log.js";
 var SpdLogLevel = /* @__PURE__ */ ((SpdLogLevel2) => {
   SpdLogLevel2[SpdLogLevel2["Trace"] = 0] = "Trace";
   SpdLogLevel2[SpdLogLevel2["Debug"] = 1] = "Debug";
@@ -19,12 +16,7 @@ async function createSpdLogLogger(name, logfilePath, filesize, filecount, donotU
   try {
     const _spdlog = await import("@vscode/spdlog");
     _spdlog.setFlushOn(0 /* Trace */);
-    const logger = await _spdlog.createAsyncRotatingLogger(
-      name,
-      logfilePath,
-      filesize,
-      filecount
-    );
+    const logger = await _spdlog.createAsyncRotatingLogger(name, logfilePath, filesize, filecount);
     if (donotUseFormatters) {
       logger.clearFormatters();
     } else {
@@ -96,30 +88,17 @@ class SpdLogLogger extends AbstractMessageLogger {
   constructor(name, filepath, rotating, donotUseFormatters, level) {
     super();
     this.setLevel(level);
-    this._loggerCreationPromise = this._createSpdLogLogger(
-      name,
-      filepath,
-      rotating,
-      donotUseFormatters
-    );
-    this._register(
-      this.onDidChangeLogLevel((level2) => {
-        if (this._logger) {
-          setLogLevel(this._logger, level2);
-        }
-      })
-    );
+    this._loggerCreationPromise = this._createSpdLogLogger(name, filepath, rotating, donotUseFormatters);
+    this._register(this.onDidChangeLogLevel((level2) => {
+      if (this._logger) {
+        setLogLevel(this._logger, level2);
+      }
+    }));
   }
   async _createSpdLogLogger(name, filepath, rotating, donotUseFormatters) {
     const filecount = rotating ? 6 : 1;
     const filesize = 30 / filecount * ByteSize.MB;
-    const logger = await createSpdLogLogger(
-      name,
-      filepath,
-      filesize,
-      filecount,
-      donotUseFormatters
-    );
+    const logger = await createSpdLogLogger(name, filepath, filesize, filecount, donotUseFormatters);
     if (logger) {
       this._logger = logger;
       setLogLevel(this._logger, this.getLevel());

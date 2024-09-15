@@ -13,6 +13,7 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IDebugService } from "./debug.js";
 let ReplAccessibilityAnnouncer = class extends Disposable {
   static {
@@ -22,26 +23,19 @@ let ReplAccessibilityAnnouncer = class extends Disposable {
   constructor(debugService, accessibilityService, logService) {
     super();
     const viewModel = debugService.getViewModel();
-    this._register(
-      viewModel.onDidFocusSession((session) => {
-        if (!session) {
+    this._register(viewModel.onDidFocusSession((session) => {
+      if (!session) {
+        return;
+      }
+      this._register(session.onDidChangeReplElements((element) => {
+        if (!element || !("originalExpression" in element)) {
           return;
         }
-        this._register(
-          session.onDidChangeReplElements((element) => {
-            if (!element || !("originalExpression" in element)) {
-              return;
-            }
-            const value = element.toString();
-            accessibilityService.status(value);
-            logService.trace(
-              "ReplAccessibilityAnnouncer#onDidChangeReplElements",
-              element.originalExpression + ": " + value
-            );
-          })
-        );
-      })
-    );
+        const value = element.toString();
+        accessibilityService.status(value);
+        logService.trace("ReplAccessibilityAnnouncer#onDidChangeReplElements", element.originalExpression + ": " + value);
+      }));
+    }));
   }
 };
 ReplAccessibilityAnnouncer = __decorateClass([

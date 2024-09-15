@@ -10,12 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { MainContext, MainThreadBulkEditsShape } from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { WorkspaceEdit } from "./extHostTypeConverters.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 let ExtHostBulkEdits = class {
   static {
     __name(this, "ExtHostBulkEdits");
@@ -30,14 +30,8 @@ let ExtHostBulkEdits = class {
     };
   }
   applyWorkspaceEdit(edit, extension, metadata) {
-    const dto = new SerializableObjectWithBuffers(
-      WorkspaceEdit.from(edit, this._versionInformationProvider)
-    );
-    return this._proxy.$tryApplyWorkspaceEdit(
-      dto,
-      void 0,
-      metadata?.isRefactoring ?? false
-    );
+    const dto = new SerializableObjectWithBuffers(WorkspaceEdit.from(edit, this._versionInformationProvider));
+    return this._proxy.$tryApplyWorkspaceEdit(dto, void 0, metadata?.isRefactoring ?? false);
   }
 };
 ExtHostBulkEdits = __decorateClass([

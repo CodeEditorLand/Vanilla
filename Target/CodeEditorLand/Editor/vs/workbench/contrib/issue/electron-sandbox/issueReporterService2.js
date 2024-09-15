@@ -12,6 +12,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { $, reset } from "../../../../base/browser/dom.js";
 import { CancellationError } from "../../../../base/common/errors.js";
+import { IProductConfiguration } from "../../../../base/common/product.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { isRemoteDiagnosticError } from "../../../../platform/diagnostics/common/diagnostics.js";
@@ -20,23 +21,12 @@ import { INativeHostService } from "../../../../platform/native/common/native.js
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { applyZoom } from "../../../../platform/window/electron-sandbox/window.js";
 import { BaseIssueReporterService } from "../browser/baseIssueReporterService.js";
-import {
-  IIssueFormService,
-  IssueType
-} from "../common/issue.js";
+import { IssueReporterData as IssueReporterModelData } from "../browser/issueReporterModel.js";
+import { IIssueFormService, IssueReporterData, IssueType } from "../common/issue.js";
 const MAX_URL_LENGTH = 7500;
 let IssueReporter2 = class extends BaseIssueReporterService {
   constructor(disableExtensions, data, os, product, window, nativeHostService, issueFormService, processMainService, themeService) {
-    super(
-      disableExtensions,
-      data,
-      os,
-      product,
-      window,
-      false,
-      issueFormService,
-      themeService
-    );
+    super(disableExtensions, data, os, product, window, false, issueFormService, themeService);
     this.nativeHostService = nativeHostService;
     this.processMainService = processMainService;
     this.processMainService.$getSystemInfo().then((info) => {
@@ -63,23 +53,16 @@ let IssueReporter2 = class extends BaseIssueReporterService {
   setEventHandlers() {
     super.setEventHandlers();
     this.addEventListener("issue-type", "change", (event) => {
-      const issueType = Number.parseInt(
-        event.target.value
-      );
+      const issueType = parseInt(event.target.value);
       this.issueReporterModel.update({ issueType });
       if (issueType === IssueType.PerformanceIssue && !this.receivedPerformanceInfo) {
         this.processMainService.$getPerformanceInfo().then((info) => {
-          this.updatePerformanceInfo(
-            info
-          );
+          this.updatePerformanceInfo(info);
         });
       }
       const descriptionTextArea = this.getElementById("issue-title");
       if (descriptionTextArea) {
-        descriptionTextArea.placeholder = localize(
-          "undefinedPlaceholder",
-          "Please enter a title"
-        );
+        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
       }
       this.updatePreviewButtonState();
       this.setSourceOptions();
@@ -96,7 +79,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
       }),
       headers: new Headers({
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.data.githubAccessToken}`
+        "Authorization": `Bearer ${this.data.githubAccessToken}`
       })
     };
     const response = await fetch(url, init);
@@ -155,10 +138,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
       issueUrl = uri.toString();
     }
     const gitHubDetails = this.parseGitHubUrl(issueUrl);
-    const baseUrl = this.getIssueUrlWithTitle(
-      this.getElementById("issue-title").value,
-      issueUrl
-    );
+    const baseUrl = this.getIssueUrlWithTitle(this.getElementById("issue-title").value, issueUrl);
     let url = baseUrl + `&body=${encodeURIComponent(issueBody)}`;
     if (url.length > MAX_URL_LENGTH) {
       try {
@@ -182,9 +162,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
     return baseUrl + `&body=${encodeURIComponent(localize("pasteData", "We have written the needed data into your clipboard because it was too large to send. Please paste."))}`;
   }
   updateSystemInfo(state) {
-    const target = this.window.document.querySelector(
-      ".block-system .block-info"
-    );
+    const target = this.window.document.querySelector(".block-system .block-info");
     if (target) {
       const systemInfo = state.systemInfo;
       const renderedDataTable = $(
@@ -200,13 +178,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
           "tr",
           void 0,
           $("td", void 0, "GPU Status"),
-          $(
-            "td",
-            void 0,
-            Object.keys(systemInfo.gpuStatus).map(
-              (key) => `${key}: ${systemInfo.gpuStatus[key]}`
-            ).join("\n")
-          )
+          $("td", void 0, Object.keys(systemInfo.gpuStatus).map((key) => `${key}: ${systemInfo.gpuStatus[key]}`).join("\n"))
         ),
         $(
           "tr",
@@ -268,11 +240,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
               "tr",
               void 0,
               $("td", void 0, "Remote"),
-              $(
-                "td",
-                void 0,
-                remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName
-              )
+              $("td", void 0, remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName)
             ),
             $(
               "tr",
@@ -312,9 +280,7 @@ let IssueReporter2 = class extends BaseIssueReporterService {
   }
   updateExperimentsInfo(experimentInfo) {
     this.issueReporterModel.update({ experimentInfo });
-    const target = this.window.document.querySelector(
-      ".block-experiments .block-info"
-    );
+    const target = this.window.document.querySelector(".block-experiments .block-info");
     if (target) {
       target.textContent = experimentInfo ? experimentInfo : localize("noCurrentExperiments", "No current experiments.");
     }

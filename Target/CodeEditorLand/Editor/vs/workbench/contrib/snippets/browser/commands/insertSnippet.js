@@ -1,15 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
 import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
 import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
 import * as nls from "../../../../../nls.js";
 import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { SnippetEditorAction } from "./abstractSnippetsActions.js";
 import { pickSnippet } from "../snippetPicker.js";
 import { ISnippetsService } from "../snippets.js";
 import { Snippet, SnippetSource } from "../snippetsFile.js";
-import { SnippetEditorAction } from "./abstractSnippetsActions.js";
 class Args {
   constructor(snippet, name, langId) {
     this.snippet = snippet;
@@ -49,25 +51,23 @@ class InsertSnippetAction extends SnippetEditorAction {
       precondition: EditorContextKeys.writable,
       metadata: {
         description: `Insert Snippet`,
-        args: [
-          {
-            name: "args",
-            schema: {
-              type: "object",
-              properties: {
-                snippet: {
-                  type: "string"
-                },
-                langId: {
-                  type: "string"
-                },
-                name: {
-                  type: "string"
-                }
+        args: [{
+          name: "args",
+          schema: {
+            "type": "object",
+            "properties": {
+              "snippet": {
+                "type": "string"
+              },
+              "langId": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
               }
             }
           }
-        ]
+        }]
       }
     });
   }
@@ -79,51 +79,41 @@ class InsertSnippetAction extends SnippetEditorAction {
     }
     const clipboardService = accessor.get(IClipboardService);
     const instaService = accessor.get(IInstantiationService);
-    const snippet = await new Promise(
-      (resolve, reject) => {
-        const { lineNumber, column } = editor.getPosition();
-        const { snippet: snippet2, name, langId } = Args.fromUser(arg);
-        if (snippet2) {
-          return resolve(
-            new Snippet(
-              false,
-              [],
-              "",
-              "",
-              "",
-              snippet2,
-              "",
-              SnippetSource.User,
-              `random/${Math.random()}`
-            )
-          );
+    const snippet = await new Promise((resolve, reject) => {
+      const { lineNumber, column } = editor.getPosition();
+      const { snippet: snippet2, name, langId } = Args.fromUser(arg);
+      if (snippet2) {
+        return resolve(new Snippet(
+          false,
+          [],
+          "",
+          "",
+          "",
+          snippet2,
+          "",
+          SnippetSource.User,
+          `random/${Math.random()}`
+        ));
+      }
+      let languageId;
+      if (langId) {
+        if (!languageService.isRegisteredLanguageId(langId)) {
+          return resolve(void 0);
         }
-        let languageId;
-        if (langId) {
-          if (!languageService.isRegisteredLanguageId(langId)) {
-            return resolve(void 0);
-          }
-          languageId = langId;
-        } else {
-          editor.getModel().tokenization.tokenizeIfCheap(lineNumber);
-          languageId = editor.getModel().getLanguageIdAtPosition(lineNumber, column);
-          if (!languageService.getLanguageName(languageId)) {
-            languageId = editor.getModel().getLanguageId();
-          }
-        }
-        if (name) {
-          snippetService.getSnippets(languageId, {
-            includeNoPrefixSnippets: true
-          }).then(
-            (snippets) => snippets.find((snippet3) => snippet3.name === name)
-          ).then(resolve, reject);
-        } else {
-          resolve(
-            instaService.invokeFunction(pickSnippet, languageId)
-          );
+        languageId = langId;
+      } else {
+        editor.getModel().tokenization.tokenizeIfCheap(lineNumber);
+        languageId = editor.getModel().getLanguageIdAtPosition(lineNumber, column);
+        if (!languageService.getLanguageName(languageId)) {
+          languageId = editor.getModel().getLanguageId();
         }
       }
-    );
+      if (name) {
+        snippetService.getSnippets(languageId, { includeNoPrefixSnippets: true }).then((snippets) => snippets.find((snippet3) => snippet3.name === name)).then(resolve, reject);
+      } else {
+        resolve(instaService.invokeFunction(pickSnippet, languageId));
+      }
+    });
     if (!snippet) {
       return;
     }
@@ -132,9 +122,7 @@ class InsertSnippetAction extends SnippetEditorAction {
       clipboardText = await clipboardService.readText();
     }
     editor.focus();
-    SnippetController2.get(editor)?.insert(snippet.codeSnippet, {
-      clipboardText
-    });
+    SnippetController2.get(editor)?.insert(snippet.codeSnippet, { clipboardText });
     snippetService.updateUsageTimestamp(snippet);
   }
 }

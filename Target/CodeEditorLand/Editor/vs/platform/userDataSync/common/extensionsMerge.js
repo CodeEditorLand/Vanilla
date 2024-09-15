@@ -1,18 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStringDictionary } from "../../../base/common/collections.js";
 import { deepClone, equals } from "../../../base/common/objects.js";
 import * as semver from "../../../base/common/semver/semver.js";
 import { assertIsDefined } from "../../../base/common/types.js";
+import { IExtensionIdentifier } from "../../extensions/common/extensions.js";
+import { ILocalSyncExtension, IRemoteSyncExtension, ISyncExtension } from "./userDataSync.js";
 function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExtensions, ignoredExtensions, lastSyncBuiltinExtensions) {
   const added = [];
   const removed = [];
   const updated = [];
   if (!remoteExtensions) {
-    const remote2 = localExtensions.filter(
-      ({ identifier }) => ignoredExtensions.every(
-        (id) => id.toLowerCase() !== identifier.id.toLowerCase()
-      )
-    );
+    const remote2 = localExtensions.filter(({ identifier }) => ignoredExtensions.every((id) => id.toLowerCase() !== identifier.id.toLowerCase()));
     return {
       local: {
         added,
@@ -27,9 +26,7 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
       } : null
     };
   }
-  localExtensions = localExtensions.map(
-    massageIncomingExtension
-  );
+  localExtensions = localExtensions.map(massageIncomingExtension);
   remoteExtensions = remoteExtensions.map(massageIncomingExtension);
   lastSyncExtensions = lastSyncExtensions ? lastSyncExtensions.map(massageIncomingExtension) : null;
   const uuids = /* @__PURE__ */ new Map();
@@ -51,55 +48,23 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
     map.set(getKey(extension), extension);
     return map;
   }, "addExtensionToMap");
-  const localExtensionsMap = localExtensions.reduce(
-    addExtensionToMap,
-    /* @__PURE__ */ new Map()
-  );
-  const remoteExtensionsMap = remoteExtensions.reduce(
-    addExtensionToMap,
-    /* @__PURE__ */ new Map()
-  );
-  const newRemoteExtensionsMap = remoteExtensions.reduce(
-    (map, extension) => addExtensionToMap(map, deepClone(extension)),
-    /* @__PURE__ */ new Map()
-  );
-  const lastSyncExtensionsMap = lastSyncExtensions ? lastSyncExtensions.reduce(
-    addExtensionToMap,
-    /* @__PURE__ */ new Map()
-  ) : null;
-  const skippedExtensionsMap = skippedExtensions.reduce(
-    addExtensionToMap,
-    /* @__PURE__ */ new Map()
-  );
+  const localExtensionsMap = localExtensions.reduce(addExtensionToMap, /* @__PURE__ */ new Map());
+  const remoteExtensionsMap = remoteExtensions.reduce(addExtensionToMap, /* @__PURE__ */ new Map());
+  const newRemoteExtensionsMap = remoteExtensions.reduce((map, extension) => addExtensionToMap(map, deepClone(extension)), /* @__PURE__ */ new Map());
+  const lastSyncExtensionsMap = lastSyncExtensions ? lastSyncExtensions.reduce(addExtensionToMap, /* @__PURE__ */ new Map()) : null;
+  const skippedExtensionsMap = skippedExtensions.reduce(addExtensionToMap, /* @__PURE__ */ new Map());
   const ignoredExtensionsSet = ignoredExtensions.reduce((set, id) => {
     const uuid = uuids.get(id.toLowerCase());
     return set.add(uuid ? `uuid:${uuid}` : `id:${id.toLowerCase()}`);
   }, /* @__PURE__ */ new Set());
   const lastSyncBuiltinExtensionsSet = lastSyncBuiltinExtensions ? lastSyncBuiltinExtensions.reduce((set, { id, uuid }) => {
     uuid = uuid ?? uuids.get(id.toLowerCase());
-    return set.add(
-      uuid ? `uuid:${uuid}` : `id:${id.toLowerCase()}`
-    );
+    return set.add(uuid ? `uuid:${uuid}` : `id:${id.toLowerCase()}`);
   }, /* @__PURE__ */ new Set()) : null;
-  const localToRemote = compare(
-    localExtensionsMap,
-    remoteExtensionsMap,
-    ignoredExtensionsSet,
-    false
-  );
+  const localToRemote = compare(localExtensionsMap, remoteExtensionsMap, ignoredExtensionsSet, false);
   if (localToRemote.added.size > 0 || localToRemote.removed.size > 0 || localToRemote.updated.size > 0) {
-    const baseToLocal = compare(
-      lastSyncExtensionsMap,
-      localExtensionsMap,
-      ignoredExtensionsSet,
-      false
-    );
-    const baseToRemote = compare(
-      lastSyncExtensionsMap,
-      remoteExtensionsMap,
-      ignoredExtensionsSet,
-      true
-    );
+    const baseToLocal = compare(lastSyncExtensionsMap, localExtensionsMap, ignoredExtensionsSet, false);
+    const baseToRemote = compare(lastSyncExtensionsMap, remoteExtensionsMap, ignoredExtensionsSet, true);
     const merge2 = /* @__PURE__ */ __name((key, localExtension, remoteExtension, preferred) => {
       let pinned, version, preRelease;
       if (localExtension.installed) {
@@ -129,15 +94,8 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
         installed: localExtension.installed || remoteExtension.installed,
         pinned,
         preRelease,
-        version: version ?? (remoteExtension.version && (!localExtension.installed || semver.gt(
-          remoteExtension.version,
-          localExtension.version
-        )) ? remoteExtension.version : localExtension.version),
-        state: mergeExtensionState(
-          localExtension,
-          remoteExtension,
-          lastSyncExtensionsMap?.get(key)
-        )
+        version: version ?? (remoteExtension.version && (!localExtension.installed || semver.gt(remoteExtension.version, localExtension.version)) ? remoteExtension.version : localExtension.version),
+        state: mergeExtensionState(localExtension, remoteExtension, lastSyncExtensionsMap?.get(key))
       };
     }, "merge");
     for (const key of baseToRemote.removed.values()) {
@@ -145,9 +103,7 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
       if (!localExtension) {
         continue;
       }
-      const baseExtension = assertIsDefined(
-        lastSyncExtensionsMap?.get(key)
-      );
+      const baseExtension = assertIsDefined(lastSyncExtensionsMap?.get(key));
       const wasAnInstalledExtensionDuringLastSync = lastSyncBuiltinExtensionsSet && !lastSyncBuiltinExtensionsSet.has(key) && baseExtension.installed;
       if (localExtension.installed && wasAnInstalledExtensionDuringLastSync) {
         removed.push(localExtension.identifier);
@@ -156,22 +112,13 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
       }
     }
     for (const key of baseToRemote.added.values()) {
-      const remoteExtension = assertIsDefined(
-        remoteExtensionsMap.get(key)
-      );
+      const remoteExtension = assertIsDefined(remoteExtensionsMap.get(key));
       const localExtension = localExtensionsMap.get(key);
       if (localExtension) {
         if (localToRemote.updated.has(key)) {
-          const mergedExtension = merge2(
-            key,
-            localExtension,
-            remoteExtension,
-            remoteExtension
-          );
+          const mergedExtension = merge2(key, localExtension, remoteExtension, remoteExtension);
           if (!areSame(localExtension, remoteExtension, false, false)) {
-            updated.push(
-              massageOutgoingExtension(mergedExtension, key)
-            );
+            updated.push(massageOutgoingExtension(mergedExtension, key));
           }
           newRemoteExtensionsMap.set(key, mergedExtension);
         }
@@ -182,27 +129,16 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
       }
     }
     for (const key of baseToRemote.updated.values()) {
-      const remoteExtension = assertIsDefined(
-        remoteExtensionsMap.get(key)
-      );
-      const baseExtension = assertIsDefined(
-        lastSyncExtensionsMap?.get(key)
-      );
+      const remoteExtension = assertIsDefined(remoteExtensionsMap.get(key));
+      const baseExtension = assertIsDefined(lastSyncExtensionsMap?.get(key));
       const localExtension = localExtensionsMap.get(key);
       if (localExtension) {
         const wasAnInstalledExtensionDuringLastSync = lastSyncBuiltinExtensionsSet && !lastSyncBuiltinExtensionsSet.has(key) && baseExtension.installed;
         if (wasAnInstalledExtensionDuringLastSync && localExtension.installed && !remoteExtension.installed) {
           removed.push(localExtension.identifier);
         } else {
-          const mergedExtension = merge2(
-            key,
-            localExtension,
-            remoteExtension,
-            remoteExtension
-          );
-          updated.push(
-            massageOutgoingExtension(mergedExtension, key)
-          );
+          const mergedExtension = merge2(key, localExtension, remoteExtension, remoteExtension);
+          updated.push(massageOutgoingExtension(mergedExtension, key));
           newRemoteExtensionsMap.set(key, mergedExtension);
         }
       } else if (remoteExtension.installed) {
@@ -213,10 +149,7 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
       if (baseToRemote.added.has(key)) {
         continue;
       }
-      newRemoteExtensionsMap.set(
-        key,
-        assertIsDefined(localExtensionsMap.get(key))
-      );
+      newRemoteExtensionsMap.set(key, assertIsDefined(localExtensionsMap.get(key)));
     }
     for (const key of baseToLocal.updated.values()) {
       if (baseToRemote.removed.has(key)) {
@@ -226,13 +159,8 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
         continue;
       }
       const localExtension = assertIsDefined(localExtensionsMap.get(key));
-      const remoteExtension = assertIsDefined(
-        remoteExtensionsMap.get(key)
-      );
-      newRemoteExtensionsMap.set(
-        key,
-        merge2(key, localExtension, remoteExtension, localExtension)
-      );
+      const remoteExtension = assertIsDefined(remoteExtensionsMap.get(key));
+      newRemoteExtensionsMap.set(key, merge2(key, localExtension, remoteExtension, localExtension));
     }
     for (const key of baseToLocal.removed.values()) {
       if (baseToRemote.updated.has(key)) {
@@ -257,30 +185,17 @@ function merge(localExtensions, remoteExtensions, lastSyncExtensions, skippedExt
     }
   }
   const remote = [];
-  const remoteChanges = compare(
-    remoteExtensionsMap,
-    newRemoteExtensionsMap,
-    /* @__PURE__ */ new Set(),
-    true
-  );
+  const remoteChanges = compare(remoteExtensionsMap, newRemoteExtensionsMap, /* @__PURE__ */ new Set(), true);
   const hasRemoteChanges = remoteChanges.added.size > 0 || remoteChanges.updated.size > 0 || remoteChanges.removed.size > 0;
   if (hasRemoteChanges) {
-    newRemoteExtensionsMap.forEach(
-      (value, key) => remote.push(massageOutgoingExtension(value, key))
-    );
+    newRemoteExtensionsMap.forEach((value, key) => remote.push(massageOutgoingExtension(value, key)));
   }
   return {
     local: { added, removed, updated },
     remote: hasRemoteChanges ? {
-      added: [...remoteChanges.added].map(
-        (id) => newRemoteExtensionsMap.get(id)
-      ),
-      updated: [...remoteChanges.updated].map(
-        (id) => newRemoteExtensionsMap.get(id)
-      ),
-      removed: [...remoteChanges.removed].map(
-        (id) => remoteExtensionsMap.get(id)
-      ),
+      added: [...remoteChanges.added].map((id) => newRemoteExtensionsMap.get(id)),
+      updated: [...remoteChanges.updated].map((id) => newRemoteExtensionsMap.get(id)),
+      removed: [...remoteChanges.removed].map((id) => remoteExtensionsMap.get(id)),
       all: remote
     } : null
   };
@@ -361,26 +276,15 @@ function mergeExtensionState(localExtension, remoteExtension, lastSyncExtension)
     return localState;
   }
   const mergedState = deepClone(localState);
-  const baseToRemote = baseState ? compareExtensionState(baseState, remoteState) : {
-    added: Object.keys(remoteState).reduce((r, k) => {
-      r.add(k);
-      return r;
-    }, /* @__PURE__ */ new Set()),
-    removed: /* @__PURE__ */ new Set(),
-    updated: /* @__PURE__ */ new Set()
-  };
-  const baseToLocal = baseState ? compareExtensionState(baseState, localState) : {
-    added: Object.keys(localState).reduce((r, k) => {
-      r.add(k);
-      return r;
-    }, /* @__PURE__ */ new Set()),
-    removed: /* @__PURE__ */ new Set(),
-    updated: /* @__PURE__ */ new Set()
-  };
-  for (const key of [
-    ...baseToRemote.added.values(),
-    ...baseToRemote.updated.values()
-  ]) {
+  const baseToRemote = baseState ? compareExtensionState(baseState, remoteState) : { added: Object.keys(remoteState).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
+  const baseToLocal = baseState ? compareExtensionState(baseState, localState) : { added: Object.keys(localState).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
+  for (const key of [...baseToRemote.added.values(), ...baseToRemote.updated.values()]) {
     mergedState[key] = remoteState[key];
   }
   for (const key of baseToRemote.removed.values()) {
@@ -422,10 +326,7 @@ function isSameExtensionState(a = {}, b = {}) {
 }
 __name(isSameExtensionState, "isSameExtensionState");
 function massageIncomingExtension(extension) {
-  return {
-    ...extension,
-    ...{ disabled: !!extension.disabled, installed: !!extension.installed }
-  };
+  return { ...extension, ...{ disabled: !!extension.disabled, installed: !!extension.installed } };
 }
 __name(massageIncomingExtension, "massageIncomingExtension");
 function massageOutgoingExtension(extension, key) {

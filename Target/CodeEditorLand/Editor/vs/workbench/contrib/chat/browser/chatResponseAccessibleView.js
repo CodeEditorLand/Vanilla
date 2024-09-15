@@ -1,21 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { renderMarkdownAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
-import {
-  MarkdownString
-} from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  AccessibleViewProviderId,
-  AccessibleViewType
-} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IMarkdownString, MarkdownString } from "../../../../base/common/htmlContent.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { IChatWidgetService, IChatWidget, ChatTreeItem } from "./chat.js";
 import { CONTEXT_IN_CHAT_SESSION } from "../common/chatContextKeys.js";
 import { ChatWelcomeMessageModel } from "../common/chatModel.js";
 import { isResponseVM } from "../common/chatViewModel.js";
-import {
-  IChatWidgetService
-} from "./chat.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 class ChatResponseAccessibleView {
   static {
     __name(this, "ChatResponseAccessibleView");
@@ -39,11 +34,7 @@ class ChatResponseAccessibleView {
     if (!focusedItem) {
       return;
     }
-    return new ChatResponseAccessibleProvider(
-      verifiedWidget,
-      focusedItem,
-      chatInputFocused
-    );
+    return new ChatResponseAccessibleProvider(verifiedWidget, focusedItem, chatInputFocused);
   }
 }
 class ChatResponseAccessibleProvider extends Disposable {
@@ -72,9 +63,7 @@ class ChatResponseAccessibleProvider extends Disposable {
         if (Array.isArray(content)) {
           welcomeReplyContents.push(...content.map((m) => m.message));
         } else {
-          welcomeReplyContents.push(
-            content.value
-          );
+          welcomeReplyContents.push(content.value);
         }
       }
       responseContent = welcomeReplyContents.join("\n");
@@ -82,10 +71,7 @@ class ChatResponseAccessibleProvider extends Disposable {
     if (!responseContent && "errorDetails" in item && item.errorDetails) {
       responseContent = item.errorDetails.message;
     }
-    return renderMarkdownAsPlaintext(
-      new MarkdownString(responseContent),
-      true
-    );
+    return renderMarkdownAsPlaintext(new MarkdownString(responseContent), true);
   }
   onClose() {
     this._widget.reveal(this._focusedItem);

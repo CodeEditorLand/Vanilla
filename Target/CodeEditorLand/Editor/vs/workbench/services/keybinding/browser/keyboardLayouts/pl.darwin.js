@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.PolishPro",
-    lang: "pl",
-    localizedName: "Polish - Pro"
-  },
+  layout: { id: "com.apple.keylayout.PolishPro", lang: "pl", localizedName: "Polish - Pro" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\u0105", "\u0104", 0],

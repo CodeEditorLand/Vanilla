@@ -10,14 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
 import { localize } from "../../../../nls.js";
-import { ByteSize } from "../../../../platform/files/common/files.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 import { BinaryEditorModel } from "../../../common/editor/binaryEditorModel.js";
-import {
-  EditorPlaceholder
-} from "./editorPlaceholder.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ByteSize } from "../../../../platform/files/common/files.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { EditorPlaceholder, IEditorPlaceholderContents } from "./editorPlaceholder.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
 let BaseBinaryResourceEditor = class extends EditorPlaceholder {
   constructor(id, group, callbacks, telemetryService, themeService, storageService) {
     super(id, group, telemetryService, themeService, storageService);
@@ -40,15 +43,10 @@ let BaseBinaryResourceEditor = class extends EditorPlaceholder {
       throw new Error("Unable to open file as binary");
     }
     const size = model.getSize();
-    this.handleMetadataChanged(
-      typeof size === "number" ? ByteSize.formatSize(size) : ""
-    );
+    this.handleMetadataChanged(typeof size === "number" ? ByteSize.formatSize(size) : "");
     return {
       icon: "$(warning)",
-      label: localize(
-        "binaryError",
-        "The file is not displayed in the text editor because it is either binary or uses an unsupported text encoding."
-      ),
+      label: localize("binaryError", "The file is not displayed in the text editor because it is either binary or uses an unsupported text encoding."),
       actions: [
         {
           label: localize("openAnyway", "Open Anyway"),

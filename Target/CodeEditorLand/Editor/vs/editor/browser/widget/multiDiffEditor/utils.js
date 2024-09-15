@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ActionRunner } from "../../../../base/common/actions.js";
+import { ActionRunner, IAction } from "../../../../base/common/actions.js";
 class ActionRunnerWithContext extends ActionRunner {
   constructor(_getContext) {
     super();

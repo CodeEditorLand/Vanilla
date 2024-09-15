@@ -10,17 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  AbstractTunnelService,
-  ITunnelService,
-  isTunnelProvider
-} from "../../../../platform/tunnel/common/tunnel.js";
+import { IAddressProvider } from "../../../../platform/remote/common/remoteAgentConnection.js";
+import { AbstractTunnelService, ITunnelProvider, ITunnelService, RemoteTunnel, isTunnelProvider } from "../../../../platform/tunnel/common/tunnel.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 let TunnelService = class extends AbstractTunnelService {
   constructor(logService, environmentService, configurationService) {
@@ -40,15 +35,7 @@ let TunnelService = class extends AbstractTunnelService {
       return existing.value;
     }
     if (isTunnelProvider(tunnelProvider)) {
-      return this.createWithProvider(
-        tunnelProvider,
-        remoteHost,
-        remotePort,
-        localPort,
-        elevateIfNeeded,
-        privacy,
-        protocol
-      );
+      return this.createWithProvider(tunnelProvider, remoteHost, remotePort, localPort, elevateIfNeeded, privacy, protocol);
     }
     return void 0;
   }

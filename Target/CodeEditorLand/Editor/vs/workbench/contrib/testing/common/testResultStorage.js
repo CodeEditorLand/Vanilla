@@ -10,11 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  VSBuffer,
-  bufferToStream,
-  newWriteableBufferStream
-} from "../../../../base/common/buffer.js";
+import { bufferToStream, newWriteableBufferStream, VSBuffer, VSBufferReadableStream, VSBufferWriteableStream } from "../../../../base/common/buffer.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { isDefined } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -22,15 +18,12 @@ import { IEnvironmentService } from "../../../../platform/environment/common/env
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { StoredValue } from "./storedValue.js";
-import { HydratedTestResult } from "./testResult.js";
+import { HydratedTestResult, ITestResult } from "./testResult.js";
+import { ISerializedTestResults } from "./testTypes.js";
 const RETAIN_MAX_RESULTS = 128;
 const RETAIN_MIN_RESULTS = 16;
 const RETAIN_MAX_BYTES = 1024 * 128;
@@ -47,43 +40,30 @@ let BaseTestResultStorage = class extends Disposable {
   static {
     __name(this, "BaseTestResultStorage");
   }
-  stored = this._register(
-    new StoredValue(
-      {
-        key: "storedTestResults",
-        scope: StorageScope.WORKSPACE,
-        target: StorageTarget.MACHINE
-      },
-      this.storageService
-    )
-  );
+  stored = this._register(new StoredValue({
+    key: "storedTestResults",
+    scope: StorageScope.WORKSPACE,
+    target: StorageTarget.MACHINE
+  }, this.storageService));
   /**
    * @override
    */
   async read() {
-    const results = await Promise.all(
-      this.stored.get([]).map(async ({ id, rev }) => {
-        if (rev !== currentRevision) {
+    const results = await Promise.all(this.stored.get([]).map(async ({ id, rev }) => {
+      if (rev !== currentRevision) {
+        return void 0;
+      }
+      try {
+        const contents = await this.readForResultId(id);
+        if (!contents) {
           return void 0;
         }
-        try {
-          const contents = await this.readForResultId(id);
-          if (!contents) {
-            return void 0;
-          }
-          return new HydratedTestResult(
-            this.uriIdentityService,
-            contents
-          );
-        } catch (e) {
-          this.logService.warn(
-            `Error deserializing stored test result ${id}`,
-            e
-          );
-          return void 0;
-        }
-      })
-    );
+        return new HydratedTestResult(this.uriIdentityService, contents);
+      } catch (e) {
+        this.logService.warn(`Error deserializing stored test result ${id}`, e);
+        return void 0;
+      }
+    }));
     return results.filter(isDefined);
   }
   /**
@@ -98,9 +78,7 @@ let BaseTestResultStorage = class extends Disposable {
    * @override
    */
   async persist(results) {
-    const toDelete = new Map(
-      this.stored.get([]).map(({ id, bytes }) => [id, bytes])
-    );
+    const toDelete = new Map(this.stored.get([]).map(({ id, bytes }) => [id, bytes]));
     const toStore = [];
     const todo = [];
     let budget = RETAIN_MAX_BYTES;
@@ -109,11 +87,7 @@ let BaseTestResultStorage = class extends Disposable {
       const existingBytes = toDelete.get(result.id);
       if (existingBytes !== void 0) {
         toDelete.delete(result.id);
-        toStore.push({
-          id: result.id,
-          rev: currentRevision,
-          bytes: existingBytes
-        });
+        toStore.push({ id: result.id, rev: currentRevision, bytes: existingBytes });
         budget -= existingBytes;
         continue;
       }
@@ -123,11 +97,7 @@ let BaseTestResultStorage = class extends Disposable {
       }
       const contents = VSBuffer.fromString(JSON.stringify(obj));
       todo.push(this.storeForResultId(result.id, obj));
-      toStore.push({
-        id: result.id,
-        rev: currentRevision,
-        bytes: contents.byteLength
-      });
+      toStore.push({ id: result.id, rev: currentRevision, bytes: contents.byteLength });
       budget -= contents.byteLength;
     }
     for (const id of toDelete.keys()) {
@@ -172,37 +142,25 @@ let TestResultStorage = class extends BaseTestResultStorage {
   constructor(uriIdentityService, storageService, logService, workspaceContext, fileService, environmentService) {
     super(uriIdentityService, storageService, logService);
     this.fileService = fileService;
-    this.directory = URI.joinPath(
-      environmentService.workspaceStorageHome,
-      workspaceContext.getWorkspace().id,
-      "testResults"
-    );
+    this.directory = URI.joinPath(environmentService.workspaceStorageHome, workspaceContext.getWorkspace().id, "testResults");
   }
   static {
     __name(this, "TestResultStorage");
   }
   directory;
   async readForResultId(id) {
-    const contents = await this.fileService.readFile(
-      this.getResultJsonPath(id)
-    );
+    const contents = await this.fileService.readFile(this.getResultJsonPath(id));
     return JSON.parse(contents.value.toString());
   }
   storeForResultId(id, contents) {
-    return this.fileService.writeFile(
-      this.getResultJsonPath(id),
-      VSBuffer.fromString(JSON.stringify(contents))
-    );
+    return this.fileService.writeFile(this.getResultJsonPath(id), VSBuffer.fromString(JSON.stringify(contents)));
   }
   deleteForResultId(id) {
     return this.fileService.del(this.getResultJsonPath(id)).catch(() => void 0);
   }
   async readOutputRangeForResultId(id, offset, length) {
     try {
-      const { value } = await this.fileService.readFile(
-        this.getResultOutputPath(id),
-        { position: offset, length }
-      );
+      const { value } = await this.fileService.readFile(this.getResultOutputPath(id), { position: offset, length });
       return value;
     } catch {
       return VSBuffer.alloc(0);
@@ -210,9 +168,7 @@ let TestResultStorage = class extends BaseTestResultStorage {
   }
   async readOutputForResultId(id) {
     try {
-      const { value } = await this.fileService.readFileStream(
-        this.getResultOutputPath(id)
-      );
+      const { value } = await this.fileService.readFileStream(this.getResultOutputPath(id));
       return value;
     } catch {
       return bufferToStream(VSBuffer.alloc(0));
@@ -239,15 +195,9 @@ let TestResultStorage = class extends BaseTestResultStorage {
     if (!children) {
       return;
     }
-    const stored = new Set(
-      this.stored.get([]).filter((s) => s.rev === currentRevision).map((s) => s.id)
-    );
+    const stored = new Set(this.stored.get([]).filter((s) => s.rev === currentRevision).map((s) => s.id));
     await Promise.all(
-      children.filter(
-        (child) => !stored.has(child.name.replace(/\.[a-z]+$/, ""))
-      ).map(
-        (child) => this.fileService.del(child.resource).catch(() => void 0)
-      )
+      children.filter((child) => !stored.has(child.name.replace(/\.[a-z]+$/, ""))).map((child) => this.fileService.del(child.resource).catch(() => void 0))
     );
   }
   getResultJsonPath(id) {

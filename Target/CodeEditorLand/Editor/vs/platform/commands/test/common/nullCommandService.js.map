@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/platform/commands/test/common/nullCommandService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Disposable } from '../../../../base/common/lifecycle.js';\nimport { ICommandService } from '../../common/commands.js';\n\nexport const NullCommandService: ICommandService = {\n\t_serviceBrand: undefined,\n\tonWillExecuteCommand: () => Disposable.None,\n\tonDidExecuteCommand: () => Disposable.None,\n\texecuteCommand() {\n\t\treturn Promise.resolve(undefined);\n\t}\n};\n"],
+  "mappings": ";;AAKA,SAAS,kBAAkB;AAC3B,SAAS,uBAAuB;AAEzB,MAAM,qBAAsC;AAAA,EAClD,eAAe;AAAA,EACf,sBAAsB,6BAAM,WAAW,MAAjB;AAAA,EACtB,qBAAqB,6BAAM,WAAW,MAAjB;AAAA,EACrB,iBAAiB;AAChB,WAAO,QAAQ,QAAQ,MAAS;AAAA,EACjC;AACD;",
+  "names": []
+}

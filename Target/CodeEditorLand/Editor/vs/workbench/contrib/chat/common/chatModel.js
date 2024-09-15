@@ -12,38 +12,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { asArray } from "../../../../base/common/arrays.js";
 import { DeferredPromise } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  MarkdownString,
-  isMarkdownString
-} from "../../../../base/common/htmlContent.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IMarkdownString, MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { revive } from "../../../../base/common/marshalling.js";
 import { equals } from "../../../../base/common/objects.js";
 import { basename, isEqual } from "../../../../base/common/resources.js";
-import {
-  URI,
-  isUriComponents
-} from "../../../../base/common/uri.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI, UriComponents, UriDto, isUriComponents } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  OffsetRange
-} from "../../../../editor/common/core/offsetRange.js";
+import { IOffsetRange, OffsetRange } from "../../../../editor/common/core/offsetRange.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { TextEdit } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  ChatAgentLocation,
-  IChatAgentService,
-  reviveSerializedAgent
-} from "./chatAgents.js";
-import {
-  ChatRequestTextPart,
-  reviveParsedChatRequest
-} from "./chatParserTypes.js";
-import {
-  isIUsedContext
-} from "./chatService.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService, reviveSerializedAgent } from "./chatAgents.js";
+import { ChatRequestTextPart, IParsedChatRequest, reviveParsedChatRequest } from "./chatParserTypes.js";
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatProgress, IChatProgressMessage, IChatResponseCodeblockUriPart, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatTreeData, IChatUsedContext, IChatWarningMessage, isIUsedContext } from "./chatService.js";
+import { IChatRequestVariableValue } from "./chatVariables.js";
 class ChatRequestModel {
   constructor(_session, message, _variableData, _attempt = 0, _confirmation, _locationData, _attachedContext) {
     this._session = _session;
@@ -115,12 +102,7 @@ class Response extends Disposable {
   }
   constructor(value) {
     super();
-    this._responseParts = asArray(value).map(
-      (v) => isMarkdownString(v) ? {
-        content: v,
-        kind: "markdownContent"
-      } : "kind" in v ? v : { kind: "treeData", treeData: v }
-    );
+    this._responseParts = asArray(value).map((v) => isMarkdownString(v) ? { content: v, kind: "markdownContent" } : "kind" in v ? v : { kind: "treeData", treeData: v });
     this._updateRepr(true);
   }
   toString() {
@@ -137,16 +119,10 @@ class Response extends Disposable {
     if (progress.kind === "markdownContent") {
       const responsePartLength = this._responseParts.length - 1;
       const lastResponsePart = this._responseParts[responsePartLength];
-      if (!lastResponsePart || lastResponsePart.kind !== "markdownContent" || !canMergeMarkdownStrings(
-        lastResponsePart.content,
-        progress.content
-      )) {
+      if (!lastResponsePart || lastResponsePart.kind !== "markdownContent" || !canMergeMarkdownStrings(lastResponsePart.content, progress.content)) {
         this._responseParts.push(progress);
       } else {
-        lastResponsePart.content = appendMarkdownString(
-          lastResponsePart.content,
-          progress.content
-        );
+        lastResponsePart.content = appendMarkdownString(lastResponsePart.content, progress.content);
       }
       this._updateRepr(quiet);
     } else if (progress.kind === "textEdit") {
@@ -240,9 +216,7 @@ class ChatResponseModel extends Disposable {
     this._isStale = Array.isArray(_response) && (_response.length !== 0 || isMarkdownString(_response) && _response.value.length !== 0);
     this._followups = followups ? [...followups] : void 0;
     this._response = this._register(new Response(_response));
-    this._register(
-      this._response.onDidChangeValue(() => this._onDidChange.fire())
-    );
+    this._register(this._response.onDidChangeValue(() => this._onDidChange.fire()));
     this.id = "response_" + ChatResponseModel.nextId++;
   }
   static {
@@ -465,9 +439,7 @@ let ChatModel = class extends Disposable {
     this._lastMessageDate = isSerializableSessionData(initialData) && initialData.lastMessageDate || this._creationDate;
     this._customTitle = isSerializableSessionData(initialData) ? initialData.customTitle : void 0;
     this._initialRequesterAvatarIconUri = initialData?.requesterAvatarIconUri && URI.revive(initialData.requesterAvatarIconUri);
-    this._initialResponderAvatarIconUri = isUriComponents(
-      initialData?.responderAvatarIconUri
-    ) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
+    this._initialResponderAvatarIconUri = isUriComponents(initialData?.responderAvatarIconUri) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
   }
   static {
     __name(this, "ChatModel");
@@ -479,9 +451,7 @@ let ChatModel = class extends Disposable {
   }
   _onDidDispose = this._register(new Emitter());
   onDidDispose = this._onDidDispose.event;
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
   _requests;
   _initState = 0 /* Created */;
@@ -551,30 +521,18 @@ let ChatModel = class extends Disposable {
   _deserialize(obj) {
     const requests = obj.requests;
     if (!Array.isArray(requests)) {
-      this.logService.error(
-        `Ignoring malformed session data: ${JSON.stringify(obj)}`
-      );
+      this.logService.error(`Ignoring malformed session data: ${JSON.stringify(obj)}`);
       return [];
     }
     if (obj.welcomeMessage) {
-      const content = obj.welcomeMessage.map(
-        (item) => typeof item === "string" ? new MarkdownString(item) : item
-      );
-      this._welcomeMessage = this.instantiationService.createInstance(
-        ChatWelcomeMessageModel,
-        content,
-        []
-      );
+      const content = obj.welcomeMessage.map((item) => typeof item === "string" ? new MarkdownString(item) : item);
+      this._welcomeMessage = this.instantiationService.createInstance(ChatWelcomeMessageModel, content, []);
     }
     try {
       return requests.map((raw) => {
         const parsedRequest = typeof raw.message === "string" ? this.getParsedRequestFromString(raw.message) : reviveParsedChatRequest(raw.message);
         const variableData = this.reviveVariableData(raw.variableData);
-        const request = new ChatRequestModel(
-          this,
-          parsedRequest,
-          variableData
-        );
+        const request = new ChatRequestModel(this, parsedRequest, variableData);
         if (raw.response || raw.result || raw.responseErrorDetails) {
           const agent = raw.agent && "metadata" in raw.agent ? (
             // Check for the new format, ignore entries in the old format
@@ -582,34 +540,14 @@ let ChatModel = class extends Disposable {
           ) : void 0;
           const result = "responseErrorDetails" in raw ? (
             // eslint-disable-next-line local/code-no-dangerous-type-assertions
-            {
-              errorDetails: raw.responseErrorDetails
-            }
+            { errorDetails: raw.responseErrorDetails }
           ) : raw.result;
-          request.response = new ChatResponseModel(
-            raw.response ?? [new MarkdownString(raw.response)],
-            this,
-            agent,
-            raw.slashCommand,
-            request.id,
-            true,
-            raw.isCanceled,
-            raw.vote,
-            raw.voteDownReason,
-            result,
-            raw.followups
-          );
+          request.response = new ChatResponseModel(raw.response ?? [new MarkdownString(raw.response)], this, agent, raw.slashCommand, request.id, true, raw.isCanceled, raw.vote, raw.voteDownReason, result, raw.followups);
           if (raw.usedContext) {
-            request.response.applyReference(
-              revive(raw.usedContext)
-            );
+            request.response.applyReference(revive(raw.usedContext));
           }
-          raw.contentReferences?.forEach(
-            (r) => request.response.applyReference(revive(r))
-          );
-          raw.codeCitations?.forEach(
-            (c) => request.response.applyCodeCitation(revive(c))
-          );
+          raw.contentReferences?.forEach((r) => request.response.applyReference(revive(r)));
+          raw.codeCitations?.forEach((c) => request.response.applyCodeCitation(revive(c)));
         }
         return request;
       });
@@ -620,37 +558,24 @@ let ChatModel = class extends Disposable {
   }
   reviveVariableData(raw) {
     const variableData = raw && Array.isArray(raw.variables) ? raw : { variables: [] };
-    variableData.variables = variableData.variables.map(
-      (v) => {
-        if (v && "values" in v && Array.isArray(v.values)) {
-          return {
-            id: v.id ?? "",
-            name: v.name,
-            value: v.values[0]?.value,
-            range: v.range,
-            modelDescription: v.modelDescription,
-            references: v.references
-          };
-        } else {
-          return v;
-        }
+    variableData.variables = variableData.variables.map((v) => {
+      if (v && "values" in v && Array.isArray(v.values)) {
+        return {
+          id: v.id ?? "",
+          name: v.name,
+          value: v.values[0]?.value,
+          range: v.range,
+          modelDescription: v.modelDescription,
+          references: v.references
+        };
+      } else {
+        return v;
       }
-    );
+    });
     return variableData;
   }
   getParsedRequestFromString(message) {
-    const parts = [
-      new ChatRequestTextPart(
-        new OffsetRange(0, message.length),
-        {
-          startColumn: 1,
-          startLineNumber: 1,
-          endColumn: 1,
-          endLineNumber: 1
-        },
-        message
-      )
-    ];
+    const parts = [new ChatRequestTextPart(new OffsetRange(0, message.length), { startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1 }, message)];
     return {
       text: message,
       parts
@@ -658,9 +583,7 @@ let ChatModel = class extends Disposable {
   }
   startInitialize() {
     if (this.initState !== 0 /* Created */) {
-      throw new Error(
-        `ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`
-      );
+      throw new Error(`ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`);
     }
     this._initState = 1 /* Initializing */;
   }
@@ -670,9 +593,7 @@ let ChatModel = class extends Disposable {
   }
   initialize(welcomeMessage) {
     if (this.initState !== 1 /* Initializing */) {
-      throw new Error(
-        `ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`
-      );
+      throw new Error(`ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`);
     }
     this._initState = 2 /* Initialized */;
     if (!this._welcomeMessage) {
@@ -683,9 +604,7 @@ let ChatModel = class extends Disposable {
   }
   setInitializationError(error) {
     if (this.initState !== 1 /* Initializing */) {
-      throw new Error(
-        `ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`
-      );
+      throw new Error(`ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`);
     }
     if (!this._isInitializedDeferred.isSettled) {
       this._isInitializedDeferred.error(error);
@@ -698,22 +617,8 @@ let ChatModel = class extends Disposable {
     return this._requests;
   }
   addRequest(message, variableData, attempt, chatAgent, slashCommand, confirmation, locationData, attachments) {
-    const request = new ChatRequestModel(
-      this,
-      message,
-      variableData,
-      attempt,
-      confirmation,
-      locationData,
-      attachments
-    );
-    request.response = new ChatResponseModel(
-      [],
-      this,
-      chatAgent,
-      slashCommand,
-      request.id
-    );
+    const request = new ChatRequestModel(this, message, variableData, attempt, confirmation, locationData, attachments);
+    request.response = new ChatResponseModel([], this, chatAgent, slashCommand, request.id);
     this._requests.push(request);
     this._lastMessageDate = Date.now();
     this._onDidChange.fire({ kind: "addRequest", request });
@@ -728,9 +633,7 @@ let ChatModel = class extends Disposable {
   }
   adoptRequest(request) {
     const oldOwner = request.session;
-    const index = oldOwner._requests.findIndex(
-      (candidate) => candidate.id === request.id
-    );
+    const index = oldOwner._requests.findIndex((candidate) => candidate.id === request.id);
     if (index === -1) {
       return;
     }
@@ -738,28 +641,15 @@ let ChatModel = class extends Disposable {
     request.adoptTo(this);
     request.response?.adoptTo(this);
     this._requests.push(request);
-    oldOwner._onDidChange.fire({
-      kind: "removeRequest",
-      requestId: request.id,
-      responseId: request.response?.id,
-      reason: 2 /* Adoption */
-    });
+    oldOwner._onDidChange.fire({ kind: "removeRequest", requestId: request.id, responseId: request.response?.id, reason: 2 /* Adoption */ });
     this._onDidChange.fire({ kind: "addRequest", request });
   }
   acceptResponseProgress(request, progress, quiet) {
     if (!request.response) {
-      request.response = new ChatResponseModel(
-        [],
-        this,
-        void 0,
-        void 0,
-        request.id
-      );
+      request.response = new ChatResponseModel([], this, void 0, void 0, request.id);
     }
     if (request.response.isComplete) {
-      throw new Error(
-        "acceptResponseProgress: Adding progress to a completed response"
-      );
+      throw new Error("acceptResponseProgress: Adding progress to a completed response");
     }
     if (progress.kind === "markdownContent" || progress.kind === "treeData" || progress.kind === "inlineReference" || progress.kind === "codeblockUri" || progress.kind === "markdownVuln" || progress.kind === "progressMessage" || progress.kind === "command" || progress.kind === "textEdit" || progress.kind === "warning" || progress.kind === "progressTask" || progress.kind === "confirmation") {
       request.response.updateContent(progress, quiet);
@@ -769,36 +659,21 @@ let ChatModel = class extends Disposable {
       const agent = this.chatAgentService.getAgent(progress.agentId);
       if (agent) {
         request.response.setAgent(agent, progress.command);
-        this._onDidChange.fire({
-          kind: "setAgent",
-          agent,
-          command: progress.command
-        });
+        this._onDidChange.fire({ kind: "setAgent", agent, command: progress.command });
       }
     } else if (progress.kind === "codeCitation") {
       request.response.applyCodeCitation(progress);
     } else if (progress.kind === "move") {
-      this._onDidChange.fire({
-        kind: "move",
-        target: progress.uri,
-        range: progress.range
-      });
+      this._onDidChange.fire({ kind: "move", target: progress.uri, range: progress.range });
     } else {
-      this.logService.error(
-        `Couldn't handle progress: ${JSON.stringify(progress)}`
-      );
+      this.logService.error(`Couldn't handle progress: ${JSON.stringify(progress)}`);
     }
   }
   removeRequest(id, reason = 0 /* Removal */) {
     const index = this._requests.findIndex((request2) => request2.id === id);
     const request = this._requests[index];
     if (index !== -1) {
-      this._onDidChange.fire({
-        kind: "removeRequest",
-        requestId: request.id,
-        responseId: request.response?.id,
-        reason
-      });
+      this._onDidChange.fire({ kind: "removeRequest", requestId: request.id, responseId: request.response?.id, reason });
       this._requests.splice(index, 1);
       request.response?.dispose();
     }
@@ -810,13 +685,7 @@ let ChatModel = class extends Disposable {
   }
   setResponse(request, result) {
     if (!request.response) {
-      request.response = new ChatResponseModel(
-        [],
-        this,
-        void 0,
-        void 0,
-        request.id
-      );
+      request.response = new ChatResponseModel([], this, void 0, void 0, request.id);
     }
     request.response.setResult(result);
   }
@@ -853,9 +722,7 @@ let ChatModel = class extends Disposable {
       requests: this._requests.map((r) => {
         const message = {
           ...r.message,
-          parts: r.message.parts.map(
-            (p) => p && "toJSON" in p ? p.toJSON() : p
-          )
+          parts: r.message.parts.map((p) => p && "toJSON" in p ? p.toJSON() : p)
         };
         const agent = r.response?.agent;
         const agentJson = agent && "toJSON" in agent ? agent.toJSON() : agent ? { ...agent } : void 0;
@@ -923,9 +790,7 @@ let ChatWelcomeMessageModel = class {
     return this._id;
   }
   get username() {
-    return this.chatAgentService.getContributedDefaultAgent(
-      ChatAgentLocation.Panel
-    )?.fullName ?? "";
+    return this.chatAgentService.getContributedDefaultAgent(ChatAgentLocation.Panel)?.fullName ?? "";
   }
   get avatarIcon() {
     return this.chatAgentService.getDefaultAgent(ChatAgentLocation.Panel)?.metadata.themeIcon;
@@ -973,19 +838,8 @@ function getCodeCitationsMessage(citations) {
   if (citations.length === 0) {
     return "";
   }
-  const licenseTypes = citations.reduce(
-    (set, c) => set.add(c.license),
-    /* @__PURE__ */ new Set()
-  );
-  const label = licenseTypes.size === 1 ? localize(
-    "codeCitation",
-    "Similar code found with 1 license type",
-    licenseTypes.size
-  ) : localize(
-    "codeCitations",
-    "Similar code found with {0} license types",
-    licenseTypes.size
-  );
+  const licenseTypes = citations.reduce((set, c) => set.add(c.license), /* @__PURE__ */ new Set());
+  const label = licenseTypes.size === 1 ? localize("codeCitation", "Similar code found with 1 license type", licenseTypes.size) : localize("codeCitations", "Similar code found with {0} license types", licenseTypes.size);
   return label;
 }
 __name(getCodeCitationsMessage, "getCodeCitationsMessage");

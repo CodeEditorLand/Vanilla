@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FastDomNode } from "../../fastDomNode.js";
 import { TimeoutTimer } from "../../../common/async.js";
 import { Disposable } from "../../../common/lifecycle.js";
 import { ScrollbarVisibility } from "../../../common/scrollable.js";
@@ -92,9 +93,7 @@ class ScrollbarVisibilityController extends Disposable {
       return;
     }
     this._isVisible = false;
-    this._domNode?.setClassName(
-      this._invisibleClassName + (withFadeAway ? " fade" : "")
-    );
+    this._domNode?.setClassName(this._invisibleClassName + (withFadeAway ? " fade" : ""));
   }
 }
 export {

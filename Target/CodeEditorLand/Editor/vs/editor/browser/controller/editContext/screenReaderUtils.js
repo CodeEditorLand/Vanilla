@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
-import { AccessibilitySupport } from "../../../../platform/accessibility/common/accessibility.js";
-import {
-  EditorOption
-} from "../../../common/config/editorOptions.js";
-import { Range } from "../../../common/core/range.js";
 import { EndOfLinePreference } from "../../../common/model.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { EditorOption, IComputedEditorOptions } from "../../../common/config/editorOptions.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { AccessibilitySupport } from "../../../../platform/accessibility/common/accessibility.js";
+import * as nls from "../../../../nls.js";
 class PagedScreenReaderStrategy {
   static {
     __name(this, "PagedScreenReaderStrategy");
@@ -22,63 +22,24 @@ class PagedScreenReaderStrategy {
   }
   static fromEditorSelection(model, selection, linesPerPage, trimLongText) {
     const LIMIT_CHARS = 500;
-    const selectionStartPage = PagedScreenReaderStrategy._getPageOfLine(
-      selection.startLineNumber,
-      linesPerPage
-    );
-    const selectionStartPageRange = PagedScreenReaderStrategy._getRangeForPage(
-      selectionStartPage,
-      linesPerPage
-    );
-    const selectionEndPage = PagedScreenReaderStrategy._getPageOfLine(
-      selection.endLineNumber,
-      linesPerPage
-    );
-    const selectionEndPageRange = PagedScreenReaderStrategy._getRangeForPage(
-      selectionEndPage,
-      linesPerPage
-    );
-    let pretextRange = selectionStartPageRange.intersectRanges(
-      new Range(1, 1, selection.startLineNumber, selection.startColumn)
-    );
+    const selectionStartPage = PagedScreenReaderStrategy._getPageOfLine(selection.startLineNumber, linesPerPage);
+    const selectionStartPageRange = PagedScreenReaderStrategy._getRangeForPage(selectionStartPage, linesPerPage);
+    const selectionEndPage = PagedScreenReaderStrategy._getPageOfLine(selection.endLineNumber, linesPerPage);
+    const selectionEndPageRange = PagedScreenReaderStrategy._getRangeForPage(selectionEndPage, linesPerPage);
+    let pretextRange = selectionStartPageRange.intersectRanges(new Range(1, 1, selection.startLineNumber, selection.startColumn));
     if (trimLongText && model.getValueLengthInRange(pretextRange, EndOfLinePreference.LF) > LIMIT_CHARS) {
-      const pretextStart = model.modifyPosition(
-        pretextRange.getEndPosition(),
-        -LIMIT_CHARS
-      );
-      pretextRange = Range.fromPositions(
-        pretextStart,
-        pretextRange.getEndPosition()
-      );
+      const pretextStart = model.modifyPosition(pretextRange.getEndPosition(), -LIMIT_CHARS);
+      pretextRange = Range.fromPositions(pretextStart, pretextRange.getEndPosition());
     }
-    const pretext = model.getValueInRange(
-      pretextRange,
-      EndOfLinePreference.LF
-    );
+    const pretext = model.getValueInRange(pretextRange, EndOfLinePreference.LF);
     const lastLine = model.getLineCount();
     const lastLineMaxColumn = model.getLineMaxColumn(lastLine);
-    let posttextRange = selectionEndPageRange.intersectRanges(
-      new Range(
-        selection.endLineNumber,
-        selection.endColumn,
-        lastLine,
-        lastLineMaxColumn
-      )
-    );
+    let posttextRange = selectionEndPageRange.intersectRanges(new Range(selection.endLineNumber, selection.endColumn, lastLine, lastLineMaxColumn));
     if (trimLongText && model.getValueLengthInRange(posttextRange, EndOfLinePreference.LF) > LIMIT_CHARS) {
-      const posttextEnd = model.modifyPosition(
-        posttextRange.getStartPosition(),
-        LIMIT_CHARS
-      );
-      posttextRange = Range.fromPositions(
-        posttextRange.getStartPosition(),
-        posttextEnd
-      );
+      const posttextEnd = model.modifyPosition(posttextRange.getStartPosition(), LIMIT_CHARS);
+      posttextRange = Range.fromPositions(posttextRange.getStartPosition(), posttextEnd);
     }
-    const posttext = model.getValueInRange(
-      posttextRange,
-      EndOfLinePreference.LF
-    );
+    const posttext = model.getValueInRange(posttextRange, EndOfLinePreference.LF);
     let text;
     if (selectionStartPage === selectionEndPage || selectionStartPage + 1 === selectionEndPage) {
       text = model.getValueInRange(selection, EndOfLinePreference.LF);
@@ -102,36 +63,16 @@ class PagedScreenReaderStrategy {
 function ariaLabelForScreenReaderContent(options, keybindingService) {
   const accessibilitySupport = options.get(EditorOption.accessibilitySupport);
   if (accessibilitySupport === AccessibilitySupport.Disabled) {
-    const toggleKeybindingLabel = keybindingService.lookupKeybinding(
-      "editor.action.toggleScreenReaderAccessibilityMode"
-    )?.getAriaLabel();
+    const toggleKeybindingLabel = keybindingService.lookupKeybinding("editor.action.toggleScreenReaderAccessibilityMode")?.getAriaLabel();
     const runCommandKeybindingLabel = keybindingService.lookupKeybinding("workbench.action.showCommands")?.getAriaLabel();
     const keybindingEditorKeybindingLabel = keybindingService.lookupKeybinding("workbench.action.openGlobalKeybindings")?.getAriaLabel();
-    const editorNotAccessibleMessage = nls.localize(
-      "accessibilityModeOff",
-      "The editor is not accessible at this time."
-    );
+    const editorNotAccessibleMessage = nls.localize("accessibilityModeOff", "The editor is not accessible at this time.");
     if (toggleKeybindingLabel) {
-      return nls.localize(
-        "accessibilityOffAriaLabel",
-        "{0} To enable screen reader optimized mode, use {1}",
-        editorNotAccessibleMessage,
-        toggleKeybindingLabel
-      );
+      return nls.localize("accessibilityOffAriaLabel", "{0} To enable screen reader optimized mode, use {1}", editorNotAccessibleMessage, toggleKeybindingLabel);
     } else if (runCommandKeybindingLabel) {
-      return nls.localize(
-        "accessibilityOffAriaLabelNoKb",
-        "{0} To enable screen reader optimized mode, open the quick pick with {1} and run the command Toggle Screen Reader Accessibility Mode, which is currently not triggerable via keyboard.",
-        editorNotAccessibleMessage,
-        runCommandKeybindingLabel
-      );
+      return nls.localize("accessibilityOffAriaLabelNoKb", "{0} To enable screen reader optimized mode, open the quick pick with {1} and run the command Toggle Screen Reader Accessibility Mode, which is currently not triggerable via keyboard.", editorNotAccessibleMessage, runCommandKeybindingLabel);
     } else if (keybindingEditorKeybindingLabel) {
-      return nls.localize(
-        "accessibilityOffAriaLabelNoKbs",
-        "{0} Please assign a keybinding for the command Toggle Screen Reader Accessibility Mode by accessing the keybindings editor with {1} and run it.",
-        editorNotAccessibleMessage,
-        keybindingEditorKeybindingLabel
-      );
+      return nls.localize("accessibilityOffAriaLabelNoKbs", "{0} Please assign a keybinding for the command Toggle Screen Reader Accessibility Mode by accessing the keybindings editor with {1} and run it.", editorNotAccessibleMessage, keybindingEditorKeybindingLabel);
     } else {
       return editorNotAccessibleMessage;
     }

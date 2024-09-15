@@ -1,13 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as nls from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { showWindowLogActionId } from "../../../services/log/common/logConstants.js";
 class ToggleKeybindingsLogAction extends Action2 {
   static {
@@ -16,10 +14,7 @@ class ToggleKeybindingsLogAction extends Action2 {
   constructor() {
     super({
       id: "workbench.action.toggleKeybindingsLog",
-      title: nls.localize2(
-        "toggleKeybindingsLog",
-        "Toggle Keyboard Shortcuts Troubleshooting"
-      ),
+      title: nls.localize2("toggleKeybindingsLog", "Toggle Keyboard Shortcuts Troubleshooting"),
       category: Categories.Developer,
       f1: true
     });

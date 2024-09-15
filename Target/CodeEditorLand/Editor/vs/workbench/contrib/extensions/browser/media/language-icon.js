@@ -1,4 +1,4 @@
-var language_icon_default = "../../../../../../Asset/language-icon-ALIHLAJF.svg";
+var language_icon_default = "../../../../../../Asset/language-icon-QFRYZ3DZ.svg";
 export {
   language_icon_default as default
 };

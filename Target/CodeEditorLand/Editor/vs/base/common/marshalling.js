@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "./buffer.js";
+import { URI, UriComponents } from "./uri.js";
 import { MarshalledId } from "./marshallingIds.js";
-import { URI } from "./uri.js";
 function stringify(obj) {
   return JSON.stringify(obj, replacer);
 }

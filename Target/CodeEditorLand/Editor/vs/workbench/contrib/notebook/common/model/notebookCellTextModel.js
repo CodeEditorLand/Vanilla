@@ -1,23 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ThrottledDelayer } from "../../../../../base/common/async.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import { StringSHA1, hash } from "../../../../../base/common/hash.js";
-import { toFormattedString } from "../../../../../base/common/jsonFormatter.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { hash, StringSHA1 } from "../../../../../base/common/hash.js";
+import { Disposable, DisposableStore, dispose } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
 import * as UUID from "../../../../../base/common/uuid.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../../../../../editor/common/languages/modesRegistry.js";
 import * as model from "../../../../../editor/common/model.js";
 import { PieceTreeTextBuffer } from "../../../../../editor/common/model/pieceTreeTextBuffer/pieceTreeTextBuffer.js";
-import {
-  createTextBuffer
-} from "../../../../../editor/common/model/textModel.js";
+import { createTextBuffer, TextModel } from "../../../../../editor/common/model/textModel.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../../editor/common/languages/modesRegistry.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
 import { NotebookCellOutputTextModel } from "./notebookCellOutputTextModel.js";
+import { CellInternalMetadataChangedEvent, CellKind, ICell, ICellDto2, ICellOutput, IOutputDto, IOutputItemDto, NotebookCellCollapseState, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellOutputsSplice, TransientCellMetadata, TransientOptions } from "../notebookCommon.js";
+import { ThrottledDelayer } from "../../../../../base/common/async.js";
+import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { toFormattedString } from "../../../../../base/common/jsonFormatter.js";
 class NotebookCellTextModel extends Disposable {
   constructor(uri, handle, _source, _language, _mime, cellKind, outputs, metadata, internalMetadata, collapseState, transientOptions, _languageService, _languageDetectionService = void 0) {
     super();
@@ -31,36 +29,24 @@ class NotebookCellTextModel extends Disposable {
     this.transientOptions = transientOptions;
     this._languageService = _languageService;
     this._languageDetectionService = _languageDetectionService;
-    this._outputs = outputs.map(
-      (op) => new NotebookCellOutputTextModel(op)
-    );
+    this._outputs = outputs.map((op) => new NotebookCellOutputTextModel(op));
     this._metadata = metadata ?? {};
     this._internalMetadata = internalMetadata ?? {};
   }
   static {
     __name(this, "NotebookCellTextModel");
   }
-  _onDidChangeOutputs = this._register(
-    new Emitter()
-  );
+  _onDidChangeOutputs = this._register(new Emitter());
   onDidChangeOutputs = this._onDidChangeOutputs.event;
-  _onDidChangeOutputItems = this._register(
-    new Emitter()
-  );
+  _onDidChangeOutputItems = this._register(new Emitter());
   onDidChangeOutputItems = this._onDidChangeOutputItems.event;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
   _onDidChangeMetadata = this._register(new Emitter());
   onDidChangeMetadata = this._onDidChangeMetadata.event;
-  _onDidChangeInternalMetadata = this._register(
-    new Emitter()
-  );
+  _onDidChangeInternalMetadata = this._register(new Emitter());
   onDidChangeInternalMetadata = this._onDidChangeInternalMetadata.event;
-  _onDidChangeLanguage = this._register(
-    new Emitter()
-  );
+  _onDidChangeLanguage = this._register(new Emitter());
   onDidChangeLanguage = this._onDidChangeLanguage.event;
   _outputs;
   get outputs() {
@@ -83,12 +69,7 @@ class NotebookCellTextModel extends Disposable {
     const lastRunSuccessChanged = this._internalMetadata.lastRunSuccess !== newInternalMetadata.lastRunSuccess;
     newInternalMetadata = {
       ...newInternalMetadata,
-      ...{
-        runStartTimeAdjustment: computeRunStartTimeAdjustment(
-          this._internalMetadata,
-          newInternalMetadata
-        )
-      }
+      ...{ runStartTimeAdjustment: computeRunStartTimeAdjustment(this._internalMetadata, newInternalMetadata) }
     };
     this._internalMetadata = newInternalMetadata;
     this._hash = null;
@@ -98,11 +79,7 @@ class NotebookCellTextModel extends Disposable {
     return this._language;
   }
   set language(newLanguage) {
-    if (this._textModel && // 1. the language update is from workspace edit, checking if it's the same as text model's mode
-    this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(
-      newLanguage
-    ) && // 2. the text model's mode might be the same as the `this.language`, even if the language friendly name is not the same, we should not trigger an update
-    this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
+    if (this._textModel && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage) && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
       return;
     }
     this._hasLanguageSetExplicitly = true;
@@ -124,18 +101,14 @@ class NotebookCellTextModel extends Disposable {
     if (this._textBuffer) {
       return this._textBuffer;
     }
-    this._textBuffer = this._register(
-      createTextBuffer(this._source, model.DefaultEndOfLine.LF).textBuffer
-    );
-    this._register(
-      this._textBuffer.onDidChangeContent(() => {
-        this._hash = null;
-        if (!this._textModel) {
-          this._onDidChangeContent.fire("content");
-        }
-        this.autoDetectLanguage();
-      })
-    );
+    this._textBuffer = this._register(createTextBuffer(this._source, model.DefaultEndOfLine.LF).textBuffer);
+    this._register(this._textBuffer.onDidChangeContent(() => {
+      this._hash = null;
+      if (!this._textModel) {
+        this._onDidChangeContent.fire("content");
+      }
+      this.autoDetectLanguage();
+    }));
     return this._textBuffer;
   }
   _textBufferHash = null;
@@ -145,9 +118,7 @@ class NotebookCellTextModel extends Disposable {
   get alternativeId() {
     return this._alternativeId;
   }
-  _textModelDisposables = this._register(
-    new DisposableStore()
-  );
+  _textModelDisposables = this._register(new DisposableStore());
   _textModel = void 0;
   get textModel() {
     return this._textModel;
@@ -159,35 +130,17 @@ class NotebookCellTextModel extends Disposable {
     this._textModelDisposables.clear();
     this._textModel = m;
     if (this._textModel) {
-      this.setRegisteredLanguage(
-        this._languageService,
-        this._textModel.getLanguageId(),
-        this.language
-      );
-      this._textModelDisposables.add(
-        this._textModel.onDidChangeLanguage(
-          (e) => this.setRegisteredLanguage(
-            this._languageService,
-            e.newLanguage,
-            this.language
-          )
-        )
-      );
-      this._textModelDisposables.add(
-        this._textModel.onWillDispose(
-          () => this.textModel = void 0
-        )
-      );
-      this._textModelDisposables.add(
-        this._textModel.onDidChangeContent(() => {
-          if (this._textModel) {
-            this._versionId = this._textModel.getVersionId();
-            this._alternativeId = this._textModel.getAlternativeVersionId();
-          }
-          this._textBufferHash = null;
-          this._onDidChangeContent.fire("content");
-        })
-      );
+      this.setRegisteredLanguage(this._languageService, this._textModel.getLanguageId(), this.language);
+      this._textModelDisposables.add(this._textModel.onDidChangeLanguage((e) => this.setRegisteredLanguage(this._languageService, e.newLanguage, this.language)));
+      this._textModelDisposables.add(this._textModel.onWillDispose(() => this.textModel = void 0));
+      this._textModelDisposables.add(this._textModel.onDidChangeContent(() => {
+        if (this._textModel) {
+          this._versionId = this._textModel.getVersionId();
+          this._alternativeId = this._textModel.getAlternativeVersionId();
+        }
+        this._textBufferHash = null;
+        this._onDidChangeContent.fire("content");
+      }));
       this._textModel._overwriteVersionId(this._versionId);
       this._textModel._overwriteAlternativeVersionId(this._versionId);
     }
@@ -201,11 +154,7 @@ class NotebookCellTextModel extends Disposable {
     }
   }
   static AUTO_DETECT_LANGUAGE_THROTTLE_DELAY = 600;
-  autoDetectLanguageThrottler = this._register(
-    new ThrottledDelayer(
-      NotebookCellTextModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY
-    )
-  );
+  autoDetectLanguageThrottler = this._register(new ThrottledDelayer(NotebookCellTextModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
   _autoLanguageDetectionEnabled = false;
   _hasLanguageSetExplicitly = false;
   get hasLanguageSetExplicitly() {
@@ -217,9 +166,7 @@ class NotebookCellTextModel extends Disposable {
   }
   async autoDetectLanguage() {
     if (this._autoLanguageDetectionEnabled) {
-      this.autoDetectLanguageThrottler.trigger(
-        () => this._doAutoDetectLanguage()
-      );
+      this.autoDetectLanguageThrottler.trigger(() => this._doAutoDetectLanguage());
     }
   }
   async _doAutoDetectLanguage() {
@@ -230,9 +177,7 @@ class NotebookCellTextModel extends Disposable {
     if (!newLanguage) {
       return;
     }
-    if (this._textModel && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(
-      newLanguage
-    ) && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
+    if (this._textModel && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage) && this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
       return;
     }
     this._setLanguageInternal(newLanguage);
@@ -261,15 +206,9 @@ class NotebookCellTextModel extends Disposable {
     const fullRange = this.getFullModelRange();
     const eol = this.textBuffer.getEOL();
     if (eol === "\n") {
-      return this.textBuffer.getValueInRange(
-        fullRange,
-        model.EndOfLinePreference.LF
-      );
+      return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.LF);
     } else {
-      return this.textBuffer.getValueInRange(
-        fullRange,
-        model.EndOfLinePreference.CRLF
-      );
+      return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.CRLF);
     }
   }
   getTextBufferHash() {
@@ -289,75 +228,44 @@ class NotebookCellTextModel extends Disposable {
     if (this._hash !== null) {
       return this._hash;
     }
-    this._hash = hash([
-      hash(this.language),
-      this.getTextBufferHash(),
-      this._getPersisentMetadata(),
-      this.transientOptions.transientOutputs ? [] : this._outputs.map((op) => ({
-        outputs: op.outputs.map((output) => ({
-          mime: output.mime,
-          data: Array.from(output.data.buffer)
-        })),
-        metadata: op.metadata
-      }))
-    ]);
+    this._hash = hash([hash(this.language), this.getTextBufferHash(), this._getPersisentMetadata(), this.transientOptions.transientOutputs ? [] : this._outputs.map((op) => ({
+      outputs: op.outputs.map((output) => ({
+        mime: output.mime,
+        data: Array.from(output.data.buffer)
+      })),
+      metadata: op.metadata
+    }))]);
     return this._hash;
   }
   _getPersisentMetadata() {
-    return getFormattedMetadataJSON(
-      this.transientOptions.transientCellMetadata,
-      this.metadata,
-      this.language
-    );
+    return getFormattedMetadataJSON(this.transientOptions.transientCellMetadata, this.metadata, this.language);
   }
   getTextLength() {
     return this.textBuffer.getLength();
   }
   getFullModelRange() {
     const lineCount = this.textBuffer.getLineCount();
-    return new Range(
-      1,
-      1,
-      lineCount,
-      this.textBuffer.getLineLength(lineCount) + 1
-    );
+    return new Range(1, 1, lineCount, this.textBuffer.getLineLength(lineCount) + 1);
   }
   spliceNotebookCellOutputs(splice) {
     if (splice.deleteCount > 0 && splice.newOutputs.length > 0) {
-      const commonLen = Math.min(
-        splice.deleteCount,
-        splice.newOutputs.length
-      );
+      const commonLen = Math.min(splice.deleteCount, splice.newOutputs.length);
       for (let i = 0; i < commonLen; i++) {
         const currentOutput = this.outputs[splice.start + i];
         const newOutput = splice.newOutputs[i];
         this.replaceOutput(currentOutput.outputId, newOutput);
       }
-      const removed = this.outputs.splice(
-        splice.start + commonLen,
-        splice.deleteCount - commonLen,
-        ...splice.newOutputs.slice(commonLen)
-      );
+      const removed = this.outputs.splice(splice.start + commonLen, splice.deleteCount - commonLen, ...splice.newOutputs.slice(commonLen));
       removed.forEach((output) => output.dispose());
-      this._onDidChangeOutputs.fire({
-        start: splice.start + commonLen,
-        deleteCount: splice.deleteCount - commonLen,
-        newOutputs: splice.newOutputs.slice(commonLen)
-      });
+      this._onDidChangeOutputs.fire({ start: splice.start + commonLen, deleteCount: splice.deleteCount - commonLen, newOutputs: splice.newOutputs.slice(commonLen) });
     } else {
-      const removed = this.outputs.splice(
-        splice.start,
-        splice.deleteCount,
-        ...splice.newOutputs
-      );
+      const removed = this.outputs.splice(splice.start, splice.deleteCount, ...splice.newOutputs);
       removed.forEach((output) => output.dispose());
       this._onDidChangeOutputs.fire(splice);
     }
   }
   replaceOutput(outputId, newOutputItem) {
-    const outputIndex = this.outputs.findIndex(
-      (output2) => output2.outputId === outputId
-    );
+    const outputIndex = this.outputs.findIndex((output2) => output2.outputId === outputId);
     if (outputIndex < 0) {
       return false;
     }
@@ -372,9 +280,7 @@ class NotebookCellTextModel extends Disposable {
     return true;
   }
   changeOutputItems(outputId, append, items) {
-    const outputIndex = this.outputs.findIndex(
-      (output2) => output2.outputId === outputId
-    );
+    const outputIndex = this.outputs.findIndex((output2) => output2.outputId === outputId);
     if (outputIndex < 0) {
       return false;
     }
@@ -382,11 +288,7 @@ class NotebookCellTextModel extends Disposable {
     if (append) {
       output.appendData(items);
     } else {
-      output.replaceData({
-        outputId,
-        outputs: items,
-        metadata: output.metadata
-      });
+      output.replaceData({ outputId, outputs: items, metadata: output.metadata });
     }
     this._onDidChangeOutputItems.fire();
     return true;
@@ -459,15 +361,7 @@ class NotebookCellTextModel extends Disposable {
   }
   dispose() {
     dispose(this._outputs);
-    const emptyDisposedTextBuffer = new PieceTreeTextBuffer(
-      [],
-      "",
-      "\n",
-      false,
-      false,
-      true,
-      true
-    );
+    const emptyDisposedTextBuffer = new PieceTreeTextBuffer([], "", "\n", false, false, true, true);
     emptyDisposedTextBuffer.dispose();
     this._textBuffer = emptyDisposedTextBuffer;
     super.dispose();

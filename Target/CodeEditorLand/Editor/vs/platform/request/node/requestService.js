@@ -10,36 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as http from "http";
+import * as https from "https";
 import { parse as parseUrl } from "url";
-import { createGunzip } from "zlib";
 import { Promises } from "../../../base/common/async.js";
 import { streamToBufferReadableStream } from "../../../base/common/buffer.js";
-import {
-  CancellationError,
-  getErrorMessage
-} from "../../../base/common/errors.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { CancellationError, getErrorMessage } from "../../../base/common/errors.js";
+import * as streams from "../../../base/common/stream.js";
 import { isBoolean, isNumber } from "../../../base/common/types.js";
+import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { ILogService } from "../../log/common/log.js";
 import { getResolvedShellEnv } from "../../shell/node/shellEnv.js";
-import {
-  AbstractRequestService
-} from "../common/request.js";
-import { getProxyAgent } from "./proxy.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../common/request.js";
+import { Agent, getProxyAgent } from "./proxy.js";
+import { createGunzip } from "zlib";
 let RequestService = class extends AbstractRequestService {
   constructor(configurationService, environmentService, logService) {
     super(logService);
     this.configurationService = configurationService;
     this.environmentService = environmentService;
     this.configure();
-    this._register(
-      configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("http")) {
-          this.configure();
-        }
-      })
-    );
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("http")) {
+        this.configure();
+      }
+    }));
   }
   static {
     __name(this, "RequestService");
@@ -56,31 +54,20 @@ let RequestService = class extends AbstractRequestService {
   }
   async request(options, token) {
     const { proxyUrl, strictSSL } = this;
-    let shellEnv;
+    let shellEnv = void 0;
     try {
-      shellEnv = await getResolvedShellEnv(
-        this.configurationService,
-        this.logService,
-        this.environmentService.args,
-        process.env
-      );
+      shellEnv = await getResolvedShellEnv(this.configurationService, this.logService, this.environmentService.args, process.env);
     } catch (error) {
       if (!this.shellEnvErrorLogged) {
         this.shellEnvErrorLogged = true;
-        this.logService.error(
-          `resolving shell environment failed`,
-          getErrorMessage(error)
-        );
+        this.logService.error(`resolving shell environment failed`, getErrorMessage(error));
       }
     }
     const env = {
       ...process.env,
       ...shellEnv
     };
-    const agent = options.agent ? options.agent : await getProxyAgent(options.url || "", env, {
-      proxyUrl,
-      strictSSL
-    });
+    const agent = options.agent ? options.agent : await getProxyAgent(options.url || "", env, { proxyUrl, strictSSL });
     options.agent = agent;
     options.strictSSL = strictSSL;
     if (this.authorization) {
@@ -101,22 +88,13 @@ let RequestService = class extends AbstractRequestService {
     try {
       const kerberos = await import("kerberos");
       const url = new URL(urlStr);
-      const spn = this.configurationService.getValue(
-        "http.proxyKerberosServicePrincipal"
-      ) || (process.platform === "win32" ? `HTTP/${url.hostname}` : `HTTP@${url.hostname}`);
-      this.logService.debug(
-        "RequestService#lookupKerberosAuthorization Kerberos authentication lookup",
-        `proxyURL:${url}`,
-        `spn:${spn}`
-      );
+      const spn = this.configurationService.getValue("http.proxyKerberosServicePrincipal") || (process.platform === "win32" ? `HTTP/${url.hostname}` : `HTTP@${url.hostname}`);
+      this.logService.debug("RequestService#lookupKerberosAuthorization Kerberos authentication lookup", `proxyURL:${url}`, `spn:${spn}`);
       const client = await kerberos.initializeClient(spn);
       const response = await client.step("");
       return "Negotiate " + response;
     } catch (err) {
-      this.logService.debug(
-        "RequestService#lookupKerberosAuthorization Kerberos authentication failed",
-        err
-      );
+      this.logService.debug("RequestService#lookupKerberosAuthorization Kerberos authentication failed", err);
       return void 0;
     }
   }
@@ -142,7 +120,7 @@ async function nodeRequest(options, token) {
     const rawRequest = options.getRawRequest ? options.getRawRequest(options) : await getNodeRequest(options);
     const opts = {
       hostname: endpoint.hostname,
-      port: endpoint.port ? Number.parseInt(endpoint.port) : endpoint.protocol === "https:" ? 443 : 80,
+      port: endpoint.port ? parseInt(endpoint.port) : endpoint.protocol === "https:" ? 443 : 80,
       protocol: endpoint.protocol,
       path: endpoint.path,
       method: options.type || "GET",
@@ -156,23 +134,17 @@ async function nodeRequest(options, token) {
     const req = rawRequest(opts, (res) => {
       const followRedirects = isNumber(options.followRedirects) ? options.followRedirects : 3;
       if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && followRedirects > 0 && res.headers["location"]) {
-        nodeRequest(
-          {
-            ...options,
-            url: res.headers["location"],
-            followRedirects: followRedirects - 1
-          },
-          token
-        ).then(resolve, reject);
+        nodeRequest({
+          ...options,
+          url: res.headers["location"],
+          followRedirects: followRedirects - 1
+        }, token).then(resolve, reject);
       } else {
         let stream = res;
         if (!options.isChromiumNetwork && res.headers["content-encoding"] === "gzip") {
           stream = res.pipe(createGunzip());
         }
-        resolve({
-          res,
-          stream: streamToBufferReadableStream(stream)
-        });
+        resolve({ res, stream: streamToBufferReadableStream(stream) });
       }
     });
     req.on("error", reject);

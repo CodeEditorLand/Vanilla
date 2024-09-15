@@ -10,22 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ResourceMap } from "../../../../base/common/map.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
+import { URI } from "../../../../base/common/uri.js";
 import { language } from "../../../../base/common/platform.js";
 import { joinPath } from "../../../../base/common/resources.js";
 import { assertIsDefined } from "../../../../base/common/types.js";
-import { generateUuid } from "../../../../base/common/uuid.js";
-import { TokenizationRegistry } from "../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { asWebviewUri } from "../../webview/common/webview.js";
+import { ResourceMap } from "../../../../base/common/map.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  DEFAULT_MARKDOWN_STYLES,
-  renderMarkdownDocument
-} from "../../markdown/browser/markdownDocumentRenderer.js";
-import { asWebviewUri } from "../../webview/common/webview.js";
 import { gettingStartedContentRegistry } from "../common/gettingStartedContent.js";
 let GettingStartedDetailsRenderer = class {
   constructor(fileService, notificationService, extensionService, languageService) {
@@ -213,12 +211,7 @@ let GettingStartedDetailsRenderer = class {
   async readAndCacheStepMarkdown(path, base) {
     if (!this.mdCache.has(path)) {
       const contents = await this.readContentsOfPath(path);
-      const markdownContents = await renderMarkdownDocument(
-        transformUris(contents, base),
-        this.extensionService,
-        this.languageService,
-        { allowUnknownProtocols: true }
-      );
+      const markdownContents = await renderMarkdownDocument(transformUris(contents, base), this.extensionService, this.languageService, { allowUnknownProtocols: true });
       this.mdCache.set(path, markdownContents);
     }
     return assertIsDefined(this.mdCache.get(path));
@@ -227,33 +220,22 @@ let GettingStartedDetailsRenderer = class {
     try {
       const moduleId = JSON.parse(path.query).moduleId;
       if (useModuleId && moduleId) {
-        const contents = await new Promise(
-          (resolve, reject) => {
-            const provider = gettingStartedContentRegistry.getProvider(moduleId);
-            if (provider) {
-              resolve(provider());
-            } else {
-              reject(
-                `Getting started: no provider registered for ${moduleId}`
-              );
-            }
+        const contents = await new Promise((resolve, reject) => {
+          const provider = gettingStartedContentRegistry.getProvider(moduleId);
+          if (!provider) {
+            reject(`Getting started: no provider registered for ${moduleId}`);
+          } else {
+            resolve(provider());
           }
-        );
+        });
         return contents;
       }
     } catch {
     }
     try {
-      const localizedPath = path.with({
-        path: path.path.replace(/\.md$/, `.nls.${language}.md`)
-      });
+      const localizedPath = path.with({ path: path.path.replace(/\.md$/, `.nls.${language}.md`) });
       const generalizedLocale = language?.replace(/-.*$/, "");
-      const generalizedLocalizedPath = path.with({
-        path: path.path.replace(
-          /\.md$/,
-          `.nls.${generalizedLocale}.md`
-        )
-      });
+      const generalizedLocalizedPath = path.with({ path: path.path.replace(/\.md$/, `.nls.${generalizedLocale}.md`) });
       const fileExists = /* @__PURE__ */ __name((file) => this.fileService.stat(file).then((stat) => !!stat.size).catch(() => false), "fileExists");
       const [localizedFileExists, generalizedLocalizedFileExists] = await Promise.all([
         fileExists(localizedPath),
@@ -264,9 +246,7 @@ let GettingStartedDetailsRenderer = class {
       );
       return bytes.value.toString();
     } catch (e) {
-      this.notificationService.error(
-        "Error reading markdown document at `" + path + "`: " + e
-      );
+      this.notificationService.error("Error reading markdown document at `" + path + "`: " + e);
       return "";
     }
   }
@@ -286,15 +266,12 @@ const transformUris = /* @__PURE__ */ __name((content, base) => content.replace(
     return `src="${src}"`;
   }
   return `src="${transformUri(src, base)}"`;
-}).replace(
-  /!\[([^\]]*)\]\(([^)]*)\)/g,
-  (_, title, src) => {
-    if (src.startsWith("https://")) {
-      return `![${title}](${src})`;
-    }
-    return `![${title}](${transformUri(src, base)})`;
+}).replace(/!\[([^\]]*)\]\(([^)]*)\)/g, (_, title, src) => {
+  if (src.startsWith("https://")) {
+    return `![${title}](${src})`;
   }
-), "transformUris");
+  return `![${title}](${transformUri(src, base)})`;
+}), "transformUris");
 export {
   GettingStartedDetailsRenderer
 };

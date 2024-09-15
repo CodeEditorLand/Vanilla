@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { Comment, CommentThread, CommentThreadChangedEvent, CommentThreadApplicability, CommentThreadState } from "../../../../editor/common/languages.js";
 class CommentNode {
   constructor(uniqueOwner, owner, resource, comment, thread) {
     this.uniqueOwner = uniqueOwner;
@@ -62,31 +65,13 @@ class ResourceWithCommentThreads {
     this.owner = owner;
     this.id = resource.toString();
     this.resource = resource;
-    this.commentThreads = commentThreads.filter((thread) => thread.comments && thread.comments.length).map(
-      (thread) => ResourceWithCommentThreads.createCommentNode(
-        uniqueOwner,
-        owner,
-        resource,
-        thread
-      )
-    );
+    this.commentThreads = commentThreads.filter((thread) => thread.comments && thread.comments.length).map((thread) => ResourceWithCommentThreads.createCommentNode(uniqueOwner, owner, resource, thread));
   }
   static createCommentNode(uniqueOwner, owner, resource, commentThread) {
     const { comments } = commentThread;
-    const commentNodes = comments.map(
-      (comment) => new CommentNode(
-        uniqueOwner,
-        owner,
-        resource,
-        comment,
-        commentThread
-      )
-    );
+    const commentNodes = comments.map((comment) => new CommentNode(uniqueOwner, owner, resource, comment, commentThread));
     if (commentNodes.length > 1) {
-      commentNodes[0].replies = commentNodes.slice(
-        1,
-        commentNodes.length
-      );
+      commentNodes[0].replies = commentNodes.slice(1, commentNodes.length);
     }
     commentNodes[0].isRoot = true;
     return commentNodes[0];

@@ -10,19 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IPreferencesRenderer, UserSettingsRenderer, WorkspaceSettingsRenderer } from "./preferencesRenderers.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 import { SettingsEditorModel } from "../../../services/preferences/common/preferencesModels.js";
-import {
-  UserSettingsRenderer,
-  WorkspaceSettingsRenderer
-} from "./preferencesRenderers.js";
 let SettingsEditorContribution = class extends Disposable {
   constructor(editor, instantiationService, preferencesService, workspaceContextService) {
     super();
@@ -31,16 +26,8 @@ let SettingsEditorContribution = class extends Disposable {
     this.preferencesService = preferencesService;
     this.workspaceContextService = workspaceContextService;
     this._createPreferencesRenderer();
-    this._register(
-      this.editor.onDidChangeModel(
-        (e) => this._createPreferencesRenderer()
-      )
-    );
-    this._register(
-      this.workspaceContextService.onDidChangeWorkbenchState(
-        () => this._createPreferencesRenderer()
-      )
-    );
+    this._register(this.editor.onDidChangeModel((e) => this._createPreferencesRenderer()));
+    this._register(this.workspaceContextService.onDidChangeWorkbenchState(() => this._createPreferencesRenderer()));
   }
   static {
     __name(this, "SettingsEditorContribution");
@@ -53,29 +40,15 @@ let SettingsEditorContribution = class extends Disposable {
     this.currentRenderer = void 0;
     const model = this.editor.getModel();
     if (model && /\.(json|code-workspace)$/.test(model.uri.path)) {
-      const settingsModel = await this.preferencesService.createPreferencesEditorModel(
-        model.uri
-      );
+      const settingsModel = await this.preferencesService.createPreferencesEditorModel(model.uri);
       if (settingsModel instanceof SettingsEditorModel && this.editor.getModel()) {
         this.disposables.add(settingsModel);
         switch (settingsModel.configurationTarget) {
           case ConfigurationTarget.WORKSPACE:
-            this.currentRenderer = this.disposables.add(
-              this.instantiationService.createInstance(
-                WorkspaceSettingsRenderer,
-                this.editor,
-                settingsModel
-              )
-            );
+            this.currentRenderer = this.disposables.add(this.instantiationService.createInstance(WorkspaceSettingsRenderer, this.editor, settingsModel));
             break;
           default:
-            this.currentRenderer = this.disposables.add(
-              this.instantiationService.createInstance(
-                UserSettingsRenderer,
-                this.editor,
-                settingsModel
-              )
-            );
+            this.currentRenderer = this.disposables.add(this.instantiationService.createInstance(UserSettingsRenderer, this.editor, settingsModel));
             break;
         }
       }

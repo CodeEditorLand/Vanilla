@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../common/lifecycle.js";
 import { Client as MessagePortClient } from "../common/ipc.mp.js";
 class Client extends MessagePortClient {
   static {

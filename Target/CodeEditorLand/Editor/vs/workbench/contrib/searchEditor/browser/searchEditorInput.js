@@ -11,68 +11,39 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/searchEditor.css";
-import { VSBuffer, bufferToReadable } from "../../../../base/common/buffer.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { basename } from "../../../../base/common/path.js";
-import {
-  extname,
-  isEqual,
-  joinPath
-} from "../../../../base/common/resources.js";
+import { extname, isEqual, joinPath } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  TrackedRangeStickiness
-} from "../../../../editor/common/model.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ITextModel, TrackedRangeStickiness } from "../../../../editor/common/model.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import {
-  EditorInputCapabilities,
-  EditorResourceAccessor
-} from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { GroupIdentifier, IRevertOptions, ISaveOptions, EditorResourceAccessor, IMoveResult, EditorInputCapabilities, IUntypedEditorInput } from "../../../common/editor.js";
 import { Memento } from "../../../common/memento.js";
+import { SearchEditorFindMatchClass, SearchEditorInputTypeId, SearchEditorScheme, SearchEditorWorkingCopyTypeId } from "./constants.js";
+import { SearchConfigurationModel, SearchEditorModel, searchEditorModelFactory } from "./searchEditorModel.js";
+import { defaultSearchConfig, parseSavedSearchEditor, serializeSearchConfiguration } from "./searchEditorSerialization.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
-import {
-  ITextFileService
-} from "../../../services/textfile/common/textfiles.js";
-import {
-  WorkingCopyCapabilities
-} from "../../../services/workingCopy/common/workingCopy.js";
+import { ITextFileSaveOptions, ITextFileService } from "../../../services/textfile/common/textfiles.js";
 import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
-import {
-  SearchEditorFindMatchClass,
-  SearchEditorInputTypeId,
-  SearchEditorScheme,
-  SearchEditorWorkingCopyTypeId
-} from "./constants.js";
-import {
-  SearchEditorModel,
-  searchEditorModelFactory
-} from "./searchEditorModel.js";
-import {
-  defaultSearchConfig,
-  parseSavedSearchEditor,
-  serializeSearchConfiguration
-} from "./searchEditorSerialization.js";
+import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "../../../services/workingCopy/common/workingCopy.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ISearchComplete, ISearchConfigurationProperties } from "../../../services/search/common/search.js";
+import { bufferToReadable, VSBuffer } from "../../../../base/common/buffer.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 const SEARCH_EDITOR_EXT = ".code-search";
-const SearchEditorIcon = registerIcon(
-  "search-editor-label-icon",
-  Codicon.search,
-  localize("searchEditorLabelIcon", "Icon of the search editor label.")
-);
+const SearchEditorIcon = registerIcon("search-editor-label-icon", Codicon.search, localize("searchEditorLabelIcon", "Icon of the search editor label."));
 let SearchEditorInput = class extends EditorInput {
   constructor(modelUri, backingUri, modelService, textFileService, fileDialogService, instantiationService, workingCopyService, telemetryService, pathService, storageService) {
     super();
@@ -85,19 +56,12 @@ let SearchEditorInput = class extends EditorInput {
     this.workingCopyService = workingCopyService;
     this.telemetryService = telemetryService;
     this.pathService = pathService;
-    this.model = instantiationService.createInstance(
-      SearchEditorModel,
-      modelUri
-    );
+    this.model = instantiationService.createInstance(SearchEditorModel, modelUri);
     if (this.modelUri.scheme !== SearchEditorScheme) {
-      throw Error(
-        "SearchEditorInput must be invoked with a SearchEditorScheme uri"
-      );
+      throw Error("SearchEditorInput must be invoked with a SearchEditorScheme uri");
     }
     this.memento = new Memento(SearchEditorInput.ID, storageService);
-    this._register(
-      storageService.onWillSaveState(() => this.memento.saveMemento())
-    );
+    this._register(storageService.onWillSaveState(() => this.memento.saveMemento()));
     const input = this;
     const workingCopyAdapter = new class {
       typeId = SearchEditorWorkingCopyTypeId;
@@ -105,9 +69,7 @@ let SearchEditorInput = class extends EditorInput {
       get name() {
         return input.getName();
       }
-      capabilities = input.hasCapability(
-        EditorInputCapabilities.Untitled
-      ) ? WorkingCopyCapabilities.Untitled : WorkingCopyCapabilities.None;
+      capabilities = input.hasCapability(EditorInputCapabilities.Untitled) ? WorkingCopyCapabilities.Untitled : WorkingCopyCapabilities.None;
       onDidChangeDirty = input.onDidChangeDirty;
       onDidChangeContent = input.onDidChangeContent;
       onDidSave = input.onDidSave;
@@ -127,9 +89,7 @@ let SearchEditorInput = class extends EditorInput {
         return input.revert(0, options);
       }
     }();
-    this._register(
-      this.workingCopyService.registerWorkingCopy(workingCopyAdapter)
-    );
+    this._register(this.workingCopyService.registerWorkingCopy(workingCopyAdapter));
   }
   static {
     __name(this, "SearchEditorInput");
@@ -156,9 +116,7 @@ let SearchEditorInput = class extends EditorInput {
   lastLabel;
   _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
   oldDecorationsIDs = [];
   get resource() {
@@ -173,16 +131,9 @@ let SearchEditorInput = class extends EditorInput {
       return;
     }
     if (this.backingUri) {
-      await this.textFileService.write(
-        this.backingUri,
-        await this.serializeForDisk(),
-        options
-      );
+      await this.textFileService.write(this.backingUri, await this.serializeForDisk(), options);
       this.setDirty(false);
-      this._onDidSave.fire({
-        reason: options?.reason,
-        source: options?.source
-      });
+      this._onDidSave.fire({ reason: options?.reason, source: options?.source });
       return this;
     } else {
       return this.saveAs(group, options);
@@ -199,18 +150,13 @@ let SearchEditorInput = class extends EditorInput {
   registerConfigChangeListeners(model) {
     this.configChangeListenerDisposable?.dispose();
     if (!this.isDisposed()) {
-      this.configChangeListenerDisposable = model.onConfigDidUpdate(
-        () => {
-          if (this.lastLabel !== this.getName()) {
-            this._onDidChangeLabel.fire();
-            this.lastLabel = this.getName();
-          }
-          this.memento.getMemento(
-            StorageScope.WORKSPACE,
-            StorageTarget.MACHINE
-          ).searchConfig = model.config;
+      this.configChangeListenerDisposable = model.onConfigDidUpdate(() => {
+        if (this.lastLabel !== this.getName()) {
+          this._onDidChangeLabel.fire();
+          this.lastLabel = this.getName();
         }
-      );
+        this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE).searchConfig = model.config;
+      });
       this._register(this.configChangeListenerDisposable);
     }
   }
@@ -227,26 +173,14 @@ let SearchEditorInput = class extends EditorInput {
     });
   }
   async saveAs(group, options) {
-    const path = await this.fileDialogService.pickFileToSave(
-      await this.suggestFileName(),
-      options?.availableFileSystems
-    );
+    const path = await this.fileDialogService.pickFileToSave(await this.suggestFileName(), options?.availableFileSystems);
     if (path) {
       this.telemetryService.publicLog2("searchEditor/saveSearchResults");
       const toWrite = await this.serializeForDisk();
-      if (await this.textFileService.create([
-        {
-          resource: path,
-          value: toWrite,
-          options: { overwrite: true }
-        }
-      ])) {
+      if (await this.textFileService.create([{ resource: path, value: toWrite, options: { overwrite: true } }])) {
         this.setDirty(false);
         if (!isEqual(path, this.modelUri)) {
-          const input = this.instantiationService.invokeFunction(
-            getOrMakeSearchEditorInput,
-            { fileUri: path, from: "existingFile" }
-          );
+          const input = this.instantiationService.invokeFunction(getOrMakeSearchEditorInput, { fileUri: path, from: "existingFile" });
           input.setMatchRanges(this.getMatchRanges());
           return input;
         }
@@ -259,22 +193,11 @@ let SearchEditorInput = class extends EditorInput {
     const trimToMax = /* @__PURE__ */ __name((label) => label.length < maxLength ? label : `${label.slice(0, maxLength - 3)}...`, "trimToMax");
     if (this.backingUri) {
       const originalURI = EditorResourceAccessor.getOriginalUri(this);
-      return localize(
-        "searchTitle.withQuery",
-        "Search: {0}",
-        basename(
-          (originalURI ?? this.backingUri).path,
-          SEARCH_EDITOR_EXT
-        )
-      );
+      return localize("searchTitle.withQuery", "Search: {0}", basename((originalURI ?? this.backingUri).path, SEARCH_EDITOR_EXT));
     }
     const query = this._cachedConfigurationModel?.config?.query?.trim();
     if (query) {
-      return localize(
-        "searchTitle.withQuery",
-        "Search: {0}",
-        trimToMax(query)
-      );
+      return localize("searchTitle.withQuery", "Search: {0}", trimToMax(query));
     }
     return localize("searchTitle", "Search");
   }
@@ -291,10 +214,7 @@ let SearchEditorInput = class extends EditorInput {
   async rename(group, target) {
     if (extname(target) === SEARCH_EDITOR_EXT) {
       return {
-        editor: this.instantiationService.invokeFunction(
-          getOrMakeSearchEditorInput,
-          { from: "existingFile", fileUri: target }
-        )
+        editor: this.instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "existingFile", fileUri: target })
       };
     }
     return void 0;
@@ -313,24 +233,10 @@ let SearchEditorInput = class extends EditorInput {
     return false;
   }
   getMatchRanges() {
-    return (this._cachedResultsModel?.getAllDecorations() ?? []).filter(
-      (decoration) => decoration.options.className === SearchEditorFindMatchClass
-    ).filter(
-      ({ range }) => !(range.startColumn === 1 && range.endColumn === 1)
-    ).map(({ range }) => range);
+    return (this._cachedResultsModel?.getAllDecorations() ?? []).filter((decoration) => decoration.options.className === SearchEditorFindMatchClass).filter(({ range }) => !(range.startColumn === 1 && range.endColumn === 1)).map(({ range }) => range);
   }
   async setMatchRanges(ranges) {
-    this.oldDecorationsIDs = (await this.resolveModels()).resultsModel.deltaDecorations(
-      this.oldDecorationsIDs,
-      ranges.map((range) => ({
-        range,
-        options: {
-          description: "search-editor-find-match",
-          className: SearchEditorFindMatchClass,
-          stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-        }
-      }))
-    );
+    this.oldDecorationsIDs = (await this.resolveModels()).resultsModel.deltaDecorations(this.oldDecorationsIDs, ranges.map((range) => ({ range, options: { description: "search-editor-find-match", className: SearchEditorFindMatchClass, stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges } })));
   }
   async revert(group, options) {
     if (options?.soft) {
@@ -338,10 +244,7 @@ let SearchEditorInput = class extends EditorInput {
       return;
     }
     if (this.backingUri) {
-      const { config, text } = await this.instantiationService.invokeFunction(
-        parseSavedSearchEditor,
-        this.backingUri
-      );
+      const { config, text } = await this.instantiationService.invokeFunction(parseSavedSearchEditor, this.backingUri);
       const { resultsModel, configurationModel } = await this.resolveModels();
       resultsModel.setValue(text);
       configurationModel.updateConfig(config);
@@ -363,12 +266,7 @@ let SearchEditorInput = class extends EditorInput {
   async suggestFileName() {
     const query = (await this.resolveModels()).configurationModel.config.query;
     const searchFileName = (query.replace(/[^\w \-_]+/g, "_") || "Search") + SEARCH_EDITOR_EXT;
-    return joinPath(
-      await this.fileDialogService.defaultFilePath(
-        this.pathService.defaultUriScheme
-      ),
-      searchFileName
-    );
+    return joinPath(await this.fileDialogService.defaultFilePath(this.pathService.defaultUriScheme), searchFileName);
   }
   toUntyped() {
     if (this.hasCapability(EditorInputCapabilities.Untitled)) {
@@ -396,35 +294,17 @@ const getOrMakeSearchEditorInput = /* @__PURE__ */ __name((accessor, existingDat
   const storageService = accessor.get(IStorageService);
   const configurationService = accessor.get(IConfigurationService);
   const instantiationService = accessor.get(IInstantiationService);
-  const modelUri = existingData.from === "model" ? existingData.modelUri : URI.from({
-    scheme: SearchEditorScheme,
-    fragment: `${Math.random()}`
-  });
+  const modelUri = existingData.from === "model" ? existingData.modelUri : URI.from({ scheme: SearchEditorScheme, fragment: `${Math.random()}` });
   if (!searchEditorModelFactory.models.has(modelUri)) {
     if (existingData.from === "existingFile") {
-      instantiationService.invokeFunction(
-        (accessor2) => searchEditorModelFactory.initializeModelFromExistingFile(
-          accessor2,
-          modelUri,
-          existingData.fileUri
-        )
-      );
+      instantiationService.invokeFunction((accessor2) => searchEditorModelFactory.initializeModelFromExistingFile(accessor2, modelUri, existingData.fileUri));
     } else {
-      const searchEditorSettings = configurationService.getValue(
-        "search"
-      ).searchEditor;
+      const searchEditorSettings = configurationService.getValue("search").searchEditor;
       const reuseOldSettings = searchEditorSettings.reusePriorSearchConfiguration;
       const defaultNumberOfContextLines = searchEditorSettings.defaultNumberOfContextLines;
-      const priorConfig = reuseOldSettings ? new Memento(SearchEditorInput.ID, storageService).getMemento(
-        StorageScope.WORKSPACE,
-        StorageTarget.MACHINE
-      ).searchConfig : {};
+      const priorConfig = reuseOldSettings ? new Memento(SearchEditorInput.ID, storageService).getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE).searchConfig : {};
       const defaultConfig = defaultSearchConfig();
-      const config = {
-        ...defaultConfig,
-        ...priorConfig,
-        ...existingData.config
-      };
+      const config = { ...defaultConfig, ...priorConfig, ...existingData.config };
       if (defaultNumberOfContextLines !== null && defaultNumberOfContextLines !== void 0) {
         config.contextLines = existingData?.config?.contextLines ?? defaultNumberOfContextLines;
       }
@@ -432,22 +312,9 @@ const getOrMakeSearchEditorInput = /* @__PURE__ */ __name((accessor, existingDat
         if (existingData.resultsContents) {
           config.contextLines = 0;
         }
-        instantiationService.invokeFunction(
-          (accessor2) => searchEditorModelFactory.initializeModelFromRawData(
-            accessor2,
-            modelUri,
-            config,
-            existingData.resultsContents
-          )
-        );
+        instantiationService.invokeFunction((accessor2) => searchEditorModelFactory.initializeModelFromRawData(accessor2, modelUri, config, existingData.resultsContents));
       } else {
-        instantiationService.invokeFunction(
-          (accessor2) => searchEditorModelFactory.initializeModelFromExistingModel(
-            accessor2,
-            modelUri,
-            config
-          )
-        );
+        instantiationService.invokeFunction((accessor2) => searchEditorModelFactory.initializeModelFromExistingModel(accessor2, modelUri, config));
       }
     }
   }

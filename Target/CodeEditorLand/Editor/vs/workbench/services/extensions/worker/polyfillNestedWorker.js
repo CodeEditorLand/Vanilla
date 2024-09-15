@@ -1,16 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { NewWorkerMessage, TerminateWorkerMessage } from "../common/polyfillNestedWorker.protocol.js";
 const _bootstrapFnSource = (/* @__PURE__ */ __name(function _bootstrapFn(workerUrl) {
   const listener = /* @__PURE__ */ __name((event) => {
     globalThis.removeEventListener("message", listener);
     const port = event.data;
     Object.defineProperties(globalThis, {
-      postMessage: {
+      "postMessage": {
         value(data, transferOrOptions) {
           port.postMessage(data, transferOrOptions);
         }
       },
-      onmessage: {
+      "onmessage": {
         get() {
           return port.onmessage;
         },
@@ -21,19 +22,12 @@ const _bootstrapFnSource = (/* @__PURE__ */ __name(function _bootstrapFn(workerU
       // todo onerror
     });
     port.addEventListener("message", (msg) => {
-      globalThis.dispatchEvent(
-        new MessageEvent("message", {
-          data: msg.data,
-          ports: msg.ports ? [...msg.ports] : void 0
-        })
-      );
+      globalThis.dispatchEvent(new MessageEvent("message", { data: msg.data, ports: msg.ports ? [...msg.ports] : void 0 }));
     });
     port.start();
     globalThis.Worker = class {
       constructor() {
-        throw new TypeError(
-          "Nested workers from within nested worker are NOT supported."
-        );
+        throw new TypeError("Nested workers from within nested worker are NOT supported.");
       }
     };
     importScripts(workerUrl);
@@ -76,7 +70,7 @@ class NestedWorker extends EventTarget {
       channel.port2.close();
     };
     Object.defineProperties(this, {
-      onmessage: {
+      "onmessage": {
         get() {
           return channel.port1.onmessage;
         },
@@ -84,7 +78,7 @@ class NestedWorker extends EventTarget {
           channel.port1.onmessage = value;
         }
       },
-      onmessageerror: {
+      "onmessageerror": {
         get() {
           return channel.port1.onmessageerror;
         },
@@ -95,9 +89,7 @@ class NestedWorker extends EventTarget {
       // todo onerror
     });
     channel.port1.addEventListener("messageerror", (evt) => {
-      const msgEvent = new MessageEvent("messageerror", {
-        data: evt.data
-      });
+      const msgEvent = new MessageEvent("messageerror", { data: evt.data });
       this.dispatchEvent(msgEvent);
     });
     channel.port1.addEventListener("message", (evt) => {

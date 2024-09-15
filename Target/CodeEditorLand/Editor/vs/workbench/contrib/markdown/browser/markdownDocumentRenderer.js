@@ -1,15 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  basicMarkupHtmlTags,
-  hookDomPurifyHrefAndSrcSanitizer
-} from "../../../../base/browser/dom.js";
+import { basicMarkupHtmlTags, hookDomPurifyHrefAndSrcSanitizer } from "../../../../base/browser/dom.js";
 import * as dompurify from "../../../../base/browser/dompurify/dompurify.js";
 import { allowedMarkdownAttr } from "../../../../base/browser/markdownRenderer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import * as marked from "../../../../base/common/marked/marked.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { escape } from "../../../../base/common/strings.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { tokenizeToString } from "../../../../editor/common/languages/textToHtmlTokenizer.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { markedGfmHeadingIdPlugin } from "./markedGfmHeadingIdPlugin.js";
 const DEFAULT_MARKDOWN_STYLES = `
 body {
@@ -158,7 +158,11 @@ function sanitize(documentContent, allowUnknownProtocols) {
   try {
     return dompurify.sanitize(documentContent, {
       ...{
-        ALLOWED_TAGS: [...basicMarkupHtmlTags, "checkbox", "checklist"],
+        ALLOWED_TAGS: [
+          ...basicMarkupHtmlTags,
+          "checkbox",
+          "checklist"
+        ],
         ALLOWED_ATTR: [
           ...allowedMarkdownAttr,
           "data-command",
@@ -193,9 +197,7 @@ async function renderMarkdownDocument(text, extensionService, languageService, o
         if (options?.token?.isCancellationRequested) {
           return "";
         }
-        const languageId = languageService.getLanguageIdByLanguageName(lang) ?? languageService.getLanguageIdByLanguageName(
-          lang.split(/\s+|:|,|(?!^)\{|\?]/, 1)[0]
-        );
+        const languageId = languageService.getLanguageIdByLanguageName(lang) ?? languageService.getLanguageIdByLanguageName(lang.split(/\s+|:|,|(?!^)\{|\?]/, 1)[0]);
         return tokenizeToString(languageService, code, languageId);
       }
     }),
@@ -229,19 +231,11 @@ var MarkedHighlight;
         }
         const lang = getLang(token.lang);
         if (options.async) {
-          return Promise.resolve(
-            options.highlight(token.text, lang, token.lang || "")
-          ).then(updateToken(token));
+          return Promise.resolve(options.highlight(token.text, lang, token.lang || "")).then(updateToken(token));
         }
-        const code = options.highlight(
-          token.text,
-          lang,
-          token.lang || ""
-        );
+        const code = options.highlight(token.text, lang, token.lang || "");
         if (code instanceof Promise) {
-          throw new Error(
-            "markedHighlight is not set to async but the highlight function is async. Set the async option to true on markedHighlight to await the async highlight function."
-          );
+          throw new Error("markedHighlight is not set to async but the highlight function is async. Set the async option to true on markedHighlight to await the async highlight function.");
         }
         updateToken(token)(code);
       },
@@ -287,8 +281,10 @@ var MarkedHighlight;
       if (escapeTest.test(html)) {
         return html.replace(escapeReplace, getEscapeReplacement);
       }
-    } else if (escapeTestNoEncode.test(html)) {
-      return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+    } else {
+      if (escapeTestNoEncode.test(html)) {
+        return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+      }
     }
     return html;
   }

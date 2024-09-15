@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import severity from "../../../../base/common/severity.js";
 import { isObject, isString } from "../../../../base/common/types.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDebugConfiguration, IDebugSession, IExpression, INestingReplElement, IReplElement, IReplElementSource, IStackFrame } from "./debug.js";
 import { ExpressionContainer } from "./debugModel.js";
 const MAX_REPL_LENGTH = 1e4;
 let topReplElementCounter = 0;
@@ -117,21 +119,9 @@ class RawObjectReplElement {
   getChildren() {
     let result = [];
     if (Array.isArray(this.valueObj)) {
-      result = this.valueObj.slice(0, RawObjectReplElement.MAX_CHILDREN).map(
-        (v, index) => new RawObjectReplElement(
-          `${this.id}:${index}`,
-          String(index),
-          v
-        )
-      );
+      result = this.valueObj.slice(0, RawObjectReplElement.MAX_CHILDREN).map((v, index) => new RawObjectReplElement(`${this.id}:${index}`, String(index), v));
     } else if (isObject(this.valueObj)) {
-      result = Object.getOwnPropertyNames(this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN).map(
-        (key, index) => new RawObjectReplElement(
-          `${this.id}:${index}`,
-          key,
-          this.valueObj[key]
-        )
-      );
+      result = Object.getOwnPropertyNames(this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN).map((key, index) => new RawObjectReplElement(`${this.id}:${index}`, key, this.valueObj[key]));
     }
     return Promise.resolve(result);
   }
@@ -169,12 +159,7 @@ class ReplEvaluationResult extends ExpressionContainer {
     return this._available;
   }
   async evaluateExpression(expression, session, stackFrame, context) {
-    const result = await super.evaluateExpression(
-      expression,
-      session,
-      stackFrame,
-      context
-    );
+    const result = await super.evaluateExpression(expression, session, stackFrame, context);
     this._available = result;
     return result;
   }
@@ -256,12 +241,7 @@ class ReplModel {
   async addReplExpression(session, stackFrame, expression) {
     this.addReplElement(new ReplEvaluationInput(expression));
     const result = new ReplEvaluationResult(expression);
-    await result.evaluateExpression(
-      expression,
-      session,
-      stackFrame,
-      "repl"
-    );
+    await result.evaluateExpression(expression, session, stackFrame, "repl");
     this.addReplElement(result);
   }
   appendToRepl(session, { output, expression, sev, source }) {
@@ -269,32 +249,16 @@ class ReplModel {
     const clearAnsiIndex = output.lastIndexOf(clearAnsiSequence);
     if (clearAnsiIndex !== -1) {
       this.removeReplExpressions();
-      this.appendToRepl(session, {
-        output: nls.localize("consoleCleared", "Console was cleared"),
-        sev: severity.Ignore
-      });
-      output = output.substring(
-        clearAnsiIndex + clearAnsiSequence.length
-      );
+      this.appendToRepl(session, { output: nls.localize("consoleCleared", "Console was cleared"), sev: severity.Ignore });
+      output = output.substring(clearAnsiIndex + clearAnsiSequence.length);
     }
     if (expression) {
-      this.addReplElement(
-        output ? new ReplOutputElement(
-          session,
-          getUniqueId(),
-          output,
-          sev,
-          source,
-          expression
-        ) : new ReplVariableElement(session, expression, sev, source)
-      );
+      this.addReplElement(output ? new ReplOutputElement(session, getUniqueId(), output, sev, source, expression) : new ReplVariableElement(session, expression, sev, source));
       return;
     }
     const previousElement = this.replElements.length ? this.replElements[this.replElements.length - 1] : void 0;
     if (previousElement instanceof ReplOutputElement && previousElement.severity === sev) {
-      const config = this.configurationService.getValue(
-        "debug"
-      );
+      const config = this.configurationService.getValue("debug");
       if (previousElement.value === output && areSourcesEqual(previousElement.sourceData, source) && config.console.collapseIdenticalLines) {
         previousElement.count++;
         return;
@@ -311,13 +275,7 @@ class ReplModel {
         return;
       }
     }
-    const element = new ReplOutputElement(
-      session,
-      getUniqueId(),
-      output,
-      sev,
-      source
-    );
+    const element = new ReplOutputElement(session, getUniqueId(), output, sev, source);
     this.addReplElement(element);
   }
   startGroup(session, name, autoExpand, sourceData) {
@@ -337,10 +295,7 @@ class ReplModel {
     } else {
       this.replElements.push(newElement);
       if (this.replElements.length > MAX_REPL_LENGTH) {
-        this.replElements.splice(
-          0,
-          this.replElements.length - MAX_REPL_LENGTH
-        );
+        this.replElements.splice(0, this.replElements.length - MAX_REPL_LENGTH);
       }
     }
     this._onDidChangeElements.fire(newElement);

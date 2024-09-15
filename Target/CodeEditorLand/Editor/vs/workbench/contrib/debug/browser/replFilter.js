@@ -1,15 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  TreeVisibility
-} from "../../../../base/browser/ui/tree/tree.js";
 import { matchesFuzzy } from "../../../../base/common/filters.js";
 import { splitGlobAware } from "../../../../base/common/glob.js";
+import { ITreeFilter, TreeVisibility, TreeFilterResult } from "../../../../base/browser/ui/tree/tree.js";
+import { IReplElement } from "../common/debug.js";
+import { ReplEvaluationResult, ReplEvaluationInput } from "../common/replModel.js";
 import { Variable } from "../common/debugModel.js";
-import {
-  ReplEvaluationInput,
-  ReplEvaluationResult
-} from "../common/replModel.js";
 class ReplFilter {
   static {
     __name(this, "ReplFilter");
@@ -23,15 +19,9 @@ class ReplFilter {
       const filters = splitGlobAware(query, ",").map((s) => s.trim()).filter((s) => !!s.length);
       for (const f of filters) {
         if (f.startsWith("\\")) {
-          this._parsedQueries.push({
-            type: "include",
-            query: f.slice(1)
-          });
+          this._parsedQueries.push({ type: "include", query: f.slice(1) });
         } else if (f.startsWith("!")) {
-          this._parsedQueries.push({
-            type: "exclude",
-            query: f.slice(1)
-          });
+          this._parsedQueries.push({ type: "exclude", query: f.slice(1) });
         } else {
           this._parsedQueries.push({ type: "include", query: f });
         }

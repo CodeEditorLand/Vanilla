@@ -1,21 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  isLinux
-} from "../../../../base/common/platform.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+import { IProcessEnvironment, isLinux, OperatingSystem } from "../../../../base/common/platform.js";
+import Severity from "../../../../base/common/severity.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import { ICreateContributedTerminalProfileOptions, IExtensionTerminalProfile, IFixedTerminalDimensions, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IProcessReadyWindowsPty, IShellLaunchConfig, ITerminalBackend, ITerminalContributions, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, ITerminalProfileObject, ProcessPropertyType, TerminalIcon, TerminalLocationString, TitleEventSource } from "../../../../platform/terminal/common/terminal.js";
 import { AccessibilityCommandId } from "../../accessibility/common/accessibilityCommands.js";
+import { IEnvironmentVariableInfo } from "./environmentVariable.js";
+import { IExtensionPointDescriptor } from "../../../services/extensions/common/extensionsRegistry.js";
 import { defaultTerminalAccessibilityCommandsToSkipShell } from "../../terminalContrib/accessibility/common/terminal.accessibility.js";
 import { defaultTerminalFindCommandToSkipShell } from "../../terminalContrib/find/common/terminal.find.js";
 import { defaultTerminalSuggestCommandsToSkipShell } from "../../terminalContrib/suggest/common/terminal.suggest.js";
 const TERMINAL_VIEW_ID = "terminal";
-const TERMINAL_CREATION_COMMANDS = [
-  "workbench.action.terminal.toggleTerminal",
-  "workbench.action.terminal.new",
-  "workbench.action.togglePanel",
-  "workbench.action.terminal.focus"
-];
+const TERMINAL_CREATION_COMMANDS = ["workbench.action.terminal.toggleTerminal", "workbench.action.terminal.new", "workbench.action.togglePanel", "workbench.action.terminal.focus"];
 const TERMINAL_CONFIG_SECTION = "terminal.integrated";
 const DEFAULT_LETTER_SPACING = 0;
 const MINIMUM_LETTER_SPACING = -5;
@@ -24,26 +28,10 @@ const MINIMUM_FONT_WEIGHT = 1;
 const MAXIMUM_FONT_WEIGHT = 1e3;
 const DEFAULT_FONT_WEIGHT = "normal";
 const DEFAULT_BOLD_FONT_WEIGHT = "bold";
-const SUGGESTIONS_FONT_WEIGHT = [
-  "normal",
-  "bold",
-  "100",
-  "200",
-  "300",
-  "400",
-  "500",
-  "600",
-  "700",
-  "800",
-  "900"
-];
-const ITerminalProfileResolverService = createDecorator(
-  "terminalProfileResolverService"
-);
+const SUGGESTIONS_FONT_WEIGHT = ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"];
+const ITerminalProfileResolverService = createDecorator("terminalProfileResolverService");
 const ShellIntegrationExitCode = 633;
-const ITerminalProfileService = createDecorator(
-  "terminalProfileService"
-);
+const ITerminalProfileService = createDecorator("terminalProfileService");
 const isTerminalProcessManager = /* @__PURE__ */ __name((t) => typeof t.write === "function", "isTerminalProcessManager");
 var ProcessState = /* @__PURE__ */ ((ProcessState2) => {
   ProcessState2[ProcessState2["Uninitialized"] = 1] = "Uninitialized";
@@ -302,49 +290,32 @@ const terminalContributionsDescriptor = {
     }
   }, "activationEventsGenerator"),
   jsonSchema: {
-    description: nls.localize(
-      "vscode.extension.contributes.terminal",
-      "Contributes terminal functionality."
-    ),
+    description: nls.localize("vscode.extension.contributes.terminal", "Contributes terminal functionality."),
     type: "object",
     properties: {
       profiles: {
         type: "array",
-        description: nls.localize(
-          "vscode.extension.contributes.terminal.profiles",
-          "Defines additional terminal profiles that the user can create."
-        ),
+        description: nls.localize("vscode.extension.contributes.terminal.profiles", "Defines additional terminal profiles that the user can create."),
         items: {
           type: "object",
           required: ["id", "title"],
-          defaultSnippets: [
-            {
-              body: {
-                id: "$1",
-                title: "$2"
-              }
+          defaultSnippets: [{
+            body: {
+              id: "$1",
+              title: "$2"
             }
-          ],
+          }],
           properties: {
             id: {
-              description: nls.localize(
-                "vscode.extension.contributes.terminal.profiles.id",
-                "The ID of the terminal profile provider."
-              ),
+              description: nls.localize("vscode.extension.contributes.terminal.profiles.id", "The ID of the terminal profile provider."),
               type: "string"
             },
             title: {
-              description: nls.localize(
-                "vscode.extension.contributes.terminal.profiles.title",
-                "Title for this terminal profile."
-              ),
+              description: nls.localize("vscode.extension.contributes.terminal.profiles.title", "Title for this terminal profile."),
               type: "string"
             },
             icon: {
-              description: nls.localize(
-                "vscode.extension.contributes.terminal.types.icon",
-                "A codicon, URI, or light and dark URIs to associate with this terminal type."
-              ),
+              description: nls.localize("vscode.extension.contributes.terminal.types.icon", "A codicon, URI, or light and dark URIs to associate with this terminal type."),
               anyOf: [
                 {
                   type: "string"
@@ -353,17 +324,11 @@ const terminalContributionsDescriptor = {
                   type: "object",
                   properties: {
                     light: {
-                      description: nls.localize(
-                        "vscode.extension.contributes.terminal.types.icon.light",
-                        "Icon path when a light theme is used"
-                      ),
+                      description: nls.localize("vscode.extension.contributes.terminal.types.icon.light", "Icon path when a light theme is used"),
                       type: "string"
                     },
                     dark: {
-                      description: nls.localize(
-                        "vscode.extension.contributes.terminal.types.icon.dark",
-                        "Icon path when a dark theme is used"
-                      ),
+                      description: nls.localize("vscode.extension.contributes.terminal.types.icon.dark", "Icon path when a dark theme is used"),
                       type: "string"
                     }
                   }

@@ -3,15 +3,13 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { raceCancellation } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { CancellationError } from "../../../base/common/errors.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostLanguageModelToolsShape, IMainContext, IToolDataDto, MainContext, MainThreadLanguageModelToolsShape } from "./extHost.protocol.js";
 import * as typeConvert from "./extHostTypeConverters.js";
+import { IToolInvocation, IToolInvocationContext, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
 class ExtHostLanguageModelTools {
   static {
     __name(this, "ExtHostLanguageModelTools");
@@ -23,9 +21,7 @@ class ExtHostLanguageModelTools {
   /** A map of all known tools, from other EHs or registered in vscode core */
   _allTools = /* @__PURE__ */ new Map();
   constructor(mainContext) {
-    this._proxy = mainContext.getProxy(
-      MainContext.MainThreadLanguageModelTools
-    );
+    this._proxy = mainContext.getProxy(MainContext.MainThreadLanguageModelTools);
     this._proxy.$getTools().then((tools) => {
       for (const tool of tools) {
         this._allTools.set(tool.id, revive(tool));
@@ -45,16 +41,13 @@ class ExtHostLanguageModelTools {
       this._tokenCountFuncs.set(callId, options.tokenOptions.countTokens);
     }
     try {
-      const result = await this._proxy.$invokeTool(
-        {
-          toolId,
-          callId,
-          parameters: options.parameters,
-          tokenBudget: options.tokenOptions?.tokenBudget,
-          context: options.toolInvocationToken
-        },
-        token
-      );
+      const result = await this._proxy.$invokeTool({
+        toolId,
+        callId,
+        parameters: options.parameters,
+        tokenBudget: options.tokenOptions?.tokenBudget,
+        context: options.toolInvocationToken
+      }, token);
       return typeConvert.LanguageModelToolResult.to(result);
     } finally {
       this._tokenCountFuncs.delete(callId);
@@ -67,33 +60,21 @@ class ExtHostLanguageModelTools {
     }
   }
   get tools() {
-    return Array.from(this._allTools.values()).map(
-      (tool) => typeConvert.LanguageModelToolDescription.to(tool)
-    );
+    return Array.from(this._allTools.values()).map((tool) => typeConvert.LanguageModelToolDescription.to(tool));
   }
   async $invokeTool(dto, token) {
     const item = this._registeredTools.get(dto.toolId);
     if (!item) {
       throw new Error(`Unknown tool ${dto.toolId}`);
     }
-    const options = {
-      parameters: dto.parameters,
-      toolInvocationToken: dto.context
-    };
+    const options = { parameters: dto.parameters, toolInvocationToken: dto.context };
     if (dto.tokenBudget !== void 0) {
       options.tokenOptions = {
         tokenBudget: dto.tokenBudget,
-        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(
-          dto.callId,
-          value,
-          token2
-        ))
+        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(dto.callId, value, token2))
       };
     }
-    const extensionResult = await raceCancellation(
-      Promise.resolve(item.tool.invoke(options, token)),
-      token
-    );
+    const extensionResult = await raceCancellation(Promise.resolve(item.tool.invoke(options, token)), token);
     if (!extensionResult) {
       throw new CancellationError();
     }

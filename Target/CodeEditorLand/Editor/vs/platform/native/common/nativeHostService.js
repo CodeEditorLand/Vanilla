@@ -12,20 +12,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
 import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { INativeHostService } from "./native.js";
 let NativeHostService = class {
   constructor(windowId, mainProcessService) {
     this.windowId = windowId;
-    return ProxyChannel.toService(
-      mainProcessService.getChannel("nativeHost"),
-      {
-        context: windowId,
-        properties: (() => {
-          const properties = /* @__PURE__ */ new Map();
-          properties.set("windowId", windowId);
-          return properties;
-        })()
-      }
-    );
+    return ProxyChannel.toService(mainProcessService.getChannel("nativeHost"), {
+      context: windowId,
+      properties: (() => {
+        const properties = /* @__PURE__ */ new Map();
+        properties.set("windowId", windowId);
+        return properties;
+      })()
+    });
   }
   static {
     __name(this, "NativeHostService");

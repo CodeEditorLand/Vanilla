@@ -1,13 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as dom from "../../../../base/browser/dom.js";
 import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
-import { Position } from "../../../common/core/position.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import * as dom from "../../../../base/browser/dom.js";
 const TOP_HEIGHT = 30;
 const BOTTOM_HEIGHT = 24;
 class ResizableContentWidget extends Disposable {
@@ -18,30 +16,22 @@ class ResizableContentWidget extends Disposable {
     this._resizableNode.minSize = dom.Dimension.lift(minimumSize);
     this._resizableNode.layout(minimumSize.height, minimumSize.width);
     this._resizableNode.enableSashes(true, true, true, true);
-    this._register(
-      this._resizableNode.onDidResize((e) => {
-        this._resize(
-          new dom.Dimension(e.dimension.width, e.dimension.height)
-        );
-        if (e.done) {
-          this._isResizing = false;
-        }
-      })
-    );
-    this._register(
-      this._resizableNode.onDidWillResize(() => {
-        this._isResizing = true;
-      })
-    );
+    this._register(this._resizableNode.onDidResize((e) => {
+      this._resize(new dom.Dimension(e.dimension.width, e.dimension.height));
+      if (e.done) {
+        this._isResizing = false;
+      }
+    }));
+    this._register(this._resizableNode.onDidWillResize(() => {
+      this._isResizing = true;
+    }));
   }
   static {
     __name(this, "ResizableContentWidget");
   }
   allowEditorOverflow = true;
   suppressMouseDown = false;
-  _resizableNode = this._register(
-    new ResizableHTMLElement()
-  );
+  _resizableNode = this._register(new ResizableHTMLElement());
   _contentPosition = null;
   _isResizing = false;
   get isResizing() {
@@ -77,18 +67,9 @@ class ResizableContentWidget extends Disposable {
     return bodyBox.height - mouseBottom - BOTTOM_HEIGHT;
   }
   _findPositionPreference(widgetHeight, showAtPosition) {
-    const maxHeightBelow = Math.min(
-      this._availableVerticalSpaceBelow(showAtPosition) ?? Number.POSITIVE_INFINITY,
-      widgetHeight
-    );
-    const maxHeightAbove = Math.min(
-      this._availableVerticalSpaceAbove(showAtPosition) ?? Number.POSITIVE_INFINITY,
-      widgetHeight
-    );
-    const maxHeight = Math.min(
-      Math.max(maxHeightAbove, maxHeightBelow),
-      widgetHeight
-    );
+    const maxHeightBelow = Math.min(this._availableVerticalSpaceBelow(showAtPosition) ?? Infinity, widgetHeight);
+    const maxHeightAbove = Math.min(this._availableVerticalSpaceAbove(showAtPosition) ?? Infinity, widgetHeight);
+    const maxHeight = Math.min(Math.max(maxHeightAbove, maxHeightBelow), widgetHeight);
     const height = Math.min(widgetHeight, maxHeight);
     let renderingAbove;
     if (this._editor.getOption(EditorOption.hover).above) {

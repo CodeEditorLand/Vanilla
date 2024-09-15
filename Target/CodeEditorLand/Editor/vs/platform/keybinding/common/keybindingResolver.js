@@ -1,10 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  ContextKeyExprType,
-  expressionsAreEqualWithConstantSubstitution,
-  implies
-} from "../../contextkey/common/contextkey.js";
+import { implies, ContextKeyExpression, ContextKeyExprType, IContext, IContextKeyService, expressionsAreEqualWithConstantSubstitution } from "../../contextkey/common/contextkey.js";
+import { ResolvedKeybindingItem } from "./resolvedKeybindingItem.js";
 var ResultKind = /* @__PURE__ */ ((ResultKind2) => {
   ResultKind2[ResultKind2["NoMatchingKb"] = 0] = "NoMatchingKb";
   ResultKind2[ResultKind2["MoreChordsNeeded"] = 1] = "MoreChordsNeeded";
@@ -12,9 +9,7 @@ var ResultKind = /* @__PURE__ */ ((ResultKind2) => {
   return ResultKind2;
 })(ResultKind || {});
 const NoMatchingKb = { kind: 0 /* NoMatchingKb */ };
-const MoreChordsNeeded = {
-  kind: 1 /* MoreChordsNeeded */
-};
+const MoreChordsNeeded = { kind: 1 /* MoreChordsNeeded */ };
 function KbFound(commandId, commandArgs, isBubble) {
   return { kind: 2 /* KbFound */, commandId, commandArgs, isBubble };
 }
@@ -41,9 +36,7 @@ class KeybindingResolver {
     }
     this._map = /* @__PURE__ */ new Map();
     this._lookupMap = /* @__PURE__ */ new Map();
-    this._keybindings = KeybindingResolver.handleRemovals(
-      [].concat(defaultKeybindings).concat(overrides)
-    );
+    this._keybindings = KeybindingResolver.handleRemovals([].concat(defaultKeybindings).concat(overrides));
     for (let i = 0, len = this._keybindings.length; i < len; i++) {
       const k = this._keybindings[i];
       if (k.chords.length === 0) {
@@ -68,10 +61,7 @@ class KeybindingResolver {
       if (!defaultKb.when) {
         return false;
       }
-      if (!expressionsAreEqualWithConstantSubstitution(
-        when,
-        defaultKb.when
-      )) {
+      if (!expressionsAreEqualWithConstantSubstitution(when, defaultKb.when)) {
         return false;
       }
     }
@@ -86,10 +76,10 @@ class KeybindingResolver {
       const rule = rules[i];
       if (rule.command && rule.command.charAt(0) === "-") {
         const command = rule.command.substring(1);
-        if (removals.has(command)) {
-          removals.get(command).push(rule);
-        } else {
+        if (!removals.has(command)) {
           removals.set(command, [rule]);
+        } else {
+          removals.get(command).push(rule);
         }
       }
     }
@@ -114,11 +104,7 @@ class KeybindingResolver {
       let isRemoved = false;
       for (const commandRemoval of commandRemovals) {
         const when = commandRemoval.when;
-        if (this._isTargetedForRemoval(
-          rule,
-          commandRemoval.chords,
-          when
-        )) {
+        if (this._isTargetedForRemoval(rule, commandRemoval.chords, when)) {
           isRemoved = true;
           break;
         }
@@ -152,10 +138,7 @@ class KeybindingResolver {
       if (!isShorterKbPrefix) {
         continue;
       }
-      if (KeybindingResolver.whenIsEntirelyIncluded(
-        conflict.when,
-        item.when
-      )) {
+      if (KeybindingResolver.whenIsEntirelyIncluded(conflict.when, item.when)) {
         this._removeFromLookupMap(conflict);
       }
     }
@@ -276,20 +259,14 @@ class KeybindingResolver {
     }
     const result = this._findCommand(context, lookupMap);
     if (!result) {
-      this._log(
-        `\\ From ${lookupMap.length} keybinding entries, no when clauses matched the context.`
-      );
+      this._log(`\\ From ${lookupMap.length} keybinding entries, no when clauses matched the context.`);
       return NoMatchingKb;
     }
     if (pressedChords.length < result.chords.length) {
-      this._log(
-        `\\ From ${lookupMap.length} keybinding entries, awaiting ${result.chords.length - pressedChords.length} more chord(s), when: ${printWhenExplanation(result.when)}, source: ${printSourceExplanation(result)}.`
-      );
+      this._log(`\\ From ${lookupMap.length} keybinding entries, awaiting ${result.chords.length - pressedChords.length} more chord(s), when: ${printWhenExplanation(result.when)}, source: ${printSourceExplanation(result)}.`);
       return MoreChordsNeeded;
     }
-    this._log(
-      `\\ From ${lookupMap.length} keybinding entries, matched ${result.command}, when: ${printWhenExplanation(result.when)}, source: ${printSourceExplanation(result)}.`
-    );
+    this._log(`\\ From ${lookupMap.length} keybinding entries, matched ${result.command}, when: ${printWhenExplanation(result.when)}, source: ${printSourceExplanation(result)}.`);
     return KbFound(result.command, result.commandArgs, result.bubble);
   }
   _findCommand(context, matches) {

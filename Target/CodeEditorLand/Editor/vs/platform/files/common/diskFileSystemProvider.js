@@ -5,16 +5,12 @@ import { ThrottledDelayer } from "../../../base/common/async.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
 import { Emitter } from "../../../base/common/event.js";
 import { removeTrailingPathSeparator } from "../../../base/common/extpath.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { normalize } from "../../../base/common/path.js";
-import { LogLevel } from "../../log/common/log.js";
-import {
-  isRecursiveWatchRequest,
-  reviveFileChanges
-} from "./watcher.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFileChange, IFileSystemProvider, IWatchOptions } from "./files.js";
+import { AbstractNonRecursiveWatcherClient, AbstractUniversalWatcherClient, ILogMessage, INonRecursiveWatchRequest, IRecursiveWatcherOptions, isRecursiveWatchRequest, IUniversalWatchRequest, reviveFileChanges } from "./watcher.js";
+import { ILogService, LogLevel } from "../../log/common/log.js";
 class AbstractDiskFileSystemProvider extends Disposable {
   constructor(logService, options) {
     super();
@@ -24,9 +20,7 @@ class AbstractDiskFileSystemProvider extends Disposable {
   static {
     __name(this, "AbstractDiskFileSystemProvider");
   }
-  _onDidChangeFile = this._register(
-    new Emitter()
-  );
+  _onDidChangeFile = this._register(new Emitter());
   onDidChangeFile = this._onDidChangeFile.event;
   _onDidWatchError = this._register(new Emitter());
   onDidWatchError = this._onDidWatchError.event;
@@ -39,9 +33,7 @@ class AbstractDiskFileSystemProvider extends Disposable {
   //#region File Watching (universal)
   universalWatcher;
   universalWatchRequests = [];
-  universalWatchRequestDelayer = this._register(
-    new ThrottledDelayer(0)
-  );
+  universalWatchRequestDelayer = this._register(new ThrottledDelayer(0));
   watchUniversal(resource, opts) {
     const request = this.toWatchRequest(resource, opts);
     const remove = insert(this.universalWatchRequests, request);
@@ -82,20 +74,14 @@ class AbstractDiskFileSystemProvider extends Disposable {
   }
   doRefreshUniversalWatchers() {
     if (!this.universalWatcher) {
-      this.universalWatcher = this._register(
-        this.createUniversalWatcher(
-          (changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)),
-          (msg) => this.onWatcherLogMessage(msg),
-          this.logService.getLevel() === LogLevel.Trace
-        )
-      );
-      this._register(
-        this.logService.onDidChangeLogLevel(() => {
-          this.universalWatcher?.setVerboseLogging(
-            this.logService.getLevel() === LogLevel.Trace
-          );
-        })
-      );
+      this.universalWatcher = this._register(this.createUniversalWatcher(
+        (changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)),
+        (msg) => this.onWatcherLogMessage(msg),
+        this.logService.getLevel() === LogLevel.Trace
+      ));
+      this._register(this.logService.onDidChangeLogLevel(() => {
+        this.universalWatcher?.setVerboseLogging(this.logService.getLevel() === LogLevel.Trace);
+      }));
     }
     return this.universalWatcher.watch(this.universalWatchRequests);
   }
@@ -103,9 +89,7 @@ class AbstractDiskFileSystemProvider extends Disposable {
   //#region File Watching (non-recursive)
   nonRecursiveWatcher;
   nonRecursiveWatchRequests = [];
-  nonRecursiveWatchRequestDelayer = this._register(
-    new ThrottledDelayer(0)
-  );
+  nonRecursiveWatchRequestDelayer = this._register(new ThrottledDelayer(0));
   watchNonRecursive(resource, opts) {
     const request = {
       path: this.toWatchPath(resource),
@@ -129,20 +113,14 @@ class AbstractDiskFileSystemProvider extends Disposable {
   }
   doRefreshNonRecursiveWatchers() {
     if (!this.nonRecursiveWatcher) {
-      this.nonRecursiveWatcher = this._register(
-        this.createNonRecursiveWatcher(
-          (changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)),
-          (msg) => this.onWatcherLogMessage(msg),
-          this.logService.getLevel() === LogLevel.Trace
-        )
-      );
-      this._register(
-        this.logService.onDidChangeLogLevel(() => {
-          this.nonRecursiveWatcher?.setVerboseLogging(
-            this.logService.getLevel() === LogLevel.Trace
-          );
-        })
-      );
+      this.nonRecursiveWatcher = this._register(this.createNonRecursiveWatcher(
+        (changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)),
+        (msg) => this.onWatcherLogMessage(msg),
+        this.logService.getLevel() === LogLevel.Trace
+      ));
+      this._register(this.logService.onDidChangeLogLevel(() => {
+        this.nonRecursiveWatcher?.setVerboseLogging(this.logService.getLevel() === LogLevel.Trace);
+      }));
     }
     return this.nonRecursiveWatcher.watch(this.nonRecursiveWatchRequests);
   }

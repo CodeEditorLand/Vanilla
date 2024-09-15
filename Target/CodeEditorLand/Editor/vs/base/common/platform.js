@@ -12,13 +12,13 @@ let _isElectron = false;
 let _isIOS = false;
 let _isCI = false;
 let _isMobile = false;
-let _locale;
+let _locale = void 0;
 let _language = LANGUAGE_DEFAULT;
 let _platformLocale = LANGUAGE_DEFAULT;
-let _translationsConfigFile;
-let _userAgent;
+let _translationsConfigFile = void 0;
+let _userAgent = void 0;
 const $globalThis = globalThis;
-let nodeProcess;
+let nodeProcess = void 0;
 if (typeof $globalThis.vscode !== "undefined" && typeof $globalThis.vscode.process !== "undefined") {
   nodeProcess = $globalThis.vscode.process;
 } else if (typeof process !== "undefined" && typeof process?.versions?.node === "string") {
@@ -182,11 +182,11 @@ function isLittleEndian() {
 __name(isLittleEndian, "isLittleEndian");
 const isChrome = !!(userAgent && userAgent.indexOf("Chrome") >= 0);
 const isFirefox = !!(userAgent && userAgent.indexOf("Firefox") >= 0);
-const isSafari = !!(!isChrome && userAgent && userAgent.indexOf("Safari") >= 0);
+const isSafari = !!(!isChrome && (userAgent && userAgent.indexOf("Safari") >= 0));
 const isEdge = !!(userAgent && userAgent.indexOf("Edg/") >= 0);
 const isAndroid = !!(userAgent && userAgent.indexOf("Android") >= 0);
 function isBigSurOrNewer(osVersion) {
-  return Number.parseFloat(osVersion) >= 20;
+  return parseFloat(osVersion) >= 20;
 }
 __name(isBigSurOrNewer, "isBigSurOrNewer");
 export {

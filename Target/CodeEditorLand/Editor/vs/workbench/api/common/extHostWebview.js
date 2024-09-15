@@ -1,23 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import * as objects from "../../../base/common/objects.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  normalizeVersion,
-  parseVersion
-} from "../../../platform/extensions/common/extensionValidator.js";
-import {
-  asWebviewUri,
-  webviewGenericCspSource
-} from "../../contrib/webview/common/webview.js";
+import { normalizeVersion, parseVersion } from "../../../platform/extensions/common/extensionValidator.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
+import { deserializeWebviewMessage, serializeWebviewMessage } from "./extHostWebviewMessaging.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { WebviewRemoteInfo, asWebviewUri, webviewGenericCspSource } from "../../contrib/webview/common/webview.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 import * as extHostProtocol from "./extHost.protocol.js";
-import {
-  deserializeWebviewMessage,
-  serializeWebviewMessage
-} from "./extHostWebviewMessaging.js";
 class ExtHostWebview {
   static {
     __name(this, "ExtHostWebview");
@@ -88,10 +85,7 @@ class ExtHostWebview {
           `Please migrate to use the 'webview.asWebviewUri' api instead: https://aka.ms/vscode-webview-use-aswebviewuri`
         );
       }
-      this.#proxy.$setHtml(
-        this.#handle,
-        this.rewriteOldResourceUrlsIfNeeded(value)
-      );
+      this.#proxy.$setHtml(this.#handle, this.rewriteOldResourceUrlsIfNeeded(value));
     }
   }
   get options() {
@@ -101,14 +95,7 @@ class ExtHostWebview {
   set options(newOptions) {
     this.assertNotDisposed();
     if (!objects.equals(this.#options, newOptions)) {
-      this.#proxy.$setOptions(
-        this.#handle,
-        serializeWebviewOptions(
-          this.#extension,
-          this.#workspace,
-          newOptions
-        )
-      );
+      this.#proxy.$setOptions(this.#handle, serializeWebviewOptions(this.#extension, this.#workspace, newOptions));
     }
     this.#options = newOptions;
   }
@@ -116,14 +103,8 @@ class ExtHostWebview {
     if (this.#isDisposed) {
       return false;
     }
-    const serialized = serializeWebviewMessage(message, {
-      serializeBuffersForPostMessage: this.#serializeBuffersForPostMessage
-    });
-    return this.#proxy.$postMessage(
-      this.#handle,
-      serialized.message,
-      ...serialized.buffers
-    );
+    const serialized = serializeWebviewMessage(message, { serializeBuffersForPostMessage: this.#serializeBuffersForPostMessage });
+    return this.#proxy.$postMessage(this.#handle, serialized.message, ...serialized.buffers);
   }
   assertNotDisposed() {
     if (this.#isDisposed) {
@@ -136,40 +117,26 @@ class ExtHostWebview {
     }
     const isRemote = this.#extension.extensionLocation?.scheme === Schemas.vscodeRemote;
     const remoteAuthority = this.#extension.extensionLocation.scheme === Schemas.vscodeRemote ? this.#extension.extensionLocation.authority : void 0;
-    return value.replace(
-      /(["'])(?:vscode-resource):(\/\/([^\s/'"]+?)(?=\/))?([^\s'"]+?)(["'])/gi,
-      (_match, startQuote, _1, scheme, path, endQuote) => {
-        const uri = URI.from({
-          scheme: scheme || "file",
-          path: decodeURIComponent(path)
-        });
-        const webviewUri = asWebviewUri(uri, {
-          isRemote,
-          authority: remoteAuthority
-        }).toString();
-        return `${startQuote}${webviewUri}${endQuote}`;
-      }
-    ).replace(
-      /(["'])(?:vscode-webview-resource):(\/\/[^\s/'"]+\/([^\s/'"]+?)(?=\/))?([^\s'"]+?)(["'])/gi,
-      (_match, startQuote, _1, scheme, path, endQuote) => {
-        const uri = URI.from({
-          scheme: scheme || "file",
-          path: decodeURIComponent(path)
-        });
-        const webviewUri = asWebviewUri(uri, {
-          isRemote,
-          authority: remoteAuthority
-        }).toString();
-        return `${startQuote}${webviewUri}${endQuote}`;
-      }
-    );
+    return value.replace(/(["'])(?:vscode-resource):(\/\/([^\s\/'"]+?)(?=\/))?([^\s'"]+?)(["'])/gi, (_match, startQuote, _1, scheme, path, endQuote) => {
+      const uri = URI.from({
+        scheme: scheme || "file",
+        path: decodeURIComponent(path)
+      });
+      const webviewUri = asWebviewUri(uri, { isRemote, authority: remoteAuthority }).toString();
+      return `${startQuote}${webviewUri}${endQuote}`;
+    }).replace(/(["'])(?:vscode-webview-resource):(\/\/[^\s\/'"]+\/([^\s\/'"]+?)(?=\/))?([^\s'"]+?)(["'])/gi, (_match, startQuote, _1, scheme, path, endQuote) => {
+      const uri = URI.from({
+        scheme: scheme || "file",
+        path: decodeURIComponent(path)
+      });
+      const webviewUri = asWebviewUri(uri, { isRemote, authority: remoteAuthority }).toString();
+      return `${startQuote}${webviewUri}${endQuote}`;
+    });
   }
 }
 function shouldSerializeBuffersForPostMessage(extension) {
   try {
-    const version = normalizeVersion(
-      parseVersion(extension.engines.vscode)
-    );
+    const version = normalizeVersion(parseVersion(extension.engines.vscode));
     return !!version && version.majorBase >= 1 && version.minorBase >= 57;
   } catch {
     return false;
@@ -178,9 +145,7 @@ function shouldSerializeBuffersForPostMessage(extension) {
 __name(shouldSerializeBuffersForPostMessage, "shouldSerializeBuffersForPostMessage");
 function shouldTryRewritingOldResourceUris(extension) {
   try {
-    const version = normalizeVersion(
-      parseVersion(extension.engines.vscode)
-    );
+    const version = normalizeVersion(parseVersion(extension.engines.vscode));
     if (!version) {
       return false;
     }
@@ -197,9 +162,7 @@ class ExtHostWebviews extends Disposable {
     this.workspace = workspace;
     this._logService = _logService;
     this._deprecationService = _deprecationService;
-    this._webviewProxy = mainContext.getProxy(
-      extHostProtocol.MainContext.MainThreadWebviews
-    );
+    this._webviewProxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviews);
   }
   static {
     __name(this, "ExtHostWebviews");
@@ -216,28 +179,15 @@ class ExtHostWebviews extends Disposable {
   $onMessage(handle, jsonMessage, buffers) {
     const webview = this.getWebview(handle);
     if (webview) {
-      const { message } = deserializeWebviewMessage(
-        jsonMessage,
-        buffers.value
-      );
+      const { message } = deserializeWebviewMessage(jsonMessage, buffers.value);
       webview._onMessageEmitter.fire(message);
     }
   }
   $onMissingCsp(_handle, extensionId) {
-    this._logService.warn(
-      `${extensionId} created a webview without a content security policy: https://aka.ms/vscode-webview-missing-csp`
-    );
+    this._logService.warn(`${extensionId} created a webview without a content security policy: https://aka.ms/vscode-webview-missing-csp`);
   }
   createNewWebview(handle, options, extension) {
-    const webview = new ExtHostWebview(
-      handle,
-      this._webviewProxy,
-      reviveOptions(options),
-      this.remoteInfo,
-      this.workspace,
-      extension,
-      this._deprecationService
-    );
+    const webview = new ExtHostWebview(handle, this._webviewProxy, reviveOptions(options), this.remoteInfo, this.workspace, extension, this._deprecationService);
     this._webviews.set(handle, webview);
     const sub = webview._onDidDispose(() => {
       sub.dispose();
@@ -272,9 +222,7 @@ function reviveOptions(options) {
     enableScripts: options.enableScripts,
     enableForms: options.enableForms,
     portMapping: options.portMapping,
-    localResourceRoots: options.localResourceRoots?.map(
-      (components) => URI.from(components)
-    )
+    localResourceRoots: options.localResourceRoots?.map((components) => URI.from(components))
   };
 }
 __name(reviveOptions, "reviveOptions");

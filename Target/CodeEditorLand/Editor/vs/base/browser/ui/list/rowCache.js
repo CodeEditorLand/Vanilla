@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { $ } from "../../dom.js";
+import { IDisposable } from "../../../common/lifecycle.js";
+import { IListRenderer } from "./list.js";
 class RowCache {
   constructor(renderers) {
     this.renderers = renderers;

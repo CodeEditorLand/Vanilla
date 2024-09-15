@@ -10,13 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { insert } from "../../../../base/common/arrays.js";
 import { raceCancellation } from "../../../../base/common/async.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
+import { IDisposable, Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { insert } from "../../../../base/common/arrays.js";
+import { IStoredFileWorkingCopySaveParticipant, IStoredFileWorkingCopySaveParticipantContext } from "./workingCopyFileService.js";
+import { IStoredFileWorkingCopy, IStoredFileWorkingCopyModel } from "./storedFileWorkingCopy.js";
 let StoredFileWorkingCopySaveParticipant = class extends Disposable {
   constructor(logService) {
     super();
@@ -40,12 +41,7 @@ let StoredFileWorkingCopySaveParticipant = class extends Disposable {
         break;
       }
       try {
-        const promise = saveParticipant.participate(
-          workingCopy,
-          context,
-          progress,
-          token
-        );
+        const promise = saveParticipant.participate(workingCopy, context, progress, token);
         await raceCancellation(promise, token);
       } catch (err) {
         this.logService.warn(err);

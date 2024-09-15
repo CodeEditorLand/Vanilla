@@ -1,13 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { autorun } from "./autorun.js";
-import {
-  CancellationError,
-  CancellationTokenSource
-} from "./commonFacade/cancellation.js";
-import { strictEquals } from "./commonFacade/deps.js";
-import { DebugNameData } from "./debugName.js";
+import { IReader, IObservable } from "./base.js";
+import { DebugOwner, DebugNameData } from "./debugName.js";
+import { CancellationError, CancellationToken, CancellationTokenSource } from "./commonFacade/cancellation.js";
 import { Derived } from "./derived.js";
+import { strictEquals } from "./commonFacade/deps.js";
+import { autorun } from "./autorun.js";
 function waitForState(observable, predicate, isError, cancellationToken) {
   if (!predicate) {
     predicate = /* @__PURE__ */ __name((state) => state !== null && state !== void 0, "predicate");
@@ -67,7 +65,7 @@ function derivedWithCancellationToken(computeFnOrOwner, computeFnOrUndefined) {
     owner = computeFnOrOwner;
     computeFn = computeFnOrUndefined;
   }
-  let cancellationTokenSource;
+  let cancellationTokenSource = void 0;
   return new Derived(
     new DebugNameData(owner, void 0, computeFn),
     (r) => {

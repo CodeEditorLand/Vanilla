@@ -10,6 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../../../base/common/uri.js";
 import { UnchangedRegion } from "../../../../../editor/browser/widget/diffEditor/diffEditorViewModel.js";
 import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
@@ -27,30 +28,16 @@ let DiffEditorHeightCalculatorService = class {
     __name(this, "DiffEditorHeightCalculatorService");
   }
   async diffAndComputeHeight(original, modified) {
-    const [originalModel, modifiedModel] = await Promise.all([
-      this.textModelResolverService.createModelReference(original),
-      this.textModelResolverService.createModelReference(modified)
-    ]);
+    const [originalModel, modifiedModel] = await Promise.all([this.textModelResolverService.createModelReference(original), this.textModelResolverService.createModelReference(modified)]);
     try {
-      const diffChanges = await this.editorWorkerService.computeDiff(
-        original,
-        modified,
-        {
-          ignoreTrimWhitespace: true,
-          maxComputationTimeMs: 0,
-          computeMoves: false
-        },
-        "advanced"
-      ).then((diff) => diff?.changes || []);
-      const unchangedRegionFeatureEnabled = this.configurationService.getValue(
-        "diffEditor.hideUnchangedRegions.enabled"
-      );
-      const minimumLineCount = this.configurationService.getValue(
-        "diffEditor.hideUnchangedRegions.minimumLineCount"
-      );
-      const contextLineCount = this.configurationService.getValue(
-        "diffEditor.hideUnchangedRegions.contextLineCount"
-      );
+      const diffChanges = await this.editorWorkerService.computeDiff(original, modified, {
+        ignoreTrimWhitespace: true,
+        maxComputationTimeMs: 0,
+        computeMoves: false
+      }, "advanced").then((diff) => diff?.changes || []);
+      const unchangedRegionFeatureEnabled = this.configurationService.getValue("diffEditor.hideUnchangedRegions.enabled");
+      const minimumLineCount = this.configurationService.getValue("diffEditor.hideUnchangedRegions.minimumLineCount");
+      const contextLineCount = this.configurationService.getValue("diffEditor.hideUnchangedRegions.contextLineCount");
       const originalLineCount = originalModel.object.textEditorModel.getLineCount();
       const modifiedLineCount = modifiedModel.object.textEditorModel.getLineCount();
       const unchanged = unchangedRegionFeatureEnabled ? UnchangedRegion.fromDiffs(
@@ -70,10 +57,7 @@ let DiffEditorHeightCalculatorService = class {
         return prev;
       }, 0);
       const orginalNumberOfLines = originalModel.object.textEditorModel.getLineCount();
-      const numberOfHiddenLines = unchanged.reduce(
-        (prev, curr) => prev + curr.lineCount,
-        0
-      );
+      const numberOfHiddenLines = unchanged.reduce((prev, curr) => prev + curr.lineCount, 0);
       const numberOfHiddenSections = unchanged.length;
       const unchangeRegionsHeight = numberOfHiddenSections * HeightOfHiddenLinesRegionInDiffEditor;
       const visibleLineCount = orginalNumberOfLines + numberOfNewLines - numberOfHiddenLines;

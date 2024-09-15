@@ -10,43 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableMap,
-  MutableDisposable,
-  isDisposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  Storage
-} from "../../../base/parts/storage/common/storage.js";
+import { Disposable, DisposableMap, MutableDisposable, isDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { IStorage, IStorageDatabase, Storage } from "../../../base/parts/storage/common/storage.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  AbstractStorageService,
-  IStorageService,
-  StorageScope,
-  StorageTarget,
-  isProfileUsingDefaultStorage
-} from "../../storage/common/storage.js";
-import {
-  ApplicationStorageDatabaseClient,
-  ProfileStorageDatabaseClient
-} from "../../storage/common/storageIpc.js";
-import {
-  reviveProfile
-} from "./userDataProfile.js";
-const IUserDataProfileStorageService = createDecorator(
-  "IUserDataProfileStorageService"
-);
+import { AbstractStorageService, IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget, isProfileUsingDefaultStorage } from "../../storage/common/storage.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IRemoteService } from "../../ipc/common/services.js";
+import { ILogService } from "../../log/common/log.js";
+import { ApplicationStorageDatabaseClient, ProfileStorageDatabaseClient } from "../../storage/common/storageIpc.js";
+import { IUserDataProfile, IUserDataProfilesService, reviveProfile } from "./userDataProfile.js";
+const IUserDataProfileStorageService = createDecorator("IUserDataProfileStorageService");
 let AbstractUserDataProfileStorageService = class extends Disposable {
   constructor(persistStorages, storageService) {
     super();
     this.storageService = storageService;
     if (persistStorages) {
-      this.storageServicesMap = this._register(
-        new DisposableMap()
-      );
+      this.storageServicesMap = this._register(new DisposableMap());
     }
   }
   static {
@@ -55,16 +34,10 @@ let AbstractUserDataProfileStorageService = class extends Disposable {
   _serviceBrand;
   storageServicesMap;
   async readStorageData(profile) {
-    return this.withProfileScopedStorageService(
-      profile,
-      async (storageService) => this.getItems(storageService)
-    );
+    return this.withProfileScopedStorageService(profile, async (storageService) => this.getItems(storageService));
   }
   async updateStorageData(profile, data, target) {
-    return this.withProfileScopedStorageService(
-      profile,
-      async (storageService) => this.writeItems(storageService, data, target)
-    );
+    return this.withProfileScopedStorageService(profile, async (storageService) => this.writeItems(storageService, data, target));
   }
   async withProfileScopedStorageService(profile, fn) {
     if (this.storageService.hasScope(profile)) {
@@ -72,9 +45,7 @@ let AbstractUserDataProfileStorageService = class extends Disposable {
     }
     let storageService = this.storageServicesMap?.get(profile.id);
     if (!storageService) {
-      storageService = new StorageService(
-        this.createStorageDatabase(profile)
-      );
+      storageService = new StorageService(this.createStorageDatabase(profile));
       this.storageServicesMap?.set(profile.id, storageService);
       try {
         await storageService.initialize();
@@ -100,14 +71,8 @@ let AbstractUserDataProfileStorageService = class extends Disposable {
   getItems(storageService) {
     const result = /* @__PURE__ */ new Map();
     const populate = /* @__PURE__ */ __name((target) => {
-      for (const key of storageService.keys(
-        StorageScope.PROFILE,
-        target
-      )) {
-        result.set(key, {
-          value: storageService.get(key, StorageScope.PROFILE),
-          target
-        });
+      for (const key of storageService.keys(StorageScope.PROFILE, target)) {
+        result.set(key, { value: storageService.get(key, StorageScope.PROFILE), target });
       }
     }, "populate");
     populate(StorageTarget.USER);
@@ -115,15 +80,7 @@ let AbstractUserDataProfileStorageService = class extends Disposable {
     return result;
   }
   writeItems(storageService, items, target) {
-    storageService.storeAll(
-      Array.from(items.entries()).map(([key, value]) => ({
-        key,
-        value,
-        scope: StorageScope.PROFILE,
-        target
-      })),
-      true
-    );
+    storageService.storeAll(Array.from(items.entries()).map(([key, value]) => ({ key, value, scope: StorageScope.PROFILE, target })), true);
   }
 };
 AbstractUserDataProfileStorageService = __decorateClass([
@@ -135,35 +92,20 @@ class RemoteUserDataProfileStorageService extends AbstractUserDataProfileStorage
     this.remoteService = remoteService;
     const channel = remoteService.getChannel("profileStorageListener");
     const disposable = this._register(new MutableDisposable());
-    this._onDidChange = this._register(
-      new Emitter({
-        // Start listening to profile storage changes only when someone is listening
-        onWillAddFirstListener: /* @__PURE__ */ __name(() => {
-          disposable.value = channel.listen(
-            "onDidChange"
-          )((e) => {
-            logService.trace("profile storage changes", e);
-            this._onDidChange.fire({
-              targetChanges: e.targetChanges.map(
-                (profile) => reviveProfile(
-                  profile,
-                  userDataProfilesService.profilesHome.scheme
-                )
-              ),
-              valueChanges: e.valueChanges.map((e2) => ({
-                ...e2,
-                profile: reviveProfile(
-                  e2.profile,
-                  userDataProfilesService.profilesHome.scheme
-                )
-              }))
-            });
+    this._onDidChange = this._register(new Emitter({
+      // Start listening to profile storage changes only when someone is listening
+      onWillAddFirstListener: /* @__PURE__ */ __name(() => {
+        disposable.value = channel.listen("onDidChange")((e) => {
+          logService.trace("profile storage changes", e);
+          this._onDidChange.fire({
+            targetChanges: e.targetChanges.map((profile) => reviveProfile(profile, userDataProfilesService.profilesHome.scheme)),
+            valueChanges: e.valueChanges.map((e2) => ({ ...e2, profile: reviveProfile(e2.profile, userDataProfilesService.profilesHome.scheme) }))
           });
-        }, "onWillAddFirstListener"),
-        // Stop listening to profile storage changes when no one is listening
-        onDidRemoveLastListener: /* @__PURE__ */ __name(() => disposable.value = void 0, "onDidRemoveLastListener")
-      })
-    );
+        });
+      }, "onWillAddFirstListener"),
+      // Stop listening to profile storage changes when no one is listening
+      onDidRemoveLastListener: /* @__PURE__ */ __name(() => disposable.value = void 0, "onDidRemoveLastListener")
+    }));
     this.onDidChange = this._onDidChange.event;
   }
   static {
@@ -188,20 +130,16 @@ class StorageService extends AbstractStorageService {
   async doInitialize() {
     const profileStorageDatabase = await this.profileStorageDatabase;
     const profileStorage = new Storage(profileStorageDatabase);
-    this._register(
-      profileStorage.onDidChangeStorage((e) => {
-        this.emitDidChangeValue(StorageScope.PROFILE, e);
-      })
-    );
-    this._register(
-      toDisposable(() => {
-        profileStorage.close();
-        profileStorage.dispose();
-        if (isDisposable(profileStorageDatabase)) {
-          profileStorageDatabase.dispose();
-        }
-      })
-    );
+    this._register(profileStorage.onDidChangeStorage((e) => {
+      this.emitDidChangeValue(StorageScope.PROFILE, e);
+    }));
+    this._register(toDisposable(() => {
+      profileStorage.close();
+      profileStorage.dispose();
+      if (isDisposable(profileStorageDatabase)) {
+        profileStorageDatabase.dispose();
+      }
+    }));
     this.profileStorage = profileStorage;
     return this.profileStorage.init();
   }

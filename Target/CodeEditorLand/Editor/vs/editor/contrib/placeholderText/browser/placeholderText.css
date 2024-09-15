@@ -1,5 +1,5 @@
 .monaco-editor {
-  --vscode-editor-placeholder-foreground: var( --vscode-editorGhostText-foreground );
+  --vscode-editor-placeholder-foreground: var(--vscode-editorGhostText-foreground);
   .editorPlaceholder {
     top: 0px;
     position: absolute;

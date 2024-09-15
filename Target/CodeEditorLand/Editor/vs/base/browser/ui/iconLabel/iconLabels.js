@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ThemeIcon } from "../../../common/themables.js";
 import * as dom from "../../dom.js";
-const labelWithIconsRegex = new RegExp(
-  `(\\\\)?\\$\\((${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?)\\)`,
-  "g"
-);
+import { ThemeIcon } from "../../../common/themables.js";
+const labelWithIconsRegex = new RegExp(`(\\\\)?\\$\\((${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?)\\)`, "g");
 function renderLabelWithIcons(text) {
   const elements = new Array();
   let match;

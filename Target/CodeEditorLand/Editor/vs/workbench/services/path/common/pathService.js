@@ -12,8 +12,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { isValidBasename } from "../../../../base/common/extpath.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { posix, win32 } from "../../../../base/common/path.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { IPath, win32, posix } from "../../../../base/common/path.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { basename } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
@@ -46,34 +46,24 @@ let AbstractPathService = class {
   maybeUnresolvedUserHome;
   hasValidBasename(resource, arg2, basename2) {
     if (typeof arg2 === "string" || typeof arg2 === "undefined") {
-      return this.resolveOS.then(
-        (os) => this.doHasValidBasename(resource, os, arg2)
-      );
+      return this.resolveOS.then((os) => this.doHasValidBasename(resource, os, arg2));
     }
     return this.doHasValidBasename(resource, arg2, basename2);
   }
   doHasValidBasename(resource, os, name) {
     if (resource.scheme === Schemas.file || resource.scheme === Schemas.vscodeRemote) {
-      return isValidBasename(
-        name ?? basename(resource),
-        os === OperatingSystem.Windows
-      );
+      return isValidBasename(name ?? basename(resource), os === OperatingSystem.Windows);
     }
     return true;
   }
   get defaultUriScheme() {
-    return AbstractPathService.findDefaultUriScheme(
-      this.environmentService,
-      this.contextService
-    );
+    return AbstractPathService.findDefaultUriScheme(this.environmentService, this.contextService);
   }
   static findDefaultUriScheme(environmentService, contextService) {
     if (environmentService.remoteAuthority) {
       return Schemas.vscodeRemote;
     }
-    const virtualWorkspace = getVirtualWorkspaceScheme(
-      contextService.getWorkspace()
-    );
+    const virtualWorkspace = getVirtualWorkspaceScheme(contextService.getWorkspace());
     if (virtualWorkspace) {
       return virtualWorkspace;
     }

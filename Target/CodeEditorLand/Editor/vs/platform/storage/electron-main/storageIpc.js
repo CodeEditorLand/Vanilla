@@ -3,49 +3,40 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
-import {
-  reviveIdentifier
-} from "../../workspace/common/workspace.js";
+import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { ILogService } from "../../log/common/log.js";
+import { IBaseSerializableStorageRequest, ISerializableItemsChangeEvent, ISerializableUpdateRequest, Key, Value } from "../common/storageIpc.js";
+import { IStorageChangeEvent, IStorageMain } from "./storageMain.js";
+import { IStorageMainService } from "./storageMainService.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import { reviveIdentifier, IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 class StorageDatabaseChannel extends Disposable {
   constructor(logService, storageMainService) {
     super();
     this.logService = logService;
     this.storageMainService = storageMainService;
-    this.registerStorageChangeListeners(
-      storageMainService.applicationStorage,
-      this.onDidChangeApplicationStorageEmitter
-    );
+    this.registerStorageChangeListeners(storageMainService.applicationStorage, this.onDidChangeApplicationStorageEmitter);
   }
   static {
     __name(this, "StorageDatabaseChannel");
   }
   static STORAGE_CHANGE_DEBOUNCE_TIME = 100;
-  onDidChangeApplicationStorageEmitter = this._register(
-    new Emitter()
-  );
+  onDidChangeApplicationStorageEmitter = this._register(new Emitter());
   mapProfileToOnDidChangeProfileStorageEmitter = /* @__PURE__ */ new Map();
   //#region Storage Change Events
   registerStorageChangeListeners(storage, emitter) {
-    this._register(
-      Event.debounce(
-        storage.onDidChangeStorage,
-        (prev, cur) => {
-          if (prev) {
-            prev.push(cur);
-          } else {
-            prev = [cur];
-          }
-          return prev;
-        },
-        StorageDatabaseChannel.STORAGE_CHANGE_DEBOUNCE_TIME
-      )((events) => {
-        if (events.length) {
-          emitter.fire(
-            this.serializeStorageChangeEvents(events, storage)
-          );
-        }
-      })
-    );
+    this._register(Event.debounce(storage.onDidChangeStorage, (prev, cur) => {
+      if (!prev) {
+        prev = [cur];
+      } else {
+        prev.push(cur);
+      }
+      return prev;
+    }, StorageDatabaseChannel.STORAGE_CHANGE_DEBOUNCE_TIME)((events) => {
+      if (events.length) {
+        emitter.fire(this.serializeStorageChangeEvents(events, storage));
+      }
+    }));
   }
   serializeStorageChangeEvents(events, storage) {
     const changed = /* @__PURE__ */ new Map();
@@ -70,21 +61,11 @@ class StorageDatabaseChannel extends Disposable {
         if (!profile) {
           return this.onDidChangeApplicationStorageEmitter.event;
         }
-        let profileStorageChangeEmitter = this.mapProfileToOnDidChangeProfileStorageEmitter.get(
-          profile.id
-        );
+        let profileStorageChangeEmitter = this.mapProfileToOnDidChangeProfileStorageEmitter.get(profile.id);
         if (!profileStorageChangeEmitter) {
-          profileStorageChangeEmitter = this._register(
-            new Emitter()
-          );
-          this.registerStorageChangeListeners(
-            this.storageMainService.profileStorage(profile),
-            profileStorageChangeEmitter
-          );
-          this.mapProfileToOnDidChangeProfileStorageEmitter.set(
-            profile.id,
-            profileStorageChangeEmitter
-          );
+          profileStorageChangeEmitter = this._register(new Emitter());
+          this.registerStorageChangeListeners(this.storageMainService.profileStorage(profile), profileStorageChangeEmitter);
+          this.mapProfileToOnDidChangeProfileStorageEmitter.set(profile.id, profileStorageChangeEmitter);
         }
         return profileStorageChangeEmitter.event;
       }
@@ -135,9 +116,7 @@ class StorageDatabaseChannel extends Disposable {
     try {
       await storage.init();
     } catch (error) {
-      this.logService.error(
-        `StorageIPC#init: Unable to init ${workspace ? "workspace" : profile ? "profile" : "application"} storage due to ${error}`
-      );
+      this.logService.error(`StorageIPC#init: Unable to init ${workspace ? "workspace" : profile ? "profile" : "application"} storage due to ${error}`);
     }
     return storage;
   }

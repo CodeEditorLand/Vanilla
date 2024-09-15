@@ -11,57 +11,42 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./textAreaEditContext.css";
+import * as nls from "../../../../../nls.js";
 import * as browser from "../../../../../base/browser/browser.js";
-import {
-  createFastDomNode
-} from "../../../../../base/browser/fastDomNode.js";
-import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from "../../../../../base/browser/ui/mouseCursor/mouseCursor.js";
-import { Color } from "../../../../../base/common/color.js";
-import { IME } from "../../../../../base/common/ime.js";
+import { FastDomNode, createFastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
 import * as platform from "../../../../../base/common/platform.js";
 import * as strings from "../../../../../base/common/strings.js";
-import * as nls from "../../../../../nls.js";
-import { AccessibilitySupport } from "../../../../../platform/accessibility/common/accessibility.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import {
-  EditorOption,
-  EditorOptions,
-  RenderLineNumbersType
-} from "../../../../common/config/editorOptions.js";
-import { Position } from "../../../../common/core/position.js";
-import { Range } from "../../../../common/core/range.js";
-import { Selection } from "../../../../common/core/selection.js";
-import {
-  WordCharacterClass,
-  getMapForWordSeparators
-} from "../../../../common/core/wordCharacterClassifier.js";
-import { ScrollType } from "../../../../common/editorCommon.js";
-import {
-  ColorId
-} from "../../../../common/encodedTokenAttributes.js";
-import { TokenizationRegistry } from "../../../../common/languages.js";
-import { EndOfLinePreference } from "../../../../common/model.js";
-import * as viewEvents from "../../../../common/viewEvents.js";
 import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { ViewController } from "../../../view/viewController.js";
 import { PartFingerprint, PartFingerprints } from "../../../view/viewPart.js";
 import { LineNumbersOverlay } from "../../../viewParts/lineNumbers/lineNumbers.js";
 import { Margin } from "../../../viewParts/margin/margin.js";
-import { getDataToCopy } from "../clipboardUtils.js";
+import { RenderLineNumbersType, EditorOption, IComputedEditorOptions, EditorOptions } from "../../../../common/config/editorOptions.js";
+import { FontInfo } from "../../../../common/config/fontInfo.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { ScrollType } from "../../../../common/editorCommon.js";
+import { EndOfLinePreference } from "../../../../common/model.js";
+import { RenderingContext, RestrictedRenderingContext, HorizontalPosition } from "../../../view/renderingContext.js";
+import { ViewContext } from "../../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../../common/viewEvents.js";
+import { AccessibilitySupport } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IEditorAriaOptions } from "../../../editorBrowser.js";
+import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from "../../../../../base/browser/ui/mouseCursor/mouseCursor.js";
+import { TokenizationRegistry } from "../../../../common/languages.js";
+import { ColorId, ITokenPresentation } from "../../../../common/encodedTokenAttributes.js";
+import { Color } from "../../../../../base/common/color.js";
+import { IME } from "../../../../../base/common/ime.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { AbstractEditContext } from "../editContextUtils.js";
-import {
-  PagedScreenReaderStrategy,
-  ariaLabelForScreenReaderContent,
-  newlinecount
-} from "../screenReaderUtils.js";
-import {
-  TextAreaInput,
-  TextAreaWrapper
-} from "./textAreaEditContextInput.js";
-import {
-  TextAreaState,
-  _debugComposition
-} from "./textAreaEditContextState.js";
+import { ICompositionData, IPasteData, ITextAreaInputHost, TextAreaInput, TextAreaWrapper } from "./textAreaEditContextInput.js";
+import { ariaLabelForScreenReaderContent, ISimpleModel, newlinecount, PagedScreenReaderStrategy } from "../screenReaderUtils.js";
+import { ClipboardDataToCopy, getDataToCopy } from "../clipboardUtils.js";
+import { _debugComposition, ITypeData, TextAreaState } from "./textAreaEditContextState.js";
+import { getMapForWordSeparators, WordCharacterClass } from "../../../../common/core/wordCharacterClassifier.js";
 class VisibleTextAreaData {
   constructor(_context, modelLineNumber, distanceToModelLineStart, widthOfHiddenLineTextBefore, distanceToModelLineEnd) {
     this._context = _context;
@@ -86,26 +71,12 @@ class VisibleTextAreaData {
    */
   _previousPresentation = null;
   prepareRender(visibleRangeProvider) {
-    const startModelPosition = new Position(
-      this.modelLineNumber,
-      this.distanceToModelLineStart + 1
-    );
-    const endModelPosition = new Position(
-      this.modelLineNumber,
-      this._context.viewModel.model.getLineMaxColumn(
-        this.modelLineNumber
-      ) - this.distanceToModelLineEnd
-    );
-    this.startPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(
-      startModelPosition
-    );
-    this.endPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(
-      endModelPosition
-    );
+    const startModelPosition = new Position(this.modelLineNumber, this.distanceToModelLineStart + 1);
+    const endModelPosition = new Position(this.modelLineNumber, this._context.viewModel.model.getLineMaxColumn(this.modelLineNumber) - this.distanceToModelLineEnd);
+    this.startPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(startModelPosition);
+    this.endPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(endModelPosition);
     if (this.startPosition.lineNumber === this.endPosition.lineNumber) {
-      this.visibleTextareaStart = visibleRangeProvider.visibleRangeForPosition(
-        this.startPosition
-      );
+      this.visibleTextareaStart = visibleRangeProvider.visibleRangeForPosition(this.startPosition);
       this.visibleTextareaEnd = visibleRangeProvider.visibleRangeForPosition(this.endPosition);
     } else {
       this.visibleTextareaStart = null;
@@ -147,53 +118,29 @@ let TextAreaEditContext = class extends AbstractEditContext {
     this._contentHeight = layoutInfo.height;
     this._fontInfo = options.get(EditorOption.fontInfo);
     this._lineHeight = options.get(EditorOption.lineHeight);
-    this._emptySelectionClipboard = options.get(
-      EditorOption.emptySelectionClipboard
-    );
-    this._copyWithSyntaxHighlighting = options.get(
-      EditorOption.copyWithSyntaxHighlighting
-    );
+    this._emptySelectionClipboard = options.get(EditorOption.emptySelectionClipboard);
+    this._copyWithSyntaxHighlighting = options.get(EditorOption.copyWithSyntaxHighlighting);
     this._visibleTextArea = null;
     this._selections = [new Selection(1, 1, 1, 1)];
     this._modelSelections = [new Selection(1, 1, 1, 1)];
     this._lastRenderPosition = null;
     this.textArea = createFastDomNode(document.createElement("textarea"));
     PartFingerprints.write(this.textArea, PartFingerprint.TextArea);
-    this.textArea.setClassName(
-      `inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`
-    );
-    this.textArea.setAttribute(
-      "wrap",
-      this._textAreaWrapping && !this._visibleTextArea ? "on" : "off"
-    );
+    this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`);
+    this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
     const { tabSize } = this._context.viewModel.model.getOptions();
     this.textArea.domNode.style.tabSize = `${tabSize * this._fontInfo.spaceWidth}px`;
     this.textArea.setAttribute("autocorrect", "off");
     this.textArea.setAttribute("autocapitalize", "off");
     this.textArea.setAttribute("autocomplete", "off");
     this.textArea.setAttribute("spellcheck", "false");
-    this.textArea.setAttribute(
-      "aria-label",
-      ariaLabelForScreenReaderContent(options, this._keybindingService)
-    );
-    this.textArea.setAttribute(
-      "aria-required",
-      options.get(EditorOption.ariaRequired) ? "true" : "false"
-    );
-    this.textArea.setAttribute(
-      "tabindex",
-      String(options.get(EditorOption.tabIndex))
-    );
+    this.textArea.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    this.textArea.setAttribute("aria-required", options.get(EditorOption.ariaRequired) ? "true" : "false");
+    this.textArea.setAttribute("tabindex", String(options.get(EditorOption.tabIndex)));
     this.textArea.setAttribute("role", "textbox");
-    this.textArea.setAttribute(
-      "aria-roledescription",
-      nls.localize("editor", "editor")
-    );
+    this.textArea.setAttribute("aria-roledescription", nls.localize("editor", "editor"));
     this.textArea.setAttribute("aria-multiline", "true");
-    this.textArea.setAttribute(
-      "aria-autocomplete",
-      options.get(EditorOption.readOnly) ? "none" : "both"
-    );
+    this.textArea.setAttribute("aria-autocomplete", options.get(EditorOption.readOnly) ? "none" : "both");
     this._ensureReadOnlyAttribute();
     this.textAreaCover = createFastDomNode(document.createElement("div"));
     this.textAreaCover.setPosition("absolute");
@@ -208,10 +155,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
         return this._context.viewModel.getValueInRange(range, eol);
       }, "getValueInRange"),
       getValueLengthInRange: /* @__PURE__ */ __name((range, eol) => {
-        return this._context.viewModel.getValueLengthInRange(
-          range,
-          eol
-        );
+        return this._context.viewModel.getValueLengthInRange(range, eol);
       }, "getValueLengthInRange"),
       modifyPosition: /* @__PURE__ */ __name((position, offset) => {
         return this._context.viewModel.modifyPosition(position, offset);
@@ -219,12 +163,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
     };
     const textAreaInputHost = {
       getDataToCopy: /* @__PURE__ */ __name(() => {
-        return getDataToCopy(
-          this._context.viewModel,
-          this._modelSelections,
-          this._emptySelectionClipboard,
-          this._copyWithSyntaxHighlighting
-        );
+        return getDataToCopy(this._context.viewModel, this._modelSelections, this._emptySelectionClipboard, this._copyWithSyntaxHighlighting);
       }, "getDataToCopy"),
       getScreenReaderContent: /* @__PURE__ */ __name(() => {
         if (this._accessibilitySupport === AccessibilitySupport.Disabled) {
@@ -236,41 +175,17 @@ let TextAreaEditContext = class extends AbstractEditContext {
               textBefore = this._getCharacterBeforePosition(position);
             }
             if (textBefore.length > 0) {
-              return new TextAreaState(
-                textBefore,
-                textBefore.length,
-                textBefore.length,
-                Range.fromPositions(position),
-                0
-              );
+              return new TextAreaState(textBefore, textBefore.length, textBefore.length, Range.fromPositions(position), 0);
             }
           }
           const LIMIT_CHARS = 500;
-          if (platform.isMacintosh && !selection.isEmpty() && simpleModel.getValueLengthInRange(
-            selection,
-            EndOfLinePreference.TextDefined
-          ) < LIMIT_CHARS) {
-            const text = simpleModel.getValueInRange(
-              selection,
-              EndOfLinePreference.TextDefined
-            );
-            return new TextAreaState(
-              text,
-              0,
-              text.length,
-              selection,
-              0
-            );
+          if (platform.isMacintosh && !selection.isEmpty() && simpleModel.getValueLengthInRange(selection, EndOfLinePreference.TextDefined) < LIMIT_CHARS) {
+            const text = simpleModel.getValueInRange(selection, EndOfLinePreference.TextDefined);
+            return new TextAreaState(text, 0, text.length, selection, 0);
           }
           if (browser.isSafari && !selection.isEmpty()) {
             const placeholderText = "vscode-placeholder";
-            return new TextAreaState(
-              placeholderText,
-              0,
-              placeholderText.length,
-              null,
-              void 0
-            );
+            return new TextAreaState(placeholderText, 0, placeholderText.length, null, void 0);
           }
           return TextAreaState.EMPTY;
         }
@@ -280,235 +195,134 @@ let TextAreaEditContext = class extends AbstractEditContext {
             const position = selection.getStartPosition();
             const [wordAtPosition, positionOffsetInWord] = this._getAndroidWordAtPosition(position);
             if (wordAtPosition.length > 0) {
-              return new TextAreaState(
-                wordAtPosition,
-                positionOffsetInWord,
-                positionOffsetInWord,
-                Range.fromPositions(position),
-                0
-              );
+              return new TextAreaState(wordAtPosition, positionOffsetInWord, positionOffsetInWord, Range.fromPositions(position), 0);
             }
           }
           return TextAreaState.EMPTY;
         }
-        const screenReaderContentState = PagedScreenReaderStrategy.fromEditorSelection(
-          simpleModel,
-          this._selections[0],
-          this._accessibilityPageSize,
-          this._accessibilitySupport === AccessibilitySupport.Unknown
-        );
-        return TextAreaState.fromScreenReaderContentState(
-          screenReaderContentState
-        );
+        const screenReaderContentState = PagedScreenReaderStrategy.fromEditorSelection(simpleModel, this._selections[0], this._accessibilityPageSize, this._accessibilitySupport === AccessibilitySupport.Unknown);
+        return TextAreaState.fromScreenReaderContentState(screenReaderContentState);
       }, "getScreenReaderContent"),
       deduceModelPosition: /* @__PURE__ */ __name((viewAnchorPosition, deltaOffset, lineFeedCnt) => {
-        return this._context.viewModel.deduceModelPositionRelativeToViewPosition(
-          viewAnchorPosition,
-          deltaOffset,
-          lineFeedCnt
-        );
+        return this._context.viewModel.deduceModelPositionRelativeToViewPosition(viewAnchorPosition, deltaOffset, lineFeedCnt);
       }, "deduceModelPosition")
     };
-    const textAreaWrapper = this._register(
-      new TextAreaWrapper(this.textArea.domNode)
-    );
-    this._textAreaInput = this._register(
-      this._instantiationService.createInstance(
-        TextAreaInput,
-        textAreaInputHost,
-        textAreaWrapper,
-        platform.OS,
-        {
-          isAndroid: browser.isAndroid,
-          isChrome: browser.isChrome,
-          isFirefox: browser.isFirefox,
-          isSafari: browser.isSafari
+    const textAreaWrapper = this._register(new TextAreaWrapper(this.textArea.domNode));
+    this._textAreaInput = this._register(this._instantiationService.createInstance(TextAreaInput, textAreaInputHost, textAreaWrapper, platform.OS, {
+      isAndroid: browser.isAndroid,
+      isChrome: browser.isChrome,
+      isFirefox: browser.isFirefox,
+      isSafari: browser.isSafari
+    }));
+    this._register(this._textAreaInput.onKeyDown((e) => {
+      this._viewController.emitKeyDown(e);
+    }));
+    this._register(this._textAreaInput.onKeyUp((e) => {
+      this._viewController.emitKeyUp(e);
+    }));
+    this._register(this._textAreaInput.onPaste((e) => {
+      let pasteOnNewLine = false;
+      let multicursorText = null;
+      let mode = null;
+      if (e.metadata) {
+        pasteOnNewLine = this._emptySelectionClipboard && !!e.metadata.isFromEmptySelection;
+        multicursorText = typeof e.metadata.multicursorText !== "undefined" ? e.metadata.multicursorText : null;
+        mode = e.metadata.mode;
+      }
+      this._viewController.paste(e.text, pasteOnNewLine, multicursorText, mode);
+    }));
+    this._register(this._textAreaInput.onCut(() => {
+      this._viewController.cut();
+    }));
+    this._register(this._textAreaInput.onType((e) => {
+      if (e.replacePrevCharCnt || e.replaceNextCharCnt || e.positionDelta) {
+        if (_debugComposition) {
+          console.log(` => compositionType: <<${e.text}>>, ${e.replacePrevCharCnt}, ${e.replaceNextCharCnt}, ${e.positionDelta}`);
         }
-      )
-    );
-    this._register(
-      this._textAreaInput.onKeyDown((e) => {
-        this._viewController.emitKeyDown(e);
-      })
-    );
-    this._register(
-      this._textAreaInput.onKeyUp((e) => {
-        this._viewController.emitKeyUp(e);
-      })
-    );
-    this._register(
-      this._textAreaInput.onPaste((e) => {
-        let pasteOnNewLine = false;
-        let multicursorText = null;
-        let mode = null;
-        if (e.metadata) {
-          pasteOnNewLine = this._emptySelectionClipboard && !!e.metadata.isFromEmptySelection;
-          multicursorText = typeof e.metadata.multicursorText !== "undefined" ? e.metadata.multicursorText : null;
-          mode = e.metadata.mode;
+        this._viewController.compositionType(e.text, e.replacePrevCharCnt, e.replaceNextCharCnt, e.positionDelta);
+      } else {
+        if (_debugComposition) {
+          console.log(` => type: <<${e.text}>>`);
         }
-        this._viewController.paste(
-          e.text,
-          pasteOnNewLine,
-          multicursorText,
-          mode
-        );
-      })
-    );
-    this._register(
-      this._textAreaInput.onCut(() => {
-        this._viewController.cut();
-      })
-    );
-    this._register(
-      this._textAreaInput.onType((e) => {
-        if (e.replacePrevCharCnt || e.replaceNextCharCnt || e.positionDelta) {
-          if (_debugComposition) {
-            console.log(
-              ` => compositionType: <<${e.text}>>, ${e.replacePrevCharCnt}, ${e.replaceNextCharCnt}, ${e.positionDelta}`
-            );
-          }
-          this._viewController.compositionType(
-            e.text,
-            e.replacePrevCharCnt,
-            e.replaceNextCharCnt,
-            e.positionDelta
-          );
-        } else {
-          if (_debugComposition) {
-            console.log(` => type: <<${e.text}>>`);
-          }
-          this._viewController.type(e.text);
-        }
-      })
-    );
-    this._register(
-      this._textAreaInput.onSelectionChangeRequest(
-        (modelSelection) => {
-          this._viewController.setSelection(modelSelection);
-        }
-      )
-    );
-    this._register(
-      this._textAreaInput.onCompositionStart((e) => {
-        const ta = this.textArea.domNode;
-        const modelSelection = this._modelSelections[0];
-        const { distanceToModelLineStart, widthOfHiddenTextBefore } = (() => {
-          const textBeforeSelection = ta.value.substring(
-            0,
-            Math.min(ta.selectionStart, ta.selectionEnd)
-          );
-          const lineFeedOffset1 = textBeforeSelection.lastIndexOf("\n");
-          const lineTextBeforeSelection = textBeforeSelection.substring(lineFeedOffset1 + 1);
-          const tabOffset1 = lineTextBeforeSelection.lastIndexOf("	");
-          const desiredVisibleBeforeCharCount = lineTextBeforeSelection.length - tabOffset1 - 1;
-          const startModelPosition = modelSelection.getStartPosition();
-          const visibleBeforeCharCount = Math.min(
-            startModelPosition.column - 1,
-            desiredVisibleBeforeCharCount
-          );
-          const distanceToModelLineStart2 = startModelPosition.column - 1 - visibleBeforeCharCount;
-          const hiddenLineTextBefore = lineTextBeforeSelection.substring(
-            0,
-            lineTextBeforeSelection.length - visibleBeforeCharCount
-          );
-          const { tabSize: tabSize2 } = this._context.viewModel.model.getOptions();
-          const widthOfHiddenTextBefore2 = measureText(
-            this.textArea.domNode.ownerDocument,
-            hiddenLineTextBefore,
-            this._fontInfo,
-            tabSize2
-          );
-          return {
-            distanceToModelLineStart: distanceToModelLineStart2,
-            widthOfHiddenTextBefore: widthOfHiddenTextBefore2
-          };
-        })();
-        const { distanceToModelLineEnd } = (() => {
-          const textAfterSelection = ta.value.substring(
-            Math.max(ta.selectionStart, ta.selectionEnd)
-          );
-          const lineFeedOffset2 = textAfterSelection.indexOf("\n");
-          const lineTextAfterSelection = lineFeedOffset2 === -1 ? textAfterSelection : textAfterSelection.substring(0, lineFeedOffset2);
-          const tabOffset2 = lineTextAfterSelection.indexOf("	");
-          const desiredVisibleAfterCharCount = tabOffset2 === -1 ? lineTextAfterSelection.length : lineTextAfterSelection.length - tabOffset2 - 1;
-          const endModelPosition = modelSelection.getEndPosition();
-          const visibleAfterCharCount = Math.min(
-            this._context.viewModel.model.getLineMaxColumn(
-              endModelPosition.lineNumber
-            ) - endModelPosition.column,
-            desiredVisibleAfterCharCount
-          );
-          const distanceToModelLineEnd2 = this._context.viewModel.model.getLineMaxColumn(
-            endModelPosition.lineNumber
-          ) - endModelPosition.column - visibleAfterCharCount;
-          return { distanceToModelLineEnd: distanceToModelLineEnd2 };
-        })();
-        this._context.viewModel.revealRange(
-          "keyboard",
-          true,
-          Range.fromPositions(this._selections[0].getStartPosition()),
-          viewEvents.VerticalRevealType.Simple,
-          ScrollType.Immediate
-        );
-        this._visibleTextArea = new VisibleTextAreaData(
-          this._context,
-          modelSelection.startLineNumber,
-          distanceToModelLineStart,
-          widthOfHiddenTextBefore,
-          distanceToModelLineEnd
-        );
-        this.textArea.setAttribute(
-          "wrap",
-          this._textAreaWrapping && !this._visibleTextArea ? "on" : "off"
-        );
-        this._visibleTextArea.prepareRender(this._visibleRangeProvider);
-        this._render();
-        this.textArea.setClassName(
-          `inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME} ime-input`
-        );
-        this._viewController.compositionStart();
-        this._context.viewModel.onCompositionStart();
-      })
-    );
-    this._register(
-      this._textAreaInput.onCompositionUpdate((e) => {
-        if (!this._visibleTextArea) {
-          return;
-        }
-        this._visibleTextArea.prepareRender(this._visibleRangeProvider);
-        this._render();
-      })
-    );
-    this._register(
-      this._textAreaInput.onCompositionEnd(() => {
-        this._visibleTextArea = null;
-        this.textArea.setAttribute(
-          "wrap",
-          this._textAreaWrapping && !this._visibleTextArea ? "on" : "off"
-        );
-        this._render();
-        this.textArea.setClassName(
-          `inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`
-        );
-        this._viewController.compositionEnd();
-        this._context.viewModel.onCompositionEnd();
-      })
-    );
-    this._register(
-      this._textAreaInput.onFocus(() => {
-        this._context.viewModel.setHasFocus(true);
-      })
-    );
-    this._register(
-      this._textAreaInput.onBlur(() => {
-        this._context.viewModel.setHasFocus(false);
-      })
-    );
-    this._register(
-      IME.onDidChange(() => {
-        this._ensureReadOnlyAttribute();
-      })
-    );
+        this._viewController.type(e.text);
+      }
+    }));
+    this._register(this._textAreaInput.onSelectionChangeRequest((modelSelection) => {
+      this._viewController.setSelection(modelSelection);
+    }));
+    this._register(this._textAreaInput.onCompositionStart((e) => {
+      const ta = this.textArea.domNode;
+      const modelSelection = this._modelSelections[0];
+      const { distanceToModelLineStart, widthOfHiddenTextBefore } = (() => {
+        const textBeforeSelection = ta.value.substring(0, Math.min(ta.selectionStart, ta.selectionEnd));
+        const lineFeedOffset1 = textBeforeSelection.lastIndexOf("\n");
+        const lineTextBeforeSelection = textBeforeSelection.substring(lineFeedOffset1 + 1);
+        const tabOffset1 = lineTextBeforeSelection.lastIndexOf("	");
+        const desiredVisibleBeforeCharCount = lineTextBeforeSelection.length - tabOffset1 - 1;
+        const startModelPosition = modelSelection.getStartPosition();
+        const visibleBeforeCharCount = Math.min(startModelPosition.column - 1, desiredVisibleBeforeCharCount);
+        const distanceToModelLineStart2 = startModelPosition.column - 1 - visibleBeforeCharCount;
+        const hiddenLineTextBefore = lineTextBeforeSelection.substring(0, lineTextBeforeSelection.length - visibleBeforeCharCount);
+        const { tabSize: tabSize2 } = this._context.viewModel.model.getOptions();
+        const widthOfHiddenTextBefore2 = measureText(this.textArea.domNode.ownerDocument, hiddenLineTextBefore, this._fontInfo, tabSize2);
+        return { distanceToModelLineStart: distanceToModelLineStart2, widthOfHiddenTextBefore: widthOfHiddenTextBefore2 };
+      })();
+      const { distanceToModelLineEnd } = (() => {
+        const textAfterSelection = ta.value.substring(Math.max(ta.selectionStart, ta.selectionEnd));
+        const lineFeedOffset2 = textAfterSelection.indexOf("\n");
+        const lineTextAfterSelection = lineFeedOffset2 === -1 ? textAfterSelection : textAfterSelection.substring(0, lineFeedOffset2);
+        const tabOffset2 = lineTextAfterSelection.indexOf("	");
+        const desiredVisibleAfterCharCount = tabOffset2 === -1 ? lineTextAfterSelection.length : lineTextAfterSelection.length - tabOffset2 - 1;
+        const endModelPosition = modelSelection.getEndPosition();
+        const visibleAfterCharCount = Math.min(this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column, desiredVisibleAfterCharCount);
+        const distanceToModelLineEnd2 = this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column - visibleAfterCharCount;
+        return { distanceToModelLineEnd: distanceToModelLineEnd2 };
+      })();
+      this._context.viewModel.revealRange(
+        "keyboard",
+        true,
+        Range.fromPositions(this._selections[0].getStartPosition()),
+        viewEvents.VerticalRevealType.Simple,
+        ScrollType.Immediate
+      );
+      this._visibleTextArea = new VisibleTextAreaData(
+        this._context,
+        modelSelection.startLineNumber,
+        distanceToModelLineStart,
+        widthOfHiddenTextBefore,
+        distanceToModelLineEnd
+      );
+      this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+      this._visibleTextArea.prepareRender(this._visibleRangeProvider);
+      this._render();
+      this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME} ime-input`);
+      this._viewController.compositionStart();
+      this._context.viewModel.onCompositionStart();
+    }));
+    this._register(this._textAreaInput.onCompositionUpdate((e) => {
+      if (!this._visibleTextArea) {
+        return;
+      }
+      this._visibleTextArea.prepareRender(this._visibleRangeProvider);
+      this._render();
+    }));
+    this._register(this._textAreaInput.onCompositionEnd(() => {
+      this._visibleTextArea = null;
+      this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+      this._render();
+      this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`);
+      this._viewController.compositionEnd();
+      this._context.viewModel.onCompositionEnd();
+    }));
+    this._register(this._textAreaInput.onFocus(() => {
+      this._context.viewModel.setHasFocus(true);
+    }));
+    this._register(this._textAreaInput.onBlur(() => {
+      this._context.viewModel.setHasFocus(false);
+    }));
+    this._register(IME.onDidChange(() => {
+      this._ensureReadOnlyAttribute();
+    }));
   }
   static {
     __name(this, "TextAreaEditContext");
@@ -559,13 +373,8 @@ let TextAreaEditContext = class extends AbstractEditContext {
   }
   _getAndroidWordAtPosition(position) {
     const ANDROID_WORD_SEPARATORS = '`~!@#$%^&*()-=+[{]}\\|;:",.<>/?';
-    const lineContent = this._context.viewModel.getLineContent(
-      position.lineNumber
-    );
-    const wordSeparators = getMapForWordSeparators(
-      ANDROID_WORD_SEPARATORS,
-      []
-    );
+    const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
+    const wordSeparators = getMapForWordSeparators(ANDROID_WORD_SEPARATORS, []);
     let goingLeft = true;
     let startColumn = position.column;
     let goingRight = true;
@@ -598,21 +407,11 @@ let TextAreaEditContext = class extends AbstractEditContext {
       }
       distance++;
     }
-    return [
-      lineContent.substring(startColumn - 1, endColumn - 1),
-      position.column - startColumn
-    ];
+    return [lineContent.substring(startColumn - 1, endColumn - 1), position.column - startColumn];
   }
   _getWordBeforePosition(position) {
-    const lineContent = this._context.viewModel.getLineContent(
-      position.lineNumber
-    );
-    const wordSeparators = getMapForWordSeparators(
-      this._context.configuration.options.get(
-        EditorOption.wordSeparators
-      ),
-      []
-    );
+    const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
+    const wordSeparators = getMapForWordSeparators(this._context.configuration.options.get(EditorOption.wordSeparators), []);
     let column = position.column;
     let distance = 0;
     while (column > 1) {
@@ -628,9 +427,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
   }
   _getCharacterBeforePosition(position) {
     if (position.column > 1) {
-      const lineContent = this._context.viewModel.getLineContent(
-        position.lineNumber
-      );
+      const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
       const charBefore = lineContent.charAt(position.column - 2);
       if (!strings.isHighSurrogate(charBefore.charCodeAt(0))) {
         return charBefore;
@@ -639,12 +436,8 @@ let TextAreaEditContext = class extends AbstractEditContext {
     return "";
   }
   _setAccessibilityOptions(options) {
-    this._accessibilitySupport = options.get(
-      EditorOption.accessibilitySupport
-    );
-    const accessibilityPageSize = options.get(
-      EditorOption.accessibilityPageSize
-    );
+    this._accessibilitySupport = options.get(EditorOption.accessibilitySupport);
+    const accessibilityPageSize = options.get(EditorOption.accessibilityPageSize);
     if (this._accessibilitySupport === AccessibilitySupport.Enabled && accessibilityPageSize === EditorOptions.accessibilityPageSize.defaultValue) {
       this._accessibilityPageSize = 500;
     } else {
@@ -655,9 +448,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
     if (wrappingColumn !== -1 && this._accessibilitySupport !== AccessibilitySupport.Disabled) {
       const fontInfo = options.get(EditorOption.fontInfo);
       this._textAreaWrapping = true;
-      this._textAreaWidth = Math.round(
-        wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth
-      );
+      this._textAreaWidth = Math.round(wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
     } else {
       this._textAreaWrapping = false;
       this._textAreaWidth = canUseZeroSizeTextarea ? 0 : 1;
@@ -673,30 +464,14 @@ let TextAreaEditContext = class extends AbstractEditContext {
     this._contentHeight = layoutInfo.height;
     this._fontInfo = options.get(EditorOption.fontInfo);
     this._lineHeight = options.get(EditorOption.lineHeight);
-    this._emptySelectionClipboard = options.get(
-      EditorOption.emptySelectionClipboard
-    );
-    this._copyWithSyntaxHighlighting = options.get(
-      EditorOption.copyWithSyntaxHighlighting
-    );
-    this.textArea.setAttribute(
-      "wrap",
-      this._textAreaWrapping && !this._visibleTextArea ? "on" : "off"
-    );
+    this._emptySelectionClipboard = options.get(EditorOption.emptySelectionClipboard);
+    this._copyWithSyntaxHighlighting = options.get(EditorOption.copyWithSyntaxHighlighting);
+    this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
     const { tabSize } = this._context.viewModel.model.getOptions();
     this.textArea.domNode.style.tabSize = `${tabSize * this._fontInfo.spaceWidth}px`;
-    this.textArea.setAttribute(
-      "aria-label",
-      ariaLabelForScreenReaderContent(options, this._keybindingService)
-    );
-    this.textArea.setAttribute(
-      "aria-required",
-      options.get(EditorOption.ariaRequired) ? "true" : "false"
-    );
-    this.textArea.setAttribute(
-      "tabindex",
-      String(options.get(EditorOption.tabIndex))
-    );
+    this.textArea.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    this.textArea.setAttribute("aria-required", options.get(EditorOption.ariaRequired) ? "true" : "false");
+    this.textArea.setAttribute("tabindex", String(options.get(EditorOption.tabIndex)));
     if (e.hasChanged(EditorOption.domReadOnly) || e.hasChanged(EditorOption.readOnly)) {
       this._ensureReadOnlyAttribute();
     }
@@ -752,10 +527,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
     if (options.activeDescendant) {
       this.textArea.setAttribute("aria-haspopup", "true");
       this.textArea.setAttribute("aria-autocomplete", "list");
-      this.textArea.setAttribute(
-        "aria-activedescendant",
-        options.activeDescendant
-      );
+      this.textArea.setAttribute("aria-activedescendant", options.activeDescendant);
     } else {
       this.textArea.setAttribute("aria-haspopup", "false");
       this.textArea.setAttribute("aria-autocomplete", "both");
@@ -778,13 +550,8 @@ let TextAreaEditContext = class extends AbstractEditContext {
   _primaryCursorPosition = new Position(1, 1);
   _primaryCursorVisibleRange = null;
   prepareRender(ctx) {
-    this._primaryCursorPosition = new Position(
-      this._selections[0].positionLineNumber,
-      this._selections[0].positionColumn
-    );
-    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(
-      this._primaryCursorPosition
-    );
+    this._primaryCursorPosition = new Position(this._selections[0].positionLineNumber, this._selections[0].positionColumn);
+    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(this._primaryCursorPosition);
     this._visibleTextArea?.prepareRender(ctx);
   }
   render(ctx) {
@@ -798,15 +565,8 @@ let TextAreaEditContext = class extends AbstractEditContext {
       const startPosition = this._visibleTextArea.startPosition;
       const endPosition = this._visibleTextArea.endPosition;
       if (startPosition && endPosition && visibleStart && visibleEnd && visibleEnd.left >= this._scrollLeft && visibleStart.left <= this._scrollLeft + this._contentWidth) {
-        const top2 = this._context.viewLayout.getVerticalOffsetForLineNumber(
-          this._primaryCursorPosition.lineNumber
-        ) - this._scrollTop;
-        const lineCount = newlinecount(
-          this.textArea.domNode.value.substr(
-            0,
-            this.textArea.domNode.selectionStart
-          )
-        );
+        const top2 = this._context.viewLayout.getVerticalOffsetForLineNumber(this._primaryCursorPosition.lineNumber) - this._scrollTop;
+        const lineCount = newlinecount(this.textArea.domNode.value.substr(0, this.textArea.domNode.selectionStart));
         let scrollLeft = this._visibleTextArea.widthOfHiddenLineTextBefore;
         let left2 = this._contentLeft + visibleStart.left - this._scrollLeft;
         let width = visibleEnd.left - visibleStart.left + 1;
@@ -819,15 +579,9 @@ let TextAreaEditContext = class extends AbstractEditContext {
         if (width > this._contentWidth) {
           width = this._contentWidth;
         }
-        const viewLineData = this._context.viewModel.getViewLineData(
-          startPosition.lineNumber
-        );
-        const startTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(
-          startPosition.column - 1
-        );
-        const endTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(
-          endPosition.column - 1
-        );
+        const viewLineData = this._context.viewModel.getViewLineData(startPosition.lineNumber);
+        const startTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(startPosition.column - 1);
+        const endTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(endPosition.column - 1);
         const textareaSpansSingleToken = startTokenIndex === endTokenIndex;
         const presentation = this._visibleTextArea.definePresentation(
           textareaSpansSingleToken ? viewLineData.tokens.getPresentation(startTokenIndex) : null
@@ -859,9 +613,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
       this._renderAtTopLeft();
       return;
     }
-    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(
-      this._selections[0].positionLineNumber
-    ) - this._scrollTop;
+    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(this._selections[0].positionLineNumber) - this._scrollTop;
     if (top < 0 || top > this._contentHeight) {
       this._renderAtTopLeft();
       return;
@@ -876,12 +628,7 @@ let TextAreaEditContext = class extends AbstractEditContext {
         useCover: false
       });
       this.textArea.domNode.scrollLeft = this._primaryCursorVisibleRange.left;
-      const lineCount = this._textAreaInput.textAreaState.newlineCountBeforeSelection ?? newlinecount(
-        this.textArea.domNode.value.substring(
-          0,
-          this.textArea.domNode.selectionStart
-        )
-      );
+      const lineCount = this._textAreaInput.textAreaState.newlineCountBeforeSelection ?? newlinecount(this.textArea.domNode.value.substring(0, this.textArea.domNode.selectionStart));
       this.textArea.domNode.scrollTop = lineCount * this._lineHeight;
       return;
     }
@@ -913,31 +660,25 @@ let TextAreaEditContext = class extends AbstractEditContext {
     ta.setLeft(renderData.left);
     ta.setWidth(renderData.width);
     ta.setHeight(renderData.height);
-    ta.setColor(
-      renderData.color ? Color.Format.CSS.formatHex(renderData.color) : ""
-    );
+    ta.setColor(renderData.color ? Color.Format.CSS.formatHex(renderData.color) : "");
     ta.setFontStyle(renderData.italic ? "italic" : "");
     if (renderData.bold) {
       ta.setFontWeight("bold");
     }
-    ta.setTextDecoration(
-      `${renderData.underline ? " underline" : ""}${renderData.strikethrough ? " line-through" : ""}`
-    );
+    ta.setTextDecoration(`${renderData.underline ? " underline" : ""}${renderData.strikethrough ? " line-through" : ""}`);
     tac.setTop(renderData.useCover ? renderData.top : 0);
     tac.setLeft(renderData.useCover ? renderData.left : 0);
     tac.setWidth(renderData.useCover ? renderData.width : 0);
     tac.setHeight(renderData.useCover ? renderData.height : 0);
     const options = this._context.configuration.options;
     if (options.get(EditorOption.glyphMargin)) {
-      tac.setClassName(
-        "monaco-editor-background textAreaCover " + Margin.OUTER_CLASS_NAME
-      );
-    } else if (options.get(EditorOption.lineNumbers).renderType !== RenderLineNumbersType.Off) {
-      tac.setClassName(
-        "monaco-editor-background textAreaCover " + LineNumbersOverlay.CLASS_NAME
-      );
+      tac.setClassName("monaco-editor-background textAreaCover " + Margin.OUTER_CLASS_NAME);
     } else {
-      tac.setClassName("monaco-editor-background textAreaCover");
+      if (options.get(EditorOption.lineNumbers).renderType !== RenderLineNumbersType.Off) {
+        tac.setClassName("monaco-editor-background textAreaCover " + LineNumbersOverlay.CLASS_NAME);
+      } else {
+        tac.setClassName("monaco-editor-background textAreaCover");
+      }
     }
   }
 };

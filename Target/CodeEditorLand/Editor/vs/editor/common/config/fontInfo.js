@@ -1,12 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as platform from "../../../base/common/platform.js";
-import {
-  EDITOR_FONT_DEFAULTS,
-  EditorFontVariations,
-  EditorOption,
-  EditorOptions
-} from "./editorOptions.js";
+import { EditorFontVariations, EditorOptions, EditorOption, FindComputedEditorOptionValueById, EDITOR_FONT_DEFAULTS } from "./editorOptions.js";
 import { EditorZoom } from "./editorZoom.js";
 const GOLDEN_LINE_HEIGHT_RATIO = platform.isMacintosh ? 1.5 : 1.35;
 const MINIMUM_LINE_HEIGHT = 8;
@@ -26,17 +21,7 @@ class BareFontInfo {
     const fontVariationSettings = options.get(EditorOption.fontVariations);
     const lineHeight = options.get(EditorOption.lineHeight);
     const letterSpacing = options.get(EditorOption.letterSpacing);
-    return BareFontInfo._create(
-      fontFamily,
-      fontWeight,
-      fontSize,
-      fontFeatureSettings,
-      fontVariationSettings,
-      lineHeight,
-      letterSpacing,
-      pixelRatio,
-      ignoreEditorZoom
-    );
+    return BareFontInfo._create(fontFamily, fontWeight, fontSize, fontFeatureSettings, fontVariationSettings, lineHeight, letterSpacing, pixelRatio, ignoreEditorZoom);
   }
   /**
    * @internal
@@ -45,27 +30,11 @@ class BareFontInfo {
     const fontFamily = EditorOptions.fontFamily.validate(opts.fontFamily);
     const fontWeight = EditorOptions.fontWeight.validate(opts.fontWeight);
     const fontSize = EditorOptions.fontSize.validate(opts.fontSize);
-    const fontFeatureSettings = EditorOptions.fontLigatures2.validate(
-      opts.fontLigatures
-    );
-    const fontVariationSettings = EditorOptions.fontVariations.validate(
-      opts.fontVariations
-    );
+    const fontFeatureSettings = EditorOptions.fontLigatures2.validate(opts.fontLigatures);
+    const fontVariationSettings = EditorOptions.fontVariations.validate(opts.fontVariations);
     const lineHeight = EditorOptions.lineHeight.validate(opts.lineHeight);
-    const letterSpacing = EditorOptions.letterSpacing.validate(
-      opts.letterSpacing
-    );
-    return BareFontInfo._create(
-      fontFamily,
-      fontWeight,
-      fontSize,
-      fontFeatureSettings,
-      fontVariationSettings,
-      lineHeight,
-      letterSpacing,
-      pixelRatio,
-      ignoreEditorZoom
-    );
+    const letterSpacing = EditorOptions.letterSpacing.validate(opts.letterSpacing);
+    return BareFontInfo._create(fontFamily, fontWeight, fontSize, fontFeatureSettings, fontVariationSettings, lineHeight, letterSpacing, pixelRatio, ignoreEditorZoom);
   }
   /**
    * @internal
@@ -87,7 +56,7 @@ class BareFontInfo {
       if (fontWeight === "normal" || fontWeight === "bold") {
         fontVariationSettings = EditorFontVariations.OFF;
       } else {
-        const fontWeightAsNumber = Number.parseInt(fontWeight, 10);
+        const fontWeightAsNumber = parseInt(fontWeight, 10);
         fontVariationSettings = `'wght' ${fontWeightAsNumber}`;
         fontWeight = "normal";
       }

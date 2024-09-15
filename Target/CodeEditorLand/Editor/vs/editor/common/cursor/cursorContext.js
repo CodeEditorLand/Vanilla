@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ITextModel } from "../model.js";
+import { ICoordinatesConverter } from "../viewModel.js";
+import { CursorConfiguration, ICursorSimpleModel } from "../cursorCommon.js";
 class CursorContext {
   static {
     __name(this, "CursorContext");

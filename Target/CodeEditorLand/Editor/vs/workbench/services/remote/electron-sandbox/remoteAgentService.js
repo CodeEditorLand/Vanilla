@@ -10,46 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IRemoteAuthorityResolverService,
-  RemoteAuthorityResolverError,
-  RemoteConnectionType
-} from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
-import { ISignService } from "../../../../platform/sign/common/sign.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../common/contributions.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
-import { AbstractRemoteAgentService } from "../common/abstractRemoteAgentService.js";
 import { IRemoteAgentService } from "../common/remoteAgentService.js";
+import { IRemoteAuthorityResolverService, RemoteConnectionType, RemoteAuthorityResolverError } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { AbstractRemoteAgentService } from "../common/abstractRemoteAgentService.js";
+import { ISignService } from "../../../../platform/sign/common/sign.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { INotificationService, IPromptChoice, Severity } from "../../../../platform/notification/common/notification.js";
+import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
 let RemoteAgentService = class extends AbstractRemoteAgentService {
   static {
     __name(this, "RemoteAgentService");
   }
   constructor(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService) {
-    super(
-      remoteSocketFactoryService,
-      userDataProfileService,
-      environmentService,
-      productService,
-      remoteAuthorityResolverService,
-      signService,
-      logService
-    );
+    super(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService);
   }
 };
 RemoteAgentService = __decorateClass([
@@ -77,18 +59,12 @@ let RemoteConnectionFailureNotificationContribution = class {
         if (troubleshootingURL) {
           choices.push({
             label: nls.localize("directUrl", "Open in browser"),
-            run: /* @__PURE__ */ __name(() => openerService.open(troubleshootingURL, {
-              openExternal: true
-            }), "run")
+            run: /* @__PURE__ */ __name(() => openerService.open(troubleshootingURL, { openExternal: true }), "run")
           });
         }
         notificationService.prompt(
           Severity.Error,
-          nls.localize(
-            "connectionError",
-            "Failed to connect to the remote extension host server (Error: {0})",
-            err ? err.message : ""
-          ),
+          nls.localize("connectionError", "Failed to connect to the remote extension host server (Error: {0})", err ? err.message : ""),
           choices
         );
       }
@@ -103,9 +79,7 @@ let RemoteConnectionFailureNotificationContribution = class {
     if (!remoteAgentConnection) {
       return null;
     }
-    const connectionData = this._remoteAuthorityResolverService.getConnectionData(
-      remoteAgentConnection.remoteAuthority
-    );
+    const connectionData = this._remoteAuthorityResolverService.getConnectionData(remoteAgentConnection.remoteAuthority);
     if (!connectionData || connectionData.connectTo.type !== RemoteConnectionType.WebSocket) {
       return null;
     }
@@ -125,11 +99,7 @@ RemoteConnectionFailureNotificationContribution = __decorateClass([
   __decorateParam(5, IRemoteAuthorityResolverService),
   __decorateParam(6, IOpenerService)
 ], RemoteConnectionFailureNotificationContribution);
-registerWorkbenchContribution2(
-  RemoteConnectionFailureNotificationContribution.ID,
-  RemoteConnectionFailureNotificationContribution,
-  WorkbenchPhase.BlockRestore
-);
+registerWorkbenchContribution2(RemoteConnectionFailureNotificationContribution.ID, RemoteConnectionFailureNotificationContribution, WorkbenchPhase.BlockRestore);
 export {
   RemoteAgentService
 };

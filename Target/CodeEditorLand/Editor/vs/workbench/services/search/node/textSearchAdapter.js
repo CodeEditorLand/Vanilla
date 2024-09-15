@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import * as pfs from "../../../../base/node/pfs.js";
-import {
-  resultIsMatch
-} from "../common/search.js";
+import { IFileMatch, IProgressMessage, ITextQuery, ITextSearchMatch, ISerializedFileMatch, ISerializedSearchSuccess, resultIsMatch } from "../common/search.js";
 import { RipgrepTextSearchEngine } from "./ripgrepTextSearchEngine.js";
 import { NativeTextSearchManager } from "./textSearchManager.js";
 class TextSearchEngineAdapter {
@@ -30,21 +29,15 @@ class TextSearchEngineAdapter {
         onMessage({ message: msg });
       }
     };
-    const textSearchManager = new NativeTextSearchManager(
-      this.query,
-      new RipgrepTextSearchEngine(pretendOutputChannel, this.numThreads),
-      pfs
-    );
+    const textSearchManager = new NativeTextSearchManager(this.query, new RipgrepTextSearchEngine(pretendOutputChannel, this.numThreads), pfs);
     return new Promise((resolve, reject) => {
-      return textSearchManager.search((matches) => {
-        onResult(matches.map(fileMatchToSerialized));
-      }, token).then(
-        (c) => resolve({
-          limitHit: c.limitHit ?? false,
-          type: "success",
-          stats: c.stats,
-          messages: []
-        }),
+      return textSearchManager.search(
+        (matches) => {
+          onResult(matches.map(fileMatchToSerialized));
+        },
+        token
+      ).then(
+        (c) => resolve({ limitHit: c.limitHit ?? false, type: "success", stats: c.stats, messages: [] }),
         reject
       );
     });

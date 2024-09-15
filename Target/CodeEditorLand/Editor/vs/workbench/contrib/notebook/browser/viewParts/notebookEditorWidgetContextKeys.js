@@ -11,37 +11,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../base/browser/dom.js";
-import {
-  DisposableStore,
-  dispose
-} from "../../../../../base/common/lifecycle.js";
-import {
-  IContextKeyService
-} from "../../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import {
-  NOTEBOOK_CELL_TOOLBAR_LOCATION,
-  NOTEBOOK_HAS_OUTPUTS,
-  NOTEBOOK_HAS_RUNNING_CELL,
-  NOTEBOOK_HAS_SOMETHING_RUNNING,
-  NOTEBOOK_INTERRUPTIBLE_KERNEL,
-  NOTEBOOK_KERNEL,
-  NOTEBOOK_KERNEL_COUNT,
-  NOTEBOOK_KERNEL_SELECTED,
-  NOTEBOOK_KERNEL_SOURCE_COUNT,
-  NOTEBOOK_LAST_CELL_FAILED,
-  NOTEBOOK_MISSING_KERNEL_EXTENSION,
-  NOTEBOOK_USE_CONSOLIDATED_OUTPUT_BUTTON,
-  NOTEBOOK_VIEW_TYPE
-} from "../../common/notebookContextKeys.js";
-import {
-  INotebookExecutionStateService,
-  NotebookExecutionType
-} from "../../common/notebookExecutionStateService.js";
+import { DisposableStore, dispose, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ICellViewModel, INotebookEditorDelegate, KERNEL_EXTENSIONS } from "../notebookBrowser.js";
+import { NOTEBOOK_CELL_TOOLBAR_LOCATION, NOTEBOOK_HAS_OUTPUTS, NOTEBOOK_HAS_RUNNING_CELL, NOTEBOOK_HAS_SOMETHING_RUNNING, NOTEBOOK_INTERRUPTIBLE_KERNEL, NOTEBOOK_KERNEL, NOTEBOOK_KERNEL_COUNT, NOTEBOOK_KERNEL_SELECTED, NOTEBOOK_KERNEL_SOURCE_COUNT, NOTEBOOK_LAST_CELL_FAILED, NOTEBOOK_MISSING_KERNEL_EXTENSION, NOTEBOOK_USE_CONSOLIDATED_OUTPUT_BUTTON, NOTEBOOK_VIEW_TYPE } from "../../common/notebookContextKeys.js";
+import { ICellExecutionStateChangedEvent, IExecutionStateChangedEvent, INotebookExecutionStateService, INotebookFailStateChangedEvent, NotebookExecutionType } from "../../common/notebookExecutionStateService.js";
 import { INotebookKernelService } from "../../common/notebookKernelService.js";
-import {
-  KERNEL_EXTENSIONS
-} from "../notebookBrowser.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
 let NotebookEditorContextKeys = class {
   constructor(_editor, _notebookKernelService, contextKeyService, _extensionService, _notebookExecutionStateService) {
     this._editor = _editor;
@@ -63,51 +39,14 @@ let NotebookEditorContextKeys = class {
     this._lastCellFailed = NOTEBOOK_LAST_CELL_FAILED.bindTo(contextKeyService);
     this._handleDidChangeModel();
     this._updateForNotebookOptions();
-    this._disposables.add(
-      _editor.onDidChangeModel(this._handleDidChangeModel, this)
-    );
-    this._disposables.add(
-      _notebookKernelService.onDidAddKernel(
-        this._updateKernelContext,
-        this
-      )
-    );
-    this._disposables.add(
-      _notebookKernelService.onDidChangeSelectedNotebooks(
-        this._updateKernelContext,
-        this
-      )
-    );
-    this._disposables.add(
-      _notebookKernelService.onDidChangeSourceActions(
-        this._updateKernelContext,
-        this
-      )
-    );
-    this._disposables.add(
-      _editor.notebookOptions.onDidChangeOptions(
-        this._updateForNotebookOptions,
-        this
-      )
-    );
-    this._disposables.add(
-      _extensionService.onDidChangeExtensions(
-        this._updateForInstalledExtension,
-        this
-      )
-    );
-    this._disposables.add(
-      _notebookExecutionStateService.onDidChangeExecution(
-        this._updateForExecution,
-        this
-      )
-    );
-    this._disposables.add(
-      _notebookExecutionStateService.onDidChangeLastRunFailState(
-        this._updateForLastRunFailState,
-        this
-      )
-    );
+    this._disposables.add(_editor.onDidChangeModel(this._handleDidChangeModel, this));
+    this._disposables.add(_notebookKernelService.onDidAddKernel(this._updateKernelContext, this));
+    this._disposables.add(_notebookKernelService.onDidChangeSelectedNotebooks(this._updateKernelContext, this));
+    this._disposables.add(_notebookKernelService.onDidChangeSourceActions(this._updateKernelContext, this));
+    this._disposables.add(_editor.notebookOptions.onDidChangeOptions(this._updateForNotebookOptions, this));
+    this._disposables.add(_extensionService.onDidChangeExtensions(this._updateForInstalledExtension, this));
+    this._disposables.add(_notebookExecutionStateService.onDidChangeExecution(this._updateForExecution, this));
+    this._disposables.add(_notebookExecutionStateService.onDidChangeLastRunFailState(this._updateForLastRunFailState, this));
   }
   static {
     __name(this, "NotebookEditorContextKeys");
@@ -162,20 +101,13 @@ let NotebookEditorContextKeys = class {
       }
       this._hasOutputs.set(hasOutputs);
     }, "recomputeOutputsExistence");
-    const layoutDisposable = this._viewModelDisposables.add(
-      new DisposableStore()
-    );
+    const layoutDisposable = this._viewModelDisposables.add(new DisposableStore());
     const addCellOutputsListener = /* @__PURE__ */ __name((c) => {
       return c.model.onDidChangeOutputs(() => {
         layoutDisposable.clear();
-        layoutDisposable.add(
-          DOM.scheduleAtNextAnimationFrame(
-            DOM.getWindow(this._editor.getDomNode()),
-            () => {
-              recomputeOutputsExistence();
-            }
-          )
-        );
+        layoutDisposable.add(DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this._editor.getDomNode()), () => {
+          recomputeOutputsExistence();
+        }));
       });
     }, "addCellOutputsListener");
     for (let i = 0; i < this._editor.getLength(); i++) {
@@ -184,32 +116,20 @@ let NotebookEditorContextKeys = class {
     }
     recomputeOutputsExistence();
     this._updateForInstalledExtension();
-    this._viewModelDisposables.add(
-      this._editor.onDidChangeViewCells((e) => {
-        [...e.splices].reverse().forEach((splice) => {
-          const [start, deleted, newCells] = splice;
-          const deletedCellOutputStates = this._cellOutputsListeners.splice(
-            start,
-            deleted,
-            ...newCells.map(addCellOutputsListener)
-          );
-          dispose(deletedCellOutputStates);
-        });
-      })
-    );
+    this._viewModelDisposables.add(this._editor.onDidChangeViewCells((e) => {
+      [...e.splices].reverse().forEach((splice) => {
+        const [start, deleted, newCells] = splice;
+        const deletedCellOutputStates = this._cellOutputsListeners.splice(start, deleted, ...newCells.map(addCellOutputsListener));
+        dispose(deletedCellOutputStates);
+      });
+    }));
     this._viewType.set(this._editor.textModel.viewType);
   }
   _updateForExecution(e) {
     if (this._editor.textModel) {
-      const notebookExe = this._notebookExecutionStateService.getExecution(
-        this._editor.textModel.uri
-      );
-      const notebookCellExe = this._notebookExecutionStateService.getCellExecutionsForNotebook(
-        this._editor.textModel.uri
-      );
-      this._kernelRunning.set(
-        notebookCellExe.length > 0 || !!notebookExe
-      );
+      const notebookExe = this._notebookExecutionStateService.getExecution(this._editor.textModel.uri);
+      const notebookCellExe = this._notebookExecutionStateService.getCellExecutionsForNotebook(this._editor.textModel.uri);
+      this._kernelRunning.set(notebookCellExe.length > 0 || !!notebookExe);
       if (e.type === NotebookExecutionType.cell) {
         this._someCellRunning.set(notebookCellExe.length > 0);
       }
@@ -242,13 +162,8 @@ let NotebookEditorContextKeys = class {
       this._interruptibleKernel.reset();
       return;
     }
-    const { selected, all } = this._notebookKernelService.getMatchingKernel(
-      this._editor.textModel
-    );
-    const sourceActions = this._notebookKernelService.getSourceActions(
-      this._editor.textModel,
-      this._editor.scopedContextKeyService
-    );
+    const { selected, all } = this._notebookKernelService.getMatchingKernel(this._editor.textModel);
+    const sourceActions = this._notebookKernelService.getSourceActions(this._editor.textModel, this._editor.scopedContextKeyService);
     this._notebookKernelCount.set(all.length);
     this._notebookKernelSourceCount.set(sourceActions.length);
     this._interruptibleKernel.set(selected?.implementsInterrupt ?? false);
@@ -256,23 +171,15 @@ let NotebookEditorContextKeys = class {
     this._notebookKernel.set(selected?.id ?? "");
     this._selectedKernelDisposables.clear();
     if (selected) {
-      this._selectedKernelDisposables.add(
-        selected.onDidChange(() => {
-          this._interruptibleKernel.set(
-            selected?.implementsInterrupt ?? false
-          );
-        })
-      );
+      this._selectedKernelDisposables.add(selected.onDidChange(() => {
+        this._interruptibleKernel.set(selected?.implementsInterrupt ?? false);
+      }));
     }
   }
   _updateForNotebookOptions() {
     const layout = this._editor.notebookOptions.getDisplayOptions();
     this._useConsolidatedOutputButton.set(layout.consolidatedOutputButton);
-    this._cellToolbarLocation.set(
-      this._editor.notebookOptions.computeCellToolbarLocation(
-        this._editor.textModel?.viewType
-      )
-    );
+    this._cellToolbarLocation.set(this._editor.notebookOptions.computeCellToolbarLocation(this._editor.textModel?.viewType));
   }
 };
 NotebookEditorContextKeys = __decorateClass([

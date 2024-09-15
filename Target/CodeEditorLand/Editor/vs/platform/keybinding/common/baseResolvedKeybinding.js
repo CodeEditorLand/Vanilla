@@ -1,16 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { illegalArgument } from "../../../base/common/errors.js";
-import {
-  AriaLabelProvider,
-  ElectronAcceleratorLabelProvider,
-  UILabelProvider,
-  UserSettingsLabelProvider
-} from "../../../base/common/keybindingLabels.js";
-import {
-  ResolvedChord,
-  ResolvedKeybinding
-} from "../../../base/common/keybindings.js";
+import { AriaLabelProvider, ElectronAcceleratorLabelProvider, UILabelProvider, UserSettingsLabelProvider } from "../../../base/common/keybindingLabels.js";
+import { Chord, SingleModifierChord, ResolvedKeybinding, ResolvedChord } from "../../../base/common/keybindings.js";
+import { OperatingSystem } from "../../../base/common/platform.js";
 class BaseResolvedKeybinding extends ResolvedKeybinding {
   static {
     __name(this, "BaseResolvedKeybinding");
@@ -26,18 +19,10 @@ class BaseResolvedKeybinding extends ResolvedKeybinding {
     this._chords = chords;
   }
   getLabel() {
-    return UILabelProvider.toLabel(
-      this._os,
-      this._chords,
-      (keybinding) => this._getLabel(keybinding)
-    );
+    return UILabelProvider.toLabel(this._os, this._chords, (keybinding) => this._getLabel(keybinding));
   }
   getAriaLabel() {
-    return AriaLabelProvider.toLabel(
-      this._os,
-      this._chords,
-      (keybinding) => this._getAriaLabel(keybinding)
-    );
+    return AriaLabelProvider.toLabel(this._os, this._chords, (keybinding) => this._getAriaLabel(keybinding));
   }
   getElectronAccelerator() {
     if (this._chords.length > 1) {
@@ -46,18 +31,10 @@ class BaseResolvedKeybinding extends ResolvedKeybinding {
     if (this._chords[0].isDuplicateModifierCase()) {
       return null;
     }
-    return ElectronAcceleratorLabelProvider.toLabel(
-      this._os,
-      this._chords,
-      (keybinding) => this._getElectronAccelerator(keybinding)
-    );
+    return ElectronAcceleratorLabelProvider.toLabel(this._os, this._chords, (keybinding) => this._getElectronAccelerator(keybinding));
   }
   getUserSettingsLabel() {
-    return UserSettingsLabelProvider.toLabel(
-      this._os,
-      this._chords,
-      (keybinding) => this._getUserSettingsLabel(keybinding)
-    );
+    return UserSettingsLabelProvider.toLabel(this._os, this._chords, (keybinding) => this._getUserSettingsLabel(keybinding));
   }
   isWYSIWYG() {
     return this._chords.every((keybinding) => this._isWYSIWYG(keybinding));
@@ -79,14 +56,10 @@ class BaseResolvedKeybinding extends ResolvedKeybinding {
     );
   }
   getDispatchChords() {
-    return this._chords.map(
-      (keybinding) => this._getChordDispatch(keybinding)
-    );
+    return this._chords.map((keybinding) => this._getChordDispatch(keybinding));
   }
   getSingleModifierDispatchChords() {
-    return this._chords.map(
-      (keybinding) => this._getSingleModifierChordDispatch(keybinding)
-    );
+    return this._chords.map((keybinding) => this._getSingleModifierChordDispatch(keybinding));
   }
 }
 export {

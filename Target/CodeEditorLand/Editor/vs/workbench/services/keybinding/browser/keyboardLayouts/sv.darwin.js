@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.Swedish-Pro",
-    lang: "sv",
-    localizedName: "Swedish - Pro"
-  },
+  layout: { id: "com.apple.keylayout.Swedish-Pro", lang: "sv", localizedName: "Swedish - Pro" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\uF8FF", "\u25CA", 0],

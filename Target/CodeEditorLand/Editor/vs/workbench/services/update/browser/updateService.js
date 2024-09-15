@@ -10,19 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IUpdateService,
-  State,
-  UpdateType
-} from "../../../../platform/update/common/update.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { IUpdateService, State, UpdateType } from "../../../../platform/update/common/update.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 import { IHostService } from "../../host/browser/host.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 let BrowserUpdateService = class extends Disposable {
   constructor(environmentService, hostService) {
     super();
@@ -59,10 +52,7 @@ let BrowserUpdateService = class extends Disposable {
       this.state = State.CheckingForUpdates(explicit);
       const update = await updateProvider.checkForUpdate();
       if (update) {
-        this.state = State.Ready({
-          version: update.version,
-          productVersion: update.version
-        });
+        this.state = State.Ready({ version: update.version, productVersion: update.version });
       } else {
         this.state = State.Idle(UpdateType.Archive);
       }
@@ -85,11 +75,7 @@ BrowserUpdateService = __decorateClass([
   __decorateParam(0, IBrowserWorkbenchEnvironmentService),
   __decorateParam(1, IHostService)
 ], BrowserUpdateService);
-registerSingleton(
-  IUpdateService,
-  BrowserUpdateService,
-  InstantiationType.Eager
-);
+registerSingleton(IUpdateService, BrowserUpdateService, InstantiationType.Eager);
 export {
   BrowserUpdateService
 };

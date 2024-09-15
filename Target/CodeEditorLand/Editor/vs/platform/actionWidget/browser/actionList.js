@@ -12,11 +12,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../base/browser/dom.js";
 import { KeybindingLabel } from "../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { IListEvent, IListMouseEvent, IListRenderer, IListVirtualDelegate } from "../../../base/browser/ui/list/list.js";
 import { List } from "../../../base/browser/ui/list/listWidget.js";
-import {
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Codicon } from "../../../base/common/codicons.js";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { OS } from "../../../base/common/platform.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
@@ -78,9 +78,7 @@ let ActionItemRenderer = class {
     if (element.group?.icon) {
       data.icon.className = ThemeIcon.asClassName(element.group.icon);
       if (element.group.icon.color) {
-        data.icon.style.color = asCssVariable(
-          element.group.icon.color.id
-        );
+        data.icon.style.color = asCssVariable(element.group.icon.color.id);
       }
     } else {
       data.icon.className = ThemeIcon.asClassName(Codicon.lightBulb);
@@ -99,28 +97,9 @@ let ActionItemRenderer = class {
       data.container.title = element.label;
     } else if (actionTitle && previewTitle) {
       if (this._supportsPreview && element.canPreview) {
-        data.container.title = localize(
-          {
-            key: "label-preview",
-            comment: [
-              'placeholders are keybindings, e.g "F2 to Apply, Shift+F2 to Preview"'
-            ]
-          },
-          "{0} to Apply, {1} to Preview",
-          actionTitle,
-          previewTitle
-        );
+        data.container.title = localize({ key: "label-preview", comment: ['placeholders are keybindings, e.g "F2 to Apply, Shift+F2 to Preview"'] }, "{0} to Apply, {1} to Preview", actionTitle, previewTitle);
       } else {
-        data.container.title = localize(
-          {
-            key: "label",
-            comment: [
-              'placeholder is a keybinding, e.g "F2 to Apply"'
-            ]
-          },
-          "{0} to Apply",
-          actionTitle
-        );
+        data.container.title = localize({ key: "label", comment: ['placeholder is a keybinding, e.g "F2 to Apply"'] }, "{0} to Apply", actionTitle);
       }
     } else {
       data.container.title = "";
@@ -168,65 +147,34 @@ let ActionList = class extends Disposable {
       getHeight: /* @__PURE__ */ __name((element) => element.kind === "header" /* Header */ ? this._headerLineHeight : this._actionLineHeight, "getHeight"),
       getTemplateId: /* @__PURE__ */ __name((element) => element.kind, "getTemplateId")
     };
-    this._list = this._register(
-      new List(
-        user,
-        this.domNode,
-        virtualDelegate,
-        [
-          new ActionItemRenderer(
-            preview,
-            this._keybindingService
-          ),
-          new HeaderRenderer()
-        ],
-        {
-          keyboardSupport: false,
-          typeNavigationEnabled: true,
-          keyboardNavigationLabelProvider: {
-            getKeyboardNavigationLabel
-          },
-          accessibilityProvider: {
-            getAriaLabel: /* @__PURE__ */ __name((element) => {
-              if (element.kind === "action" /* Action */) {
-                let label = element.label ? stripNewlines(element?.label) : "";
-                if (element.disabled) {
-                  label = localize(
-                    {
-                      key: "customQuickFixWidget.labels",
-                      comment: [
-                        `Action widget labels for accessibility.`
-                      ]
-                    },
-                    "{0}, Disabled Reason: {1}",
-                    label,
-                    element.disabled
-                  );
-                }
-                return label;
-              }
-              return null;
-            }, "getAriaLabel"),
-            getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize(
-              {
-                key: "customQuickFixWidget",
-                comment: [`An action widget option`]
-              },
-              "Action Widget"
-            ), "getWidgetAriaLabel"),
-            getRole: /* @__PURE__ */ __name((e) => e.kind === "action" /* Action */ ? "option" : "separator", "getRole"),
-            getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole")
+    this._list = this._register(new List(user, this.domNode, virtualDelegate, [
+      new ActionItemRenderer(preview, this._keybindingService),
+      new HeaderRenderer()
+    ], {
+      keyboardSupport: false,
+      typeNavigationEnabled: true,
+      keyboardNavigationLabelProvider: { getKeyboardNavigationLabel },
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => {
+          if (element.kind === "action" /* Action */) {
+            let label = element.label ? stripNewlines(element?.label) : "";
+            if (element.disabled) {
+              label = localize({ key: "customQuickFixWidget.labels", comment: [`Action widget labels for accessibility.`] }, "{0}, Disabled Reason: {1}", label, element.disabled);
+            }
+            return label;
           }
-        }
-      )
-    );
+          return null;
+        }, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize({ key: "customQuickFixWidget", comment: [`An action widget option`] }, "Action Widget"), "getWidgetAriaLabel"),
+        getRole: /* @__PURE__ */ __name((e) => e.kind === "action" /* Action */ ? "option" : "separator", "getRole"),
+        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole")
+      }
+    }));
     this._list.style(defaultListStyles);
     this._register(this._list.onMouseClick((e) => this.onListClick(e)));
     this._register(this._list.onMouseOver((e) => this.onListHover(e)));
     this._register(this._list.onDidChangeFocus(() => this.onFocus()));
-    this._register(
-      this._list.onDidChangeSelection((e) => this.onListSelection(e))
-    );
+    this._register(this._list.onDidChangeSelection((e) => this.onListSelection(e)));
     this._allMenuItems = items;
     this._list.splice(0, this._list.length, this._allMenuItems);
     if (this._list.length) {
@@ -251,9 +199,7 @@ let ActionList = class extends Disposable {
     this._contextViewService.hideContextView();
   }
   layout(minWidth) {
-    const numHeaders = this._allMenuItems.filter(
-      (item) => item.kind === "header"
-    ).length;
+    const numHeaders = this._allMenuItems.filter((item) => item.kind === "header").length;
     const itemsHeight = this._allMenuItems.length * this._actionLineHeight;
     const heightWithHeaders = itemsHeight + numHeaders * this._headerLineHeight - numHeaders * this._actionLineHeight;
     this._list.layout(heightWithHeaders);
@@ -261,27 +207,20 @@ let ActionList = class extends Disposable {
     if (this._allMenuItems.length >= 50) {
       maxWidth = 380;
     } else {
-      const itemWidths = this._allMenuItems.map(
-        (_, index) => {
-          const element = this.domNode.ownerDocument.getElementById(
-            this._list.getElementID(index)
-          );
-          if (element) {
-            element.style.width = "auto";
-            const width = element.getBoundingClientRect().width;
-            element.style.width = "";
-            return width;
-          }
-          return 0;
+      const itemWidths = this._allMenuItems.map((_, index) => {
+        const element = this.domNode.ownerDocument.getElementById(this._list.getElementID(index));
+        if (element) {
+          element.style.width = "auto";
+          const width = element.getBoundingClientRect().width;
+          element.style.width = "";
+          return width;
         }
-      );
+        return 0;
+      });
       maxWidth = Math.max(...itemWidths, minWidth);
     }
     const maxVhPrecentage = 0.7;
-    const height = Math.min(
-      heightWithHeaders,
-      this.domNode.ownerDocument.body.clientHeight * maxVhPrecentage
-    );
+    const height = Math.min(heightWithHeaders, this.domNode.ownerDocument.body.clientHeight * maxVhPrecentage);
     this._list.layout(height, maxWidth);
     this.domNode.style.height = `${height}px`;
     this._list.domFocus();
@@ -312,10 +251,7 @@ let ActionList = class extends Disposable {
     }
     const element = e.elements[0];
     if (element.item && this.focusCondition(element)) {
-      this._delegate.onSelect(
-        element.item,
-        e.browserEvent instanceof PreviewSelectedEvent
-      );
+      this._delegate.onSelect(element.item, e.browserEvent instanceof PreviewSelectedEvent);
     } else {
       this._list.setSelection([]);
     }
@@ -333,10 +269,7 @@ let ActionList = class extends Disposable {
     const element = e.element;
     if (element && element.item && this.focusCondition(element)) {
       if (this._delegate.onHover && !element.disabled && element.kind === "action" /* Action */) {
-        const result = await this._delegate.onHover(
-          element.item,
-          this.cts.token
-        );
+        const result = await this._delegate.onHover(element.item, this.cts.token);
         element.canPreview = result ? result.canPreview : void 0;
       }
       if (e.index) {

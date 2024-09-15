@@ -11,42 +11,38 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./output.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import {
-  createCancelablePromise
-} from "../../../../base/common/async.js";
-import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import * as nls from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { computeEditorAriaLabel } from "../../../browser/editor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IContextKeyService, IContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOpenContext } from "../../../common/editor.js";
 import { AbstractTextResourceEditor } from "../../../browser/parts/editor/textResourceEditor.js";
-import {
-  ViewPane
-} from "../../../browser/parts/views/viewPane.js";
-import { ResourceContextKey } from "../../../common/contextkeys.js";
-import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { IViewDescriptorService } from "../../../common/views.js";
+import { OUTPUT_VIEW_ID, CONTEXT_IN_OUTPUT, IOutputChannel, CONTEXT_OUTPUT_SCROLL_LOCK } from "../../../services/output/common/output.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  CONTEXT_IN_OUTPUT,
-  CONTEXT_OUTPUT_SCROLL_LOCK,
-  OUTPUT_VIEW_ID
-} from "../../../services/output/common/output.js";
+import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
+import { ViewPane, IViewPaneOptions } from "../../../browser/parts/views/viewPane.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { CancelablePromise, createCancelablePromise } from "../../../../base/common/async.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ResourceContextKey } from "../../../common/contextkeys.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IEditorConfiguration } from "../../../browser/parts/editor/textEditor.js";
+import { computeEditorAriaLabel } from "../../../browser/editor.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 let OutputViewPane = class extends ViewPane {
   static {
     __name(this, "OutputViewPane");
@@ -62,44 +58,15 @@ let OutputViewPane = class extends ViewPane {
     this.scrollLockContextKey.set(scrollLock);
   }
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService) {
-    super(
-      options,
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService
-    );
-    this.scrollLockContextKey = CONTEXT_OUTPUT_SCROLL_LOCK.bindTo(
-      this.contextKeyService
-    );
-    const editorInstantiationService = this._register(
-      instantiationService.createChild(
-        new ServiceCollection([
-          IContextKeyService,
-          this.scopedContextKeyService
-        ])
-      )
-    );
-    this.editor = this._register(
-      editorInstantiationService.createInstance(OutputEditor)
-    );
-    this._register(
-      this.editor.onTitleAreaUpdate(() => {
-        this.updateTitle(this.editor.getTitle());
-        this.updateActions();
-      })
-    );
-    this._register(
-      this.onDidChangeBodyVisibility(
-        () => this.onDidChangeVisibility(this.isBodyVisible())
-      )
-    );
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    this.scrollLockContextKey = CONTEXT_OUTPUT_SCROLL_LOCK.bindTo(this.contextKeyService);
+    const editorInstantiationService = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    this.editor = this._register(editorInstantiationService.createInstance(OutputEditor));
+    this._register(this.editor.onTitleAreaUpdate(() => {
+      this.updateTitle(this.editor.getTitle());
+      this.updateActions();
+    }));
+    this._register(this.onDidChangeBodyVisibility(() => this.onDidChangeVisibility(this.isBodyVisible())));
   }
   showChannel(channel, preserveFocus) {
     if (this.channelId !== channel.id) {
@@ -118,35 +85,26 @@ let OutputViewPane = class extends ViewPane {
     this.editor.create(container);
     container.classList.add("output-view");
     const codeEditor = this.editor.getControl();
-    codeEditor.setAriaOptions({
-      role: "document",
-      activeDescendant: void 0
-    });
-    this._register(
-      codeEditor.onDidChangeModelContent(() => {
-        if (!this.scrollLock) {
-          this.editor.revealLastLine();
-        }
-      })
-    );
-    this._register(
-      codeEditor.onDidChangeCursorPosition((e) => {
-        if (e.reason !== CursorChangeReason.Explicit) {
-          return;
-        }
-        if (!this.configurationService.getValue(
-          "output.smartScroll.enabled"
-        )) {
-          return;
-        }
-        const model = codeEditor.getModel();
-        if (model) {
-          const newPositionLine = e.position.lineNumber;
-          const lastLine = model.getLineCount();
-          this.scrollLock = lastLine !== newPositionLine;
-        }
-      })
-    );
+    codeEditor.setAriaOptions({ role: "document", activeDescendant: void 0 });
+    this._register(codeEditor.onDidChangeModelContent(() => {
+      if (!this.scrollLock) {
+        this.editor.revealLastLine();
+      }
+    }));
+    this._register(codeEditor.onDidChangeCursorPosition((e) => {
+      if (e.reason !== CursorChangeReason.Explicit) {
+        return;
+      }
+      if (!this.configurationService.getValue("output.smartScroll.enabled")) {
+        return;
+      }
+      const model = codeEditor.getModel();
+      if (model) {
+        const newPositionLine = e.position.lineNumber;
+        const lastLine = model.getLineCount();
+        this.scrollLock = lastLine !== newPositionLine;
+      }
+    }));
   }
   layoutBody(height, width) {
     super.layoutBody(height, width);
@@ -163,14 +121,7 @@ let OutputViewPane = class extends ViewPane {
     const input = this.createInput(channel);
     if (!this.editor.input || !input.matches(this.editor.input)) {
       this.editorPromise?.cancel();
-      this.editorPromise = createCancelablePromise(
-        (token) => this.editor.setInput(
-          this.createInput(channel),
-          { preserveFocus: true },
-          /* @__PURE__ */ Object.create(null),
-          token
-        ).then(() => this.editor)
-      );
+      this.editorPromise = createCancelablePromise((token) => this.editor.setInput(this.createInput(channel), { preserveFocus: true }, /* @__PURE__ */ Object.create(null), token).then(() => this.editor));
     }
   }
   clearInput() {
@@ -179,14 +130,7 @@ let OutputViewPane = class extends ViewPane {
     this.editorPromise = null;
   }
   createInput(channel) {
-    return this.instantiationService.createInstance(
-      TextResourceEditorInput,
-      channel.uri,
-      nls.localize("output model title", "{0} - Output", channel.label),
-      nls.localize("channel", "Output channel for '{0}'", channel.label),
-      void 0,
-      void 0
-    );
+    return this.instantiationService.createInstance(TextResourceEditorInput, channel.uri, nls.localize("output model title", "{0} - Output", channel.label), nls.localize("channel", "Output channel for '{0}'", channel.label), void 0, void 0);
   }
 };
 OutputViewPane = __decorateClass([
@@ -203,22 +147,9 @@ OutputViewPane = __decorateClass([
 ], OutputViewPane);
 let OutputEditor = class extends AbstractTextResourceEditor {
   constructor(telemetryService, instantiationService, storageService, configurationService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService) {
-    super(
-      OUTPUT_VIEW_ID,
-      editorGroupService.activeGroup,
-      telemetryService,
-      instantiationService,
-      storageService,
-      textResourceConfigurationService,
-      themeService,
-      editorGroupService,
-      editorService,
-      fileService
-    );
+    super(OUTPUT_VIEW_ID, editorGroupService.activeGroup, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService);
     this.configurationService = configurationService;
-    this.resourceContext = this._register(
-      instantiationService.createInstance(ResourceContextKey)
-    );
+    this.resourceContext = this._register(instantiationService.createInstance(ResourceContextKey));
   }
   static {
     __name(this, "OutputEditor");
@@ -265,12 +196,7 @@ let OutputEditor = class extends AbstractTextResourceEditor {
     return this.input ? this.input.getAriaLabel() : nls.localize("outputViewAriaLabel", "Output panel");
   }
   computeAriaLabel() {
-    return this.input ? computeEditorAriaLabel(
-      this.input,
-      void 0,
-      void 0,
-      this.editorGroupService.count
-    ) : this.getAriaLabel();
+    return this.input ? computeEditorAriaLabel(this.input, void 0, void 0, this.editorGroupService.count) : this.getAriaLabel();
   }
   async setInput(input, options, context, token) {
     const focus = !(options && options.preserveFocus);

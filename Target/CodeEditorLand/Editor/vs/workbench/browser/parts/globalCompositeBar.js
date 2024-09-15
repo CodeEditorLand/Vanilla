@@ -10,98 +10,47 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  $,
-  EventHelper,
-  EventType,
-  addDisposableListener,
-  append,
-  clearNode,
-  getWindow,
-  hide,
-  runWhenWindowIdle,
-  show
-} from "../../../base/browser/dom.js";
+import { localize } from "../../../nls.js";
+import { ActionBar, ActionsOrientation } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { ACCOUNTS_ACTIVITY_ID, GLOBAL_ACTIVITY_ID } from "../../common/activity.js";
+import { IActivity, IActivityService, NumberBadge } from "../../services/activity/common/activity.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { DisposableStore, Disposable } from "../../../base/common/lifecycle.js";
+import { IColorTheme, IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../platform/storage/common/storage.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { CompositeBarActionViewItem, CompositeBarAction, IActivityHoverOptions, ICompositeBarActionViewItemOptions, ICompositeBarColors } from "./compositeBarActions.js";
+import { Codicon } from "../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { registerIcon } from "../../../platform/theme/common/iconRegistry.js";
+import { Action, IAction, Separator, SubmenuAction, toAction } from "../../../base/common/actions.js";
+import { IMenu, IMenuService, MenuId } from "../../../platform/actions/common/actions.js";
+import { addDisposableListener, EventType, append, clearNode, hide, show, EventHelper, $, runWhenWindowIdle, getWindow } from "../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
 import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
-import {
-  EventType as TouchEventType
-} from "../../../base/browser/touch.js";
-import {
-  ActionBar,
-  ActionsOrientation
-} from "../../../base/browser/ui/actionbar/actionbar.js";
-import {
-  AnchorAlignment,
-  AnchorAxisAlignment
-} from "../../../base/browser/ui/contextview/contextview.js";
-import {
-  Action,
-  Separator,
-  SubmenuAction,
-  toAction
-} from "../../../base/common/actions.js";
-import { Codicon } from "../../../base/common/codicons.js";
-import { KeyCode } from "../../../base/common/keyCodes.js";
+import { EventType as TouchEventType, GestureEvent } from "../../../base/browser/touch.js";
+import { AnchorAlignment, AnchorAxisAlignment } from "../../../base/browser/ui/contextview/contextview.js";
 import { Lazy } from "../../../base/common/lazy.js";
-import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { isString } from "../../../base/common/types.js";
-import { localize } from "../../../nls.js";
 import { createAndFillInActionBarActions } from "../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import { IProductService } from "../../../platform/product/common/productService.js";
 import { ISecretStorageService } from "../../../platform/secrets/common/secrets.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../platform/storage/common/storage.js";
-import { registerIcon } from "../../../platform/theme/common/iconRegistry.js";
-import {
-  IThemeService
-} from "../../../platform/theme/common/themeService.js";
-import {
-  ACCOUNTS_ACTIVITY_ID,
-  GLOBAL_ACTIVITY_ID
-} from "../../common/activity.js";
-import {
-  ACTIVITY_BAR_BADGE_BACKGROUND,
-  ACTIVITY_BAR_BADGE_FOREGROUND
-} from "../../common/theme.js";
-import {
-  IActivityService,
-  NumberBadge
-} from "../../services/activity/common/activity.js";
-import {
-  getCurrentAuthenticationSessionInfo
-} from "../../services/authentication/browser/authenticationService.js";
-import {
-  IAuthenticationService
-} from "../../services/authentication/common/authentication.js";
+import { AuthenticationSessionInfo, getCurrentAuthenticationSessionInfo } from "../../services/authentication/browser/authenticationService.js";
+import { AuthenticationSessionAccount, IAuthenticationService } from "../../services/authentication/common/authentication.js";
 import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
-import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../services/lifecycle/common/lifecycle.js";
+import { IHoverService } from "../../../platform/hover/browser/hover.js";
+import { ILifecycleService, LifecyclePhase } from "../../services/lifecycle/common/lifecycle.js";
 import { IUserDataProfileService } from "../../services/userDataProfile/common/userDataProfile.js";
 import { DEFAULT_ICON } from "../../services/userDataProfile/common/userDataProfileIcons.js";
-import {
-  CompositeBarAction,
-  CompositeBarActionViewItem
-} from "./compositeBarActions.js";
+import { isString } from "../../../base/common/types.js";
+import { KeyCode } from "../../../base/common/keyCodes.js";
+import { ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND } from "../../common/theme.js";
+import { IBaseActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
 let GlobalCompositeBar = class extends Disposable {
   constructor(contextMenuActionsProvider, colors, activityHoverOptions, configurationService, instantiationService, storageService, extensionService) {
     super();
@@ -155,29 +104,15 @@ let GlobalCompositeBar = class extends Disposable {
     __name(this, "GlobalCompositeBar");
   }
   static ACCOUNTS_ACTION_INDEX = 0;
-  static ACCOUNTS_ICON = registerIcon(
-    "accounts-view-bar-icon",
-    Codicon.account,
-    localize("accountsViewBarIcon", "Accounts icon in the view bar.")
-  );
+  static ACCOUNTS_ICON = registerIcon("accounts-view-bar-icon", Codicon.account, localize("accountsViewBarIcon", "Accounts icon in the view bar."));
   element;
-  globalActivityAction = this._register(
-    new Action(GLOBAL_ACTIVITY_ID)
-  );
-  accountAction = this._register(
-    new Action(ACCOUNTS_ACTIVITY_ID)
-  );
+  globalActivityAction = this._register(new Action(GLOBAL_ACTIVITY_ID));
+  accountAction = this._register(new Action(ACCOUNTS_ACTIVITY_ID));
   globalActivityActionBar;
   registerListeners() {
     this.extensionService.whenInstalledExtensionsRegistered().then(() => {
       if (!this._store.isDisposed) {
-        this._register(
-          this.storageService.onDidChangeValue(
-            StorageScope.PROFILE,
-            AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,
-            this._store
-          )(() => this.toggleAccountsActivity())
-        );
+        this._register(this.storageService.onDidChangeValue(StorageScope.PROFILE, AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, this._store)(() => this.toggleAccountsActivity()));
       }
     });
   }
@@ -191,27 +126,16 @@ let GlobalCompositeBar = class extends Disposable {
     return this.globalActivityActionBar.viewItems.length;
   }
   getContextMenuActions() {
-    return [
-      toAction({
-        id: "toggleAccountsVisibility",
-        label: localize("accounts", "Accounts"),
-        checked: this.accountsVisibilityPreference,
-        run: /* @__PURE__ */ __name(() => this.accountsVisibilityPreference = !this.accountsVisibilityPreference, "run")
-      })
-    ];
+    return [toAction({ id: "toggleAccountsVisibility", label: localize("accounts", "Accounts"), checked: this.accountsVisibilityPreference, run: /* @__PURE__ */ __name(() => this.accountsVisibilityPreference = !this.accountsVisibilityPreference, "run") })];
   }
   toggleAccountsActivity() {
     if (this.globalActivityActionBar.length() === 2 && this.accountsVisibilityPreference) {
       return;
     }
     if (this.globalActivityActionBar.length() === 2) {
-      this.globalActivityActionBar.pull(
-        GlobalCompositeBar.ACCOUNTS_ACTION_INDEX
-      );
+      this.globalActivityActionBar.pull(GlobalCompositeBar.ACCOUNTS_ACTION_INDEX);
     } else {
-      this.globalActivityActionBar.push(this.accountAction, {
-        index: GlobalCompositeBar.ACCOUNTS_ACTION_INDEX
-      });
+      this.globalActivityActionBar.push(this.accountAction, { index: GlobalCompositeBar.ACCOUNTS_ACTION_INDEX });
     }
   }
   get accountsVisibilityPreference() {
@@ -248,26 +172,19 @@ let AbstractGlobalActivityActionViewItem = class extends CompositeBarActionViewI
     __name(this, "AbstractGlobalActivityActionViewItem");
   }
   updateItemActivity() {
-    const activities = this.activityService.getActivity(
-      this.compositeBarActionItem.id
-    );
+    const activities = this.activityService.getActivity(this.compositeBarActionItem.id);
     let activity = activities[0];
     if (activity) {
       const { badge, priority } = activity;
       if (badge instanceof NumberBadge && activities.length > 1) {
-        const cumulativeNumberBadge = this.getCumulativeNumberBadge(
-          activities,
-          priority ?? 0
-        );
+        const cumulativeNumberBadge = this.getCumulativeNumberBadge(activities, priority ?? 0);
         activity = { badge: cumulativeNumberBadge };
       }
     }
     this.action.activity = activity;
   }
   getCumulativeNumberBadge(activityCache, priority) {
-    const numberActivities = activityCache.filter(
-      (activity) => activity.badge instanceof NumberBadge && (activity.priority ?? 0) === priority
-    );
+    const numberActivities = activityCache.filter((activity) => activity.badge instanceof NumberBadge && (activity.priority ?? 0) === priority);
     const number = numberActivities.reduce((result, activity) => {
       return result + activity.badge.number;
     }, 0);
@@ -285,76 +202,44 @@ let AbstractGlobalActivityActionViewItem = class extends CompositeBarActionViewI
   }
   render(container) {
     super.render(container);
-    this._register(
-      addDisposableListener(
-        this.container,
-        EventType.MOUSE_DOWN,
-        async (e) => {
-          EventHelper.stop(e, true);
-          const isLeftClick = e?.button !== 2;
-          if (isLeftClick) {
-            this.run();
-          }
-        }
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.container,
-        EventType.CONTEXT_MENU,
-        async (e) => {
-          e.stopPropagation();
-          const disposables = new DisposableStore();
-          const actions = await this.resolveContextMenuActions(disposables);
-          const event = new StandardMouseEvent(
-            getWindow(this.container),
-            e
-          );
-          this.contextMenuService.showContextMenu({
-            getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
-            getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
-            onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide")
-          });
-        }
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.container,
-        EventType.KEY_UP,
-        (e) => {
-          const event = new StandardKeyboardEvent(e);
-          if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
-            EventHelper.stop(e, true);
-            this.run();
-          }
-        }
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.container,
-        TouchEventType.Tap,
-        (e) => {
-          EventHelper.stop(e, true);
-          this.run();
-        }
-      )
-    );
+    this._register(addDisposableListener(this.container, EventType.MOUSE_DOWN, async (e) => {
+      EventHelper.stop(e, true);
+      const isLeftClick = e?.button !== 2;
+      if (isLeftClick) {
+        this.run();
+      }
+    }));
+    this._register(addDisposableListener(this.container, EventType.CONTEXT_MENU, async (e) => {
+      e.stopPropagation();
+      const disposables = new DisposableStore();
+      const actions = await this.resolveContextMenuActions(disposables);
+      const event = new StandardMouseEvent(getWindow(this.container), e);
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+        onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide")
+      });
+    }));
+    this._register(addDisposableListener(this.container, EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+        EventHelper.stop(e, true);
+        this.run();
+      }
+    }));
+    this._register(addDisposableListener(this.container, TouchEventType.Tap, (e) => {
+      EventHelper.stop(e, true);
+      this.run();
+    }));
   }
   async resolveContextMenuActions(disposables) {
     return this.contextMenuActionsProvider();
   }
   async run() {
     const disposables = new DisposableStore();
-    const menu = disposables.add(
-      this.menuService.createMenu(this.menuId, this.contextKeyService)
-    );
+    const menu = disposables.add(this.menuService.createMenu(this.menuId, this.contextKeyService));
     const actions = await this.resolveMainMenuActions(menu, disposables);
-    const { anchorAlignment, anchorAxisAlignment } = this.contextMenuAlignmentOptions() ?? {
-      anchorAlignment: void 0,
-      anchorAxisAlignment: void 0
-    };
+    const { anchorAlignment, anchorAxisAlignment } = this.contextMenuAlignmentOptions() ?? { anchorAlignment: void 0, anchorAxisAlignment: void 0 };
     this.contextMenuService.showContextMenu({
       getAnchor: /* @__PURE__ */ __name(() => this.label, "getAnchor"),
       anchorAlignment,
@@ -366,11 +251,7 @@ let AbstractGlobalActivityActionViewItem = class extends CompositeBarActionViewI
   }
   async resolveMainMenuActions(menu, _disposable) {
     const actions = [];
-    createAndFillInActionBarActions(
-      menu,
-      { renderShortTitle: true },
-      { primary: [], secondary: actions }
-    );
+    createAndFillInActionBarActions(menu, { renderShortTitle: true }, { primary: [], secondary: actions });
     return actions;
   }
 };
@@ -410,50 +291,29 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
   groupedAccounts = /* @__PURE__ */ new Map();
   problematicProviders = /* @__PURE__ */ new Set();
   initialized = false;
-  sessionFromEmbedder = new Lazy(
-    () => getCurrentAuthenticationSessionInfo(
-      this.secretStorageService,
-      this.productService
-    )
-  );
+  sessionFromEmbedder = new Lazy(() => getCurrentAuthenticationSessionInfo(this.secretStorageService, this.productService));
   registerListeners() {
-    this._register(
-      this.authenticationService.onDidRegisterAuthenticationProvider(
-        async (e) => {
-          await this.addAccountsFromProvider(e.id);
+    this._register(this.authenticationService.onDidRegisterAuthenticationProvider(async (e) => {
+      await this.addAccountsFromProvider(e.id);
+    }));
+    this._register(this.authenticationService.onDidUnregisterAuthenticationProvider((e) => {
+      this.groupedAccounts.delete(e.id);
+      this.problematicProviders.delete(e.id);
+    }));
+    this._register(this.authenticationService.onDidChangeSessions(async (e) => {
+      if (e.event.removed) {
+        for (const removed of e.event.removed) {
+          this.removeAccount(e.providerId, removed.account);
         }
-      )
-    );
-    this._register(
-      this.authenticationService.onDidUnregisterAuthenticationProvider(
-        (e) => {
-          this.groupedAccounts.delete(e.id);
-          this.problematicProviders.delete(e.id);
+      }
+      for (const changed of [...e.event.changed ?? [], ...e.event.added ?? []]) {
+        try {
+          await this.addOrUpdateAccount(e.providerId, changed.account);
+        } catch (e2) {
+          this.logService.error(e2);
         }
-      )
-    );
-    this._register(
-      this.authenticationService.onDidChangeSessions(async (e) => {
-        if (e.event.removed) {
-          for (const removed of e.event.removed) {
-            this.removeAccount(e.providerId, removed.account);
-          }
-        }
-        for (const changed of [
-          ...e.event.changed ?? [],
-          ...e.event.added ?? []
-        ]) {
-          try {
-            await this.addOrUpdateAccount(
-              e.providerId,
-              changed.account
-            );
-          } catch (e2) {
-            this.logService.error(e2);
-          }
-        }
-      })
-    );
+      }
+    }));
   }
   // This function exists to ensure that the accounts are added for auth providers that had already been registered
   // before the menu was created.
@@ -462,20 +322,14 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
     if (this._store.isDisposed) {
       return;
     }
-    const disposable = this._register(
-      runWhenWindowIdle(getWindow(this.element), async () => {
-        await this.doInitialize();
-        disposable.dispose();
-      })
-    );
+    const disposable = this._register(runWhenWindowIdle(getWindow(this.element), async () => {
+      await this.doInitialize();
+      disposable.dispose();
+    }));
   }
   async doInitialize() {
     const providerIds = this.authenticationService.getProviderIds();
-    const results = await Promise.allSettled(
-      providerIds.map(
-        (providerId) => this.addAccountsFromProvider(providerId)
-      )
-    );
+    const results = await Promise.allSettled(providerIds.map((providerId) => this.addAccountsFromProvider(providerId)));
     for (const result of results) {
       if (result.status === "rejected") {
         this.logService.error(result.reason);
@@ -491,14 +345,7 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
     let menus = [];
     for (const providerId of providers) {
       if (!this.initialized) {
-        const noAccountsAvailableAction = disposables.add(
-          new Action(
-            "noAccountsAvailable",
-            localize("loading", "Loading..."),
-            void 0,
-            false
-          )
-        );
+        const noAccountsAvailableAction = disposables.add(new Action("noAccountsAvailable", localize("loading", "Loading..."), void 0, false));
         menus.push(noAccountsAvailableAction);
         break;
       }
@@ -506,18 +353,7 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
       const accounts = this.groupedAccounts.get(providerId);
       if (!accounts) {
         if (this.problematicProviders.has(providerId)) {
-          const providerUnavailableAction = disposables.add(
-            new Action(
-              "providerUnavailable",
-              localize(
-                "authProviderUnavailable",
-                "{0} is currently unavailable",
-                providerLabel
-              ),
-              void 0,
-              false
-            )
-          );
+          const providerUnavailableAction = disposables.add(new Action("providerUnavailable", localize("authProviderUnavailable", "{0} is currently unavailable", providerLabel), void 0, false));
           menus.push(providerUnavailableAction);
           try {
             await this.addAccountsFromProvider(providerId);
@@ -530,52 +366,25 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
       for (const account of accounts) {
         const manageExtensionsAction = toAction({
           id: `configureSessions${account.label}`,
-          label: localize(
-            "manageTrustedExtensions",
-            "Manage Trusted Extensions"
-          ),
+          label: localize("manageTrustedExtensions", "Manage Trusted Extensions"),
           enabled: true,
-          run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-            "_manageTrustedExtensionsForAccount",
-            { providerId, accountLabel: account.label }
-          ), "run")
+          run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedExtensionsForAccount", { providerId, accountLabel: account.label }), "run")
         });
-        const providerSubMenuActions = [
-          manageExtensionsAction
-        ];
+        const providerSubMenuActions = [manageExtensionsAction];
         if (account.canSignOut) {
-          providerSubMenuActions.push(
-            toAction({
-              id: "signOut",
-              label: localize("signOut", "Sign Out"),
-              enabled: true,
-              run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-                "_signOutOfAccount",
-                { providerId, accountLabel: account.label }
-              ), "run")
-            })
-          );
+          providerSubMenuActions.push(toAction({
+            id: "signOut",
+            label: localize("signOut", "Sign Out"),
+            enabled: true,
+            run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_signOutOfAccount", { providerId, accountLabel: account.label }), "run")
+          }));
         }
-        const providerSubMenu = new SubmenuAction(
-          "activitybar.submenu",
-          `${account.label} (${providerLabel})`,
-          providerSubMenuActions
-        );
+        const providerSubMenu = new SubmenuAction("activitybar.submenu", `${account.label} (${providerLabel})`, providerSubMenuActions);
         menus.push(providerSubMenu);
       }
     }
     if (providers.length && !menus.length) {
-      const noAccountsAvailableAction = disposables.add(
-        new Action(
-          "noAccountsAvailable",
-          localize(
-            "noAccounts",
-            "You are not signed in to any accounts"
-          ),
-          void 0,
-          false
-        )
-      );
+      const noAccountsAvailableAction = disposables.add(new Action("noAccountsAvailable", localize("noAccounts", "You are not signed in to any accounts"), void 0, false));
       menus.push(noAccountsAvailableAction);
     }
     if (menus.length && otherCommands.length) {
@@ -605,9 +414,7 @@ let AccountsActivityActionViewItem = class extends AbstractGlobalActivityActionV
     }
     const sessionFromEmbedder = await this.sessionFromEmbedder.value;
     let canSignOut = true;
-    if (sessionFromEmbedder && // if we have a session from the embedder
-    !sessionFromEmbedder.canSignOut && // and that session says we can't sign out
-    (await this.authenticationService.getSessions(providerId)).some(
+    if (sessionFromEmbedder && !sessionFromEmbedder.canSignOut && (await this.authenticationService.getSessions(providerId)).some(
       (s) => s.id === sessionFromEmbedder.id && s.account.id === account.id
     )) {
       canSignOut = false;
@@ -696,10 +503,7 @@ let GlobalActivityActionViewItem = class extends AbstractGlobalActivityActionVie
   render(container) {
     super.render(container);
     this.profileBadge = append(container, $(".profile-badge"));
-    this.profileBadgeContent = append(
-      this.profileBadge,
-      $(".profile-badge-content")
-    );
+    this.profileBadgeContent = append(this.profileBadge, $(".profile-badge-content"));
     this.updateProfileBadge();
   }
   updateProfileBadge() {
@@ -726,11 +530,7 @@ let GlobalActivityActionViewItem = class extends AbstractGlobalActivityActionVie
     this.updateProfileBadge();
   }
   computeTitle() {
-    return this.userDataProfileService.currentProfile.isDefault ? super.computeTitle() : localize(
-      "manage profile",
-      "Manage {0} (Profile)",
-      this.userDataProfileService.currentProfile.name
-    );
+    return this.userDataProfileService.currentProfile.isDefault ? super.computeTitle() : localize("manage profile", "Manage {0} (Profile)", this.userDataProfileService.currentProfile.name);
   }
 };
 GlobalActivityActionViewItem = __decorateClass([
@@ -756,12 +556,8 @@ let SimpleAccountActivityActionViewItem = class extends AccountsActivityActionVi
       {
         ...options,
         colors: /* @__PURE__ */ __name((theme) => ({
-          badgeBackground: theme.getColor(
-            ACTIVITY_BAR_BADGE_BACKGROUND
-          ),
-          badgeForeground: theme.getColor(
-            ACTIVITY_BAR_BADGE_FOREGROUND
-          )
+          badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
+          badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND)
         }), "colors"),
         hoverOptions,
         compact: true
@@ -816,12 +612,8 @@ let SimpleGlobalActivityActionViewItem = class extends GlobalActivityActionViewI
       {
         ...options,
         colors: /* @__PURE__ */ __name((theme) => ({
-          badgeBackground: theme.getColor(
-            ACTIVITY_BAR_BADGE_BACKGROUND
-          ),
-          badgeForeground: theme.getColor(
-            ACTIVITY_BAR_BADGE_FOREGROUND
-          )
+          badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
+          badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND)
         }), "colors"),
         hoverOptions,
         compact: true
@@ -859,52 +651,25 @@ function simpleActivityContextMenuActions(storageService, isAccount) {
   const currentElementContextMenuActions = [];
   if (isAccount) {
     currentElementContextMenuActions.push(
-      toAction({
-        id: "hideAccounts",
-        label: localize("hideAccounts", "Hide Accounts"),
-        run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, false), "run")
-      }),
+      toAction({ id: "hideAccounts", label: localize("hideAccounts", "Hide Accounts"), run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, false), "run") }),
       new Separator()
     );
   }
   return [
     ...currentElementContextMenuActions,
-    toAction({
-      id: "toggle.hideAccounts",
-      label: localize("accounts", "Accounts"),
-      checked: isAccountsActionVisible(storageService),
-      run: /* @__PURE__ */ __name(() => setAccountsActionVisible(
-        storageService,
-        !isAccountsActionVisible(storageService)
-      ), "run")
-    }),
-    toAction({
-      id: "toggle.hideManage",
-      label: localize("manage", "Manage"),
-      checked: true,
-      enabled: false,
-      run: /* @__PURE__ */ __name(() => {
-        throw new Error('"Manage" can not be hidden');
-      }, "run")
-    })
+    toAction({ id: "toggle.hideAccounts", label: localize("accounts", "Accounts"), checked: isAccountsActionVisible(storageService), run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, !isAccountsActionVisible(storageService)), "run") }),
+    toAction({ id: "toggle.hideManage", label: localize("manage", "Manage"), checked: true, enabled: false, run: /* @__PURE__ */ __name(() => {
+      throw new Error('"Manage" can not be hidden');
+    }, "run") })
   ];
 }
 __name(simpleActivityContextMenuActions, "simpleActivityContextMenuActions");
 function isAccountsActionVisible(storageService) {
-  return storageService.getBoolean(
-    AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,
-    StorageScope.PROFILE,
-    true
-  );
+  return storageService.getBoolean(AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, StorageScope.PROFILE, true);
 }
 __name(isAccountsActionVisible, "isAccountsActionVisible");
 function setAccountsActionVisible(storageService, visible) {
-  storageService.store(
-    AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,
-    visible,
-    StorageScope.PROFILE,
-    StorageTarget.USER
-  );
+  storageService.store(AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, visible, StorageScope.PROFILE, StorageTarget.USER);
 }
 __name(setAccountsActionVisible, "setAccountsActionVisible");
 export {

@@ -11,12 +11,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Action } from "../../../../base/common/actions.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { joinPath } from "../../../../base/common/resources.js";
 import * as nls from "../../../../nls.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
 let OpenLogsFolderAction = class extends Action {
   constructor(id, label, environmentService, nativeHostService) {
     super(id, label);
@@ -29,11 +29,7 @@ let OpenLogsFolderAction = class extends Action {
   static ID = "workbench.action.openLogsFolder";
   static TITLE = nls.localize2("openLogsFolder", "Open Logs Folder");
   run() {
-    return this.nativeHostService.showItemInFolder(
-      joinPath(this.environmentService.logsHome, "main.log").with({
-        scheme: Schemas.file
-      }).fsPath
-    );
+    return this.nativeHostService.showItemInFolder(joinPath(this.environmentService.logsHome, "main.log").with({ scheme: Schemas.file }).fsPath);
   }
 };
 OpenLogsFolderAction = __decorateClass([
@@ -51,18 +47,11 @@ let OpenExtensionLogsFolderAction = class extends Action {
     __name(this, "OpenExtensionLogsFolderAction");
   }
   static ID = "workbench.action.openExtensionLogsFolder";
-  static TITLE = nls.localize2(
-    "openExtensionLogsFolder",
-    "Open Extension Logs Folder"
-  );
+  static TITLE = nls.localize2("openExtensionLogsFolder", "Open Extension Logs Folder");
   async run() {
-    const folderStat = await this.fileService.resolve(
-      this.environmentSerice.extHostLogsPath
-    );
+    const folderStat = await this.fileService.resolve(this.environmentSerice.extHostLogsPath);
     if (folderStat.children && folderStat.children[0]) {
-      return this.nativeHostService.showItemInFolder(
-        folderStat.children[0].resource.with({ scheme: Schemas.file }).fsPath
-      );
+      return this.nativeHostService.showItemInFolder(folderStat.children[0].resource.with({ scheme: Schemas.file }).fsPath);
     }
   }
 };

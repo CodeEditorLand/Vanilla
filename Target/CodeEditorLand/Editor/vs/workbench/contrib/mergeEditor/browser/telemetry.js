@@ -11,6 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { InputNumber } from "./model/modifiedBaseRange.js";
 let MergeEditorTelemetry = class {
   constructor(telemetryService) {
     this.telemetryService = telemetryService;

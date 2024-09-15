@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  TerminalCapability
-} from "./capabilities.js";
+import { ITerminalChildProcess } from "../terminal.js";
+import { TerminalCapability, INaiveCwdDetectionCapability } from "./capabilities.js";
 class NaiveCwdDetectionCapability {
   constructor(_process) {
     this._process = _process;

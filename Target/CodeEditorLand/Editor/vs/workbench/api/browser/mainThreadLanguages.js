@@ -10,25 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableMap,
-  DisposableStore
-} from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { Range } from "../../../editor/common/core/range.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { ILanguageService } from "../../../editor/common/languages/language.js";
 import { IModelService } from "../../../editor/common/services/model.js";
+import { MainThreadLanguagesShape, MainContext, ExtHostContext, ExtHostLanguagesShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import { IRange, Range } from "../../../editor/common/core/range.js";
+import { StandardTokenType } from "../../../editor/common/encodedTokenAttributes.js";
 import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ILanguageStatusService
-} from "../../services/languageStatus/common/languageStatusService.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ILanguageStatus, ILanguageStatusService } from "../../services/languageStatus/common/languageStatusService.js";
+import { DisposableMap, DisposableStore } from "../../../base/common/lifecycle.js";
 let MainThreadLanguages = class {
   constructor(_extHostContext, _languageService, _modelService, _resolverService, _languageStatusService) {
     this._languageService = _languageService;
@@ -36,16 +28,10 @@ let MainThreadLanguages = class {
     this._resolverService = _resolverService;
     this._languageStatusService = _languageStatusService;
     this._proxy = _extHostContext.getProxy(ExtHostContext.ExtHostLanguages);
-    this._proxy.$acceptLanguageIds(
-      _languageService.getRegisteredLanguageIds()
-    );
-    this._disposables.add(
-      _languageService.onDidChange((_) => {
-        this._proxy.$acceptLanguageIds(
-          _languageService.getRegisteredLanguageIds()
-        );
-      })
-    );
+    this._proxy.$acceptLanguageIds(_languageService.getRegisteredLanguageIds());
+    this._disposables.add(_languageService.onDidChange((_) => {
+      this._proxy.$acceptLanguageIds(_languageService.getRegisteredLanguageIds());
+    }));
   }
   _disposables = new DisposableStore();
   _proxy;
@@ -56,16 +42,12 @@ let MainThreadLanguages = class {
   }
   async $changeLanguage(resource, languageId) {
     if (!this._languageService.isRegisteredLanguageId(languageId)) {
-      return Promise.reject(
-        new Error(`Unknown language id: ${languageId}`)
-      );
+      return Promise.reject(new Error(`Unknown language id: ${languageId}`));
     }
     const uri = URI.revive(resource);
     const ref = await this._resolverService.createModelReference(uri);
     try {
-      ref.object.textEditorModel.setLanguage(
-        this._languageService.createById(languageId)
-      );
+      ref.object.textEditorModel.setLanguage(this._languageService.createById(languageId));
     } finally {
       ref.dispose();
     }
@@ -81,12 +63,7 @@ let MainThreadLanguages = class {
     const idx = tokens.findTokenIndexAtOffset(position.column - 1);
     return {
       type: tokens.getStandardTokenType(idx),
-      range: new Range(
-        position.lineNumber,
-        1 + tokens.getStartOffset(idx),
-        position.lineNumber,
-        1 + tokens.getEndOffset(idx)
-      )
+      range: new Range(position.lineNumber, 1 + tokens.getStartOffset(idx), position.lineNumber, 1 + tokens.getEndOffset(idx))
     };
   }
   // --- language status

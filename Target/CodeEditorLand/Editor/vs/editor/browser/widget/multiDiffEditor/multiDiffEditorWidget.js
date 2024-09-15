@@ -10,22 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Dimension } from "../../../../base/browser/dom.js";
 import { Event } from "../../../../base/common/event.js";
 import { readHotReloadableExport } from "../../../../base/common/hotReloadHelpers.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  derived,
-  derivedWithStore,
-  observableValue,
-  recomputeInitiallyAndOnChange
-} from "../../../../base/common/observable.js";
+import { derived, derivedWithStore, observableValue, recomputeInitiallyAndOnChange } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Range } from "../../../common/core/range.js";
+import { IDiffEditor } from "../../../common/editorCommon.js";
+import { ICodeEditor } from "../../editorBrowser.js";
+import { DiffEditorWidget } from "../diffEditor/diffEditorWidget.js";
 import "./colors.js";
 import { DiffEditorItemTemplate } from "./diffEditorItemTemplate.js";
+import { IDocumentDiffItem, IMultiDiffEditorModel } from "./model.js";
 import { MultiDiffEditorViewModel } from "./multiDiffEditorViewModel.js";
-import {
-  MultiDiffEditorWidgetImpl
-} from "./multiDiffEditorWidgetImpl.js";
+import { IMultiDiffEditorViewState, IMultiDiffResourceId, MultiDiffEditorWidgetImpl } from "./multiDiffEditorWidgetImpl.js";
+import { IWorkbenchUIElementFactory } from "./workbenchUIElementFactory.js";
 let MultiDiffEditorWidget = class extends Disposable {
   constructor(_element, _workbenchUIElementFactory, _instantiationService) {
     super();
@@ -37,22 +38,17 @@ let MultiDiffEditorWidget = class extends Disposable {
   static {
     __name(this, "MultiDiffEditorWidget");
   }
-  _dimension = observableValue(
-    this,
-    void 0
-  );
+  _dimension = observableValue(this, void 0);
   _viewModel = observableValue(this, void 0);
   _widgetImpl = derivedWithStore(this, (reader, store) => {
     readHotReloadableExport(DiffEditorItemTemplate, reader);
-    return store.add(
-      this._instantiationService.createInstance(
-        readHotReloadableExport(MultiDiffEditorWidgetImpl, reader),
-        this._element,
-        this._dimension,
-        this._viewModel,
-        this._workbenchUIElementFactory
-      )
-    );
+    return store.add(this._instantiationService.createInstance(
+      readHotReloadableExport(MultiDiffEditorWidgetImpl, reader),
+      this._element,
+      this._dimension,
+      this._viewModel,
+      this._workbenchUIElementFactory
+    ));
   });
   reveal(resource, options) {
     this._widgetImpl.get().reveal(resource, options);
@@ -66,16 +62,11 @@ let MultiDiffEditorWidget = class extends Disposable {
   layout(dimension) {
     this._dimension.set(dimension, void 0);
   }
-  _activeControl = derived(
-    this,
-    (reader) => this._widgetImpl.read(reader).activeControl.read(reader)
-  );
+  _activeControl = derived(this, (reader) => this._widgetImpl.read(reader).activeControl.read(reader));
   getActiveControl() {
     return this._activeControl.get();
   }
-  onDidChangeActiveControl = Event.fromObservableLight(
-    this._activeControl
-  );
+  onDidChangeActiveControl = Event.fromObservableLight(this._activeControl);
   getViewState() {
     return this._widgetImpl.get().getViewState();
   }

@@ -132,7 +132,7 @@
 }
 .monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center .action-item.command-center-quick-pick .search-icon {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: .8;
   margin: auto 3px;
 }
 .monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center .action-item.command-center-quick-pick .search-label {

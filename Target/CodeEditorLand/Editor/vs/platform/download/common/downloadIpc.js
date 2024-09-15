@@ -1,6 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import { URI } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IDownloadService } from "./download.js";
 class DownloadServiceChannel {
   constructor(service) {
     this.service = service;
@@ -14,10 +18,7 @@ class DownloadServiceChannel {
   call(context, command, args) {
     switch (command) {
       case "download":
-        return this.service.download(
-          URI.revive(args[0]),
-          URI.revive(args[1])
-        );
+        return this.service.download(URI.revive(args[0]), URI.revive(args[1]));
     }
     throw new Error("Invalid call");
   }

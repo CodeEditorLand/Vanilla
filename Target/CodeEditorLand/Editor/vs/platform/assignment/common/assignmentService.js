@@ -1,14 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { importAMDNodeModule } from "../../../amdX.js";
 import { TelemetryLevel } from "../../telemetry/common/telemetry.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IProductService } from "../../product/common/productService.js";
 import { getTelemetryLevel } from "../../telemetry/common/telemetryUtils.js";
-import {
-  ASSIGNMENT_REFETCH_INTERVAL,
-  ASSIGNMENT_STORAGE_KEY,
-  AssignmentFilterProvider,
-  TargetPopulation
-} from "./assignment.js";
+import { AssignmentFilterProvider, ASSIGNMENT_REFETCH_INTERVAL, ASSIGNMENT_STORAGE_KEY, IAssignmentService, TargetPopulation } from "./assignment.js";
+import { importAMDNodeModule } from "../../../amdX.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
 class BaseAssignmentService {
   constructor(machineId, configurationService, productService, environmentService, telemetry, keyValueStorage) {
     this.machineId = machineId;
@@ -21,13 +19,9 @@ class BaseAssignmentService {
     if (!isTesting && productService.tasConfig && this.experimentsEnabled && getTelemetryLevel(this.configurationService) === TelemetryLevel.USAGE) {
       this.tasClient = this.setupTASClient();
     }
-    const overrideDelaySetting = this.configurationService.getValue(
-      "experiments.overrideDelay"
-    );
+    const overrideDelaySetting = this.configurationService.getValue("experiments.overrideDelay");
     const overrideDelay = typeof overrideDelaySetting === "number" ? overrideDelaySetting : 0;
-    this.overrideInitDelay = new Promise(
-      (resolve) => setTimeout(resolve, overrideDelay)
-    );
+    this.overrideInitDelay = new Promise((resolve) => setTimeout(resolve, overrideDelay));
   }
   static {
     __name(this, "BaseAssignmentService");
@@ -41,9 +35,7 @@ class BaseAssignmentService {
   }
   async getTreatment(name) {
     await this.overrideInitDelay;
-    const override = this.configurationService.getValue(
-      "experiments.override." + name
-    );
+    const override = this.configurationService.getValue("experiments.override." + name);
     if (override !== void 0) {
       return override;
     }
@@ -58,11 +50,7 @@ class BaseAssignmentService {
     if (this.networkInitialized) {
       result = client.getTreatmentVariable("vscode", name);
     } else {
-      result = await client.getTreatmentVariableAsync(
-        "vscode",
-        name,
-        true
-      );
+      result = await client.getTreatmentVariableAsync("vscode", name, true);
     }
     result = client.getTreatmentVariable("vscode", name);
     return result;
@@ -76,10 +64,7 @@ class BaseAssignmentService {
       targetPopulation
     );
     const tasConfig = this.productService.tasConfig;
-    const tasClient = new (await importAMDNodeModule(
-      "tas-client-umd",
-      "lib/tas-client-umd.js"
-    )).ExperimentationService({
+    const tasClient = new (await importAMDNodeModule("tas-client-umd", "lib/tas-client-umd.js")).ExperimentationService({
       filterProviders: [filterProvider],
       telemetry: this.telemetry,
       storageKey: ASSIGNMENT_STORAGE_KEY,

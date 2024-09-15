@@ -1,4 +1,4 @@
-var workspaceTrust_default = "../../../../../../Asset/workspaceTrust-XLFAL4QH.svg";
+var workspaceTrust_default = "../../../../../../Asset/workspaceTrust-CHBRZFKZ.svg";
 export {
   workspaceTrust_default as default
 };

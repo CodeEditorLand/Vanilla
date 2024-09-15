@@ -63,14 +63,7 @@ class ScrollbarState {
     this._refreshComputedValues();
   }
   clone() {
-    return new ScrollbarState(
-      this._arrowSize,
-      this._scrollbarSize,
-      this._oppositeScrollbarSize,
-      this._visibleSize,
-      this._scrollSize,
-      this._scrollPosition
-    );
+    return new ScrollbarState(this._arrowSize, this._scrollbarSize, this._oppositeScrollbarSize, this._visibleSize, this._scrollSize, this._scrollPosition);
   }
   setVisibleSize(visibleSize) {
     const iVisibleSize = Math.round(visibleSize);
@@ -106,14 +99,8 @@ class ScrollbarState {
     this._oppositeScrollbarSize = Math.round(oppositeScrollbarSize);
   }
   static _computeValues(oppositeScrollbarSize, arrowSize, visibleSize, scrollSize, scrollPosition) {
-    const computedAvailableSize = Math.max(
-      0,
-      visibleSize - oppositeScrollbarSize
-    );
-    const computedRepresentableSize = Math.max(
-      0,
-      computedAvailableSize - 2 * arrowSize
-    );
+    const computedAvailableSize = Math.max(0, visibleSize - oppositeScrollbarSize);
+    const computedRepresentableSize = Math.max(0, computedAvailableSize - 2 * arrowSize);
     const computedIsNeeded = scrollSize > 0 && scrollSize > visibleSize;
     if (!computedIsNeeded) {
       return {
@@ -124,14 +111,7 @@ class ScrollbarState {
         computedSliderPosition: 0
       };
     }
-    const computedSliderSize = Math.round(
-      Math.max(
-        MINIMUM_SLIDER_SIZE,
-        Math.floor(
-          visibleSize * computedRepresentableSize / scrollSize
-        )
-      )
-    );
+    const computedSliderSize = Math.round(Math.max(MINIMUM_SLIDER_SIZE, Math.floor(visibleSize * computedRepresentableSize / scrollSize)));
     const computedSliderRatio = (computedRepresentableSize - computedSliderSize) / (scrollSize - visibleSize);
     const computedSliderPosition = scrollPosition * computedSliderRatio;
     return {
@@ -143,13 +123,7 @@ class ScrollbarState {
     };
   }
   _refreshComputedValues() {
-    const r = ScrollbarState._computeValues(
-      this._oppositeScrollbarSize,
-      this._arrowSize,
-      this._visibleSize,
-      this._scrollSize,
-      this._scrollPosition
-    );
+    const r = ScrollbarState._computeValues(this._oppositeScrollbarSize, this._arrowSize, this._visibleSize, this._scrollSize, this._scrollPosition);
     this._computedAvailableSize = r.computedAvailableSize;
     this._computedIsNeeded = r.computedIsNeeded;
     this._computedSliderSize = r.computedSliderSize;

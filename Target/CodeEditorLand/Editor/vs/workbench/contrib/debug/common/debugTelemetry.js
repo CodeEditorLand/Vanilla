@@ -10,7 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IDebugModel, IDebugSession, AdapterEndEvent } from "./debug.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { Debugger } from "./debugger.js";
 let DebugTelemetry = class {
   constructor(model, telemetryService) {
     this.model = model;

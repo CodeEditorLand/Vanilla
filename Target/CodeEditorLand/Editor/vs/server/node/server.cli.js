@@ -1,24 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
 import * as fs from "fs";
-import * as http from "http";
 import * as url from "url";
-import { DeferredPromise } from "../../base/common/async.js";
-import { dirname, extname, join, resolve } from "../../base/common/path.js";
+import * as cp from "child_process";
+import * as http from "http";
 import { cwd } from "../../base/common/process.js";
-import {
-  OPTIONS,
-  buildHelpMessage,
-  buildVersionMessage,
-  parseArgs
-} from "../../platform/environment/node/argv.js";
-import {
-  getStdinFilePath,
-  hasStdinWithoutTty,
-  readFromStdin
-} from "../../platform/environment/node/stdin.js";
+import { dirname, extname, resolve, join } from "../../base/common/path.js";
+import { parseArgs, buildHelpMessage, buildVersionMessage, OPTIONS, OptionDescriptions, ErrorReporter } from "../../platform/environment/node/argv.js";
+import { NativeParsedArgs } from "../../platform/environment/common/argv.js";
 import { createWaitMarkerFileSync } from "../../platform/environment/node/wait.js";
+import { PipeCommand } from "../../workbench/api/node/extHostCLIServer.js";
+import { hasStdinWithoutTty, getStdinFilePath, readFromStdin } from "../../platform/environment/node/stdin.js";
+import { DeferredPromise } from "../../base/common/async.js";
 const isSupportedForCmd = /* @__PURE__ */ __name((optionId) => {
   switch (optionId) {
     case "user-data-dir":
@@ -70,16 +63,10 @@ const cliRemoteAuthority = process.env["VSCODE_CLI_AUTHORITY"];
 const cliStdInFilePath = process.env["VSCODE_STDIN_FILE_PATH"];
 async function main(desc, args) {
   if (!cliPipe && !cliCommand) {
-    console.log(
-      "Command is only available in WSL or inside a Visual Studio Code terminal."
-    );
+    console.log("Command is only available in WSL or inside a Visual Studio Code terminal.");
     return;
   }
-  const options = {
-    ...OPTIONS,
-    gitCredential: { type: "string" },
-    openExternal: { type: "boolean" }
-  };
+  const options = { ...OPTIONS, gitCredential: { type: "string" }, openExternal: { type: "boolean" } };
   const isSupported = cliCommand ? isSupportedForCmd : isSupportedForPipe;
   for (const optionId in OPTIONS) {
     const optId = optionId;
@@ -92,36 +79,23 @@ async function main(desc, args) {
   }
   const errorReporter = {
     onMultipleValues: /* @__PURE__ */ __name((id, usedValue) => {
-      console.error(
-        `Option '${id}' can only be defined once. Using value ${usedValue}.`
-      );
+      console.error(`Option '${id}' can only be defined once. Using value ${usedValue}.`);
     }, "onMultipleValues"),
     onEmptyValue: /* @__PURE__ */ __name((id) => {
       console.error(`Ignoring option '${id}': Value must not be empty.`);
     }, "onEmptyValue"),
     onUnknownOption: /* @__PURE__ */ __name((id) => {
-      console.error(
-        `Ignoring option '${id}': not supported for ${desc.executableName}.`
-      );
+      console.error(`Ignoring option '${id}': not supported for ${desc.executableName}.`);
     }, "onUnknownOption"),
     onDeprecatedOption: /* @__PURE__ */ __name((deprecatedOption, message) => {
-      console.warn(
-        `Option '${deprecatedOption}' is deprecated: ${message}`
-      );
+      console.warn(`Option '${deprecatedOption}' is deprecated: ${message}`);
     }, "onDeprecatedOption")
   };
   const parsedArgs = parseArgs(args, options, errorReporter);
   const mapFileUri = cliRemoteAuthority ? mapFileToRemoteUri : (uri) => uri;
   const verbose = !!parsedArgs["verbose"];
   if (parsedArgs.help) {
-    console.log(
-      buildHelpMessage(
-        desc.productName,
-        desc.executableName,
-        desc.version,
-        options
-      )
-    );
+    console.log(buildHelpMessage(desc.productName, desc.executableName, desc.version, options));
     return;
   }
   if (parsedArgs.version) {
@@ -148,22 +122,9 @@ async function main(desc, args) {
         file = "fish_xdg_data/fish/vendor_conf.d/shellIntegration.fish";
         break;
       default:
-        throw new Error(
-          "Error using --locate-shell-integration-path: Invalid shell type"
-        );
+        throw new Error("Error using --locate-shell-integration-path: Invalid shell type");
     }
-    console.log(
-      resolve(
-        __dirname,
-        "../..",
-        "workbench",
-        "contrib",
-        "terminal",
-        "browser",
-        "media",
-        file
-      )
-    );
+    console.log(resolve(__dirname, "../..", "workbench", "contrib", "terminal", "browser", "media", file));
     return;
   }
   if (cliPipe) {
@@ -197,11 +158,7 @@ async function main(desc, args) {
       if (!stdinFilePath) {
         stdinFilePath = getStdinFilePath();
         const readFromStdinDone = new DeferredPromise();
-        await readFromStdin(
-          stdinFilePath,
-          verbose,
-          () => readFromStdinDone.complete()
-        );
+        await readFromStdin(stdinFilePath, verbose, () => readFromStdinDone.complete());
         if (!parsedArgs.wait) {
           readFromStdinPromise = readFromStdinDone.p;
         }
@@ -210,53 +167,35 @@ async function main(desc, args) {
       parsedArgs["skip-add-to-recently-opened"] = true;
       console.log(`Reading from stdin via: ${stdinFilePath}`);
     } catch (e) {
-      console.log(
-        `Failed to create file to read via stdin: ${e.toString()}`
-      );
+      console.log(`Failed to create file to read via stdin: ${e.toString()}`);
     }
   }
   if (parsedArgs.extensionDevelopmentPath) {
-    parsedArgs.extensionDevelopmentPath = parsedArgs.extensionDevelopmentPath.map(
-      (p) => mapFileUri(pathToURI(p).href)
-    );
+    parsedArgs.extensionDevelopmentPath = parsedArgs.extensionDevelopmentPath.map((p) => mapFileUri(pathToURI(p).href));
   }
   if (parsedArgs.extensionTestsPath) {
-    parsedArgs.extensionTestsPath = mapFileUri(
-      pathToURI(parsedArgs["extensionTestsPath"]).href
-    );
+    parsedArgs.extensionTestsPath = mapFileUri(pathToURI(parsedArgs["extensionTestsPath"]).href);
   }
   const crashReporterDirectory = parsedArgs["crash-reporter-directory"];
-  if (crashReporterDirectory !== void 0 && !crashReporterDirectory.match(/^([a-zA-Z]:[\\/])/)) {
-    console.log(
-      `The crash reporter directory '${crashReporterDirectory}' must be an absolute Windows path (e.g. c:/crashes)`
-    );
+  if (crashReporterDirectory !== void 0 && !crashReporterDirectory.match(/^([a-zA-Z]:[\\\/])/)) {
+    console.log(`The crash reporter directory '${crashReporterDirectory}' must be an absolute Windows path (e.g. c:/crashes)`);
     return;
   }
   if (cliCommand) {
     if (parsedArgs["install-extension"] !== void 0 || parsedArgs["uninstall-extension"] !== void 0 || parsedArgs["list-extensions"] || parsedArgs["update-extensions"]) {
       const cmdLine = [];
-      parsedArgs["install-extension"]?.forEach(
-        (id) => cmdLine.push("--install-extension", id)
-      );
-      parsedArgs["uninstall-extension"]?.forEach(
-        (id) => cmdLine.push("--uninstall-extension", id)
-      );
-      ["list-extensions", "force", "show-versions", "category"].forEach(
-        (opt) => {
-          const value = parsedArgs[opt];
-          if (value !== void 0) {
-            cmdLine.push(`--${opt}=${value}`);
-          }
+      parsedArgs["install-extension"]?.forEach((id) => cmdLine.push("--install-extension", id));
+      parsedArgs["uninstall-extension"]?.forEach((id) => cmdLine.push("--uninstall-extension", id));
+      ["list-extensions", "force", "show-versions", "category"].forEach((opt) => {
+        const value = parsedArgs[opt];
+        if (value !== void 0) {
+          cmdLine.push(`--${opt}=${value}`);
         }
-      );
+      });
       if (parsedArgs["update-extensions"]) {
         cmdLine.push("--update-extensions");
       }
-      const childProcess = cp.fork(
-        join(__dirname, "../../../server-main.js"),
-        cmdLine,
-        { stdio: "inherit" }
-      );
+      const childProcess = cp.fork(join(__dirname, "../../../server-main.js"), cmdLine, { stdio: "inherit" });
       childProcess.on("error", (err) => console.log(err));
       return;
     }
@@ -282,9 +221,7 @@ async function main(desc, args) {
     if (ext === ".bat" || ext === ".cmd") {
       const processCwd = cliCommandCwd || cwd();
       if (verbose) {
-        console.log(
-          `Invoking: cmd.exe /C ${cliCommand} ${newCommandline.join(" ")} in ${processCwd}`
-        );
+        console.log(`Invoking: cmd.exe /C ${cliCommand} ${newCommandline.join(" ")} in ${processCwd}`);
       }
       cp.spawn("cmd.exe", ["/C", cliCommand, ...newCommandline], {
         stdio: "inherit",
@@ -295,43 +232,24 @@ async function main(desc, args) {
       const env = { ...process.env, ELECTRON_RUN_AS_NODE: "1" };
       newCommandline.unshift("resources/app/out/cli.js");
       if (verbose) {
-        console.log(
-          `Invoking: cd "${cliCwd}" && ELECTRON_RUN_AS_NODE=1 "${cliCommand}" "${newCommandline.join('" "')}"`
-        );
+        console.log(`Invoking: cd "${cliCwd}" && ELECTRON_RUN_AS_NODE=1 "${cliCommand}" "${newCommandline.join('" "')}"`);
       }
       if (runningInWSL2()) {
         if (verbose) {
           console.log(`Using pipes for output.`);
         }
-        const childProcess = cp.spawn(cliCommand, newCommandline, {
-          cwd: cliCwd,
-          env,
-          stdio: ["inherit", "pipe", "pipe"]
-        });
-        childProcess.stdout.on(
-          "data",
-          (data) => process.stdout.write(data)
-        );
-        childProcess.stderr.on(
-          "data",
-          (data) => process.stderr.write(data)
-        );
+        const childProcess = cp.spawn(cliCommand, newCommandline, { cwd: cliCwd, env, stdio: ["inherit", "pipe", "pipe"] });
+        childProcess.stdout.on("data", (data) => process.stdout.write(data));
+        childProcess.stderr.on("data", (data) => process.stderr.write(data));
       } else {
-        cp.spawn(cliCommand, newCommandline, {
-          cwd: cliCwd,
-          env,
-          stdio: "inherit"
-        });
+        cp.spawn(cliCommand, newCommandline, { cwd: cliCwd, env, stdio: "inherit" });
       }
     }
   } else {
     if (parsedArgs.status) {
-      sendToPipe(
-        {
-          type: "status"
-        },
-        verbose
-      ).then((res) => {
+      sendToPipe({
+        type: "status"
+      }, verbose).then((res) => {
         console.log(res);
       }).catch((e) => {
         console.error("Error when requesting status:", e);
@@ -339,33 +257,20 @@ async function main(desc, args) {
       return;
     }
     if (parsedArgs["install-extension"] !== void 0 || parsedArgs["uninstall-extension"] !== void 0 || parsedArgs["list-extensions"] || parsedArgs["update-extensions"]) {
-      sendToPipe(
-        {
-          type: "extensionManagement",
-          list: parsedArgs["list-extensions"] ? {
-            showVersions: parsedArgs["show-versions"],
-            category: parsedArgs["category"]
-          } : void 0,
-          install: asExtensionIdOrVSIX(
-            parsedArgs["install-extension"]
-          ),
-          uninstall: asExtensionIdOrVSIX(
-            parsedArgs["uninstall-extension"]
-          ),
-          force: parsedArgs["force"]
-        },
-        verbose
-      ).then((res) => {
+      sendToPipe({
+        type: "extensionManagement",
+        list: parsedArgs["list-extensions"] ? { showVersions: parsedArgs["show-versions"], category: parsedArgs["category"] } : void 0,
+        install: asExtensionIdOrVSIX(parsedArgs["install-extension"]),
+        uninstall: asExtensionIdOrVSIX(parsedArgs["uninstall-extension"]),
+        force: parsedArgs["force"]
+      }, verbose).then((res) => {
         console.log(res);
       }).catch((e) => {
-        console.error(
-          "Error when invoking the extension management command:",
-          e
-        );
+        console.error("Error when invoking the extension management command:", e);
       });
       return;
     }
-    let waitMarkerFilePath;
+    let waitMarkerFilePath = void 0;
     if (parsedArgs["wait"]) {
       if (!fileURIs.length) {
         console.log("At least one file must be provided to wait for.");
@@ -373,22 +278,19 @@ async function main(desc, args) {
       }
       waitMarkerFilePath = createWaitMarkerFileSync(verbose);
     }
-    sendToPipe(
-      {
-        type: "open",
-        fileURIs,
-        folderURIs,
-        diffMode: parsedArgs.diff,
-        mergeMode: parsedArgs.merge,
-        addMode: parsedArgs.add,
-        gotoLineMode: parsedArgs.goto,
-        forceReuseWindow: parsedArgs["reuse-window"],
-        forceNewWindow: parsedArgs["new-window"],
-        waitMarkerFilePath,
-        remoteAuthority: remote
-      },
-      verbose
-    ).catch((e) => {
+    sendToPipe({
+      type: "open",
+      fileURIs,
+      folderURIs,
+      diffMode: parsedArgs.diff,
+      mergeMode: parsedArgs.merge,
+      addMode: parsedArgs.add,
+      gotoLineMode: parsedArgs.goto,
+      forceReuseWindow: parsedArgs["reuse-window"],
+      forceNewWindow: parsedArgs["new-window"],
+      waitMarkerFilePath,
+      remoteAuthority: remote
+    }, verbose).catch((e) => {
       console.error("Error when invoking the open command:", e);
     });
     if (waitMarkerFilePath) {
@@ -430,13 +332,10 @@ function openInBrowser(args, verbose) {
     }
   }
   if (uris.length) {
-    sendToPipe(
-      {
-        type: "openExternal",
-        uris
-      },
-      verbose
-    ).catch((e) => {
+    sendToPipe({
+      type: "openExternal",
+      uris
+    }, verbose).catch((e) => {
       console.error("Error when invoking the open external command:", e);
     });
   }
@@ -459,14 +358,12 @@ function sendToPipe(args, verbose) {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        accept: "application/json"
+        "accept": "application/json"
       }
     };
     const req = http.request(opts, (res) => {
       if (res.headers["content-type"] !== "application/json") {
-        reject(
-          "Error in response: Invalid content type: Expected 'application/json', is: " + res.headers["content-type"]
-        );
+        reject("Error in response: Invalid content type: Expected 'application/json', is: " + res.headers["content-type"]);
         return;
       }
       const chunks = [];
@@ -485,9 +382,7 @@ function sendToPipe(args, verbose) {
             reject(obj);
           }
         } catch (e) {
-          reject(
-            "Error in response: Unable to parse response as JSON: " + content
-          );
+          reject("Error in response: Unable to parse response as JSON: " + content);
         }
       });
     });
@@ -498,9 +393,7 @@ function sendToPipe(args, verbose) {
 }
 __name(sendToPipe, "sendToPipe");
 function asExtensionIdOrVSIX(inputs) {
-  return inputs?.map(
-    (input) => /\.vsix$/i.test(input) ? pathToURI(input).href : input
-  );
+  return inputs?.map((input) => /\.vsix$/i.test(input) ? pathToURI(input).href : input);
 }
 __name(asExtensionIdOrVSIX, "asExtensionIdOrVSIX");
 function fatal(message, err) {
@@ -542,12 +435,9 @@ function mapFileToRemoteUri(uri) {
 }
 __name(mapFileToRemoteUri, "mapFileToRemoteUri");
 const [, , productName, version, commit, executableName, ...remainingArgs] = process.argv;
-main({ productName, version, commit, executableName }, remainingArgs).then(
-  null,
-  (err) => {
-    console.error(err.message || err.stack || err);
-  }
-);
+main({ productName, version, commit, executableName }, remainingArgs).then(null, (err) => {
+  console.error(err.message || err.stack || err);
+});
 export {
   main
 };

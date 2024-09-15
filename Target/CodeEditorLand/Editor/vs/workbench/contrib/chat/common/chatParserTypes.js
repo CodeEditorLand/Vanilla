@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { revive } from "../../../../base/common/marshalling.js";
-import {
-  OffsetRange
-} from "../../../../editor/common/core/offsetRange.js";
-import {
-  reviveSerializedAgent
-} from "./chatAgents.js";
+import { IOffsetRange, OffsetRange } from "../../../../editor/common/core/offsetRange.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentService, reviveSerializedAgent } from "./chatAgents.js";
+import { IChatSlashData } from "./chatSlashCommands.js";
+import { IChatRequestVariableValue } from "./chatVariables.js";
 function getPromptText(request) {
   const message = request.parts.map((r) => r.promptText).join("").trimStart();
   const diff = request.text.length - message.length;
@@ -208,12 +207,8 @@ function reviveParsedChatRequest(serialized) {
 }
 __name(reviveParsedChatRequest, "reviveParsedChatRequest");
 function extractAgentAndCommand(parsed) {
-  const agentPart = parsed.parts.find(
-    (r) => r instanceof ChatRequestAgentPart
-  );
-  const commandPart = parsed.parts.find(
-    (r) => r instanceof ChatRequestAgentSubcommandPart
-  );
+  const agentPart = parsed.parts.find((r) => r instanceof ChatRequestAgentPart);
+  const commandPart = parsed.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
   return { agentPart, commandPart };
 }
 __name(extractAgentAndCommand, "extractAgentAndCommand");

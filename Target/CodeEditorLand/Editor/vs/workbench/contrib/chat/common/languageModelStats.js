@@ -12,37 +12,24 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { Extensions, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "../../../services/extensionManagement/common/extensionFeatures.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  Extensions,
-  IExtensionFeaturesManagementService
-} from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { localize } from "../../../../nls.js";
 const ILanguageModelStatsService = createDecorator("ILanguageModelStatsService");
 let LanguageModelStatsService = class extends Disposable {
   constructor(extensionFeaturesManagementService, _storageService) {
     super();
     this.extensionFeaturesManagementService = extensionFeaturesManagementService;
     this._storageService = _storageService;
-    this._register(
-      _storageService.onDidChangeValue(
-        StorageScope.APPLICATION,
-        void 0,
-        this._store
-      )((e) => {
-        const model = this.getModel(e.key);
-        if (model) {
-          this._onDidChangeStats.fire(model);
-        }
-      })
-    );
+    this._register(_storageService.onDidChangeValue(StorageScope.APPLICATION, void 0, this._store)((e) => {
+      const model = this.getModel(e.key);
+      if (model) {
+        this._onDidChangeStats.fire(model);
+      }
+    }));
   }
   static {
     __name(this, "LanguageModelStatsService");
@@ -53,15 +40,10 @@ let LanguageModelStatsService = class extends Disposable {
   onDidChangeLanguageMoelStats = this._onDidChangeStats.event;
   sessionStats = /* @__PURE__ */ new Map();
   hasAccessedModel(extensionId, model) {
-    return this.getAccessExtensions(model).includes(
-      extensionId.toLowerCase()
-    );
+    return this.getAccessExtensions(model).includes(extensionId.toLowerCase());
   }
   async update(model, extensionId, agent, tokenCount) {
-    await this.extensionFeaturesManagementService.getAccess(
-      extensionId,
-      "languageModels"
-    );
+    await this.extensionFeaturesManagementService.getAccess(extensionId, "languageModels");
     this.addAccess(model, extensionId.value);
     let sessionStats = this.sessionStats.get(model);
     if (!sessionStats) {
@@ -77,12 +59,7 @@ let LanguageModelStatsService = class extends Disposable {
     const extensions = this.getAccessExtensions(model);
     if (!extensions.includes(extensionId)) {
       extensions.push(extensionId);
-      this._storageService.store(
-        this.getAccessKey(model),
-        JSON.stringify(extensions),
-        StorageScope.APPLICATION,
-        StorageTarget.USER
-      );
+      this._storageService.store(this.getAccessKey(model), JSON.stringify(extensions), StorageScope.APPLICATION, StorageTarget.USER);
     }
   }
   getAccessExtensions(model) {
@@ -102,36 +79,18 @@ let LanguageModelStatsService = class extends Disposable {
   async write(model, extensionId, participant, tokenCount) {
     const modelStats = await this.read(model);
     this.add(modelStats, extensionId, participant, tokenCount);
-    this._storageService.store(
-      this.getKey(model),
-      JSON.stringify(modelStats),
-      StorageScope.APPLICATION,
-      StorageTarget.USER
-    );
+    this._storageService.store(this.getKey(model), JSON.stringify(modelStats), StorageScope.APPLICATION, StorageTarget.USER);
   }
   add(modelStats, extensionId, participant, tokenCount) {
-    let extensionStats = modelStats.extensions.find(
-      (e) => ExtensionIdentifier.equals(e.extensionId, extensionId)
-    );
+    let extensionStats = modelStats.extensions.find((e) => ExtensionIdentifier.equals(e.extensionId, extensionId));
     if (!extensionStats) {
-      extensionStats = {
-        extensionId,
-        requestCount: 0,
-        tokenCount: 0,
-        participants: []
-      };
+      extensionStats = { extensionId, requestCount: 0, tokenCount: 0, participants: [] };
       modelStats.extensions.push(extensionStats);
     }
     if (participant) {
-      let participantStats = extensionStats.participants.find(
-        (p) => p.id === participant
-      );
+      let participantStats = extensionStats.participants.find((p) => p.id === participant);
       if (!participantStats) {
-        participantStats = {
-          id: participant,
-          requestCount: 0,
-          tokenCount: 0
-        };
+        participantStats = { id: participant, requestCount: 0, tokenCount: 0 };
         extensionStats.participants.push(participantStats);
       }
       participantStats.requestCount++;
@@ -143,10 +102,7 @@ let LanguageModelStatsService = class extends Disposable {
   }
   async read(model) {
     try {
-      const value = this._storageService.get(
-        this.getKey(model),
-        StorageScope.APPLICATION
-      );
+      const value = this._storageService.get(this.getKey(model), StorageScope.APPLICATION);
       if (value) {
         return JSON.parse(value);
       }
@@ -155,12 +111,8 @@ let LanguageModelStatsService = class extends Disposable {
     return { extensions: [] };
   }
   getModel(key) {
-    if (key.startsWith(
-      LanguageModelStatsService.MODEL_STATS_STORAGE_KEY_PREFIX
-    )) {
-      return key.substring(
-        LanguageModelStatsService.MODEL_STATS_STORAGE_KEY_PREFIX.length
-      );
+    if (key.startsWith(LanguageModelStatsService.MODEL_STATS_STORAGE_KEY_PREFIX)) {
+      return key.substring(LanguageModelStatsService.MODEL_STATS_STORAGE_KEY_PREFIX.length);
     }
     return void 0;
   }
@@ -175,15 +127,10 @@ LanguageModelStatsService = __decorateClass([
   __decorateParam(0, IExtensionFeaturesManagementService),
   __decorateParam(1, IStorageService)
 ], LanguageModelStatsService);
-Registry.as(
-  Extensions.ExtensionFeaturesRegistry
-).registerExtensionFeature({
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
   id: "languageModels",
   label: localize("Language Models", "Language Models"),
-  description: localize(
-    "languageModels",
-    "Language models usage statistics of this extension."
-  ),
+  description: localize("languageModels", "Language models usage statistics of this extension."),
   access: {
     canToggle: false
   }

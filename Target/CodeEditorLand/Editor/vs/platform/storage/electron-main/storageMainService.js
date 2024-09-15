@@ -10,35 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../base/common/uri.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { Schemas } from "../../../base/common/network.js";
-import { URI } from "../../../base/common/uri.js";
+import { IStorage } from "../../../base/parts/storage/common/storage.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
 import { IFileService } from "../../files/common/files.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  ILifecycleMainService,
-  LifecycleMainPhase,
-  ShutdownReason
-} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILifecycleMainService, LifecycleMainPhase, ShutdownReason } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  IUserDataProfilesService
-} from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractStorageService, isProfileUsingDefaultStorage, IStorageService, StorageScope, StorageTarget } from "../common/storage.js";
+import { ApplicationStorageMain, ProfileStorageMain, InMemoryStorageMain, IStorageMain, IStorageMainOptions, WorkspaceStorageMain, IStorageChangeEvent } from "./storageMain.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
-import {
-  AbstractStorageService,
-  StorageScope,
-  isProfileUsingDefaultStorage
-} from "../common/storage.js";
-import {
-  ApplicationStorageMain,
-  InMemoryStorageMain,
-  ProfileStorageMain,
-  WorkspaceStorageMain
-} from "./storageMain.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { Schemas } from "../../../base/common/network.js";
 const IStorageMainService = createDecorator("storageMainService");
 let StorageMainService = class extends Disposable {
   constructor(logService, environmentService, userDataProfilesService, lifecycleMainService, fileService, uriIdentityService) {
@@ -55,9 +42,7 @@ let StorageMainService = class extends Disposable {
     __name(this, "StorageMainService");
   }
   shutdownReason = void 0;
-  _onDidChangeProfileStorage = this._register(
-    new Emitter()
-  );
+  _onDidChangeProfileStorage = this._register(new Emitter());
   onDidChangeProfileStorage = this._onDidChangeProfileStorage.event;
   getStorageOptions() {
     return {
@@ -67,79 +52,50 @@ let StorageMainService = class extends Disposable {
   }
   registerListeners() {
     (async () => {
-      await this.lifecycleMainService.when(
-        LifecycleMainPhase.AfterWindowOpen
-      );
+      await this.lifecycleMainService.when(LifecycleMainPhase.AfterWindowOpen);
       this.applicationStorage.init();
     })();
-    this._register(
-      this.lifecycleMainService.onWillLoadWindow((e) => {
-        if (e.window.profile) {
-          this.profileStorage(e.window.profile).init();
+    this._register(this.lifecycleMainService.onWillLoadWindow((e) => {
+      if (e.window.profile) {
+        this.profileStorage(e.window.profile).init();
+      }
+      if (e.workspace) {
+        this.workspaceStorage(e.workspace).init();
+      }
+    }));
+    this._register(this.lifecycleMainService.onWillShutdown((e) => {
+      this.logService.trace("storageMainService#onWillShutdown()");
+      this.shutdownReason = e.reason;
+      e.join("applicationStorage", this.applicationStorage.close());
+      for (const [, profileStorage] of this.mapProfileToStorage) {
+        e.join("profileStorage", profileStorage.close());
+      }
+      for (const [, workspaceStorage] of this.mapWorkspaceToStorage) {
+        e.join("workspaceStorage", workspaceStorage.close());
+      }
+    }));
+    this._register(this.userDataProfilesService.onWillCreateProfile((e) => {
+      e.join((async () => {
+        if (!await this.fileService.exists(e.profile.globalStorageHome)) {
+          await this.fileService.createFolder(e.profile.globalStorageHome);
         }
-        if (e.workspace) {
-          this.workspaceStorage(e.workspace).init();
-        }
-      })
-    );
-    this._register(
-      this.lifecycleMainService.onWillShutdown((e) => {
-        this.logService.trace("storageMainService#onWillShutdown()");
-        this.shutdownReason = e.reason;
-        e.join("applicationStorage", this.applicationStorage.close());
-        for (const [, profileStorage] of this.mapProfileToStorage) {
-          e.join("profileStorage", profileStorage.close());
-        }
-        for (const [, workspaceStorage] of this.mapWorkspaceToStorage) {
-          e.join("workspaceStorage", workspaceStorage.close());
-        }
-      })
-    );
-    this._register(
-      this.userDataProfilesService.onWillCreateProfile((e) => {
-        e.join(
-          (async () => {
-            if (!await this.fileService.exists(
-              e.profile.globalStorageHome
-            )) {
-              await this.fileService.createFolder(
-                e.profile.globalStorageHome
-              );
-            }
-          })()
-        );
-      })
-    );
-    this._register(
-      this.userDataProfilesService.onWillRemoveProfile((e) => {
-        const storage = this.mapProfileToStorage.get(e.profile.id);
-        if (storage) {
-          e.join(storage.close());
-        }
-      })
-    );
+      })());
+    }));
+    this._register(this.userDataProfilesService.onWillRemoveProfile((e) => {
+      const storage = this.mapProfileToStorage.get(e.profile.id);
+      if (storage) {
+        e.join(storage.close());
+      }
+    }));
   }
   //#region Application Storage
-  applicationStorage = this._register(
-    this.createApplicationStorage()
-  );
+  applicationStorage = this._register(this.createApplicationStorage());
   createApplicationStorage() {
-    this.logService.trace(
-      `StorageMainService: creating application storage`
-    );
-    const applicationStorage = new ApplicationStorageMain(
-      this.getStorageOptions(),
-      this.userDataProfilesService,
-      this.logService,
-      this.fileService
-    );
-    this._register(
-      Event.once(applicationStorage.onDidCloseStorage)(() => {
-        this.logService.trace(
-          `StorageMainService: closed application storage`
-        );
-      })
-    );
+    this.logService.trace(`StorageMainService: creating application storage`);
+    const applicationStorage = new ApplicationStorageMain(this.getStorageOptions(), this.userDataProfilesService, this.logService, this.fileService);
+    this._register(Event.once(applicationStorage.onDidCloseStorage)(() => {
+      this.logService.trace(`StorageMainService: closed application storage`);
+    }));
     return applicationStorage;
   }
   //#endregion
@@ -151,29 +107,19 @@ let StorageMainService = class extends Disposable {
     }
     let profileStorage = this.mapProfileToStorage.get(profile.id);
     if (!profileStorage) {
-      this.logService.trace(
-        `StorageMainService: creating profile storage (${profile.name})`
-      );
+      this.logService.trace(`StorageMainService: creating profile storage (${profile.name})`);
       profileStorage = this._register(this.createProfileStorage(profile));
       this.mapProfileToStorage.set(profile.id, profileStorage);
-      const listener = this._register(
-        profileStorage.onDidChangeStorage(
-          (e) => this._onDidChangeProfileStorage.fire({
-            ...e,
-            storage: profileStorage,
-            profile
-          })
-        )
-      );
-      this._register(
-        Event.once(profileStorage.onDidCloseStorage)(() => {
-          this.logService.trace(
-            `StorageMainService: closed profile storage (${profile.name})`
-          );
-          this.mapProfileToStorage.delete(profile.id);
-          listener.dispose();
-        })
-      );
+      const listener = this._register(profileStorage.onDidChangeStorage((e) => this._onDidChangeProfileStorage.fire({
+        ...e,
+        storage: profileStorage,
+        profile
+      })));
+      this._register(Event.once(profileStorage.onDidCloseStorage)(() => {
+        this.logService.trace(`StorageMainService: closed profile storage (${profile.name})`);
+        this.mapProfileToStorage.delete(profile.id);
+        listener.dispose();
+      }));
     }
     return profileStorage;
   }
@@ -181,12 +127,7 @@ let StorageMainService = class extends Disposable {
     if (this.shutdownReason === ShutdownReason.KILL) {
       return new InMemoryStorageMain(this.logService, this.fileService);
     }
-    return new ProfileStorageMain(
-      profile,
-      this.getStorageOptions(),
-      this.logService,
-      this.fileService
-    );
+    return new ProfileStorageMain(profile, this.getStorageOptions(), this.logService, this.fileService);
   }
   //#endregion
   //#region Workspace Storage
@@ -194,21 +135,13 @@ let StorageMainService = class extends Disposable {
   workspaceStorage(workspace) {
     let workspaceStorage = this.mapWorkspaceToStorage.get(workspace.id);
     if (!workspaceStorage) {
-      this.logService.trace(
-        `StorageMainService: creating workspace storage (${workspace.id})`
-      );
-      workspaceStorage = this._register(
-        this.createWorkspaceStorage(workspace)
-      );
+      this.logService.trace(`StorageMainService: creating workspace storage (${workspace.id})`);
+      workspaceStorage = this._register(this.createWorkspaceStorage(workspace));
       this.mapWorkspaceToStorage.set(workspace.id, workspaceStorage);
-      this._register(
-        Event.once(workspaceStorage.onDidCloseStorage)(() => {
-          this.logService.trace(
-            `StorageMainService: closed workspace storage (${workspace.id})`
-          );
-          this.mapWorkspaceToStorage.delete(workspace.id);
-        })
-      );
+      this._register(Event.once(workspaceStorage.onDidCloseStorage)(() => {
+        this.logService.trace(`StorageMainService: closed workspace storage (${workspace.id})`);
+        this.mapWorkspaceToStorage.delete(workspace.id);
+      }));
     }
     return workspaceStorage;
   }
@@ -216,29 +149,16 @@ let StorageMainService = class extends Disposable {
     if (this.shutdownReason === ShutdownReason.KILL) {
       return new InMemoryStorageMain(this.logService, this.fileService);
     }
-    return new WorkspaceStorageMain(
-      workspace,
-      this.getStorageOptions(),
-      this.logService,
-      this.environmentService,
-      this.fileService
-    );
+    return new WorkspaceStorageMain(workspace, this.getStorageOptions(), this.logService, this.environmentService, this.fileService);
   }
   //#endregion
   isUsed(path) {
     const pathUri = URI.file(path);
-    for (const storage of [
-      this.applicationStorage,
-      ...this.mapProfileToStorage.values(),
-      ...this.mapWorkspaceToStorage.values()
-    ]) {
+    for (const storage of [this.applicationStorage, ...this.mapProfileToStorage.values(), ...this.mapWorkspaceToStorage.values()]) {
       if (!storage.path) {
         continue;
       }
-      if (this.uriIdentityService.extUri.isEqualOrParent(
-        URI.file(storage.path),
-        pathUri
-      )) {
+      if (this.uriIdentityService.extUri.isEqualOrParent(URI.file(storage.path), pathUri)) {
         return true;
       }
     }
@@ -275,9 +195,7 @@ let ApplicationStorageMainService = class extends AbstractStorageService {
   }
   getLogDetails(scope) {
     if (scope === StorageScope.APPLICATION) {
-      return this.userDataProfilesService.defaultProfile.globalStorageHome.with(
-        { scheme: Schemas.file }
-      ).fsPath;
+      return this.userDataProfilesService.defaultProfile.globalStorageHome.with({ scheme: Schemas.file }).fsPath;
     }
     return void 0;
   }
@@ -288,14 +206,10 @@ let ApplicationStorageMainService = class extends AbstractStorageService {
     throw new Error("Migrating storage is unsupported from main process");
   }
   switchToProfile() {
-    throw new Error(
-      "Switching storage profile is unsupported from main process"
-    );
+    throw new Error("Switching storage profile is unsupported from main process");
   }
   switchToWorkspace() {
-    throw new Error(
-      "Switching storage workspace is unsupported from main process"
-    );
+    throw new Error("Switching storage workspace is unsupported from main process");
   }
   hasScope() {
     throw new Error("Main process is never profile or workspace scoped");

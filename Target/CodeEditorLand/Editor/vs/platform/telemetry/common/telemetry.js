@@ -1,8 +1,7 @@
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
 const ITelemetryService = createDecorator("telemetryService");
-const ICustomEndpointTelemetryService = createDecorator(
-  "customEndpointTelemetryService"
-);
+const ICustomEndpointTelemetryService = createDecorator("customEndpointTelemetryService");
 const currentSessionDateStorageKey = "telemetry.currentSessionDate";
 const firstSessionDateStorageKey = "telemetry.firstSessionDate";
 const lastSessionDateStorageKey = "telemetry.lastSessionDate";

@@ -14,10 +14,9 @@ import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  TerminalBuiltinLinkType
-} from "./links.js";
+import { ITerminalLinkDetector, ITerminalSimpleLink, TerminalBuiltinLinkType, TerminalLinkType } from "./links.js";
 import { TerminalLink } from "./terminalLink.js";
+import { XtermLinkMatcherHandler } from "./terminalLinkManager.js";
 let TerminalLinkDetectorAdapter = class extends Disposable {
   constructor(_detector, _instantiationService) {
     super();
@@ -28,13 +27,9 @@ let TerminalLinkDetectorAdapter = class extends Disposable {
     __name(this, "TerminalLinkDetectorAdapter");
   }
   _activeLinks;
-  _onDidActivateLink = this._register(
-    new Emitter()
-  );
+  _onDidActivateLink = this._register(new Emitter());
   onDidActivateLink = this._onDidActivateLink.event;
-  _onDidShowHover = this._register(
-    new Emitter()
-  );
+  _onDidShowHover = this._register(new Emitter());
   onDidShowHover = this._onDidShowHover.event;
   _activeProvideLinkRequests = /* @__PURE__ */ new Map();
   async provideLinks(bufferLineNumber, callback) {
@@ -62,42 +57,21 @@ let TerminalLinkDetectorAdapter = class extends Disposable {
     const lines = [
       this._detector.xterm.buffer.active.getLine(startLine)
     ];
-    const maxCharacterContext = Math.max(
-      this._detector.maxLinkLength,
-      this._detector.xterm.cols
-    );
-    const maxLineContext = Math.ceil(
-      maxCharacterContext / this._detector.xterm.cols
-    );
+    const maxCharacterContext = Math.max(this._detector.maxLinkLength, this._detector.xterm.cols);
+    const maxLineContext = Math.ceil(maxCharacterContext / this._detector.xterm.cols);
     const minStartLine = Math.max(startLine - maxLineContext, 0);
-    const maxEndLine = Math.min(
-      endLine + maxLineContext,
-      this._detector.xterm.buffer.active.length
-    );
+    const maxEndLine = Math.min(endLine + maxLineContext, this._detector.xterm.buffer.active.length);
     while (startLine >= minStartLine && this._detector.xterm.buffer.active.getLine(startLine)?.isWrapped) {
-      lines.unshift(
-        this._detector.xterm.buffer.active.getLine(startLine - 1)
-      );
+      lines.unshift(this._detector.xterm.buffer.active.getLine(startLine - 1));
       startLine--;
     }
     while (endLine < maxEndLine && this._detector.xterm.buffer.active.getLine(endLine + 1)?.isWrapped) {
-      lines.push(
-        this._detector.xterm.buffer.active.getLine(endLine + 1)
-      );
+      lines.push(this._detector.xterm.buffer.active.getLine(endLine + 1));
       endLine++;
     }
-    const detectedLinks = await this._detector.detect(
-      lines,
-      startLine,
-      endLine
-    );
+    const detectedLinks = await this._detector.detect(lines, startLine, endLine);
     for (const link of detectedLinks) {
-      links.push(
-        this._createTerminalLink(
-          link,
-          async (event) => this._onDidActivateLink.fire({ link, event })
-        )
-      );
+      links.push(this._createTerminalLink(link, async (event) => this._onDidActivateLink.fire({ link, event })));
     }
     return links;
   }

@@ -1,15 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isObject, isString } from "../../../base/common/types.js";
+import { ILocalizedString } from "../../action/common/action.js";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
 import { localize } from "../../../nls.js";
+import { ILogger } from "../../log/common/log.js";
 function localizeManifest(logger, extensionManifest, translations, fallbackTranslations) {
   try {
-    replaceNLStrings(
-      logger,
-      extensionManifest,
-      translations,
-      fallbackTranslations
-    );
+    replaceNLStrings(logger, extensionManifest, translations, fallbackTranslations);
   } catch (error) {
     logger.error(error?.message ?? error);
   }
@@ -33,9 +31,7 @@ function replaceNLStrings(logger, extensionManifest, messages, originalMessages)
         const originalMessage = typeof original === "string" ? original : original?.message;
         if (!message) {
           if (!originalMessage) {
-            logger.warn(
-              `[${extensionManifest.name}]: ${localize("missingNLSKey", "Couldn't find message for key {0}.", messageKey)}`
-            );
+            logger.warn(`[${extensionManifest.name}]: ${localize("missingNLSKey", "Couldn't find message for key {0}.", messageKey)}`);
           }
           return;
         }

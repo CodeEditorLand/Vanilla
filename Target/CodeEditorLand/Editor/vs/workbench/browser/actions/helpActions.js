@@ -1,26 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeyChord, KeyCode, KeyMod } from "../../../base/common/keyCodes.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWeb,
-  language
-} from "../../../base/common/platform.js";
-import { URI } from "../../../base/common/uri.js";
 import { localize, localize2 } from "../../../nls.js";
-import { Categories } from "../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../platform/commands/common/commands.js";
-import { KeybindingWeight } from "../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IOpenerService } from "../../../platform/opener/common/opener.js";
 import product from "../../../platform/product/common/product.js";
-import { IProductService } from "../../../platform/product/common/productService.js";
+import { isMacintosh, isLinux, language, isWeb } from "../../../base/common/platform.js";
 import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { URI } from "../../../base/common/uri.js";
+import { MenuId, Action2, registerAction2 } from "../../../platform/actions/common/actions.js";
+import { KeyChord, KeyMod, KeyCode } from "../../../base/common/keyCodes.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight } from "../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Categories } from "../../../platform/action/common/actionCommonCategories.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
 class KeybindingsReferenceAction extends Action2 {
   static {
     __name(this, "KeybindingsReferenceAction");
@@ -31,27 +23,15 @@ class KeybindingsReferenceAction extends Action2 {
     super({
       id: KeybindingsReferenceAction.ID,
       title: {
-        ...localize2(
-          "keybindingsReference",
-          "Keyboard Shortcuts Reference"
-        ),
-        mnemonicTitle: localize(
-          {
-            key: "miKeyboardShortcuts",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Keyboard Shortcuts Reference"
-        )
+        ...localize2("keybindingsReference", "Keyboard Shortcuts Reference"),
+        mnemonicTitle: localize({ key: "miKeyboardShortcuts", comment: ["&& denotes a mnemonic"] }, "&&Keyboard Shortcuts Reference")
       },
       category: Categories.Help,
       f1: true,
       keybinding: {
         weight: KeybindingWeight.WorkbenchContrib,
         when: null,
-        primary: KeyChord(
-          KeyMod.CtrlCmd | KeyCode.KeyK,
-          KeyMod.CtrlCmd | KeyCode.KeyR
-        )
+        primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyR)
       },
       menu: {
         id: MenuId.MenubarHelpMenu,
@@ -80,13 +60,7 @@ class OpenIntroductoryVideosUrlAction extends Action2 {
       id: OpenIntroductoryVideosUrlAction.ID,
       title: {
         ...localize2("openVideoTutorialsUrl", "Video Tutorials"),
-        mnemonicTitle: localize(
-          {
-            key: "miVideoTutorials",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Video Tutorials"
-        )
+        mnemonicTitle: localize({ key: "miVideoTutorials", comment: ["&& denotes a mnemonic"] }, "&&Video Tutorials")
       },
       category: Categories.Help,
       f1: true,
@@ -116,13 +90,7 @@ class OpenTipsAndTricksUrlAction extends Action2 {
       id: OpenTipsAndTricksUrlAction.ID,
       title: {
         ...localize2("openTipsAndTricksUrl", "Tips and Tricks"),
-        mnemonicTitle: localize(
-          {
-            key: "miTipsAndTricks",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "Tips and Tri&&cks"
-        )
+        mnemonicTitle: localize({ key: "miTipsAndTricks", comment: ["&& denotes a mnemonic"] }, "Tips and Tri&&cks")
       },
       category: Categories.Help,
       f1: true,
@@ -152,13 +120,7 @@ class OpenDocumentationUrlAction extends Action2 {
       id: OpenDocumentationUrlAction.ID,
       title: {
         ...localize2("openDocumentationUrl", "Documentation"),
-        mnemonicTitle: localize(
-          {
-            key: "miDocumentation",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Documentation"
-        )
+        mnemonicTitle: localize({ key: "miDocumentation", comment: ["&& denotes a mnemonic"] }, "&&Documentation")
       },
       category: Categories.Help,
       f1: true,
@@ -187,10 +149,7 @@ class OpenNewsletterSignupUrlAction extends Action2 {
   constructor() {
     super({
       id: OpenNewsletterSignupUrlAction.ID,
-      title: localize2(
-        "newsletterSignup",
-        "Signup for the VS Code Newsletter"
-      ),
+      title: localize2("newsletterSignup", "Signup for the VS Code Newsletter"),
       category: Categories.Help,
       f1: true
     });
@@ -199,11 +158,7 @@ class OpenNewsletterSignupUrlAction extends Action2 {
     const productService = accessor.get(IProductService);
     const openerService = accessor.get(IOpenerService);
     const telemetryService = accessor.get(ITelemetryService);
-    openerService.open(
-      URI.parse(
-        `${productService.newsletterSignupUrl}?machineId=${encodeURIComponent(telemetryService.machineId)}`
-      )
-    );
+    openerService.open(URI.parse(`${productService.newsletterSignupUrl}?machineId=${encodeURIComponent(telemetryService.machineId)}`));
   }
 }
 class OpenYouTubeUrlAction extends Action2 {
@@ -217,10 +172,7 @@ class OpenYouTubeUrlAction extends Action2 {
       id: OpenYouTubeUrlAction.ID,
       title: {
         ...localize2("openYouTubeUrl", "Join Us on YouTube"),
-        mnemonicTitle: localize(
-          { key: "miYouTube", comment: ["&& denotes a mnemonic"] },
-          "&&Join Us on YouTube"
-        )
+        mnemonicTitle: localize({ key: "miYouTube", comment: ["&& denotes a mnemonic"] }, "&&Join Us on YouTube")
       },
       category: Categories.Help,
       f1: true,
@@ -250,10 +202,7 @@ class OpenRequestFeatureUrlAction extends Action2 {
       id: OpenRequestFeatureUrlAction.ID,
       title: {
         ...localize2("openUserVoiceUrl", "Search Feature Requests"),
-        mnemonicTitle: localize(
-          { key: "miUserVoice", comment: ["&& denotes a mnemonic"] },
-          "&&Search Feature Requests"
-        )
+        mnemonicTitle: localize({ key: "miUserVoice", comment: ["&& denotes a mnemonic"] }, "&&Search Feature Requests")
       },
       category: Categories.Help,
       f1: true,
@@ -283,10 +232,7 @@ class OpenLicenseUrlAction extends Action2 {
       id: OpenLicenseUrlAction.ID,
       title: {
         ...localize2("openLicenseUrl", "View License"),
-        mnemonicTitle: localize(
-          { key: "miLicense", comment: ["&& denotes a mnemonic"] },
-          "View &&License"
-        )
+        mnemonicTitle: localize({ key: "miLicense", comment: ["&& denotes a mnemonic"] }, "View &&License")
       },
       category: Categories.Help,
       f1: true,
@@ -304,9 +250,7 @@ class OpenLicenseUrlAction extends Action2 {
     if (url) {
       if (language) {
         const queryArgChar = url.indexOf("?") > 0 ? "&" : "?";
-        openerService.open(
-          URI.parse(`${url}${queryArgChar}lang=${language}`)
-        );
+        openerService.open(URI.parse(`${url}${queryArgChar}lang=${language}`));
       } else {
         openerService.open(URI.parse(url));
       }
@@ -324,13 +268,7 @@ class OpenPrivacyStatementUrlAction extends Action2 {
       id: OpenPrivacyStatementUrlAction.ID,
       title: {
         ...localize2("openPrivacyStatement", "Privacy Statement"),
-        mnemonicTitle: localize(
-          {
-            key: "miPrivacyStatement",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "Privac&&y Statement"
-        )
+        mnemonicTitle: localize({ key: "miPrivacyStatement", comment: ["&& denotes a mnemonic"] }, "Privac&&y Statement")
       },
       category: Categories.Help,
       f1: true,
@@ -357,10 +295,7 @@ class GetStartedWithAccessibilityFeatures extends Action2 {
   constructor() {
     super({
       id: GetStartedWithAccessibilityFeatures.ID,
-      title: localize2(
-        "getStartedWithAccessibilityFeatures",
-        "Get Started with Accessibility Features"
-      ),
+      title: localize2("getStartedWithAccessibilityFeatures", "Get Started with Accessibility Features"),
       category: Categories.Help,
       f1: true,
       menu: {
@@ -372,10 +307,7 @@ class GetStartedWithAccessibilityFeatures extends Action2 {
   }
   run(accessor) {
     const commandService = accessor.get(ICommandService);
-    commandService.executeCommand(
-      "workbench.action.openWalkthrough",
-      "SetupAccessibility"
-    );
+    commandService.executeCommand("workbench.action.openWalkthrough", "SetupAccessibility");
   }
 }
 if (KeybindingsReferenceAction.AVAILABLE) {

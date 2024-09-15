@@ -1,10 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  bufferToStream,
-  streamToBuffer
-} from "../../../base/common/buffer.js";
+import { bufferToStream, streamToBuffer, VSBuffer } from "../../../base/common/buffer.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { IHeaders, IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
+import { AuthInfo, Credentials, IRequestService } from "./request.js";
 class RequestChannel {
   constructor(service) {
     this.service = service;
@@ -20,13 +21,7 @@ class RequestChannel {
       case "request":
         return this.service.request(args[0], token).then(async ({ res, stream }) => {
           const buffer = await streamToBuffer(stream);
-          return [
-            {
-              statusCode: res.statusCode,
-              headers: res.headers
-            },
-            buffer
-          ];
+          return [{ statusCode: res.statusCode, headers: res.headers }, buffer];
         });
       case "resolveProxy":
         return this.service.resolveProxy(args[0]);
@@ -48,11 +43,7 @@ class RequestChannelClient {
     __name(this, "RequestChannelClient");
   }
   async request(options, token) {
-    const [res, buffer] = await this.channel.call(
-      "request",
-      [options],
-      token
-    );
+    const [res, buffer] = await this.channel.call("request", [options], token);
     return { res, stream: bufferToStream(buffer) };
   }
   async resolveProxy(url) {
@@ -62,10 +53,7 @@ class RequestChannelClient {
     return this.channel.call("lookupAuthorization", [authInfo]);
   }
   async lookupKerberosAuthorization(url) {
-    return this.channel.call(
-      "lookupKerberosAuthorization",
-      [url]
-    );
+    return this.channel.call("lookupKerberosAuthorization", [url]);
   }
   async loadCertificates() {
     return this.channel.call("loadCertificates");

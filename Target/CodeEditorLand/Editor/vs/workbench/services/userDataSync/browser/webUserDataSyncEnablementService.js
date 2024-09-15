@@ -1,13 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IUserDataSyncEnablementService,
-  SyncResource
-} from "../../../../platform/userDataSync/common/userDataSync.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IUserDataSyncEnablementService, SyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
 import { UserDataSyncEnablementService } from "./userDataSyncEnablementService.js";
 class WebUserDataSyncEnablementService extends UserDataSyncEnablementService {
   static {
@@ -45,11 +39,7 @@ class WebUserDataSyncEnablementService extends UserDataSyncEnablementService {
     return !!this.workbenchEnvironmentService.options?.workspaceProvider?.trusted;
   }
 }
-registerSingleton(
-  IUserDataSyncEnablementService,
-  WebUserDataSyncEnablementService,
-  InstantiationType.Delayed
-);
+registerSingleton(IUserDataSyncEnablementService, WebUserDataSyncEnablementService, InstantiationType.Delayed);
 export {
   WebUserDataSyncEnablementService
 };

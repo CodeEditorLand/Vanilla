@@ -1,4 +1,6 @@
 import { env } from "../../../base/common/process.js";
+import { IProductConfiguration } from "../../../base/common/product.js";
+import { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
 let product;
 const vscodeGlobal = globalThis.vscode;
 if (typeof vscodeGlobal !== "undefined" && typeof vscodeGlobal.context !== "undefined") {
@@ -6,9 +8,7 @@ if (typeof vscodeGlobal !== "undefined" && typeof vscodeGlobal.context !== "unde
   if (configuration) {
     product = configuration.product;
   } else {
-    throw new Error(
-      "Sandbox: unable to resolve product configuration from preload script."
-    );
+    throw new Error("Sandbox: unable to resolve product configuration from preload script.");
   }
 } else if (globalThis._VSCODE_PRODUCT_JSON && globalThis._VSCODE_PACKAGE_JSON) {
   product = globalThis._VSCODE_PRODUCT_JSON;

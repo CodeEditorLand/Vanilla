@@ -10,40 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as DOM from "../../../../base/browser/dom.js";
-import { Widget } from "../../../../base/browser/ui/widget.js";
 import { Delayer } from "../../../../base/common/async.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
+import * as DOM from "../../../../base/browser/dom.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { HistoryInputBox } from "../../../../base/browser/ui/inputbox/inputBox.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { toDisposable } from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
-import { SubmenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  HiddenItemStrategy,
-  MenuWorkbenchToolBar
-} from "../../../../platform/actions/browser/toolbar.js";
-import {
-  MenuId,
-  MenuRegistry,
-  SubmenuItemAction
-} from "../../../../platform/actions/common/actions.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { ContextScopedHistoryInputBox } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
-import { showHistoryKeybindingHint } from "../../../../platform/history/browser/historyWidgetKeybindingHint.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { badgeBackground, badgeForeground, contrastBorder, asCssVariable } from "../../../../platform/theme/common/colorRegistry.js";
+import { localize } from "../../../../nls.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ContextScopedHistoryInputBox } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { showHistoryKeybindingHint } from "../../../../platform/history/browser/historyWidgetKeybindingHint.js";
+import { MenuId, MenuRegistry, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { HiddenItemStrategy, MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { SubmenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  asCssVariable,
-  badgeBackground,
-  badgeForeground,
-  contrastBorder
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 const viewFilterMenu = new MenuId("menu.view.filter");
 const viewFilterSubmenu = new MenuId("submenu.view.filter");
 MenuRegistry.appendMenuItem(viewFilterMenu, {
@@ -103,9 +92,7 @@ let FilterWidget = class extends Widget {
   filterBadge;
   toolbar;
   focusContextKey;
-  _onDidChangeFilterText = this._register(
-    new Emitter()
-  );
+  _onDidChangeFilterText = this._register(new Emitter());
   onDidChangeFilterText = this._onDidChangeFilterText.event;
   moreFiltersActionViewItem;
   isMoreFiltersChecked = false;
@@ -158,80 +145,34 @@ let FilterWidget = class extends Widget {
     }
   }
   createInput(container) {
-    const inputBox = this._register(
-      this.instantiationService.createInstance(
-        ContextScopedHistoryInputBox,
-        container,
-        this.contextViewService,
-        {
-          placeholder: this.options.placeholder,
-          ariaLabel: this.options.ariaLabel,
-          history: this.options.history || [],
-          showHistoryHint: /* @__PURE__ */ __name(() => showHistoryKeybindingHint(this.keybindingService), "showHistoryHint"),
-          inputBoxStyles: defaultInputBoxStyles
-        }
-      )
-    );
+    const inputBox = this._register(this.instantiationService.createInstance(ContextScopedHistoryInputBox, container, this.contextViewService, {
+      placeholder: this.options.placeholder,
+      ariaLabel: this.options.ariaLabel,
+      history: this.options.history || [],
+      showHistoryHint: /* @__PURE__ */ __name(() => showHistoryKeybindingHint(this.keybindingService), "showHistoryHint"),
+      inputBoxStyles: defaultInputBoxStyles
+    }));
     if (this.options.text) {
       inputBox.value = this.options.text;
     }
-    this._register(
-      inputBox.onDidChange(
-        (filter) => this.delayedFilterUpdate.trigger(
-          () => this.onDidInputChange(inputBox)
-        )
-      )
-    );
-    this._register(
-      DOM.addStandardDisposableListener(
-        inputBox.inputElement,
-        DOM.EventType.KEY_DOWN,
-        (e) => this.onInputKeyDown(e, inputBox)
-      )
-    );
-    this._register(
-      DOM.addStandardDisposableListener(
-        container,
-        DOM.EventType.KEY_DOWN,
-        this.handleKeyboardEvent
-      )
-    );
-    this._register(
-      DOM.addStandardDisposableListener(
-        container,
-        DOM.EventType.KEY_UP,
-        this.handleKeyboardEvent
-      )
-    );
-    this._register(
-      DOM.addStandardDisposableListener(
-        inputBox.inputElement,
-        DOM.EventType.CLICK,
-        (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      )
-    );
-    const focusTracker = this._register(
-      DOM.trackFocus(inputBox.inputElement)
-    );
+    this._register(inputBox.onDidChange((filter) => this.delayedFilterUpdate.trigger(() => this.onDidInputChange(inputBox))));
+    this._register(DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_DOWN, (e) => this.onInputKeyDown(e, inputBox)));
+    this._register(DOM.addStandardDisposableListener(container, DOM.EventType.KEY_DOWN, this.handleKeyboardEvent));
+    this._register(DOM.addStandardDisposableListener(container, DOM.EventType.KEY_UP, this.handleKeyboardEvent));
+    this._register(DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.CLICK, (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    }));
+    const focusTracker = this._register(DOM.trackFocus(inputBox.inputElement));
     if (this.focusContextKey) {
-      this._register(
-        focusTracker.onDidFocus(() => this.focusContextKey.set(true))
-      );
-      this._register(
-        focusTracker.onDidBlur(() => this.focusContextKey.set(false))
-      );
+      this._register(focusTracker.onDidFocus(() => this.focusContextKey.set(true)));
+      this._register(focusTracker.onDidBlur(() => this.focusContextKey.set(false)));
       this._register(toDisposable(() => this.focusContextKey.reset()));
     }
     return [inputBox, focusTracker];
   }
   createBadge(container) {
-    const filterBadge = DOM.append(
-      container,
-      DOM.$(".viewpane-filter-badge.hidden")
-    );
+    const filterBadge = DOM.append(container, DOM.$(".viewpane-filter-badge.hidden"));
     filterBadge.style.backgroundColor = asCssVariable(badgeBackground);
     filterBadge.style.color = asCssVariable(badgeForeground);
     filterBadge.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
@@ -246,11 +187,7 @@ let FilterWidget = class extends Widget {
         hiddenItemStrategy: HiddenItemStrategy.NoHide,
         actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
           if (action instanceof SubmenuItemAction && action.item.submenu.id === viewFilterSubmenu.id) {
-            this.moreFiltersActionViewItem = this.instantiationService.createInstance(
-              MoreFiltersActionViewItem,
-              action,
-              options
-            );
+            this.moreFiltersActionViewItem = this.instantiationService.createInstance(MoreFiltersActionViewItem, action, options);
             this.moreFiltersActionViewItem.checked = this.isMoreFiltersChecked;
             return this.moreFiltersActionViewItem;
           }

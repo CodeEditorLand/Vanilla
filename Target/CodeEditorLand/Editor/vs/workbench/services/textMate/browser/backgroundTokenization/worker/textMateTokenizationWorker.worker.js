@@ -1,12 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { importAMDNodeModule } from "../../../../../../amdX.js";
-import { URI } from "../../../../../../base/common/uri.js";
-import {
-  TMGrammarFactory
-} from "../../../common/TMGrammarFactory.js";
-import { TextMateWorkerHost } from "./textMateWorkerHost.js";
+import { URI, UriComponents } from "../../../../../../base/common/uri.js";
+import { LanguageId } from "../../../../../../editor/common/encodedTokenAttributes.js";
+import { IModelChangedEvent } from "../../../../../../editor/common/model/mirrorTextModel.js";
+import { ICreateGrammarResult, TMGrammarFactory } from "../../../common/TMGrammarFactory.js";
+import { IValidEmbeddedLanguagesMap, IValidGrammarDefinition, IValidTokenTypeMap } from "../../../common/TMScopeRegistry.js";
 import { TextMateWorkerTokenizer } from "./textMateWorkerTokenizer.js";
+import { importAMDNodeModule } from "../../../../../../amdX.js";
+import { IRequestHandler, IWorkerServer } from "../../../../../../base/common/worker/simpleWorker.js";
+import { TextMateWorkerHost } from "./textMateWorkerHost.js";
 function create(workerServer) {
   return new TextMateTokenizationWorker(workerServer);
 }
@@ -24,25 +26,20 @@ class TextMateTokenizationWorker {
     this._host = TextMateWorkerHost.getChannel(workerServer);
   }
   async $init(_createData) {
-    const grammarDefinitions = _createData.grammarDefinitions.map(
-      (def) => {
-        return {
-          location: URI.revive(def.location),
-          language: def.language,
-          scopeName: def.scopeName,
-          embeddedLanguages: def.embeddedLanguages,
-          tokenTypes: def.tokenTypes,
-          injectTo: def.injectTo,
-          balancedBracketSelectors: def.balancedBracketSelectors,
-          unbalancedBracketSelectors: def.unbalancedBracketSelectors,
-          sourceExtensionId: def.sourceExtensionId
-        };
-      }
-    );
-    this._grammarFactory = this._loadTMGrammarFactory(
-      grammarDefinitions,
-      _createData.onigurumaWASMUri
-    );
+    const grammarDefinitions = _createData.grammarDefinitions.map((def) => {
+      return {
+        location: URI.revive(def.location),
+        language: def.language,
+        scopeName: def.scopeName,
+        embeddedLanguages: def.embeddedLanguages,
+        tokenTypes: def.tokenTypes,
+        injectTo: def.injectTo,
+        balancedBracketSelectors: def.balancedBracketSelectors,
+        unbalancedBracketSelectors: def.unbalancedBracketSelectors,
+        sourceExtensionId: def.sourceExtensionId
+      };
+    });
+    this._grammarFactory = this._loadTMGrammarFactory(grammarDefinitions, _createData.onigurumaWASMUri);
   }
   async _loadTMGrammarFactory(grammarDefinitions, onigurumaWASMUri) {
     const vscodeTextmate = await importAMDNodeModule("vscode-textmate", "release/main.js");
@@ -54,66 +51,35 @@ class TextMateTokenizationWorker {
       createOnigScanner: /* @__PURE__ */ __name((sources) => vscodeOniguruma.createOnigScanner(sources), "createOnigScanner"),
       createOnigString: /* @__PURE__ */ __name((str) => vscodeOniguruma.createOnigString(str), "createOnigString")
     });
-    return new TMGrammarFactory(
-      {
-        logTrace: /* @__PURE__ */ __name((msg) => {
-        }, "logTrace"),
-        logError: /* @__PURE__ */ __name((msg, err) => console.error(msg, err), "logError"),
-        readFile: /* @__PURE__ */ __name((resource) => this._host.$readFile(resource), "readFile")
-      },
-      grammarDefinitions,
-      vscodeTextmate,
-      onigLib
-    );
+    return new TMGrammarFactory({
+      logTrace: /* @__PURE__ */ __name((msg) => {
+      }, "logTrace"),
+      logError: /* @__PURE__ */ __name((msg, err) => console.error(msg, err), "logError"),
+      readFile: /* @__PURE__ */ __name((resource) => this._host.$readFile(resource), "readFile")
+    }, grammarDefinitions, vscodeTextmate, onigLib);
   }
   // These methods are called by the renderer
   $acceptNewModel(data) {
     const uri = URI.revive(data.uri);
     const that = this;
-    this._models.set(
-      data.controllerId,
-      new TextMateWorkerTokenizer(
-        uri,
-        data.lines,
-        data.EOL,
-        data.versionId,
-        {
-          async getOrCreateGrammar(languageId, encodedLanguageId) {
-            const grammarFactory = await that._grammarFactory;
-            if (!grammarFactory) {
-              return Promise.resolve(null);
-            }
-            if (!that._grammarCache[encodedLanguageId]) {
-              that._grammarCache[encodedLanguageId] = grammarFactory.createGrammar(
-                languageId,
-                encodedLanguageId
-              );
-            }
-            return that._grammarCache[encodedLanguageId];
-          },
-          setTokensAndStates(versionId, tokens, stateDeltas) {
-            that._host.$setTokensAndStates(
-              data.controllerId,
-              versionId,
-              tokens,
-              stateDeltas
-            );
-          },
-          reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, isRandomSample) {
-            that._host.$reportTokenizationTime(
-              timeMs,
-              languageId,
-              sourceExtensionId,
-              lineLength,
-              isRandomSample
-            );
-          }
-        },
-        data.languageId,
-        data.encodedLanguageId,
-        data.maxTokenizationLineLength
-      )
-    );
+    this._models.set(data.controllerId, new TextMateWorkerTokenizer(uri, data.lines, data.EOL, data.versionId, {
+      async getOrCreateGrammar(languageId, encodedLanguageId) {
+        const grammarFactory = await that._grammarFactory;
+        if (!grammarFactory) {
+          return Promise.resolve(null);
+        }
+        if (!that._grammarCache[encodedLanguageId]) {
+          that._grammarCache[encodedLanguageId] = grammarFactory.createGrammar(languageId, encodedLanguageId);
+        }
+        return that._grammarCache[encodedLanguageId];
+      },
+      setTokensAndStates(versionId, tokens, stateDeltas) {
+        that._host.$setTokensAndStates(data.controllerId, versionId, tokens, stateDeltas);
+      },
+      reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, isRandomSample) {
+        that._host.$reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, isRandomSample);
+      }
+    }, data.languageId, data.encodedLanguageId, data.maxTokenizationLineLength));
   }
   $acceptModelChanged(controllerId, e) {
     this._models.get(controllerId).onEvents(e);

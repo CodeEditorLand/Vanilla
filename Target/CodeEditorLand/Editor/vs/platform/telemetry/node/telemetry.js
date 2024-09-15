@@ -14,9 +14,7 @@ async function buildTelemetryMessage(appRoot, extensionsPath) {
     const files = await Promises.readdir(extensionsPath);
     for (const file of files) {
       try {
-        const fileStat = await fs.promises.stat(
-          join(extensionsPath, file)
-        );
+        const fileStat = await fs.promises.stat(join(extensionsPath, file));
         if (fileStat.isDirectory()) {
           dirs.push(file);
         }
@@ -31,9 +29,7 @@ async function buildTelemetryMessage(appRoot, extensionsPath) {
       }
     }
     for (const folder of telemetryJsonFolders) {
-      const contents2 = (await fs.promises.readFile(
-        join(extensionsPath, folder, "telemetry.json")
-      )).toString();
+      const contents2 = (await fs.promises.readFile(join(extensionsPath, folder, "telemetry.json"))).toString();
       mergeTelemetry(contents2, folder);
     }
   }

@@ -10,13 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IPager } from "../../../../base/common/paging.js";
+import { IQueryOptions, ILocalExtension, IGalleryExtension, IExtensionIdentifier, InstallOptions, IExtensionInfo, IExtensionQueryOptions, IDeprecationInfo, InstallExtensionResult } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { EnablementState, IExtensionManagementServer, IResourceExtension } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IExtensionManifest, ExtensionType } from "../../../../platform/extensions/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IView, IViewPaneContainer } from "../../../common/views.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionsStatus as IExtensionRuntimeStatus } from "../../../services/extensions/common/extensions.js";
+import { IExtensionEditorOptions } from "./extensionsInput.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { Severity } from "../../../../platform/notification/common/notification.js";
 const VIEWLET_ID = "workbench.view.extensions";
 var ExtensionState = /* @__PURE__ */ ((ExtensionState2) => {
   ExtensionState2[ExtensionState2["Installing"] = 0] = "Installing";
@@ -62,10 +72,7 @@ let ExtensionContainers = class extends Disposable {
   update(extension) {
     for (const container of this.containers) {
       if (extension && container.extension) {
-        if (areSameExtensions(
-          container.extension.identifier,
-          extension.identifier
-        )) {
+        if (areSameExtensions(container.extension.identifier, extension.identifier)) {
           if (container.extension.server && extension.server && container.extension.server !== extension.server) {
             if (container.updateWhenCounterExtensionChanges) {
               container.update();
@@ -89,20 +96,12 @@ const TOGGLE_IGNORE_EXTENSION_ACTION_ID = "workbench.extensions.action.toggleIgn
 const SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID = "workbench.extensions.action.installVSIX";
 const INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID = "workbench.extensions.command.installFromVSIX";
 const LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID = "workbench.extensions.action.listWorkspaceUnsupportedExtensions";
-const HasOutdatedExtensionsContext = new RawContextKey(
-  "hasOutdatedExtensions",
-  false
-);
-const CONTEXT_HAS_GALLERY = new RawContextKey(
-  "hasGallery",
-  false
-);
+const HasOutdatedExtensionsContext = new RawContextKey("hasOutdatedExtensions", false);
+const CONTEXT_HAS_GALLERY = new RawContextKey("hasGallery", false);
 const THEME_ACTIONS_GROUP = "_theme_";
 const INSTALL_ACTIONS_GROUP = "0_install";
 const UPDATE_ACTIONS_GROUP = "0_update";
-const extensionsSearchActionsMenu = new MenuId(
-  "extensionsSearchActionsMenu"
-);
+const extensionsSearchActionsMenu = new MenuId("extensionsSearchActionsMenu");
 export {
   AutoCheckUpdatesConfigurationKey,
   AutoRestartConfigurationKey,

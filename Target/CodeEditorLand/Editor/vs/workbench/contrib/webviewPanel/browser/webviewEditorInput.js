@@ -1,12 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CodeWindow } from "../../../../base/browser/window.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  EditorInputCapabilities
-} from "../../../common/editor.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorInputCapabilities, GroupIdentifier, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IOverlayWebview } from "../../webview/browser/webview.js";
+import { WebviewIconManager, WebviewIcons } from "./webviewIconManager.js";
 class WebviewInput extends EditorInput {
   constructor(init, webview, _iconManager) {
     super();
@@ -96,11 +98,7 @@ class WebviewInput extends EditorInput {
     return other;
   }
   claim(claimant, targetWindow, scopedContextKeyService) {
-    return this._webview.claim(
-      claimant,
-      targetWindow,
-      scopedContextKeyService
-    );
+    return this._webview.claim(claimant, targetWindow, scopedContextKeyService);
   }
 }
 export {

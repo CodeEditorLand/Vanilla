@@ -1,76 +1,38 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDragAndDropData } from "../../dnd.js";
+import { $, append, clearNode, createStyleSheet, getWindow, h, hasParentWithClass, isActiveElement, asCssValueWithDefault, isKeyboardEvent, addDisposableListener, isEditableElement } from "../../dom.js";
+import { DomEmitter } from "../../event.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { ActionBar } from "../actionbar/actionbar.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { FindInput } from "../findinput/findInput.js";
+import { IInputBoxStyles, IMessage, MessageType, unthemedInboxStyles } from "../inputbox/inputBox.js";
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListContextMenuEvent, IListDragAndDrop, IListDragOverReaction, IListMouseEvent, IListRenderer, IListTouchEvent, IListVirtualDelegate } from "../list/list.js";
+import { ElementsDragAndDropData, ListViewTargetSector } from "../list/listView.js";
+import { IListAccessibilityProvider, IListOptions, IListStyles, isActionItem, isButton, isMonacoCustomToggle, isMonacoEditor, isStickyScrollContainer, isStickyScrollElement, List, MouseController, TypeNavigationMode } from "../list/listWidget.js";
+import { IToggleStyles, Toggle, unthemedToggleStyles } from "../toggle/toggle.js";
+import { getVisibleState, isFilterResult } from "./indexTreeModel.js";
+import { ICollapseStateChangeEvent, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeModel, ITreeModelSpliceEvent, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, TreeDragOverBubble, TreeError, TreeFilterResult, TreeMouseEventTarget, TreeVisibility } from "./tree.js";
 import { Action } from "../../../common/actions.js";
 import { distinct, equals, range } from "../../../common/arrays.js";
 import { Delayer, disposableTimeout, timeout } from "../../../common/async.js";
 import { Codicon } from "../../../common/codicons.js";
-import { Emitter, Event, EventBufferer, Relay } from "../../../common/event.js";
-import { FuzzyScore, fuzzyScore } from "../../../common/filters.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../common/lifecycle.js";
-import { SetMap } from "../../../common/map.js";
-import { clamp } from "../../../common/numbers.js";
 import { ThemeIcon } from "../../../common/themables.js";
+import { SetMap } from "../../../common/map.js";
+import { Emitter, Event, EventBufferer, Relay } from "../../../common/event.js";
+import { fuzzyScore, FuzzyScore } from "../../../common/filters.js";
+import { KeyCode } from "../../../common/keyCodes.js";
+import { Disposable, DisposableStore, dispose, IDisposable, toDisposable } from "../../../common/lifecycle.js";
+import { clamp } from "../../../common/numbers.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
 import { isNumber } from "../../../common/types.js";
-import {
-  $,
-  addDisposableListener,
-  append,
-  asCssValueWithDefault,
-  clearNode,
-  createStyleSheet,
-  getWindow,
-  h,
-  hasParentWithClass,
-  isActiveElement,
-  isEditableElement,
-  isKeyboardEvent
-} from "../../dom.js";
-import { DomEmitter } from "../../event.js";
-import { StandardKeyboardEvent } from "../../keyboardEvent.js";
-import { ActionBar } from "../actionbar/actionbar.js";
-import { FindInput } from "../findinput/findInput.js";
-import {
-  MessageType,
-  unthemedInboxStyles
-} from "../inputbox/inputBox.js";
-import {
-  ElementsDragAndDropData
-} from "../list/listView.js";
-import {
-  List,
-  MouseController,
-  isActionItem,
-  isButton,
-  isMonacoCustomToggle,
-  isMonacoEditor,
-  isStickyScrollContainer,
-  isStickyScrollElement
-} from "../list/listWidget.js";
-import {
-  Toggle,
-  unthemedToggleStyles
-} from "../toggle/toggle.js";
-import { getVisibleState, isFilterResult } from "./indexTreeModel.js";
-import {
-  TreeDragOverBubble,
-  TreeError,
-  TreeMouseEventTarget,
-  TreeVisibility
-} from "./tree.js";
 import "./media/tree.css";
 import { localize } from "../../../../nls.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
+import { createInstantHoverDelegate, getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
 import { autorun, constObservable } from "../../../common/observable.js";
 import { alert } from "../aria/aria.js";
-import {
-  createInstantHoverDelegate,
-  getDefaultHoverDelegate
-} from "../hover/hoverDelegateFactory.js";
 class TreeElementsDragAndDropData extends ElementsDragAndDropData {
   constructor(data) {
     super(data.elements.map((node) => node.element));
@@ -109,10 +71,7 @@ class TreeNodeListDragAndDrop {
   }
   getDragLabel(nodes, originalEvent) {
     if (this.dnd.getDragLabel) {
-      return this.dnd.getDragLabel(
-        nodes.map((node) => node.element),
-        originalEvent
-      );
+      return this.dnd.getDragLabel(nodes.map((node) => node.element), originalEvent);
     }
     return void 0;
   }
@@ -120,13 +79,7 @@ class TreeNodeListDragAndDrop {
     this.dnd.onDragStart?.(asTreeDragAndDropData(data), originalEvent);
   }
   onDragOver(data, targetNode, targetIndex, targetSector, originalEvent, raw = true) {
-    const result = this.dnd.onDragOver(
-      asTreeDragAndDropData(data),
-      targetNode && targetNode.element,
-      targetIndex,
-      targetSector,
-      originalEvent
-    );
+    const result = this.dnd.onDragOver(asTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, targetSector, originalEvent);
     const didChangeAutoExpandNode = this.autoExpandNode !== targetNode;
     if (didChangeAutoExpandNode) {
       this.autoExpandDisposable.dispose();
@@ -136,18 +89,14 @@ class TreeNodeListDragAndDrop {
       return result;
     }
     if (didChangeAutoExpandNode && typeof result !== "boolean" && result.autoExpand) {
-      this.autoExpandDisposable = disposableTimeout(
-        () => {
-          const model2 = this.modelProvider();
-          const ref2 = model2.getNodeLocation(targetNode);
-          if (model2.isCollapsed(ref2)) {
-            model2.setCollapsed(ref2, false);
-          }
-          this.autoExpandNode = void 0;
-        },
-        500,
-        this.disposables
-      );
+      this.autoExpandDisposable = disposableTimeout(() => {
+        const model2 = this.modelProvider();
+        const ref2 = model2.getNodeLocation(targetNode);
+        if (model2.isCollapsed(ref2)) {
+          model2.setCollapsed(ref2, false);
+        }
+        this.autoExpandNode = void 0;
+      }, 500, this.disposables);
     }
     if (typeof result === "boolean" || !result.accept || typeof result.bubble === "undefined" || result.feedback) {
       if (!raw) {
@@ -163,14 +112,7 @@ class TreeNodeListDragAndDrop {
       const parentRef = model2.getParentNodeLocation(ref2);
       const parentNode = model2.getNode(parentRef);
       const parentIndex = parentRef && model2.getListIndex(parentRef);
-      return this.onDragOver(
-        data,
-        parentNode,
-        parentIndex,
-        targetSector,
-        originalEvent,
-        false
-      );
+      return this.onDragOver(data, parentNode, parentIndex, targetSector, originalEvent, false);
     }
     const model = this.modelProvider();
     const ref = model.getNodeLocation(targetNode);
@@ -181,13 +123,7 @@ class TreeNodeListDragAndDrop {
   drop(data, targetNode, targetIndex, targetSector, originalEvent) {
     this.autoExpandDisposable.dispose();
     this.autoExpandNode = void 0;
-    this.dnd.drop(
-      asTreeDragAndDropData(data),
-      targetNode && targetNode.element,
-      targetIndex,
-      targetSector,
-      originalEvent
-    );
+    this.dnd.drop(asTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, targetSector, originalEvent);
   }
   onDragEnd(originalEvent) {
     this.dnd.onDragEnd?.(originalEvent);
@@ -208,14 +144,10 @@ function asListOptions(modelProvider, options) {
     dnd: options.dnd && new TreeNodeListDragAndDrop(modelProvider, options.dnd),
     multipleSelectionController: options.multipleSelectionController && {
       isSelectionSingleChangeEvent(e) {
-        return options.multipleSelectionController.isSelectionSingleChangeEvent(
-          { ...e, element: e.element }
-        );
+        return options.multipleSelectionController.isSelectionSingleChangeEvent({ ...e, element: e.element });
       },
       isSelectionRangeChangeEvent(e) {
-        return options.multipleSelectionController.isSelectionRangeChangeEvent(
-          { ...e, element: e.element }
-        );
+        return options.multipleSelectionController.isSelectionRangeChangeEvent({ ...e, element: e.element });
       }
     },
     accessibilityProvider: options.accessibilityProvider && {
@@ -234,22 +166,16 @@ function asListOptions(modelProvider, options) {
         return options.accessibilityProvider.isChecked(node.element);
       } : void 0,
       getRole: options.accessibilityProvider && options.accessibilityProvider.getRole ? (node) => {
-        return options.accessibilityProvider.getRole(
-          node.element
-        );
+        return options.accessibilityProvider.getRole(node.element);
       } : () => "treeitem",
       getAriaLabel(e) {
-        return options.accessibilityProvider.getAriaLabel(
-          e.element
-        );
+        return options.accessibilityProvider.getAriaLabel(e.element);
       },
       getWidgetAriaLabel() {
         return options.accessibilityProvider.getWidgetAriaLabel();
       },
       getWidgetRole: options.accessibilityProvider && options.accessibilityProvider.getWidgetRole ? () => options.accessibilityProvider.getWidgetRole() : () => "tree",
-      getAriaLevel: options.accessibilityProvider && options.accessibilityProvider.getAriaLevel ? (node) => options.accessibilityProvider.getAriaLevel(
-        node.element
-      ) : (node) => {
+      getAriaLevel: options.accessibilityProvider && options.accessibilityProvider.getAriaLevel ? (node) => options.accessibilityProvider.getAriaLevel(node.element) : (node) => {
         return node.depth;
       },
       getActiveDescendantId: options.accessibilityProvider.getActiveDescendantId && ((node) => {
@@ -259,9 +185,7 @@ function asListOptions(modelProvider, options) {
     keyboardNavigationLabelProvider: options.keyboardNavigationLabelProvider && {
       ...options.keyboardNavigationLabelProvider,
       getKeyboardNavigationLabel(node) {
-        return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(
-          node.element
-        );
+        return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(node.element);
       }
     }
   };
@@ -338,11 +262,7 @@ var RenderIndentGuides = /* @__PURE__ */ ((RenderIndentGuides2) => {
 class EventCollection {
   constructor(onDidChange, _elements = []) {
     this._elements = _elements;
-    this.onDidChange = Event.forEach(
-      onDidChange,
-      (elements) => this._elements = elements,
-      this.disposables
-    );
+    this.onDidChange = Event.forEach(onDidChange, (elements) => this._elements = elements, this.disposables);
   }
   static {
     __name(this, "EventCollection");
@@ -364,16 +284,8 @@ class TreeRenderer {
     this.renderedIndentGuides = renderedIndentGuides;
     this.templateId = renderer.templateId;
     this.updateOptions(options);
-    Event.map(onDidChangeCollapseState, (e) => e.node)(
-      this.onDidChangeNodeTwistieState,
-      this,
-      this.disposables
-    );
-    renderer.onDidChangeTwistieState?.(
-      this.onDidChangeTwistieState,
-      this,
-      this.disposables
-    );
+    Event.map(onDidChangeCollapseState, (e) => e.node)(this.onDidChangeNodeTwistieState, this, this.disposables);
+    renderer.onDidChangeTwistieState?.(this.onDidChangeTwistieState, this, this.disposables);
   }
   static {
     __name(this, "TreeRenderer");
@@ -408,11 +320,7 @@ class TreeRenderer {
         this.indentGuidesDisposable.dispose();
         if (shouldRenderIndentGuides) {
           const disposables = new DisposableStore();
-          this.activeNodes.onDidChange(
-            this._onDidChangeActiveNodes,
-            this,
-            disposables
-          );
+          this.activeNodes.onDidChange(this._onDidChangeActiveNodes, this, disposables);
           this.indentGuidesDisposable = disposables;
           this._onDidChangeActiveNodes(this.activeNodes.elements);
         }
@@ -428,33 +336,17 @@ class TreeRenderer {
     const twistie = append(el, $(".monaco-tl-twistie"));
     const contents = append(el, $(".monaco-tl-contents"));
     const templateData = this.renderer.renderTemplate(contents);
-    return {
-      container,
-      indent,
-      twistie,
-      indentGuidesDisposable: Disposable.None,
-      templateData
-    };
+    return { container, indent, twistie, indentGuidesDisposable: Disposable.None, templateData };
   }
   renderElement(node, index, templateData, height) {
     this.renderedNodes.set(node, templateData);
     this.renderedElements.set(node.element, node);
     this.renderTreeElement(node, templateData);
-    this.renderer.renderElement(
-      node,
-      index,
-      templateData.templateData,
-      height
-    );
+    this.renderer.renderElement(node, index, templateData.templateData, height);
   }
   disposeElement(node, index, templateData, height) {
     templateData.indentGuidesDisposable.dispose();
-    this.renderer.disposeElement?.(
-      node,
-      index,
-      templateData.templateData,
-      height
-    );
+    this.renderer.disposeElement?.(node, index, templateData.templateData, height);
     if (typeof height === "number") {
       this.renderedNodes.delete(node);
       this.renderedElements.delete(node.element);
@@ -483,28 +375,18 @@ class TreeRenderer {
     templateData.twistie.style.paddingLeft = `${indent}px`;
     templateData.indent.style.width = `${indent + this.indent - 16}px`;
     if (node.collapsible) {
-      templateData.container.setAttribute(
-        "aria-expanded",
-        String(!node.collapsed)
-      );
+      templateData.container.setAttribute("aria-expanded", String(!node.collapsed));
     } else {
       templateData.container.removeAttribute("aria-expanded");
     }
-    templateData.twistie.classList.remove(
-      ...ThemeIcon.asClassNameArray(Codicon.treeItemExpanded)
-    );
+    templateData.twistie.classList.remove(...ThemeIcon.asClassNameArray(Codicon.treeItemExpanded));
     let twistieRendered = false;
     if (this.renderer.renderTwistie) {
-      twistieRendered = this.renderer.renderTwistie(
-        node.element,
-        templateData.twistie
-      );
+      twistieRendered = this.renderer.renderTwistie(node.element, templateData.twistie);
     }
     if (node.collapsible && (!this.hideTwistiesOfChildlessElements || node.visibleChildrenCount > 0)) {
       if (!twistieRendered) {
-        templateData.twistie.classList.add(
-          ...ThemeIcon.asClassNameArray(Codicon.treeItemExpanded)
-        );
+        templateData.twistie.classList.add(...ThemeIcon.asClassNameArray(Codicon.treeItemExpanded));
       }
       templateData.twistie.classList.add("collapsible");
       templateData.twistie.classList.toggle("collapsed", node.collapsed);
@@ -527,26 +409,17 @@ class TreeRenderer {
         break;
       }
       const parent = this.model.getNode(parentRef);
-      const guide = $(".indent-guide", {
-        style: `width: ${this.indent}px`
-      });
+      const guide = $(".indent-guide", { style: `width: ${this.indent}px` });
       if (this.activeIndentNodes.has(parent)) {
         guide.classList.add("active");
       }
       if (templateData.indent.childElementCount === 0) {
         templateData.indent.appendChild(guide);
       } else {
-        templateData.indent.insertBefore(
-          guide,
-          templateData.indent.firstElementChild
-        );
+        templateData.indent.insertBefore(guide, templateData.indent.firstElementChild);
       }
       this.renderedIndentGuides.add(parent, guide);
-      disposableStore.add(
-        toDisposable(
-          () => this.renderedIndentGuides.delete(parent, guide)
-        )
-      );
+      disposableStore.add(toDisposable(() => this.renderedIndentGuides.delete(parent, guide)));
       node = parent;
     }
     templateData.indentGuidesDisposable = disposableStore;
@@ -570,18 +443,12 @@ class TreeRenderer {
     });
     this.activeIndentNodes.forEach((node) => {
       if (!set.has(node)) {
-        this.renderedIndentGuides.forEach(
-          node,
-          (line) => line.classList.remove("active")
-        );
+        this.renderedIndentGuides.forEach(node, (line) => line.classList.remove("active"));
       }
     });
     set.forEach((node) => {
       if (!this.activeIndentNodes.has(node)) {
-        this.renderedIndentGuides.forEach(
-          node,
-          (line) => line.classList.add("active")
-        );
+        this.renderedIndentGuides.forEach(node, (line) => line.classList.add("active"));
       }
     });
     this.activeIndentNodes = set;
@@ -641,9 +508,7 @@ class FindFilter {
       this._matchCount++;
       return { data: FuzzyScore.Default, visibility };
     }
-    const label = this.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(
-      element
-    );
+    const label = this.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(element);
     const labels = Array.isArray(label) ? label : [label];
     for (const l of labels) {
       const labelStr = l && l.toString();
@@ -660,15 +525,7 @@ class FindFilter {
           }
         }
       } else {
-        score = fuzzyScore(
-          this._pattern,
-          this._lowercasePattern,
-          0,
-          labelStr,
-          labelStr.toLowerCase(),
-          0,
-          { firstMatchCanBeWeak: true, boostFullMatch: true }
-        );
+        score = fuzzyScore(this._pattern, this._lowercasePattern, 0, labelStr, labelStr.toLowerCase(), 0, { firstMatchCanBeWeak: true, boostFullMatch: true });
       }
       if (score) {
         this._matchCount++;
@@ -758,183 +615,125 @@ class FindWidget extends Disposable {
     if (styles.listFilterWidgetShadow) {
       this.elements.root.style.boxShadow = `0 0 8px 2px ${styles.listFilterWidgetShadow}`;
     }
-    const toggleHoverDelegate = this._register(
-      createInstantHoverDelegate()
-    );
-    this.modeToggle = this._register(
-      new ModeToggle({
-        ...styles.toggleStyles,
-        isChecked: mode === 1 /* Filter */,
-        hoverDelegate: toggleHoverDelegate
-      })
-    );
-    this.matchTypeToggle = this._register(
-      new FuzzyToggle({
-        ...styles.toggleStyles,
-        isChecked: matchType === 0 /* Fuzzy */,
-        hoverDelegate: toggleHoverDelegate
-      })
-    );
-    this.onDidChangeMode = Event.map(
-      this.modeToggle.onChange,
-      () => this.modeToggle.checked ? 1 /* Filter */ : 0 /* Highlight */,
-      this._store
-    );
-    this.onDidChangeMatchType = Event.map(
-      this.matchTypeToggle.onChange,
-      () => this.matchTypeToggle.checked ? 0 /* Fuzzy */ : 1 /* Contiguous */,
-      this._store
-    );
-    this.findInput = this._register(
-      new FindInput(this.elements.findInput, contextViewProvider, {
-        label: localize("type to search", "Type to search"),
-        additionalToggles: [this.modeToggle, this.matchTypeToggle],
-        showCommonFindToggles: false,
-        inputBoxStyles: styles.inputBoxStyles,
-        toggleStyles: styles.toggleStyles,
-        history: options?.history
-      })
-    );
+    const toggleHoverDelegate = this._register(createInstantHoverDelegate());
+    this.modeToggle = this._register(new ModeToggle({ ...styles.toggleStyles, isChecked: mode === 1 /* Filter */, hoverDelegate: toggleHoverDelegate }));
+    this.matchTypeToggle = this._register(new FuzzyToggle({ ...styles.toggleStyles, isChecked: matchType === 0 /* Fuzzy */, hoverDelegate: toggleHoverDelegate }));
+    this.onDidChangeMode = Event.map(this.modeToggle.onChange, () => this.modeToggle.checked ? 1 /* Filter */ : 0 /* Highlight */, this._store);
+    this.onDidChangeMatchType = Event.map(this.matchTypeToggle.onChange, () => this.matchTypeToggle.checked ? 0 /* Fuzzy */ : 1 /* Contiguous */, this._store);
+    this.findInput = this._register(new FindInput(this.elements.findInput, contextViewProvider, {
+      label: localize("type to search", "Type to search"),
+      additionalToggles: [this.modeToggle, this.matchTypeToggle],
+      showCommonFindToggles: false,
+      inputBoxStyles: styles.inputBoxStyles,
+      toggleStyles: styles.toggleStyles,
+      history: options?.history
+    }));
     this.actionbar = this._register(new ActionBar(this.elements.actionbar));
     this.mode = mode;
-    const emitter = this._register(
-      new DomEmitter(this.findInput.inputBox.inputElement, "keydown")
-    );
-    const onKeyDown = Event.chain(
-      emitter.event,
-      ($2) => $2.map((e) => new StandardKeyboardEvent(e))
-    );
-    this._register(
-      onKeyDown((e) => {
-        if (e.equals(KeyCode.Enter)) {
-          e.preventDefault();
-          e.stopPropagation();
+    const emitter = this._register(new DomEmitter(this.findInput.inputBox.inputElement, "keydown"));
+    const onKeyDown = Event.chain(emitter.event, ($2) => $2.map((e) => new StandardKeyboardEvent(e)));
+    this._register(onKeyDown((e) => {
+      if (e.equals(KeyCode.Enter)) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.findInput.inputBox.addToHistory();
+        this.tree.domFocus();
+        return;
+      }
+      if (e.equals(KeyCode.DownArrow)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.findInput.inputBox.isAtLastInHistory() || this.findInput.inputBox.isNowhereInHistory()) {
           this.findInput.inputBox.addToHistory();
           this.tree.domFocus();
-          return;
+        } else {
+          this.findInput.inputBox.showNextValue();
         }
-        if (e.equals(KeyCode.DownArrow)) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (this.findInput.inputBox.isAtLastInHistory() || this.findInput.inputBox.isNowhereInHistory()) {
-            this.findInput.inputBox.addToHistory();
-            this.tree.domFocus();
-          } else {
-            this.findInput.inputBox.showNextValue();
-          }
-          return;
-        }
-        if (e.equals(KeyCode.UpArrow)) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.findInput.inputBox.showPreviousValue();
-          return;
-        }
-      })
-    );
-    const closeAction = this._register(
-      new Action(
-        "close",
-        localize("close", "Close"),
-        "codicon codicon-close",
-        true,
-        () => this.dispose()
-      )
-    );
+        return;
+      }
+      if (e.equals(KeyCode.UpArrow)) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.findInput.inputBox.showPreviousValue();
+        return;
+      }
+    }));
+    const closeAction = this._register(new Action("close", localize("close", "Close"), "codicon codicon-close", true, () => this.dispose()));
     this.actionbar.push(closeAction, { icon: true, label: false });
-    const onGrabMouseDown = this._register(
-      new DomEmitter(this.elements.grab, "mousedown")
-    );
-    this._register(
-      onGrabMouseDown.event((e) => {
-        const disposables = new DisposableStore();
-        const onWindowMouseMove = disposables.add(
-          new DomEmitter(getWindow(e), "mousemove")
-        );
-        const onWindowMouseUp = disposables.add(
-          new DomEmitter(getWindow(e), "mouseup")
-        );
-        const startRight = this.right;
-        const startX = e.pageX;
-        const startTop = this.top;
-        const startY = e.pageY;
-        this.elements.grab.classList.add("grabbing");
+    const onGrabMouseDown = this._register(new DomEmitter(this.elements.grab, "mousedown"));
+    this._register(onGrabMouseDown.event((e) => {
+      const disposables = new DisposableStore();
+      const onWindowMouseMove = disposables.add(new DomEmitter(getWindow(e), "mousemove"));
+      const onWindowMouseUp = disposables.add(new DomEmitter(getWindow(e), "mouseup"));
+      const startRight = this.right;
+      const startX = e.pageX;
+      const startTop = this.top;
+      const startY = e.pageY;
+      this.elements.grab.classList.add("grabbing");
+      const transition = this.elements.root.style.transition;
+      this.elements.root.style.transition = "unset";
+      const update = /* @__PURE__ */ __name((e2) => {
+        const deltaX = e2.pageX - startX;
+        this.right = startRight - deltaX;
+        const deltaY = e2.pageY - startY;
+        this.top = startTop + deltaY;
+        this.layout();
+      }, "update");
+      disposables.add(onWindowMouseMove.event(update));
+      disposables.add(onWindowMouseUp.event((e2) => {
+        update(e2);
+        this.elements.grab.classList.remove("grabbing");
+        this.elements.root.style.transition = transition;
+        disposables.dispose();
+      }));
+    }));
+    const onGrabKeyDown = Event.chain(this._register(new DomEmitter(this.elements.grab, "keydown")).event, ($2) => $2.map((e) => new StandardKeyboardEvent(e)));
+    this._register(onGrabKeyDown((e) => {
+      let right;
+      let top;
+      if (e.keyCode === KeyCode.LeftArrow) {
+        right = Number.POSITIVE_INFINITY;
+      } else if (e.keyCode === KeyCode.RightArrow) {
+        right = 0;
+      } else if (e.keyCode === KeyCode.Space) {
+        right = this.right === 0 ? Number.POSITIVE_INFINITY : 0;
+      }
+      if (e.keyCode === KeyCode.UpArrow) {
+        top = 0;
+      } else if (e.keyCode === KeyCode.DownArrow) {
+        top = Number.POSITIVE_INFINITY;
+      }
+      if (right !== void 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.right = right;
+        this.layout();
+      }
+      if (top !== void 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.top = top;
         const transition = this.elements.root.style.transition;
         this.elements.root.style.transition = "unset";
-        const update = /* @__PURE__ */ __name((e2) => {
-          const deltaX = e2.pageX - startX;
-          this.right = startRight - deltaX;
-          const deltaY = e2.pageY - startY;
-          this.top = startTop + deltaY;
-          this.layout();
-        }, "update");
-        disposables.add(onWindowMouseMove.event(update));
-        disposables.add(
-          onWindowMouseUp.event((e2) => {
-            update(e2);
-            this.elements.grab.classList.remove("grabbing");
-            this.elements.root.style.transition = transition;
-            disposables.dispose();
-          })
-        );
-      })
-    );
-    const onGrabKeyDown = Event.chain(
-      this._register(new DomEmitter(this.elements.grab, "keydown")).event,
-      ($2) => $2.map((e) => new StandardKeyboardEvent(e))
-    );
-    this._register(
-      onGrabKeyDown((e) => {
-        let right;
-        let top;
-        if (e.keyCode === KeyCode.LeftArrow) {
-          right = Number.POSITIVE_INFINITY;
-        } else if (e.keyCode === KeyCode.RightArrow) {
-          right = 0;
-        } else if (e.keyCode === KeyCode.Space) {
-          right = this.right === 0 ? Number.POSITIVE_INFINITY : 0;
-        }
-        if (e.keyCode === KeyCode.UpArrow) {
-          top = 0;
-        } else if (e.keyCode === KeyCode.DownArrow) {
-          top = Number.POSITIVE_INFINITY;
-        }
-        if (right !== void 0) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.right = right;
-          this.layout();
-        }
-        if (top !== void 0) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.top = top;
-          const transition = this.elements.root.style.transition;
-          this.elements.root.style.transition = "unset";
-          this.layout();
-          setTimeout(() => {
-            this.elements.root.style.transition = transition;
-          }, 0);
-        }
-      })
-    );
+        this.layout();
+        setTimeout(() => {
+          this.elements.root.style.transition = transition;
+        }, 0);
+      }
+    }));
     this.onDidChangeValue = this.findInput.onDidChange;
   }
   static {
     __name(this, "FindWidget");
   }
   elements = h(".monaco-tree-type-filter", [
-    h(".monaco-tree-type-filter-grab.codicon.codicon-debug-gripper@grab", {
-      tabIndex: 0
-    }),
+    h(".monaco-tree-type-filter-grab.codicon.codicon-debug-gripper@grab", { tabIndex: 0 }),
     h(".monaco-tree-type-filter-input@findInput"),
     h(".monaco-tree-type-filter-actionbar@actionbar")
   ]);
   set mode(mode) {
     this.modeToggle.checked = mode === 1 /* Filter */;
-    this.findInput.inputBox.setPlaceHolder(
-      mode === 1 /* Filter */ ? localize("type to filter", "Type to filter") : localize("type to search", "Type to search")
-    );
+    this.findInput.inputBox.setPlaceHolder(mode === 1 /* Filter */ ? localize("type to filter", "Type to filter") : localize("type to search", "Type to search"));
   }
   set matchType(matchType) {
     this.matchTypeToggle.checked = matchType === 0 /* Fuzzy */;
@@ -1066,30 +865,11 @@ class FindController {
       this.widget.select();
       return;
     }
-    this.widget = new FindWidget(
-      this.tree.getHTMLElement(),
-      this.tree,
-      this.contextViewProvider,
-      this.mode,
-      this.matchType,
-      { ...this.options, history: this._history }
-    );
+    this.widget = new FindWidget(this.tree.getHTMLElement(), this.tree, this.contextViewProvider, this.mode, this.matchType, { ...this.options, history: this._history });
     this.enabledDisposables.add(this.widget);
-    this.widget.onDidChangeValue(
-      this.onDidChangeValue,
-      this,
-      this.enabledDisposables
-    );
-    this.widget.onDidChangeMode(
-      (mode) => this.mode = mode,
-      void 0,
-      this.enabledDisposables
-    );
-    this.widget.onDidChangeMatchType(
-      (matchType) => this.matchType = matchType,
-      void 0,
-      this.enabledDisposables
-    );
+    this.widget.onDidChangeValue(this.onDidChangeValue, this, this.enabledDisposables);
+    this.widget.onDidChangeMode((mode) => this.mode = mode, void 0, this.enabledDisposables);
+    this.widget.onDidChangeMatchType((matchType) => this.matchType = matchType, void 0, this.enabledDisposables);
     this.widget.onDidDisable(this.close, this, this.enabledDisposables);
     this.widget.layout(this.width);
     this.widget.focus();
@@ -1115,12 +895,7 @@ class FindController {
     this.filter.pattern = pattern;
     this.tree.refilter();
     if (pattern) {
-      this.tree.focusNext(
-        0,
-        true,
-        void 0,
-        (node) => !FuzzyScore.isDefault(node.filterData)
-      );
+      this.tree.focusNext(0, true, void 0, (node) => !FuzzyScore.isDefault(node.filterData));
     }
     const focus = this.tree.getFocus();
     if (focus.length > 0) {
@@ -1136,23 +911,14 @@ class FindController {
     if (this.pattern && noMatches) {
       alert(localize("replFindNoResults", "No results"));
       if (this.tree.options.showNotFoundMessage ?? true) {
-        this.widget?.showMessage({
-          type: MessageType.WARNING,
-          content: localize("not found", "No elements found.")
-        });
+        this.widget?.showMessage({ type: MessageType.WARNING, content: localize("not found", "No elements found.") });
       } else {
         this.widget?.showMessage({ type: MessageType.WARNING });
       }
     } else {
       this.widget?.clearMessage();
       if (this.pattern) {
-        alert(
-          localize(
-            "replFindResults",
-            "{0} results",
-            this.filter.matchCount
-          )
-        );
+        alert(localize("replFindResults", "{0} results", this.filter.matchCount));
       }
     }
   }
@@ -1195,11 +961,7 @@ class StickyScrollState {
     return this.stickyNodes.length;
   }
   equal(state) {
-    return equals(
-      this.stickyNodes,
-      state.stickyNodes,
-      stickyScrollNodeStateEquals
-    );
+    return equals(this.stickyNodes, state.stickyNodes, stickyScrollNodeStateEquals);
   }
   lastNodePartiallyVisible() {
     if (this.count === 0) {
@@ -1213,11 +975,7 @@ class StickyScrollState {
     return secondLastStickyNode.position + secondLastStickyNode.height !== lastStickyNode.position;
   }
   animationStateChanged(previousState) {
-    if (!equals(
-      this.stickyNodes,
-      previousState.stickyNodes,
-      stickyScrollNodeEquals
-    )) {
+    if (!equals(this.stickyNodes, previousState.stickyNodes, stickyScrollNodeEquals)) {
       return false;
     }
     if (this.count === 0) {
@@ -1253,16 +1011,7 @@ class StickyScrollController extends Disposable {
     const stickyScrollOptions = this.validateStickySettings(options);
     this.stickyScrollMaxItemCount = stickyScrollOptions.stickyScrollMaxItemCount;
     this.stickyScrollDelegate = options.stickyScrollDelegate ?? new DefaultStickyScrollDelegate();
-    this._widget = this._register(
-      new StickyScrollWidget(
-        view.getScrollableElement(),
-        view,
-        tree,
-        renderers,
-        treeDelegate,
-        options.accessibilityProvider
-      )
-    );
+    this._widget = this._register(new StickyScrollWidget(view.getScrollableElement(), view, tree, renderers, treeDelegate, options.accessibilityProvider));
     this.onDidChangeHasFocus = this._widget.onDidChangeHasFocus;
     this.onContextMenu = this._widget.onContextMenu;
     this._register(view.onDidScroll(() => this.update()));
@@ -1313,11 +1062,7 @@ class StickyScrollController extends Disposable {
     const stickyNodes = [];
     let firstVisibleNodeUnderWidget = firstVisibleNode;
     let stickyNodesHeight = 0;
-    let nextStickyNode = this.getNextStickyNode(
-      firstVisibleNodeUnderWidget,
-      void 0,
-      stickyNodesHeight
-    );
+    let nextStickyNode = this.getNextStickyNode(firstVisibleNodeUnderWidget, void 0, stickyNodesHeight);
     while (nextStickyNode) {
       stickyNodes.push(nextStickyNode);
       stickyNodesHeight += nextStickyNode.height;
@@ -1327,25 +1072,16 @@ class StickyScrollController extends Disposable {
           break;
         }
       }
-      nextStickyNode = this.getNextStickyNode(
-        firstVisibleNodeUnderWidget,
-        nextStickyNode.node,
-        stickyNodesHeight
-      );
+      nextStickyNode = this.getNextStickyNode(firstVisibleNodeUnderWidget, nextStickyNode.node, stickyNodesHeight);
     }
     const contrainedStickyNodes = this.constrainStickyNodes(stickyNodes);
     return contrainedStickyNodes.length ? new StickyScrollState(contrainedStickyNodes) : void 0;
   }
   getNextVisibleNode(previousStickyNode) {
-    return this.getNodeAtHeight(
-      previousStickyNode.position + previousStickyNode.height
-    );
+    return this.getNodeAtHeight(previousStickyNode.position + previousStickyNode.height);
   }
   getNextStickyNode(firstVisibleNodeUnderWidget, previousStickyNode, stickyNodesHeight) {
-    const nextStickyNode = this.getAncestorUnderPrevious(
-      firstVisibleNodeUnderWidget,
-      previousStickyNode
-    );
+    const nextStickyNode = this.getAncestorUnderPrevious(firstVisibleNodeUnderWidget, previousStickyNode);
     if (!nextStickyNode) {
       return void 0;
     }
@@ -1353,10 +1089,7 @@ class StickyScrollController extends Disposable {
       if (!this.nodeIsUncollapsedParent(firstVisibleNodeUnderWidget)) {
         return void 0;
       }
-      if (this.nodeTopAlignsWithStickyNodesBottom(
-        firstVisibleNodeUnderWidget,
-        stickyNodesHeight
-      )) {
+      if (this.nodeTopAlignsWithStickyNodesBottom(firstVisibleNodeUnderWidget, stickyNodesHeight)) {
         return void 0;
       }
     }
@@ -1371,11 +1104,7 @@ class StickyScrollController extends Disposable {
   createStickyScrollNode(node, currentStickyNodesHeight) {
     const height = this.treeDelegate.getHeight(node);
     const { startIndex, endIndex } = this.getNodeRange(node);
-    const position = this.calculateStickyNodePosition(
-      endIndex,
-      currentStickyNodesHeight,
-      height
-    );
+    const position = this.calculateStickyNodePosition(endIndex, currentStickyNodesHeight, height);
     return { node, position, height, startIndex, endIndex };
   }
   getAncestorUnderPrevious(node, previousAncestor = void 0) {
@@ -1396,12 +1125,8 @@ class StickyScrollController extends Disposable {
   calculateStickyNodePosition(lastDescendantIndex, stickyRowPositionTop, stickyNodeHeight) {
     let lastChildRelativeTop = this.view.getRelativeTop(lastDescendantIndex);
     if (lastChildRelativeTop === null && this.view.firstVisibleIndex === lastDescendantIndex && lastDescendantIndex + 1 < this.view.length) {
-      const nodeHeight = this.treeDelegate.getHeight(
-        this.view.element(lastDescendantIndex)
-      );
-      const nextNodeRelativeTop = this.view.getRelativeTop(
-        lastDescendantIndex + 1
-      );
+      const nodeHeight = this.treeDelegate.getHeight(this.view.element(lastDescendantIndex));
+      const nextNodeRelativeTop = this.view.getRelativeTop(lastDescendantIndex + 1);
       lastChildRelativeTop = nextNodeRelativeTop ? nextNodeRelativeTop - nodeHeight / this.view.renderHeight : null;
     }
     if (lastChildRelativeTop === null) {
@@ -1425,11 +1150,7 @@ class StickyScrollController extends Disposable {
     if (stickyNodes.length <= this.stickyScrollMaxItemCount && lastStickyNode.position + lastStickyNode.height <= maximumStickyWidgetHeight) {
       return stickyNodes;
     }
-    const constrainedStickyNodes = this.stickyScrollDelegate.constrainStickyScrollNodes(
-      stickyNodes,
-      this.stickyScrollMaxItemCount,
-      maximumStickyWidgetHeight
-    );
+    const constrainedStickyNodes = this.stickyScrollDelegate.constrainStickyScrollNodes(stickyNodes, this.stickyScrollMaxItemCount, maximumStickyWidgetHeight);
     if (!constrainedStickyNodes.length) {
       return [];
     }
@@ -1499,10 +1220,7 @@ class StickyScrollController extends Disposable {
   validateStickySettings(options) {
     let stickyScrollMaxItemCount = 7;
     if (typeof options.stickyScrollMaxItemCount === "number") {
-      stickyScrollMaxItemCount = Math.max(
-        options.stickyScrollMaxItemCount,
-        1
-      );
+      stickyScrollMaxItemCount = Math.max(options.stickyScrollMaxItemCount, 1);
     }
     return { stickyScrollMaxItemCount };
   }
@@ -1546,9 +1264,7 @@ class StickyScrollWidget {
     return this._previousState?.count ?? 0;
   }
   getNode(node) {
-    return this._previousState?.stickyNodes.find(
-      (stickyNode) => stickyNode.node === node
-    );
+    return this._previousState?.stickyNodes.find((stickyNode) => stickyNode.node === node);
   }
   setState(state) {
     const wasVisible = !!this._previousState && this._previousState.count > 0;
@@ -1573,11 +1289,7 @@ class StickyScrollWidget {
       const elements = Array(state.count);
       for (let stickyIndex = state.count - 1; stickyIndex >= 0; stickyIndex--) {
         const stickyNode = state.stickyNodes[stickyIndex];
-        const { element, disposable } = this.createElement(
-          stickyNode,
-          stickyIndex,
-          state.count
-        );
+        const { element, disposable } = this.createElement(stickyNode, stickyIndex, state.count);
         elements[stickyIndex] = element;
         this._rootDomNode.appendChild(element);
         this._previousStateDisposables.add(disposable);
@@ -1601,45 +1313,23 @@ class StickyScrollWidget {
     stickyElement.classList.add("monaco-tree-sticky-row");
     stickyElement.classList.add("monaco-list-row");
     stickyElement.setAttribute("data-index", `${nodeIndex}`);
-    stickyElement.setAttribute(
-      "data-parity",
-      nodeIndex % 2 === 0 ? "even" : "odd"
-    );
+    stickyElement.setAttribute("data-parity", nodeIndex % 2 === 0 ? "even" : "odd");
     stickyElement.setAttribute("id", this.view.getElementID(nodeIndex));
-    const accessibilityDisposable = this.setAccessibilityAttributes(
-      stickyElement,
-      stickyNode.node.element,
-      stickyIndex,
-      stickyNodesTotal
-    );
+    const accessibilityDisposable = this.setAccessibilityAttributes(stickyElement, stickyNode.node.element, stickyIndex, stickyNodesTotal);
     const nodeTemplateId = this.treeDelegate.getTemplateId(stickyNode.node);
-    const renderer = this.treeRenderers.find(
-      (renderer2) => renderer2.templateId === nodeTemplateId
-    );
+    const renderer = this.treeRenderers.find((renderer2) => renderer2.templateId === nodeTemplateId);
     if (!renderer) {
-      throw new Error(
-        `No renderer found for template id ${nodeTemplateId}`
-      );
+      throw new Error(`No renderer found for template id ${nodeTemplateId}`);
     }
     let nodeCopy = stickyNode.node;
     if (nodeCopy === this.tree.getNode(this.tree.getNodeLocation(stickyNode.node))) {
       nodeCopy = new Proxy(stickyNode.node, {});
     }
     const templateData = renderer.renderTemplate(stickyElement);
-    renderer.renderElement(
-      nodeCopy,
-      stickyNode.startIndex,
-      templateData,
-      stickyNode.height
-    );
+    renderer.renderElement(nodeCopy, stickyNode.startIndex, templateData, stickyNode.height);
     const disposable = toDisposable(() => {
       accessibilityDisposable.dispose();
-      renderer.disposeElement(
-        nodeCopy,
-        stickyNode.startIndex,
-        templateData,
-        stickyNode.height
-      );
+      renderer.disposeElement(nodeCopy, stickyNode.startIndex, templateData, stickyNode.height);
       renderer.disposeTemplate(templateData);
       stickyElement.remove();
     });
@@ -1650,33 +1340,13 @@ class StickyScrollWidget {
       return Disposable.None;
     }
     if (this.accessibilityProvider.getSetSize) {
-      container.setAttribute(
-        "aria-setsize",
-        String(
-          this.accessibilityProvider.getSetSize(
-            element,
-            stickyIndex,
-            stickyNodesTotal
-          )
-        )
-      );
+      container.setAttribute("aria-setsize", String(this.accessibilityProvider.getSetSize(element, stickyIndex, stickyNodesTotal)));
     }
     if (this.accessibilityProvider.getPosInSet) {
-      container.setAttribute(
-        "aria-posinset",
-        String(
-          this.accessibilityProvider.getPosInSet(
-            element,
-            stickyIndex
-          )
-        )
-      );
+      container.setAttribute("aria-posinset", String(this.accessibilityProvider.getPosInSet(element, stickyIndex)));
     }
     if (this.accessibilityProvider.getRole) {
-      container.setAttribute(
-        "role",
-        this.accessibilityProvider.getRole(element) ?? "treeitem"
-      );
+      container.setAttribute("role", this.accessibilityProvider.getRole(element) ?? "treeitem");
     }
     const ariaLabel = this.accessibilityProvider.getAriaLabel(element);
     const observable = ariaLabel && typeof ariaLabel !== "string" ? ariaLabel : constObservable(ariaLabel);
@@ -1725,24 +1395,12 @@ class StickyScrollFocus extends Disposable {
     super();
     this.container = container;
     this.view = view;
-    this._register(
-      addDisposableListener(
-        this.container,
-        "focus",
-        () => this.onFocus()
-      )
-    );
-    this._register(
-      addDisposableListener(this.container, "blur", () => this.onBlur())
-    );
-    this._register(
-      this.view.onDidFocus(() => this.toggleStickyScrollFocused(false))
-    );
+    this._register(addDisposableListener(this.container, "focus", () => this.onFocus()));
+    this._register(addDisposableListener(this.container, "blur", () => this.onBlur()));
+    this._register(this.view.onDidFocus(() => this.toggleStickyScrollFocused(false)));
     this._register(this.view.onKeyDown((e) => this.onKeyDown(e)));
     this._register(this.view.onMouseDown((e) => this.onMouseDown(e)));
-    this._register(
-      this.view.onContextMenu((e) => this.handleContextMenu(e))
-    );
+    this._register(this.view.onContextMenu((e) => this.handleContextMenu(e)));
   }
   static {
     __name(this, "StickyScrollFocus");
@@ -1774,36 +1432,23 @@ class StickyScrollFocus extends Disposable {
     }
     if (!isKeyboardEvent(e.browserEvent)) {
       if (!this.state) {
-        throw new Error(
-          "Context menu should not be triggered when state is undefined"
-        );
+        throw new Error("Context menu should not be triggered when state is undefined");
       }
-      const stickyIndex = this.state.stickyNodes.findIndex(
-        (stickyNode2) => stickyNode2.node.element === e.element?.element
-      );
+      const stickyIndex = this.state.stickyNodes.findIndex((stickyNode2) => stickyNode2.node.element === e.element?.element);
       if (stickyIndex === -1) {
-        throw new Error(
-          "Context menu should not be triggered when element is not in sticky scroll widget"
-        );
+        throw new Error("Context menu should not be triggered when element is not in sticky scroll widget");
       }
       this.container.focus();
       this.setFocus(stickyIndex);
       return;
     }
     if (!this.state || this.focusedIndex < 0) {
-      throw new Error(
-        "Context menu key should not be triggered when focus is not in sticky scroll widget"
-      );
+      throw new Error("Context menu key should not be triggered when focus is not in sticky scroll widget");
     }
     const stickyNode = this.state.stickyNodes[this.focusedIndex];
     const element = stickyNode.node.element;
     const anchor = this.elements[this.focusedIndex];
-    this._onContextMenu.fire({
-      element,
-      anchor,
-      browserEvent: e.browserEvent,
-      isStickyScroll: true
-    });
+    this._onContextMenu.fire({ element, anchor, browserEvent: e.browserEvent, isStickyScroll: true });
   }
   onKeyDown(e) {
     if (this.domHasFocus && this.state) {
@@ -1835,9 +1480,7 @@ class StickyScrollFocus extends Disposable {
   }
   updateElements(elements, state) {
     if (state && state.count === 0) {
-      throw new Error(
-        "Sticky scroll state must be undefined when there are no sticky nodes"
-      );
+      throw new Error("Sticky scroll state must be undefined when there are no sticky nodes");
     }
     if (state && state.count !== elements.length) {
       throw new Error("Sticky scroll focus received illigel state");
@@ -1849,8 +1492,10 @@ class StickyScrollFocus extends Disposable {
     if (state) {
       const newFocusedIndex = clamp(previousIndex, 0, state.count - 1);
       this.setFocus(newFocusedIndex);
-    } else if (this.domHasFocus) {
-      this.view.domFocus();
+    } else {
+      if (this.domHasFocus) {
+        this.view.domFocus();
+      }
     }
     this.container.tabIndex = state ? 0 : -1;
   }
@@ -1901,16 +1546,14 @@ class StickyScrollFocus extends Disposable {
     this.focusedIndex = -1;
   }
   setFocus(newFocusIndex) {
-    if (newFocusIndex < 0) {
+    if (0 > newFocusIndex) {
       throw new Error("addFocus() can not remove focus");
     }
     if (!this.state && newFocusIndex >= 0) {
       throw new Error("Cannot set focus index when state is undefined");
     }
     if (this.state && newFocusIndex >= this.state.count) {
-      throw new Error(
-        "Cannot set focus index to an index that does not exist"
-      );
+      throw new Error("Cannot set focus index to an index that does not exist");
     }
     const oldIndex = this.focusedIndex;
     if (oldIndex >= 0) {
@@ -1929,10 +1572,7 @@ class StickyScrollFocus extends Disposable {
     if (this.focusedIndex === -1) {
       return;
     }
-    this.toggleElementActiveFocus(
-      this.elements[this.focusedIndex],
-      focused
-    );
+    this.toggleElementActiveFocus(this.elements[this.focusedIndex], focused);
   }
   toggleElementActiveFocus(element, focused) {
     element.classList.toggle("focused", focused);
@@ -1945,9 +1585,7 @@ class StickyScrollFocus extends Disposable {
   }
   onFocus() {
     if (!this.state || this.elements.length === 0) {
-      throw new Error(
-        "Cannot focus when state is undefined or elements are empty"
-      );
+      throw new Error("Cannot focus when state is undefined or elements are empty");
     }
     this.domHasFocus = true;
     this.toggleStickyScrollFocused(true);
@@ -1968,23 +1606,11 @@ class StickyScrollFocus extends Disposable {
 }
 function asTreeMouseEvent(event) {
   let target = TreeMouseEventTarget.Unknown;
-  if (hasParentWithClass(
-    event.browserEvent.target,
-    "monaco-tl-twistie",
-    "monaco-tl-row"
-  )) {
+  if (hasParentWithClass(event.browserEvent.target, "monaco-tl-twistie", "monaco-tl-row")) {
     target = TreeMouseEventTarget.Twistie;
-  } else if (hasParentWithClass(
-    event.browserEvent.target,
-    "monaco-tl-contents",
-    "monaco-tl-row"
-  )) {
+  } else if (hasParentWithClass(event.browserEvent.target, "monaco-tl-contents", "monaco-tl-row")) {
     target = TreeMouseEventTarget.Element;
-  } else if (hasParentWithClass(
-    event.browserEvent.target,
-    "monaco-tree-type-filter",
-    "monaco-list"
-  )) {
+  } else if (hasParentWithClass(event.browserEvent.target, "monaco-tree-type-filter", "monaco-list")) {
     target = TreeMouseEventTarget.Filter;
   }
   return {
@@ -1995,9 +1621,7 @@ function asTreeMouseEvent(event) {
 }
 __name(asTreeMouseEvent, "asTreeMouseEvent");
 function asTreeContextMenuEvent(event) {
-  const isStickyScroll = isStickyScrollContainer(
-    event.browserEvent.target
-  );
+  const isStickyScroll = isStickyScrollContainer(event.browserEvent.target);
   return {
     element: event.element ? event.element.element : null,
     browserEvent: event.browserEvent,
@@ -2042,12 +1666,9 @@ class Trait {
     this._nodeSet = void 0;
     if (!silent) {
       const that = this;
-      this._onDidChange.fire({
-        get elements() {
-          return that.get();
-        },
-        browserEvent
-      });
+      this._onDidChange.fire({ get elements() {
+        return that.get();
+      }, browserEvent });
     }
   }
   get() {
@@ -2062,10 +1683,7 @@ class Trait {
   has(node) {
     return this.nodeSet.has(node);
   }
-  onDidModelSplice({
-    insertedNodes,
-    deletedNodes
-  }) {
+  onDidModelSplice({ insertedNodes, deletedNodes }) {
     if (!this.identityProvider) {
       const set = this.createNodeSet();
       const visit = /* @__PURE__ */ __name((node) => set.delete(node), "visit");
@@ -2074,27 +1692,22 @@ class Trait {
       return;
     }
     const deletedNodesIdSet = /* @__PURE__ */ new Set();
-    const deletedNodesVisitor = /* @__PURE__ */ __name((node) => deletedNodesIdSet.add(
-      this.identityProvider.getId(node.element).toString()
-    ), "deletedNodesVisitor");
+    const deletedNodesVisitor = /* @__PURE__ */ __name((node) => deletedNodesIdSet.add(this.identityProvider.getId(node.element).toString()), "deletedNodesVisitor");
     deletedNodes.forEach((node) => dfs(node, deletedNodesVisitor));
     const insertedNodesMap = /* @__PURE__ */ new Map();
-    const insertedNodesVisitor = /* @__PURE__ */ __name((node) => insertedNodesMap.set(
-      this.identityProvider.getId(node.element).toString(),
-      node
-    ), "insertedNodesVisitor");
+    const insertedNodesVisitor = /* @__PURE__ */ __name((node) => insertedNodesMap.set(this.identityProvider.getId(node.element).toString(), node), "insertedNodesVisitor");
     insertedNodes.forEach((node) => dfs(node, insertedNodesVisitor));
     const nodes = [];
     for (const node of this.nodes) {
       const id = this.identityProvider.getId(node.element).toString();
       const wasDeleted = deletedNodesIdSet.has(id);
-      if (wasDeleted) {
+      if (!wasDeleted) {
+        nodes.push(node);
+      } else {
         const insertedNode = insertedNodesMap.get(id);
         if (insertedNode && insertedNode.visible) {
           nodes.push(insertedNode);
         }
-      } else {
-        nodes.push(node);
       }
     }
     if (this.nodes.length > 0 && nodes.length === 0) {
@@ -2138,28 +1751,24 @@ class TreeNodeListMouseController extends MouseController {
     }
     const target = e.browserEvent.target;
     const onTwistie = target.classList.contains("monaco-tl-twistie") || target.classList.contains("monaco-icon-label") && target.classList.contains("folder-icon") && e.browserEvent.offsetX < 16;
-    const isStickyElement = isStickyScrollElement(
-      e.browserEvent.target
-    );
+    const isStickyElement = isStickyScrollElement(e.browserEvent.target);
     let expandOnlyOnTwistieClick = false;
     if (isStickyElement) {
       expandOnlyOnTwistieClick = true;
     } else if (typeof this.tree.expandOnlyOnTwistieClick === "function") {
-      expandOnlyOnTwistieClick = this.tree.expandOnlyOnTwistieClick(
-        node.element
-      );
+      expandOnlyOnTwistieClick = this.tree.expandOnlyOnTwistieClick(node.element);
     } else {
       expandOnlyOnTwistieClick = !!this.tree.expandOnlyOnTwistieClick;
     }
-    if (isStickyElement) {
-      this.handleStickyScrollMouseEvent(e, node);
-    } else {
+    if (!isStickyElement) {
       if (expandOnlyOnTwistieClick && !onTwistie && e.browserEvent.detail !== 2) {
         return super.onViewPointer(e);
       }
       if (!this.tree.expandOnDoubleClick && e.browserEvent.detail === 2) {
         return super.onViewPointer(e);
       }
+    } else {
+      this.handleStickyScrollMouseEvent(e, node);
     }
     if (node.collapsible && (!isStickyElement || onTwistie)) {
       const location = this.tree.getNodeLocation(node);
@@ -2228,11 +1837,7 @@ class TreeNodeList extends List {
     __name(this, "TreeNodeList");
   }
   createMouseController(options) {
-    return new TreeNodeListMouseController(
-      this,
-      options.tree,
-      options.stickyScrollProvider
-    );
+    return new TreeNodeListMouseController(this, options.tree, options.stickyScrollProvider);
   }
   splice(start, deleteCount, elements = []) {
     super.splice(start, deleteCount, elements);
@@ -2257,9 +1862,7 @@ class TreeNodeList extends List {
       super.setFocus(distinct([...super.getFocus(), ...additionalFocus]));
     }
     if (additionalSelection.length > 0) {
-      super.setSelection(
-        distinct([...super.getSelection(), ...additionalSelection])
-      );
+      super.setSelection(distinct([...super.getSelection(), ...additionalSelection]));
     }
     if (typeof anchor === "number") {
       super.setAnchor(anchor);
@@ -2268,19 +1871,13 @@ class TreeNodeList extends List {
   setFocus(indexes, browserEvent, fromAPI = false) {
     super.setFocus(indexes, browserEvent);
     if (!fromAPI) {
-      this.focusTrait.set(
-        indexes.map((i) => this.element(i)),
-        browserEvent
-      );
+      this.focusTrait.set(indexes.map((i) => this.element(i)), browserEvent);
     }
   }
   setSelection(indexes, browserEvent, fromAPI = false) {
     super.setSelection(indexes, browserEvent);
     if (!fromAPI) {
-      this.selectionTrait.set(
-        indexes.map((i) => this.element(i)),
-        browserEvent
-      );
+      this.selectionTrait.set(indexes.map((i) => this.element(i)), browserEvent);
     }
   }
   setAnchor(index, fromAPI = false) {
@@ -2305,125 +1902,57 @@ class AbstractTree {
     this._options = _options;
     let filter;
     if (_options.keyboardNavigationLabelProvider) {
-      filter = new FindFilter(
-        this,
-        _options.keyboardNavigationLabelProvider,
-        _options.filter
-      );
-      _options = {
-        ..._options,
-        filter
-      };
+      filter = new FindFilter(this, _options.keyboardNavigationLabelProvider, _options.filter);
+      _options = { ..._options, filter };
       this.disposables.add(filter);
     }
     this.model = this.createModel(_user, _options);
     this.treeDelegate = new ComposedTreeDelegate(delegate);
-    const activeNodes = this.disposables.add(
-      new EventCollection(this.onDidChangeActiveNodesRelay.event)
-    );
+    const activeNodes = this.disposables.add(new EventCollection(this.onDidChangeActiveNodesRelay.event));
     const renderedIndentGuides = new SetMap();
-    this.renderers = renderers.map(
-      (r) => new TreeRenderer(
-        r,
-        this.model,
-        this.onDidChangeCollapseStateRelay.event,
-        activeNodes,
-        renderedIndentGuides,
-        _options
-      )
-    );
+    this.renderers = renderers.map((r) => new TreeRenderer(r, this.model, this.onDidChangeCollapseStateRelay.event, activeNodes, renderedIndentGuides, _options));
     for (const r of this.renderers) {
       this.disposables.add(r);
     }
-    this.focus = new Trait(
-      () => this.view.getFocusedElements()[0],
-      _options.identityProvider
-    );
-    this.selection = new Trait(
-      () => this.view.getSelectedElements()[0],
-      _options.identityProvider
-    );
-    this.anchor = new Trait(
-      () => this.view.getAnchorElement(),
-      _options.identityProvider
-    );
-    this.view = new TreeNodeList(
-      _user,
-      container,
-      this.treeDelegate,
-      this.renderers,
-      this.focus,
-      this.selection,
-      this.anchor,
-      {
-        ...asListOptions(() => this.model, _options),
-        tree: this,
-        stickyScrollProvider: /* @__PURE__ */ __name(() => this.stickyScrollController, "stickyScrollProvider")
-      }
-    );
+    this.focus = new Trait(() => this.view.getFocusedElements()[0], _options.identityProvider);
+    this.selection = new Trait(() => this.view.getSelectedElements()[0], _options.identityProvider);
+    this.anchor = new Trait(() => this.view.getAnchorElement(), _options.identityProvider);
+    this.view = new TreeNodeList(_user, container, this.treeDelegate, this.renderers, this.focus, this.selection, this.anchor, { ...asListOptions(() => this.model, _options), tree: this, stickyScrollProvider: /* @__PURE__ */ __name(() => this.stickyScrollController, "stickyScrollProvider") });
     this.setupModel(this.model);
     if (_options.keyboardSupport !== false) {
       const onKeyDown = Event.chain(
         this.view.onKeyDown,
-        ($2) => $2.filter(
-          (e) => !isEditableElement(e.target)
-        ).map((e) => new StandardKeyboardEvent(e))
+        ($2) => $2.filter((e) => !isEditableElement(e.target)).map((e) => new StandardKeyboardEvent(e))
       );
-      Event.chain(
-        onKeyDown,
-        ($2) => $2.filter((e) => e.keyCode === KeyCode.LeftArrow)
-      )(this.onLeftArrow, this, this.disposables);
-      Event.chain(
-        onKeyDown,
-        ($2) => $2.filter((e) => e.keyCode === KeyCode.RightArrow)
-      )(this.onRightArrow, this, this.disposables);
-      Event.chain(
-        onKeyDown,
-        ($2) => $2.filter((e) => e.keyCode === KeyCode.Space)
-      )(this.onSpace, this, this.disposables);
+      Event.chain(onKeyDown, ($2) => $2.filter((e) => e.keyCode === KeyCode.LeftArrow))(this.onLeftArrow, this, this.disposables);
+      Event.chain(onKeyDown, ($2) => $2.filter((e) => e.keyCode === KeyCode.RightArrow))(this.onRightArrow, this, this.disposables);
+      Event.chain(onKeyDown, ($2) => $2.filter((e) => e.keyCode === KeyCode.Space))(this.onSpace, this, this.disposables);
     }
     if ((_options.findWidgetEnabled ?? true) && _options.keyboardNavigationLabelProvider && _options.contextViewProvider) {
       const opts = this.options.findWidgetStyles ? { styles: this.options.findWidgetStyles } : void 0;
-      this.findController = new FindController(
-        this,
-        filter,
-        _options.contextViewProvider,
-        opts
-      );
+      this.findController = new FindController(this, filter, _options.contextViewProvider, opts);
       this.focusNavigationFilter = (node) => this.findController.shouldAllowFocus(node);
       this.onDidChangeFindOpenState = this.findController.onDidChangeOpenState;
       this.disposables.add(this.findController);
       this.onDidChangeFindMode = this.findController.onDidChangeMode;
       this.onDidChangeFindMatchType = this.findController.onDidChangeMatchType;
-      this.disposables.add(
-        this.onDidSpliceModelRelay.event(() => {
-          if (!this.findController.isOpened() || this.findController.pattern.length === 0) {
-            return;
-          }
-          this.refilter();
-          this.findController.render();
-        })
-      );
+      this.disposables.add(this.onDidSpliceModelRelay.event(() => {
+        if (!this.findController.isOpened() || this.findController.pattern.length === 0) {
+          return;
+        }
+        this.refilter();
+        this.findController.render();
+      }));
     } else {
       this.onDidChangeFindMode = Event.None;
       this.onDidChangeFindMatchType = Event.None;
     }
     if (_options.enableStickyScroll) {
-      this.stickyScrollController = new StickyScrollController(
-        this,
-        this.model,
-        this.view,
-        this.renderers,
-        this.treeDelegate,
-        _options
-      );
+      this.stickyScrollController = new StickyScrollController(this, this.model, this.view, this.renderers, this.treeDelegate, _options);
       this.onDidChangeStickyScrollFocused = this.stickyScrollController.onDidChangeHasFocus;
     }
     this.styleElement = createStyleSheet(this.view.getHTMLElement());
-    this.getHTMLElement().classList.toggle(
-      "always",
-      this._options.renderIndentGuides === "always" /* Always */
-    );
+    this.getHTMLElement().classList.toggle("always", this._options.renderIndentGuides === "always" /* Always */);
   }
   static {
     __name(this, "AbstractTree");
@@ -2456,10 +1985,7 @@ class AbstractTree {
     return Event.map(this.view.onMouseClick, asTreeMouseEvent);
   }
   get onMouseDblClick() {
-    return Event.filter(
-      Event.map(this.view.onMouseDblClick, asTreeMouseEvent),
-      (e) => e.target !== TreeMouseEventTarget.Filter
-    );
+    return Event.filter(Event.map(this.view.onMouseDblClick, asTreeMouseEvent), (e) => e.target !== TreeMouseEventTarget.Filter);
   }
   get onMouseOver() {
     return Event.map(this.view.onMouseOver, asTreeMouseEvent);
@@ -2468,13 +1994,7 @@ class AbstractTree {
     return Event.map(this.view.onMouseOut, asTreeMouseEvent);
   }
   get onContextMenu() {
-    return Event.any(
-      Event.filter(
-        Event.map(this.view.onContextMenu, asTreeContextMenuEvent),
-        (e) => !e.isStickyScroll
-      ),
-      this.stickyScrollController?.onContextMenu ?? Event.None
-    );
+    return Event.any(Event.filter(Event.map(this.view.onContextMenu, asTreeContextMenuEvent), (e) => !e.isStickyScroll), this.stickyScrollController?.onContextMenu ?? Event.None);
   }
   get onTap() {
     return Event.map(this.view.onTap, asTreeMouseEvent);
@@ -2498,26 +2018,13 @@ class AbstractTree {
     return this.view.onDidBlur;
   }
   onDidSwapModel = this.disposables.add(new Emitter());
-  onDidChangeModelRelay = this.disposables.add(
-    new Relay()
-  );
-  onDidSpliceModelRelay = this.disposables.add(
-    new Relay()
-  );
-  onDidChangeCollapseStateRelay = this.disposables.add(
-    new Relay()
-  );
-  onDidChangeRenderNodeCountRelay = this.disposables.add(
-    new Relay()
-  );
-  onDidChangeActiveNodesRelay = this.disposables.add(
-    new Relay()
-  );
+  onDidChangeModelRelay = this.disposables.add(new Relay());
+  onDidSpliceModelRelay = this.disposables.add(new Relay());
+  onDidChangeCollapseStateRelay = this.disposables.add(new Relay());
+  onDidChangeRenderNodeCountRelay = this.disposables.add(new Relay());
+  onDidChangeActiveNodesRelay = this.disposables.add(new Relay());
   get onDidChangeModel() {
-    return Event.any(
-      this.onDidChangeModelRelay.event,
-      this.onDidSwapModel.event
-    );
+    return Event.any(this.onDidChangeModelRelay.event, this.onDidSwapModel.event);
   }
   get onDidChangeCollapseState() {
     return this.model.onDidChangeCollapseState;
@@ -2568,24 +2075,14 @@ class AbstractTree {
     this.findController?.updateOptions(optionsUpdate);
     this.updateStickyScroll(optionsUpdate);
     this._onDidUpdateOptions.fire(this._options);
-    this.getHTMLElement().classList.toggle(
-      "always",
-      this._options.renderIndentGuides === "always" /* Always */
-    );
+    this.getHTMLElement().classList.toggle("always", this._options.renderIndentGuides === "always" /* Always */);
   }
   get options() {
     return this._options;
   }
   updateStickyScroll(optionsUpdate) {
     if (!this.stickyScrollController && this._options.enableStickyScroll) {
-      this.stickyScrollController = new StickyScrollController(
-        this,
-        this.model,
-        this.view,
-        this.renderers,
-        this.treeDelegate,
-        this._options
-      );
+      this.stickyScrollController = new StickyScrollController(this, this.model, this.view, this.renderers, this.treeDelegate, this._options);
       this.onDidChangeStickyScrollFocused = this.stickyScrollController.onDidChangeHasFocus;
     } else if (this.stickyScrollController && !this._options.enableStickyScroll) {
       this.onDidChangeStickyScrollFocused = Event.None;
@@ -2680,71 +2177,35 @@ class AbstractTree {
     const suffix = `.${this.view.domId}`;
     const content = [];
     if (styles.treeIndentGuidesStroke) {
-      content.push(
-        `.monaco-list${suffix}:hover .monaco-tl-indent > .indent-guide, .monaco-list${suffix}.always .monaco-tl-indent > .indent-guide  { border-color: ${styles.treeInactiveIndentGuidesStroke}; }`
-      );
-      content.push(
-        `.monaco-list${suffix} .monaco-tl-indent > .indent-guide.active { border-color: ${styles.treeIndentGuidesStroke}; }`
-      );
+      content.push(`.monaco-list${suffix}:hover .monaco-tl-indent > .indent-guide, .monaco-list${suffix}.always .monaco-tl-indent > .indent-guide  { border-color: ${styles.treeInactiveIndentGuidesStroke}; }`);
+      content.push(`.monaco-list${suffix} .monaco-tl-indent > .indent-guide.active { border-color: ${styles.treeIndentGuidesStroke}; }`);
     }
     const stickyScrollBackground = styles.treeStickyScrollBackground ?? styles.listBackground;
     if (stickyScrollBackground) {
-      content.push(
-        `.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container { background-color: ${stickyScrollBackground}; }`
-      );
-      content.push(
-        `.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container .monaco-tree-sticky-row { background-color: ${stickyScrollBackground}; }`
-      );
+      content.push(`.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container { background-color: ${stickyScrollBackground}; }`);
+      content.push(`.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container .monaco-tree-sticky-row { background-color: ${stickyScrollBackground}; }`);
     }
     if (styles.treeStickyScrollBorder) {
-      content.push(
-        `.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container { border-bottom: 1px solid ${styles.treeStickyScrollBorder}; }`
-      );
+      content.push(`.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container { border-bottom: 1px solid ${styles.treeStickyScrollBorder}; }`);
     }
     if (styles.treeStickyScrollShadow) {
-      content.push(
-        `.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container .monaco-tree-sticky-container-shadow { box-shadow: ${styles.treeStickyScrollShadow} 0 6px 6px -6px inset; height: 3px; }`
-      );
+      content.push(`.monaco-list${suffix} .monaco-scrollable-element .monaco-tree-sticky-container .monaco-tree-sticky-container-shadow { box-shadow: ${styles.treeStickyScrollShadow} 0 6px 6px -6px inset; height: 3px; }`);
     }
     if (styles.listFocusForeground) {
-      content.push(
-        `.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`
-      );
-      content.push(
-        `.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused { color: inherit; }`
-      );
+      content.push(`.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`);
+      content.push(`.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused { color: inherit; }`);
     }
-    const focusAndSelectionOutline = asCssValueWithDefault(
-      styles.listFocusAndSelectionOutline,
-      asCssValueWithDefault(
-        styles.listSelectionOutline,
-        styles.listFocusOutline ?? ""
-      )
-    );
+    const focusAndSelectionOutline = asCssValueWithDefault(styles.listFocusAndSelectionOutline, asCssValueWithDefault(styles.listSelectionOutline, styles.listFocusOutline ?? ""));
     if (focusAndSelectionOutline) {
-      content.push(
-        `.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused.selected { outline: 1px solid ${focusAndSelectionOutline}; outline-offset: -1px;}`
-      );
-      content.push(
-        `.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused.selected { outline: inherit;}`
-      );
+      content.push(`.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused.selected { outline: 1px solid ${focusAndSelectionOutline}; outline-offset: -1px;}`);
+      content.push(`.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused.selected { outline: inherit;}`);
     }
     if (styles.listFocusOutline) {
-      content.push(
-        `.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`
-      );
-      content.push(
-        `.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused { outline: inherit; }`
-      );
-      content.push(
-        `.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.passive-focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`
-      );
-      content.push(
-        `.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused.sticky-scroll-focused .monaco-list-rows .monaco-list-row.focused { outline: inherit; }`
-      );
-      content.push(
-        `.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused:not(.sticky-scroll-focused) .monaco-tree-sticky-container .monaco-list-rows .monaco-list-row.focused { outline: inherit; }`
-      );
+      content.push(`.monaco-list${suffix}.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container:focus .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`);
+      content.push(`.monaco-list${suffix}:not(.sticky-scroll-focused) .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.focused { outline: inherit; }`);
+      content.push(`.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused.sticky-scroll-focused .monaco-scrollable-element .monaco-tree-sticky-container .monaco-list-row.passive-focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`);
+      content.push(`.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused.sticky-scroll-focused .monaco-list-rows .monaco-list-row.focused { outline: inherit; }`);
+      content.push(`.monaco-workbench.context-menu-visible .monaco-list${suffix}.last-focused:not(.sticky-scroll-focused) .monaco-tree-sticky-container .monaco-list-rows .monaco-list-row.focused { outline: inherit; }`);
     }
     this.styleElement.textContent = content.join("\n");
     this.view.style(styles);
@@ -2850,11 +2311,7 @@ class AbstractTree {
     return this.view.focusNextPage(browserEvent, filter);
   }
   focusPreviousPage(browserEvent, filter = isKeyboardEvent(browserEvent) && browserEvent.altKey ? void 0 : this.focusNavigationFilter) {
-    return this.view.focusPreviousPage(
-      browserEvent,
-      filter,
-      () => this.stickyScrollController?.height ?? 0
-    );
+    return this.view.focusPreviousPage(browserEvent, filter, () => this.stickyScrollController?.height ?? 0);
   }
   focusLast(browserEvent, filter = isKeyboardEvent(browserEvent) && browserEvent.altKey ? void 0 : this.focusNavigationFilter) {
     this.view.focusLast(browserEvent, filter);
@@ -2878,13 +2335,11 @@ class AbstractTree {
     if (index === -1) {
       return;
     }
-    if (this.stickyScrollController) {
-      const paddingTop = this.stickyScrollController.nodePositionTopBelowWidget(
-        this.getNode(location)
-      );
-      this.view.reveal(index, relativeTop, paddingTop);
-    } else {
+    if (!this.stickyScrollController) {
       this.view.reveal(index, relativeTop);
+    } else {
+      const paddingTop = this.stickyScrollController.nodePositionTopBelowWidget(this.getNode(location));
+      this.view.reveal(index, relativeTop, paddingTop);
     }
   }
   /**
@@ -2896,20 +2351,12 @@ class AbstractTree {
     if (index === -1) {
       return null;
     }
-    const stickyScrollNode = this.stickyScrollController?.getNode(
-      this.getNode(location)
-    );
-    return this.view.getRelativeTop(
-      index,
-      stickyScrollNode?.position ?? this.stickyScrollController?.height
-    );
+    const stickyScrollNode = this.stickyScrollController?.getNode(this.getNode(location));
+    return this.view.getRelativeTop(index, stickyScrollNode?.position ?? this.stickyScrollController?.height);
   }
   getViewState(identityProvider = this.options.identityProvider) {
     if (!identityProvider) {
-      throw new TreeError(
-        this._user,
-        "Can't get tree view state without an identity provider"
-      );
+      throw new TreeError(this._user, "Can't get tree view state without an identity provider");
     }
     const getId = /* @__PURE__ */ __name((element) => identityProvider.getId(element).toString(), "getId");
     const state = AbstractTreeViewState.empty(this.scrollTop);
@@ -2986,44 +2433,28 @@ class AbstractTree {
   modelDisposables = new DisposableStore();
   setupModel(model) {
     this.modelDisposables.clear();
-    this.modelDisposables.add(
-      model.onDidSpliceRenderedNodes(
-        ({ start, deleteCount, elements }) => this.view.splice(start, deleteCount, elements)
-      )
-    );
-    const onDidModelSplice = Event.forEach(
-      model.onDidSpliceModel,
-      (e) => {
-        this.eventBufferer.bufferEvents(() => {
-          this.focus.onDidModelSplice(e);
-          this.selection.onDidModelSplice(e);
-        });
-      },
-      this.modelDisposables
-    );
+    this.modelDisposables.add(model.onDidSpliceRenderedNodes(({ start, deleteCount, elements }) => this.view.splice(start, deleteCount, elements)));
+    const onDidModelSplice = Event.forEach(model.onDidSpliceModel, (e) => {
+      this.eventBufferer.bufferEvents(() => {
+        this.focus.onDidModelSplice(e);
+        this.selection.onDidModelSplice(e);
+      });
+    }, this.modelDisposables);
     onDidModelSplice(() => null, null, this.modelDisposables);
-    const activeNodesEmitter = this.modelDisposables.add(
-      new Emitter()
-    );
+    const activeNodesEmitter = this.modelDisposables.add(new Emitter());
     const activeNodesDebounce = this.modelDisposables.add(new Delayer(0));
-    this.modelDisposables.add(
-      Event.any(
-        onDidModelSplice,
-        this.focus.onDidChange,
-        this.selection.onDidChange
-      )(() => {
-        activeNodesDebounce.trigger(() => {
-          const set = /* @__PURE__ */ new Set();
-          for (const node of this.focus.getNodes()) {
-            set.add(node);
-          }
-          for (const node of this.selection.getNodes()) {
-            set.add(node);
-          }
-          activeNodesEmitter.fire([...set.values()]);
-        });
-      })
-    );
+    this.modelDisposables.add(Event.any(onDidModelSplice, this.focus.onDidChange, this.selection.onDidChange)(() => {
+      activeNodesDebounce.trigger(() => {
+        const set = /* @__PURE__ */ new Set();
+        for (const node of this.focus.getNodes()) {
+          set.add(node);
+        }
+        for (const node of this.selection.getNodes()) {
+          set.add(node);
+        }
+        activeNodesEmitter.fire([...set.values()]);
+      });
+    }));
     this.onDidChangeActiveNodesRelay.input = activeNodesEmitter.event;
     this.onDidChangeModelRelay.input = Event.signal(model.onDidSpliceModel);
     this.onDidChangeCollapseStateRelay.input = model.onDidChangeCollapseState;

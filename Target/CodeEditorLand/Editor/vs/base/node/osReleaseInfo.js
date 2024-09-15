@@ -8,11 +8,7 @@ async function getOSReleaseInfo(errorLogger) {
     return;
   }
   let handle;
-  for (const filePath of [
-    "/etc/os-release",
-    "/usr/lib/os-release",
-    "/etc/lsb-release"
-  ]) {
+  for (const filePath of ["/etc/os-release", "/usr/lib/os-release", "/etc/lsb-release"]) {
     try {
       handle = await FSPromises.open(filePath, FSConstants.R_OK);
       break;
@@ -20,9 +16,7 @@ async function getOSReleaseInfo(errorLogger) {
     }
   }
   if (!handle) {
-    errorLogger(
-      "Unable to retrieve release information from known identifier paths."
-    );
+    errorLogger("Unable to retrieve release information from known identifier paths.");
     return;
   }
   try {
@@ -36,10 +30,7 @@ async function getOSReleaseInfo(errorLogger) {
     const releaseInfo = {
       id: "unknown"
     };
-    for await (const line of readLines({
-      input: handle.createReadStream(),
-      crlfDelay: Number.POSITIVE_INFINITY
-    })) {
+    for await (const line of readLines({ input: handle.createReadStream(), crlfDelay: Infinity })) {
       if (!line.includes("=")) {
         continue;
       }

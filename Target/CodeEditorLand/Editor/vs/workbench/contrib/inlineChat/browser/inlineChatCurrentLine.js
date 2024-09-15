@@ -10,39 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  EditorAction2
-} from "../../../../editor/browser/editorExtensions.js";
-import { EditOperation } from "../../../../editor/common/core/editOperation.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { Range } from "../../../../editor/common/core/range.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
-import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
 import { localize, localize2 } from "../../../../nls.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { IChatAgentService } from "../../chat/common/chatAgents.js";
-import {
-  CTX_INLINE_CHAT_HAS_AGENT,
-  CTX_INLINE_CHAT_VISIBLE
-} from "../common/inlineChat.js";
-import { AbstractInlineChatAction } from "./inlineChatActions.js";
 import { InlineChatController, State } from "./inlineChatController.js";
-const CTX_INLINE_CHAT_EXPANSION = new RawContextKey(
-  "inlineChatExpansion",
-  false,
-  localize(
-    "inlineChatExpansion",
-    "Whether the inline chat expansion is enabled when at the end of a just-typed line"
-  )
-);
+import { CTX_INLINE_CHAT_HAS_AGENT, CTX_INLINE_CHAT_VISIBLE } from "../common/inlineChat.js";
+import { EditorAction2, ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { EditOperation } from "../../../../editor/common/core/editOperation.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { AbstractInlineChatAction } from "./inlineChatActions.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { IValidEditOperation } from "../../../../editor/common/model.js";
+const CTX_INLINE_CHAT_EXPANSION = new RawContextKey("inlineChatExpansion", false, localize("inlineChatExpansion", "Whether the inline chat expansion is enabled when at the end of a just-typed line"));
 let InlineChatExansionContextKey = class {
   static {
     __name(this, "InlineChatExansionContextKey");
@@ -73,38 +57,32 @@ let InlineChatExansionContextKey = class {
     this._editorListener.value = store;
     const model = editor.getModel();
     const lastChangeEnds = [];
-    store.add(
-      editor.onDidChangeCursorPosition((e) => {
-        let enabled = false;
-        if (e.reason === CursorChangeReason.NotSet) {
-          const position = editor.getPosition();
-          const positionOffset = model.getOffsetAt(position);
-          const lineLength = model.getLineLength(position.lineNumber);
-          const firstNonWhitespace = model.getLineFirstNonWhitespaceColumn(
-            position.lineNumber
-          );
-          if (firstNonWhitespace !== 0 && position.column > lineLength && lastChangeEnds.includes(positionOffset)) {
-            enabled = true;
-          }
+    store.add(editor.onDidChangeCursorPosition((e) => {
+      let enabled = false;
+      if (e.reason === CursorChangeReason.NotSet) {
+        const position = editor.getPosition();
+        const positionOffset = model.getOffsetAt(position);
+        const lineLength = model.getLineLength(position.lineNumber);
+        const firstNonWhitespace = model.getLineFirstNonWhitespaceColumn(position.lineNumber);
+        if (firstNonWhitespace !== 0 && position.column > lineLength && lastChangeEnds.includes(positionOffset)) {
+          enabled = true;
         }
-        lastChangeEnds.length = 0;
-        this._ctxInlineChatExpansion.set(enabled);
-      })
-    );
-    store.add(
-      editor.onDidChangeModelContent((e) => {
-        lastChangeEnds.length = 0;
-        for (const change of e.changes) {
-          const changeEnd = change.rangeOffset + change.text.length;
-          lastChangeEnds.push(changeEnd);
+      }
+      lastChangeEnds.length = 0;
+      this._ctxInlineChatExpansion.set(enabled);
+    }));
+    store.add(editor.onDidChangeModelContent((e) => {
+      lastChangeEnds.length = 0;
+      for (const change of e.changes) {
+        const changeEnd = change.rangeOffset + change.text.length;
+        lastChangeEnds.push(changeEnd);
+      }
+      queueMicrotask(() => {
+        if (lastChangeEnds.length > 0) {
+          this._ctxInlineChatExpansion.set(false);
         }
-        queueMicrotask(() => {
-          if (lastChangeEnds.length > 0) {
-            this._ctxInlineChatExpansion.set(false);
-          }
-        });
-      })
-    );
+      });
+    }));
   }
   _uninstall() {
     this._editorListener.clear();
@@ -122,16 +100,9 @@ class InlineChatExpandLineAction extends EditorAction2 {
     super({
       id: "inlineChat.startWithCurrentLine",
       category: AbstractInlineChatAction.category,
-      title: localize2(
-        "startWithCurrentLine",
-        "Start in Editor with Current Line"
-      ),
+      title: localize2("startWithCurrentLine", "Start in Editor with Current Line"),
       f1: true,
-      precondition: ContextKeyExpr.and(
-        CTX_INLINE_CHAT_VISIBLE.negate(),
-        CTX_INLINE_CHAT_HAS_AGENT,
-        EditorContextKeys.writable
-      )
+      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_VISIBLE.negate(), CTX_INLINE_CHAT_HAS_AGENT, EditorContextKeys.writable)
       // keybinding: {
       // 	when: CTX_INLINE_CHAT_EXPANSION,
       // 	weight: KeybindingWeight.EditorContrib,
@@ -150,19 +121,10 @@ class InlineChatExpandLineAction extends EditorAction2 {
     const startColumn = model.getLineFirstNonWhitespaceColumn(lineNumber);
     const endColumn = model.getLineMaxColumn(lineNumber);
     let undoEdits = [];
-    model.pushEditOperations(
-      null,
-      [
-        EditOperation.replace(
-          new Range(lineNumber, startColumn, lineNumber, endColumn),
-          ""
-        )
-      ],
-      (edits) => {
-        undoEdits = edits;
-        return null;
-      }
-    );
+    model.pushEditOperations(null, [EditOperation.replace(new Range(lineNumber, startColumn, lineNumber, endColumn), "")], (edits) => {
+      undoEdits = edits;
+      return null;
+    });
     let lastState;
     const d = ctrl.onDidEnterState((e) => lastState = e);
     try {

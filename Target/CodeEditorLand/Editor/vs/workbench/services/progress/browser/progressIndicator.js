@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  emptyProgressRunner
-} from "../../../../platform/progress/common/progress.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { IProgressRunner, IProgressIndicator, emptyProgressRunner } from "../../../../platform/progress/common/progress.js";
+import { IEditorGroupView } from "../../../browser/parts/editor/editor.js";
 import { GroupModelChangeKind } from "../../../common/editor.js";
 class EditorProgressIndicator extends Disposable {
   constructor(progressBar, group) {
@@ -17,13 +17,11 @@ class EditorProgressIndicator extends Disposable {
     __name(this, "EditorProgressIndicator");
   }
   registerListeners() {
-    this._register(
-      this.group.onDidModelChange((e) => {
-        if (e.kind === GroupModelChangeKind.EDITOR_ACTIVE || e.kind === GroupModelChangeKind.EDITOR_CLOSE && this.group.isEmpty) {
-          this.progressBar.stop().hide();
-        }
-      })
-    );
+    this._register(this.group.onDidModelChange((e) => {
+      if (e.kind === GroupModelChangeKind.EDITOR_ACTIVE || e.kind === GroupModelChangeKind.EDITOR_CLOSE && this.group.isEmpty) {
+        this.progressBar.stop().hide();
+      }
+    }));
   }
   show(infiniteOrTotal, delay) {
     if (this.group.isEmpty) {
@@ -124,15 +122,13 @@ class ScopedProgressIndicator extends Disposable {
   }
   progressState = ProgressIndicatorState.None;
   registerListeners() {
-    this._register(
-      this.scope.onDidChangeActive(() => {
-        if (this.scope.isActive) {
-          this.onDidScopeActivate();
-        } else {
-          this.onDidScopeDeactivate();
-        }
-      })
-    );
+    this._register(this.scope.onDidChangeActive(() => {
+      if (this.scope.isActive) {
+        this.onDidScopeActivate();
+      } else {
+        this.onDidScopeDeactivate();
+      }
+    }));
   }
   onDidScopeActivate() {
     if (this.progressState.type === ProgressIndicatorState.Done.type) {
@@ -165,10 +161,7 @@ class ScopedProgressIndicator extends Disposable {
     if (typeof infiniteOrTotal === "boolean") {
       this.progressState = ProgressIndicatorState.Infinite;
     } else {
-      this.progressState = new ProgressIndicatorState.Work(
-        infiniteOrTotal,
-        void 0
-      );
+      this.progressState = new ProgressIndicatorState.Work(infiniteOrTotal, void 0);
     }
     if (this.scope.isActive) {
       if (this.progressState.type === 2 /* Infinite */) {
@@ -213,11 +206,7 @@ class ScopedProgressIndicator extends Disposable {
     if (this.progressState.type === 3 /* While */) {
       promise = Promise.all([promise, this.progressState.whilePromise]);
     }
-    this.progressState = new ProgressIndicatorState.While(
-      promise,
-      delay || 0,
-      Date.now()
-    );
+    this.progressState = new ProgressIndicatorState.While(promise, delay || 0, Date.now());
     try {
       this.doShowWhile(delay);
       await promise;

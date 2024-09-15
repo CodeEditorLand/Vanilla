@@ -10,19 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
 import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { IAction, IActionRunner } from "../../../../base/common/actions.js";
 import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
 import { localize } from "../../../../nls.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  EXTENSION_SETTING_TAG,
-  FEATURE_SETTING_TAG,
-  GENERAL_TAG_SETTING_TAG,
-  LANGUAGE_SETTING_TAG,
-  MODIFIED_SETTING_TAG,
-  POLICY_SETTING_TAG
-} from "../common/preferences.js";
+import { SuggestEnabledInput } from "../../codeEditor/browser/suggestEnabledInput/suggestEnabledInput.js";
+import { EXTENSION_SETTING_TAG, FEATURE_SETTING_TAG, GENERAL_TAG_SETTING_TAG, LANGUAGE_SETTING_TAG, MODIFIED_SETTING_TAG, POLICY_SETTING_TAG } from "../common/preferences.js";
 let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuActionViewItem {
   constructor(action, options, actionRunner, searchWidget, contextMenuService) {
     super(
@@ -38,9 +34,7 @@ let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuA
       }
     );
     this.searchWidget = searchWidget;
-    this.suggestController = SuggestController.get(
-      this.searchWidget.inputWidget
-    );
+    this.suggestController = SuggestController.get(this.searchWidget.inputWidget);
   }
   static {
     __name(this, "SettingsSearchFilterDropdownMenuActionViewItem");
@@ -50,9 +44,7 @@ let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuA
     super.render(container);
   }
   doSearchWidgetAction(queryToAppend, triggerSuggest) {
-    this.searchWidget.setValue(
-      this.searchWidget.getValue().trimEnd() + " " + queryToAppend
-    );
+    this.searchWidget.setValue(this.searchWidget.getValue().trimEnd() + " " + queryToAppend);
     this.searchWidget.focus();
     if (triggerSuggest && this.suggestController) {
       this.suggestController.triggerSuggest();
@@ -89,13 +81,13 @@ let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuA
       enabled: true,
       checked: queryContainsQueryToAppend,
       run: /* @__PURE__ */ __name(() => {
-        if (queryContainsQueryToAppend) {
-          const queryWithRemovedTags = this.searchWidget.getValue().split(" ").filter((word) => word !== queryToAppend).join(" ");
-          this.searchWidget.setValue(queryWithRemovedTags);
-        } else {
+        if (!queryContainsQueryToAppend) {
           const trimmedCurrentQuery = this.searchWidget.getValue().trimEnd();
           const newQuery = trimmedCurrentQuery ? trimmedCurrentQuery + " " + queryToAppend : queryToAppend;
           this.searchWidget.setValue(newQuery);
+        } else {
+          const queryWithRemovedTags = this.searchWidget.getValue().split(" ").filter((word) => word !== queryToAppend).join(" ");
+          this.searchWidget.setValue(queryWithRemovedTags);
         }
         this.searchWidget.focus();
       }, "run")
@@ -106,10 +98,7 @@ let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuA
       this.createToggleAction(
         "modifiedSettingsSearch",
         localize("modifiedSettingsSearch", "Modified"),
-        localize(
-          "modifiedSettingsSearchTooltip",
-          "Add or remove modified settings filter"
-        ),
+        localize("modifiedSettingsSearchTooltip", "Add or remove modified settings filter"),
         `@${MODIFIED_SETTING_TAG}`
       ),
       this.createAction(
@@ -143,19 +132,13 @@ let SettingsSearchFilterDropdownMenuActionViewItem = class extends DropdownMenuA
       this.createToggleAction(
         "onlineSettingsSearch",
         localize("onlineSettingsSearch", "Online services"),
-        localize(
-          "onlineSettingsSearchTooltip",
-          "Show settings for online services"
-        ),
+        localize("onlineSettingsSearchTooltip", "Show settings for online services"),
         "@tag:usesOnlineServices"
       ),
       this.createToggleAction(
         "policySettingsSearch",
         localize("policySettingsSearch", "Policy services"),
-        localize(
-          "policySettingsSearchTooltip",
-          "Show settings for policy services"
-        ),
+        localize("policySettingsSearchTooltip", "Show settings for policy services"),
         `@${POLICY_SETTING_TAG}`
       )
     ];

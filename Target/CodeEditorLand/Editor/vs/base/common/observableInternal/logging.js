@@ -1,5 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AutorunObserver } from "./autorun.js";
+import { IObservable, ObservableValue, TransactionImpl } from "./base.js";
+import { Derived } from "./derived.js";
+import { FromEventObservable } from "./utils.js";
 let globalObservableLogger;
 function setLogger(logger) {
   globalObservableLogger = logger;
@@ -43,13 +47,11 @@ class ConsoleObservableLogger {
     ] : [normalText(` (unchanged)`)];
   }
   handleObservableChanged(observable, info) {
-    console.log(
-      ...this.textToConsoleArgs([
-        formatKind("observable value changed"),
-        styled(observable.debugName, { color: "BlueViolet" }),
-        ...this.formatInfo(info)
-      ])
-    );
+    console.log(...this.textToConsoleArgs([
+      formatKind("observable value changed"),
+      styled(observable.debugName, { color: "BlueViolet" }),
+      ...this.formatInfo(info)
+    ]));
   }
   changedObservablesSets = /* @__PURE__ */ new WeakMap();
   formatChanges(changes) {
@@ -71,32 +73,22 @@ class ConsoleObservableLogger {
   }
   handleDerivedRecomputed(derived, info) {
     const changedObservables = this.changedObservablesSets.get(derived);
-    console.log(
-      ...this.textToConsoleArgs([
-        formatKind("derived recomputed"),
-        styled(derived.debugName, { color: "BlueViolet" }),
-        ...this.formatInfo(info),
-        this.formatChanges(changedObservables),
-        {
-          data: [
-            {
-              fn: derived._debugNameData.referenceFn ?? derived._computeFn
-            }
-          ]
-        }
-      ])
-    );
+    console.log(...this.textToConsoleArgs([
+      formatKind("derived recomputed"),
+      styled(derived.debugName, { color: "BlueViolet" }),
+      ...this.formatInfo(info),
+      this.formatChanges(changedObservables),
+      { data: [{ fn: derived._debugNameData.referenceFn ?? derived._computeFn }] }
+    ]));
     changedObservables.clear();
   }
   handleFromEventObservableTriggered(observable, info) {
-    console.log(
-      ...this.textToConsoleArgs([
-        formatKind("observable from event triggered"),
-        styled(observable.debugName, { color: "BlueViolet" }),
-        ...this.formatInfo(info),
-        { data: [{ fn: observable._getValue }] }
-      ])
-    );
+    console.log(...this.textToConsoleArgs([
+      formatKind("observable from event triggered"),
+      styled(observable.debugName, { color: "BlueViolet" }),
+      ...this.formatInfo(info),
+      { data: [{ fn: observable._getValue }] }
+    ]));
   }
   handleAutorunCreated(autorun) {
     const existingHandleChange = autorun.handleChange;
@@ -108,20 +100,12 @@ class ConsoleObservableLogger {
   }
   handleAutorunTriggered(autorun) {
     const changedObservables = this.changedObservablesSets.get(autorun);
-    console.log(
-      ...this.textToConsoleArgs([
-        formatKind("autorun"),
-        styled(autorun.debugName, { color: "BlueViolet" }),
-        this.formatChanges(changedObservables),
-        {
-          data: [
-            {
-              fn: autorun._debugNameData.referenceFn ?? autorun._runFn
-            }
-          ]
-        }
-      ])
-    );
+    console.log(...this.textToConsoleArgs([
+      formatKind("autorun"),
+      styled(autorun.debugName, { color: "BlueViolet" }),
+      this.formatChanges(changedObservables),
+      { data: [{ fn: autorun._debugNameData.referenceFn ?? autorun._runFn }] }
+    ]));
     changedObservables.clear();
     this.indentation++;
   }
@@ -133,13 +117,11 @@ class ConsoleObservableLogger {
     if (transactionName === void 0) {
       transactionName = "";
     }
-    console.log(
-      ...this.textToConsoleArgs([
-        formatKind("transaction"),
-        styled(transactionName, { color: "BlueViolet" }),
-        { data: [{ fn: transaction._fn }] }
-      ])
-    );
+    console.log(...this.textToConsoleArgs([
+      formatKind("transaction"),
+      styled(transactionName, { color: "BlueViolet" }),
+      { data: [{ fn: transaction._fn }] }
+    ]));
     this.indentation++;
   }
   handleEndTransaction() {

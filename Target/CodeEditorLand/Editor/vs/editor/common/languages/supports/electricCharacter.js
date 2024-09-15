@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "../../../../base/common/arrays.js";
-import { ignoreBracketsInToken } from "../supports.js";
-import { BracketsUtils } from "./richEditBrackets.js";
+import { ScopedLineTokens, ignoreBracketsInToken } from "../supports.js";
+import { BracketsUtils, RichEditBrackets } from "./richEditBrackets.js";
 class BracketElectricCharacterSupport {
   static {
     __name(this, "BracketElectricCharacterSupport");
@@ -33,13 +33,7 @@ class BracketElectricCharacterSupport {
     }
     const reversedBracketRegex = this._richEditBrackets.reversedRegex;
     const text = context.getLineContent().substring(0, column - 1) + character;
-    const r = BracketsUtils.findPrevBracketInRange(
-      reversedBracketRegex,
-      1,
-      text,
-      0,
-      text.length
-    );
+    const r = BracketsUtils.findPrevBracketInRange(reversedBracketRegex, 1, text, 0, text.length);
     if (!r) {
       return null;
     }
@@ -48,9 +42,7 @@ class BracketElectricCharacterSupport {
     if (isOpen) {
       return null;
     }
-    const textBeforeBracket = context.getActualLineContentBefore(
-      r.startColumn - 1
-    );
+    const textBeforeBracket = context.getActualLineContentBefore(r.startColumn - 1);
     if (!/^\s*$/.test(textBeforeBracket)) {
       return null;
     }

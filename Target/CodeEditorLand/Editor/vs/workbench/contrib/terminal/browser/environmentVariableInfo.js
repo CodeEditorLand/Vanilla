@@ -10,16 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Codicon } from "../../../../base/common/codicons.js";
-import Severity from "../../../../base/common/severity.js";
+import { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
+import { ITerminalStatus, ITerminalStatusHoverAction, TerminalCommandId } from "../common/terminal.js";
+import { ITerminalService } from "./terminal.js";
 import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { EnvironmentVariableScope, IExtensionOwnedEnvironmentVariableMutator, IMergedEnvironmentVariableCollection, IMergedEnvironmentVariableCollectionDiff } from "../../../../platform/terminal/common/environmentVariable.js";
+import { TerminalStatus } from "./terminalStatusList.js";
+import Severity from "../../../../base/common/severity.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  TerminalCommandId
-} from "../common/terminal.js";
-import { ITerminalService } from "./terminal.js";
-import { TerminalStatus } from "./terminalStatusList.js";
 let EnvironmentVariableInfoStale = class {
   constructor(_diff, _terminalId, _collection, _terminalService, _extensionService) {
     this._diff = _diff;
@@ -37,26 +37,16 @@ let EnvironmentVariableInfoStale = class {
     addExtensionIdentifiers(extSet, this._diff.added.values());
     addExtensionIdentifiers(extSet, this._diff.removed.values());
     addExtensionIdentifiers(extSet, this._diff.changed.values());
-    let message = localize(
-      "extensionEnvironmentContributionInfoStale",
-      "The following extensions want to relaunch the terminal to contribute to its environment:"
-    );
-    message += getMergedDescription(
-      this._collection,
-      scope,
-      this._extensionService,
-      extSet
-    );
+    let message = localize("extensionEnvironmentContributionInfoStale", "The following extensions want to relaunch the terminal to contribute to its environment:");
+    message += getMergedDescription(this._collection, scope, this._extensionService, extSet);
     return message;
   }
   _getActions() {
-    return [
-      {
-        label: localize("relaunchTerminalLabel", "Relaunch Terminal"),
-        run: /* @__PURE__ */ __name(() => this._terminalService.getInstanceFromId(this._terminalId)?.relaunch(), "run"),
-        commandId: TerminalCommandId.Relaunch
-      }
-    ];
+    return [{
+      label: localize("relaunchTerminalLabel", "Relaunch Terminal"),
+      run: /* @__PURE__ */ __name(() => this._terminalService.getInstanceFromId(this._terminalId)?.relaunch(), "run"),
+      commandId: TerminalCommandId.Relaunch
+    }];
   }
   getStatus(scope) {
     return {
@@ -84,36 +74,17 @@ let EnvironmentVariableInfoChangesActive = class {
   requiresAction = false;
   _getInfo(scope) {
     const extSet = /* @__PURE__ */ new Set();
-    addExtensionIdentifiers(
-      extSet,
-      this._collection.getVariableMap(scope).values()
-    );
-    let message = localize(
-      "extensionEnvironmentContributionInfoActive",
-      "The following extensions have contributed to this terminal's environment:"
-    );
-    message += getMergedDescription(
-      this._collection,
-      scope,
-      this._extensionService,
-      extSet
-    );
+    addExtensionIdentifiers(extSet, this._collection.getVariableMap(scope).values());
+    let message = localize("extensionEnvironmentContributionInfoActive", "The following extensions have contributed to this terminal's environment:");
+    message += getMergedDescription(this._collection, scope, this._extensionService, extSet);
     return message;
   }
   _getActions(scope) {
-    return [
-      {
-        label: localize(
-          "showEnvironmentContributions",
-          "Show Environment Contributions"
-        ),
-        run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
-          TerminalCommandId.ShowEnvironmentContributions,
-          scope
-        ), "run"),
-        commandId: TerminalCommandId.ShowEnvironmentContributions
-      }
-    ];
+    return [{
+      label: localize("showEnvironmentContributions", "Show Environment Contributions"),
+      run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(TerminalCommandId.ShowEnvironmentContributions, scope), "run"),
+      commandId: TerminalCommandId.ShowEnvironmentContributions
+    }];
   }
   getStatus(scope) {
     return {
@@ -142,10 +113,8 @@ function getMergedDescription(collection, scope, extensionService, extSet) {
     const workspaceDescription = workspaceDescriptions.get(ext);
     if (workspaceDescription) {
       const workspaceSuffix = globalDescription ? ` (${localize("ScopedEnvironmentContributionInfo", "workspace")})` : "";
-      message.push(
-        `
-- \`${getExtensionName(ext, extensionService)}${workspaceSuffix}\``
-      );
+      message.push(`
+- \`${getExtensionName(ext, extensionService)}${workspaceSuffix}\``);
       message.push(`: ${workspaceDescription}`);
     }
     if (!globalDescription && !workspaceDescription) {

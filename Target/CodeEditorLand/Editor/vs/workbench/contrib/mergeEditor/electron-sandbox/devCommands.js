@@ -6,19 +6,19 @@ import { randomPath } from "../../../../base/common/extpath.js";
 import { URI } from "../../../../base/common/uri.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { localize, localize2 } from "../../../../nls.js";
-import {
-  Action2
-} from "../../../../platform/actions/common/actions.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+import { Action2, IAction2Options } from "../../../../platform/actions/common/actions.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
 import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IResourceMergeEditorInput } from "../../../common/editor.js";
 import { MergeEditor } from "../browser/view/mergeEditor.js";
-const MERGE_EDITOR_CATEGORY = localize2(
-  "mergeEditor",
-  "Merge Editor (Dev)"
-);
+import { MergeEditorViewModel } from "../browser/view/viewModel.js";
+import { MergeEditorContents } from "../common/mergeEditor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+const MERGE_EDITOR_CATEGORY = localize2("mergeEditor", "Merge Editor (Dev)");
 class MergeEditorOpenContentsFromJSON extends Action2 {
   static {
     __name(this, "MergeEditorOpenContentsFromJSON");
@@ -27,10 +27,7 @@ class MergeEditorOpenContentsFromJSON extends Action2 {
     super({
       id: "merge.dev.openContentsJson",
       category: MERGE_EDITOR_CATEGORY,
-      title: localize2(
-        "merge.dev.openState",
-        "Open Merge Editor State from JSON"
-      ),
+      title: localize2("merge.dev.openState", "Open Merge Editor State from JSON"),
       icon: Codicon.layoutCentered,
       f1: true
     });
@@ -46,9 +43,7 @@ class MergeEditorOpenContentsFromJSON extends Action2 {
       args = {};
     }
     let content;
-    if (args.data) {
-      content = args.data;
-    } else {
+    if (!args.data) {
       const result = await quickInputService.input({
         prompt: localize("mergeEditor.enterJSON", "Enter JSON"),
         value: await clipboardService.readText()
@@ -56,13 +51,9 @@ class MergeEditorOpenContentsFromJSON extends Action2 {
       if (result === void 0) {
         return;
       }
-      content = result !== "" ? JSON.parse(result) : {
-        base: "",
-        input1: "",
-        input2: "",
-        result: "",
-        languageId: "plaintext"
-      };
+      content = result !== "" ? JSON.parse(result) : { base: "", input1: "", input2: "", result: "", languageId: "plaintext" };
+    } else {
+      content = args.data;
     }
     const targetDir = URI.joinPath(env.tmpDir, randomPath());
     const extension = languageService.getExtensions(content.languageId)[0] || "";
@@ -70,42 +61,23 @@ class MergeEditorOpenContentsFromJSON extends Action2 {
     const input1Uri = URI.joinPath(targetDir, `/input1${extension}`);
     const input2Uri = URI.joinPath(targetDir, `/input2${extension}`);
     const resultUri = URI.joinPath(targetDir, `/result${extension}`);
-    const initialResultUri = URI.joinPath(
-      targetDir,
-      `/initialResult${extension}`
-    );
+    const initialResultUri = URI.joinPath(targetDir, `/initialResult${extension}`);
     async function writeFile(uri, content2) {
       await fileService.writeFile(uri, VSBuffer.fromString(content2));
     }
     __name(writeFile, "writeFile");
-    const shouldOpenInitial = await promptOpenInitial(
-      quickInputService,
-      args.resultState
-    );
+    const shouldOpenInitial = await promptOpenInitial(quickInputService, args.resultState);
     await Promise.all([
       writeFile(baseUri, content.base),
       writeFile(input1Uri, content.input1),
       writeFile(input2Uri, content.input2),
-      writeFile(
-        resultUri,
-        shouldOpenInitial ? content.initialResult || "" : content.result
-      ),
+      writeFile(resultUri, shouldOpenInitial ? content.initialResult || "" : content.result),
       writeFile(initialResultUri, content.initialResult || "")
     ]);
     const input = {
       base: { resource: baseUri },
-      input1: {
-        resource: input1Uri,
-        label: "Input 1",
-        description: "Input 1",
-        detail: "(from JSON)"
-      },
-      input2: {
-        resource: input2Uri,
-        label: "Input 2",
-        description: "Input 2",
-        detail: "(from JSON)"
-      },
+      input1: { resource: input1Uri, label: "Input 1", description: "Input 1", detail: "(from JSON)" },
+      input2: { resource: input2Uri, label: "Input 2", description: "Input 2", detail: "(from JSON)" },
       result: { resource: resultUri }
     };
     editorService.openEditor(input);
@@ -115,13 +87,7 @@ async function promptOpenInitial(quickInputService, resultStateOverride) {
   if (resultStateOverride) {
     return resultStateOverride === "initial";
   }
-  const result = await quickInputService.pick(
-    [
-      { label: "result", result: false },
-      { label: "initial result", result: true }
-    ],
-    { canPickMany: false }
-  );
+  const result = await quickInputService.pick([{ label: "result", result: false }, { label: "initial result", result: true }], { canPickMany: false });
   return result?.result;
 }
 __name(promptOpenInitial, "promptOpenInitial");
@@ -151,10 +117,7 @@ class OpenSelectionInTemporaryMergeEditor extends MergeEditorAction {
     super({
       id: "merge.dev.openSelectionInTemporaryMergeEditor",
       category: MERGE_EDITOR_CATEGORY,
-      title: localize2(
-        "merge.dev.openSelectionInTemporaryMergeEditor",
-        "Open Selection In Temporary Merge Editor"
-      ),
+      title: localize2("merge.dev.openSelectionInTemporaryMergeEditor", "Open Selection In Temporary Merge Editor"),
       icon: Codicon.layoutCentered,
       f1: true
     });
@@ -164,7 +127,11 @@ class OpenSelectionInTemporaryMergeEditor extends MergeEditorAction {
     if (!rangesInBase || rangesInBase.length === 0) {
       return;
     }
-    const base = rangesInBase.map((r) => viewModel.model.base.getValueInRange(r)).join("\n");
+    const base = rangesInBase.map(
+      (r) => viewModel.model.base.getValueInRange(
+        r
+      )
+    ).join("\n");
     const input1 = rangesInBase.map(
       (r) => viewModel.inputCodeEditorView1.editor.getModel().getValueInRange(
         viewModel.model.translateBaseRangeToInput(1, r)

@@ -3,10 +3,9 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Emitter } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { ResourceMap } from "../../../../base/common/map.js";
-import {
-  AbstractIncrementalTestCollection,
-  TestDiffOpType
-} from "./testTypes.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IMainThreadTestCollection } from "./testService.js";
+import { AbstractIncrementalTestCollection, ITestUriCanonicalizer, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, TestDiffOpType, TestsDiff } from "./testTypes.js";
 class MainThreadTestCollection extends AbstractIncrementalTestCollection {
   constructor(uriIdentityService, expandActual) {
     super(uriIdentityService);
@@ -53,11 +52,7 @@ class MainThreadTestCollection extends AbstractIncrementalTestCollection {
       return existing.prom;
     }
     const prom = this.expandActual(test.item.extId, levels);
-    const record = {
-      doneLvl: existing ? existing.doneLvl : -1,
-      pendingLvl: levels,
-      prom
-    };
+    const record = { doneLvl: existing ? existing.doneLvl : -1, pendingLvl: levels, prom };
     this.expandPromises.set(test, record);
     return prom.then(() => {
       record.doneLvl = levels;
@@ -79,12 +74,7 @@ class MainThreadTestCollection extends AbstractIncrementalTestCollection {
    * @inheritdoc
    */
   getReviverDiff() {
-    const ops = [
-      {
-        op: TestDiffOpType.IncrementPendingExtHosts,
-        amount: this.pendingRootCount
-      }
-    ];
+    const ops = [{ op: TestDiffOpType.IncrementPendingExtHosts, amount: this.pendingRootCount }];
     const queue = [this.rootIds];
     while (queue.length) {
       for (const child of queue.pop()) {
@@ -137,10 +127,10 @@ class MainThreadTestCollection extends AbstractIncrementalTestCollection {
         return;
       }
       const s = this.testsByUrl.get(node.item.uri);
-      if (s) {
-        s.add(node);
-      } else {
+      if (!s) {
         this.testsByUrl.set(node.item.uri, /* @__PURE__ */ new Set([node]));
+      } else {
+        s.add(node);
       }
     }, "add"),
     remove: /* @__PURE__ */ __name((node) => {

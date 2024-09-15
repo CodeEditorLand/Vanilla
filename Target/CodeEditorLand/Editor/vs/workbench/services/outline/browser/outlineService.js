@@ -1,17 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IOutlineService
-} from "./outline.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IEditorPane } from "../../../common/editor.js";
+import { IOutline, IOutlineCreator, IOutlineService, OutlineTarget } from "./outline.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
 class OutlineService {
   static {
     __name(this, "OutlineService");

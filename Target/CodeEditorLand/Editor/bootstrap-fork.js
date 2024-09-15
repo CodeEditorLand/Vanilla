@@ -1,16 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as bootstrapAmd from "./bootstrap-amd.js";
-import * as bootstrapNode from "./bootstrap-node.js";
 import * as performance from "./vs/base/common/performance.js";
+import * as bootstrapNode from "./bootstrap-node.js";
+import * as bootstrapAmd from "./bootstrap-amd.js";
 performance.mark("code/fork/start");
 configureCrashReporter();
 bootstrapNode.removeGlobalNodeJsModuleLookupPaths();
 bootstrapNode.enableASARSupport();
 if (process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]) {
-  bootstrapNode.devInjectNodeModuleLookupPath(
-    process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]
-  );
+  bootstrapNode.devInjectNodeModuleLookupPath(process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]);
 }
 if (!!process.send && process.env["VSCODE_PIPE_LOGGING"] === "true") {
   pipeLoggingToParent();
@@ -45,7 +43,7 @@ function pipeLoggingToParent() {
       }
     }
     try {
-      const res = JSON.stringify(argsArray, (key, value) => {
+      const res = JSON.stringify(argsArray, function(key, value) {
         if (isObject(value) || Array.isArray(value)) {
           if (seen.indexOf(value) !== -1) {
             return "[Circular]";
@@ -84,7 +82,7 @@ function pipeLoggingToParent() {
     Object.defineProperty(console, method, {
       set: /* @__PURE__ */ __name(() => {
       }, "set"),
-      get: /* @__PURE__ */ __name(() => () => {
+      get: /* @__PURE__ */ __name(() => function() {
         safeSendConsoleMessage(severity, safeToArray(arguments));
       }, "get")
     });
@@ -115,11 +113,11 @@ function pipeLoggingToParent() {
     wrapConsoleMethod("warn", "warn");
     wrapConsoleMethod("error", "error");
   } else {
-    console.log = () => {
+    console.log = function() {
     };
-    console.warn = () => {
+    console.warn = function() {
     };
-    console.info = () => {
+    console.info = function() {
     };
     wrapConsoleMethod("error", "error");
   }
@@ -128,10 +126,10 @@ function pipeLoggingToParent() {
 }
 __name(pipeLoggingToParent, "pipeLoggingToParent");
 function handleExceptions() {
-  process.on("uncaughtException", (err) => {
+  process.on("uncaughtException", function(err) {
     console.error("Uncaught Exception: ", err);
   });
-  process.on("unhandledRejection", (reason) => {
+  process.on("unhandledRejection", function(reason) {
     console.error("Unhandled Promise Rejection: ", reason);
   });
 }
@@ -139,7 +137,7 @@ __name(handleExceptions, "handleExceptions");
 function terminateWhenParentTerminates() {
   const parentPid = Number(process.env["VSCODE_PARENT_PID"]);
   if (typeof parentPid === "number" && !isNaN(parentPid)) {
-    setInterval(() => {
+    setInterval(function() {
       try {
         process.kill(parentPid, 0);
       } catch (e) {
@@ -154,10 +152,7 @@ function configureCrashReporter() {
   if (crashReporterProcessType) {
     try {
       if (process["crashReporter"] && typeof process["crashReporter"].addExtraParameter === "function") {
-        process["crashReporter"].addExtraParameter(
-          "processType",
-          crashReporterProcessType
-        );
+        process["crashReporter"].addExtraParameter("processType", crashReporterProcessType);
       }
     } catch (error) {
       console.error(error);

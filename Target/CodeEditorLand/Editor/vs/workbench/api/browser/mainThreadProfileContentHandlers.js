@@ -10,57 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  DisposableMap
-} from "../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableMap, IDisposable } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  IUserDataProfileImportExportService
-} from "../../services/userDataProfile/common/userDataProfile.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtHostContext, ExtHostProfileContentHandlersShape, MainContext, MainThreadProfileContentHandlersShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ISaveProfileResult, IUserDataProfileImportExportService } from "../../services/userDataProfile/common/userDataProfile.js";
 let MainThreadProfileContentHandlers = class extends Disposable {
   constructor(context, userDataProfileImportExportService) {
     super();
     this.userDataProfileImportExportService = userDataProfileImportExportService;
-    this.proxy = context.getProxy(
-      ExtHostContext.ExtHostProfileContentHandlers
-    );
+    this.proxy = context.getProxy(ExtHostContext.ExtHostProfileContentHandlers);
   }
   proxy;
-  registeredHandlers = this._register(
-    new DisposableMap()
-  );
+  registeredHandlers = this._register(new DisposableMap());
   async $registerProfileContentHandler(id, name, description, extensionId) {
-    this.registeredHandlers.set(
-      id,
-      this.userDataProfileImportExportService.registerProfileContentHandler(
-        id,
-        {
-          name,
-          description,
-          extensionId,
-          saveProfile: /* @__PURE__ */ __name(async (name2, content, token) => {
-            const result = await this.proxy.$saveProfile(
-              id,
-              name2,
-              content,
-              token
-            );
-            return result ? revive(result) : null;
-          }, "saveProfile"),
-          readProfile: /* @__PURE__ */ __name(async (uri, token) => {
-            return this.proxy.$readProfile(id, uri, token);
-          }, "readProfile")
-        }
-      )
-    );
+    this.registeredHandlers.set(id, this.userDataProfileImportExportService.registerProfileContentHandler(id, {
+      name,
+      description,
+      extensionId,
+      saveProfile: /* @__PURE__ */ __name(async (name2, content, token) => {
+        const result = await this.proxy.$saveProfile(id, name2, content, token);
+        return result ? revive(result) : null;
+      }, "saveProfile"),
+      readProfile: /* @__PURE__ */ __name(async (uri, token) => {
+        return this.proxy.$readProfile(id, uri, token);
+      }, "readProfile")
+    }));
   }
   async $unregisterProfileContentHandler(id) {
     this.registeredHandlers.deleteAndDispose(id);

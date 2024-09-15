@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { JSONPath } from "../../../base/common/json.js";
 import { setProperty } from "../../../base/common/jsonEdit.js";
+import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
 function edit(content, originalPath, value, formattingOptions) {
-  const edit2 = setProperty(
-    content,
-    originalPath,
-    value,
-    formattingOptions
-  )[0];
+  const edit2 = setProperty(content, originalPath, value, formattingOptions)[0];
   if (edit2) {
     content = content.substring(0, edit2.offset) + edit2.content + content.substring(edit2.offset + edit2.length);
   }

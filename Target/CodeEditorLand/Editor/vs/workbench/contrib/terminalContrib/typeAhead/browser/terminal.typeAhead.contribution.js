@@ -10,20 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableStore,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
 import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
-import {
-  TERMINAL_CONFIG_SECTION
-} from "../../../terminal/common/terminal.js";
-import {
-  TerminalTypeAheadSettingId
-} from "../common/terminalTypeAheadConfiguration.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
 import { TypeAheadAddon } from "./terminalTypeAheadAddon.js";
+import { ITerminalProcessManager, TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
+import { TerminalTypeAheadSettingId } from "../common/terminalTypeAheadConfiguration.js";
 let TerminalTypeAheadContribution = class extends DisposableStore {
   constructor(instance, _processManager, widgetManager, _configurationService, _instantiationService) {
     super();
@@ -37,32 +32,22 @@ let TerminalTypeAheadContribution = class extends DisposableStore {
   }
   static ID = "terminal.typeAhead";
   static get(instance) {
-    return instance.getContribution(
-      TerminalTypeAheadContribution.ID
-    );
+    return instance.getContribution(TerminalTypeAheadContribution.ID);
   }
   _addon;
   xtermReady(xterm) {
     this._loadTypeAheadAddon(xterm.raw);
-    this.add(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          TerminalTypeAheadSettingId.LocalEchoEnabled
-        )) {
-          this._loadTypeAheadAddon(xterm.raw);
-        }
-      })
-    );
-    this.add(
-      this._processManager.onProcessReady(() => {
-        this._addon?.reset();
-      })
-    );
+    this.add(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TerminalTypeAheadSettingId.LocalEchoEnabled)) {
+        this._loadTypeAheadAddon(xterm.raw);
+      }
+    }));
+    this.add(this._processManager.onProcessReady(() => {
+      this._addon?.reset();
+    }));
   }
   _loadTypeAheadAddon(xterm) {
-    const enabled = this._configurationService.getValue(
-      TERMINAL_CONFIG_SECTION
-    ).localEchoEnabled;
+    const enabled = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoEnabled;
     const isRemote = !!this._processManager.remoteAuthority;
     if (enabled === "off" || enabled === "auto" && !isRemote) {
       this._addon?.dispose();
@@ -73,10 +58,7 @@ let TerminalTypeAheadContribution = class extends DisposableStore {
       return;
     }
     if (enabled === "on" || enabled === "auto" && isRemote) {
-      this._addon = this._instantiationService.createInstance(
-        TypeAheadAddon,
-        this._processManager
-      );
+      this._addon = this._instantiationService.createInstance(TypeAheadAddon, this._processManager);
       xterm.loadAddon(this._addon);
     }
   }
@@ -85,8 +67,5 @@ TerminalTypeAheadContribution = __decorateClass([
   __decorateParam(3, IConfigurationService),
   __decorateParam(4, IInstantiationService)
 ], TerminalTypeAheadContribution);
-registerTerminalContribution(
-  TerminalTypeAheadContribution.ID,
-  TerminalTypeAheadContribution
-);
+registerTerminalContribution(TerminalTypeAheadContribution.ID, TerminalTypeAheadContribution);
 //# sourceMappingURL=terminal.typeAhead.contribution.js.map

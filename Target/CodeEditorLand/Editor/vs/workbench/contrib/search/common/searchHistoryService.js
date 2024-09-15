@@ -10,17 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { isEmptyObject } from "../../../../base/common/types.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-const ISearchHistoryService = createDecorator(
-  "searchHistoryService"
-);
+const ISearchHistoryService = createDecorator("searchHistoryService");
 let SearchHistoryService = class {
   constructor(storageService) {
     this.storageService = storageService;
@@ -32,18 +26,12 @@ let SearchHistoryService = class {
   _onDidClearHistory = new Emitter();
   onDidClearHistory = this._onDidClearHistory.event;
   clearHistory() {
-    this.storageService.remove(
-      SearchHistoryService.SEARCH_HISTORY_KEY,
-      StorageScope.WORKSPACE
-    );
+    this.storageService.remove(SearchHistoryService.SEARCH_HISTORY_KEY, StorageScope.WORKSPACE);
     this._onDidClearHistory.fire();
   }
   load() {
     let result;
-    const raw = this.storageService.get(
-      SearchHistoryService.SEARCH_HISTORY_KEY,
-      StorageScope.WORKSPACE
-    );
+    const raw = this.storageService.get(SearchHistoryService.SEARCH_HISTORY_KEY, StorageScope.WORKSPACE);
     if (raw) {
       try {
         result = JSON.parse(raw);
@@ -54,17 +42,9 @@ let SearchHistoryService = class {
   }
   save(history) {
     if (isEmptyObject(history)) {
-      this.storageService.remove(
-        SearchHistoryService.SEARCH_HISTORY_KEY,
-        StorageScope.WORKSPACE
-      );
+      this.storageService.remove(SearchHistoryService.SEARCH_HISTORY_KEY, StorageScope.WORKSPACE);
     } else {
-      this.storageService.store(
-        SearchHistoryService.SEARCH_HISTORY_KEY,
-        JSON.stringify(history),
-        StorageScope.WORKSPACE,
-        StorageTarget.USER
-      );
+      this.storageService.store(SearchHistoryService.SEARCH_HISTORY_KEY, JSON.stringify(history), StorageScope.WORKSPACE, StorageTarget.USER);
     }
   }
 };

@@ -1,14 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import * as extHostProtocol from "./extHost.protocol.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostWebview, ExtHostWebviews, toExtensionData, shouldSerializeBuffersForPostMessage } from "./extHostWebview.js";
 import { ViewBadge } from "./extHostTypeConverters.js";
+import * as extHostProtocol from "./extHost.protocol.js";
 import * as extHostTypes from "./extHostTypes.js";
-import {
-  shouldSerializeBuffersForPostMessage,
-  toExtensionData
-} from "./extHostWebview.js";
 class ExtHostWebviewView extends Disposable {
   static {
     __name(this, "ExtHostWebviewView");
@@ -108,9 +107,7 @@ class ExtHostWebviewView extends Disposable {
 class ExtHostWebviewViews {
   constructor(mainContext, _extHostWebview) {
     this._extHostWebview = _extHostWebview;
-    this._proxy = mainContext.getProxy(
-      extHostProtocol.MainContext.MainThreadWebviewViews
-    );
+    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviewViews);
   }
   static {
     __name(this, "ExtHostWebviewViews");
@@ -120,19 +117,13 @@ class ExtHostWebviewViews {
   _webviewViews = /* @__PURE__ */ new Map();
   registerWebviewViewProvider(extension, viewType, provider, webviewOptions) {
     if (this._viewProviders.has(viewType)) {
-      throw new Error(
-        `View provider for '${viewType}' already registered`
-      );
+      throw new Error(`View provider for '${viewType}' already registered`);
     }
     this._viewProviders.set(viewType, { provider, extension });
-    this._proxy.$registerWebviewViewProvider(
-      toExtensionData(extension),
-      viewType,
-      {
-        retainContextWhenHidden: webviewOptions?.retainContextWhenHidden,
-        serializeBuffersForPostMessage: shouldSerializeBuffersForPostMessage(extension)
-      }
-    );
+    this._proxy.$registerWebviewViewProvider(toExtensionData(extension), viewType, {
+      retainContextWhenHidden: webviewOptions?.retainContextWhenHidden,
+      serializeBuffersForPostMessage: shouldSerializeBuffersForPostMessage(extension)
+    });
     return new extHostTypes.Disposable(() => {
       this._viewProviders.delete(viewType);
       this._proxy.$unregisterWebviewViewProvider(viewType);
@@ -144,21 +135,10 @@ class ExtHostWebviewViews {
       throw new Error(`No view provider found for '${viewType}'`);
     }
     const { provider, extension } = entry;
-    const webview = this._extHostWebview.createNewWebview(
-      webviewHandle,
-      {
-        /* todo */
-      },
-      extension
-    );
-    const revivedView = new ExtHostWebviewView(
-      webviewHandle,
-      this._proxy,
-      viewType,
-      title,
-      webview,
-      true
-    );
+    const webview = this._extHostWebview.createNewWebview(webviewHandle, {
+      /* todo */
+    }, extension);
+    const revivedView = new ExtHostWebviewView(webviewHandle, this._proxy, viewType, title, webview, true);
     this._webviewViews.set(webviewHandle, revivedView);
     await provider.resolveWebviewView(revivedView, { state }, cancellation);
   }

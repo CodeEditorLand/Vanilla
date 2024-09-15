@@ -1,17 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  isFalsyOrEmpty,
-  isNonEmptyArray
-} from "../../../base/common/arrays.js";
+import { isFalsyOrEmpty, isNonEmptyArray } from "../../../base/common/arrays.js";
 import { DebounceEmitter } from "../../../base/common/event.js";
 import { Iterable } from "../../../base/common/iterator.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../base/common/map.js";
 import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  MarkerSeverity
-} from "./markers.js";
+import { IMarker, IMarkerData, IMarkerService, IResourceMarker, MarkerSeverity, MarkerStatistics } from "./markers.js";
 const unsupportedSchemas = /* @__PURE__ */ new Set([
   Schemas.inMemory,
   Schemas.vscodeSourceControl,
@@ -66,10 +62,7 @@ class DoubleResourceMap {
     if (URI.isUri(key)) {
       return this._byResource.get(key)?.values() ?? Iterable.empty();
     }
-    return Iterable.map(
-      Iterable.concat(...this._byOwner.values()),
-      (map) => map[1]
-    );
+    return Iterable.map(Iterable.concat(...this._byOwner.values()), (map) => map[1]);
   }
 }
 class MarkerStats {
@@ -102,12 +95,7 @@ class MarkerStats {
     }
   }
   _resourceStats(resource) {
-    const result = {
-      errors: 0,
-      warnings: 0,
-      infos: 0,
-      unknowns: 0
-    };
+    const result = { errors: 0, warnings: 0, infos: 0, unknowns: 0 };
     if (unsupportedSchemas.has(resource.scheme)) {
       return result;
     }
@@ -228,20 +216,16 @@ class MarkerService {
     if (isNonEmptyArray(data)) {
       const groups = new ResourceMap();
       for (const { resource, marker: markerData } of data) {
-        const marker = MarkerService._toMarker(
-          owner,
-          resource,
-          markerData
-        );
+        const marker = MarkerService._toMarker(owner, resource, markerData);
         if (!marker) {
           continue;
         }
         const array = groups.get(resource);
-        if (array) {
-          array.push(marker);
-        } else {
+        if (!array) {
           groups.set(resource, [marker]);
           changes.push(resource);
+        } else {
+          array.push(marker);
         }
       }
       for (const [resource, value] of groups) {
@@ -259,7 +243,9 @@ class MarkerService {
     }
     if (owner && resource) {
       const data = this._data.get(resource, owner);
-      if (data) {
+      if (!data) {
+        return [];
+      } else {
         const result = [];
         for (const marker of data) {
           if (MarkerService._accept(marker, severities)) {
@@ -270,8 +256,6 @@ class MarkerService {
           }
         }
         return result;
-      } else {
-        return [];
       }
     } else if (!owner && !resource) {
       const result = [];

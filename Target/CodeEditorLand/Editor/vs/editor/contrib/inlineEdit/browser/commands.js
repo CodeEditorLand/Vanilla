@@ -1,20 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { inlineEditAcceptId, inlineEditJumpBackId, inlineEditJumpToId, inlineEditRejectId } from "./commandIds.js";
+import { InlineEditController } from "./inlineEditController.js";
 import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  EditorAction
-} from "../../../browser/editorExtensions.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import {
-  inlineEditAcceptId,
-  inlineEditJumpBackId,
-  inlineEditJumpToId,
-  inlineEditRejectId
-} from "./commandIds.js";
-import { InlineEditController } from "./inlineEditController.js";
 class AcceptInlineEdit extends EditorAction {
   static {
     __name(this, "AcceptInlineEdit");
@@ -24,29 +18,20 @@ class AcceptInlineEdit extends EditorAction {
       id: inlineEditAcceptId,
       label: "Accept Inline Edit",
       alias: "Accept Inline Edit",
-      precondition: ContextKeyExpr.and(
-        EditorContextKeys.writable,
-        InlineEditController.inlineEditVisibleContext
-      ),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, InlineEditController.inlineEditVisibleContext),
       kbOpts: [
         {
           weight: KeybindingWeight.EditorContrib + 1,
           primary: KeyCode.Tab,
-          kbExpr: ContextKeyExpr.and(
-            EditorContextKeys.writable,
-            InlineEditController.inlineEditVisibleContext,
-            InlineEditController.cursorAtInlineEditContext
-          )
+          kbExpr: ContextKeyExpr.and(EditorContextKeys.writable, InlineEditController.inlineEditVisibleContext, InlineEditController.cursorAtInlineEditContext)
         }
       ],
-      menuOpts: [
-        {
-          menuId: MenuId.InlineEditToolbar,
-          title: "Accept",
-          group: "primary",
-          order: 1
-        }
-      ]
+      menuOpts: [{
+        menuId: MenuId.InlineEditToolbar,
+        title: "Accept",
+        group: "primary",
+        order: 1
+      }]
     });
   }
   async run(accessor, editor) {
@@ -59,10 +44,7 @@ class TriggerInlineEdit extends EditorAction {
     __name(this, "TriggerInlineEdit");
   }
   constructor() {
-    const activeExpr = ContextKeyExpr.and(
-      EditorContextKeys.writable,
-      ContextKeyExpr.not(InlineEditController.inlineEditVisibleKey)
-    );
+    const activeExpr = ContextKeyExpr.and(EditorContextKeys.writable, ContextKeyExpr.not(InlineEditController.inlineEditVisibleKey));
     super({
       id: "editor.action.inlineEdit.trigger",
       label: "Trigger Inline Edit",
@@ -85,11 +67,7 @@ class JumpToInlineEdit extends EditorAction {
     __name(this, "JumpToInlineEdit");
   }
   constructor() {
-    const activeExpr = ContextKeyExpr.and(
-      EditorContextKeys.writable,
-      InlineEditController.inlineEditVisibleContext,
-      ContextKeyExpr.not(InlineEditController.cursorAtInlineEditKey)
-    );
+    const activeExpr = ContextKeyExpr.and(EditorContextKeys.writable, InlineEditController.inlineEditVisibleContext, ContextKeyExpr.not(InlineEditController.cursorAtInlineEditKey));
     super({
       id: inlineEditJumpToId,
       label: "Jump to Inline Edit",
@@ -100,15 +78,13 @@ class JumpToInlineEdit extends EditorAction {
         primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Equal,
         kbExpr: activeExpr
       },
-      menuOpts: [
-        {
-          menuId: MenuId.InlineEditToolbar,
-          title: "Jump To Edit",
-          group: "primary",
-          order: 3,
-          when: activeExpr
-        }
-      ]
+      menuOpts: [{
+        menuId: MenuId.InlineEditToolbar,
+        title: "Jump To Edit",
+        group: "primary",
+        order: 3,
+        when: activeExpr
+      }]
     });
   }
   async run(accessor, editor) {
@@ -121,10 +97,7 @@ class JumpBackInlineEdit extends EditorAction {
     __name(this, "JumpBackInlineEdit");
   }
   constructor() {
-    const activeExpr = ContextKeyExpr.and(
-      EditorContextKeys.writable,
-      InlineEditController.cursorAtInlineEditContext
-    );
+    const activeExpr = ContextKeyExpr.and(EditorContextKeys.writable, InlineEditController.cursorAtInlineEditContext);
     super({
       id: inlineEditJumpBackId,
       label: "Jump Back from Inline Edit",
@@ -135,15 +108,13 @@ class JumpBackInlineEdit extends EditorAction {
         primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Equal,
         kbExpr: activeExpr
       },
-      menuOpts: [
-        {
-          menuId: MenuId.InlineEditToolbar,
-          title: "Jump Back",
-          group: "primary",
-          order: 3,
-          when: activeExpr
-        }
-      ]
+      menuOpts: [{
+        menuId: MenuId.InlineEditToolbar,
+        title: "Jump Back",
+        group: "primary",
+        order: 3,
+        when: activeExpr
+      }]
     });
   }
   async run(accessor, editor) {
@@ -156,10 +127,7 @@ class RejectInlineEdit extends EditorAction {
     __name(this, "RejectInlineEdit");
   }
   constructor() {
-    const activeExpr = ContextKeyExpr.and(
-      EditorContextKeys.writable,
-      InlineEditController.inlineEditVisibleContext
-    );
+    const activeExpr = ContextKeyExpr.and(EditorContextKeys.writable, InlineEditController.inlineEditVisibleContext);
     super({
       id: inlineEditRejectId,
       label: "Reject Inline Edit",
@@ -170,14 +138,12 @@ class RejectInlineEdit extends EditorAction {
         primary: KeyCode.Escape,
         kbExpr: activeExpr
       },
-      menuOpts: [
-        {
-          menuId: MenuId.InlineEditToolbar,
-          title: "Reject",
-          group: "secondary",
-          order: 2
-        }
-      ]
+      menuOpts: [{
+        menuId: MenuId.InlineEditToolbar,
+        title: "Reject",
+        group: "secondary",
+        order: 2
+      }]
     });
   }
   async run(accessor, editor) {

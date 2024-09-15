@@ -10,19 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { localize, localize2 } from "../../../../nls.js";
+import { ICommandAction } from "../../../../platform/action/common/action.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../../platform/actions/common/actions.js";
-import {
-  CommandsRegistry
-} from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry, ICommandMetadata } from "../../../../platform/commands/common/commands.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkbenchIssueService } from "./issue.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchIssueService, IssueReporterData } from "./issue.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 const OpenIssueReporterActionId = "workbench.action.openIssueReporter";
 const OpenIssueReporterApiId = "vscode.openIssueReporter";
 const OpenIssueReporterCommandMetadata = {
@@ -66,63 +63,36 @@ let BaseIssueContribution = class extends Disposable {
     if (!productService.reportIssueUrl) {
       return;
     }
-    this._register(
-      CommandsRegistry.registerCommand({
-        id: OpenIssueReporterActionId,
-        handler: /* @__PURE__ */ __name((accessor, args) => {
-          const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
-          return accessor.get(IWorkbenchIssueService).openReporter(data);
-        }, "handler"),
-        metadata: OpenIssueReporterCommandMetadata
-      })
-    );
-    this._register(
-      CommandsRegistry.registerCommand({
-        id: OpenIssueReporterApiId,
-        handler: /* @__PURE__ */ __name((accessor, args) => {
-          const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
-          return accessor.get(IWorkbenchIssueService).openReporter(data);
-        }, "handler"),
-        metadata: OpenIssueReporterCommandMetadata
-      })
-    );
+    this._register(CommandsRegistry.registerCommand({
+      id: OpenIssueReporterActionId,
+      handler: /* @__PURE__ */ __name(function(accessor, args) {
+        const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+        return accessor.get(IWorkbenchIssueService).openReporter(data);
+      }, "handler"),
+      metadata: OpenIssueReporterCommandMetadata
+    }));
+    this._register(CommandsRegistry.registerCommand({
+      id: OpenIssueReporterApiId,
+      handler: /* @__PURE__ */ __name(function(accessor, args) {
+        const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+        return accessor.get(IWorkbenchIssueService).openReporter(data);
+      }, "handler"),
+      metadata: OpenIssueReporterCommandMetadata
+    }));
     const reportIssue = {
       id: OpenIssueReporterActionId,
-      title: localize2(
-        {
-          key: "reportIssueInEnglish",
-          comment: [
-            'Translate this to "Report Issue in English" in all languages please!'
-          ]
-        },
-        "Report Issue..."
-      ),
+      title: localize2({ key: "reportIssueInEnglish", comment: ['Translate this to "Report Issue in English" in all languages please!'] }, "Report Issue..."),
       category: Categories.Help
     };
-    this._register(
-      MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
-        command: reportIssue
-      })
-    );
-    this._register(
-      MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
-        group: "3_feedback",
-        command: {
-          id: OpenIssueReporterActionId,
-          title: localize(
-            {
-              key: "miReportIssue",
-              comment: [
-                "&& denotes a mnemonic",
-                'Translate this to "Report Issue in English" in all languages please!'
-              ]
-            },
-            "Report &&Issue"
-          )
-        },
-        order: 3
-      })
-    );
+    this._register(MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: reportIssue }));
+    this._register(MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+      group: "3_feedback",
+      command: {
+        id: OpenIssueReporterActionId,
+        title: localize({ key: "miReportIssue", comment: ["&& denotes a mnemonic", 'Translate this to "Report Issue in English" in all languages please!'] }, "Report &&Issue")
+      },
+      order: 3
+    }));
   }
 };
 BaseIssueContribution = __decorateClass([

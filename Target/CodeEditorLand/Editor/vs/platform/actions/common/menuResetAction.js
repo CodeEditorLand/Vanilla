@@ -2,8 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { localize2 } from "../../../nls.js";
 import { Categories } from "../../action/common/actionCommonCategories.js";
-import { ILogService } from "../../log/common/log.js";
 import { Action2, IMenuService } from "./actions.js";
+import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
 class MenuHiddenStatesReset extends Action2 {
   static {
     __name(this, "MenuHiddenStatesReset");

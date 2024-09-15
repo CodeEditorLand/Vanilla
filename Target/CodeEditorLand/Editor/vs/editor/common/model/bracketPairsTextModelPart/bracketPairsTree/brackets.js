@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { escapeRegExpCharacters } from "../../../../../base/common/strings.js";
+import { ResolvedLanguageConfiguration } from "../../../languages/languageConfigurationRegistry.js";
+import { BracketKind } from "../../../languages/supports/languageBracketsConfiguration.js";
 import { BracketAstNode } from "./ast.js";
 import { toLength } from "./length.js";
-import {
-  SmallImmutableSet,
-  identityKeyProvider
-} from "./smallImmutableSet.js";
-import { Token, TokenKind } from "./tokenizer.js";
+import { DenseKeyProvider, identityKeyProvider, SmallImmutableSet } from "./smallImmutableSet.js";
+import { OpeningBracketId, Token, TokenKind } from "./tokenizer.js";
 class BracketTokens {
   constructor(map) {
     this.map = map;
@@ -17,50 +16,36 @@ class BracketTokens {
   }
   static createFromLanguage(configuration, denseKeyProvider) {
     function getId(bracketInfo) {
-      return denseKeyProvider.getKey(
-        `${bracketInfo.languageId}:::${bracketInfo.bracketText}`
-      );
+      return denseKeyProvider.getKey(`${bracketInfo.languageId}:::${bracketInfo.bracketText}`);
     }
     __name(getId, "getId");
     const map = /* @__PURE__ */ new Map();
     for (const openingBracket of configuration.bracketsNew.openingBrackets) {
       const length = toLength(0, openingBracket.bracketText.length);
       const openingTextId = getId(openingBracket);
-      const bracketIds = SmallImmutableSet.getEmpty().add(
+      const bracketIds = SmallImmutableSet.getEmpty().add(openingTextId, identityKeyProvider);
+      map.set(openingBracket.bracketText, new Token(
+        length,
+        TokenKind.OpeningBracket,
         openingTextId,
-        identityKeyProvider
-      );
-      map.set(
-        openingBracket.bracketText,
-        new Token(
-          length,
-          TokenKind.OpeningBracket,
-          openingTextId,
-          bracketIds,
-          BracketAstNode.create(length, openingBracket, bracketIds)
-        )
-      );
+        bracketIds,
+        BracketAstNode.create(length, openingBracket, bracketIds)
+      ));
     }
     for (const closingBracket of configuration.bracketsNew.closingBrackets) {
       const length = toLength(0, closingBracket.bracketText.length);
       let bracketIds = SmallImmutableSet.getEmpty();
       const closingBrackets = closingBracket.getOpeningBrackets();
       for (const bracket of closingBrackets) {
-        bracketIds = bracketIds.add(
-          getId(bracket),
-          identityKeyProvider
-        );
+        bracketIds = bracketIds.add(getId(bracket), identityKeyProvider);
       }
-      map.set(
-        closingBracket.bracketText,
-        new Token(
-          length,
-          TokenKind.ClosingBracket,
-          getId(closingBrackets[0]),
-          bracketIds,
-          BracketAstNode.create(length, closingBracket, bracketIds)
-        )
-      );
+      map.set(closingBracket.bracketText, new Token(
+        length,
+        TokenKind.ClosingBracket,
+        getId(closingBrackets[0]),
+        bracketIds,
+        BracketAstNode.create(length, closingBracket, bracketIds)
+      ));
     }
     return new BracketTokens(map);
   }
@@ -78,7 +63,7 @@ class BracketTokens {
   }
   /**
    * Returns null if there is no such regexp (because there are no brackets).
-   */
+  */
   get regExpGlobal() {
     if (!this.hasRegExp) {
       const regExpStr = this.getRegExpStr();
@@ -128,14 +113,8 @@ class LanguageAgnosticBracketTokens {
   getSingleLanguageBracketTokens(languageId) {
     let singleLanguageBracketTokens = this.languageIdToBracketTokens.get(languageId);
     if (!singleLanguageBracketTokens) {
-      singleLanguageBracketTokens = BracketTokens.createFromLanguage(
-        this.getLanguageConfiguration(languageId),
-        this.denseKeyProvider
-      );
-      this.languageIdToBracketTokens.set(
-        languageId,
-        singleLanguageBracketTokens
-      );
+      singleLanguageBracketTokens = BracketTokens.createFromLanguage(this.getLanguageConfiguration(languageId), this.denseKeyProvider);
+      this.languageIdToBracketTokens.set(languageId, singleLanguageBracketTokens);
     }
     return singleLanguageBracketTokens;
   }

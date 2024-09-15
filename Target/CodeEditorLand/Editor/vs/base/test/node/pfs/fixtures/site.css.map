@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/test/node/pfs/fixtures/site.css"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n/*----------------------------------------------------------\nThe base color for this template is #5c87b2. If you'd like\nto use a different color start by replacing all instances of\n#5c87b2 with your new color.\n----------------------------------------------------------*/\nbody\n{\n    background-color: #5c87b2;\n    font-size: .75em;\n    font-family: Segoe UI, Verdana, Helvetica, Sans-Serif;\n    margin: 8px;\n    padding: 0;\n    color: #696969;\n}\n\nh1, h2, h3, h4, h5, h6\n{\n    color: #000;\n    font-size: 40px;\n    margin: 0px;\n}\n\ntextarea \n{\n   font-family: Consolas\n}\n\n#results \n{\n    margin-top: 2em;\n    margin-left: 2em;\n    color: black;\n    font-size: medium;\n}\n\n"],
+  "mappings": "AAUA;AAEI,oBAAkB;AAClB,aAAW;AACX;AAAA,IAAa,MAAM,EAAE;AAAA,IAAE,OAAO;AAAA,IAAE,SAAS;AAAA,IAAE;AAC3C,UAAQ;AACR,WAAS;AACT,SAAO;AACX;AAEA;AAAI;AAAI;AAAI;AAAI;AAAI;AAEhB,SAAO;AACP,aAAW;AACX,UAAQ;AACZ;AAEA;AAEG,eAAa;AAChB;AAEA,CAAC;AAEG,cAAY;AACZ,eAAa;AACb,SAAO;AACP,aAAW;AACf;",
+  "names": []
+}

@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createServer } from "net";
-import { OPTIONS, parseArgs } from "../../environment/node/argv.js";
-import {
-  OpenContext
-} from "../../windows/electron-main/windows.js";
+import { AddressInfo, createServer } from "net";
+import { IOpenExtensionWindowResult } from "../common/extensionHostDebug.js";
 import { ExtensionHostDebugBroadcastChannel } from "../common/extensionHostDebugIpc.js";
+import { OPTIONS, parseArgs } from "../../environment/node/argv.js";
+import { IWindowsMainService, OpenContext } from "../../windows/electron-main/windows.js";
 class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroadcastChannel {
   constructor(windowsMainService) {
     super();
@@ -28,15 +27,12 @@ class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroad
     if (!extDevPaths) {
       return { success: false };
     }
-    const [codeWindow] = await this.windowsMainService.openExtensionDevelopmentHostWindow(
-      extDevPaths,
-      {
-        context: OpenContext.API,
-        cli: pargs,
-        forceProfile: pargs.profile,
-        forceTempProfile: pargs["profile-temp"]
-      }
-    );
+    const [codeWindow] = await this.windowsMainService.openExtensionDevelopmentHostWindow(extDevPaths, {
+      context: OpenContext.API,
+      cli: pargs,
+      forceProfile: pargs.profile,
+      forceTempProfile: pargs["profile-temp"]
+    });
     if (!debugRenderer) {
       return { success: true };
     }
@@ -45,7 +41,7 @@ class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroad
       return { success: true };
     }
     const debug = win.webContents.debugger;
-    let listeners = debug.isAttached() ? Number.POSITIVE_INFINITY : 0;
+    let listeners = debug.isAttached() ? Infinity : 0;
     const server = createServer((listener) => {
       if (listeners++ === 0) {
         debug.attach();
@@ -75,19 +71,7 @@ class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroad
           } catch (e) {
             console.error("error reading cdp line", e);
           }
-          debug.sendCommand(data2.method, data2.params, data2.sessionId).then(
-            (result) => writeMessage({
-              id: data2.id,
-              sessionId: data2.sessionId,
-              result
-            })
-          ).catch(
-            (error) => writeMessage({
-              id: data2.id,
-              sessionId: data2.sessionId,
-              error: { code: 0, message: error.message }
-            })
-          );
+          debug.sendCommand(data2.method, data2.params, data2.sessionId).then((result) => writeMessage({ id: data2.id, sessionId: data2.sessionId, result })).catch((error) => writeMessage({ id: data2.id, sessionId: data2.sessionId, error: { code: 0, message: error.message } }));
         }
       });
       listener.on("error", (err) => {
@@ -102,10 +86,7 @@ class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroad
     });
     await new Promise((r) => server.listen(0, r));
     win.on("close", () => server.close());
-    return {
-      rendererDebugPort: server.address().port,
-      success: true
-    };
+    return { rendererDebugPort: server.address().port, success: true };
   }
 }
 export {

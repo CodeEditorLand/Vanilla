@@ -11,30 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  AccessibilitySignal,
-  IAccessibilitySignalService
-} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { ISpeechService } from "../common/speechService.js";
 let SpeechAccessibilitySignalContribution = class extends Disposable {
   constructor(_accessibilitySignalService, _speechService) {
     super();
     this._accessibilitySignalService = _accessibilitySignalService;
     this._speechService = _speechService;
-    this._register(
-      this._speechService.onDidStartSpeechToTextSession(
-        () => this._accessibilitySignalService.playSignal(
-          AccessibilitySignal.voiceRecordingStarted
-        )
-      )
-    );
-    this._register(
-      this._speechService.onDidEndSpeechToTextSession(
-        () => this._accessibilitySignalService.playSignal(
-          AccessibilitySignal.voiceRecordingStopped
-        )
-      )
-    );
+    this._register(this._speechService.onDidStartSpeechToTextSession(() => this._accessibilitySignalService.playSignal(AccessibilitySignal.voiceRecordingStarted)));
+    this._register(this._speechService.onDidEndSpeechToTextSession(() => this._accessibilitySignalService.playSignal(AccessibilitySignal.voiceRecordingStopped)));
   }
   static {
     __name(this, "SpeechAccessibilitySignalContribution");

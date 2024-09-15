@@ -11,37 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
 import { ViewsWelcomeContribution } from "./viewsWelcomeContribution.js";
-import {
-  viewsWelcomeExtensionPointDescriptor
-} from "./viewsWelcomeExtensionPoint.js";
-const extensionPoint = ExtensionsRegistry.registerExtensionPoint(
-  viewsWelcomeExtensionPointDescriptor
-);
+import { ViewsWelcomeExtensionPoint, viewsWelcomeExtensionPointDescriptor } from "./viewsWelcomeExtensionPoint.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+const extensionPoint = ExtensionsRegistry.registerExtensionPoint(viewsWelcomeExtensionPointDescriptor);
 let WorkbenchConfigurationContribution = class {
   static {
     __name(this, "WorkbenchConfigurationContribution");
   }
   constructor(instantiationService) {
-    instantiationService.createInstance(
-      ViewsWelcomeContribution,
-      extensionPoint
-    );
+    instantiationService.createInstance(ViewsWelcomeContribution, extensionPoint);
   }
 };
 WorkbenchConfigurationContribution = __decorateClass([
   __decorateParam(0, IInstantiationService)
 ], WorkbenchConfigurationContribution);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  WorkbenchConfigurationContribution,
-  LifecyclePhase.Restored
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(WorkbenchConfigurationContribution, LifecyclePhase.Restored);
 //# sourceMappingURL=viewsWelcome.contribution.js.map

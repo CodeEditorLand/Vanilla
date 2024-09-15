@@ -10,16 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { dirname } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { AbstractPathService, IPathService } from "../common/pathService.js";
+import { IPathService, AbstractPathService } from "../common/pathService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { dirname } from "../../../../base/common/resources.js";
 let BrowserPathService = class extends AbstractPathService {
   static {
     __name(this, "BrowserPathService");
@@ -48,10 +45,7 @@ function guessLocalUserHome(environmentService, contextService) {
     return dirname(workspace.configuration);
   }
   return URI.from({
-    scheme: AbstractPathService.findDefaultUriScheme(
-      environmentService,
-      contextService
-    ),
+    scheme: AbstractPathService.findDefaultUriScheme(environmentService, contextService),
     authority: environmentService.remoteAuthority,
     path: "/"
   });

@@ -10,23 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ThrottledDelayer } from "../../../base/common/async.js";
-import { MutableDisposable } from "../../../base/common/lifecycle.js";
-import {
-  ILanguageService
-} from "../../../editor/common/languages/language.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../../../editor/common/languages/modesRegistry.js";
-import {
-  ModelConstants
-} from "../../../editor/common/model.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import { localize } from "../../../nls.js";
-import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
-import {
-  ILanguageDetectionService,
-  LanguageDetectionLanguageEventSource
-} from "../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { ITextModel, ITextBufferFactory, ITextSnapshot, ModelConstants } from "../../../editor/common/model.js";
 import { EditorModel } from "./editorModel.js";
+import { ILanguageSupport } from "../../services/textfile/common/textfiles.js";
+import { URI } from "../../../base/common/uri.js";
+import { ITextEditorModel, IResolvedTextEditorModel } from "../../../editor/common/services/resolverService.js";
+import { ILanguageService, ILanguageSelection } from "../../../editor/common/languages/language.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { MutableDisposable } from "../../../base/common/lifecycle.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../editor/common/languages/modesRegistry.js";
+import { ILanguageDetectionService, LanguageDetectionLanguageEventSource } from "../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { ThrottledDelayer } from "../../../base/common/async.js";
+import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
+import { localize } from "../../../nls.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
 let BaseTextEditorModel = class extends EditorModel {
   constructor(modelService, languageService, languageDetectionService, accessibilityService, textEditorModelHandle) {
     super();
@@ -44,20 +41,12 @@ let BaseTextEditorModel = class extends EditorModel {
   static AUTO_DETECT_LANGUAGE_THROTTLE_DELAY = 600;
   textEditorModelHandle = void 0;
   createdEditorModel;
-  modelDisposeListener = this._register(
-    new MutableDisposable()
-  );
-  autoDetectLanguageThrottler = this._register(
-    new ThrottledDelayer(
-      BaseTextEditorModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY
-    )
-  );
+  modelDisposeListener = this._register(new MutableDisposable());
+  autoDetectLanguageThrottler = this._register(new ThrottledDelayer(BaseTextEditorModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
   handleExistingModel(textEditorModelHandle) {
     const model = this.modelService.getModel(textEditorModelHandle);
     if (!model) {
-      throw new Error(
-        `Document with resource ${textEditorModelHandle.toString(true)} does not exist`
-      );
+      throw new Error(`Document with resource ${textEditorModelHandle.toString(true)} does not exist`);
     }
     this.textEditorModelHandle = textEditorModelHandle;
     this.registerModelDisposeListener(model);
@@ -89,55 +78,35 @@ let BaseTextEditorModel = class extends EditorModel {
     if (!languageId || languageId === this.textEditorModel.getLanguageId()) {
       return;
     }
-    this.textEditorModel.setLanguage(
-      this.languageService.createById(languageId),
-      source
-    );
+    this.textEditorModel.setLanguage(this.languageService.createById(languageId), source);
   }
   installModelListeners(model) {
-    const disposable = this._register(
-      model.onDidChangeLanguage((e) => {
-        if (e.source === LanguageDetectionLanguageEventSource) {
-          return;
-        }
-        this._hasLanguageSetExplicitly = true;
-        disposable.dispose();
-      })
-    );
+    const disposable = this._register(model.onDidChangeLanguage((e) => {
+      if (e.source === LanguageDetectionLanguageEventSource) {
+        return;
+      }
+      this._hasLanguageSetExplicitly = true;
+      disposable.dispose();
+    }));
   }
   getLanguageId() {
     return this.textEditorModel?.getLanguageId();
   }
   autoDetectLanguage() {
-    return this.autoDetectLanguageThrottler.trigger(
-      () => this.doAutoDetectLanguage()
-    );
+    return this.autoDetectLanguageThrottler.trigger(() => this.doAutoDetectLanguage());
   }
   async doAutoDetectLanguage() {
     if (this.hasLanguageSetExplicitly || // skip detection when the user has made an explicit choice on the language
     !this.textEditorModelHandle || // require a URI to run the detection for
-    !this.languageDetectionService.isEnabledForLanguage(
-      this.getLanguageId() ?? PLAINTEXT_LANGUAGE_ID
-    )) {
+    !this.languageDetectionService.isEnabledForLanguage(this.getLanguageId() ?? PLAINTEXT_LANGUAGE_ID)) {
       return;
     }
-    const lang = await this.languageDetectionService.detectLanguage(
-      this.textEditorModelHandle
-    );
+    const lang = await this.languageDetectionService.detectLanguage(this.textEditorModelHandle);
     const prevLang = this.getLanguageId();
     if (lang && lang !== prevLang && !this.isDisposed()) {
-      this.setLanguageIdInternal(
-        lang,
-        LanguageDetectionLanguageEventSource
-      );
+      this.setLanguageIdInternal(lang, LanguageDetectionLanguageEventSource);
       const languageName = this.languageService.getLanguageName(lang);
-      this.accessibilityService.alert(
-        localize(
-          "languageAutoDetected",
-          "Language {0} was automatically detected and set as the language mode.",
-          languageName ?? lang
-        )
-      );
+      this.accessibilityService.alert(localize("languageAutoDetected", "Language {0} was automatically detected and set as the language mode.", languageName ?? lang));
     }
   }
   /**
@@ -146,26 +115,17 @@ let BaseTextEditorModel = class extends EditorModel {
    */
   createTextEditorModel(value, resource, preferredLanguageId) {
     const firstLineText = this.getFirstLineText(value);
-    const languageSelection = this.getOrCreateLanguage(
-      resource,
-      this.languageService,
-      preferredLanguageId,
-      firstLineText
-    );
+    const languageSelection = this.getOrCreateLanguage(resource, this.languageService, preferredLanguageId, firstLineText);
     return this.doCreateTextEditorModel(value, languageSelection, resource);
   }
   doCreateTextEditorModel(value, languageSelection, resource) {
     let model = resource && this.modelService.getModel(resource);
-    if (model) {
-      this.updateTextEditorModel(value, languageSelection.languageId);
-    } else {
-      model = this.modelService.createModel(
-        value,
-        languageSelection,
-        resource
-      );
+    if (!model) {
+      model = this.modelService.createModel(value, languageSelection, resource);
       this.createdEditorModel = true;
       this.registerModelDisposeListener(model);
+    } else {
+      this.updateTextEditorModel(value, languageSelection.languageId);
     }
     this.textEditorModelHandle = model.uri;
     return model;
@@ -173,9 +133,7 @@ let BaseTextEditorModel = class extends EditorModel {
   getFirstLineText(value) {
     const textBufferFactory = value;
     if (typeof textBufferFactory.getFirstLineText === "function") {
-      return textBufferFactory.getFirstLineText(
-        ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT
-      );
+      return textBufferFactory.getFirstLineText(ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
     }
     const textSnapshot = value;
     return textSnapshot.getLineContent(1).substr(0, ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
@@ -187,10 +145,7 @@ let BaseTextEditorModel = class extends EditorModel {
    */
   getOrCreateLanguage(resource, languageService, preferredLanguage, firstLineText) {
     if (!preferredLanguage || preferredLanguage === PLAINTEXT_LANGUAGE_ID) {
-      return languageService.createByFilepathOrFirstLine(
-        resource ?? null,
-        firstLineText
-      );
+      return languageService.createByFilepathOrFirstLine(resource ?? null, firstLineText);
     }
     return languageService.createById(preferredLanguage);
   }
@@ -205,9 +160,7 @@ let BaseTextEditorModel = class extends EditorModel {
       this.modelService.updateModel(this.textEditorModel, newValue);
     }
     if (preferredLanguageId && preferredLanguageId !== PLAINTEXT_LANGUAGE_ID && this.textEditorModel.getLanguageId() !== preferredLanguageId) {
-      this.textEditorModel.setLanguage(
-        this.languageService.createById(preferredLanguageId)
-      );
+      this.textEditorModel.setLanguage(this.languageService.createById(preferredLanguageId));
     }
   }
   createSnapshot() {

@@ -21,17 +21,12 @@ class WordCharacterClassifier extends CharacterClassifier {
     super(0 /* Regular */);
     this.intlSegmenterLocales = intlSegmenterLocales;
     if (this.intlSegmenterLocales.length > 0) {
-      this._segmenter = new Intl.Segmenter(this.intlSegmenterLocales, {
-        granularity: "word"
-      });
+      this._segmenter = new Intl.Segmenter(this.intlSegmenterLocales, { granularity: "word" });
     } else {
       this._segmenter = null;
     }
     for (let i = 0, len = wordSeparators.length; i < len; i++) {
-      this.set(
-        wordSeparators.charCodeAt(i),
-        2 /* WordSeparator */
-      );
+      this.set(wordSeparators.charCodeAt(i), 2 /* WordSeparator */);
     }
     this.set(CharCode.Space, 1 /* Whitespace */);
     this.set(CharCode.Tab, 1 /* Whitespace */);
@@ -63,9 +58,7 @@ class WordCharacterClassifier extends CharacterClassifier {
       return this._cachedSegments;
     }
     this._cachedLine = line;
-    this._cachedSegments = this._filterWordSegments(
-      this._segmenter.segment(line)
-    );
+    this._cachedSegments = this._filterWordSegments(this._segmenter.segment(line));
     return this._cachedSegments;
   }
   _filterWordSegments(segments) {
@@ -89,10 +82,7 @@ function getMapForWordSeparators(wordSeparators, intlSegmenterLocales) {
   const key = `${wordSeparators}/${intlSegmenterLocales.join(",")}`;
   let result = wordClassifierCache.get(key);
   if (!result) {
-    result = new WordCharacterClassifier(
-      wordSeparators,
-      intlSegmenterLocales
-    );
+    result = new WordCharacterClassifier(wordSeparators, intlSegmenterLocales);
     wordClassifierCache.set(key, result);
   }
   return result;

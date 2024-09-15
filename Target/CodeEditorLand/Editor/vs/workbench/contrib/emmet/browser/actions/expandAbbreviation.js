@@ -1,13 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeyCode } from "../../../../../base/common/keyCodes.js";
+import * as nls from "../../../../../nls.js";
+import { EmmetEditorAction } from "../emmetActions.js";
 import { registerEditorAction } from "../../../../../editor/browser/editorExtensions.js";
 import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
-import * as nls from "../../../../../nls.js";
-import { MenuId } from "../../../../../platform/actions/common/actions.js";
+import { KeyCode } from "../../../../../base/common/keyCodes.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { EmmetEditorAction } from "../emmetActions.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
 class ExpandAbbreviationAction extends EmmetEditorAction {
   static {
     __name(this, "ExpandAbbreviationAction");
@@ -15,10 +15,7 @@ class ExpandAbbreviationAction extends EmmetEditorAction {
   constructor() {
     super({
       id: "editor.emmet.action.expandAbbreviation",
-      label: nls.localize(
-        "expandAbbreviationAction",
-        "Emmet: Expand Abbreviation"
-      ),
+      label: nls.localize("expandAbbreviationAction", "Emmet: Expand Abbreviation"),
       alias: "Emmet: Expand Abbreviation",
       precondition: EditorContextKeys.writable,
       actionName: "expand_abbreviation",
@@ -34,13 +31,7 @@ class ExpandAbbreviationAction extends EmmetEditorAction {
       menuOpts: {
         menuId: MenuId.MenubarEditMenu,
         group: "5_insert",
-        title: nls.localize(
-          {
-            key: "miEmmetExpandAbbreviation",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "Emmet: E&&xpand Abbreviation"
-        ),
+        title: nls.localize({ key: "miEmmetExpandAbbreviation", comment: ["&& denotes a mnemonic"] }, "Emmet: E&&xpand Abbreviation"),
         order: 3
       }
     });

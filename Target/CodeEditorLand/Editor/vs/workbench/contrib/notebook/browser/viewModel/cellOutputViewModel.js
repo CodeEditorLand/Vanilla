@@ -3,9 +3,10 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { observableValue } from "../../../../../base/common/observable.js";
-import {
-  RENDERER_NOT_AVAILABLE
-} from "../../common/notebookCommon.js";
+import { ICellOutputViewModel, IGenericCellViewModel } from "../notebookBrowser.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { ICellOutput, IOrderedMimeType, RENDERER_NOT_AVAILABLE } from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
 let handle = 0;
 class CellOutputViewModel extends Disposable {
   constructor(cellViewModel, _outputRawData, _notebookService) {
@@ -46,19 +47,11 @@ class CellOutputViewModel extends Disposable {
       return false;
     }
     const firstMimeType = this._outputRawData.outputs[0].mime;
-    return this._outputRawData.outputs.some(
-      (output) => output.mime !== firstMimeType
-    );
+    return this._outputRawData.outputs.some((output) => output.mime !== firstMimeType);
   }
   resolveMimeTypes(textModel, kernelProvides) {
-    const mimeTypes = this._notebookService.getOutputMimeTypeInfo(
-      textModel,
-      kernelProvides,
-      this.model
-    );
-    const index = mimeTypes.findIndex(
-      (mimeType) => mimeType.rendererId !== RENDERER_NOT_AVAILABLE && mimeType.isTrusted
-    );
+    const mimeTypes = this._notebookService.getOutputMimeTypeInfo(textModel, kernelProvides, this.model);
+    const index = mimeTypes.findIndex((mimeType) => mimeType.rendererId !== RENDERER_NOT_AVAILABLE && mimeType.isTrusted);
     return [mimeTypes, Math.max(index, 0)];
   }
   resetRenderer() {

@@ -1,32 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Color, RGBA } from "../../../common/color.js";
-import { Emitter, Event } from "../../../common/event.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../common/lifecycle.js";
 import { isFirefox } from "../../browser.js";
 import { DataTransfers } from "../../dnd.js";
-import {
-  $,
-  EventHelper,
-  EventType,
-  addDisposableListener,
-  append,
-  clearNode,
-  getWindow,
-  isHTMLElement,
-  trackFocus
-} from "../../dom.js";
+import { $, addDisposableListener, append, clearNode, EventHelper, EventType, getWindow, isHTMLElement, trackFocus } from "../../dom.js";
 import { DomEmitter } from "../../event.js";
 import { StandardKeyboardEvent } from "../../keyboardEvent.js";
 import { Gesture, EventType as TouchEventType } from "../../touch.js";
-import { Orientation } from "../sash/sash.js";
+import { IBoundarySashes, Orientation } from "../sash/sash.js";
+import { Color, RGBA } from "../../../common/color.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { KeyCode } from "../../../common/keyCodes.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { ScrollEvent } from "../../../common/scrollable.js";
 import "./paneview.css";
 import { localize } from "../../../../nls.js";
-import { Sizing, SplitView } from "./splitview.js";
+import { IView, Sizing, SplitView } from "./splitview.js";
 class Pane extends Disposable {
   static {
     __name(this, "Pane");
@@ -52,13 +40,9 @@ class Pane extends Disposable {
     leftBorder: void 0
   };
   animationTimer = void 0;
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
-  _onDidChangeExpansionState = this._register(
-    new Emitter()
-  );
+  _onDidChangeExpansionState = this._register(new Emitter());
   onDidChangeExpansionState = this._onDidChangeExpansionState.event;
   get ariaHeaderLabel() {
     return this._ariaHeaderLabel;
@@ -110,11 +94,7 @@ class Pane extends Disposable {
     super();
     this._expanded = typeof options.expanded === "undefined" ? true : !!options.expanded;
     this._orientation = typeof options.orientation === "undefined" ? Orientation.VERTICAL : options.orientation;
-    this._ariaHeaderLabel = localize(
-      "viewSection",
-      "{0} Section",
-      options.title
-    );
+    this._ariaHeaderLabel = localize("viewSection", "{0} Section", options.title);
     this._minimumBodySize = typeof options.minimumBodySize === "number" ? options.minimumBodySize : this._orientation === Orientation.HORIZONTAL ? 200 : 120;
     this._maximumBodySize = typeof options.maximumBodySize === "number" ? options.maximumBodySize : Number.POSITIVE_INFINITY;
     this.element = $(".pane");
@@ -180,14 +160,8 @@ class Pane extends Disposable {
     }
     this._orientation = orientation;
     if (this.element) {
-      this.element.classList.toggle(
-        "horizontal",
-        this.orientation === Orientation.HORIZONTAL
-      );
-      this.element.classList.toggle(
-        "vertical",
-        this.orientation === Orientation.VERTICAL
-      );
+      this.element.classList.toggle("horizontal", this.orientation === Orientation.HORIZONTAL);
+      this.element.classList.toggle("vertical", this.orientation === Orientation.VERTICAL);
     }
     if (this.header) {
       this.updateHeader();
@@ -195,14 +169,8 @@ class Pane extends Disposable {
   }
   render() {
     this.element.classList.toggle("expanded", this.isExpanded());
-    this.element.classList.toggle(
-      "horizontal",
-      this.orientation === Orientation.HORIZONTAL
-    );
-    this.element.classList.toggle(
-      "vertical",
-      this.orientation === Orientation.VERTICAL
-    );
+    this.element.classList.toggle("horizontal", this.orientation === Orientation.HORIZONTAL);
+    this.element.classList.toggle("vertical", this.orientation === Orientation.VERTICAL);
     this.header = $(".pane-header");
     append(this.element, this.header);
     this.header.setAttribute("tabindex", "0");
@@ -211,58 +179,22 @@ class Pane extends Disposable {
     this.renderHeader(this.header);
     const focusTracker = trackFocus(this.header);
     this._register(focusTracker);
-    this._register(
-      focusTracker.onDidFocus(
-        () => this.header.classList.add("focused"),
-        null
-      )
-    );
-    this._register(
-      focusTracker.onDidBlur(
-        () => this.header.classList.remove("focused"),
-        null
-      )
-    );
+    this._register(focusTracker.onDidFocus(() => this.header.classList.add("focused"), null));
+    this._register(focusTracker.onDidBlur(() => this.header.classList.remove("focused"), null));
     this.updateHeader();
     const eventDisposables = this._register(new DisposableStore());
-    const onKeyDown = this._register(
-      new DomEmitter(this.header, "keydown")
-    );
-    const onHeaderKeyDown = Event.map(
-      onKeyDown.event,
-      (e) => new StandardKeyboardEvent(e),
-      eventDisposables
-    );
-    this._register(
-      Event.filter(
-        onHeaderKeyDown,
-        (e) => e.keyCode === KeyCode.Enter || e.keyCode === KeyCode.Space,
-        eventDisposables
-      )(() => this.setExpanded(!this.isExpanded()), null)
-    );
-    this._register(
-      Event.filter(
-        onHeaderKeyDown,
-        (e) => e.keyCode === KeyCode.LeftArrow,
-        eventDisposables
-      )(() => this.setExpanded(false), null)
-    );
-    this._register(
-      Event.filter(
-        onHeaderKeyDown,
-        (e) => e.keyCode === KeyCode.RightArrow,
-        eventDisposables
-      )(() => this.setExpanded(true), null)
-    );
+    const onKeyDown = this._register(new DomEmitter(this.header, "keydown"));
+    const onHeaderKeyDown = Event.map(onKeyDown.event, (e) => new StandardKeyboardEvent(e), eventDisposables);
+    this._register(Event.filter(onHeaderKeyDown, (e) => e.keyCode === KeyCode.Enter || e.keyCode === KeyCode.Space, eventDisposables)(() => this.setExpanded(!this.isExpanded()), null));
+    this._register(Event.filter(onHeaderKeyDown, (e) => e.keyCode === KeyCode.LeftArrow, eventDisposables)(() => this.setExpanded(false), null));
+    this._register(Event.filter(onHeaderKeyDown, (e) => e.keyCode === KeyCode.RightArrow, eventDisposables)(() => this.setExpanded(true), null));
     this._register(Gesture.addTarget(this.header));
     [EventType.CLICK, TouchEventType.Tap].forEach((eventType) => {
-      this._register(
-        addDisposableListener(this.header, eventType, (e) => {
-          if (!e.defaultPrevented) {
-            this.setExpanded(!this.isExpanded());
-          }
-        })
-      );
+      this._register(addDisposableListener(this.header, eventType, (e) => {
+        if (!e.defaultPrevented) {
+          this.setExpanded(!this.isExpanded());
+        }
+      }));
     });
     this.body = append(this.element, $(".pane-body"));
     if (!this._bodyRendered && this.isExpanded()) {
@@ -317,53 +249,19 @@ class PaneDraggable extends Disposable {
     this.dnd = dnd;
     this.context = context;
     pane.draggableElement.draggable = true;
-    this._register(
-      addDisposableListener(
-        pane.draggableElement,
-        "dragstart",
-        (e) => this.onDragStart(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        pane.dropTargetElement,
-        "dragenter",
-        (e) => this.onDragEnter(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        pane.dropTargetElement,
-        "dragleave",
-        (e) => this.onDragLeave(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        pane.dropTargetElement,
-        "dragend",
-        (e) => this.onDragEnd(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        pane.dropTargetElement,
-        "drop",
-        (e) => this.onDrop(e)
-      )
-    );
+    this._register(addDisposableListener(pane.draggableElement, "dragstart", (e) => this.onDragStart(e)));
+    this._register(addDisposableListener(pane.dropTargetElement, "dragenter", (e) => this.onDragEnter(e)));
+    this._register(addDisposableListener(pane.dropTargetElement, "dragleave", (e) => this.onDragLeave(e)));
+    this._register(addDisposableListener(pane.dropTargetElement, "dragend", (e) => this.onDragEnd(e)));
+    this._register(addDisposableListener(pane.dropTargetElement, "drop", (e) => this.onDrop(e)));
   }
   static {
     __name(this, "PaneDraggable");
   }
-  static DefaultDragOverBackgroundColor = new Color(
-    new RGBA(128, 128, 128, 0.5)
-  );
+  static DefaultDragOverBackgroundColor = new Color(new RGBA(128, 128, 128, 0.5));
   dragOverCounter = 0;
   // see https://github.com/microsoft/vscode/issues/14470
-  _onDidDrop = this._register(
-    new Emitter()
-  );
+  _onDidDrop = this._register(new Emitter());
   onDidDrop = this._onDidDrop.event;
   onDragStart(e) {
     if (!this.dnd.canDrag(this.pane) || !e.dataTransfer) {
@@ -373,19 +271,9 @@ class PaneDraggable extends Disposable {
     }
     e.dataTransfer.effectAllowed = "move";
     if (isFirefox) {
-      e.dataTransfer?.setData(
-        DataTransfers.TEXT,
-        this.pane.draggableElement.textContent || ""
-      );
+      e.dataTransfer?.setData(DataTransfers.TEXT, this.pane.draggableElement.textContent || "");
     }
-    const dragImage = append(
-      this.pane.element.ownerDocument.body,
-      $(
-        ".monaco-drag-image",
-        {},
-        this.pane.draggableElement.textContent || ""
-      )
-    );
+    const dragImage = append(this.pane.element.ownerDocument.body, $(".monaco-drag-image", {}, this.pane.draggableElement.textContent || ""));
     e.dataTransfer.setDragImage(dragImage, -10, -10);
     setTimeout(() => dragImage.remove(), 0);
     this.context.draggable = this;
@@ -428,10 +316,7 @@ class PaneDraggable extends Disposable {
     this.dragOverCounter = 0;
     this.render();
     if (this.dnd.canDrop(this.context.draggable.pane, this.pane) && this.context.draggable !== this) {
-      this._onDidDrop.fire({
-        from: this.context.draggable.pane,
-        to: this.pane
-      });
+      this._onDidDrop.fire({ from: this.context.draggable.pane, to: this.pane });
     }
     this.context.draggable = null;
   }
@@ -466,9 +351,7 @@ class PaneView extends Disposable {
   size = 0;
   splitview;
   animationTimer = void 0;
-  _onDidDrop = this._register(
-    new Emitter()
-  );
+  _onDidDrop = this._register(new Emitter());
   onDidDrop = this._onDidDrop.event;
   orientation;
   boundarySashes;
@@ -480,39 +363,15 @@ class PaneView extends Disposable {
     this.dnd = options.dnd;
     this.orientation = options.orientation ?? Orientation.VERTICAL;
     this.element = append(container, $(".monaco-pane-view"));
-    this.splitview = this._register(
-      new SplitView(this.element, { orientation: this.orientation })
-    );
+    this.splitview = this._register(new SplitView(this.element, { orientation: this.orientation }));
     this.onDidSashReset = this.splitview.onDidSashReset;
     this.onDidSashChange = this.splitview.onDidSashChange;
     this.onDidScroll = this.splitview.onDidScroll;
     const eventDisposables = this._register(new DisposableStore());
-    const onKeyDown = this._register(
-      new DomEmitter(this.element, "keydown")
-    );
-    const onHeaderKeyDown = Event.map(
-      Event.filter(
-        onKeyDown.event,
-        (e) => isHTMLElement(e.target) && e.target.classList.contains("pane-header"),
-        eventDisposables
-      ),
-      (e) => new StandardKeyboardEvent(e),
-      eventDisposables
-    );
-    this._register(
-      Event.filter(
-        onHeaderKeyDown,
-        (e) => e.keyCode === KeyCode.UpArrow,
-        eventDisposables
-      )(() => this.focusPrevious())
-    );
-    this._register(
-      Event.filter(
-        onHeaderKeyDown,
-        (e) => e.keyCode === KeyCode.DownArrow,
-        eventDisposables
-      )(() => this.focusNext())
-    );
+    const onKeyDown = this._register(new DomEmitter(this.element, "keydown"));
+    const onHeaderKeyDown = Event.map(Event.filter(onKeyDown.event, (e) => isHTMLElement(e.target) && e.target.classList.contains("pane-header"), eventDisposables), (e) => new StandardKeyboardEvent(e), eventDisposables);
+    this._register(Event.filter(onHeaderKeyDown, (e) => e.keyCode === KeyCode.UpArrow, eventDisposables)(() => this.focusPrevious()));
+    this._register(Event.filter(onHeaderKeyDown, (e) => e.keyCode === KeyCode.DownArrow, eventDisposables)(() => this.focusNext()));
   }
   addPane(pane, size, index = this.splitview.length) {
     const disposables = new DisposableStore();
@@ -523,15 +382,9 @@ class PaneView extends Disposable {
     pane.orthogonalSize = this.orthogonalSize;
     this.splitview.addView(pane, size, index);
     if (this.dnd) {
-      const draggable = new PaneDraggable(
-        pane,
-        this.dnd,
-        this.dndContext
-      );
+      const draggable = new PaneDraggable(pane, this.dnd, this.dndContext);
       disposables.add(draggable);
-      disposables.add(
-        draggable.onDidDrop(this._onDidDrop.fire, this._onDidDrop)
-      );
+      disposables.add(draggable.onDidDrop(this._onDidDrop.fire, this._onDidDrop));
     }
   }
   removePane(pane) {
@@ -539,17 +392,12 @@ class PaneView extends Disposable {
     if (index === -1) {
       return;
     }
-    this.splitview.removeView(
-      index,
-      pane.isExpanded() ? Sizing.Distribute : void 0
-    );
+    this.splitview.removeView(index, pane.isExpanded() ? Sizing.Distribute : void 0);
     const paneItem = this.paneItems.splice(index, 1)[0];
     paneItem.disposable.dispose();
   }
   movePane(from, to) {
-    const fromIndex = this.paneItems.findIndex(
-      (item) => item.pane === from
-    );
+    const fromIndex = this.paneItems.findIndex((item) => item.pane === from);
     const toIndex = this.paneItems.findIndex((item) => item.pane === to);
     if (fromIndex === -1 || toIndex === -1) {
       return;
@@ -594,14 +442,10 @@ class PaneView extends Disposable {
   }
   flipOrientation(height, width) {
     this.orientation = this.orientation === Orientation.VERTICAL ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-    const paneSizes = this.paneItems.map(
-      (pane) => this.getPaneSize(pane.pane)
-    );
+    const paneSizes = this.paneItems.map((pane) => this.getPaneSize(pane.pane));
     this.splitview.dispose();
     clearNode(this.element);
-    this.splitview = this._register(
-      new SplitView(this.element, { orientation: this.orientation })
-    );
+    this.splitview = this._register(new SplitView(this.element, { orientation: this.orientation }));
     this.updateSplitviewOrthogonalSashes(this.boundarySashes);
     const newOrthogonalSize = this.orientation === Orientation.VERTICAL ? width : height;
     const newSize = this.orientation === Orientation.HORIZONTAL ? width : height;
@@ -626,15 +470,11 @@ class PaneView extends Disposable {
     }, 200);
   }
   getPaneHeaderElements() {
-    return [
-      ...this.element.querySelectorAll(".pane-header")
-    ];
+    return [...this.element.querySelectorAll(".pane-header")];
   }
   focusPrevious() {
     const headers = this.getPaneHeaderElements();
-    const index = headers.indexOf(
-      this.element.ownerDocument.activeElement
-    );
+    const index = headers.indexOf(this.element.ownerDocument.activeElement);
     if (index === -1) {
       return;
     }
@@ -642,9 +482,7 @@ class PaneView extends Disposable {
   }
   focusNext() {
     const headers = this.getPaneHeaderElements();
-    const index = headers.indexOf(
-      this.element.ownerDocument.activeElement
-    );
+    const index = headers.indexOf(this.element.ownerDocument.activeElement);
     if (index === -1) {
       return;
     }

@@ -1,34 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $, addDisposableListener, append, getWindow, scheduleAtNextAnimationFrame } from "../../dom.js";
+import { DomEmitter } from "../../event.js";
+import { ISashEvent as IBaseSashEvent, Orientation, Sash, SashState } from "../sash/sash.js";
+import { SmoothScrollableElement } from "../scrollbar/scrollableElement.js";
 import { pushToEnd, pushToStart, range } from "../../../common/arrays.js";
 import { Color } from "../../../common/color.js";
 import { Emitter, Event } from "../../../common/event.js";
-import {
-  Disposable,
-  combinedDisposable,
-  dispose,
-  toDisposable
-} from "../../../common/lifecycle.js";
+import { combinedDisposable, Disposable, dispose, IDisposable, toDisposable } from "../../../common/lifecycle.js";
 import { clamp } from "../../../common/numbers.js";
-import {
-  Scrollable,
-  ScrollbarVisibility
-} from "../../../common/scrollable.js";
+import { Scrollable, ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
 import * as types from "../../../common/types.js";
-import {
-  $,
-  addDisposableListener,
-  append,
-  getWindow,
-  scheduleAtNextAnimationFrame
-} from "../../dom.js";
-import { DomEmitter } from "../../event.js";
-import {
-  Orientation,
-  Sash,
-  SashState
-} from "../sash/sash.js";
-import { SmoothScrollableElement } from "../scrollbar/scrollableElement.js";
 import "./splitview.css";
 import { Orientation as Orientation2 } from "../sash/sash.js";
 const defaultStyles = {
@@ -76,11 +58,7 @@ class ViewItem {
       return;
     }
     if (visible) {
-      this.size = clamp(
-        this._cachedVisibleSize,
-        this.viewMinimumSize,
-        this.viewMaximumSize
-      );
+      this.size = clamp(this._cachedVisibleSize, this.viewMinimumSize, this.viewMaximumSize);
       this._cachedVisibleSize = void 0;
     } else {
       this._cachedVisibleSize = typeof size === "number" ? size : this.size;
@@ -314,69 +292,43 @@ class SplitView extends Disposable {
     this.getSashOrthogonalSize = options.getSashOrthogonalSize;
     this.el = document.createElement("div");
     this.el.classList.add("monaco-split-view2");
-    this.el.classList.add(
-      this.orientation === Orientation.VERTICAL ? "vertical" : "horizontal"
-    );
+    this.el.classList.add(this.orientation === Orientation.VERTICAL ? "vertical" : "horizontal");
     container.appendChild(this.el);
     this.sashContainer = append(this.el, $(".sash-container"));
     this.viewContainer = $(".split-view-container");
-    this.scrollable = this._register(
-      new Scrollable({
-        forceIntegerValues: true,
-        smoothScrollDuration: 125,
-        scheduleAtNextAnimationFrame: /* @__PURE__ */ __name((callback) => scheduleAtNextAnimationFrame(getWindow(this.el), callback), "scheduleAtNextAnimationFrame")
-      })
-    );
-    this.scrollableElement = this._register(
-      new SmoothScrollableElement(
-        this.viewContainer,
-        {
-          vertical: this.orientation === Orientation.VERTICAL ? options.scrollbarVisibility ?? ScrollbarVisibility.Auto : ScrollbarVisibility.Hidden,
-          horizontal: this.orientation === Orientation.HORIZONTAL ? options.scrollbarVisibility ?? ScrollbarVisibility.Auto : ScrollbarVisibility.Hidden
-        },
-        this.scrollable
-      )
-    );
-    const onDidScrollViewContainer = this._register(
-      new DomEmitter(this.viewContainer, "scroll")
-    ).event;
-    this._register(
-      onDidScrollViewContainer((_) => {
-        const position = this.scrollableElement.getScrollPosition();
-        const scrollLeft = Math.abs(
-          this.viewContainer.scrollLeft - position.scrollLeft
-        ) <= 1 ? void 0 : this.viewContainer.scrollLeft;
-        const scrollTop = Math.abs(
-          this.viewContainer.scrollTop - position.scrollTop
-        ) <= 1 ? void 0 : this.viewContainer.scrollTop;
-        if (scrollLeft !== void 0 || scrollTop !== void 0) {
-          this.scrollableElement.setScrollPosition({
-            scrollLeft,
-            scrollTop
-          });
-        }
-      })
-    );
+    this.scrollable = this._register(new Scrollable({
+      forceIntegerValues: true,
+      smoothScrollDuration: 125,
+      scheduleAtNextAnimationFrame: /* @__PURE__ */ __name((callback) => scheduleAtNextAnimationFrame(getWindow(this.el), callback), "scheduleAtNextAnimationFrame")
+    }));
+    this.scrollableElement = this._register(new SmoothScrollableElement(this.viewContainer, {
+      vertical: this.orientation === Orientation.VERTICAL ? options.scrollbarVisibility ?? ScrollbarVisibility.Auto : ScrollbarVisibility.Hidden,
+      horizontal: this.orientation === Orientation.HORIZONTAL ? options.scrollbarVisibility ?? ScrollbarVisibility.Auto : ScrollbarVisibility.Hidden
+    }, this.scrollable));
+    const onDidScrollViewContainer = this._register(new DomEmitter(this.viewContainer, "scroll")).event;
+    this._register(onDidScrollViewContainer((_) => {
+      const position = this.scrollableElement.getScrollPosition();
+      const scrollLeft = Math.abs(this.viewContainer.scrollLeft - position.scrollLeft) <= 1 ? void 0 : this.viewContainer.scrollLeft;
+      const scrollTop = Math.abs(this.viewContainer.scrollTop - position.scrollTop) <= 1 ? void 0 : this.viewContainer.scrollTop;
+      if (scrollLeft !== void 0 || scrollTop !== void 0) {
+        this.scrollableElement.setScrollPosition({ scrollLeft, scrollTop });
+      }
+    }));
     this.onDidScroll = this.scrollableElement.onScroll;
-    this._register(
-      this.onDidScroll((e) => {
-        if (e.scrollTopChanged) {
-          this.viewContainer.scrollTop = e.scrollTop;
-        }
-        if (e.scrollLeftChanged) {
-          this.viewContainer.scrollLeft = e.scrollLeft;
-        }
-      })
-    );
+    this._register(this.onDidScroll((e) => {
+      if (e.scrollTopChanged) {
+        this.viewContainer.scrollTop = e.scrollTop;
+      }
+      if (e.scrollLeftChanged) {
+        this.viewContainer.scrollLeft = e.scrollLeft;
+      }
+    }));
     append(this.el, this.scrollableElement.getDomNode());
     this.style(options.styles || defaultStyles);
     if (options.descriptor) {
       this.size = options.descriptor.size;
       options.descriptor.views.forEach((viewDescriptor, index) => {
-        const sizing = types.isUndefined(viewDescriptor.visible) || viewDescriptor.visible ? viewDescriptor.size : {
-          type: "invisible",
-          cachedVisibleSize: viewDescriptor.size
-        };
+        const sizing = types.isUndefined(viewDescriptor.visible) || viewDescriptor.visible ? viewDescriptor.size : { type: "invisible", cachedVisibleSize: viewDescriptor.size };
         const view = viewDescriptor.view;
         this.doAddView(view, sizing, index, true);
       });
@@ -390,10 +342,7 @@ class SplitView extends Disposable {
       this.el.style.removeProperty("--separator-border");
     } else {
       this.el.classList.add("separator-border");
-      this.el.style.setProperty(
-        "--separator-border",
-        styles.separatorBorder.toString()
-      );
+      this.el.style.setProperty("--separator-border", styles.separatorBorder.toString());
     }
   }
   /**
@@ -555,7 +504,12 @@ class SplitView extends Disposable {
     const previousSize = Math.max(this.size, this._contentSize);
     this.size = size;
     this.layoutContext = layoutContext;
-    if (this.proportions) {
+    if (!this.proportions) {
+      const indexes = range(this.viewItems.length);
+      const lowPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 1 /* Low */);
+      const highPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 2 /* High */);
+      this.resize(this.viewItems.length - 1, size - previousSize, void 0, lowPriorityIndexes, highPriorityIndexes);
+    } else {
       let total = 0;
       for (let i = 0; i < this.viewItems.length; i++) {
         const item = this.viewItems[i];
@@ -570,37 +524,16 @@ class SplitView extends Disposable {
         const item = this.viewItems[i];
         const proportion = this.proportions[i];
         if (typeof proportion === "number" && total > 0) {
-          item.size = clamp(
-            Math.round(proportion * size / total),
-            item.minimumSize,
-            item.maximumSize
-          );
+          item.size = clamp(Math.round(proportion * size / total), item.minimumSize, item.maximumSize);
         }
       }
-    } else {
-      const indexes = range(this.viewItems.length);
-      const lowPriorityIndexes = indexes.filter(
-        (i) => this.viewItems[i].priority === 1 /* Low */
-      );
-      const highPriorityIndexes = indexes.filter(
-        (i) => this.viewItems[i].priority === 2 /* High */
-      );
-      this.resize(
-        this.viewItems.length - 1,
-        size - previousSize,
-        void 0,
-        lowPriorityIndexes,
-        highPriorityIndexes
-      );
     }
     this.distributeEmptySpace();
     this.layoutViews();
   }
   saveProportions() {
     if (this.proportionalLayout && this._contentSize > 0) {
-      this.proportions = this.viewItems.map(
-        (v) => v.proportionalLayout && v.visible ? v.size / this._contentSize : void 0
-      );
+      this.proportions = this.viewItems.map((v) => v.proportionalLayout && v.visible ? v.size / this._contentSize : void 0);
     }
   }
   onSashStart({ sash, start, alt }) {
@@ -609,16 +542,8 @@ class SplitView extends Disposable {
     }
     const index = this.sashItems.findIndex((item) => item.sash === sash);
     const disposable = combinedDisposable(
-      addDisposableListener(
-        this.el.ownerDocument.body,
-        "keydown",
-        (e) => resetSashDragState(this.sashDragState.current, e.altKey)
-      ),
-      addDisposableListener(
-        this.el.ownerDocument.body,
-        "keyup",
-        () => resetSashDragState(this.sashDragState.current, false)
-      )
+      addDisposableListener(this.el.ownerDocument.body, "keydown", (e) => resetSashDragState(this.sashDragState.current, e.altKey)),
+      addDisposableListener(this.el.ownerDocument.body, "keyup", () => resetSashDragState(this.sashDragState.current, false))
     );
     const resetSashDragState = /* @__PURE__ */ __name((start2, alt2) => {
       const sizes = this.viewItems.map((i) => i.size);
@@ -644,22 +569,10 @@ class SplitView extends Disposable {
       if (!alt2) {
         const upIndexes = range(index, -1);
         const downIndexes = range(index + 1, this.viewItems.length);
-        const minDeltaUp = upIndexes.reduce(
-          (r, i) => r + (this.viewItems[i].minimumSize - sizes[i]),
-          0
-        );
-        const maxDeltaUp = upIndexes.reduce(
-          (r, i) => r + (this.viewItems[i].viewMaximumSize - sizes[i]),
-          0
-        );
-        const maxDeltaDown = downIndexes.length === 0 ? Number.POSITIVE_INFINITY : downIndexes.reduce(
-          (r, i) => r + (sizes[i] - this.viewItems[i].minimumSize),
-          0
-        );
-        const minDeltaDown = downIndexes.length === 0 ? Number.NEGATIVE_INFINITY : downIndexes.reduce(
-          (r, i) => r + (sizes[i] - this.viewItems[i].viewMaximumSize),
-          0
-        );
+        const minDeltaUp = upIndexes.reduce((r, i) => r + (this.viewItems[i].minimumSize - sizes[i]), 0);
+        const maxDeltaUp = upIndexes.reduce((r, i) => r + (this.viewItems[i].viewMaximumSize - sizes[i]), 0);
+        const maxDeltaDown = downIndexes.length === 0 ? Number.POSITIVE_INFINITY : downIndexes.reduce((r, i) => r + (sizes[i] - this.viewItems[i].minimumSize), 0);
+        const minDeltaDown = downIndexes.length === 0 ? Number.NEGATIVE_INFINITY : downIndexes.reduce((r, i) => r + (sizes[i] - this.viewItems[i].viewMaximumSize), 0);
         const minDelta2 = Math.max(minDeltaUp, minDeltaDown);
         const maxDelta2 = Math.min(maxDeltaDown, maxDeltaUp);
         const snapBeforeIndex = this.findFirstSnapIndex(upIndexes);
@@ -683,45 +596,15 @@ class SplitView extends Disposable {
           };
         }
       }
-      this.sashDragState = {
-        start: start2,
-        current: start2,
-        index,
-        sizes,
-        minDelta,
-        maxDelta,
-        alt: alt2,
-        snapBefore,
-        snapAfter,
-        disposable
-      };
+      this.sashDragState = { start: start2, current: start2, index, sizes, minDelta, maxDelta, alt: alt2, snapBefore, snapAfter, disposable };
     }, "resetSashDragState");
     resetSashDragState(start, alt);
   }
   onSashChange({ current }) {
-    const {
-      index,
-      start,
-      sizes,
-      alt,
-      minDelta,
-      maxDelta,
-      snapBefore,
-      snapAfter
-    } = this.sashDragState;
+    const { index, start, sizes, alt, minDelta, maxDelta, snapBefore, snapAfter } = this.sashDragState;
     this.sashDragState.current = current;
     const delta = current - start;
-    const newDelta = this.resize(
-      index,
-      delta,
-      sizes,
-      void 0,
-      void 0,
-      minDelta,
-      maxDelta,
-      snapBefore,
-      snapAfter
-    );
+    const newDelta = this.resize(index, delta, sizes, void 0, void 0, minDelta, maxDelta, snapBefore, snapAfter);
     if (alt) {
       const isLastSash = index === this.sashItems.length - 1;
       const newSizes = this.viewItems.map((i) => i.size);
@@ -730,15 +613,7 @@ class SplitView extends Disposable {
       const newMinDelta = viewItem.size - viewItem.maximumSize;
       const newMaxDelta = viewItem.size - viewItem.minimumSize;
       const resizeIndex = isLastSash ? index - 1 : index + 1;
-      this.resize(
-        resizeIndex,
-        -newDelta,
-        newSizes,
-        void 0,
-        void 0,
-        newMinDelta,
-        newMaxDelta
-      );
+      this.resize(resizeIndex, -newDelta, newSizes, void 0, void 0, newMinDelta, newMaxDelta);
     }
     this.distributeEmptySpace();
     this.layoutViews();
@@ -782,25 +657,12 @@ class SplitView extends Disposable {
     }
     this.state = 1 /* Busy */;
     try {
-      const indexes = range(this.viewItems.length).filter(
-        (i) => i !== index
-      );
-      const lowPriorityIndexes = [
-        ...indexes.filter(
-          (i) => this.viewItems[i].priority === 1 /* Low */
-        ),
-        index
-      ];
-      const highPriorityIndexes = indexes.filter(
-        (i) => this.viewItems[i].priority === 2 /* High */
-      );
+      const indexes = range(this.viewItems.length).filter((i) => i !== index);
+      const lowPriorityIndexes = [...indexes.filter((i) => this.viewItems[i].priority === 1 /* Low */), index];
+      const highPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 2 /* High */);
       const item = this.viewItems[index];
       size = Math.round(size);
-      size = clamp(
-        size,
-        item.minimumSize,
-        Math.min(item.maximumSize, this.size)
-      );
+      size = clamp(size, item.minimumSize, Math.min(item.maximumSize, this.size));
       item.size = size;
       this.relayout(lowPriorityIndexes, highPriorityIndexes);
     } finally {
@@ -838,12 +700,8 @@ class SplitView extends Disposable {
       item.size = clamp(size, item.minimumSize, item.maximumSize);
     }
     const indexes = range(this.viewItems.length);
-    const lowPriorityIndexes = indexes.filter(
-      (i) => this.viewItems[i].priority === 1 /* Low */
-    );
-    const highPriorityIndexes = indexes.filter(
-      (i) => this.viewItems[i].priority === 2 /* High */
-    );
+    const lowPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 1 /* Low */);
+    const highPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 2 /* High */);
     this.relayout(lowPriorityIndexes, highPriorityIndexes);
   }
   /**
@@ -865,19 +723,11 @@ class SplitView extends Disposable {
       if (index === this.viewItems.length) {
         this.viewContainer.appendChild(container);
       } else {
-        this.viewContainer.insertBefore(
-          container,
-          this.viewContainer.children.item(index)
-        );
+        this.viewContainer.insertBefore(container, this.viewContainer.children.item(index));
       }
-      const onChangeDisposable = view.onDidChange(
-        (size2) => this.onViewChange(item, size2)
-      );
+      const onChangeDisposable = view.onDidChange((size2) => this.onViewChange(item, size2));
       const containerDisposable = toDisposable(() => container.remove());
-      const disposable = combinedDisposable(
-        onChangeDisposable,
-        containerDisposable
-      );
+      const disposable = combinedDisposable(onChangeDisposable, containerDisposable);
       let viewSize;
       if (typeof size === "number") {
         viewSize = size;
@@ -897,65 +747,20 @@ class SplitView extends Disposable {
           viewSize = view.minimumSize;
         }
       }
-      const item = this.orientation === Orientation.VERTICAL ? new VerticalViewItem(
-        container,
-        view,
-        viewSize,
-        disposable
-      ) : new HorizontalViewItem(
-        container,
-        view,
-        viewSize,
-        disposable
-      );
+      const item = this.orientation === Orientation.VERTICAL ? new VerticalViewItem(container, view, viewSize, disposable) : new HorizontalViewItem(container, view, viewSize, disposable);
       this.viewItems.splice(index, 0, item);
       if (this.viewItems.length > 1) {
-        const opts = {
-          orthogonalStartSash: this.orthogonalStartSash,
-          orthogonalEndSash: this.orthogonalEndSash
-        };
-        const sash = this.orientation === Orientation.VERTICAL ? new Sash(
-          this.sashContainer,
-          {
-            getHorizontalSashTop: /* @__PURE__ */ __name((s) => this.getSashPosition(s), "getHorizontalSashTop"),
-            getHorizontalSashWidth: this.getSashOrthogonalSize
-          },
-          {
-            ...opts,
-            orientation: Orientation.HORIZONTAL
-          }
-        ) : new Sash(
-          this.sashContainer,
-          {
-            getVerticalSashLeft: /* @__PURE__ */ __name((s) => this.getSashPosition(s), "getVerticalSashLeft"),
-            getVerticalSashHeight: this.getSashOrthogonalSize
-          },
-          { ...opts, orientation: Orientation.VERTICAL }
-        );
-        const sashEventMapper = this.orientation === Orientation.VERTICAL ? (e) => ({
-          sash,
-          start: e.startY,
-          current: e.currentY,
-          alt: e.altKey
-        }) : (e) => ({
-          sash,
-          start: e.startX,
-          current: e.currentX,
-          alt: e.altKey
-        });
+        const opts = { orthogonalStartSash: this.orthogonalStartSash, orthogonalEndSash: this.orthogonalEndSash };
+        const sash = this.orientation === Orientation.VERTICAL ? new Sash(this.sashContainer, { getHorizontalSashTop: /* @__PURE__ */ __name((s) => this.getSashPosition(s), "getHorizontalSashTop"), getHorizontalSashWidth: this.getSashOrthogonalSize }, { ...opts, orientation: Orientation.HORIZONTAL }) : new Sash(this.sashContainer, { getVerticalSashLeft: /* @__PURE__ */ __name((s) => this.getSashPosition(s), "getVerticalSashLeft"), getVerticalSashHeight: this.getSashOrthogonalSize }, { ...opts, orientation: Orientation.VERTICAL });
+        const sashEventMapper = this.orientation === Orientation.VERTICAL ? (e) => ({ sash, start: e.startY, current: e.currentY, alt: e.altKey }) : (e) => ({ sash, start: e.startX, current: e.currentX, alt: e.altKey });
         const onStart = Event.map(sash.onDidStart, sashEventMapper);
         const onStartDisposable = onStart(this.onSashStart, this);
         const onChange = Event.map(sash.onDidChange, sashEventMapper);
         const onChangeDisposable2 = onChange(this.onSashChange, this);
-        const onEnd = Event.map(
-          sash.onDidEnd,
-          () => this.sashItems.findIndex((item2) => item2.sash === sash)
-        );
+        const onEnd = Event.map(sash.onDidEnd, () => this.sashItems.findIndex((item2) => item2.sash === sash));
         const onEndDisposable = onEnd(this.onSashEnd, this);
         const onDidResetDisposable = sash.onDidReset(() => {
-          const index2 = this.sashItems.findIndex(
-            (item2) => item2.sash === sash
-          );
+          const index2 = this.sashItems.findIndex((item2) => item2.sash === sash);
           const upIndexes = range(index2, -1);
           const downIndexes = range(index2 + 1, this.viewItems.length);
           const snapBeforeIndex = this.findFirstSnapIndex(upIndexes);
@@ -968,13 +773,7 @@ class SplitView extends Disposable {
           }
           this._onDidSashReset.fire(index2);
         });
-        const disposable2 = combinedDisposable(
-          onStartDisposable,
-          onChangeDisposable2,
-          onEndDisposable,
-          onDidResetDisposable,
-          sash
-        );
+        const disposable2 = combinedDisposable(onStartDisposable, onChangeDisposable2, onEndDisposable, onDidResetDisposable, sash);
         const sashItem = { sash, disposable: disposable2 };
         this.sashItems.splice(index - 1, 0, sashItem);
       }
@@ -995,13 +794,7 @@ class SplitView extends Disposable {
   }
   relayout(lowPriorityIndexes, highPriorityIndexes) {
     const contentSize = this.viewItems.reduce((r, i) => r + i.size, 0);
-    this.resize(
-      this.viewItems.length - 1,
-      this.size - contentSize,
-      void 0,
-      lowPriorityIndexes,
-      highPriorityIndexes
-    );
+    this.resize(this.viewItems.length - 1, this.size - contentSize, void 0, lowPriorityIndexes, highPriorityIndexes);
     this.distributeEmptySpace();
     this.layoutViews();
     this.saveProportions();
@@ -1028,22 +821,10 @@ class SplitView extends Disposable {
     const upSizes = upIndexes.map((i) => sizes[i]);
     const downItems = downIndexes.map((i) => this.viewItems[i]);
     const downSizes = downIndexes.map((i) => sizes[i]);
-    const minDeltaUp = upIndexes.reduce(
-      (r, i) => r + (this.viewItems[i].minimumSize - sizes[i]),
-      0
-    );
-    const maxDeltaUp = upIndexes.reduce(
-      (r, i) => r + (this.viewItems[i].maximumSize - sizes[i]),
-      0
-    );
-    const maxDeltaDown = downIndexes.length === 0 ? Number.POSITIVE_INFINITY : downIndexes.reduce(
-      (r, i) => r + (sizes[i] - this.viewItems[i].minimumSize),
-      0
-    );
-    const minDeltaDown = downIndexes.length === 0 ? Number.NEGATIVE_INFINITY : downIndexes.reduce(
-      (r, i) => r + (sizes[i] - this.viewItems[i].maximumSize),
-      0
-    );
+    const minDeltaUp = upIndexes.reduce((r, i) => r + (this.viewItems[i].minimumSize - sizes[i]), 0);
+    const maxDeltaUp = upIndexes.reduce((r, i) => r + (this.viewItems[i].maximumSize - sizes[i]), 0);
+    const maxDeltaDown = downIndexes.length === 0 ? Number.POSITIVE_INFINITY : downIndexes.reduce((r, i) => r + (sizes[i] - this.viewItems[i].minimumSize), 0);
+    const minDeltaDown = downIndexes.length === 0 ? Number.NEGATIVE_INFINITY : downIndexes.reduce((r, i) => r + (sizes[i] - this.viewItems[i].maximumSize), 0);
     const minDelta = Math.max(minDeltaUp, minDeltaDown, overloadMinDelta);
     const maxDelta = Math.min(maxDeltaDown, maxDeltaUp, overloadMaxDelta);
     let snapped = false;
@@ -1060,35 +841,19 @@ class SplitView extends Disposable {
       snapView.setVisible(visible, snapAfter.size);
     }
     if (snapped) {
-      return this.resize(
-        index,
-        delta,
-        sizes,
-        lowPriorityIndexes,
-        highPriorityIndexes,
-        overloadMinDelta,
-        overloadMaxDelta
-      );
+      return this.resize(index, delta, sizes, lowPriorityIndexes, highPriorityIndexes, overloadMinDelta, overloadMaxDelta);
     }
     delta = clamp(delta, minDelta, maxDelta);
     for (let i = 0, deltaUp = delta; i < upItems.length; i++) {
       const item = upItems[i];
-      const size = clamp(
-        upSizes[i] + deltaUp,
-        item.minimumSize,
-        item.maximumSize
-      );
+      const size = clamp(upSizes[i] + deltaUp, item.minimumSize, item.maximumSize);
       const viewDelta = size - upSizes[i];
       deltaUp -= viewDelta;
       item.size = size;
     }
     for (let i = 0, deltaDown = delta; i < downItems.length; i++) {
       const item = downItems[i];
-      const size = clamp(
-        downSizes[i] - deltaDown,
-        item.minimumSize,
-        item.maximumSize
-      );
+      const size = clamp(downSizes[i] - deltaDown, item.minimumSize, item.maximumSize);
       const viewDelta = size - downSizes[i];
       deltaDown += viewDelta;
       item.size = size;
@@ -1099,12 +864,8 @@ class SplitView extends Disposable {
     const contentSize = this.viewItems.reduce((r, i) => r + i.size, 0);
     let emptyDelta = this.size - contentSize;
     const indexes = range(this.viewItems.length - 1, -1);
-    const lowPriorityIndexes = indexes.filter(
-      (i) => this.viewItems[i].priority === 1 /* Low */
-    );
-    const highPriorityIndexes = indexes.filter(
-      (i) => this.viewItems[i].priority === 2 /* High */
-    );
+    const lowPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 1 /* Low */);
+    const highPriorityIndexes = indexes.filter((i) => this.viewItems[i].priority === 2 /* High */);
     for (const index of highPriorityIndexes) {
       pushToStart(indexes, index);
     }
@@ -1116,11 +877,7 @@ class SplitView extends Disposable {
     }
     for (let i = 0; emptyDelta !== 0 && i < indexes.length; i++) {
       const item = this.viewItems[indexes[i]];
-      const size = clamp(
-        item.size + emptyDelta,
-        item.minimumSize,
-        item.maximumSize
-      );
+      const size = clamp(item.size + emptyDelta, item.minimumSize, item.maximumSize);
       const viewDelta = size - item.size;
       emptyDelta -= viewDelta;
       item.size = size;
@@ -1152,13 +909,9 @@ class SplitView extends Disposable {
   }
   updateSashEnablement() {
     let previous = false;
-    const collapsesDown = this.viewItems.map(
-      (i) => previous = i.size - i.minimumSize > 0 || previous
-    );
+    const collapsesDown = this.viewItems.map((i) => previous = i.size - i.minimumSize > 0 || previous);
     previous = false;
-    const expandsDown = this.viewItems.map(
-      (i) => previous = i.maximumSize - i.size > 0 || previous
-    );
+    const expandsDown = this.viewItems.map((i) => previous = i.maximumSize - i.size > 0 || previous);
     const reverseViews = [...this.viewItems].reverse();
     previous = false;
     const collapsesUp = reverseViews.map((i) => previous = i.size - i.minimumSize > 0 || previous).reverse();
@@ -1226,7 +979,7 @@ class SplitView extends Disposable {
     return void 0;
   }
   areViewsDistributed() {
-    let min, max;
+    let min = void 0, max = void 0;
     for (const view of this.viewItems) {
       min = min === void 0 ? view.size : Math.min(min, view.size);
       max = max === void 0 ? view.size : Math.max(max, view.size);

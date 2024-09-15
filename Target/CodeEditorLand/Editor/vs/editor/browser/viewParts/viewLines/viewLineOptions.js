@@ -21,26 +21,20 @@ class ViewLineOptions {
     this.themeType = themeType;
     const options = config.options;
     const fontInfo = options.get(EditorOption.fontInfo);
-    const experimentalWhitespaceRendering = options.get(
-      EditorOption.experimentalWhitespaceRendering
-    );
+    const experimentalWhitespaceRendering = options.get(EditorOption.experimentalWhitespaceRendering);
     if (experimentalWhitespaceRendering === "off") {
       this.renderWhitespace = options.get(EditorOption.renderWhitespace);
     } else {
       this.renderWhitespace = "none";
     }
-    this.renderControlCharacters = options.get(
-      EditorOption.renderControlCharacters
-    );
+    this.renderControlCharacters = options.get(EditorOption.renderControlCharacters);
     this.spaceWidth = fontInfo.spaceWidth;
     this.middotWidth = fontInfo.middotWidth;
     this.wsmiddotWidth = fontInfo.wsmiddotWidth;
     this.useMonospaceOptimizations = fontInfo.isMonospace && !options.get(EditorOption.disableMonospaceOptimizations);
     this.canUseHalfwidthRightwardsArrow = fontInfo.canUseHalfwidthRightwardsArrow;
     this.lineHeight = options.get(EditorOption.lineHeight);
-    this.stopRenderingLineAfter = options.get(
-      EditorOption.stopRenderingLineAfter
-    );
+    this.stopRenderingLineAfter = options.get(EditorOption.stopRenderingLineAfter);
     this.fontLigatures = options.get(EditorOption.fontLigatures);
     this.useGpu = options.get(EditorOption.experimentalGpuAcceleration) === "on";
   }

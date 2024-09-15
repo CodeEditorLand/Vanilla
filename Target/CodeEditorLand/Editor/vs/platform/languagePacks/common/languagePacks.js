@@ -13,18 +13,16 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { language } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { IQuickPickItem } from "../../quickinput/common/quickInput.js";
 import { localize } from "../../../nls.js";
-import {
-  IExtensionGalleryService
-} from "../../extensionManagement/common/extensionManagement.js";
+import { IExtensionGalleryService, IGalleryExtension } from "../../extensionManagement/common/extensionManagement.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 function getLocale(extension) {
   return extension.tags.find((t) => t.startsWith("lp-"))?.split("lp-")[1];
 }
 __name(getLocale, "getLocale");
-const ILanguagePackService = createDecorator(
-  "languagePackService"
-);
+const ILanguagePackService = createDecorator("languagePackService");
 let LanguagePackBaseService = class extends Disposable {
   constructor(extensionGalleryService) {
     super();
@@ -38,27 +36,18 @@ let LanguagePackBaseService = class extends Disposable {
     setTimeout(() => timeout.cancel(), 1e3);
     let result;
     try {
-      result = await this.extensionGalleryService.query(
-        {
-          text: 'category:"language packs"',
-          pageSize: 20
-        },
-        timeout.token
-      );
+      result = await this.extensionGalleryService.query({
+        text: 'category:"language packs"',
+        pageSize: 20
+      }, timeout.token);
     } catch (_) {
       return [];
     }
-    const languagePackExtensions = result.firstPage.filter(
-      (e) => e.properties.localizedLanguages?.length && e.tags.some((t) => t.startsWith("lp-"))
-    );
+    const languagePackExtensions = result.firstPage.filter((e) => e.properties.localizedLanguages?.length && e.tags.some((t) => t.startsWith("lp-")));
     const allFromMarketplace = languagePackExtensions.map((lp) => {
       const languageName = lp.properties.localizedLanguages?.[0];
       const locale = getLocale(lp);
-      const baseQuickPick = this.createQuickPickItem(
-        locale,
-        languageName,
-        lp
-      );
+      const baseQuickPick = this.createQuickPickItem(locale, languageName, lp);
       return {
         ...baseQuickPick,
         extensionId: lp.identifier.id,

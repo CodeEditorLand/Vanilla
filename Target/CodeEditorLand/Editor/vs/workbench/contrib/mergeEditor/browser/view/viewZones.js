@@ -2,13 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { $ } from "../../../../../base/browser/dom.js";
 import { CompareResult } from "../../../../../base/common/arrays.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IReader } from "../../../../../base/common/observable.js";
+import { ICodeEditor, IViewZoneChangeAccessor } from "../../../../../editor/browser/editorBrowser.js";
 import { LineRange } from "../model/lineRange.js";
+import { DetailedLineRangeMapping } from "../model/mapping.js";
+import { ModifiedBaseRange } from "../model/modifiedBaseRange.js";
 import { join } from "../utils.js";
-import {
-  ActionsSource,
-  ConflictActionsFactory
-} from "./conflictActions.js";
+import { ActionsSource, ConflictActionsFactory, IContentWidgetAction } from "./conflictActions.js";
 import { getAlignments } from "./lineAlignment.js";
+import { MergeEditorViewModel } from "./viewModel.js";
 class ViewZoneComputer {
   constructor(input1Editor, input2Editor, resultEditor) {
     this.input1Editor = input1Editor;
@@ -18,15 +21,9 @@ class ViewZoneComputer {
   static {
     __name(this, "ViewZoneComputer");
   }
-  conflictActionsFactoryInput1 = new ConflictActionsFactory(
-    this.input1Editor
-  );
-  conflictActionsFactoryInput2 = new ConflictActionsFactory(
-    this.input2Editor
-  );
-  conflictActionsFactoryResult = new ConflictActionsFactory(
-    this.resultEditor
-  );
+  conflictActionsFactoryInput1 = new ConflictActionsFactory(this.input1Editor);
+  conflictActionsFactoryInput2 = new ConflictActionsFactory(this.input2Editor);
+  conflictActionsFactoryResult = new ConflictActionsFactory(this.resultEditor);
   computeViewZones(reader, viewModel, options) {
     let input1LinesAdded = 0;
     let input2LinesAdded = 0;
@@ -48,43 +45,20 @@ class ViewZoneComputer {
     );
     const shouldShowCodeLenses = options.codeLensesVisible;
     const showNonConflictingChanges = options.showNonConflictingChanges;
-    let lastModifiedBaseRange;
-    let lastBaseResultDiff;
+    let lastModifiedBaseRange = void 0;
+    let lastBaseResultDiff = void 0;
     for (const m of baseRangeWithStoreAndTouchingDiffs) {
       if (shouldShowCodeLenses && m.left && (m.left.isConflicting || showNonConflictingChanges || !model.isHandled(m.left).read(reader))) {
         const actions = new ActionsSource(viewModel, m.left);
         if (options.shouldAlignResult || !actions.inputIsEmpty.read(reader)) {
-          input1ViewZones.push(
-            new CommandViewZone(
-              this.conflictActionsFactoryInput1,
-              m.left.input1Range.startLineNumber - 1,
-              actions.itemsInput1
-            )
-          );
-          input2ViewZones.push(
-            new CommandViewZone(
-              this.conflictActionsFactoryInput2,
-              m.left.input2Range.startLineNumber - 1,
-              actions.itemsInput2
-            )
-          );
+          input1ViewZones.push(new CommandViewZone(this.conflictActionsFactoryInput1, m.left.input1Range.startLineNumber - 1, actions.itemsInput1));
+          input2ViewZones.push(new CommandViewZone(this.conflictActionsFactoryInput2, m.left.input2Range.startLineNumber - 1, actions.itemsInput2));
           if (options.shouldAlignBase) {
-            baseViewZones.push(
-              new Placeholder(
-                m.left.baseRange.startLineNumber - 1,
-                16
-              )
-            );
+            baseViewZones.push(new Placeholder(m.left.baseRange.startLineNumber - 1, 16));
           }
         }
         const afterLineNumber = m.left.baseRange.startLineNumber + (lastBaseResultDiff?.resultingDeltaFromOriginalToModified ?? 0) - 1;
-        resultViewZones.push(
-          new CommandViewZone(
-            this.conflictActionsFactoryResult,
-            afterLineNumber,
-            actions.resultItems
-          )
-        );
+        resultViewZones.push(new CommandViewZone(this.conflictActionsFactoryResult, afterLineNumber, actions.resultItems));
       }
       const lastResultDiff = m.rights.at(-1);
       if (lastResultDiff) {
@@ -101,21 +75,14 @@ class ViewZoneComputer {
         lastModifiedBaseRange = m.left;
         alignedLines[alignedLines.length - 1].resultLine = m.left.baseRange.endLineNumberExclusive + (lastBaseResultDiff ? lastBaseResultDiff.resultingDeltaFromOriginalToModified : 0);
       } else {
-        alignedLines = [
-          {
-            baseLine: lastResultDiff.inputRange.endLineNumberExclusive,
-            input1Line: lastResultDiff.inputRange.endLineNumberExclusive + (lastModifiedBaseRange ? lastModifiedBaseRange.input1Range.endLineNumberExclusive - lastModifiedBaseRange.baseRange.endLineNumberExclusive : 0),
-            input2Line: lastResultDiff.inputRange.endLineNumberExclusive + (lastModifiedBaseRange ? lastModifiedBaseRange.input2Range.endLineNumberExclusive - lastModifiedBaseRange.baseRange.endLineNumberExclusive : 0),
-            resultLine: lastResultDiff.outputRange.endLineNumberExclusive
-          }
-        ];
+        alignedLines = [{
+          baseLine: lastResultDiff.inputRange.endLineNumberExclusive,
+          input1Line: lastResultDiff.inputRange.endLineNumberExclusive + (lastModifiedBaseRange ? lastModifiedBaseRange.input1Range.endLineNumberExclusive - lastModifiedBaseRange.baseRange.endLineNumberExclusive : 0),
+          input2Line: lastResultDiff.inputRange.endLineNumberExclusive + (lastModifiedBaseRange ? lastModifiedBaseRange.input2Range.endLineNumberExclusive - lastModifiedBaseRange.baseRange.endLineNumberExclusive : 0),
+          resultLine: lastResultDiff.outputRange.endLineNumberExclusive
+        }];
       }
-      for (const {
-        input1Line,
-        baseLine,
-        input2Line,
-        resultLine
-      } of alignedLines) {
+      for (const { input1Line, baseLine, input2Line, resultLine } of alignedLines) {
         if (!options.shouldAlignBase && (input1Line === void 0 || input2Line === void 0)) {
           continue;
         }
@@ -123,27 +90,18 @@ class ViewZoneComputer {
         const input2Line_ = input2Line !== void 0 ? input2Line + input2LinesAdded : -1;
         const baseLine_ = baseLine + baseLinesAdded;
         const resultLine_ = resultLine !== void 0 ? resultLine + resultLinesAdded : -1;
-        const max = Math.max(
-          options.shouldAlignBase ? baseLine_ : 0,
-          input1Line_,
-          input2Line_,
-          options.shouldAlignResult ? resultLine_ : 0
-        );
+        const max = Math.max(options.shouldAlignBase ? baseLine_ : 0, input1Line_, input2Line_, options.shouldAlignResult ? resultLine_ : 0);
         if (input1Line !== void 0) {
           const diffInput1 = max - input1Line_;
           if (diffInput1 > 0) {
-            input1ViewZones.push(
-              new Spacer(input1Line - 1, diffInput1)
-            );
+            input1ViewZones.push(new Spacer(input1Line - 1, diffInput1));
             input1LinesAdded += diffInput1;
           }
         }
         if (input2Line !== void 0) {
           const diffInput2 = max - input2Line_;
           if (diffInput2 > 0) {
-            input2ViewZones.push(
-              new Spacer(input2Line - 1, diffInput2)
-            );
+            input2ViewZones.push(new Spacer(input2Line - 1, diffInput2));
             input2LinesAdded += diffInput2;
           }
         }
@@ -157,20 +115,13 @@ class ViewZoneComputer {
         if (options.shouldAlignResult && resultLine !== void 0) {
           const diffResult = max - resultLine_;
           if (diffResult > 0) {
-            resultViewZones.push(
-              new Spacer(resultLine - 1, diffResult)
-            );
+            resultViewZones.push(new Spacer(resultLine - 1, diffResult));
             resultLinesAdded += diffResult;
           }
         }
       }
     }
-    return new MergeEditorViewZones(
-      input1ViewZones,
-      input2ViewZones,
-      baseViewZones,
-      resultViewZones
-    );
+    return new MergeEditorViewZones(input1ViewZones, input2ViewZones, baseViewZones, resultViewZones);
   }
 }
 class MergeEditorViewZones {

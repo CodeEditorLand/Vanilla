@@ -10,35 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 let SleepResumeRepaintMinimap = class extends Disposable {
   static {
     __name(this, "SleepResumeRepaintMinimap");
   }
   constructor(codeEditorService, nativeHostService) {
     super();
-    this._register(
-      nativeHostService.onDidResumeOS(() => {
-        codeEditorService.listCodeEditors().forEach((editor) => editor.render(true));
-      })
-    );
+    this._register(nativeHostService.onDidResumeOS(() => {
+      codeEditorService.listCodeEditors().forEach((editor) => editor.render(true));
+    }));
   }
 };
 SleepResumeRepaintMinimap = __decorateClass([
   __decorateParam(0, ICodeEditorService),
   __decorateParam(1, INativeHostService)
 ], SleepResumeRepaintMinimap);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  SleepResumeRepaintMinimap,
-  LifecyclePhase.Eventually
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(SleepResumeRepaintMinimap, LifecyclePhase.Eventually);
 //# sourceMappingURL=sleepResumeRepaintMinimap.js.map

@@ -1,22 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
 import * as fs from "fs";
-import { dirname, resolve } from "path";
+import * as cp from "child_process";
 import { Codicon } from "../../../base/common/codicons.js";
 import { basename, delimiter, normalize } from "../../../base/common/path.js";
 import { isLinux, isWindows } from "../../../base/common/platform.js";
 import { isString } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
 import * as pfs from "../../../base/node/pfs.js";
 import { enumeratePowerShellInstallations } from "../../../base/node/powershell.js";
-import {
-  ProfileSource,
-  TerminalSettingId
-} from "../common/terminal.js";
-import {
-  findExecutable,
-  getWindowsBuildNumber
-} from "./terminalEnvironment.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITerminalEnvironment, ITerminalExecutable, ITerminalProfile, ITerminalProfileSource, ITerminalUnsafePath, ProfileSource, TerminalIcon, TerminalSettingId } from "../common/terminal.js";
+import { findExecutable, getWindowsBuildNumber } from "./terminalEnvironment.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { dirname, resolve } from "path";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2["UnixShellsPath"] = "/etc/shells";
   return Constants2;
@@ -36,9 +34,7 @@ function detectAvailableProfiles(profiles, defaultProfile, includeDetectedProfil
       logService,
       configurationService.getValue(TerminalSettingId.UseWslProfiles) !== false,
       profiles && typeof profiles === "object" ? { ...profiles } : configurationService.getValue(TerminalSettingId.ProfilesWindows),
-      typeof defaultProfile === "string" ? defaultProfile : configurationService.getValue(
-        TerminalSettingId.DefaultProfileWindows
-      ),
+      typeof defaultProfile === "string" ? defaultProfile : configurationService.getValue(TerminalSettingId.DefaultProfileWindows),
       testPwshSourcePaths,
       variableResolver
     );
@@ -47,12 +43,8 @@ function detectAvailableProfiles(profiles, defaultProfile, includeDetectedProfil
     fsProvider,
     logService,
     includeDetectedProfiles,
-    profiles && typeof profiles === "object" ? { ...profiles } : configurationService.getValue(
-      isLinux ? TerminalSettingId.ProfilesLinux : TerminalSettingId.ProfilesMacOs
-    ),
-    typeof defaultProfile === "string" ? defaultProfile : configurationService.getValue(
-      isLinux ? TerminalSettingId.DefaultProfileLinux : TerminalSettingId.DefaultProfileMacOs
-    ),
+    profiles && typeof profiles === "object" ? { ...profiles } : configurationService.getValue(isLinux ? TerminalSettingId.ProfilesLinux : TerminalSettingId.ProfilesMacOs),
+    typeof defaultProfile === "string" ? defaultProfile : configurationService.getValue(isLinux ? TerminalSettingId.DefaultProfileLinux : TerminalSettingId.DefaultProfileMacOs),
     testPwshSourcePaths,
     variableResolver,
     shellEnv
@@ -60,9 +52,7 @@ function detectAvailableProfiles(profiles, defaultProfile, includeDetectedProfil
 }
 __name(detectAvailableProfiles, "detectAvailableProfiles");
 async function detectAvailableWindowsProfiles(includeDetectedProfiles, fsProvider, shellEnv, logService, useWslProfiles, configProfiles, defaultProfileName, testPwshSourcePaths, variableResolver) {
-  const is32ProcessOn64Windows = process.env.hasOwnProperty(
-    "PROCESSOR_ARCHITEW6432"
-  );
+  const is32ProcessOn64Windows = process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
   const system32Path = `${process.env["windir"]}\\${is32ProcessOn64Windows ? "Sysnative" : "System32"}`;
   let useWSLexe = false;
   if (getWindowsBuildNumber() >= 16299) {
@@ -92,24 +82,15 @@ async function detectAvailableWindowsProfiles(includeDetectedProfiles, fsProvide
     });
     detectedProfiles.set("Cygwin", {
       path: [
-        {
-          path: `${process.env["HOMEDRIVE"]}\\cygwin64\\bin\\bash.exe`,
-          isUnsafe: true
-        },
-        {
-          path: `${process.env["HOMEDRIVE"]}\\cygwin\\bin\\bash.exe`,
-          isUnsafe: true
-        }
+        { path: `${process.env["HOMEDRIVE"]}\\cygwin64\\bin\\bash.exe`, isUnsafe: true },
+        { path: `${process.env["HOMEDRIVE"]}\\cygwin\\bin\\bash.exe`, isUnsafe: true }
       ],
       args: ["--login"],
       isAutoDetected: true
     });
     detectedProfiles.set("bash (MSYS2)", {
       path: [
-        {
-          path: `${process.env["HOMEDRIVE"]}\\msys64\\usr\\bin\\bash.exe`,
-          isUnsafe: true
-        }
+        { path: `${process.env["HOMEDRIVE"]}\\msys64\\usr\\bin\\bash.exe`, isUnsafe: true }
       ],
       args: ["--login", "-i"],
       // CHERE_INVOKING retains current working directory
@@ -127,20 +108,10 @@ async function detectAvailableWindowsProfiles(includeDetectedProfiles, fsProvide
     });
   }
   applyConfigProfilesToMap(configProfiles, detectedProfiles);
-  const resultProfiles = await transformToTerminalProfiles(
-    detectedProfiles.entries(),
-    defaultProfileName,
-    fsProvider,
-    shellEnv,
-    logService,
-    variableResolver
-  );
+  const resultProfiles = await transformToTerminalProfiles(detectedProfiles.entries(), defaultProfileName, fsProvider, shellEnv, logService, variableResolver);
   if (includeDetectedProfiles && useWslProfiles) {
     try {
-      const result = await getWslProfiles(
-        `${system32Path}\\${useWSLexe ? "wsl" : "bash"}.exe`,
-        defaultProfileName
-      );
+      const result = await getWslProfiles(`${system32Path}\\${useWSLexe ? "wsl" : "bash"}.exe`, defaultProfileName);
       for (const wslProfile of result) {
         if (!configProfiles || !(wslProfile.profileName in configProfiles)) {
           resultProfiles.push(wslProfile);
@@ -148,9 +119,7 @@ async function detectAvailableWindowsProfiles(includeDetectedProfiles, fsProvide
       }
     } catch (e) {
       if (logIfWslNotInstalled) {
-        logService?.trace(
-          "WSL is not installed, so could not detect WSL profiles"
-        );
+        logService?.trace("WSL is not installed, so could not detect WSL profiles");
         logIfWslNotInstalled = false;
       }
     }
@@ -161,21 +130,9 @@ __name(detectAvailableWindowsProfiles, "detectAvailableWindowsProfiles");
 async function transformToTerminalProfiles(entries, defaultProfileName, fsProvider, shellEnv = process.env, logService, variableResolver) {
   const promises = [];
   for (const [profileName, profile] of entries) {
-    promises.push(
-      getValidatedProfile(
-        profileName,
-        profile,
-        defaultProfileName,
-        fsProvider,
-        shellEnv,
-        logService,
-        variableResolver
-      )
-    );
+    promises.push(getValidatedProfile(profileName, profile, defaultProfileName, fsProvider, shellEnv, logService, variableResolver));
   }
-  return (await Promise.all(promises)).filter(
-    (e) => !!e
-  );
+  return (await Promise.all(promises)).filter((e) => !!e);
 }
 __name(transformToTerminalProfiles, "transformToTerminalProfiles");
 async function getValidatedProfile(profileName, profile, defaultProfileName, fsProvider, shellEnv = process.env, logService, variableResolver) {
@@ -184,7 +141,7 @@ async function getValidatedProfile(profileName, profile, defaultProfileName, fsP
   }
   let originalPaths;
   let args;
-  let icon;
+  let icon = void 0;
   if ("source" in profile && !("path" in profile)) {
     const source = profileSources?.get(profile.source);
     if (!source) {
@@ -204,9 +161,7 @@ async function getValidatedProfile(profileName, profile, defaultProfileName, fsP
   }
   let paths;
   if (variableResolver) {
-    const mapped = originalPaths.map(
-      (e) => typeof e === "string" ? e : e.path
-    );
+    const mapped = originalPaths.map((e) => typeof e === "string" ? e : e.path);
     const resolved = await variableResolver(mapped);
     paths = new Array(originalPaths.length);
     for (let i = 0; i < originalPaths.length; i++) {
@@ -238,24 +193,9 @@ async function getValidatedProfile(profileName, profile, defaultProfileName, fsP
       return;
     }
   }
-  const validatedProfile = await validateProfilePaths(
-    profileName,
-    defaultProfileName,
-    paths,
-    fsProvider,
-    shellEnv,
-    args,
-    profile.env,
-    profile.overrideName,
-    profile.isAutoDetected,
-    requiresUnsafePath
-  );
+  const validatedProfile = await validateProfilePaths(profileName, defaultProfileName, paths, fsProvider, shellEnv, args, profile.env, profile.overrideName, profile.isAutoDetected, requiresUnsafePath);
   if (!validatedProfile) {
-    logService?.debug(
-      "Terminal profile not validated",
-      profileName,
-      originalPaths
-    );
+    logService?.debug("Terminal profile not validated", profileName, originalPaths);
     return void 0;
   }
   validatedProfile.isAutoDetected = profile.isAutoDetected;
@@ -275,16 +215,16 @@ async function initializeWindowsProfiles(testPwshSourcePaths) {
   if (profileSources && !testPwshSourcePaths) {
     return;
   }
-  const [gitBashPaths, pwshPaths] = await Promise.all([
-    getGitBashPaths(),
-    testPwshSourcePaths || getPowershellPaths()
-  ]);
+  const [gitBashPaths, pwshPaths] = await Promise.all([getGitBashPaths(), testPwshSourcePaths || getPowershellPaths()]);
   profileSources = /* @__PURE__ */ new Map();
-  profileSources.set(ProfileSource.GitBash, {
-    profileName: "Git Bash",
-    paths: gitBashPaths,
-    args: ["--login", "-i"]
-  });
+  profileSources.set(
+    ProfileSource.GitBash,
+    {
+      profileName: "Git Bash",
+      paths: gitBashPaths,
+      args: ["--login", "-i"]
+    }
+  );
   profileSources.set(ProfileSource.Pwsh, {
     profileName: "PowerShell",
     paths: pwshPaths,
@@ -318,12 +258,8 @@ async function getGitBashPaths() {
       // using Git for Windows SDK
     );
   }
-  gitBashPaths.push(
-    `${process.env["UserProfile"]}\\scoop\\apps\\git\\current\\bin\\bash.exe`
-  );
-  gitBashPaths.push(
-    `${process.env["UserProfile"]}\\scoop\\apps\\git-with-openssh\\current\\bin\\bash.exe`
-  );
+  gitBashPaths.push(`${process.env["UserProfile"]}\\scoop\\apps\\git\\current\\bin\\bash.exe`);
+  gitBashPaths.push(`${process.env["UserProfile"]}\\scoop\\apps\\git-with-openssh\\current\\bin\\bash.exe`);
   return gitBashPaths;
 }
 __name(getGitBashPaths, "getGitBashPaths");
@@ -338,16 +274,12 @@ __name(getPowershellPaths, "getPowershellPaths");
 async function getWslProfiles(wslPath, defaultProfileName) {
   const profiles = [];
   const distroOutput = await new Promise((resolve2, reject) => {
-    cp.exec(
-      "wsl.exe -l -q",
-      { encoding: "utf16le", timeout: 1e3 },
-      (err, stdout) => {
-        if (err) {
-          return reject("Problem occurred when getting wsl distros");
-        }
-        resolve2(stdout);
+    cp.exec("wsl.exe -l -q", { encoding: "utf16le", timeout: 1e3 }, (err, stdout) => {
+      if (err) {
+        return reject("Problem occurred when getting wsl distros");
       }
-    );
+      resolve2(stdout);
+    });
   });
   if (!distroOutput) {
     return [];
@@ -402,21 +334,11 @@ async function detectAvailableUnixProfiles(fsProvider, logService, includeDetect
         profileName = `${profileName} (${count})`;
       }
       counts.set(profileName, count);
-      detectedProfiles.set(profileName, {
-        path: profile,
-        isAutoDetected: true
-      });
+      detectedProfiles.set(profileName, { path: profile, isAutoDetected: true });
     }
   }
   applyConfigProfilesToMap(configProfiles, detectedProfiles);
-  return await transformToTerminalProfiles(
-    detectedProfiles.entries(),
-    defaultProfileName,
-    fsProvider,
-    shellEnv,
-    logService,
-    variableResolver
-  );
+  return await transformToTerminalProfiles(detectedProfiles.entries(), defaultProfileName, fsProvider, shellEnv, logService, variableResolver);
 }
 __name(detectAvailableUnixProfiles, "detectAvailableUnixProfiles");
 function applyConfigProfilesToMap(configProfiles, profilesMap) {
@@ -439,17 +361,7 @@ async function validateProfilePaths(profileName, defaultProfileName, potentialPa
   }
   const path = potentialPaths.shift();
   if (path === "") {
-    return validateProfilePaths(
-      profileName,
-      defaultProfileName,
-      potentialPaths,
-      fsProvider,
-      shellEnv,
-      args,
-      env,
-      overrideName,
-      isAutoDetected
-    );
+    return validateProfilePaths(profileName, defaultProfileName, potentialPaths, fsProvider, shellEnv, args, env, overrideName, isAutoDetected);
   }
   const isUnsafePath = typeof path !== "string" && path.isUnsafe;
   const actualPath = typeof path === "string" ? path : path.path;
@@ -466,22 +378,9 @@ async function validateProfilePaths(profileName, defaultProfileName, potentialPa
   };
   if (basename(actualPath) === actualPath) {
     const envPaths = shellEnv.PATH ? shellEnv.PATH.split(delimiter) : void 0;
-    const executable = await findExecutable(
-      actualPath,
-      void 0,
-      envPaths,
-      void 0,
-      fsProvider.existsFile
-    );
+    const executable = await findExecutable(actualPath, void 0, envPaths, void 0, fsProvider.existsFile);
     if (!executable) {
-      return validateProfilePaths(
-        profileName,
-        defaultProfileName,
-        potentialPaths,
-        fsProvider,
-        shellEnv,
-        args
-      );
+      return validateProfilePaths(profileName, defaultProfileName, potentialPaths, fsProvider, shellEnv, args);
     }
     profile.path = executable;
     profile.isFromPath = true;
@@ -491,17 +390,7 @@ async function validateProfilePaths(profileName, defaultProfileName, potentialPa
   if (result) {
     return profile;
   }
-  return validateProfilePaths(
-    profileName,
-    defaultProfileName,
-    potentialPaths,
-    fsProvider,
-    shellEnv,
-    args,
-    env,
-    overrideName,
-    isAutoDetected
-  );
+  return validateProfilePaths(profileName, defaultProfileName, potentialPaths, fsProvider, shellEnv, args, env, overrideName, isAutoDetected);
 }
 __name(validateProfilePaths, "validateProfilePaths");
 export {

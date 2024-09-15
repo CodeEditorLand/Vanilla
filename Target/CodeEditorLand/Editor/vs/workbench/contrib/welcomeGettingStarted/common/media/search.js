@@ -1,4 +1,4 @@
-var search_default = "../../../../../../Asset/search-T42N7BTR.svg";
+var search_default = "../../../../../../Asset/search-7DC64SYF.svg";
 export {
   search_default as default
 };

@@ -11,32 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { localize } from "../../../../nls.js";
-import {
-  ConfigurationScope,
-  Extensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
-import {
-  FileOperationError,
-  FileOperationResult,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ConfigurationScope, Extensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { FileOperationError, FileOperationResult, IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  ProfileResourceType
-} from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
 import { updateIgnoredSettings } from "../../../../platform/userDataSync/common/settingsMerge.js";
 import { IUserDataSyncUtilService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import {
-  TreeItemCollapsibleState
-} from "../../../common/views.js";
-import {
-  IUserDataProfileService
-} from "../common/userDataProfile.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 let SettingsResourceInitializer = class {
   constructor(userDataProfileService, fileService, logService) {
     this.userDataProfileService = userDataProfileService;
@@ -49,15 +36,10 @@ let SettingsResourceInitializer = class {
   async initialize(content) {
     const settingsContent = JSON.parse(content);
     if (settingsContent.settings === null) {
-      this.logService.info(
-        `Initializing Profile: No settings to apply...`
-      );
+      this.logService.info(`Initializing Profile: No settings to apply...`);
       return;
     }
-    await this.fileService.writeFile(
-      this.userDataProfileService.currentProfile.settingsResource,
-      VSBuffer.fromString(settingsContent.settings)
-    );
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.settingsResource, VSBuffer.fromString(settingsContent.settings));
   }
 };
 SettingsResourceInitializer = __decorateClass([
@@ -84,55 +66,30 @@ let SettingsResource = class {
       return { settings: null };
     } else {
       const ignoredSettings = this.getIgnoredSettings();
-      const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(
-        profile.settingsResource
-      );
-      const settings = updateIgnoredSettings(
-        localContent || "{}",
-        "{}",
-        ignoredSettings,
-        formattingOptions
-      );
+      const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(profile.settingsResource);
+      const settings = updateIgnoredSettings(localContent || "{}", "{}", ignoredSettings, formattingOptions);
       return { settings };
     }
   }
   async apply(content, profile) {
     const settingsContent = JSON.parse(content);
     if (settingsContent.settings === null) {
-      this.logService.info(
-        `Importing Profile (${profile.name}): No settings to apply...`
-      );
+      this.logService.info(`Importing Profile (${profile.name}): No settings to apply...`);
       return;
     }
     const localSettingsContent = await this.getLocalFileContent(profile);
-    const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(
-      profile.settingsResource
-    );
-    const contentToUpdate = updateIgnoredSettings(
-      settingsContent.settings,
-      localSettingsContent || "{}",
-      this.getIgnoredSettings(),
-      formattingOptions
-    );
-    await this.fileService.writeFile(
-      profile.settingsResource,
-      VSBuffer.fromString(contentToUpdate)
-    );
+    const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(profile.settingsResource);
+    const contentToUpdate = updateIgnoredSettings(settingsContent.settings, localSettingsContent || "{}", this.getIgnoredSettings(), formattingOptions);
+    await this.fileService.writeFile(profile.settingsResource, VSBuffer.fromString(contentToUpdate));
   }
   getIgnoredSettings() {
-    const allSettings = Registry.as(
-      Extensions.Configuration
-    ).getConfigurationProperties();
-    const ignoredSettings = Object.keys(allSettings).filter(
-      (key) => allSettings[key]?.scope === ConfigurationScope.MACHINE || allSettings[key]?.scope === ConfigurationScope.MACHINE_OVERRIDABLE
-    );
+    const allSettings = Registry.as(Extensions.Configuration).getConfigurationProperties();
+    const ignoredSettings = Object.keys(allSettings).filter((key) => allSettings[key]?.scope === ConfigurationScope.MACHINE || allSettings[key]?.scope === ConfigurationScope.MACHINE_OVERRIDABLE);
     return ignoredSettings;
   }
   async getLocalFileContent(profile) {
     try {
-      const content = await this.fileService.readFile(
-        profile.settingsResource
-      );
+      const content = await this.fileService.readFile(profile.settingsResource);
       return content.value.toString();
     } catch (error) {
       if (error instanceof FileOperationError && error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND) {
@@ -163,28 +120,20 @@ let SettingsResourceTreeItem = class {
   collapsibleState = TreeItemCollapsibleState.Expanded;
   checkbox;
   async getChildren() {
-    return [
-      {
-        handle: this.profile.settingsResource.toString(),
-        resourceUri: this.profile.settingsResource,
-        collapsibleState: TreeItemCollapsibleState.None,
-        parent: this,
-        accessibilityInformation: {
-          label: this.uriIdentityService.extUri.basename(
-            this.profile.settingsResource
-          )
-        },
-        command: {
-          id: API_OPEN_EDITOR_COMMAND_ID,
-          title: "",
-          arguments: [
-            this.profile.settingsResource,
-            void 0,
-            void 0
-          ]
-        }
+    return [{
+      handle: this.profile.settingsResource.toString(),
+      resourceUri: this.profile.settingsResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.settingsResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.settingsResource, void 0, void 0]
       }
-    ];
+    }];
   }
   async hasContent() {
     const settingsContent = await this.instantiationService.createInstance(SettingsResource).getSettingsContent(this.profile);

@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  ListDragOverEffectPosition,
-  ListDragOverEffectType
-} from "../list/list.js";
+import { IDragAndDropData } from "../../dnd.js";
+import { IMouseEvent } from "../../mouseEvent.js";
+import { IListDragAndDrop, IListDragOverReaction, IListRenderer, ListDragOverEffectPosition, ListDragOverEffectType } from "../list/list.js";
+import { ListViewTargetSector } from "../list/listView.js";
+import { Event } from "../../../common/event.js";
 var TreeVisibility = /* @__PURE__ */ ((TreeVisibility2) => {
   TreeVisibility2[TreeVisibility2["Hidden"] = 0] = "Hidden";
   TreeVisibility2[TreeVisibility2["Visible"] = 1] = "Visible";
@@ -37,25 +38,10 @@ const TreeDragOverReactions = {
     return { accept: true, bubble: 0 /* Down */, autoExpand };
   },
   acceptCopyBubbleUp() {
-    return {
-      accept: true,
-      bubble: 1 /* Up */,
-      effect: {
-        type: ListDragOverEffectType.Copy,
-        position: ListDragOverEffectPosition.Over
-      }
-    };
+    return { accept: true, bubble: 1 /* Up */, effect: { type: ListDragOverEffectType.Copy, position: ListDragOverEffectPosition.Over } };
   },
   acceptCopyBubbleDown(autoExpand = false) {
-    return {
-      accept: true,
-      bubble: 0 /* Down */,
-      effect: {
-        type: ListDragOverEffectType.Copy,
-        position: ListDragOverEffectPosition.Over
-      },
-      autoExpand
-    };
+    return { accept: true, bubble: 0 /* Down */, effect: { type: ListDragOverEffectType.Copy, position: ListDragOverEffectPosition.Over }, autoExpand };
   }
 };
 class TreeError extends Error {

@@ -1,12 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createFastDomNode
-} from "../../../base/browser/fastDomNode.js";
-import { EditorOption } from "../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../base/browser/fastDomNode.js";
 import { applyFontInfo } from "../config/domFontInfo.js";
-import { VisibleLinesCollection } from "./viewLayer.js";
+import { DynamicViewOverlay } from "./dynamicViewOverlay.js";
+import { IVisibleLine, VisibleLinesCollection } from "./viewLayer.js";
 import { ViewPart } from "./viewPart.js";
+import { StringBuilder } from "../../common/core/stringBuilder.js";
+import { RenderingContext, RestrictedRenderingContext } from "./renderingContext.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../common/viewEvents.js";
+import { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
+import { EditorOption } from "../../common/config/editorOptions.js";
 class ViewOverlays extends ViewPart {
   static {
     __name(this, "ViewOverlays");
@@ -87,9 +91,7 @@ class ViewOverlays extends ViewPart {
   }
   // ----- end event handlers
   prepareRender(ctx) {
-    const toRender = this._dynamicOverlays.filter(
-      (overlay) => overlay.shouldRender()
-    );
+    const toRender = this._dynamicOverlays.filter((overlay) => overlay.shouldRender());
     for (let i = 0, len = toRender.length; i < len; i++) {
       const dynamicOverlay = toRender[i];
       dynamicOverlay.prepareRender(ctx);
@@ -133,10 +135,7 @@ class ViewOverlayLine {
     let result = "";
     for (let i = 0, len = this._dynamicOverlays.length; i < len; i++) {
       const dynamicOverlay = this._dynamicOverlays[i];
-      result += dynamicOverlay.render(
-        viewportData.startLineNumber,
-        lineNumber
-      );
+      result += dynamicOverlay.render(viewportData.startLineNumber, lineNumber);
     }
     if (this._renderedContent === result) {
       return false;

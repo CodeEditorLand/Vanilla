@@ -13,48 +13,22 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { distinct } from "../../../../base/common/arrays.js";
 import { Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { Constants } from "../../../../base/common/uint.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  GlyphMarginLane,
-  OverviewRulerLane,
-  TrackedRangeStickiness
-} from "../../../../editor/common/model.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { GlyphMarginLane, IModelDecorationOptions, IModelDeltaDecoration, OverviewRulerLane, TrackedRangeStickiness } from "../../../../editor/common/model.js";
 import { localize } from "../../../../nls.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
 import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IDebugService } from "../common/debug.js";
 import { debugStackframe, debugStackframeFocused } from "./debugIcons.js";
+import { IDebugService, IStackFrame } from "../common/debug.js";
 import "./media/callStackEditorContribution.css";
-const topStackFrameColor = registerColor(
-  "editor.stackFrameHighlightBackground",
-  {
-    dark: "#ffff0033",
-    light: "#ffff6673",
-    hcDark: "#ffff0033",
-    hcLight: "#ffff6673"
-  },
-  localize(
-    "topStackFrameLineHighlight",
-    "Background color for the highlight of line at the top stack frame position."
-  )
-);
-const focusedStackFrameColor = registerColor(
-  "editor.focusedStackFrameHighlightBackground",
-  {
-    dark: "#7abd7a4d",
-    light: "#cee7ce73",
-    hcDark: "#7abd7a4d",
-    hcLight: "#cee7ce73"
-  },
-  localize(
-    "focusedStackFrameLineHighlight",
-    "Background color for the highlight of line at focused stack frame position."
-  )
-);
+const topStackFrameColor = registerColor("editor.stackFrameHighlightBackground", { dark: "#ffff0033", light: "#ffff6673", hcDark: "#ffff0033", hcLight: "#ffff6673" }, localize("topStackFrameLineHighlight", "Background color for the highlight of line at the top stack frame position."));
+const focusedStackFrameColor = registerColor("editor.focusedStackFrameHighlightBackground", { dark: "#7abd7a4d", light: "#cee7ce73", hcDark: "#7abd7a4d", hcLight: "#cee7ce73" }, localize("focusedStackFrameLineHighlight", "Background color for the highlight of line at focused stack frame position."));
 const stickiness = TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges;
 const TOP_STACK_FRAME_MARGIN = {
   description: "top-stack-frame-margin",
@@ -100,18 +74,8 @@ const makeStackFrameColumnDecoration = /* @__PURE__ */ __name((noCharactersBefor
 }), "makeStackFrameColumnDecoration");
 function createDecorationsForStackFrame(stackFrame, isFocusedSession, noCharactersBefore) {
   const result = [];
-  const columnUntilEOLRange = new Range(
-    stackFrame.range.startLineNumber,
-    stackFrame.range.startColumn,
-    stackFrame.range.startLineNumber,
-    Constants.MAX_SAFE_SMALL_INTEGER
-  );
-  const range = new Range(
-    stackFrame.range.startLineNumber,
-    stackFrame.range.startColumn,
-    stackFrame.range.startLineNumber,
-    stackFrame.range.startColumn + 1
-  );
+  const columnUntilEOLRange = new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn, stackFrame.range.startLineNumber, Constants.MAX_SAFE_SMALL_INTEGER);
+  const range = new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn, stackFrame.range.startLineNumber, stackFrame.range.startColumn + 1);
   const topStackFrame = stackFrame.thread.getTopStackFrame();
   if (stackFrame.getId() === topStackFrame?.getId()) {
     if (isFocusedSession) {
@@ -153,21 +117,14 @@ let CallStackEditorContribution = class extends Disposable {
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
     const setDecorations = /* @__PURE__ */ __name(() => this.decorations.set(this.createCallStackDecorations()), "setDecorations");
-    this._register(
-      Event.any(
-        this.debugService.getViewModel().onDidFocusStackFrame,
-        this.debugService.getModel().onDidChangeCallStack
-      )(() => {
+    this._register(Event.any(this.debugService.getViewModel().onDidFocusStackFrame, this.debugService.getModel().onDidChangeCallStack)(() => {
+      setDecorations();
+    }));
+    this._register(this.editor.onDidChangeModel((e) => {
+      if (e.newModelUrl) {
         setDecorations();
-      })
-    );
-    this._register(
-      this.editor.onDidChangeModel((e) => {
-        if (e.newModelUrl) {
-          setDecorations();
-        }
-      })
-    );
+      }
+    }));
     setDecorations();
   }
   static {
@@ -194,35 +151,19 @@ let CallStackEditorContribution = class extends Disposable {
             stackFrames.push(callStack[0]);
           }
           stackFrames.forEach((candidateStackFrame) => {
-            if (candidateStackFrame && this.uriIdentityService.extUri.isEqual(
-              candidateStackFrame.source.uri,
-              editor.getModel()?.uri
-            )) {
+            if (candidateStackFrame && this.uriIdentityService.extUri.isEqual(candidateStackFrame.source.uri, editor.getModel()?.uri)) {
               if (candidateStackFrame.range.startLineNumber > editor.getModel()?.getLineCount() || candidateStackFrame.range.startLineNumber < 1) {
-                this.logService.warn(
-                  `CallStackEditorContribution: invalid stack frame line number: ${candidateStackFrame.range.startLineNumber}`
-                );
+                this.logService.warn(`CallStackEditorContribution: invalid stack frame line number: ${candidateStackFrame.range.startLineNumber}`);
                 return;
               }
-              const noCharactersBefore = editor.getModel().getLineFirstNonWhitespaceColumn(
-                candidateStackFrame.range.startLineNumber
-              ) >= candidateStackFrame.range.startColumn;
-              decorations.push(
-                ...createDecorationsForStackFrame(
-                  candidateStackFrame,
-                  isSessionFocused,
-                  noCharactersBefore
-                )
-              );
+              const noCharactersBefore = editor.getModel().getLineFirstNonWhitespaceColumn(candidateStackFrame.range.startLineNumber) >= candidateStackFrame.range.startColumn;
+              decorations.push(...createDecorationsForStackFrame(candidateStackFrame, isSessionFocused, noCharactersBefore));
             }
           });
         }
       });
     });
-    return distinct(
-      decorations,
-      (d) => `${d.options.className} ${d.options.glyphMarginClassName} ${d.range.startLineNumber} ${d.range.startColumn}`
-    );
+    return distinct(decorations, (d) => `${d.options.className} ${d.options.glyphMarginClassName} ${d.range.startLineNumber} ${d.range.startColumn}`);
   }
   dispose() {
     super.dispose();

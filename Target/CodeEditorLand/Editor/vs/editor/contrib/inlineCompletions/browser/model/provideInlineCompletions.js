@@ -3,16 +3,22 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { assertNever } from "../../../../../base/common/assert.js";
 import { DeferredPromise } from "../../../../../base/common/async.js";
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { onUnexpectedExternalError } from "../../../../../base/common/errors.js";
 import { SetMap } from "../../../../../base/common/map.js";
-import { OffsetRange } from "../../../../common/core/offsetRange.js";
+import { onUnexpectedExternalError } from "../../../../../base/common/errors.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ISingleEditOperation } from "../../../../common/core/editOperation.js";
 import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
-import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+import { LanguageFeatureRegistry } from "../../../../common/languageFeatureRegistry.js";
+import { Command, InlineCompletion, InlineCompletionContext, InlineCompletionProviderGroupId, InlineCompletions, InlineCompletionsProvider } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { ITextModel } from "../../../../common/model.js";
 import { fixBracketsInLine } from "../../../../common/model/bracketPairsTextModelPart/fixBrackets.js";
-import { LineEditWithAdditionalLines } from "../../../../common/tokenizationTextModelPart.js";
-import { SnippetParser, Text } from "../../../snippet/browser/snippetParser.js";
+import { SingleTextEdit } from "../../../../common/core/textEdit.js";
 import { getReadonlyEmptyArray } from "../utils.js";
+import { SnippetParser, Text } from "../../../snippet/browser/snippetParser.js";
+import { LineEditWithAdditionalLines } from "../../../../common/tokenizationTextModelPart.js";
+import { OffsetRange } from "../../../../common/core/offsetRange.js";
 async function provideInlineCompletions(registry, positionOrRange, model, context, token = CancellationToken.None, languageConfigurationService) {
   const defaultReplaceRange = positionOrRange instanceof Position ? getDefaultRange(positionOrRange, model) : positionOrRange;
   const providers = registry.all(model);
@@ -65,11 +71,7 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
     }
     const circle = findPreferredProviderCircle(provider, []);
     if (circle) {
-      onUnexpectedExternalError(
-        new Error(
-          `Inline completions: cyclic yield-to dependency detected. Path: ${circle.map((s) => s.toString ? s.toString() : "" + s).join(" -> ")}`
-        )
-      );
+      onUnexpectedExternalError(new Error(`Inline completions: cyclic yield-to dependency detected. Path: ${circle.map((s) => s.toString ? s.toString() : "" + s).join(" -> ")}`));
     }
     const deferredPromise = new DeferredPromise();
     states.set(provider, deferredPromise.p);
@@ -85,39 +87,21 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
       }
       try {
         if (positionOrRange instanceof Position) {
-          const completions = await provider.provideInlineCompletions(
-            model,
-            positionOrRange,
-            context,
-            token
-          );
+          const completions = await provider.provideInlineCompletions(model, positionOrRange, context, token);
           return completions;
         } else {
-          const completions = await provider.provideInlineEditsForRange?.(
-            model,
-            positionOrRange,
-            context,
-            token
-          );
+          const completions = await provider.provideInlineEditsForRange?.(model, positionOrRange, context, token);
           return completions;
         }
       } catch (e) {
         onUnexpectedExternalError(e);
         return void 0;
       }
-    })().then(
-      (c) => deferredPromise.complete(c),
-      (e) => deferredPromise.error(e)
-    );
+    })().then((c) => deferredPromise.complete(c), (e) => deferredPromise.error(e));
     return deferredPromise.p;
   }
   __name(processProvider, "processProvider");
-  const providerResults = await Promise.all(
-    providers.map(async (provider) => ({
-      provider,
-      completions: await processProvider(provider)
-    }))
-  );
+  const providerResults = await Promise.all(providers.map(async (provider) => ({ provider, completions: await processProvider(provider) })));
   const itemsByHash = /* @__PURE__ */ new Map();
   const lists = [];
   for (const result of providerResults) {
@@ -138,11 +122,7 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
       itemsByHash.set(inlineCompletionItem.hash(), inlineCompletionItem);
     }
   }
-  return new InlineCompletionProviderResult(
-    Array.from(itemsByHash.values()),
-    new Set(itemsByHash.keys()),
-    lists
-  );
+  return new InlineCompletionProviderResult(Array.from(itemsByHash.values()), new Set(itemsByHash.keys()), lists);
 }
 __name(provideInlineCompletions, "provideInlineCompletions");
 class InlineCompletionProviderResult {
@@ -213,12 +193,7 @@ class InlineCompletionItem {
         );
         const diff = insertText.length - inlineCompletion.insertText.length;
         if (diff !== 0) {
-          range = new Range(
-            range.startLineNumber,
-            range.startColumn,
-            range.endLineNumber,
-            range.endColumn + diff
-          );
+          range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn + diff);
         }
       }
       snippetInfo = void 0;
@@ -233,17 +208,10 @@ class InlineCompletionItem {
         );
         const diff = inlineCompletion.insertText.snippet.length - preBracketCompletionLength;
         if (diff !== 0) {
-          range = new Range(
-            range.startLineNumber,
-            range.startColumn,
-            range.endLineNumber,
-            range.endColumn + diff
-          );
+          range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn + diff);
         }
       }
-      const snippet = new SnippetParser().parse(
-        inlineCompletion.insertText.snippet
-      );
+      const snippet = new SnippetParser().parse(inlineCompletion.insertText.snippet);
       if (snippet.children.length === 1 && snippet.children[0] instanceof Text) {
         insertText = snippet.children[0].value;
         snippetInfo = void 0;
@@ -281,10 +249,7 @@ class InlineCompletionItem {
     );
   }
   hash() {
-    return JSON.stringify({
-      insertText: this.insertText,
-      range: this.range.toString()
-    });
+    return JSON.stringify({ insertText: this.insertText, range: this.range.toString() });
   }
   toSingleTextEdit() {
     return new SingleTextEdit(this.range, this.insertText);
@@ -293,40 +258,19 @@ class InlineCompletionItem {
 function getDefaultRange(position, model) {
   const word = model.getWordAtPosition(position);
   const maxColumn = model.getLineMaxColumn(position.lineNumber);
-  return word ? new Range(
-    position.lineNumber,
-    word.startColumn,
-    position.lineNumber,
-    maxColumn
-  ) : Range.fromPositions(position, position.with(void 0, maxColumn));
+  return word ? new Range(position.lineNumber, word.startColumn, position.lineNumber, maxColumn) : Range.fromPositions(position, position.with(void 0, maxColumn));
 }
 __name(getDefaultRange, "getDefaultRange");
 function closeBrackets(text, position, model, languageConfigurationService) {
   const lineStart = model.getLineContent(position.lineNumber).substring(0, position.column - 1);
   const newLine = lineStart + text;
-  const edit = LineEditWithAdditionalLines.replace(
-    OffsetRange.ofStartAndLength(
-      position.column - 1,
-      newLine.length - (position.column - 1)
-    ),
-    text
-  );
-  const newTokens = model.tokenization.tokenizeLineWithEdit(
-    position.lineNumber,
-    edit
-  );
-  const slicedTokens = newTokens?.mainLineTokens?.sliceAndInflate(
-    position.column - 1,
-    newLine.length,
-    0
-  );
+  const edit = LineEditWithAdditionalLines.replace(OffsetRange.ofStartAndLength(position.column - 1, newLine.length - (position.column - 1)), text);
+  const newTokens = model.tokenization.tokenizeLineWithEdit(position.lineNumber, edit);
+  const slicedTokens = newTokens?.mainLineTokens?.sliceAndInflate(position.column - 1, newLine.length, 0);
   if (!slicedTokens) {
     return text;
   }
-  const newText = fixBracketsInLine(
-    slicedTokens,
-    languageConfigurationService
-  );
+  const newText = fixBracketsInLine(slicedTokens, languageConfigurationService);
   return newText;
 }
 __name(closeBrackets, "closeBrackets");

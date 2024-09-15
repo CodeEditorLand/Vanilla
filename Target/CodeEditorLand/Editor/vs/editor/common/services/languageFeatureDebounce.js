@@ -12,22 +12,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { doHash } from "../../../base/common/hash.js";
 import { LRUCache } from "../../../base/common/map.js";
-import { matchesScheme } from "../../../base/common/network.js";
-import {
-  MovingAverage,
-  SlidingWindowAverage,
-  clamp
-} from "../../../base/common/numbers.js";
+import { clamp, MovingAverage, SlidingWindowAverage } from "../../../base/common/numbers.js";
+import { LanguageFeatureRegistry } from "../languageFeatureRegistry.js";
+import { ITextModel } from "../model.js";
 import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-const ILanguageFeatureDebounceService = createDecorator(
-  "ILanguageFeatureDebounceService"
-);
+import { matchesScheme } from "../../../base/common/network.js";
+const ILanguageFeatureDebounceService = createDecorator("ILanguageFeatureDebounceService");
 var IdentityHash;
 ((IdentityHash2) => {
   const _hashes = /* @__PURE__ */ new WeakMap();
@@ -72,15 +65,9 @@ class FeatureDebounceInformation {
   static {
     __name(this, "FeatureDebounceInformation");
   }
-  _cache = new LRUCache(
-    50,
-    0.7
-  );
+  _cache = new LRUCache(50, 0.7);
   _key(model) {
-    return model.id + this._registry.all(model).reduce(
-      (hashVal, obj) => doHash(IdentityHash.of(obj), hashVal),
-      0
-    );
+    return model.id + this._registry.all(model).reduce((hashVal, obj) => doHash(IdentityHash.of(obj), hashVal), 0);
   }
   get(model) {
     const key = this._key(model);
@@ -96,9 +83,7 @@ class FeatureDebounceInformation {
     }
     const newValue = clamp(avg.update(value), this._min, this._max);
     if (!matchesScheme(model.uri, "output")) {
-      this._logService.trace(
-        `[DEBOUNCE: ${this._name}] for ${model.uri.toString()} is ${newValue}ms`
-      );
+      this._logService.trace(`[DEBOUNCE: ${this._name}] for ${model.uri.toString()} is ${newValue}ms`);
     }
     return newValue;
   }
@@ -132,9 +117,7 @@ let LanguageFeatureDebounceService = class {
     let info = this._data.get(key);
     if (!info) {
       if (this._isDev) {
-        this._logService.debug(
-          `[DEBOUNCE: ${name}] is disabled in developed mode`
-        );
+        this._logService.debug(`[DEBOUNCE: ${name}] is disabled in developed mode`);
         info = new NullDebounceInformation(min * 1.5);
       } else {
         info = new FeatureDebounceInformation(
@@ -163,11 +146,7 @@ LanguageFeatureDebounceService = __decorateClass([
   __decorateParam(0, ILogService),
   __decorateParam(1, IEnvironmentService)
 ], LanguageFeatureDebounceService);
-registerSingleton(
-  ILanguageFeatureDebounceService,
-  LanguageFeatureDebounceService,
-  InstantiationType.Delayed
-);
+registerSingleton(ILanguageFeatureDebounceService, LanguageFeatureDebounceService, InstantiationType.Delayed);
 export {
   ILanguageFeatureDebounceService,
   LanguageFeatureDebounceService

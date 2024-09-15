@@ -1,4 +1,4 @@
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 const EditorZoom = new class {
   _zoomLevel = 0;
   _onDidChangeZoomLevel = new Emitter();

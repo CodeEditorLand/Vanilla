@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { MainContext } from "./extHost.protocol.js";
+import { IMainContext, MainContext } from "./extHost.protocol.js";
 class ExtHostClipboard {
   static {
     __name(this, "ExtHostClipboard");

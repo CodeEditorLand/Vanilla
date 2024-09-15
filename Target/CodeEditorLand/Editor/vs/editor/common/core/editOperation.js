@@ -1,18 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Range } from "./range.js";
+import { Position } from "./position.js";
+import { IRange, Range } from "./range.js";
 class EditOperation {
   static {
     __name(this, "EditOperation");
   }
   static insert(position, text) {
     return {
-      range: new Range(
-        position.lineNumber,
-        position.column,
-        position.lineNumber,
-        position.column
-      ),
+      range: new Range(position.lineNumber, position.column, position.lineNumber, position.column),
       text,
       forceMoveMarkers: true
     };

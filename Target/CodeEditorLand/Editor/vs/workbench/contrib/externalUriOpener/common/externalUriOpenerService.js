@@ -10,10 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
 import { isWeb } from "../../../../base/common/platform.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -22,18 +21,11 @@ import * as nls from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IOpenerService
-} from "../../../../platform/opener/common/opener.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { IExternalOpener, IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { defaultExternalUriOpenerId, ExternalUriOpenersConfiguration, externalUriOpenersSettingId } from "./configuration.js";
 import { testUrlMatchesGlob } from "../../url/common/urlGlob.js";
-import {
-  defaultExternalUriOpenerId,
-  externalUriOpenersSettingId
-} from "./configuration.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 const IExternalUriOpenerService = createDecorator("externalUriOpenerService");
 let ExternalUriOpenerService = class extends Disposable {
   constructor(openerService, configurationService, logService, preferencesService, quickInputService) {
@@ -67,44 +59,35 @@ let ExternalUriOpenerService = class extends Disposable {
         return [preferredOpener];
       }
     }
-    const configuredOpener = this.getConfiguredOpenerForUri(
-      allOpeners,
-      targetUri
-    );
+    const configuredOpener = this.getConfiguredOpenerForUri(allOpeners, targetUri);
     if (configuredOpener) {
       return configuredOpener === defaultExternalUriOpenerId ? [] : [configuredOpener];
     }
     const validOpeners = [];
-    await Promise.all(
-      Array.from(allOpeners.values()).map(async (opener) => {
-        let priority;
-        try {
-          priority = await opener.canOpen(ctx.sourceUri, token);
-        } catch (e) {
-          this.logService.error(e);
-          return;
-        }
-        switch (priority) {
-          case languages.ExternalUriOpenerPriority.Option:
-          case languages.ExternalUriOpenerPriority.Default:
-          case languages.ExternalUriOpenerPriority.Preferred:
-            validOpeners.push({ opener, priority });
-            break;
-        }
-      })
-    );
+    await Promise.all(Array.from(allOpeners.values()).map(async (opener) => {
+      let priority;
+      try {
+        priority = await opener.canOpen(ctx.sourceUri, token);
+      } catch (e) {
+        this.logService.error(e);
+        return;
+      }
+      switch (priority) {
+        case languages.ExternalUriOpenerPriority.Option:
+        case languages.ExternalUriOpenerPriority.Default:
+        case languages.ExternalUriOpenerPriority.Preferred:
+          validOpeners.push({ opener, priority });
+          break;
+      }
+    }));
     if (validOpeners.length === 0) {
       return [];
     }
-    const preferred = validOpeners.filter(
-      (x) => x.priority === languages.ExternalUriOpenerPriority.Preferred
-    ).at(0);
+    const preferred = validOpeners.filter((x) => x.priority === languages.ExternalUriOpenerPriority.Preferred).at(0);
     if (preferred) {
       return [preferred.opener];
     }
-    if (!allowOptional && validOpeners.every(
-      (x) => x.priority === languages.ExternalUriOpenerPriority.Option
-    )) {
+    if (!allowOptional && validOpeners.every((x) => x.priority === languages.ExternalUriOpenerPriority.Option)) {
       return [];
     }
     return validOpeners.map((value) => value.opener);
@@ -128,19 +111,15 @@ let ExternalUriOpenerService = class extends Disposable {
   }
   async getAllOpenersForUri(targetUri) {
     const allOpeners = /* @__PURE__ */ new Map();
-    await Promise.all(
-      Iterable.map(this._providers, async (provider) => {
-        for await (const opener of provider.getOpeners(targetUri)) {
-          allOpeners.set(opener.id, opener);
-        }
-      })
-    );
+    await Promise.all(Iterable.map(this._providers, async (provider) => {
+      for await (const opener of provider.getOpeners(targetUri)) {
+        allOpeners.set(opener.id, opener);
+      }
+    }));
     return allOpeners;
   }
   getConfiguredOpenerForUri(openers, targetUri) {
-    const config = this.configurationService.getValue(
-      externalUriOpenersSettingId
-    ) || {};
+    const config = this.configurationService.getValue(externalUriOpenersSettingId) || {};
     for (const [uriGlob, id] of Object.entries(config)) {
       if (testUrlMatchesGlob(targetUri, uriGlob)) {
         if (id === defaultExternalUriOpenerId) {
@@ -155,40 +134,25 @@ let ExternalUriOpenerService = class extends Disposable {
     return void 0;
   }
   async showOpenerPrompt(openers, targetUri, ctx, token) {
-    const items = openers.map(
-      (opener) => {
-        return {
-          label: opener.label,
-          opener
-        };
-      }
-    );
+    const items = openers.map((opener) => {
+      return {
+        label: opener.label,
+        opener
+      };
+    });
     items.push(
       {
-        label: isWeb ? nls.localize(
-          "selectOpenerDefaultLabel.web",
-          "Open in new browser window"
-        ) : nls.localize(
-          "selectOpenerDefaultLabel",
-          "Open in default browser"
-        ),
+        label: isWeb ? nls.localize("selectOpenerDefaultLabel.web", "Open in new browser window") : nls.localize("selectOpenerDefaultLabel", "Open in default browser"),
         opener: void 0
       },
       { type: "separator" },
       {
-        label: nls.localize(
-          "selectOpenerConfigureTitle",
-          "Configure default opener..."
-        ),
+        label: nls.localize("selectOpenerConfigureTitle", "Configure default opener..."),
         opener: "configureDefault"
       }
     );
     const picked = await this.quickInputService.pick(items, {
-      placeHolder: nls.localize(
-        "selectOpenerPlaceHolder",
-        "How would you like to open: {0}",
-        targetUri.toString()
-      )
+      placeHolder: nls.localize("selectOpenerPlaceHolder", "How would you like to open: {0}", targetUri.toString())
     });
     if (!picked) {
       return true;

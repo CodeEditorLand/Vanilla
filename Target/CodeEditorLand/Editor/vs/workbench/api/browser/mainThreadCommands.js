@@ -10,35 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableMap
-} from "../../../base/common/lifecycle.js";
+import { DisposableMap, IDisposable } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
-import { isString } from "../../../base/common/types.js";
-import {
-  CommandsRegistry,
-  ICommandService
-} from "../../../platform/commands/common/commands.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
+import { CommandsRegistry, ICommandMetadata, ICommandService } from "../../../platform/commands/common/commands.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
 import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import {
-  SerializableObjectWithBuffers
-} from "../../services/extensions/common/proxyIdentifier.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { Dto, SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExtHostCommandsShape, ExtHostContext, MainContext, MainThreadCommandsShape } from "../common/extHost.protocol.js";
+import { isString } from "../../../base/common/types.js";
 let MainThreadCommands = class {
   constructor(extHostContext, _commandService, _extensionService) {
     this._commandService = _commandService;
     this._extensionService = _extensionService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostCommands);
-    this._generateCommandsDocumentationRegistration = CommandsRegistry.registerCommand(
-      "_generateCommandsDocumentation",
-      () => this._generateCommandsDocumentation()
-    );
+    this._generateCommandsDocumentationRegistration = CommandsRegistry.registerCommand("_generateCommandsDocumentation", () => this._generateCommandsDocumentation());
   }
   _commandRegistrations = new DisposableMap();
   _generateCommandsDocumentationRegistration;
@@ -107,10 +92,7 @@ function _generateMarkdown(description) {
   if (typeof description === "string") {
     return description;
   } else {
-    const descriptionString = isString(description.description) ? description.description : (
-      // Our docs website is in English, so keep the original here.
-      description.description.original
-    );
+    const descriptionString = isString(description.description) ? description.description : description.description.original;
     const parts = [descriptionString];
     parts.push("\n\n");
     if (description.args) {

@@ -9,17 +9,16 @@ import { getIconClassesForLanguageId } from "../../../../../editor/common/servic
 import * as nls from "../../../../../nls.js";
 import { MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import {
-  IQuickInputService
-} from "../../../../../platform/quickinput/common/quickInput.js";
+import { IQuickInputService, IQuickPickItem, QuickPickInput } from "../../../../../platform/quickinput/common/quickInput.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
-import { IUserDataProfileService } from "../../../../services/userDataProfile/common/userDataProfile.js";
+import { SnippetsAction } from "./abstractSnippetsActions.js";
 import { ISnippetsService } from "../snippets.js";
 import { SnippetSource } from "../snippetsFile.js";
-import { SnippetsAction } from "./abstractSnippetsActions.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { IUserDataProfileService } from "../../../../services/userDataProfile/common/userDataProfile.js";
 var ISnippetPick;
 ((ISnippetPick2) => {
   function is(thing) {
@@ -60,22 +59,13 @@ async function computePicks(snippetService, userDataProfileService, languageServ
       const snippet = {
         label: basename(file.location),
         filepath: file.location,
-        description: names.size === 0 ? nls.localize("global.scope", "(global)") : nls.localize(
-          "global.1",
-          "({0})",
-          [...names].join(", ")
-        )
+        description: names.size === 0 ? nls.localize("global.scope", "(global)") : nls.localize("global.1", "({0})", [...names].join(", "))
       };
       existing.push(snippet);
       if (!source) {
         continue;
       }
-      const detail = nls.localize(
-        "detail.label",
-        "({0}) {1}",
-        source,
-        labelService.getUriLabel(file.location, { relative: true })
-      );
+      const detail = nls.localize("detail.label", "({0}) {1}", source, labelService.getUriLabel(file.location, { relative: true }));
       const lastItem = added.get(basename(file.location));
       if (lastItem) {
         snippet.detail = detail;
@@ -136,11 +126,7 @@ async function createSnippetFile(scope, defaultPath, quickInputService, fileServ
         return nls.localize("bad_name1", "Invalid file name");
       }
       if (!isValidBasename(input2)) {
-        return nls.localize(
-          "bad_name2",
-          "'{0}' is not a valid file name",
-          input2
-        );
+        return nls.localize("bad_name2", "'{0}' is not a valid file name", input2);
       }
       if (await fileService.exists(createSnippetUri(input2))) {
         return nls.localize("bad_name3", "'{0}' already exists", input2);
@@ -152,29 +138,26 @@ async function createSnippetFile(scope, defaultPath, quickInputService, fileServ
     return void 0;
   }
   const resource = createSnippetUri(input);
-  await textFileService.write(
-    resource,
-    [
-      "{",
-      "	// Place your " + scope + " snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and ",
-      "	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope ",
-      "	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is ",
-      "	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: ",
-      "	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. ",
-      "	// Placeholders with the same ids are connected.",
-      "	// Example:",
-      '	// "Print to console": {',
-      '	// 	"scope": "javascript,typescript",',
-      '	// 	"prefix": "log",',
-      '	// 	"body": [',
-      `	// 		"console.log('$1');",`,
-      '	// 		"$2"',
-      "	// 	],",
-      '	// 	"description": "Log output to console"',
-      "	// }",
-      "}"
-    ].join("\n")
-  );
+  await textFileService.write(resource, [
+    "{",
+    "	// Place your " + scope + " snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and ",
+    "	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope ",
+    "	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is ",
+    "	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: ",
+    "	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. ",
+    "	// Placeholders with the same ids are connected.",
+    "	// Example:",
+    '	// "Print to console": {',
+    '	// 	"scope": "javascript,typescript",',
+    '	// 	"prefix": "log",',
+    '	// 	"body": [',
+    `	// 		"console.log('$1');",`,
+    '	// 		"$2"',
+    "	// 	],",
+    '	// 	"description": "Log output to console"',
+    "	// }",
+    "}"
+  ].join("\n"));
   await opener.open(resource);
   return void 0;
 }
@@ -213,26 +196,12 @@ class ConfigureSnippetsAction extends SnippetsAction {
       title: nls.localize2("openSnippet.label", "Configure Snippets"),
       shortTitle: {
         ...nls.localize2("userSnippets", "Snippets"),
-        mnemonicTitle: nls.localize(
-          {
-            key: "miOpenSnippets",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Snippets"
-        )
+        mnemonicTitle: nls.localize({ key: "miOpenSnippets", comment: ["&& denotes a mnemonic"] }, "&&Snippets")
       },
       f1: true,
       menu: [
-        {
-          id: MenuId.MenubarPreferencesMenu,
-          group: "2_configuration",
-          order: 5
-        },
-        {
-          id: MenuId.GlobalActivity,
-          group: "2_configuration",
-          order: 5
-        }
+        { id: MenuId.MenubarPreferencesMenu, group: "2_configuration", order: 5 },
+        { id: MenuId.GlobalActivity, group: "2_configuration", order: 5 }
       ]
     });
   }
@@ -246,94 +215,38 @@ class ConfigureSnippetsAction extends SnippetsAction {
     const fileService = accessor.get(IFileService);
     const textFileService = accessor.get(ITextFileService);
     const labelService = accessor.get(ILabelService);
-    const picks = await computePicks(
-      snippetService,
-      userDataProfileService,
-      languageService,
-      labelService
-    );
+    const picks = await computePicks(snippetService, userDataProfileService, languageService, labelService);
     const existing = picks.existing;
-    const globalSnippetPicks = [
-      {
-        scope: nls.localize("new.global_scope", "global"),
-        label: nls.localize(
-          "new.global",
-          "New Global Snippets file..."
-        ),
-        uri: userDataProfileService.currentProfile.snippetsHome
-      }
-    ];
+    const globalSnippetPicks = [{
+      scope: nls.localize("new.global_scope", "global"),
+      label: nls.localize("new.global", "New Global Snippets file..."),
+      uri: userDataProfileService.currentProfile.snippetsHome
+    }];
     const workspaceSnippetPicks = [];
     for (const folder of workspaceService.getWorkspace().folders) {
       workspaceSnippetPicks.push({
-        scope: nls.localize(
-          "new.workspace_scope",
-          "{0} workspace",
-          folder.name
-        ),
-        label: nls.localize(
-          "new.folder",
-          "New Snippets file for '{0}'...",
-          folder.name
-        ),
+        scope: nls.localize("new.workspace_scope", "{0} workspace", folder.name),
+        label: nls.localize("new.folder", "New Snippets file for '{0}'...", folder.name),
         uri: folder.toResource(".vscode")
       });
     }
     if (existing.length > 0) {
-      existing.unshift({
-        type: "separator",
-        label: nls.localize("group.global", "Existing Snippets")
-      });
-      existing.push({
-        type: "separator",
-        label: nls.localize("new.global.sep", "New Snippets")
-      });
+      existing.unshift({ type: "separator", label: nls.localize("group.global", "Existing Snippets") });
+      existing.push({ type: "separator", label: nls.localize("new.global.sep", "New Snippets") });
     } else {
-      existing.push({
-        type: "separator",
-        label: nls.localize("new.global.sep", "New Snippets")
-      });
+      existing.push({ type: "separator", label: nls.localize("new.global.sep", "New Snippets") });
     }
-    const pick = await quickInputService.pick(
-      [].concat(
-        existing,
-        globalSnippetPicks,
-        workspaceSnippetPicks,
-        picks.future
-      ),
-      {
-        placeHolder: nls.localize(
-          "openSnippet.pickLanguage",
-          "Select Snippets File or Create Snippets"
-        ),
-        matchOnDescription: true
-      }
-    );
+    const pick = await quickInputService.pick([].concat(existing, globalSnippetPicks, workspaceSnippetPicks, picks.future), {
+      placeHolder: nls.localize("openSnippet.pickLanguage", "Select Snippets File or Create Snippets"),
+      matchOnDescription: true
+    });
     if (globalSnippetPicks.indexOf(pick) >= 0) {
-      return createSnippetFile(
-        pick.scope,
-        pick.uri,
-        quickInputService,
-        fileService,
-        textFileService,
-        opener
-      );
+      return createSnippetFile(pick.scope, pick.uri, quickInputService, fileService, textFileService, opener);
     } else if (workspaceSnippetPicks.indexOf(pick) >= 0) {
-      return createSnippetFile(
-        pick.scope,
-        pick.uri,
-        quickInputService,
-        fileService,
-        textFileService,
-        opener
-      );
+      return createSnippetFile(pick.scope, pick.uri, quickInputService, fileService, textFileService, opener);
     } else if (ISnippetPick.is(pick)) {
       if (pick.hint) {
-        await createLanguageSnippetFile(
-          pick,
-          fileService,
-          textFileService
-        );
+        await createLanguageSnippetFile(pick, fileService, textFileService);
       }
       return opener.open(pick.filepath);
     }

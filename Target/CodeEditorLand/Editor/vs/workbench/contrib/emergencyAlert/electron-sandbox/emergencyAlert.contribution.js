@@ -10,20 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from "../../../common/contributions.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { asJson, IRequestService } from "../../../../platform/request/common/request.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { arch, platform } from "../../../../base/common/process.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IRequestService,
-  asJson
-} from "../../../../platform/request/common/request.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../common/contributions.js";
-import { IBannerService } from "../../../services/banner/browser/bannerService.js";
 let EmergencyAlert = class {
   constructor(bannerService, requestService, productService, logService) {
     this.bannerService = bannerService;
@@ -51,14 +45,9 @@ let EmergencyAlert = class {
     }
   }
   async doFetchAlerts(url) {
-    const requestResult = await this.requestService.request(
-      { type: "GET", url },
-      CancellationToken.None
-    );
+    const requestResult = await this.requestService.request({ type: "GET", url }, CancellationToken.None);
     if (requestResult.res.statusCode !== 200) {
-      throw new Error(
-        `Failed to fetch emergency alerts: HTTP ${requestResult.res.statusCode}`
-      );
+      throw new Error(`Failed to fetch emergency alerts: HTTP ${requestResult.res.statusCode}`);
     }
     const emergencyAlerts = await asJson(requestResult);
     if (!emergencyAlerts) {
@@ -86,11 +75,7 @@ EmergencyAlert = __decorateClass([
   __decorateParam(2, IProductService),
   __decorateParam(3, ILogService)
 ], EmergencyAlert);
-registerWorkbenchContribution2(
-  "workbench.emergencyAlert",
-  EmergencyAlert,
-  WorkbenchPhase.Eventually
-);
+registerWorkbenchContribution2("workbench.emergencyAlert", EmergencyAlert, WorkbenchPhase.Eventually);
 export {
   EmergencyAlert
 };

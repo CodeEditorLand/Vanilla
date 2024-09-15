@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { DataTransfers } from "../../../base/browser/dnd.js";
 import { mainWindow } from "../../../base/browser/window.js";
+import { DragMouseEvent } from "../../../base/browser/mouseEvent.js";
 import { coalesce } from "../../../base/common/arrays.js";
 import { DeferredPromise } from "../../../base/common/async.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
@@ -12,12 +13,11 @@ import { isWeb } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
 import { IDialogService } from "../../dialogs/common/dialogs.js";
+import { IBaseTextResourceEditorInput } from "../../editor/common/editor.js";
 import { HTMLFileSystemProvider } from "../../files/browser/htmlFileSystemProvider.js";
 import { WebFileSystemAccess } from "../../files/browser/webFileSystemAccess.js";
 import { ByteSize, IFileService } from "../../files/common/files.js";
-import {
-  IInstantiationService
-} from "../../instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../instantiation/common/instantiation.js";
 import { extractSelection } from "../../opener/common/opener.js";
 import { Registry } from "../../registry/common/platform.js";
 const CodeDataTransfers = {
@@ -27,9 +27,7 @@ const CodeDataTransfers = {
 function extractEditorsDropData(e) {
   const editors = [];
   if (e.dataTransfer && e.dataTransfer.types.length > 0) {
-    const rawEditorsData = e.dataTransfer.getData(
-      CodeDataTransfers.EDITORS
-    );
+    const rawEditorsData = e.dataTransfer.getData(CodeDataTransfers.EDITORS);
     if (rawEditorsData) {
       try {
         editors.push(...parse(rawEditorsData));
@@ -37,14 +35,8 @@ function extractEditorsDropData(e) {
       }
     } else {
       try {
-        const rawResourcesData = e.dataTransfer.getData(
-          DataTransfers.RESOURCES
-        );
-        editors.push(
-          ...createDraggedEditorInputFromRawResourcesData(
-            rawResourcesData
-          )
-        );
+        const rawResourcesData = e.dataTransfer.getData(DataTransfers.RESOURCES);
+        editors.push(...createDraggedEditorInputFromRawResourcesData(rawResourcesData));
       } catch (error) {
       }
     }
@@ -53,13 +45,7 @@ function extractEditorsDropData(e) {
         const file = e.dataTransfer.files[i];
         if (file && file.path) {
           try {
-            editors.push({
-              resource: URI.file(
-                file.path
-              ),
-              isExternal: true,
-              allowWorkspaceOpen: true
-            });
+            editors.push({ resource: URI.file(file.path), isExternal: true, allowWorkspaceOpen: true });
           } catch (error) {
           }
         }
@@ -70,18 +56,12 @@ function extractEditorsDropData(e) {
       try {
         const codeFiles = JSON.parse(rawCodeFiles);
         for (const codeFile of codeFiles) {
-          editors.push({
-            resource: URI.file(codeFile),
-            isExternal: true,
-            allowWorkspaceOpen: true
-          });
+          editors.push({ resource: URI.file(codeFile), isExternal: true, allowWorkspaceOpen: true });
         }
       } catch (error) {
       }
     }
-    const contributions = Registry.as(
-      Extensions.DragAndDropContribution
-    ).getAll();
+    const contributions = Registry.as(Extensions.DragAndDropContribution).getAll();
     for (const contribution of contributions) {
       const data = e.dataTransfer.getData(contribution.dataFormatKey);
       if (data) {
@@ -111,16 +91,9 @@ async function extractEditorsAndFilesDropData(accessor, e) {
     const files = e.dataTransfer.items;
     if (files) {
       const instantiationService = accessor.get(IInstantiationService);
-      const filesData = await instantiationService.invokeFunction(
-        (accessor2) => extractFilesDropData(accessor2, e)
-      );
+      const filesData = await instantiationService.invokeFunction((accessor2) => extractFilesDropData(accessor2, e));
       for (const fileData of filesData) {
-        editors.push({
-          resource: fileData.resource,
-          contents: fileData.contents?.toString(),
-          isExternal: true,
-          allowWorkspaceOpen: fileData.isDirectory
-        });
+        editors.push({ resource: fileData.resource, contents: fileData.contents?.toString(), isExternal: true, allowWorkspaceOpen: fileData.isDirectory });
       }
     }
   }
@@ -133,9 +106,7 @@ function createDraggedEditorInputFromRawResourcesData(rawResourcesData) {
     const resourcesRaw = JSON.parse(rawResourcesData);
     for (const resourceRaw of resourcesRaw) {
       if (resourceRaw.indexOf(":") > 0) {
-        const { selection, uri } = extractSelection(
-          URI.parse(resourceRaw)
-        );
+        const { selection, uri } = extractSelection(URI.parse(resourceRaw));
         editors.push({ resource: uri, options: { selection } });
       }
     }
@@ -177,16 +148,12 @@ async function extractFileTransferData(accessor, items) {
           }
           if (WebFileSystemAccess.isFileSystemFileHandle(handle)) {
             result.complete({
-              resource: await fileSystemProvider.registerFileHandle(
-                handle
-              ),
+              resource: await fileSystemProvider.registerFileHandle(handle),
               isDirectory: false
             });
           } else if (WebFileSystemAccess.isFileSystemDirectoryHandle(handle)) {
             result.complete({
-              resource: await fileSystemProvider.registerDirectoryHandle(
-                handle
-              ),
+              resource: await fileSystemProvider.registerDirectoryHandle(handle),
               isDirectory: true
             });
           } else {
@@ -208,12 +175,7 @@ async function extractFileListData(accessor, files) {
     const file = files.item(i);
     if (file) {
       if (file.size > 100 * ByteSize.MB) {
-        dialogService.warn(
-          localize(
-            "fileTooLarge",
-            "File is too large to open as untitled editor. Please upload it first into the file explorer and then try again."
-          )
-        );
+        dialogService.warn(localize("fileTooLarge", "File is too large to open as untitled editor. Please upload it first into the file explorer and then try again."));
         continue;
       }
       const result = new DeferredPromise();
@@ -229,10 +191,7 @@ async function extractFileListData(accessor, files) {
           return;
         }
         result.complete({
-          resource: URI.from({
-            scheme: Schemas.untitled,
-            path: name
-          }),
+          resource: URI.from({ scheme: Schemas.untitled, path: name }),
           contents: typeof loadResult === "string" ? VSBuffer.fromString(loadResult) : VSBuffer.wrap(new Uint8Array(loadResult))
         });
       };
@@ -266,9 +225,7 @@ class DragAndDropContributionRegistry {
   _contributions = /* @__PURE__ */ new Map();
   register(contribution) {
     if (this._contributions.has(contribution.dataFormatKey)) {
-      throw new Error(
-        `A drag and drop contributiont with key '${contribution.dataFormatKey}' was already registered.`
-      );
+      throw new Error(`A drag and drop contributiont with key '${contribution.dataFormatKey}' was already registered.`);
     }
     this._contributions.set(contribution.dataFormatKey, contribution);
   }
@@ -279,10 +236,7 @@ class DragAndDropContributionRegistry {
 const Extensions = {
   DragAndDropContribution: "workbench.contributions.dragAndDrop"
 };
-Registry.add(
-  Extensions.DragAndDropContribution,
-  new DragAndDropContributionRegistry()
-);
+Registry.add(Extensions.DragAndDropContribution, new DragAndDropContributionRegistry());
 class LocalSelectionTransfer {
   static {
     __name(this, "LocalSelectionTransfer");

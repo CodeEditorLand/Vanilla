@@ -10,36 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  FileAccess
-} from "../../../../base/common/network.js";
+import { localize } from "../../../../nls.js";
 import Severity from "../../../../base/common/severity.js";
 import { URI } from "../../../../base/common/uri.js";
-import { localize } from "../../../../nls.js";
-import { IChecksumService } from "../../../../platform/checksum/common/checksumService.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  INotificationService,
-  NotificationPriority
-} from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ChecksumPair, IIntegrityService, IntegrityTestResult } from "../common/integrity.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
-import {
-  IIntegrityService
-} from "../common/integrity.js";
+import { INotificationService, NotificationPriority } from "../../../../platform/notification/common/notification.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { FileAccess, AppResourcePath } from "../../../../base/common/network.js";
+import { IChecksumService } from "../../../../platform/checksum/common/checksumService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 class IntegrityStorage {
   constructor(storageService) {
     this.storageService = storageService;
@@ -51,10 +34,7 @@ class IntegrityStorage {
   static KEY = "integrityService";
   value;
   _read() {
-    const jsonValue = this.storageService.get(
-      IntegrityStorage.KEY,
-      StorageScope.APPLICATION
-    );
+    const jsonValue = this.storageService.get(IntegrityStorage.KEY, StorageScope.APPLICATION);
     if (!jsonValue) {
       return null;
     }
@@ -69,12 +49,7 @@ class IntegrityStorage {
   }
   set(data) {
     this.value = data;
-    this.storageService.store(
-      IntegrityStorage.KEY,
-      JSON.stringify(this.value),
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(IntegrityStorage.KEY, JSON.stringify(this.value), StorageScope.APPLICATION, StorageTarget.MACHINE);
   }
 }
 let IntegrityService = class {
@@ -117,14 +92,7 @@ let IntegrityService = class {
   async _isPure() {
     const expectedChecksums = this.productService.checksums || {};
     await this.lifecycleService.when(LifecyclePhase.Eventually);
-    const allResults = await Promise.all(
-      Object.keys(expectedChecksums).map(
-        (filename) => this._resolve(
-          filename,
-          expectedChecksums[filename]
-        )
-      )
-    );
+    const allResults = await Promise.all(Object.keys(expectedChecksums).map((filename) => this._resolve(filename, expectedChecksums[filename])));
     let isPure = true;
     for (let i = 0, len = allResults.length; i < len; i++) {
       if (!allResults[i].isPure) {
@@ -141,11 +109,7 @@ let IntegrityService = class {
     const fileUri = FileAccess.asFileUri(filename);
     try {
       const checksum = await this.checksumService.checksum(fileUri);
-      return IntegrityService._createChecksumPair(
-        fileUri,
-        checksum,
-        expected
-      );
+      return IntegrityService._createChecksumPair(fileUri, checksum, expected);
     } catch (error) {
       return IntegrityService._createChecksumPair(fileUri, "", expected);
     }
@@ -160,35 +124,20 @@ let IntegrityService = class {
   }
   _showNotification() {
     const checksumFailMoreInfoUrl = this.productService.checksumFailMoreInfoUrl;
-    const message = localize(
-      "integrity.prompt",
-      "Your {0} installation appears to be corrupt. Please reinstall.",
-      this.productService.nameShort
-    );
+    const message = localize("integrity.prompt", "Your {0} installation appears to be corrupt. Please reinstall.", this.productService.nameShort);
     if (checksumFailMoreInfoUrl) {
       this.notificationService.prompt(
         Severity.Warning,
         message,
         [
           {
-            label: localize(
-              "integrity.moreInformation",
-              "More Information"
-            ),
-            run: /* @__PURE__ */ __name(() => this.openerService.open(
-              URI.parse(checksumFailMoreInfoUrl)
-            ), "run")
+            label: localize("integrity.moreInformation", "More Information"),
+            run: /* @__PURE__ */ __name(() => this.openerService.open(URI.parse(checksumFailMoreInfoUrl)), "run")
           },
           {
-            label: localize(
-              "integrity.dontShowAgain",
-              "Don't Show Again"
-            ),
+            label: localize("integrity.dontShowAgain", "Don't Show Again"),
             isSecondary: true,
-            run: /* @__PURE__ */ __name(() => this._storage.set({
-              dontShowPrompt: true,
-              commit: this.productService.commit
-            }), "run")
+            run: /* @__PURE__ */ __name(() => this._storage.set({ dontShowPrompt: true, commit: this.productService.commit }), "run")
           }
         ],
         {
@@ -215,11 +164,7 @@ IntegrityService = __decorateClass([
   __decorateParam(5, IChecksumService),
   __decorateParam(6, ILogService)
 ], IntegrityService);
-registerSingleton(
-  IIntegrityService,
-  IntegrityService,
-  InstantiationType.Delayed
-);
+registerSingleton(IIntegrityService, IntegrityService, InstantiationType.Delayed);
 export {
   IntegrityService
 };

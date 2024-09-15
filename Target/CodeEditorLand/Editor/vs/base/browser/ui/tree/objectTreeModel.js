@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IIdentityProvider } from "../list/list.js";
+import { IIndexTreeModelOptions, IIndexTreeModelSpliceOptions, IndexTreeModel } from "./indexTreeModel.js";
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeElement, ITreeListSpliceData, ITreeModel, ITreeModelSpliceEvent, ITreeNode, ITreeSorter, ObjectTreeElementCollapseState, TreeError } from "./tree.js";
+import { Event } from "../../../common/event.js";
 import { Iterable } from "../../../common/iterator.js";
-import {
-  IndexTreeModel
-} from "./indexTreeModel.js";
-import {
-  ObjectTreeElementCollapseState,
-  TreeError
-} from "./tree.js";
 class ObjectTreeModel {
   constructor(user, options = {}) {
     this.user = user;
@@ -43,11 +40,7 @@ class ObjectTreeModel {
   }
   setChildren(element, children = Iterable.empty(), options = {}) {
     const location = this.getElementLocation(element);
-    this._setChildren(
-      location,
-      this.preserveCollapseState(children),
-      options
-    );
+    this._setChildren(location, this.preserveCollapseState(children), options);
   }
   _setChildren(location, children = Iterable.empty(), options) {
     const insertedElements = /* @__PURE__ */ new Set();
@@ -82,17 +75,16 @@ class ObjectTreeModel {
       }
       options.onDidDeleteNode?.(tnode);
     }, "onDidDeleteNode");
-    this.model.splice([...location, 0], Number.MAX_VALUE, children, {
-      ...options,
-      onDidCreateNode,
-      onDidDeleteNode
-    });
+    this.model.splice(
+      [...location, 0],
+      Number.MAX_VALUE,
+      children,
+      { ...options, onDidCreateNode, onDidDeleteNode }
+    );
   }
   preserveCollapseState(elements = Iterable.empty()) {
     if (this.sorter) {
-      elements = [...elements].sort(
-        this.sorter.compare.bind(this.sorter)
-      );
+      elements = [...elements].sort(this.sorter.compare.bind(this.sorter));
     }
     return Iterable.map(elements, (treeElement) => {
       let node = this.nodes.get(treeElement.element);
@@ -151,19 +143,14 @@ class ObjectTreeModel {
   resortChildren(node, recursive, first = true) {
     let childrenNodes = [...node.children];
     if (recursive || first) {
-      childrenNodes = childrenNodes.sort(
-        this.sorter.compare.bind(this.sorter)
-      );
+      childrenNodes = childrenNodes.sort(this.sorter.compare.bind(this.sorter));
     }
-    return Iterable.map(
-      childrenNodes,
-      (node2) => ({
-        element: node2.element,
-        collapsible: node2.collapsible,
-        collapsed: node2.collapsed,
-        children: this.resortChildren(node2, recursive, false)
-      })
-    );
+    return Iterable.map(childrenNodes, (node2) => ({
+      element: node2.element,
+      collapsible: node2.collapsible,
+      collapsed: node2.collapsed,
+      children: this.resortChildren(node2, recursive, false)
+    }));
   }
   getFirstElementChild(ref = null) {
     const location = this.getElementLocation(ref);
@@ -213,10 +200,7 @@ class ObjectTreeModel {
     }
     const node = this.nodes.get(element);
     if (!node) {
-      throw new TreeError(
-        this.user,
-        `Tree element not found: ${element}`
-      );
+      throw new TreeError(this.user, `Tree element not found: ${element}`);
     }
     return node;
   }
@@ -225,17 +209,11 @@ class ObjectTreeModel {
   }
   getParentNodeLocation(element) {
     if (element === null) {
-      throw new TreeError(
-        this.user,
-        `Invalid getParentNodeLocation call`
-      );
+      throw new TreeError(this.user, `Invalid getParentNodeLocation call`);
     }
     const node = this.nodes.get(element);
     if (!node) {
-      throw new TreeError(
-        this.user,
-        `Tree element not found: ${element}`
-      );
+      throw new TreeError(this.user, `Tree element not found: ${element}`);
     }
     const location = this.model.getNodeLocation(node);
     const parentLocation = this.model.getParentNodeLocation(location);
@@ -248,10 +226,7 @@ class ObjectTreeModel {
     }
     const node = this.nodes.get(element);
     if (!node) {
-      throw new TreeError(
-        this.user,
-        `Tree element not found: ${element}`
-      );
+      throw new TreeError(this.user, `Tree element not found: ${element}`);
     }
     return this.model.getNodeLocation(node);
   }

@@ -1,0 +1,122 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import assert from "assert";
+import { EVENT_KEY_CODE_MAP, IMMUTABLE_CODE_TO_KEY_CODE, IMMUTABLE_KEY_CODE_TO_CODE, KeyChord, KeyCode, KeyCodeUtils, KeyMod, NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE, ScanCode, ScanCodeUtils } from "../../common/keyCodes.js";
+import { decodeKeybinding, KeyCodeChord, Keybinding } from "../../common/keybindings.js";
+import { OperatingSystem } from "../../common/platform.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "./utils.js";
+suite("keyCodes", () => {
+  ensureNoDisposablesAreLeakedInTestSuite();
+  function testBinaryEncoding(expected, k, OS) {
+    assert.deepStrictEqual(decodeKeybinding(k, OS), expected);
+  }
+  __name(testBinaryEncoding, "testBinaryEncoding");
+  test("mapping for Minus", () => {
+    assert.strictEqual(EVENT_KEY_CODE_MAP[189], KeyCode.Minus);
+    assert.strictEqual(NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE["VK_OEM_MINUS"], KeyCode.Minus);
+    assert.strictEqual(ScanCodeUtils.lowerCaseToEnum("minus"), ScanCode.Minus);
+    assert.strictEqual(ScanCodeUtils.toEnum("Minus"), ScanCode.Minus);
+    assert.strictEqual(ScanCodeUtils.toString(ScanCode.Minus), "Minus");
+    assert.strictEqual(IMMUTABLE_CODE_TO_KEY_CODE[ScanCode.Minus], KeyCode.DependsOnKbLayout);
+    assert.strictEqual(IMMUTABLE_KEY_CODE_TO_CODE[KeyCode.Minus], ScanCode.DependsOnKbLayout);
+    assert.strictEqual(KeyCodeUtils.toString(KeyCode.Minus), "-");
+    assert.strictEqual(KeyCodeUtils.fromString("-"), KeyCode.Minus);
+    assert.strictEqual(KeyCodeUtils.toUserSettingsUS(KeyCode.Minus), "-");
+    assert.strictEqual(KeyCodeUtils.toUserSettingsGeneral(KeyCode.Minus), "OEM_MINUS");
+    assert.strictEqual(KeyCodeUtils.fromUserSettings("-"), KeyCode.Minus);
+    assert.strictEqual(KeyCodeUtils.fromUserSettings("OEM_MINUS"), KeyCode.Minus);
+    assert.strictEqual(KeyCodeUtils.fromUserSettings("oem_minus"), KeyCode.Minus);
+  });
+  test("mapping for Space", () => {
+    assert.strictEqual(EVENT_KEY_CODE_MAP[32], KeyCode.Space);
+    assert.strictEqual(NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE["VK_SPACE"], KeyCode.Space);
+    assert.strictEqual(ScanCodeUtils.lowerCaseToEnum("space"), ScanCode.Space);
+    assert.strictEqual(ScanCodeUtils.toEnum("Space"), ScanCode.Space);
+    assert.strictEqual(ScanCodeUtils.toString(ScanCode.Space), "Space");
+    assert.strictEqual(IMMUTABLE_CODE_TO_KEY_CODE[ScanCode.Space], KeyCode.Space);
+    assert.strictEqual(IMMUTABLE_KEY_CODE_TO_CODE[KeyCode.Space], ScanCode.Space);
+    assert.strictEqual(KeyCodeUtils.toString(KeyCode.Space), "Space");
+    assert.strictEqual(KeyCodeUtils.fromString("Space"), KeyCode.Space);
+    assert.strictEqual(KeyCodeUtils.toUserSettingsUS(KeyCode.Space), "Space");
+    assert.strictEqual(KeyCodeUtils.toUserSettingsGeneral(KeyCode.Space), "Space");
+    assert.strictEqual(KeyCodeUtils.fromUserSettings("Space"), KeyCode.Space);
+    assert.strictEqual(KeyCodeUtils.fromUserSettings("space"), KeyCode.Space);
+  });
+  test("MAC binary encoding", () => {
+    function test2(expected, k) {
+      testBinaryEncoding(expected, k, OperatingSystem.Macintosh);
+    }
+    __name(test2, "test");
+    test2(null, 0);
+    test2(new KeyCodeChord(false, false, false, false, KeyCode.Enter).toKeybinding(), KeyCode.Enter);
+    test2(new KeyCodeChord(true, false, false, false, KeyCode.Enter).toKeybinding(), KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, false, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Alt | KeyCode.Enter);
+    test2(new KeyCodeChord(true, false, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, true, false, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyCode.Enter);
+    test2(new KeyCodeChord(true, true, false, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, true, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.Alt | KeyCode.Enter);
+    test2(new KeyCodeChord(true, true, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, false, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyCode.Enter);
+    test2(new KeyCodeChord(true, false, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, false, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Enter);
+    test2(new KeyCodeChord(true, false, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, true, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter);
+    test2(new KeyCodeChord(true, true, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(new KeyCodeChord(false, true, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.Enter);
+    test2(new KeyCodeChord(true, true, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+    test2(
+      new Keybinding([
+        new KeyCodeChord(false, false, false, false, KeyCode.Enter),
+        new KeyCodeChord(false, false, false, false, KeyCode.Tab)
+      ]),
+      KeyChord(KeyCode.Enter, KeyCode.Tab)
+    );
+    test2(
+      new Keybinding([
+        new KeyCodeChord(false, false, false, true, KeyCode.KeyY),
+        new KeyCodeChord(false, false, false, false, KeyCode.KeyZ)
+      ]),
+      KeyChord(KeyMod.CtrlCmd | KeyCode.KeyY, KeyCode.KeyZ)
+    );
+  });
+  test("WINDOWS & LINUX binary encoding", () => {
+    [OperatingSystem.Linux, OperatingSystem.Windows].forEach((OS) => {
+      function test2(expected, k) {
+        testBinaryEncoding(expected, k, OS);
+      }
+      __name(test2, "test");
+      test2(null, 0);
+      test2(new KeyCodeChord(false, false, false, false, KeyCode.Enter).toKeybinding(), KeyCode.Enter);
+      test2(new KeyCodeChord(false, false, false, true, KeyCode.Enter).toKeybinding(), KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(false, false, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Alt | KeyCode.Enter);
+      test2(new KeyCodeChord(false, false, true, true, KeyCode.Enter).toKeybinding(), KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(false, true, false, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyCode.Enter);
+      test2(new KeyCodeChord(false, true, false, true, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(false, true, true, false, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.Alt | KeyCode.Enter);
+      test2(new KeyCodeChord(false, true, true, true, KeyCode.Enter).toKeybinding(), KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(true, false, false, false, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyCode.Enter);
+      test2(new KeyCodeChord(true, false, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(true, false, true, false, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Enter);
+      test2(new KeyCodeChord(true, false, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(true, true, false, false, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter);
+      test2(new KeyCodeChord(true, true, false, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(new KeyCodeChord(true, true, true, false, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.Enter);
+      test2(new KeyCodeChord(true, true, true, true, KeyCode.Enter).toKeybinding(), KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.Enter);
+      test2(
+        new Keybinding([
+          new KeyCodeChord(false, false, false, false, KeyCode.Enter),
+          new KeyCodeChord(false, false, false, false, KeyCode.Tab)
+        ]),
+        KeyChord(KeyCode.Enter, KeyCode.Tab)
+      );
+      test2(
+        new Keybinding([
+          new KeyCodeChord(true, false, false, false, KeyCode.KeyY),
+          new KeyCodeChord(false, false, false, false, KeyCode.KeyZ)
+        ]),
+        KeyChord(KeyMod.CtrlCmd | KeyCode.KeyY, KeyCode.KeyZ)
+      );
+    });
+  });
+});
+//# sourceMappingURL=keyCodes.test.js.map

@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Range } from "../core/range.js";
+import { Position } from "../core/position.js";
 import { Selection } from "../core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
+import { ITextModel } from "../model.js";
 class SurroundSelectionCommand {
   static {
     __name(this, "SurroundSelectionCommand");
@@ -15,24 +18,18 @@ class SurroundSelectionCommand {
     this._charAfterSelection = charAfterSelection;
   }
   getEditOperations(model, builder) {
-    builder.addTrackedEditOperation(
-      new Range(
-        this._range.startLineNumber,
-        this._range.startColumn,
-        this._range.startLineNumber,
-        this._range.startColumn
-      ),
-      this._charBeforeSelection
-    );
-    builder.addTrackedEditOperation(
-      new Range(
-        this._range.endLineNumber,
-        this._range.endColumn,
-        this._range.endLineNumber,
-        this._range.endColumn
-      ),
-      this._charAfterSelection
-    );
+    builder.addTrackedEditOperation(new Range(
+      this._range.startLineNumber,
+      this._range.startColumn,
+      this._range.startLineNumber,
+      this._range.startColumn
+    ), this._charBeforeSelection);
+    builder.addTrackedEditOperation(new Range(
+      this._range.endLineNumber,
+      this._range.endColumn,
+      this._range.endLineNumber,
+      this._range.endColumn
+    ), this._charAfterSelection);
   }
   computeCursorState(model, helper) {
     const inverseEditOperations = helper.getInverseEditOperations();
@@ -56,15 +53,12 @@ class CompositionSurroundSelectionCommand {
     __name(this, "CompositionSurroundSelectionCommand");
   }
   getEditOperations(model, builder) {
-    builder.addTrackedEditOperation(
-      new Range(
-        this._position.lineNumber,
-        this._position.column,
-        this._position.lineNumber,
-        this._position.column
-      ),
-      this._text + this._charAfter
-    );
+    builder.addTrackedEditOperation(new Range(
+      this._position.lineNumber,
+      this._position.column,
+      this._position.lineNumber,
+      this._position.column
+    ), this._text + this._charAfter);
   }
   computeCursorState(model, helper) {
     const inverseEditOperations = helper.getInverseEditOperations();

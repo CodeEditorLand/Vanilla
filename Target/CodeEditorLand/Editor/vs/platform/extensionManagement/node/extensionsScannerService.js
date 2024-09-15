@@ -12,16 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { URI } from "../../../base/common/uri.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
+import { IExtensionsScannerService, NativeExtensionsScannerService } from "../common/extensionsScannerService.js";
 import { IFileService } from "../../files/common/files.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
 import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
-import {
-  NativeExtensionsScannerService
-} from "../common/extensionsScannerService.js";
 let ExtensionsScannerService = class extends NativeExtensionsScannerService {
   static {
     __name(this, "ExtensionsScannerService");

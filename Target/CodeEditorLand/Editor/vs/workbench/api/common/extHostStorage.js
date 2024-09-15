@@ -1,10 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MainContext, MainThreadStorageShape, ExtHostStorageShape } from "./extHost.protocol.js";
 import { Emitter } from "../../../base/common/event.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { IExtensionIdWithVersion } from "../../../platform/extensionManagement/common/extensionStorage.js";
+import { ILogService } from "../../../platform/log/common/log.js";
 class ExtHostStorage {
   constructor(mainContext, _logService) {
     this._logService = _logService;
@@ -21,10 +22,7 @@ class ExtHostStorage {
     this._proxy.$registerExtensionStorageKeysToSync(extension, keys);
   }
   async initializeExtensionStorage(shared, key, defaultValue) {
-    const value = await this._proxy.$initializeExtensionStorage(
-      shared,
-      key
-    );
+    const value = await this._proxy.$initializeExtensionStorage(shared, key);
     let parsedValue;
     if (value) {
       parsedValue = this.safeParseValue(shared, key, value);
@@ -44,9 +42,7 @@ class ExtHostStorage {
     try {
       return JSON.parse(value);
     } catch (error) {
-      this._logService.error(
-        `[extHostStorage] unexpected error parsing storage contents (extensionId: ${key}, global: ${shared}): ${error}`
-      );
+      this._logService.error(`[extHostStorage] unexpected error parsing storage contents (extensionId: ${key}, global: ${shared}): ${error}`);
     }
     return void 0;
   }

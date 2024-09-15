@@ -1,21 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./accessibility.css";
-import { alert } from "../../../../../base/browser/ui/aria/aria.js";
-import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
-import { AccessibilityHelpNLS } from "../../../../../editor/common/standaloneStrings.js";
 import * as nls from "../../../../../nls.js";
+import { ConfigurationTarget, IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../../platform/actions/common/actions.js";
-import {
-  ConfigurationTarget,
-  IConfigurationService
-} from "../../../../../platform/configuration/common/configuration.js";
-import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { accessibilityHelpIsShown } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { alert } from "../../../../../base/browser/ui/aria/aria.js";
+import { AccessibilityHelpNLS } from "../../../../../editor/common/standaloneStrings.js";
 class ToggleScreenReaderMode extends Action2 {
   static {
     __name(this, "ToggleScreenReaderMode");
@@ -23,15 +18,9 @@ class ToggleScreenReaderMode extends Action2 {
   constructor() {
     super({
       id: "editor.action.toggleScreenReaderAccessibilityMode",
-      title: nls.localize2(
-        "toggleScreenReaderMode",
-        "Toggle Screen Reader Accessibility Mode"
-      ),
+      title: nls.localize2("toggleScreenReaderMode", "Toggle Screen Reader Accessibility Mode"),
       metadata: {
-        description: nls.localize2(
-          "toggleScreenReaderModeDescription",
-          "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies."
-        )
+        description: nls.localize2("toggleScreenReaderModeDescription", "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies.")
       },
       f1: true,
       keybinding: [
@@ -52,14 +41,8 @@ class ToggleScreenReaderMode extends Action2 {
     const accessibiiltyService = accessor.get(IAccessibilityService);
     const configurationService = accessor.get(IConfigurationService);
     const isScreenReaderOptimized = accessibiiltyService.isScreenReaderOptimized();
-    configurationService.updateValue(
-      "editor.accessibilitySupport",
-      isScreenReaderOptimized ? "off" : "on",
-      ConfigurationTarget.USER
-    );
-    alert(
-      isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled
-    );
+    configurationService.updateValue("editor.accessibilitySupport", isScreenReaderOptimized ? "off" : "on", ConfigurationTarget.USER);
+    alert(isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled);
   }
 }
 registerAction2(ToggleScreenReaderMode);

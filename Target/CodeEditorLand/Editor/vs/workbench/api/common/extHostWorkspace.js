@@ -10,63 +10,39 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  delta as arrayDelta,
-  mapArrayOrNot
-} from "../../../base/common/arrays.js";
+import { delta as arrayDelta, mapArrayOrNot } from "../../../base/common/arrays.js";
 import { AsyncIterableObject, Barrier } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import {
-  AsyncEmitter,
-  Emitter
-} from "../../../base/common/event.js";
-import {
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { revive } from "../../../base/common/marshalling.js";
+import { AsyncEmitter, Emitter, Event } from "../../../base/common/event.js";
+import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
 import { Schemas } from "../../../base/common/network.js";
 import { Counter } from "../../../base/common/numbers.js";
-import {
-  ExtUri,
-  basename,
-  basenameOrAuthority,
-  dirname,
-  relativePath
-} from "../../../base/common/resources.js";
+import { basename, basenameOrAuthority, dirname, ExtUri, relativePath } from "../../../base/common/resources.js";
 import { compare } from "../../../base/common/strings.js";
-import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { FileSystemProviderCapabilities } from "../../../platform/files/common/files.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import { Severity } from "../../../platform/notification/common/notification.js";
-import {
-  Workspace,
-  WorkspaceFolder
-} from "../../../platform/workspace/common/workspace.js";
-import {
-  resultIsMatch
-} from "../../services/search/common/search.js";
-import {
-  ExcludeSettingOptions,
-  TextSearchContextNew,
-  TextSearchMatchNew
-} from "../../services/search/common/searchExtTypes.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { EditSessionIdentityMatch } from "../../../platform/workspace/common/editSessions.js";
+import { Workspace, WorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
 import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { GlobPattern } from "./extHostTypeConverters.js";
 import { Range } from "./extHostTypes.js";
 import { IURITransformerService } from "./extHostUriTransformerService.js";
+import { IFileQueryBuilderOptions, ISearchPatternBuilder, ITextQueryBuilderOptions } from "../../services/search/common/queryBuilder.js";
+import { IRawFileMatch2, ITextSearchResult, resultIsMatch } from "../../services/search/common/search.js";
+import { ExtHostWorkspaceShape, IRelativePatternDto, IWorkspaceData, MainContext, MainThreadMessageOptions, MainThreadMessageServiceShape, MainThreadWorkspaceShape } from "./extHost.protocol.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { AuthInfo, Credentials } from "../../../platform/request/common/request.js";
+import { ExcludeSettingOptions, TextSearchContextNew, TextSearchMatchNew } from "../../services/search/common/searchExtTypes.js";
 function isFolderEqual(folderA, folderB, extHostFileSystemInfo) {
-  return new ExtUri(
-    (uri) => ignorePathCasing(uri, extHostFileSystemInfo)
-  ).isEqual(folderA, folderB);
+  return new ExtUri((uri) => ignorePathCasing(uri, extHostFileSystemInfo)).isEqual(folderA, folderB);
 }
 __name(isFolderEqual, "isFolderEqual");
 function compareWorkspaceFolderByUri(a, b, extHostFileSystemInfo) {
@@ -83,11 +59,7 @@ __name(compareWorkspaceFolderByUriAndNameAndIndex, "compareWorkspaceFolderByUriA
 function delta(oldFolders, newFolders, compare2, extHostFileSystemInfo) {
   const oldSortedFolders = oldFolders.slice(0).sort((a, b) => compare2(a, b, extHostFileSystemInfo));
   const newSortedFolders = newFolders.slice(0).sort((a, b) => compare2(a, b, extHostFileSystemInfo));
-  return arrayDelta(
-    oldSortedFolders,
-    newSortedFolders,
-    (a, b) => compare2(a, b, extHostFileSystemInfo)
-  );
+  return arrayDelta(oldSortedFolders, newSortedFolders, (a, b) => compare2(a, b, extHostFileSystemInfo));
 }
 __name(delta, "delta");
 function ignorePathCasing(uri, extHostFileSystemInfo) {
@@ -97,19 +69,10 @@ function ignorePathCasing(uri, extHostFileSystemInfo) {
 __name(ignorePathCasing, "ignorePathCasing");
 class ExtHostWorkspaceImpl extends Workspace {
   constructor(id, _name, folders, transient, configuration, _isUntitled, ignorePathCasing2) {
-    super(
-      id,
-      folders.map((f) => new WorkspaceFolder(f)),
-      transient,
-      configuration,
-      ignorePathCasing2
-    );
+    super(id, folders.map((f) => new WorkspaceFolder(f)), transient, configuration, ignorePathCasing2);
     this._name = _name;
     this._isUntitled = _isUntitled;
-    this._structure = TernarySearchTree.forUris(
-      ignorePathCasing2,
-      () => true
-    );
+    this._structure = TernarySearchTree.forUris(ignorePathCasing2, () => true);
     folders.forEach((folder) => {
       this._workspaceFolders.push(folder);
       this._structure.set(folder.uri, folder);
@@ -128,58 +91,27 @@ class ExtHostWorkspaceImpl extends Workspace {
     if (previousConfirmedWorkspace) {
       folders.forEach((folderData, index) => {
         const folderUri = URI.revive(folderData.uri);
-        const existingFolder = ExtHostWorkspaceImpl._findFolder(
-          previousUnconfirmedWorkspace || previousConfirmedWorkspace,
-          folderUri,
-          extHostFileSystemInfo
-        );
+        const existingFolder = ExtHostWorkspaceImpl._findFolder(previousUnconfirmedWorkspace || previousConfirmedWorkspace, folderUri, extHostFileSystemInfo);
         if (existingFolder) {
           existingFolder.name = folderData.name;
           existingFolder.index = folderData.index;
           newWorkspaceFolders.push(existingFolder);
         } else {
-          newWorkspaceFolders.push({
-            uri: folderUri,
-            name: folderData.name,
-            index
-          });
+          newWorkspaceFolders.push({ uri: folderUri, name: folderData.name, index });
         }
       });
     } else {
-      newWorkspaceFolders.push(
-        ...folders.map(({ uri, name: name2, index }) => ({
-          uri: URI.revive(uri),
-          name: name2,
-          index
-        }))
-      );
+      newWorkspaceFolders.push(...folders.map(({ uri, name: name2, index }) => ({ uri: URI.revive(uri), name: name2, index })));
     }
     newWorkspaceFolders.sort((f1, f2) => f1.index < f2.index ? -1 : 1);
-    const workspace = new ExtHostWorkspaceImpl(
-      id,
-      name,
-      newWorkspaceFolders,
-      !!transient,
-      configuration ? URI.revive(configuration) : null,
-      !!isUntitled,
-      (uri) => ignorePathCasing(uri, extHostFileSystemInfo)
-    );
-    const { added, removed } = delta(
-      oldWorkspace ? oldWorkspace.workspaceFolders : [],
-      workspace.workspaceFolders,
-      compareWorkspaceFolderByUri,
-      extHostFileSystemInfo
-    );
+    const workspace = new ExtHostWorkspaceImpl(id, name, newWorkspaceFolders, !!transient, configuration ? URI.revive(configuration) : null, !!isUntitled, (uri) => ignorePathCasing(uri, extHostFileSystemInfo));
+    const { added, removed } = delta(oldWorkspace ? oldWorkspace.workspaceFolders : [], workspace.workspaceFolders, compareWorkspaceFolderByUri, extHostFileSystemInfo);
     return { workspace, added, removed };
   }
   static _findFolder(workspace, folderUriToFind, extHostFileSystemInfo) {
     for (let i = 0; i < workspace.folders.length; i++) {
       const folder = workspace.workspaceFolders[i];
-      if (isFolderEqual(
-        folder.uri,
-        folderUriToFind,
-        extHostFileSystemInfo
-      )) {
+      if (isFolderEqual(folder.uri, folderUriToFind, extHostFileSystemInfo)) {
         return folder;
       }
     }
@@ -234,19 +166,9 @@ let ExtHostWorkspace = class {
     this._requestIdProvider = new Counter();
     this._barrier = new Barrier();
     this._proxy = extHostRpc.getProxy(MainContext.MainThreadWorkspace);
-    this._messageService = extHostRpc.getProxy(
-      MainContext.MainThreadMessageService
-    );
+    this._messageService = extHostRpc.getProxy(MainContext.MainThreadMessageService);
     const data = initData.workspace;
-    this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(
-      data.id,
-      data.name,
-      [],
-      !!data.transient,
-      data.configuration ? URI.revive(data.configuration) : null,
-      !!data.isUntitled,
-      (uri) => ignorePathCasing(uri, extHostFileSystemInfo)
-    ) : void 0;
+    this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(data.id, data.name, [], !!data.transient, data.configuration ? URI.revive(data.configuration) : null, !!data.isUntitled, (uri) => ignorePathCasing(uri, extHostFileSystemInfo)) : void 0;
   }
   $initializeWorkspace(data, trusted) {
     this._trusted = trusted;
@@ -267,12 +189,7 @@ let ExtHostWorkspace = class {
     if (this._actualWorkspace) {
       if (this._actualWorkspace.configuration) {
         if (this._actualWorkspace.isUntitled) {
-          return URI.from({
-            scheme: Schemas.untitled,
-            path: basename(
-              dirname(this._actualWorkspace.configuration)
-            )
-          });
+          return URI.from({ scheme: Schemas.untitled, path: basename(dirname(this._actualWorkspace.configuration)) });
         }
         return this._actualWorkspace.configuration;
       }
@@ -299,17 +216,8 @@ let ExtHostWorkspace = class {
     const validatedDistinctWorkspaceFoldersToAdd = [];
     if (Array.isArray(workspaceFoldersToAdd)) {
       workspaceFoldersToAdd.forEach((folderToAdd) => {
-        if (URI.isUri(folderToAdd.uri) && !validatedDistinctWorkspaceFoldersToAdd.some(
-          (f) => isFolderEqual(
-            f.uri,
-            folderToAdd.uri,
-            this._extHostFileSystemInfo
-          )
-        )) {
-          validatedDistinctWorkspaceFoldersToAdd.push({
-            uri: folderToAdd.uri,
-            name: folderToAdd.name || basenameOrAuthority(folderToAdd.uri)
-          });
+        if (URI.isUri(folderToAdd.uri) && !validatedDistinctWorkspaceFoldersToAdd.some((f) => isFolderEqual(f.uri, folderToAdd.uri, this._extHostFileSystemInfo))) {
+          validatedDistinctWorkspaceFoldersToAdd.push({ uri: folderToAdd.uri, name: folderToAdd.name || basenameOrAuthority(folderToAdd.uri) });
         }
       });
     }
@@ -327,63 +235,29 @@ let ExtHostWorkspace = class {
       return false;
     }
     const newWorkspaceFolders = currentWorkspaceFolders.slice(0);
-    newWorkspaceFolders.splice(
-      index,
-      deleteCount,
-      ...validatedDistinctWorkspaceFoldersToAdd.map((f) => ({
-        uri: f.uri,
-        name: f.name || basenameOrAuthority(f.uri),
-        index: void 0
-      }))
-    );
+    newWorkspaceFolders.splice(index, deleteCount, ...validatedDistinctWorkspaceFoldersToAdd.map((f) => ({
+      uri: f.uri,
+      name: f.name || basenameOrAuthority(f.uri),
+      index: void 0
+      /* fixed later */
+    })));
     for (let i = 0; i < newWorkspaceFolders.length; i++) {
       const folder = newWorkspaceFolders[i];
-      if (newWorkspaceFolders.some(
-        (otherFolder, index2) => index2 !== i && isFolderEqual(
-          folder.uri,
-          otherFolder.uri,
-          this._extHostFileSystemInfo
-        )
-      )) {
+      if (newWorkspaceFolders.some((otherFolder, index2) => index2 !== i && isFolderEqual(folder.uri, otherFolder.uri, this._extHostFileSystemInfo))) {
         return false;
       }
     }
     newWorkspaceFolders.forEach((f, index2) => f.index = index2);
-    const { added, removed } = delta(
-      currentWorkspaceFolders,
-      newWorkspaceFolders,
-      compareWorkspaceFolderByUriAndNameAndIndex,
-      this._extHostFileSystemInfo
-    );
+    const { added, removed } = delta(currentWorkspaceFolders, newWorkspaceFolders, compareWorkspaceFolderByUriAndNameAndIndex, this._extHostFileSystemInfo);
     if (added.length === 0 && removed.length === 0) {
       return false;
     }
     if (this._proxy) {
       const extName = extension.displayName || extension.name;
-      this._proxy.$updateWorkspaceFolders(
-        extName,
-        index,
-        deleteCount,
-        validatedDistinctWorkspaceFoldersToAdd
-      ).then(void 0, (error) => {
+      this._proxy.$updateWorkspaceFolders(extName, index, deleteCount, validatedDistinctWorkspaceFoldersToAdd).then(void 0, (error) => {
         this._unconfirmedWorkspace = void 0;
-        const options = {
-          source: {
-            identifier: extension.identifier,
-            label: extension.displayName || extension.name
-          }
-        };
-        this._messageService.$showMessage(
-          Severity.Error,
-          localize(
-            "updateerror",
-            "Extension '{0}' failed to update workspace folders: {1}",
-            extName,
-            error.toString()
-          ),
-          options,
-          []
-        );
+        const options = { source: { identifier: extension.identifier, label: extension.displayName || extension.name } };
+        this._messageService.$showMessage(Severity.Error, localize("updateerror", "Extension '{0}' failed to update workspace folders: {1}", extName, error.toString()), options, []);
       });
     }
     this.trySetWorkspaceFolders(newWorkspaceFolders);
@@ -432,7 +306,10 @@ let ExtHostWorkspace = class {
     if (!resource) {
       return path;
     }
-    const folder = this.getWorkspaceFolder(resource, true);
+    const folder = this.getWorkspaceFolder(
+      resource,
+      true
+    );
     if (!folder) {
       return path;
     }
@@ -447,44 +324,30 @@ let ExtHostWorkspace = class {
   }
   trySetWorkspaceFolders(folders) {
     if (this._actualWorkspace) {
-      this._unconfirmedWorkspace = ExtHostWorkspaceImpl.toExtHostWorkspace(
-        {
-          id: this._actualWorkspace.id,
-          name: this._actualWorkspace.name,
-          configuration: this._actualWorkspace.configuration,
-          folders,
-          isUntitled: this._actualWorkspace.isUntitled
-        },
-        this._actualWorkspace,
-        void 0,
-        this._extHostFileSystemInfo
-      ).workspace || void 0;
+      this._unconfirmedWorkspace = ExtHostWorkspaceImpl.toExtHostWorkspace({
+        id: this._actualWorkspace.id,
+        name: this._actualWorkspace.name,
+        configuration: this._actualWorkspace.configuration,
+        folders,
+        isUntitled: this._actualWorkspace.isUntitled
+      }, this._actualWorkspace, void 0, this._extHostFileSystemInfo).workspace || void 0;
     }
   }
   $acceptWorkspaceData(data) {
-    const { workspace, added, removed } = ExtHostWorkspaceImpl.toExtHostWorkspace(
-      data,
-      this._confirmedWorkspace,
-      this._unconfirmedWorkspace,
-      this._extHostFileSystemInfo
-    );
+    const { workspace, added, removed } = ExtHostWorkspaceImpl.toExtHostWorkspace(data, this._confirmedWorkspace, this._unconfirmedWorkspace, this._extHostFileSystemInfo);
     this._confirmedWorkspace = workspace || void 0;
     this._unconfirmedWorkspace = void 0;
-    this._onDidChangeWorkspace.fire(
-      Object.freeze({
-        added,
-        removed
-      })
-    );
+    this._onDidChangeWorkspace.fire(Object.freeze({
+      added,
+      removed
+    }));
   }
   // --- search ---
   /**
    * Note, null/undefined have different and important meanings for "exclude"
    */
   findFiles(include, exclude, maxResults, extensionId, token = CancellationToken.None) {
-    this._logService.trace(
-      `extHostWorkspace#findFiles: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles`
-    );
+    this._logService.trace(`extHostWorkspace#findFiles: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles`);
     let excludeString = "";
     let useFileExcludes = true;
     if (exclude === null) {
@@ -496,24 +359,17 @@ let ExtHostWorkspace = class {
         excludeString = exclude.pattern;
       }
     }
-    return this._findFilesImpl(
-      include,
-      void 0,
-      {
-        exclude: [excludeString],
-        maxResults,
-        useExcludeSettings: useFileExcludes ? ExcludeSettingOptions.FilesExclude : ExcludeSettingOptions.None,
-        useIgnoreFiles: {
-          local: false
-        }
-      },
-      token
-    );
+    return this._findFilesImpl(include, void 0, {
+      exclude: [excludeString],
+      maxResults,
+      useExcludeSettings: useFileExcludes ? ExcludeSettingOptions.FilesExclude : ExcludeSettingOptions.None,
+      useIgnoreFiles: {
+        local: false
+      }
+    }, token);
   }
   findFiles2(filePattern, options = {}, extensionId, token = CancellationToken.None) {
-    this._logService.trace(
-      `extHostWorkspace#findFiles2: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles2`
-    );
+    this._logService.trace(`extHostWorkspace#findFiles2: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles2`);
     const useDefaultExcludes = options.useDefaultExcludes ?? true;
     const useDefaultSearchExcludes = options.useDefaultSearchExcludes ?? true;
     const excludeSetting = useDefaultExcludes ? useDefaultSearchExcludes ? ExcludeSettingOptions.SearchAndFilesExclude : ExcludeSettingOptions.FilesExclude : ExcludeSettingOptions.None;
@@ -528,17 +384,10 @@ let ExtHostWorkspace = class {
       followSymlinks: options.followSymlinks,
       maxResults: options.maxResults
     };
-    return this._findFilesImpl(
-      void 0,
-      filePattern !== void 0 ? [filePattern] : [],
-      newOptions,
-      token
-    );
+    return this._findFilesImpl(void 0, filePattern !== void 0 ? [filePattern] : [], newOptions, token);
   }
   findFiles2New(filePatterns, options = {}, extensionId, token = CancellationToken.None) {
-    this._logService.trace(
-      `extHostWorkspace#findFiles2New: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles2New`
-    );
+    this._logService.trace(`extHostWorkspace#findFiles2New: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles2New`);
     return this._findFilesImpl(void 0, filePatterns, options, token);
   }
   async _findFilesImpl(include, filePatterns, options, token = CancellationToken.None) {
@@ -547,9 +396,7 @@ let ExtHostWorkspace = class {
     }
     const filePatternsToUse = include !== void 0 ? [include] : filePatterns;
     const queryOptions = filePatternsToUse?.map((filePattern) => {
-      const excludePatterns = globsToISearchPatternBuilder(
-        options.exclude
-      );
+      const excludePatterns = globsToISearchPatternBuilder(options.exclude);
       const fileQueries = {
         ignoreSymlinks: typeof options.followSymlinks === "boolean" ? !options.followSymlinks : void 0,
         disregardIgnoreFiles: typeof options.useIgnoreFiles?.local === "boolean" ? !options.useIgnoreFiles.local : void 0,
@@ -562,9 +409,7 @@ let ExtHostWorkspace = class {
         _reason: "startFileSearch",
         shouldGlobSearch: include ? void 0 : true
       };
-      const parseInclude = parseSearchExcludeInclude(
-        GlobPattern.from(filePattern)
-      );
+      const parseInclude = parseSearchExcludeInclude(GlobPattern.from(filePattern));
       const folderToUse = parseInclude?.folder;
       if (include) {
         fileQueries.includePattern = parseInclude?.pattern;
@@ -579,23 +424,17 @@ let ExtHostWorkspace = class {
     return this._findFilesBase(queryOptions, token);
   }
   async _findFilesBase(queryOptions, token) {
-    const result = await Promise.all(
-      queryOptions?.map(
-        (option) => this._proxy.$startFileSearch(
-          option.folder ?? null,
-          option.options,
-          token
-        ).then(
-          (data) => Array.isArray(data) ? data.map((d) => URI.revive(d)) : []
-        )
-      ) ?? []
-    );
+    const result = await Promise.all(queryOptions?.map(
+      (option) => this._proxy.$startFileSearch(
+        option.folder ?? null,
+        option.options,
+        token
+      ).then((data) => Array.isArray(data) ? data.map((d) => URI.revive(d)) : [])
+    ) ?? []);
     return result.flat();
   }
   findTextInFilesNew(query, options, extensionId, token = CancellationToken.None) {
-    this._logService.trace(
-      `extHostWorkspace#findTextInFilesNew: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFilesNew`
-    );
+    this._logService.trace(`extHostWorkspace#findTextInFilesNew: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFilesNew`);
     const getOptions = /* @__PURE__ */ __name((include) => {
       if (!options) {
         return {
@@ -626,63 +465,39 @@ let ExtHostWorkspace = class {
         folder: parsedInclude?.folder
       };
     }, "getOptions");
-    const queryOptionsRaw = options?.include?.map((include) => getOptions(include)) ?? [
-      getOptions(void 0)
-    ];
-    const queryOptions = queryOptionsRaw.filter(
-      (queryOps) => !!queryOps
-    );
+    const queryOptionsRaw = options?.include?.map((include) => getOptions(include)) ?? [getOptions(void 0)];
+    const queryOptions = queryOptionsRaw.filter((queryOps) => !!queryOps);
     const disposables = new DisposableStore();
-    const progressEmitter = disposables.add(
-      new Emitter()
-    );
+    const progressEmitter = disposables.add(new Emitter());
     const complete = this.findTextInFilesBase(
       query,
       queryOptions,
       (result, uri) => progressEmitter.fire({ result, uri }),
       token
     );
-    const asyncIterable = new AsyncIterableObject(
-      async (emitter) => {
-        disposables.add(
-          progressEmitter.event((e) => {
-            const result = e.result;
-            const uri = e.uri;
-            if (resultIsMatch(result)) {
-              emitter.emitOne(
-                new TextSearchMatchNew(
-                  uri,
-                  result.rangeLocations.map((range) => ({
-                    previewRange: new Range(
-                      range.preview.startLineNumber,
-                      range.preview.startColumn,
-                      range.preview.endLineNumber,
-                      range.preview.endColumn
-                    ),
-                    sourceRange: new Range(
-                      range.source.startLineNumber,
-                      range.source.startColumn,
-                      range.source.endLineNumber,
-                      range.source.endColumn
-                    )
-                  })),
-                  result.previewText
-                )
-              );
-            } else {
-              emitter.emitOne(
-                new TextSearchContextNew(
-                  uri,
-                  result.text,
-                  result.lineNumber
-                )
-              );
-            }
-          })
-        );
-        await complete;
-      }
-    );
+    const asyncIterable = new AsyncIterableObject(async (emitter) => {
+      disposables.add(progressEmitter.event((e) => {
+        const result = e.result;
+        const uri = e.uri;
+        if (resultIsMatch(result)) {
+          emitter.emitOne(new TextSearchMatchNew(
+            uri,
+            result.rangeLocations.map((range) => ({
+              previewRange: new Range(range.preview.startLineNumber, range.preview.startColumn, range.preview.endLineNumber, range.preview.endColumn),
+              sourceRange: new Range(range.source.startLineNumber, range.source.startColumn, range.source.endLineNumber, range.source.endColumn)
+            })),
+            result.previewText
+          ));
+        } else {
+          emitter.emitOne(new TextSearchContextNew(
+            uri,
+            result.text,
+            result.lineNumber
+          ));
+        }
+      }));
+      await complete;
+    });
     return {
       results: asyncIterable,
       complete: complete.then((e) => {
@@ -713,25 +528,20 @@ let ExtHostWorkspace = class {
       return {};
     }
     try {
-      const result = await Promise.all(
-        queryOptions?.map(
-          (option) => this._proxy.$startTextSearch(
-            query,
-            option.folder ?? null,
-            option.options,
-            requestId,
-            token
-          ) || {}
-        ) ?? []
-      );
+      const result = await Promise.all(queryOptions?.map(
+        (option) => this._proxy.$startTextSearch(
+          query,
+          option.folder ?? null,
+          option.options,
+          requestId,
+          token
+        ) || {}
+      ) ?? []);
       delete this._activeSearchCallbacks[requestId];
       return result.reduce((acc, val) => {
         return {
           limitHit: acc?.limitHit || (val?.limitHit ?? false),
-          message: [
-            acc?.message ?? [],
-            val?.message ?? []
-          ].flat()
+          message: [acc?.message ?? [], val?.message ?? []].flat()
         };
       }, {}) ?? { limitHit: false };
     } catch (err) {
@@ -740,16 +550,12 @@ let ExtHostWorkspace = class {
     }
   }
   async findTextInFiles(query, options, callback, extensionId, token = CancellationToken.None) {
-    this._logService.trace(
-      `extHostWorkspace#findTextInFiles: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles`
-    );
+    this._logService.trace(`extHostWorkspace#findTextInFiles: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles`);
     const previewOptions = typeof options.previewOptions === "undefined" ? {
       matchLines: 100,
       charsPerLine: 1e4
     } : options.previewOptions;
-    const parsedInclude = parseSearchExcludeInclude(
-      GlobPattern.from(options.include)
-    );
+    const parsedInclude = parseSearchExcludeInclude(GlobPattern.from(options.include));
     const excludePattern = typeof options.exclude === "string" ? options.exclude : options.exclude ? options.exclude.pattern : void 0;
     const queryOptions = {
       ignoreSymlinks: typeof options.followSymlinks === "boolean" ? !options.followSymlinks : void 0,
@@ -774,22 +580,12 @@ let ExtHostWorkspace = class {
             text: result.previewText,
             matches: mapArrayOrNot(
               result.rangeLocations,
-              (m) => new Range(
-                m.preview.startLineNumber,
-                m.preview.startColumn,
-                m.preview.endLineNumber,
-                m.preview.endColumn
-              )
+              (m) => new Range(m.preview.startLineNumber, m.preview.startColumn, m.preview.endLineNumber, m.preview.endColumn)
             )
           },
           ranges: mapArrayOrNot(
             result.rangeLocations,
-            (r) => new Range(
-              r.source.startLineNumber,
-              r.source.startColumn,
-              r.source.endLineNumber,
-              r.source.endColumn
-            )
+            (r) => new Range(r.source.startLineNumber, r.source.startColumn, r.source.endLineNumber, r.source.endColumn)
           )
         });
       } else {
@@ -800,12 +596,7 @@ let ExtHostWorkspace = class {
         });
       }
     }, "progress");
-    return this.findTextInFilesBase(
-      query,
-      [{ options: queryOptions, folder: parsedInclude?.folder }],
-      progress,
-      token
-    );
+    return this.findTextInFilesBase(query, [{ options: queryOptions, folder: parsedInclude?.folder }], progress, token);
   }
   $handleTextSearchResult(result, requestId) {
     this._activeSearchCallbacks[requestId]?.(result);
@@ -851,17 +642,12 @@ let ExtHostWorkspace = class {
   // called by ext host
   registerEditSessionIdentityProvider(scheme, provider) {
     if (this._editSessionIdentityProviders.has(scheme)) {
-      throw new Error(
-        `A provider has already been registered for scheme ${scheme}`
-      );
+      throw new Error(`A provider has already been registered for scheme ${scheme}`);
     }
     this._editSessionIdentityProviders.set(scheme, provider);
     const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
     const handle = this._providerHandlePool++;
-    this._proxy.$registerEditSessionIdentityProvider(
-      handle,
-      outgoingScheme
-    );
+    this._proxy.$registerEditSessionIdentityProvider(handle, outgoingScheme);
     return toDisposable(() => {
       this._editSessionIdentityProviders.delete(scheme);
       this._proxy.$unregisterEditSessionIdentityProvider(handle);
@@ -869,79 +655,40 @@ let ExtHostWorkspace = class {
   }
   // called by main thread
   async $getEditSessionIdentifier(workspaceFolder, cancellationToken) {
-    this._logService.info(
-      "Getting edit session identifier for workspaceFolder",
-      workspaceFolder
-    );
-    const folder = await this.resolveWorkspaceFolder(
-      URI.revive(workspaceFolder)
-    );
+    this._logService.info("Getting edit session identifier for workspaceFolder", workspaceFolder);
+    const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
     if (!folder) {
       this._logService.warn("Unable to resolve workspace folder");
       return void 0;
     }
-    this._logService.info(
-      "Invoking #provideEditSessionIdentity for workspaceFolder",
-      folder
-    );
-    const provider = this._editSessionIdentityProviders.get(
-      folder.uri.scheme
-    );
-    this._logService.info(
-      `Provider for scheme ${folder.uri.scheme} is defined: `,
-      !!provider
-    );
+    this._logService.info("Invoking #provideEditSessionIdentity for workspaceFolder", folder);
+    const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
+    this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
     if (!provider) {
       return void 0;
     }
-    const result = await provider.provideEditSessionIdentity(
-      folder,
-      cancellationToken
-    );
-    this._logService.info(
-      "Provider returned edit session identifier: ",
-      result
-    );
+    const result = await provider.provideEditSessionIdentity(folder, cancellationToken);
+    this._logService.info("Provider returned edit session identifier: ", result);
     if (!result) {
       return void 0;
     }
     return result;
   }
   async $provideEditSessionIdentityMatch(workspaceFolder, identity1, identity2, cancellationToken) {
-    this._logService.info(
-      "Getting edit session identifier for workspaceFolder",
-      workspaceFolder
-    );
-    const folder = await this.resolveWorkspaceFolder(
-      URI.revive(workspaceFolder)
-    );
+    this._logService.info("Getting edit session identifier for workspaceFolder", workspaceFolder);
+    const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
     if (!folder) {
       this._logService.warn("Unable to resolve workspace folder");
       return void 0;
     }
-    this._logService.info(
-      "Invoking #provideEditSessionIdentity for workspaceFolder",
-      folder
-    );
-    const provider = this._editSessionIdentityProviders.get(
-      folder.uri.scheme
-    );
-    this._logService.info(
-      `Provider for scheme ${folder.uri.scheme} is defined: `,
-      !!provider
-    );
+    this._logService.info("Invoking #provideEditSessionIdentity for workspaceFolder", folder);
+    const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
+    this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
     if (!provider) {
       return void 0;
     }
-    const result = await provider.provideEditSessionIdentityMatch?.(
-      identity1,
-      identity2,
-      cancellationToken
-    );
-    this._logService.info(
-      "Provider returned edit session identifier match result: ",
-      result
-    );
+    const result = await provider.provideEditSessionIdentityMatch?.(identity1, identity2, cancellationToken);
+    this._logService.info("Provider returned edit session identifier match result: ", result);
     if (!result) {
       return void 0;
     }
@@ -954,35 +701,22 @@ let ExtHostWorkspace = class {
         listener.call(thisArg, e);
       }, "wrapped");
       wrappedListener.extension = extension;
-      return this._onWillCreateEditSessionIdentityEvent.event(
-        wrappedListener,
-        void 0,
-        disposables
-      );
+      return this._onWillCreateEditSessionIdentityEvent.event(wrappedListener, void 0, disposables);
     };
   }
   // main thread calls this to trigger participants
   async $onWillCreateEditSessionIdentity(workspaceFolder, token, timeout) {
-    const folder = await this.resolveWorkspaceFolder(
-      URI.revive(workspaceFolder)
-    );
+    const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
     if (folder === void 0) {
       throw new Error("Unable to resolve workspace folder");
     }
-    await this._onWillCreateEditSessionIdentityEvent.fireAsync(
-      { workspaceFolder: folder },
-      token,
-      async (thenable, listener) => {
-        const now = Date.now();
-        await Promise.resolve(thenable);
-        if (Date.now() - now > timeout) {
-          this._logService.warn(
-            "SLOW edit session create-participant",
-            listener.extension.identifier
-          );
-        }
+    await this._onWillCreateEditSessionIdentityEvent.fireAsync({ workspaceFolder: folder }, token, async (thenable, listener) => {
+      const now = Date.now();
+      await Promise.resolve(thenable);
+      if (Date.now() - now > timeout) {
+        this._logService.warn("SLOW edit session create-participant", listener.extension.identifier);
       }
-    );
+    });
     if (token.isCancellationRequested) {
       return void 0;
     }
@@ -992,9 +726,7 @@ let ExtHostWorkspace = class {
   // called by ext host
   registerCanonicalUriProvider(scheme, provider) {
     if (this._canonicalUriProviders.has(scheme)) {
-      throw new Error(
-        `A provider has already been registered for scheme ${scheme}`
-      );
+      throw new Error(`A provider has already been registered for scheme ${scheme}`);
     }
     this._canonicalUriProviders.set(scheme, provider);
     const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
@@ -1010,11 +742,7 @@ let ExtHostWorkspace = class {
     if (!provider) {
       return void 0;
     }
-    const result = await provider.provideCanonicalUri?.(
-      URI.revive(uri),
-      options,
-      cancellationToken
-    );
+    const result = await provider.provideCanonicalUri?.(URI.revive(uri), options, cancellationToken);
     if (!result) {
       return void 0;
     }
@@ -1022,11 +750,7 @@ let ExtHostWorkspace = class {
   }
   // called by main thread
   async $provideCanonicalUri(uri, targetScheme, cancellationToken) {
-    return this.provideCanonicalUri(
-      URI.revive(uri),
-      { targetScheme },
-      cancellationToken
-    );
+    return this.provideCanonicalUri(URI.revive(uri), { targetScheme }, cancellationToken);
   }
 };
 ExtHostWorkspace = __decorateClass([

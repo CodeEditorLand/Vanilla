@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "./lifecycle.js";
 import { env } from "./process.js";
 function hotReloadDisabled() {
   return true;
@@ -10,7 +11,10 @@ function isHotReloadEnabled() {
 }
 __name(isHotReloadEnabled, "isHotReloadEnabled");
 function registerHotReloadHandler(handler) {
-  if (isHotReloadEnabled()) {
+  if (!isHotReloadEnabled()) {
+    return { dispose() {
+    } };
+  } else {
     const handlers = registerGlobalHotReloadHandler();
     handlers.add(handler);
     return {
@@ -18,9 +22,6 @@ function registerHotReloadHandler(handler) {
         handlers.delete(handler);
       }
     };
-  } else {
-    return { dispose() {
-    } };
   }
 }
 __name(registerHotReloadHandler, "registerHotReloadHandler");
@@ -56,7 +57,7 @@ function registerGlobalHotReloadHandler() {
   return hotReloadHandlers;
 }
 __name(registerGlobalHotReloadHandler, "registerGlobalHotReloadHandler");
-let hotReloadHandlers;
+let hotReloadHandlers = void 0;
 if (isHotReloadEnabled()) {
   registerHotReloadHandler(({ oldExports, newSrc, config }) => {
     if (config.mode !== "patch-prototype") {
@@ -65,34 +66,17 @@ if (isHotReloadEnabled()) {
     return (newExports) => {
       for (const key in newExports) {
         const exportedItem = newExports[key];
-        console.log(
-          `[hot-reload] Patching prototype methods of '${key}'`,
-          { exportedItem }
-        );
+        console.log(`[hot-reload] Patching prototype methods of '${key}'`, { exportedItem });
         if (typeof exportedItem === "function" && exportedItem.prototype) {
           const oldExportedItem = oldExports[key];
           if (oldExportedItem) {
-            for (const prop of Object.getOwnPropertyNames(
-              exportedItem.prototype
-            )) {
-              const descriptor = Object.getOwnPropertyDescriptor(
-                exportedItem.prototype,
-                prop
-              );
-              const oldDescriptor = Object.getOwnPropertyDescriptor(
-                oldExportedItem.prototype,
-                prop
-              );
+            for (const prop of Object.getOwnPropertyNames(exportedItem.prototype)) {
+              const descriptor = Object.getOwnPropertyDescriptor(exportedItem.prototype, prop);
+              const oldDescriptor = Object.getOwnPropertyDescriptor(oldExportedItem.prototype, prop);
               if (descriptor?.value?.toString() !== oldDescriptor?.value?.toString()) {
-                console.log(
-                  `[hot-reload] Patching prototype method '${key}.${prop}'`
-                );
+                console.log(`[hot-reload] Patching prototype method '${key}.${prop}'`);
               }
-              Object.defineProperty(
-                oldExportedItem.prototype,
-                prop,
-                descriptor
-              );
+              Object.defineProperty(oldExportedItem.prototype, prop, descriptor);
             }
             newExports[key] = oldExportedItem;
           }

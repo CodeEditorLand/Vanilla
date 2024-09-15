@@ -1,8 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../base/common/arrays.js";
+import { IScrollPosition, Scrollable } from "../../base/common/scrollable.js";
 import * as strings from "../../base/common/strings.js";
+import { IPosition, Position } from "./core/position.js";
 import { Range } from "./core/range.js";
+import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, ICursorSimpleModel, PartialCursorState } from "./cursorCommon.js";
+import { CursorChangeReason } from "./cursorEvents.js";
+import { INewScrollPosition, ScrollType } from "./editorCommon.js";
+import { EditorTheme } from "./editorTheme.js";
+import { EndOfLinePreference, IGlyphMarginLanesModel, IModelDecorationOptions, ITextModel, PositionAffinity } from "./model.js";
+import { ILineBreaksComputer, InjectedText } from "./modelLineProjectionData.js";
+import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from "./textModelGuides.js";
+import { IViewLineTokens } from "./tokens/lineTokens.js";
+import { ViewEventHandler } from "./viewEventHandler.js";
+import { VerticalRevealType } from "./viewEvents.js";
 class Viewport {
   static {
     __name(this, "Viewport");
@@ -61,7 +73,7 @@ class ViewLineData {
   tokens;
   /**
    * Additional inline decorations for this line.
-   */
+  */
   inlineDecorations;
   constructor(content, continuesWithWrappedLine, minColumn, maxColumn, startVisibleColumn, tokens, inlineDecorations) {
     this.content = content;
@@ -122,15 +134,8 @@ class ViewLineRenderingData {
     this.maxColumn = maxColumn;
     this.content = content;
     this.continuesWithWrappedLine = continuesWithWrappedLine;
-    this.isBasicASCII = ViewLineRenderingData.isBasicASCII(
-      content,
-      mightContainNonBasicASCII
-    );
-    this.containsRTL = ViewLineRenderingData.containsRTL(
-      content,
-      this.isBasicASCII,
-      mightContainRTL
-    );
+    this.isBasicASCII = ViewLineRenderingData.isBasicASCII(content, mightContainNonBasicASCII);
+    this.containsRTL = ViewLineRenderingData.containsRTL(content, this.isBasicASCII, mightContainRTL);
     this.tokens = tokens;
     this.inlineDecorations = inlineDecorations;
     this.tabSize = tabSize;
@@ -178,12 +183,7 @@ class SingleLineInlineDecoration {
   }
   toInlineDecoration(lineNumber) {
     return new InlineDecoration(
-      new Range(
-        lineNumber,
-        this.startOffset + 1,
-        lineNumber,
-        this.endOffset + 1
-      ),
+      new Range(lineNumber, this.startOffset + 1, lineNumber, this.endOffset + 1),
       this.inlineClassName,
       this.inlineClassNameAffectsLetterSpacing ? 3 /* RegularAffectingLetterSpacing */ : 0 /* Regular */
     );

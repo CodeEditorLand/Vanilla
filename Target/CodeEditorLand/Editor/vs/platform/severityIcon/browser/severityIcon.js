@@ -2,8 +2,8 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/severityIcon.css";
 import { Codicon } from "../../../base/common/codicons.js";
-import Severity from "../../../base/common/severity.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
+import Severity from "../../../base/common/severity.js";
 var SeverityIcon;
 ((SeverityIcon2) => {
   function className(severity) {

@@ -10,28 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { revive } from "../../../base/common/marshalling.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  AbstractLoggerService,
-  AbstractMessageLogger
-} from "../../../platform/log/common/log.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ILogger, ILoggerOptions, AbstractMessageLogger, LogLevel, AbstractLoggerService } from "../../../platform/log/common/log.js";
+import { MainThreadLoggerShape, MainContext, ExtHostLogLevelServiceShape } from "./extHost.protocol.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { revive } from "../../../base/common/marshalling.js";
 let ExtHostLoggerService = class extends AbstractLoggerService {
   static {
     __name(this, "ExtHostLoggerService");
   }
   _proxy;
   constructor(rpc, initData) {
-    super(
-      initData.logLevel,
-      initData.logsLocation,
-      initData.loggers.map((logger) => revive(logger))
-    );
+    super(initData.logLevel, initData.logsLocation, initData.loggers.map((logger) => revive(logger)));
     this._proxy = rpc.getProxy(MainContext.MainThreadLogger);
   }
   $setLogLevel(logLevel, resource) {

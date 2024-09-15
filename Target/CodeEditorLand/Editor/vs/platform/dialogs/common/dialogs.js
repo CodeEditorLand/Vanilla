@@ -1,16 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { mnemonicButtonLabel } from "../../../base/common/labels.js";
-import { deepClone } from "../../../base/common/objects.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
+import { Event } from "../../../base/common/event.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
 import { basename } from "../../../base/common/resources.js";
 import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ITelemetryData } from "../../telemetry/common/telemetry.js";
+import { MessageBoxOptions } from "../../../base/parts/sandbox/common/electronTypes.js";
+import { mnemonicButtonLabel } from "../../../base/common/labels.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { IProductService } from "../../product/common/productService.js";
+import { deepClone } from "../../../base/common/objects.js";
 const IDialogService = createDecorator("dialogService");
 var DialogKind = /* @__PURE__ */ ((DialogKind2) => {
   DialogKind2[DialogKind2["Confirmation"] = 1] = "Confirmation";
@@ -39,15 +42,7 @@ class AbstractDialogHandler {
         if (confirmationDialog.primaryButton) {
           buttons.push(confirmationDialog.primaryButton);
         } else {
-          buttons.push(
-            localize(
-              {
-                key: "yesButton",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "&&Yes"
-            )
-          );
+          buttons.push(localize({ key: "yesButton", comment: ["&& denotes a mnemonic"] }, "&&Yes"));
         }
         if (confirmationDialog.cancelButton) {
           buttons.push(confirmationDialog.cancelButton);
@@ -59,31 +54,23 @@ class AbstractDialogHandler {
       case 2 /* Prompt */: {
         const promptDialog = dialog;
         if (Array.isArray(promptDialog.buttons) && promptDialog.buttons.length > 0) {
-          buttons.push(
-            ...promptDialog.buttons.map((button) => button.label)
-          );
+          buttons.push(...promptDialog.buttons.map((button) => button.label));
         }
         if (promptDialog.cancelButton) {
           if (promptDialog.cancelButton === true) {
             buttons.push(localize("cancelButton", "Cancel"));
           } else if (typeof promptDialog.cancelButton === "string") {
             buttons.push(promptDialog.cancelButton);
-          } else if (promptDialog.cancelButton.label) {
-            buttons.push(promptDialog.cancelButton.label);
           } else {
-            buttons.push(localize("cancelButton", "Cancel"));
+            if (promptDialog.cancelButton.label) {
+              buttons.push(promptDialog.cancelButton.label);
+            } else {
+              buttons.push(localize("cancelButton", "Cancel"));
+            }
           }
         }
         if (buttons.length === 0) {
-          buttons.push(
-            localize(
-              {
-                key: "okButton",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "&&OK"
-            )
-          );
+          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
         }
         break;
       }
@@ -92,15 +79,7 @@ class AbstractDialogHandler {
         if (inputDialog.primaryButton) {
           buttons.push(inputDialog.primaryButton);
         } else {
-          buttons.push(
-            localize(
-              {
-                key: "okButton",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "&&OK"
-            )
-          );
+          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
         }
         if (inputDialog.cancelButton) {
           buttons.push(inputDialog.cancelButton);
@@ -122,9 +101,7 @@ class AbstractDialogHandler {
     return void 0;
   }
   getPromptResult(prompt, buttonIndex, checkboxChecked) {
-    const promptButtons = [
-      ...prompt.buttons ?? []
-    ];
+    const promptButtons = [...prompt.buttons ?? []];
     if (prompt.cancelButton && typeof prompt.cancelButton !== "string" && typeof prompt.cancelButton !== "boolean") {
       promptButtons.push(prompt.cancelButton);
     }
@@ -145,24 +122,12 @@ var ConfirmResult = /* @__PURE__ */ ((ConfirmResult2) => {
 const MAX_CONFIRM_FILES = 10;
 function getFileNamesMessage(fileNamesOrResources) {
   const message = [];
-  message.push(
-    ...fileNamesOrResources.slice(0, MAX_CONFIRM_FILES).map(
-      (fileNameOrResource) => typeof fileNameOrResource === "string" ? fileNameOrResource : basename(fileNameOrResource)
-    )
-  );
+  message.push(...fileNamesOrResources.slice(0, MAX_CONFIRM_FILES).map((fileNameOrResource) => typeof fileNameOrResource === "string" ? fileNameOrResource : basename(fileNameOrResource)));
   if (fileNamesOrResources.length > MAX_CONFIRM_FILES) {
     if (fileNamesOrResources.length - MAX_CONFIRM_FILES === 1) {
-      message.push(
-        localize("moreFile", "...1 additional file not shown")
-      );
+      message.push(localize("moreFile", "...1 additional file not shown"));
     } else {
-      message.push(
-        localize(
-          "moreFiles",
-          "...{0} additional files not shown",
-          fileNamesOrResources.length - MAX_CONFIRM_FILES
-        )
-      );
+      message.push(localize("moreFiles", "...{0} additional files not shown", fileNamesOrResources.length - MAX_CONFIRM_FILES));
     }
   }
   message.push("");
@@ -171,9 +136,7 @@ function getFileNamesMessage(fileNamesOrResources) {
 __name(getFileNamesMessage, "getFileNamesMessage");
 function massageMessageBoxOptions(options, productService) {
   const massagedOptions = deepClone(options);
-  let buttons = (massagedOptions.buttons ?? []).map(
-    (button) => mnemonicButtonLabel(button)
-  );
+  let buttons = (massagedOptions.buttons ?? []).map((button) => mnemonicButtonLabel(button));
   let buttonIndeces = (options.buttons || []).map((button, index) => index);
   let defaultId = 0;
   let cancelId = massagedOptions.cancelId ?? buttons.length - 1;

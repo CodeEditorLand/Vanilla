@@ -11,32 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { diffMaps, diffSets } from "../../../base/common/collections.js";
-import {
-  DisposableMap,
-  DisposableStore,
-  combinedDisposable
-} from "../../../base/common/lifecycle.js";
+import { combinedDisposable, DisposableStore, DisposableMap } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  getNotebookEditorFromEditorPane
-} from "../../contrib/notebook/browser/notebookBrowser.js";
-import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
-import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
-import { editorGroupToColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import {
-  extHostCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 import { MainThreadNotebookDocuments } from "./mainThreadNotebookDocuments.js";
 import { NotebookDto } from "./mainThreadNotebookDto.js";
 import { MainThreadNotebookEditors } from "./mainThreadNotebookEditors.js";
+import { extHostCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { editorGroupToColumn } from "../../services/editor/common/editorGroupColumn.js";
+import { getNotebookEditorFromEditorPane, IActiveNotebookEditor, INotebookEditor } from "../../contrib/notebook/browser/notebookBrowser.js";
+import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
+import { NotebookTextModel } from "../../contrib/notebook/common/model/notebookTextModel.js";
+import { INotebookService } from "../../contrib/notebook/common/notebookService.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { ExtHostContext, ExtHostNotebookShape, INotebookDocumentsAndEditorsDelta, INotebookEditorAddData, INotebookModelAddedData, MainContext } from "../common/extHost.protocol.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 class NotebookAndEditorState {
   constructor(documents, textEditors, activeEditor, visibleEditors) {
     this.documents = documents;
@@ -54,25 +45,18 @@ class NotebookAndEditorState {
         removedDocuments: [],
         addedEditors: [...after.textEditors.values()],
         removedEditors: [],
-        visibleEditors: [...after.visibleEditors].map(
-          (editor) => editor[0]
-        )
+        visibleEditors: [...after.visibleEditors].map((editor) => editor[0])
       };
     }
     const documentDelta = diffSets(before.documents, after.documents);
     const editorDelta = diffMaps(before.textEditors, after.textEditors);
     const newActiveEditor = before.activeEditor !== after.activeEditor ? after.activeEditor : void 0;
-    const visibleEditorDelta = diffMaps(
-      before.visibleEditors,
-      after.visibleEditors
-    );
+    const visibleEditorDelta = diffMaps(before.visibleEditors, after.visibleEditors);
     return {
       addedDocuments: documentDelta.added,
       removedDocuments: documentDelta.removed.map((e) => e.uri),
       addedEditors: editorDelta.added,
-      removedEditors: editorDelta.removed.map(
-        (removed) => removed.getId()
-      ),
+      removedEditors: editorDelta.removed.map((removed) => removed.getId()),
       newActiveEditor,
       visibleEditors: visibleEditorDelta.added.length === 0 && visibleEditorDelta.removed.length === 0 ? void 0 : [...after.visibleEditors].map((editor) => editor[0])
     };
@@ -86,52 +70,16 @@ let MainThreadNotebooksAndEditors = class {
     this._editorGroupService = _editorGroupService;
     this._logService = _logService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostNotebook);
-    this._mainThreadNotebooks = instantiationService.createInstance(
-      MainThreadNotebookDocuments,
-      extHostContext
-    );
-    this._mainThreadEditors = instantiationService.createInstance(
-      MainThreadNotebookEditors,
-      extHostContext
-    );
-    extHostContext.set(
-      MainContext.MainThreadNotebookDocuments,
-      this._mainThreadNotebooks
-    );
-    extHostContext.set(
-      MainContext.MainThreadNotebookEditors,
-      this._mainThreadEditors
-    );
-    this._notebookService.onWillAddNotebookDocument(
-      () => this._updateState(),
-      this,
-      this._disposables
-    );
-    this._notebookService.onDidRemoveNotebookDocument(
-      () => this._updateState(),
-      this,
-      this._disposables
-    );
-    this._editorService.onDidActiveEditorChange(
-      () => this._updateState(),
-      this,
-      this._disposables
-    );
-    this._editorService.onDidVisibleEditorsChange(
-      () => this._updateState(),
-      this,
-      this._disposables
-    );
-    this._notebookEditorService.onDidAddNotebookEditor(
-      this._handleEditorAdd,
-      this,
-      this._disposables
-    );
-    this._notebookEditorService.onDidRemoveNotebookEditor(
-      this._handleEditorRemove,
-      this,
-      this._disposables
-    );
+    this._mainThreadNotebooks = instantiationService.createInstance(MainThreadNotebookDocuments, extHostContext);
+    this._mainThreadEditors = instantiationService.createInstance(MainThreadNotebookEditors, extHostContext);
+    extHostContext.set(MainContext.MainThreadNotebookDocuments, this._mainThreadNotebooks);
+    extHostContext.set(MainContext.MainThreadNotebookEditors, this._mainThreadEditors);
+    this._notebookService.onWillAddNotebookDocument(() => this._updateState(), this, this._disposables);
+    this._notebookService.onDidRemoveNotebookDocument(() => this._updateState(), this, this._disposables);
+    this._editorService.onDidActiveEditorChange(() => this._updateState(), this, this._disposables);
+    this._editorService.onDidVisibleEditorsChange(() => this._updateState(), this, this._disposables);
+    this._notebookEditorService.onDidAddNotebookEditor(this._handleEditorAdd, this, this._disposables);
+    this._notebookEditorService.onDidRemoveNotebookEditor(this._handleEditorRemove, this, this._disposables);
     this._updateState();
   }
   // private readonly _onDidAddNotebooks = new Emitter<NotebookTextModel[]>();
@@ -155,13 +103,10 @@ let MainThreadNotebooksAndEditors = class {
     this._editorListeners.dispose();
   }
   _handleEditorAdd(editor) {
-    this._editorListeners.set(
-      editor.getId(),
-      combinedDisposable(
-        editor.onDidChangeModel(() => this._updateState()),
-        editor.onDidFocusWidget(() => this._updateState(editor))
-      )
-    );
+    this._editorListeners.set(editor.getId(), combinedDisposable(
+      editor.onDidChangeModel(() => this._updateState()),
+      editor.onDidFocusWidget(() => this._updateState(editor))
+    ));
     this._updateState();
   }
   _handleEditorRemove(editor) {
@@ -176,9 +121,7 @@ let MainThreadNotebooksAndEditors = class {
         editors.set(editor.getId(), editor);
       }
     }
-    const activeNotebookEditor = getNotebookEditorFromEditorPane(
-      this._editorService.activeEditorPane
-    );
+    const activeNotebookEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
     let activeEditor = null;
     if (activeNotebookEditor) {
       activeEditor = activeNotebookEditor.getId();
@@ -186,11 +129,7 @@ let MainThreadNotebooksAndEditors = class {
       activeEditor = focusedEditor.getId();
     }
     if (activeEditor && !editors.has(activeEditor)) {
-      this._logService.trace(
-        "MainThreadNotebooksAndEditors#_updateState: active editor is not in editors list",
-        activeEditor,
-        editors.keys()
-      );
+      this._logService.trace("MainThreadNotebooksAndEditors#_updateState: active editor is not in editors list", activeEditor, editors.keys());
       activeEditor = null;
     }
     for (const editorPane of this._editorService.visibleEditorPanes) {
@@ -199,15 +138,8 @@ let MainThreadNotebooksAndEditors = class {
         visibleEditorsMap.set(notebookEditor.getId(), notebookEditor);
       }
     }
-    const newState = new NotebookAndEditorState(
-      new Set(this._notebookService.listNotebookDocuments()),
-      editors,
-      activeEditor,
-      visibleEditorsMap
-    );
-    this._onDelta(
-      NotebookAndEditorState.delta(this._currentState, newState)
-    );
+    const newState = new NotebookAndEditorState(new Set(this._notebookService.listNotebookDocuments()), editors, activeEditor, visibleEditorsMap);
+    this._onDelta(NotebookAndEditorState.delta(this._currentState, newState));
     this._currentState = newState;
   }
   _onDelta(delta) {
@@ -219,18 +151,12 @@ let MainThreadNotebooksAndEditors = class {
       removedEditors: delta.removedEditors,
       newActiveEditor: delta.newActiveEditor,
       visibleEditors: delta.visibleEditors,
-      addedDocuments: delta.addedDocuments.map(
-        MainThreadNotebooksAndEditors._asModelAddData
-      ),
+      addedDocuments: delta.addedDocuments.map(MainThreadNotebooksAndEditors._asModelAddData),
       addedEditors: delta.addedEditors.map(this._asEditorAddData, this)
     };
-    this._proxy.$acceptDocumentAndEditorsDelta(
-      new SerializableObjectWithBuffers(dto)
-    );
+    this._proxy.$acceptDocumentAndEditorsDelta(new SerializableObjectWithBuffers(dto));
     this._mainThreadEditors.handleEditorsRemoved(delta.removedEditors);
-    this._mainThreadNotebooks.handleNotebooksRemoved(
-      delta.removedDocuments
-    );
+    this._mainThreadNotebooks.handleNotebooksRemoved(delta.removedDocuments);
     this._mainThreadNotebooks.handleNotebooksAdded(delta.addedDocuments);
     this._mainThreadEditors.handleEditorsAdded(delta.addedEditors);
   }
@@ -265,9 +191,7 @@ let MainThreadNotebooksAndEditors = class {
     };
   }
   _asEditorAddData(add) {
-    const pane = this._editorService.visibleEditorPanes.find(
-      (pane2) => getNotebookEditorFromEditorPane(pane2) === add
-    );
+    const pane = this._editorService.visibleEditorPanes.find((pane2) => getNotebookEditorFromEditorPane(pane2) === add);
     return {
       id: add.getId(),
       documentUri: add.textModel.uri,

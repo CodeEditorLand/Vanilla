@@ -4,38 +4,22 @@ import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import "./bracketMatching.css";
-import * as nls from "../../../../nls.js";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../../platform/actions/common/actions.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
-import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
-import {
-  EditorAction,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorContributionInstantiation, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { Selection } from "../../../common/core/selection.js";
+import { IEditorContribution, IEditorDecorationsCollection } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import {
-  OverviewRulerLane,
-  TrackedRangeStickiness
-} from "../../../common/model.js";
+import { IModelDeltaDecoration, OverviewRulerLane, TrackedRangeStickiness } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-const overviewRulerBracketMatchForeground = registerColor(
-  "editorOverviewRuler.bracketMatchForeground",
-  "#A0A0A0",
-  nls.localize(
-    "overviewRulerBracketMatchForeground",
-    "Overview ruler marker color for matching brackets."
-  )
-);
+import * as nls from "../../../../nls.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+const overviewRulerBracketMatchForeground = registerColor("editorOverviewRuler.bracketMatchForeground", "#A0A0A0", nls.localize("overviewRulerBracketMatchForeground", "Overview ruler marker color for matching brackets."));
 class JumpToBracketAction extends EditorAction {
   static {
     __name(this, "JumpToBracketAction");
@@ -64,31 +48,23 @@ class SelectToBracketAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.selectToBracket",
-      label: nls.localize(
-        "smartSelect.selectToBracket",
-        "Select to Bracket"
-      ),
+      label: nls.localize("smartSelect.selectToBracket", "Select to Bracket"),
       alias: "Select to Bracket",
       precondition: void 0,
       metadata: {
-        description: nls.localize2(
-          "smartSelect.selectToBracketDescription",
-          "Select the text inside and including the brackets or curly braces"
-        ),
-        args: [
-          {
-            name: "args",
-            schema: {
-              type: "object",
-              properties: {
-                selectBrackets: {
-                  type: "boolean",
-                  default: true
-                }
+        description: nls.localize2("smartSelect.selectToBracketDescription", "Select the text inside and including the brackets or curly braces"),
+        args: [{
+          name: "args",
+          schema: {
+            type: "object",
+            properties: {
+              "selectBrackets": {
+                type: "boolean",
+                default: true
               }
             }
           }
-        ]
+        }]
       }
     });
   }
@@ -107,10 +83,7 @@ class RemoveBracketsAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.removeBrackets",
-      label: nls.localize(
-        "smartSelect.removeBrackets",
-        "Remove Brackets"
-      ),
+      label: nls.localize("smartSelect.removeBrackets", "Remove Brackets"),
       alias: "Remove Brackets",
       precondition: void 0,
       kbOpts: {
@@ -143,9 +116,7 @@ class BracketMatchingController extends Disposable {
   }
   static ID = "editor.contrib.bracketMatchingController";
   static get(editor) {
-    return editor.getContribution(
-      BracketMatchingController.ID
-    );
+    return editor.getContribution(BracketMatchingController.ID);
   }
   _editor;
   _lastBracketsData;
@@ -159,61 +130,41 @@ class BracketMatchingController extends Disposable {
     this._lastBracketsData = [];
     this._lastVersionId = 0;
     this._decorations = this._editor.createDecorationsCollection();
-    this._updateBracketsSoon = this._register(
-      new RunOnceScheduler(() => this._updateBrackets(), 50)
-    );
-    this._matchBrackets = this._editor.getOption(
-      EditorOption.matchBrackets
-    );
+    this._updateBracketsSoon = this._register(new RunOnceScheduler(() => this._updateBrackets(), 50));
+    this._matchBrackets = this._editor.getOption(EditorOption.matchBrackets);
     this._updateBracketsSoon.schedule();
-    this._register(
-      editor.onDidChangeCursorPosition((e) => {
-        if (this._matchBrackets === "never") {
-          return;
-        }
-        this._updateBracketsSoon.schedule();
-      })
-    );
-    this._register(
-      editor.onDidChangeModelContent((e) => {
-        this._updateBracketsSoon.schedule();
-      })
-    );
-    this._register(
-      editor.onDidChangeModel((e) => {
+    this._register(editor.onDidChangeCursorPosition((e) => {
+      if (this._matchBrackets === "never") {
+        return;
+      }
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModelContent((e) => {
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModel((e) => {
+      this._lastBracketsData = [];
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModelLanguageConfiguration((e) => {
+      this._lastBracketsData = [];
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(EditorOption.matchBrackets)) {
+        this._matchBrackets = this._editor.getOption(EditorOption.matchBrackets);
+        this._decorations.clear();
         this._lastBracketsData = [];
+        this._lastVersionId = 0;
         this._updateBracketsSoon.schedule();
-      })
-    );
-    this._register(
-      editor.onDidChangeModelLanguageConfiguration((e) => {
-        this._lastBracketsData = [];
-        this._updateBracketsSoon.schedule();
-      })
-    );
-    this._register(
-      editor.onDidChangeConfiguration((e) => {
-        if (e.hasChanged(EditorOption.matchBrackets)) {
-          this._matchBrackets = this._editor.getOption(
-            EditorOption.matchBrackets
-          );
-          this._decorations.clear();
-          this._lastBracketsData = [];
-          this._lastVersionId = 0;
-          this._updateBracketsSoon.schedule();
-        }
-      })
-    );
-    this._register(
-      editor.onDidBlurEditorWidget(() => {
-        this._updateBracketsSoon.schedule();
-      })
-    );
-    this._register(
-      editor.onDidFocusEditorWidget(() => {
-        this._updateBracketsSoon.schedule();
-      })
-    );
+      }
+    }));
+    this._register(editor.onDidBlurEditorWidget(() => {
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidFocusEditorWidget(() => {
+      this._updateBracketsSoon.schedule();
+    }));
   }
   jumpToBracket() {
     if (!this._editor.hasModel()) {
@@ -242,19 +193,9 @@ class BracketMatchingController extends Disposable {
         }
       }
       if (newCursorPosition) {
-        return new Selection(
-          newCursorPosition.lineNumber,
-          newCursorPosition.column,
-          newCursorPosition.lineNumber,
-          newCursorPosition.column
-        );
+        return new Selection(newCursorPosition.lineNumber, newCursorPosition.column, newCursorPosition.lineNumber, newCursorPosition.column);
       }
-      return new Selection(
-        position.lineNumber,
-        position.column,
-        position.lineNumber,
-        position.column
-      );
+      return new Selection(position.lineNumber, position.column, position.lineNumber, position.column);
     });
     this._editor.setSelections(newSelections);
     this._editor.revealRange(newSelections[0]);
@@ -273,9 +214,7 @@ class BracketMatchingController extends Disposable {
         if (!brackets) {
           const nextBracket = model.bracketPairs.findNextBracket(position);
           if (nextBracket && nextBracket.range) {
-            brackets = model.bracketPairs.matchBracket(
-              nextBracket.range.getStartPosition()
-            );
+            brackets = model.bracketPairs.matchBracket(nextBracket.range.getStartPosition());
           }
         }
       }
@@ -293,14 +232,7 @@ class BracketMatchingController extends Disposable {
         }
       }
       if (selectFrom && selectTo) {
-        newSelections.push(
-          new Selection(
-            selectFrom.lineNumber,
-            selectFrom.column,
-            selectTo.lineNumber,
-            selectTo.column
-          )
-        );
+        newSelections.push(new Selection(selectFrom.lineNumber, selectFrom.column, selectTo.lineNumber, selectTo.column));
       }
     });
     if (newSelections.length > 0) {
@@ -321,10 +253,13 @@ class BracketMatchingController extends Disposable {
       }
       if (brackets) {
         this._editor.pushUndoStop();
-        this._editor.executeEdits(editSource, [
-          { range: brackets[0], text: "" },
-          { range: brackets[1], text: "" }
-        ]);
+        this._editor.executeEdits(
+          editSource,
+          [
+            { range: brackets[0], text: "" },
+            { range: brackets[1], text: "" }
+          ]
+        );
         this._editor.pushUndoStop();
       }
     });
@@ -353,14 +288,8 @@ class BracketMatchingController extends Disposable {
     for (const bracketData of this._lastBracketsData) {
       const brackets = bracketData.brackets;
       if (brackets) {
-        newDecorations[newDecorationsLen++] = {
-          range: brackets[0],
-          options: bracketData.options
-        };
-        newDecorations[newDecorationsLen++] = {
-          range: brackets[1],
-          options: bracketData.options
-        };
+        newDecorations[newDecorationsLen++] = { range: brackets[0], options: bracketData.options };
+        newDecorations[newDecorationsLen++] = { range: brackets[1], options: bracketData.options };
       }
     }
     this._decorations.set(newDecorations);
@@ -409,31 +338,25 @@ class BracketMatchingController extends Disposable {
         let brackets = model.bracketPairs.matchBracket(
           position,
           20
+          /* give at most 20ms to compute */
         );
         let options = BracketMatchingController._DECORATION_OPTIONS_WITH_OVERVIEW_RULER;
         if (!brackets && this._matchBrackets === "always") {
           brackets = model.bracketPairs.findEnclosingBrackets(
             position,
             20
+            /* give at most 20ms to compute */
           );
           options = BracketMatchingController._DECORATION_OPTIONS_WITHOUT_OVERVIEW_RULER;
         }
-        newData[newDataLen++] = new BracketsData(
-          position,
-          brackets,
-          options
-        );
+        newData[newDataLen++] = new BracketsData(position, brackets, options);
       }
     }
     this._lastBracketsData = newData;
     this._lastVersionId = versionId;
   }
 }
-registerEditorContribution(
-  BracketMatchingController.ID,
-  BracketMatchingController,
-  EditorContributionInstantiation.AfterFirstRender
-);
+registerEditorContribution(BracketMatchingController.ID, BracketMatchingController, EditorContributionInstantiation.AfterFirstRender);
 registerEditorAction(SelectToBracketAction);
 registerEditorAction(JumpToBracketAction);
 registerEditorAction(RemoveBracketsAction);
@@ -441,10 +364,7 @@ MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
   group: "5_infile_nav",
   command: {
     id: "editor.action.jumpToBracket",
-    title: nls.localize(
-      { key: "miGoToBracket", comment: ["&& denotes a mnemonic"] },
-      "Go to &&Bracket"
-    )
+    title: nls.localize({ key: "miGoToBracket", comment: ["&& denotes a mnemonic"] }, "Go to &&Bracket")
   },
   order: 2
 });

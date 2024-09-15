@@ -1,45 +1,33 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { coalesce, equals } from "../../../base/common/arrays.js";
-import { asPromise } from "../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  isMarkdownString
-} from "../../../base/common/htmlContent.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../base/common/lifecycle.js";
-import { basename } from "../../../base/common/resources.js";
-import { isString, isUndefinedOrNull } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  TreeViewsDnDService
-} from "../../../editor/common/services/treeViewsDnd.js";
 import { localize } from "../../../nls.js";
-import {
-  NoTreeViewError
-} from "../../common/views.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  DataTransfer,
-  MarkdownString,
-  ViewBadge
-} from "./extHostTypeConverters.js";
+import { basename } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { CheckboxUpdate, DataTransferDTO, ExtHostTreeViewsShape, MainThreadTreeViewsShape } from "./extHost.protocol.js";
+import { ITreeItem, TreeViewItemHandleArg, ITreeItemLabel, IRevealOptions, TreeCommand, TreeViewPaneHandleArg, ITreeItemCheckboxState, NoTreeViewError } from "../../common/views.js";
+import { ExtHostCommands, CommandsConverter } from "./extHostCommands.js";
+import { asPromise } from "../../../base/common/async.js";
 import * as extHostTypes from "./extHostTypes.js";
+import { isUndefinedOrNull, isString } from "../../../base/common/types.js";
+import { equals, coalesce } from "../../../base/common/arrays.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { MarkdownString, ViewBadge, DataTransfer } from "./extHostTypeConverters.js";
+import { IMarkdownString, isMarkdownString } from "../../../base/common/htmlContent.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { ITreeViewsDnDService, TreeViewsDnDService } from "../../../editor/common/services/treeViewsDnd.js";
+import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 function toTreeItemLabel(label, extension) {
   if (isString(label)) {
     return { label };
   }
   if (label && typeof label === "object" && typeof label.label === "string") {
-    let highlights;
+    let highlights = void 0;
     if (Array.isArray(label.highlights)) {
-      highlights = label.highlights.filter(
-        (highlight) => highlight.length === 2 && typeof highlight[0] === "number" && typeof highlight[1] === "number"
-      );
+      highlights = label.highlights.filter((highlight) => highlight.length === 2 && typeof highlight[0] === "number" && typeof highlight[1] === "number");
       highlights = highlights.length ? highlights : void 0;
     }
     return { label: label.label, highlights };
@@ -79,11 +67,7 @@ class ExtHostTreeViews extends Disposable {
   treeViews = /* @__PURE__ */ new Map();
   treeDragAndDropService = new TreeViewsDnDService();
   registerTreeDataProvider(id, treeDataProvider, extension) {
-    const treeView = this.createTreeView(
-      id,
-      { treeDataProvider },
-      extension
-    );
+    const treeView = this.createTreeView(id, { treeDataProvider }, extension);
     return { dispose: /* @__PURE__ */ __name(() => treeView.dispose(), "dispose") };
   }
   createTreeView(viewId, options, extension) {
@@ -95,19 +79,8 @@ class ExtHostTreeViews extends Disposable {
     const hasHandleDrag = !!options.dragAndDropController?.handleDrag;
     const hasHandleDrop = !!options.dragAndDropController?.handleDrop;
     const treeView = this.createExtHostTreeView(viewId, options, extension);
-    const proxyOptions = {
-      showCollapseAll: !!options.showCollapseAll,
-      canSelectMany: !!options.canSelectMany,
-      dropMimeTypes,
-      dragMimeTypes,
-      hasHandleDrag,
-      hasHandleDrop,
-      manuallyManageCheckboxes: !!options.manageCheckboxStateManually
-    };
-    const registerPromise = this._proxy.$registerTreeViewDataProvider(
-      viewId,
-      proxyOptions
-    );
+    const proxyOptions = { showCollapseAll: !!options.showCollapseAll, canSelectMany: !!options.canSelectMany, dropMimeTypes, dragMimeTypes, hasHandleDrag, hasHandleDrop, manuallyManageCheckboxes: !!options.manageCheckboxStateManually };
+    const registerPromise = this._proxy.$registerTreeViewDataProvider(viewId, proxyOptions);
     const view = {
       get onDidCollapseElement() {
         return treeView.onDidCollapseElement;
@@ -143,10 +116,7 @@ class ExtHostTreeViews extends Disposable {
       },
       set message(message) {
         if (isMarkdownString(message)) {
-          checkProposedApiEnabled(
-            extension,
-            "treeViewMarkdownMessage"
-          );
+          checkProposedApiEnabled(extension, "treeViewMarkdownMessage");
         }
         treeView.message = message;
       },
@@ -199,31 +169,16 @@ class ExtHostTreeViews extends Disposable {
     if (!treeView) {
       return Promise.reject(new NoTreeViewError(destinationViewId));
     }
-    const treeDataTransfer = DataTransfer.toDataTransfer(
-      treeDataTransferDTO,
-      async (dataItemIndex) => {
-        return (await this._proxy.$resolveDropFileData(
-          destinationViewId,
-          requestId,
-          dataItemIndex
-        )).buffer;
-      }
-    );
+    const treeDataTransfer = DataTransfer.toDataTransfer(treeDataTransferDTO, async (dataItemIndex) => {
+      return (await this._proxy.$resolveDropFileData(destinationViewId, requestId, dataItemIndex)).buffer;
+    });
     if (sourceViewId === destinationViewId && sourceTreeItemHandles) {
-      await this.addAdditionalTransferItems(
-        treeDataTransfer,
-        treeView,
-        sourceTreeItemHandles,
-        token,
-        operationUuid
-      );
+      await this.addAdditionalTransferItems(treeDataTransfer, treeView, sourceTreeItemHandles, token, operationUuid);
     }
     return treeView.onDrop(treeDataTransfer, targetItemHandle, token);
   }
   async addAdditionalTransferItems(treeDataTransfer, treeView, sourceTreeItemHandles, token, operationUuid) {
-    const existingTransferOperation = this.treeDragAndDropService.removeDragOperationTransfer(
-      operationUuid
-    );
+    const existingTransferOperation = this.treeDragAndDropService.removeDragOperationTransfer(operationUuid);
     if (existingTransferOperation) {
       (await existingTransferOperation)?.forEach((value, key) => {
         if (value) {
@@ -231,15 +186,8 @@ class ExtHostTreeViews extends Disposable {
         }
       });
     } else if (operationUuid && treeView.handleDrag) {
-      const willDropPromise = treeView.handleDrag(
-        sourceTreeItemHandles,
-        treeDataTransfer,
-        token
-      );
-      this.treeDragAndDropService.addDragOperationTransfer(
-        operationUuid,
-        willDropPromise
-      );
+      const willDropPromise = treeView.handleDrag(sourceTreeItemHandles, treeDataTransfer, token);
+      this.treeDragAndDropService.addDragOperationTransfer(operationUuid, willDropPromise);
       await willDropPromise;
     }
     return treeDataTransfer;
@@ -249,13 +197,7 @@ class ExtHostTreeViews extends Disposable {
     if (!treeView) {
       return Promise.reject(new NoTreeViewError(sourceViewId));
     }
-    const treeDataTransfer = await this.addAdditionalTransferItems(
-      new extHostTypes.DataTransfer(),
-      treeView,
-      sourceTreeItemHandles,
-      token,
-      operationUuid
-    );
+    const treeDataTransfer = await this.addAdditionalTransferItems(new extHostTypes.DataTransfer(), treeView, sourceTreeItemHandles, token, operationUuid);
     if (!treeDataTransfer || token.isCancellationRequested) {
       return;
     }
@@ -307,16 +249,7 @@ class ExtHostTreeViews extends Disposable {
     treeView.setCheckboxState(checkboxUpdate);
   }
   createExtHostTreeView(id, options, extension) {
-    const treeView = this._register(
-      new ExtHostTreeView(
-        id,
-        options,
-        this._proxy,
-        this.commands.converter,
-        this.logService,
-        extension
-      )
-    );
+    const treeView = this._register(new ExtHostTreeView(id, options, this._proxy, this.commands.converter, this.logService, extension));
     this.treeViews.set(id, treeView);
     return treeView;
   }
@@ -351,68 +284,47 @@ class ExtHostTreeView extends Disposable {
     this.dataProvider = options.treeDataProvider;
     this.dndController = options.dragAndDropController;
     if (this.dataProvider.onDidChangeTreeData) {
-      this._register(
-        this.dataProvider.onDidChangeTreeData((elementOrElements) => {
-          if (Array.isArray(elementOrElements) && elementOrElements.length === 0) {
-            return;
-          }
-          this._onDidChangeData.fire({
-            message: false,
-            element: elementOrElements
-          });
-        })
-      );
+      this._register(this.dataProvider.onDidChangeTreeData((elementOrElements) => {
+        if (Array.isArray(elementOrElements) && elementOrElements.length === 0) {
+          return;
+        }
+        this._onDidChangeData.fire({ message: false, element: elementOrElements });
+      }));
     }
     let refreshingPromise;
     let promiseCallback;
-    const onDidChangeData = Event.debounce(
-      this._onDidChangeData.event,
-      (result, current) => {
-        if (!result) {
-          result = { message: false, elements: [] };
+    const onDidChangeData = Event.debounce(this._onDidChangeData.event, (result, current) => {
+      if (!result) {
+        result = { message: false, elements: [] };
+      }
+      if (current.element !== false) {
+        if (!refreshingPromise) {
+          refreshingPromise = new Promise((c) => promiseCallback = c);
+          this.refreshPromise = this.refreshPromise.then(() => refreshingPromise);
         }
-        if (current.element !== false) {
-          if (!refreshingPromise) {
-            refreshingPromise = new Promise(
-              (c) => promiseCallback = c
-            );
-            this.refreshPromise = this.refreshPromise.then(
-              () => refreshingPromise
-            );
-          }
-          if (Array.isArray(current.element)) {
-            result.elements.push(...current.element);
-          } else {
-            result.elements.push(current.element);
-          }
+        if (Array.isArray(current.element)) {
+          result.elements.push(...current.element);
+        } else {
+          result.elements.push(current.element);
         }
-        if (current.message) {
-          result.message = true;
-        }
-        return result;
-      },
-      200,
-      true
-    );
-    this._register(
-      onDidChangeData(({ message, elements }) => {
-        if (elements.length) {
-          this.refreshQueue = this.refreshQueue.then(() => {
-            const _promiseCallback = promiseCallback;
-            refreshingPromise = null;
-            return this.refresh(elements).then(
-              () => _promiseCallback()
-            );
-          });
-        }
-        if (message) {
-          this.proxy.$setMessage(
-            this.viewId,
-            MarkdownString.fromStrict(this._message) ?? ""
-          );
-        }
-      })
-    );
+      }
+      if (current.message) {
+        result.message = true;
+      }
+      return result;
+    }, 200, true);
+    this._register(onDidChangeData(({ message, elements }) => {
+      if (elements.length) {
+        this.refreshQueue = this.refreshQueue.then(() => {
+          const _promiseCallback = promiseCallback;
+          refreshingPromise = null;
+          return this.refresh(elements).then(() => _promiseCallback());
+        });
+      }
+      if (message) {
+        this.proxy.$setMessage(this.viewId, MarkdownString.fromStrict(this._message) ?? "");
+      }
+    }));
   }
   static {
     __name(this, "ExtHostTreeView");
@@ -446,21 +358,15 @@ class ExtHostTreeView extends Disposable {
   onDidChangeActiveItem = this._onDidChangeActiveItem.event;
   _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
-  _onDidChangeCheckboxState = this._register(
-    new Emitter()
-  );
+  _onDidChangeCheckboxState = this._register(new Emitter());
   onDidChangeCheckboxState = this._onDidChangeCheckboxState.event;
-  _onDidChangeData = this._register(
-    new Emitter()
-  );
+  _onDidChangeData = this._register(new Emitter());
   refreshPromise = Promise.resolve();
   refreshQueue = Promise.resolve();
   async getChildren(parentHandle) {
     const parentElement = parentHandle ? this.getExtensionElement(parentHandle) : void 0;
     if (parentHandle && !parentElement) {
-      this.logService.error(
-        `No tree item with id '${parentHandle}' found.`
-      );
+      this.logService.error(`No tree item with id '${parentHandle}' found.`);
       return Promise.resolve([]);
     }
     let childrenNodes = this.getChildrenNodes(parentHandle);
@@ -478,35 +384,12 @@ class ExtHostTreeView extends Disposable {
     const focus = isUndefinedOrNull(options.focus) ? false : options.focus;
     const expand = isUndefinedOrNull(options.expand) ? false : options.expand;
     if (typeof this.dataProvider.getParent !== "function") {
-      return Promise.reject(
-        new Error(
-          `Required registered TreeDataProvider to implement 'getParent' method to access 'reveal' method`
-        )
-      );
+      return Promise.reject(new Error(`Required registered TreeDataProvider to implement 'getParent' method to access 'reveal' method`));
     }
     if (element) {
-      return this.refreshPromise.then(() => this.resolveUnknownParentChain(element)).then(
-        (parentChain) => this.resolveTreeNode(
-          element,
-          parentChain[parentChain.length - 1]
-        ).then(
-          (treeNode) => this.proxy.$reveal(
-            this.viewId,
-            {
-              item: treeNode.item,
-              parentChain: parentChain.map((p) => p.item)
-            },
-            { select, focus, expand }
-          )
-        ),
-        (error) => this.logService.error(error)
-      );
+      return this.refreshPromise.then(() => this.resolveUnknownParentChain(element)).then((parentChain) => this.resolveTreeNode(element, parentChain[parentChain.length - 1]).then((treeNode) => this.proxy.$reveal(this.viewId, { item: treeNode.item, parentChain: parentChain.map((p) => p.item) }, { select, focus, expand })), (error) => this.logService.error(error));
     } else {
-      return this.proxy.$reveal(this.viewId, void 0, {
-        select,
-        focus,
-        expand
-      });
+      return this.proxy.$reveal(this.viewId, void 0, { select, focus, expand });
     }
   }
   _message = "";
@@ -555,58 +438,39 @@ class ExtHostTreeView extends Disposable {
     }
   }
   setSelectionAndFocus(selectedHandles, focusedHandle) {
-    const changedSelection = !equals(
-      this._selectedHandles,
-      selectedHandles
-    );
+    const changedSelection = !equals(this._selectedHandles, selectedHandles);
     this._selectedHandles = selectedHandles;
     const changedFocus = this._focusedHandle !== focusedHandle;
     this._focusedHandle = focusedHandle;
     if (changedSelection) {
-      this._onDidChangeSelection.fire(
-        Object.freeze({ selection: this.selectedElements })
-      );
+      this._onDidChangeSelection.fire(Object.freeze({ selection: this.selectedElements }));
     }
     if (changedFocus) {
-      this._onDidChangeActiveItem.fire(
-        Object.freeze({ activeItem: this.focusedElement })
-      );
+      this._onDidChangeActiveItem.fire(Object.freeze({ activeItem: this.focusedElement }));
     }
   }
   setVisible(visible) {
     if (visible !== this._visible) {
       this._visible = visible;
-      this._onDidChangeVisibility.fire(
-        Object.freeze({ visible: this._visible })
-      );
+      this._onDidChangeVisibility.fire(Object.freeze({ visible: this._visible }));
     }
   }
   async setCheckboxState(checkboxUpdates) {
-    const items = (await Promise.all(
-      checkboxUpdates.map(async (checkboxUpdate) => {
-        const extensionItem = this.getExtensionElement(
-          checkboxUpdate.treeItemHandle
-        );
-        if (extensionItem) {
-          return {
-            extensionItem,
-            treeItem: await this.dataProvider.getTreeItem(
-              extensionItem
-            ),
-            newState: checkboxUpdate.newState ? extHostTypes.TreeItemCheckboxState.Checked : extHostTypes.TreeItemCheckboxState.Unchecked
-          };
-        }
-        return Promise.resolve(void 0);
-      })
-    )).filter(
-      (item) => item !== void 0
-    );
+    const items = (await Promise.all(checkboxUpdates.map(async (checkboxUpdate) => {
+      const extensionItem = this.getExtensionElement(checkboxUpdate.treeItemHandle);
+      if (extensionItem) {
+        return {
+          extensionItem,
+          treeItem: await this.dataProvider.getTreeItem(extensionItem),
+          newState: checkboxUpdate.newState ? extHostTypes.TreeItemCheckboxState.Checked : extHostTypes.TreeItemCheckboxState.Unchecked
+        };
+      }
+      return Promise.resolve(void 0);
+    }))).filter((item) => item !== void 0);
     items.forEach((item) => {
       item.treeItem.checkboxState = item.newState ? extHostTypes.TreeItemCheckboxState.Checked : extHostTypes.TreeItemCheckboxState.Unchecked;
     });
-    this._onDidChangeCheckboxState.fire({
-      items: items.map((item) => [item.extensionItem, item.newState])
-    });
+    this._onDidChangeCheckboxState.fire({ items: items.map((item) => [item.extensionItem, item.newState]) });
   }
   async handleDrag(sourceTreeItemHandles, treeDataTransfer, token) {
     const extensionTreeItems = [];
@@ -619,11 +483,7 @@ class ExtHostTreeView extends Disposable {
     if (!this.dndController?.handleDrag || extensionTreeItems.length === 0) {
       return;
     }
-    await this.dndController.handleDrag(
-      extensionTreeItems,
-      treeDataTransfer,
-      token
-    );
+    await this.dndController.handleDrag(extensionTreeItems, treeDataTransfer, token);
     return treeDataTransfer;
   }
   get hasHandleDrag() {
@@ -634,9 +494,7 @@ class ExtHostTreeView extends Disposable {
     if (!target && targetHandleOrNode || !this.dndController?.handleDrop) {
       return;
     }
-    return asPromise(
-      () => this.dndController?.handleDrop ? this.dndController.handleDrop(target, treeDataTransfer, token) : void 0
-    );
+    return asPromise(() => this.dndController?.handleDrop ? this.dndController.handleDrop(target, treeDataTransfer, token) : void 0);
   }
   get hasResolve() {
     return !!this.dataProvider.resolveTreeItem;
@@ -649,17 +507,10 @@ class ExtHostTreeView extends Disposable {
     if (element) {
       const node = this.nodes.get(element);
       if (node) {
-        const resolve = await this.dataProvider.resolveTreeItem(
-          node.extensionItem,
-          element,
-          token
-        ) ?? node.extensionItem;
+        const resolve = await this.dataProvider.resolveTreeItem(node.extensionItem, element, token) ?? node.extensionItem;
         this.validateTreeItem(resolve);
         node.item.tooltip = this.getTooltip(resolve.tooltip);
-        node.item.command = this.getCommand(
-          node.disposableStore,
-          resolve.command
-        );
+        node.item.command = this.getCommand(node.disposableStore, resolve.command);
         return node.item;
       }
     }
@@ -670,22 +521,16 @@ class ExtHostTreeView extends Disposable {
       if (!parent) {
         return Promise.resolve([]);
       }
-      return this.resolveUnknownParentChain(parent).then(
-        (result) => this.resolveTreeNode(parent, result[result.length - 1]).then(
-          (parentNode) => {
-            result.push(parentNode);
-            return result;
-          }
-        )
-      );
+      return this.resolveUnknownParentChain(parent).then((result) => this.resolveTreeNode(parent, result[result.length - 1]).then((parentNode) => {
+        result.push(parentNode);
+        return result;
+      }));
     });
   }
   resolveParent(element) {
     const node = this.nodes.get(element);
     if (node) {
-      return Promise.resolve(
-        node.parent ? this.elements.get(node.parent.item.handle) : void 0
-      );
+      return Promise.resolve(node.parent ? this.elements.get(node.parent.item.handle) : void 0);
     }
     return asPromise(() => this.dataProvider.getParent(element));
   }
@@ -694,24 +539,16 @@ class ExtHostTreeView extends Disposable {
     if (node) {
       return Promise.resolve(node);
     }
-    return asPromise(() => this.dataProvider.getTreeItem(element)).then(
-      (extTreeItem) => this.createHandle(element, extTreeItem, parent, true)
-    ).then(
-      (handle) => this.getChildren(parent ? parent.item.handle : void 0).then(
-        () => {
-          const cachedElement = this.getExtensionElement(handle);
-          if (cachedElement) {
-            const node2 = this.nodes.get(cachedElement);
-            if (node2) {
-              return Promise.resolve(node2);
-            }
-          }
-          throw new Error(
-            `Cannot resolve tree item for element ${handle} from extension ${this.extension.identifier.value}`
-          );
+    return asPromise(() => this.dataProvider.getTreeItem(element)).then((extTreeItem) => this.createHandle(element, extTreeItem, parent, true)).then((handle) => this.getChildren(parent ? parent.item.handle : void 0).then(() => {
+      const cachedElement = this.getExtensionElement(handle);
+      if (cachedElement) {
+        const node2 = this.nodes.get(cachedElement);
+        if (node2) {
+          return Promise.resolve(node2);
         }
-      )
-    );
+      }
+      throw new Error(`Cannot resolve tree item for element ${handle} from extension ${this.extension.identifier.value}`);
+    }));
   }
   getChildrenNodes(parentNodeOrHandle) {
     if (parentNodeOrHandle) {
@@ -728,9 +565,7 @@ class ExtHostTreeView extends Disposable {
   }
   async fetchChildrenNodes(parentElement) {
     this.clearChildren(parentElement);
-    const cts = new CancellationTokenSource(
-      this._refreshCancellationSource.token
-    );
+    const cts = new CancellationTokenSource(this._refreshCancellationSource.token);
     try {
       const parentNode = parentElement ? this.nodes.get(parentElement) : void 0;
       const elements = await this.dataProvider.getChildren(parentElement);
@@ -738,21 +573,13 @@ class ExtHostTreeView extends Disposable {
         return void 0;
       }
       const coalescedElements = coalesce(elements || []);
-      const treeItems = await Promise.all(
-        coalesce(coalescedElements).map((element) => {
-          return this.dataProvider.getTreeItem(element);
-        })
-      );
+      const treeItems = await Promise.all(coalesce(coalescedElements).map((element) => {
+        return this.dataProvider.getTreeItem(element);
+      }));
       if (cts.token.isCancellationRequested) {
         return void 0;
       }
-      const items = treeItems.map(
-        (item, index) => item ? this.createAndRegisterTreeNode(
-          coalescedElements[index],
-          item,
-          parentNode
-        ) : null
-      );
+      const items = treeItems.map((item, index) => item ? this.createAndRegisterTreeNode(coalescedElements[index], item, parentNode) : null);
       return coalesce(items);
     } finally {
       cts.dispose();
@@ -780,12 +607,8 @@ class ExtHostTreeView extends Disposable {
     for (const elementNode of elementNodes) {
       if (elementNode && !elementsToUpdate.has(elementNode.item.handle)) {
         let currentNode = elementNode;
-        while (currentNode && currentNode.parent && elementNodes.findIndex(
-          (node) => currentNode && currentNode.parent && node && node.item.handle === currentNode.parent.item.handle
-        ) === -1) {
-          const parentElement = this.elements.get(
-            currentNode.parent.item.handle
-          );
+        while (currentNode && currentNode.parent && elementNodes.findIndex((node) => currentNode && currentNode.parent && node && node.item.handle === currentNode.parent.item.handle) === -1) {
+          const parentElement = this.elements.get(currentNode.parent.item.handle);
           currentNode = parentElement ? this.nodes.get(parentElement) : void 0;
         }
         if (currentNode && !currentNode.parent) {
@@ -807,17 +630,11 @@ class ExtHostTreeView extends Disposable {
   }
   refreshHandles(itemHandles) {
     const itemsToRefresh = {};
-    return Promise.all(
-      itemHandles.map(
-        (treeItemHandle) => this.refreshNode(treeItemHandle).then((node) => {
-          if (node) {
-            itemsToRefresh[treeItemHandle] = node.item;
-          }
-        })
-      )
-    ).then(
-      () => Object.keys(itemsToRefresh).length ? this.proxy.$refresh(this.viewId, itemsToRefresh) : void 0
-    );
+    return Promise.all(itemHandles.map((treeItemHandle) => this.refreshNode(treeItemHandle).then((node) => {
+      if (node) {
+        itemsToRefresh[treeItemHandle] = node.item;
+      }
+    }))).then(() => Object.keys(itemsToRefresh).length ? this.proxy.$refresh(this.viewId, itemsToRefresh) : void 0);
   }
   refreshNode(treeItemHandle) {
     const extElement = this.getExtensionElement(treeItemHandle);
@@ -825,21 +642,10 @@ class ExtHostTreeView extends Disposable {
       const existing = this.nodes.get(extElement);
       if (existing) {
         this.clearChildren(extElement);
-        return asPromise(
-          () => this.dataProvider.getTreeItem(extElement)
-        ).then((extTreeItem) => {
+        return asPromise(() => this.dataProvider.getTreeItem(extElement)).then((extTreeItem) => {
           if (extTreeItem) {
-            const newNode = this.createTreeNode(
-              extElement,
-              extTreeItem,
-              existing.parent
-            );
-            this.updateNodeCache(
-              extElement,
-              newNode,
-              existing,
-              existing.parent
-            );
+            const newNode = this.createTreeNode(extElement, extTreeItem, existing.parent);
+            this.updateNodeCache(extElement, newNode, existing, existing.parent);
             existing.dispose();
             return newNode;
           }
@@ -852,13 +658,7 @@ class ExtHostTreeView extends Disposable {
   createAndRegisterTreeNode(element, extTreeItem, parentNode) {
     const node = this.createTreeNode(element, extTreeItem, parentNode);
     if (extTreeItem.id && this.elements.has(node.item.handle)) {
-      throw new Error(
-        localize(
-          "treeView.duplicateElement",
-          "Element with id {0} is already registered",
-          extTreeItem.id
-        )
-      );
+      throw new Error(localize("treeView.duplicateElement", "Element with id {0} is already registered", extTreeItem.id));
     }
     this.addNodeToCache(element, node);
     this.addNodeToParentCache(node, parentNode);
@@ -871,18 +671,15 @@ class ExtHostTreeView extends Disposable {
     return tooltip;
   }
   getCommand(disposable, command) {
-    return command ? {
-      ...this.commands.toInternal(command, disposable),
-      originalId: command.command
-    } : void 0;
+    return command ? { ...this.commands.toInternal(command, disposable), originalId: command.command } : void 0;
   }
   getCheckbox(extensionTreeItem) {
     if (extensionTreeItem.checkboxState === void 0) {
       return void 0;
     }
     let checkboxState;
-    let tooltip;
-    let accessibilityInformation;
+    let tooltip = void 0;
+    let accessibilityInformation = void 0;
     if (typeof extensionTreeItem.checkboxState === "number") {
       checkboxState = extensionTreeItem.checkboxState;
     } else {
@@ -890,17 +687,11 @@ class ExtHostTreeView extends Disposable {
       tooltip = extensionTreeItem.checkboxState.tooltip;
       accessibilityInformation = extensionTreeItem.checkboxState.accessibilityInformation;
     }
-    return {
-      isChecked: checkboxState === extHostTypes.TreeItemCheckboxState.Checked,
-      tooltip,
-      accessibilityInformation
-    };
+    return { isChecked: checkboxState === extHostTypes.TreeItemCheckboxState.Checked, tooltip, accessibilityInformation };
   }
   validateTreeItem(extensionTreeItem) {
     if (!extHostTypes.TreeItem.isTreeItem(extensionTreeItem, this.extension)) {
-      throw new Error(
-        `Extension ${this.extension.identifier.value} has provided an invalid tree item.`
-      );
+      throw new Error(`Extension ${this.extension.identifier.value} has provided an invalid tree item.`);
     }
   }
   createTreeNode(element, extensionTreeItem, parent) {
@@ -915,17 +706,12 @@ class ExtHostTreeView extends Disposable {
       description: extensionTreeItem.description,
       resourceUri: extensionTreeItem.resourceUri,
       tooltip: this.getTooltip(extensionTreeItem.tooltip),
-      command: this.getCommand(
-        disposableStore,
-        extensionTreeItem.command
-      ),
+      command: this.getCommand(disposableStore, extensionTreeItem.command),
       contextValue: extensionTreeItem.contextValue,
       icon,
       iconDark: this.getDarkIconPath(extensionTreeItem) || icon,
       themeIcon: this.getThemeIcon(extensionTreeItem),
-      collapsibleState: isUndefinedOrNull(
-        extensionTreeItem.collapsibleState
-      ) ? extHostTypes.TreeItemCollapsibleState.None : extensionTreeItem.collapsibleState,
+      collapsibleState: isUndefinedOrNull(extensionTreeItem.collapsibleState) ? extHostTypes.TreeItemCollapsibleState.None : extensionTreeItem.collapsibleState,
       accessibilityInformation: extensionTreeItem.accessibilityInformation,
       checkbox: this.getCheckbox(extensionTreeItem)
     };
@@ -969,17 +755,13 @@ class ExtHostTreeView extends Disposable {
       if (typeof extensionTreeItem.iconPath === "string" || URI.isUri(extensionTreeItem.iconPath)) {
         return this.getIconPath(extensionTreeItem.iconPath);
       }
-      return this.getIconPath(
-        extensionTreeItem.iconPath.light
-      );
+      return this.getIconPath(extensionTreeItem.iconPath.light);
     }
     return void 0;
   }
   getDarkIconPath(extensionTreeItem) {
     if (extensionTreeItem.iconPath && !(extensionTreeItem.iconPath instanceof extHostTypes.ThemeIcon) && extensionTreeItem.iconPath.dark) {
-      return this.getIconPath(
-        extensionTreeItem.iconPath.dark
-      );
+      return this.getIconPath(extensionTreeItem.iconPath.dark);
     }
     return void 0;
   }
@@ -1001,9 +783,7 @@ class ExtHostTreeView extends Disposable {
     }
     this.addNodeToCache(element, newNode);
     const childrenNodes = this.getChildrenNodes(parentNode) || [];
-    const childNode = childrenNodes.filter(
-      (c) => c.item.handle === existing.item.handle
-    )[0];
+    const childNode = childrenNodes.filter((c) => c.item.handle === existing.item.handle)[0];
     if (childNode) {
       childrenNodes.splice(childrenNodes.indexOf(childNode), 1, newNode);
     }
@@ -1027,9 +807,7 @@ class ExtHostTreeView extends Disposable {
       if (node) {
         if (node.children) {
           for (const child of node.children) {
-            const childElement = this.elements.get(
-              child.item.handle
-            );
+            const childElement = this.elements.get(child.item.handle);
             if (childElement) {
               this.clear(childElement);
             }

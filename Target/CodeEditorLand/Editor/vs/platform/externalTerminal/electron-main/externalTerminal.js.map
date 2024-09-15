@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/platform/externalTerminal/electron-main/externalTerminal.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { createDecorator } from \"../../instantiation/common/instantiation.js\";\nimport type { IExternalTerminalService } from \"../common/externalTerminal.js\";\n\nexport const IExternalTerminalMainService =\n\tcreateDecorator<IExternalTerminalMainService>(\"externalTerminal\");\n\nexport interface IExternalTerminalMainService extends IExternalTerminalService {\n\treadonly _serviceBrand: undefined;\n}\n"],
-  "mappings": "AAKA,SAAS,uBAAuB;AAGzB,MAAM,+BACZ,gBAA8C,kBAAkB;",
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { IExternalTerminalService } from '../common/externalTerminal.js';\nimport { createDecorator } from '../../instantiation/common/instantiation.js';\n\nexport const IExternalTerminalMainService = createDecorator<IExternalTerminalMainService>('externalTerminal');\n\nexport interface IExternalTerminalMainService extends IExternalTerminalService {\n\treadonly _serviceBrand: undefined;\n}\n"],
+  "mappings": "AAKA,SAAS,gCAAgC;AACzC,SAAS,uBAAuB;AAEzB,MAAM,+BAA+B,gBAA8C,kBAAkB;",
   "names": []
 }

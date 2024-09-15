@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  TrackedRangeStickiness
-} from "../model.js";
+import { Range } from "../core/range.js";
+import { TrackedRangeStickiness, TrackedRangeStickiness as ActualTrackedRangeStickiness } from "../model.js";
+import { ModelDecorationOptions } from "./textModel.js";
 var ClassName = /* @__PURE__ */ ((ClassName2) => {
   ClassName2["EditorHintDecoration"] = "squiggly-hint";
   ClassName2["EditorInfoDecoration"] = "squiggly-info";
@@ -130,10 +130,7 @@ class IntervalNode {
     this.options = null;
     setNodeIsForValidation(this, false);
     setNodeIsInGlyphMargin(this, false);
-    _setNodeStickiness(
-      this,
-      TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-    );
+    _setNodeStickiness(this, TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
     setCollapseOnReplaceEdit(this, false);
     this.cachedVersionId = 0;
     this.cachedAbsoluteStart = start;
@@ -153,14 +150,8 @@ class IntervalNode {
   setOptions(options) {
     this.options = options;
     const className = this.options.className;
-    setNodeIsForValidation(
-      this,
-      className === "squiggly-error" /* EditorErrorDecoration */ || className === "squiggly-warning" /* EditorWarningDecoration */ || className === "squiggly-info" /* EditorInfoDecoration */
-    );
-    setNodeIsInGlyphMargin(
-      this,
-      this.options.glyphMarginClassName !== null
-    );
+    setNodeIsForValidation(this, className === "squiggly-error" /* EditorErrorDecoration */ || className === "squiggly-warning" /* EditorWarningDecoration */ || className === "squiggly-info" /* EditorInfoDecoration */);
+    setNodeIsInGlyphMargin(this, this.options.glyphMarginClassName !== null);
     _setNodeStickiness(this, this.options.stickiness);
     setCollapseOnReplaceEdit(this, this.options.collapseOnReplaceEdit);
   }
@@ -197,27 +188,13 @@ class IntervalTree {
     if (this.root === SENTINEL) {
       return [];
     }
-    return intervalSearch(
-      this,
-      start,
-      end,
-      filterOwnerId,
-      filterOutValidation,
-      cachedVersionId,
-      onlyMarginDecorations
-    );
+    return intervalSearch(this, start, end, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
   }
   search(filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations) {
     if (this.root === SENTINEL) {
       return [];
     }
-    return search(
-      this,
-      filterOwnerId,
-      filterOutValidation,
-      cachedVersionId,
-      onlyMarginDecorations
-    );
+    return search(this, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
   }
   /**
    * Will not set `cachedAbsoluteStart` nor `cachedAbsoluteEnd` on the returned nodes!
@@ -265,13 +242,7 @@ class IntervalTree {
       const node = nodesOfInterest[i];
       node.start = node.cachedAbsoluteStart;
       node.end = node.cachedAbsoluteEnd;
-      nodeAcceptEdit(
-        node,
-        offset,
-        offset + length,
-        textLength,
-        forceMoveMarkers
-      );
+      nodeAcceptEdit(node, offset, offset + length, textLength, forceMoveMarkers);
       node.maxEnd = node.end;
       rbTreeInsert(this, node);
     }
@@ -357,59 +328,29 @@ function nodeAcceptEdit(node, start, end, textLength, forceMoveMarkers) {
   }
   {
     const moveSemantics = forceMoveMarkers ? 1 /* ForceMove */ : deletingCnt > 0 ? 2 /* ForceStay */ : 0 /* MarkerDefined */;
-    if (!startDone && adjustMarkerBeforeColumn(
-      nodeStart,
-      startStickToPreviousCharacter,
-      start,
-      moveSemantics
-    )) {
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, start, moveSemantics)) {
       startDone = true;
     }
-    if (!endDone && adjustMarkerBeforeColumn(
-      nodeEnd,
-      endStickToPreviousCharacter,
-      start,
-      moveSemantics
-    )) {
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, start, moveSemantics)) {
       endDone = true;
     }
   }
   if (commonLength > 0 && !forceMoveMarkers) {
     const moveSemantics = deletingCnt > insertingCnt ? 2 /* ForceStay */ : 0 /* MarkerDefined */;
-    if (!startDone && adjustMarkerBeforeColumn(
-      nodeStart,
-      startStickToPreviousCharacter,
-      start + commonLength,
-      moveSemantics
-    )) {
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, start + commonLength, moveSemantics)) {
       startDone = true;
     }
-    if (!endDone && adjustMarkerBeforeColumn(
-      nodeEnd,
-      endStickToPreviousCharacter,
-      start + commonLength,
-      moveSemantics
-    )) {
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, start + commonLength, moveSemantics)) {
       endDone = true;
     }
   }
   {
     const moveSemantics = forceMoveMarkers ? 1 /* ForceMove */ : 0 /* MarkerDefined */;
-    if (!startDone && adjustMarkerBeforeColumn(
-      nodeStart,
-      startStickToPreviousCharacter,
-      end,
-      moveSemantics
-    )) {
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, end, moveSemantics)) {
       node.start = start + insertingCnt;
       startDone = true;
     }
-    if (!endDone && adjustMarkerBeforeColumn(
-      nodeEnd,
-      endStickToPreviousCharacter,
-      end,
-      moveSemantics
-    )) {
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, end, moveSemantics)) {
       node.end = start + insertingCnt;
       endDone = true;
     }
@@ -746,12 +687,7 @@ function treeInsert(T, z) {
   const zAbsoluteStart = z.start;
   const zAbsoluteEnd = z.end;
   while (true) {
-    const cmp = intervalCompare(
-      zAbsoluteStart,
-      zAbsoluteEnd,
-      x.start + delta,
-      x.end + delta
-    );
+    const cmp = intervalCompare(zAbsoluteStart, zAbsoluteEnd, x.start + delta, x.end + delta);
     if (cmp < 0) {
       if (x.left === SENTINEL) {
         z.start -= delta;
@@ -841,10 +777,12 @@ function rbTreeDelete(T, z) {
     setNodeColor(y, getNodeColor(z));
     if (z === T.root) {
       T.root = y;
-    } else if (z === z.parent.left) {
-      z.parent.left = y;
     } else {
-      z.parent.right = y;
+      if (z === z.parent.left) {
+        z.parent.left = y;
+      } else {
+        z.parent.right = y;
+      }
     }
     if (y.left !== SENTINEL) {
       y.left.parent = y;

@@ -1,4 +1,4 @@
-var runTask_default = "../../../../../../Asset/runTask-GKPPYPYE.svg";
+var runTask_default = "../../../../../../Asset/runTask-253LKPQM.svg";
 export {
   runTask_default as default
 };

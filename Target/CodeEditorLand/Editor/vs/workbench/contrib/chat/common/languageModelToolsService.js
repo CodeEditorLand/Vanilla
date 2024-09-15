@@ -11,15 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 const ILanguageModelToolsService = createDecorator("ILanguageModelToolsService");
@@ -28,13 +27,11 @@ let LanguageModelToolsService = class extends Disposable {
     super();
     this._extensionService = _extensionService;
     this._contextKeyService = _contextKeyService;
-    this._register(
-      this._contextKeyService.onDidChangeContext((e) => {
-        if (e.affectsSome(this._toolContextKeys)) {
-          this._onDidChangeToolsScheduler.schedule();
-        }
-      })
-    );
+    this._register(this._contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(this._toolContextKeys)) {
+        this._onDidChangeToolsScheduler.schedule();
+      }
+    }));
   }
   static {
     __name(this, "LanguageModelToolsService");
@@ -43,10 +40,7 @@ let LanguageModelToolsService = class extends Disposable {
   _onDidChangeTools = new Emitter();
   onDidChangeTools = this._onDidChangeTools.event;
   /** Throttle tools updates because it sends all tools and runs on context key updates */
-  _onDidChangeToolsScheduler = new RunOnceScheduler(
-    () => this._onDidChangeTools.fire(),
-    750
-  );
+  _onDidChangeToolsScheduler = new RunOnceScheduler(() => this._onDidChangeTools.fire(), 750);
   _tools = /* @__PURE__ */ new Map();
   _toolContextKeys = /* @__PURE__ */ new Set();
   registerToolData(toolData) {
@@ -83,10 +77,7 @@ let LanguageModelToolsService = class extends Disposable {
   }
   getTools() {
     const toolDatas = Iterable.map(this._tools.values(), (i) => i.data);
-    return Iterable.filter(
-      toolDatas,
-      (toolData) => !toolData.when || this._contextKeyService.contextMatchesRules(toolData.when)
-    );
+    return Iterable.filter(toolDatas, (toolData) => !toolData.when || this._contextKeyService.contextMatchesRules(toolData.when));
   }
   getTool(id) {
     return this._getToolEntry(id)?.data;
@@ -113,14 +104,10 @@ let LanguageModelToolsService = class extends Disposable {
       throw new Error(`Tool ${dto.toolId} was not contributed`);
     }
     if (!tool.impl) {
-      await this._extensionService.activateByEvent(
-        `onLanguageModelTool:${dto.toolId}`
-      );
+      await this._extensionService.activateByEvent(`onLanguageModelTool:${dto.toolId}`);
       tool = this._tools.get(dto.toolId);
       if (!tool?.impl) {
-        throw new Error(
-          `Tool ${dto.toolId} does not have an implementation registered.`
-        );
+        throw new Error(`Tool ${dto.toolId} does not have an implementation registered.`);
       }
     }
     return tool.impl.invoke(dto, countTokens, token);

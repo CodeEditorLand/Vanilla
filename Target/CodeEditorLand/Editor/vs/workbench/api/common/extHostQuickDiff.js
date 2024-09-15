@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { ExtHostQuickDiffShape, IMainContext, MainContext, MainThreadQuickDiffShape } from "./extHost.protocol.js";
 import { asPromise } from "../../../base/common/async.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
 import { DocumentSelector } from "./extHostTypeConverters.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
 class ExtHostQuickDiff {
   constructor(mainContext, uriTransformer) {
     this.uriTransformer = uriTransformer;
@@ -23,19 +23,12 @@ class ExtHostQuickDiff {
     if (!provider) {
       return Promise.resolve(null);
     }
-    return asPromise(
-      () => provider.provideOriginalResource(uri, token)
-    ).then((r) => r || null);
+    return asPromise(() => provider.provideOriginalResource(uri, token)).then((r) => r || null);
   }
   registerQuickDiffProvider(selector, quickDiffProvider, label, rootUri) {
     const handle = ExtHostQuickDiff.handlePool++;
     this.providers.set(handle, quickDiffProvider);
-    this.proxy.$registerQuickDiffProvider(
-      handle,
-      DocumentSelector.from(selector, this.uriTransformer),
-      label,
-      rootUri
-    );
+    this.proxy.$registerQuickDiffProvider(handle, DocumentSelector.from(selector, this.uriTransformer), label, rootUri);
     return {
       dispose: /* @__PURE__ */ __name(() => {
         this.proxy.$unregisterQuickDiffProvider(handle);

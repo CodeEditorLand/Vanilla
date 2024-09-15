@@ -1,15 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CommandsRegistry, ICommandMetadata } from "../../../../platform/commands/common/commands.js";
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
 import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
-import {
-  MenuId,
-  MenuRegistry,
-  isIMenuItem
-} from "../../../../platform/actions/common/actions.js";
-import {
-  CommandsRegistry
-} from "../../../../platform/commands/common/commands.js";
+import { MenuRegistry, MenuId, isIMenuItem } from "../../../../platform/actions/common/actions.js";
 function getAllUnboundCommands(boundCommands) {
   const unboundCommands = [];
   const seenMap = /* @__PURE__ */ new Map();

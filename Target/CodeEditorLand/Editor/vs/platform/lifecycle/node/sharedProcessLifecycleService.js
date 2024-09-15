@@ -10,13 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
-const ISharedProcessLifecycleService = createDecorator(
-  "sharedProcessLifecycleService"
-);
+const ISharedProcessLifecycleService = createDecorator("sharedProcessLifecycleService");
 let SharedProcessLifecycleService = class extends Disposable {
   constructor(logService) {
     super();

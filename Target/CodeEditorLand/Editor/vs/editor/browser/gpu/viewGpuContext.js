@@ -10,27 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  addDisposableListener,
-  getActiveWindow
-} from "../../../base/browser/dom.js";
-import {
-  createFastDomNode
-} from "../../../base/browser/fastDomNode.js";
+import * as nls from "../../../nls.js";
+import { addDisposableListener, getActiveWindow } from "../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../base/browser/fastDomNode.js";
 import { BugIndicatingError } from "../../../base/common/errors.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import {
-  observableValue,
-  runOnChange
-} from "../../../base/common/observable.js";
-import * as nls from "../../../nls.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { observableValue, runOnChange } from "../../../base/common/observable.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../platform/notification/common/notification.js";
 import { TextureAtlas } from "./atlas/textureAtlas.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { INotificationService, IPromptChoice, Severity } from "../../../platform/notification/common/notification.js";
 import { GPULifecycle } from "./gpuDisposable.js";
 import { ensureNonNullable, observeDevicePixelDimensions } from "./gpuUtils.js";
 let ViewGpuContext = class extends Disposable {
@@ -86,9 +75,7 @@ let ViewGpuContext = class extends Disposable {
    */
   static get atlas() {
     if (!ViewGpuContext._atlas) {
-      throw new BugIndicatingError(
-        "Cannot call ViewGpuContext.textureAtlas before device is resolved"
-      );
+      throw new BugIndicatingError("Cannot call ViewGpuContext.textureAtlas before device is resolved");
     }
     return ViewGpuContext._atlas;
   }

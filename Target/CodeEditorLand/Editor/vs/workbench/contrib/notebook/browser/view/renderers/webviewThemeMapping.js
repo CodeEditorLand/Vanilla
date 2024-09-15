@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { WebviewStyles } from "../../../../webview/browser/webview.js";
 const mapping = /* @__PURE__ */ new Map([
   ["theme-font-family", "vscode-font-family"],
   ["theme-font-weight", "vscode-font-weight"],
@@ -8,14 +9,8 @@ const mapping = /* @__PURE__ */ new Map([
   ["theme-code-font-weight", "vscode-editor-font-weight"],
   ["theme-code-font-size", "vscode-editor-font-size"],
   ["theme-scrollbar-background", "vscode-scrollbarSlider-background"],
-  [
-    "theme-scrollbar-hover-background",
-    "vscode-scrollbarSlider-hoverBackground"
-  ],
-  [
-    "theme-scrollbar-active-background",
-    "vscode-scrollbarSlider-activeBackground"
-  ],
+  ["theme-scrollbar-hover-background", "vscode-scrollbarSlider-hoverBackground"],
+  ["theme-scrollbar-active-background", "vscode-scrollbarSlider-activeBackground"],
   ["theme-quote-background", "vscode-textBlockQuote-background"],
   ["theme-quote-border", "vscode-textBlockQuote-border"],
   ["theme-code-foreground", "vscode-textPreformat-foreground"],
@@ -30,28 +25,16 @@ const mapping = /* @__PURE__ */ new Map([
   ["theme-button-hover-background", "vscode-button-hoverBackground"],
   ["theme-button-foreground", "vscode-button-foreground"],
   ["theme-button-secondary-background", "vscode-button-secondaryBackground"],
-  [
-    "theme-button-secondary-hover-background",
-    "vscode-button-secondaryHoverBackground"
-  ],
+  ["theme-button-secondary-hover-background", "vscode-button-secondaryHoverBackground"],
   ["theme-button-secondary-foreground", "vscode-button-secondaryForeground"],
   ["theme-button-hover-foreground", "vscode-button-foreground"],
   ["theme-button-focus-foreground", "vscode-button-foreground"],
-  [
-    "theme-button-secondary-hover-foreground",
-    "vscode-button-secondaryForeground"
-  ],
-  [
-    "theme-button-secondary-focus-foreground",
-    "vscode-button-secondaryForeground"
-  ],
+  ["theme-button-secondary-hover-foreground", "vscode-button-secondaryForeground"],
+  ["theme-button-secondary-focus-foreground", "vscode-button-secondaryForeground"],
   // Inputs
   ["theme-input-background", "vscode-input-background"],
   ["theme-input-foreground", "vscode-input-foreground"],
-  [
-    "theme-input-placeholder-foreground",
-    "vscode-input-placeholderForeground"
-  ],
+  ["theme-input-placeholder-foreground", "vscode-input-placeholderForeground"],
   ["theme-input-focus-border-color", "vscode-focusBorder"],
   // Menus
   ["theme-menu-background", "vscode-menu-background"],
@@ -68,30 +51,12 @@ const mapping = /* @__PURE__ */ new Map([
   ["theme-info-background", "vscode-inputValidation-infoBackground"],
   ["theme-info-foreground", "vscode-foreground"],
   // Notebook:
-  [
-    "theme-notebook-output-background",
-    "vscode-notebook-outputContainerBackgroundColor"
-  ],
-  [
-    "theme-notebook-output-border",
-    "vscode-notebook-outputContainerBorderColor"
-  ],
-  [
-    "theme-notebook-cell-selected-background",
-    "vscode-notebook-selectedCellBackground"
-  ],
-  [
-    "theme-notebook-symbol-highlight-background",
-    "vscode-notebook-symbolHighlightBackground"
-  ],
-  [
-    "theme-notebook-diff-removed-background",
-    "vscode-diffEditor-removedTextBackground"
-  ],
-  [
-    "theme-notebook-diff-inserted-background",
-    "vscode-diffEditor-insertedTextBackground"
-  ]
+  ["theme-notebook-output-background", "vscode-notebook-outputContainerBackgroundColor"],
+  ["theme-notebook-output-border", "vscode-notebook-outputContainerBorderColor"],
+  ["theme-notebook-cell-selected-background", "vscode-notebook-selectedCellBackground"],
+  ["theme-notebook-symbol-highlight-background", "vscode-notebook-symbolHighlightBackground"],
+  ["theme-notebook-diff-removed-background", "vscode-diffEditor-removedTextBackground"],
+  ["theme-notebook-diff-inserted-background", "vscode-diffEditor-insertedTextBackground"]
 ]);
 const constants = {
   "theme-input-border-width": "1px",

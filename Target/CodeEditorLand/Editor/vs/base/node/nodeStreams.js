@@ -21,10 +21,10 @@ class StreamSplitter extends Transform {
     }
   }
   _transform(chunk, _encoding, callback) {
-    if (this.buffer) {
-      this.buffer = Buffer.concat([this.buffer, chunk]);
-    } else {
+    if (!this.buffer) {
       this.buffer = chunk;
+    } else {
+      this.buffer = Buffer.concat([this.buffer, chunk]);
     }
     let offset = 0;
     while (offset < this.buffer.length) {

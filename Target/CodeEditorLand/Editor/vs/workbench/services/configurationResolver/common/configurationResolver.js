@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IConfigurationResolverService = createDecorator(
-  "configurationResolverService"
-);
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IProcessEnvironment } from "../../../../base/common/platform.js";
+import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
+const IConfigurationResolverService = createDecorator("configurationResolverService");
 var VariableKind = /* @__PURE__ */ ((VariableKind2) => {
   VariableKind2["Unknown"] = "unknown";
   VariableKind2["Env"] = "env";

@@ -1,4 +1,4 @@
-var shortcuts_default = "../../../../../../Asset/shortcuts-C7KTLXRC.svg";
+var shortcuts_default = "../../../../../../Asset/shortcuts-CWD5G2HS.svg";
 export {
   shortcuts_default as default
 };

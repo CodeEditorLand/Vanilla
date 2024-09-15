@@ -11,41 +11,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as path from "../../../base/common/path.js";
-import { homedir } from "os";
-import { Schemas } from "../../../base/common/network.js";
-import * as resources from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { win32 } from "../../../base/node/processes.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  WorkspaceFolder
-} from "../../../platform/workspace/common/workspace.js";
-import { IExtHostApiDeprecationService } from "../common/extHostApiDeprecationService.js";
-import { IExtHostConfiguration } from "../common/extHostConfiguration.js";
-import { IExtHostDocumentsAndEditors } from "../common/extHostDocumentsAndEditors.js";
-import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
-import { IExtHostRpcService } from "../common/extHostRpcService.js";
-import {
-  CustomExecutionDTO,
-  ExtHostTaskBase,
-  TaskDTO,
-  TaskHandleDTO
-} from "../common/extHostTask.js";
-import { IExtHostTerminalService } from "../common/extHostTerminalService.js";
-import { IExtHostVariableResolverProvider } from "../common/extHostVariableResolverService.js";
+import * as types from "../common/extHostTypes.js";
 import { IExtHostWorkspace } from "../common/extHostWorkspace.js";
+import * as tasks from "../common/shared/tasks.js";
+import { IExtHostDocumentsAndEditors } from "../common/extHostDocumentsAndEditors.js";
+import { IExtHostConfiguration } from "../common/extHostConfiguration.js";
+import { IWorkspaceFolder, WorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IExtHostTerminalService } from "../common/extHostTerminalService.js";
+import { IExtHostRpcService } from "../common/extHostRpcService.js";
+import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
+import { ExtHostTaskBase, TaskHandleDTO, TaskDTO, CustomExecutionDTO, HandlerData } from "../common/extHostTask.js";
+import { Schemas } from "../../../base/common/network.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostApiDeprecationService } from "../common/extHostApiDeprecationService.js";
+import * as resources from "../../../base/common/resources.js";
+import { homedir } from "os";
+import { IExtHostVariableResolverProvider } from "../common/extHostVariableResolverService.js";
 let ExtHostTask = class extends ExtHostTaskBase {
   constructor(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService, variableResolver) {
-    super(
-      extHostRpc,
-      initData,
-      workspaceService,
-      editorService,
-      configurationService,
-      extHostTerminalService,
-      logService,
-      deprecationService
-    );
+    super(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService);
     this.workspaceService = workspaceService;
     this.variableResolver = variableResolver;
     if (initData.remote.isRemote && initData.remote.authority) {
@@ -89,10 +76,7 @@ let ExtHostTask = class extends ExtHostTaskBase {
       if (CustomExecutionDTO.is(dto.execution)) {
         await this.addCustomExecution(dto, task, false);
       }
-      const execution = await this.getTaskExecution(
-        await this._proxy.$getTaskExecution(dto),
-        task
-      );
+      const execution = await this.getTaskExecution(await this._proxy.$getTaskExecution(dto), task);
       this._proxy.$executeTask(dto).catch(() => {
       });
       return execution;
@@ -104,20 +88,13 @@ let ExtHostTask = class extends ExtHostTaskBase {
       for (const task of value) {
         this.checkDeprecation(task, handler);
         if (!task.definition || !validTypes[task.definition.type]) {
-          this._logService.warn(
-            `The task [${task.source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`
-          );
+          this._logService.warn(`The task [${task.source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`);
         }
-        const taskDTO = TaskDTO.from(
-          task,
-          handler.extension
-        );
+        const taskDTO = TaskDTO.from(task, handler.extension);
         if (taskDTO) {
           taskDTOs.push(taskDTO);
           if (CustomExecutionDTO.is(taskDTO.execution)) {
-            taskIdPromises.push(
-              this.addCustomExecution(taskDTO, task, true)
-            );
+            taskIdPromises.push(this.addCustomExecution(taskDTO, task, true));
           }
         }
       }
@@ -134,11 +111,7 @@ let ExtHostTask = class extends ExtHostTaskBase {
     let folder = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0] : void 0;
     if (!folder) {
       const userhome = URI.file(homedir());
-      folder = new WorkspaceFolder({
-        uri: userhome,
-        name: resources.basename(userhome),
-        index: 0
-      });
+      folder = new WorkspaceFolder({ uri: userhome, name: resources.basename(userhome), index: 0 });
     }
     return {
       uri: folder.uri,
@@ -167,13 +140,10 @@ let ExtHostTask = class extends ExtHostTaskBase {
       }, "toResource")
     } : await this.getAFolder(workspaceFolders);
     for (const variable of toResolve.variables) {
-      result.variables[variable] = await resolver.resolveAsync(
-        ws,
-        variable
-      );
+      result.variables[variable] = await resolver.resolveAsync(ws, variable);
     }
     if (toResolve.process !== void 0) {
-      let paths;
+      let paths = void 0;
       if (toResolve.process.path !== void 0) {
         paths = toResolve.process.path.split(path.delimiter);
         for (let i = 0; i < paths.length; i++) {

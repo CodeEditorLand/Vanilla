@@ -34,12 +34,7 @@ function doFindFreePort(startPort, giveUpAfter, stride, clb) {
   client.once("error", (err) => {
     dispose(client);
     if (err.code !== "ECONNREFUSED") {
-      return doFindFreePort(
-        startPort + stride,
-        giveUpAfter - 1,
-        stride,
-        clb
-      );
+      return doFindFreePort(startPort + stride, giveUpAfter - 1, stride, clb);
     }
     return clb(startPort);
   });
@@ -210,7 +205,7 @@ const BROWSER_RESTRICTED_PORTS = {
 };
 function findFreePortFaster(startPort, giveUpAfter, timeout, hostname = "127.0.0.1") {
   let resolved = false;
-  let timeoutHandle;
+  let timeoutHandle = void 0;
   let countTried = 1;
   const server = net.createServer({ pauseOnConnect: true });
   function doResolve(port, resolve) {

@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { createHash } from "crypto";
+import { Stats } from "fs";
 import { Schemas } from "../../../base/common/network.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
 import { originalFSPath } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { IEmptyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 const NON_EMPTY_WORKSPACE_ID_LENGTH = 128 / 4;
 function getWorkspaceIdentifier(configPath) {
   function getWorkspaceId() {

@@ -10,23 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Codicon } from "../../../../base/common/codicons.js";
-import { matchesFuzzy } from "../../../../base/common/filters.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { localize } from "../../../../nls.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { PickerQuickAccessProvider, IPickerQuickAccessItem, FastAndSlowPicks, Picks, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  PickerQuickAccessProvider,
-  TriggerAction
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { IssueSource } from "../common/issue.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 let IssueQuickAccess = class extends PickerQuickAccessProvider {
   constructor(menuService, contextKeyService, commandService, extensionService, productService) {
     super(IssueQuickAccess.PREFIX, { canAcceptInBackground: true });
@@ -45,10 +41,7 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
     const issuePicksParts = new Array();
     const extensionIdSet = /* @__PURE__ */ new Set();
     const productLabel = this.productService.nameLong;
-    const marketPlaceLabel = localize(
-      "reportExtensionMarketplace",
-      "Extension Marketplace"
-    );
+    const marketPlaceLabel = localize("reportExtensionMarketplace", "Extension Marketplace");
     const productFilter = matchesFuzzy(filter, productLabel, true);
     const marketPlaceFilter = matchesFuzzy(filter, marketPlaceLabel, true);
     if (productFilter) {
@@ -56,10 +49,7 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
         label: productLabel,
         ariaLabel: productLabel,
         highlights: { label: productFilter },
-        accept: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-          "workbench.action.openIssueReporter",
-          { issueSource: IssueSource.VSCode }
-        ), "accept")
+        accept: /* @__PURE__ */ __name(() => this.commandService.executeCommand("workbench.action.openIssueReporter", { issueSource: IssueSource.VSCode }), "accept")
       });
     }
     if (marketPlaceFilter) {
@@ -67,19 +57,11 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
         label: marketPlaceLabel,
         ariaLabel: marketPlaceLabel,
         highlights: { label: marketPlaceFilter },
-        accept: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-          "workbench.action.openIssueReporter",
-          { issueSource: IssueSource.Marketplace }
-        ), "accept")
+        accept: /* @__PURE__ */ __name(() => this.commandService.executeCommand("workbench.action.openIssueReporter", { issueSource: IssueSource.Marketplace }), "accept")
       });
     }
-    issuePicksConst.push({
-      type: "separator",
-      label: localize("extensions", "Extensions")
-    });
-    const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, {
-      renderShortTitle: true
-    }).flatMap((entry) => entry[1]);
+    issuePicksConst.push({ type: "separator", label: localize("extensions", "Extensions") });
+    const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, { renderShortTitle: true }).flatMap((entry) => entry[1]);
     actions.forEach((action) => {
       if ("source" in action.item && action.item.source) {
         extensionIdSet.add(action.item.source.id);
@@ -107,15 +89,10 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
     return [...issuePicksConst, ...issuePicksParts];
   }
   _createPick(filter, action, extension) {
-    const buttons = [
-      {
-        iconClass: ThemeIcon.asClassName(Codicon.info),
-        tooltip: localize(
-          "contributedIssuePage",
-          "Open Extension Page"
-        )
-      }
-    ];
+    const buttons = [{
+      iconClass: ThemeIcon.asClassName(Codicon.info),
+      tooltip: localize("contributedIssuePage", "Open Extension Page")
+    }];
     let label;
     let trigger;
     let accept;
@@ -123,10 +100,7 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
       label = action.item.source?.title;
       trigger = /* @__PURE__ */ __name(() => {
         if ("source" in action.item && action.item.source) {
-          this.commandService.executeCommand(
-            "extension.open",
-            action.item.source.id
-          );
+          this.commandService.executeCommand("extension.open", action.item.source.id);
         }
         return TriggerAction.CLOSE_PICKER;
       }, "trigger");
@@ -136,17 +110,11 @@ let IssueQuickAccess = class extends PickerQuickAccessProvider {
     } else if (extension) {
       label = extension.displayName ?? extension.name;
       trigger = /* @__PURE__ */ __name(() => {
-        this.commandService.executeCommand(
-          "extension.open",
-          extension.identifier.value
-        );
+        this.commandService.executeCommand("extension.open", extension.identifier.value);
         return TriggerAction.CLOSE_PICKER;
       }, "trigger");
       accept = /* @__PURE__ */ __name(() => {
-        this.commandService.executeCommand(
-          "workbench.action.openIssueReporter",
-          extension.identifier.value
-        );
+        this.commandService.executeCommand("workbench.action.openIssueReporter", extension.identifier.value);
       }, "accept");
     } else {
       return void 0;

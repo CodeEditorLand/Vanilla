@@ -16,34 +16,21 @@ import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabe
 import { CompareResult } from "../../../../../../base/common/arrays.js";
 import { BugIndicatingError } from "../../../../../../base/common/errors.js";
 import { toDisposable } from "../../../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived
-} from "../../../../../../base/common/observable.js";
-import {
-  MinimapPosition,
-  OverviewRulerLane
-} from "../../../../../../editor/common/model.js";
+import { autorun, autorunWithStore, derived, IObservable } from "../../../../../../base/common/observable.js";
+import { IModelDeltaDecoration, MinimapPosition, OverviewRulerLane } from "../../../../../../editor/common/model.js";
 import { localize } from "../../../../../../nls.js";
 import { MenuId } from "../../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../../../platform/label/common/label.js";
-import { ctxIsMergeResultEditor } from "../../../common/mergeEditor.js";
 import { LineRange } from "../../model/lineRange.js";
 import { applyObservableDecorations, join } from "../../utils.js";
-import {
-  handledConflictMinimapOverViewRulerColor,
-  unhandledConflictMinimapOverViewRulerColor
-} from "../colors.js";
+import { handledConflictMinimapOverViewRulerColor, unhandledConflictMinimapOverViewRulerColor } from "../colors.js";
 import { EditorGutter } from "../editorGutter.js";
-import {
-  CodeEditorView,
-  TitleMenu,
-  createSelectionsAutorun
-} from "./codeEditorView.js";
+import { MergeEditorViewModel } from "../viewModel.js";
+import { ctxIsMergeResultEditor } from "../../../common/mergeEditor.js";
+import { CodeEditorView, createSelectionsAutorun, TitleMenu } from "./codeEditorView.js";
 let ResultCodeEditorView = class extends CodeEditorView {
   constructor(viewModel, instantiationService, _labelService, configurationService) {
     super(instantiationService, viewModel, configurationService);
@@ -59,91 +46,58 @@ let ResultCodeEditorView = class extends CodeEditorView {
     this._register(
       autorunWithStore((reader, store) => {
         if (this.checkboxesVisible.read(reader)) {
-          store.add(
-            new EditorGutter(
-              this.editor,
-              this.htmlElements.gutterDiv,
-              {
-                getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader2) => [], "getIntersectingGutterItems"),
-                createView: /* @__PURE__ */ __name((item, target) => {
-                  throw new BugIndicatingError();
-                }, "createView")
-              }
-            )
-          );
+          store.add(new EditorGutter(this.editor, this.htmlElements.gutterDiv, {
+            getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader2) => [], "getIntersectingGutterItems"),
+            createView: /* @__PURE__ */ __name((item, target) => {
+              throw new BugIndicatingError();
+            }, "createView")
+          }));
         }
       })
     );
-    this._register(
-      autorun((reader) => {
-        const vm = this.viewModel.read(reader);
-        if (!vm) {
-          return;
-        }
-        this.editor.setModel(vm.model.resultTextModel);
-        reset(
-          this.htmlElements.title,
-          ...renderLabelWithIcons(localize("result", "Result"))
-        );
-        reset(
-          this.htmlElements.description,
-          ...renderLabelWithIcons(
-            this._labelService.getUriLabel(
-              vm.model.resultTextModel.uri,
-              { relative: true }
-            )
-          )
-        );
-      })
-    );
-    const remainingConflictsActionBar = this._register(
-      new ActionBar(this.htmlElements.detail)
-    );
-    this._register(
-      autorun((reader) => {
-        const vm = this.viewModel.read(reader);
-        if (!vm) {
-          return;
-        }
-        const model = vm.model;
-        if (!model) {
-          return;
-        }
-        const count = model.unhandledConflictsCount.read(reader);
-        const text = count === 1 ? localize(
-          "mergeEditor.remainingConflicts",
-          "{0} Conflict Remaining",
-          count
-        ) : localize(
-          "mergeEditor.remainingConflict",
-          "{0} Conflicts Remaining ",
-          count
-        );
-        remainingConflictsActionBar.clear();
-        remainingConflictsActionBar.push({
-          class: void 0,
-          enabled: count > 0,
-          id: "nextConflict",
-          label: text,
-          run() {
-            vm.model.telemetry.reportConflictCounterClicked();
-            vm.goToNextModifiedBaseRange(
-              (m) => !model.isHandled(m).get()
-            );
-          },
-          tooltip: count > 0 ? localize(
-            "goToNextConflict",
-            "Go to next conflict"
-          ) : localize(
-            "allConflictHandled",
-            "All conflicts handled, the merge can be completed now."
-          )
-        });
-      })
-    );
-    this._register(
-      applyObservableDecorations(this.editor, this.decorations)
-    );
+    this._register(autorun((reader) => {
+      const vm = this.viewModel.read(reader);
+      if (!vm) {
+        return;
+      }
+      this.editor.setModel(vm.model.resultTextModel);
+      reset(this.htmlElements.title, ...renderLabelWithIcons(localize("result", "Result")));
+      reset(this.htmlElements.description, ...renderLabelWithIcons(this._labelService.getUriLabel(vm.model.resultTextModel.uri, { relative: true })));
+    }));
+    const remainingConflictsActionBar = this._register(new ActionBar(this.htmlElements.detail));
+    this._register(autorun((reader) => {
+      const vm = this.viewModel.read(reader);
+      if (!vm) {
+        return;
+      }
+      const model = vm.model;
+      if (!model) {
+        return;
+      }
+      const count = model.unhandledConflictsCount.read(reader);
+      const text = count === 1 ? localize(
+        "mergeEditor.remainingConflicts",
+        "{0} Conflict Remaining",
+        count
+      ) : localize(
+        "mergeEditor.remainingConflict",
+        "{0} Conflicts Remaining ",
+        count
+      );
+      remainingConflictsActionBar.clear();
+      remainingConflictsActionBar.push({
+        class: void 0,
+        enabled: count > 0,
+        id: "nextConflict",
+        label: text,
+        run() {
+          vm.model.telemetry.reportConflictCounterClicked();
+          vm.goToNextModifiedBaseRange((m) => !model.isHandled(m).get());
+        },
+        tooltip: count > 0 ? localize("goToNextConflict", "Go to next conflict") : localize("allConflictHandled", "All conflicts handled, the merge can be completed now.")
+      });
+    }));
+    this._register(applyObservableDecorations(this.editor, this.decorations));
     this._register(
       createSelectionsAutorun(
         this,
@@ -199,10 +153,7 @@ let ResultCodeEditorView = class extends CodeEditorView {
         if (!modifiedBaseRange.isConflicting && !showNonConflictingChanges && isHandled) {
           continue;
         }
-        const range = model.getLineRangeInResult(
-          modifiedBaseRange.baseRange,
-          reader
-        );
+        const range = model.getLineRangeInResult(modifiedBaseRange.baseRange, reader);
         result.push({
           range: range.toInclusiveRangeOrEmpty(),
           options: {
@@ -213,15 +164,11 @@ let ResultCodeEditorView = class extends CodeEditorView {
             description: "Result Diff",
             minimap: {
               position: MinimapPosition.Gutter,
-              color: {
-                id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor
-              }
+              color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
             },
             overviewRuler: modifiedBaseRange.isConflicting ? {
               position: OverviewRulerLane.Center,
-              color: {
-                id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor
-              }
+              color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
             } : void 0
           }
         });

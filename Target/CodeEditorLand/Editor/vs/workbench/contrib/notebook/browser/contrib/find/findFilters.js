@@ -1,10 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import {
-  NotebookFindScopeType
-} from "../../../common/notebookCommon.js";
+import { INotebookFindScope, NotebookFindScopeType } from "../../../common/notebookCommon.js";
 class NotebookFindFilters extends Disposable {
   static {
     __name(this, "NotebookFindFilters");
@@ -51,9 +49,7 @@ class NotebookFindFilters extends Disposable {
       this._onDidChange.fire({ codeOutput: value });
     }
   }
-  _findScope = {
-    findScopeType: NotebookFindScopeType.None
-  };
+  _findScope = { findScopeType: NotebookFindScopeType.None };
   get findScope() {
     return this._findScope;
   }

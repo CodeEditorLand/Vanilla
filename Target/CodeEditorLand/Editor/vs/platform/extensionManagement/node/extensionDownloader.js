@@ -16,28 +16,20 @@ import { Disposable } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { joinPath } from "../../../base/common/resources.js";
 import * as semver from "../../../base/common/semver/semver.js";
+import { URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
 import { Promises as FSPromises } from "../../../base/node/pfs.js";
 import { buffer, CorruptZipMessage } from "../../../base/node/zip.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import {
-  IFileService
-} from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 import { toExtensionManagementError } from "../common/abstractExtensionManagementService.js";
-import {
-  ExtensionManagementError,
-  ExtensionManagementErrorCode,
-  ExtensionSignatureVerificationCode,
-  IExtensionGalleryService
-} from "../common/extensionManagement.js";
-import {
-  ExtensionKey,
-  groupByExtension
-} from "../common/extensionManagementUtil.js";
+import { ExtensionManagementError, ExtensionManagementErrorCode, ExtensionSignatureVerificationCode, IExtensionGalleryService, IGalleryExtension, InstallOperation } from "../common/extensionManagement.js";
+import { ExtensionKey, groupByExtension } from "../common/extensionManagementUtil.js";
 import { fromExtractError } from "./extensionManagementUtil.js";
 import { IExtensionSignatureVerificationService } from "./extensionSignatureVerificationService.js";
+import { TargetPlatform } from "../../extensions/common/extensions.js";
+import { IFileService, IFileStatWithMetadata } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 let ExtensionsDownloader = class extends Disposable {
   constructor(environmentService, fileService, extensionGalleryService, extensionSignatureVerificationService, telemetryService, logService) {
     super();
@@ -66,23 +58,14 @@ let ExtensionsDownloader = class extends Disposable {
     let signatureArchiveLocation;
     try {
       signatureArchiveLocation = await this.downloadSignatureArchive(extension);
-      const verificationStatus = (await this.extensionSignatureVerificationService.verify(
-        extension.identifier.id,
-        extension.version,
-        location.fsPath,
-        signatureArchiveLocation.fsPath,
-        clientTargetPlatform
-      ))?.code;
+      const verificationStatus = (await this.extensionSignatureVerificationService.verify(extension.identifier.id, extension.version, location.fsPath, signatureArchiveLocation.fsPath, clientTargetPlatform))?.code;
       if (verificationStatus === ExtensionSignatureVerificationCode.PackageIsInvalidZip || verificationStatus === ExtensionSignatureVerificationCode.SignatureArchiveIsInvalidZip) {
         try {
           await this.delete(location);
         } catch (error) {
           this.logService.error(error);
         }
-        throw new ExtensionManagementError(
-          CorruptZipMessage,
-          ExtensionManagementErrorCode.CorruptZip
-        );
+        throw new ExtensionManagementError(CorruptZipMessage, ExtensionManagementErrorCode.CorruptZip);
       }
       return { location, verificationStatus };
     } catch (error) {
@@ -104,42 +87,20 @@ let ExtensionsDownloader = class extends Disposable {
   }
   async downloadVSIX(extension, operation) {
     try {
-      const location = joinPath(
-        this.extensionsDownloadDir,
-        this.getName(extension)
-      );
-      const attempts = await this.doDownload(
-        extension,
-        "vsix",
-        async () => {
-          await this.downloadFile(
-            extension,
-            location,
-            (location2) => this.extensionGalleryService.download(
-              extension,
-              location2,
-              operation
-            )
-          );
+      const location = joinPath(this.extensionsDownloadDir, this.getName(extension));
+      const attempts = await this.doDownload(extension, "vsix", async () => {
+        await this.downloadFile(extension, location, (location2) => this.extensionGalleryService.download(extension, location2, operation));
+        try {
+          await this.validate(location.fsPath, "extension/package.json");
+        } catch (error) {
           try {
-            await this.validate(
-              location.fsPath,
-              "extension/package.json"
-            );
-          } catch (error) {
-            try {
-              await this.fileService.del(location);
-            } catch (e) {
-              this.logService.warn(
-                `Error while deleting: ${location.path}`,
-                getErrorMessage(e)
-              );
-            }
-            throw error;
+            await this.fileService.del(location);
+          } catch (e) {
+            this.logService.warn(`Error while deleting: ${location.path}`, getErrorMessage(e));
           }
-        },
-        2
-      );
+          throw error;
+        }
+      }, 2);
       if (attempts > 1) {
         this.telemetryService.publicLog2("extensiongallery:downloadvsix:retry", {
           extensionId: extension.identifier.id,
@@ -148,42 +109,25 @@ let ExtensionsDownloader = class extends Disposable {
       }
       return location;
     } catch (e) {
-      throw toExtensionManagementError(
-        e,
-        ExtensionManagementErrorCode.Download
-      );
+      throw toExtensionManagementError(e, ExtensionManagementErrorCode.Download);
     }
   }
   async downloadSignatureArchive(extension) {
     try {
-      const location = joinPath(
-        this.extensionsDownloadDir,
-        `.${generateUuid()}`
-      );
-      const attempts = await this.doDownload(
-        extension,
-        "sigzip",
-        async () => {
-          await this.extensionGalleryService.downloadSignatureArchive(
-            extension,
-            location
-          );
+      const location = joinPath(this.extensionsDownloadDir, `.${generateUuid()}`);
+      const attempts = await this.doDownload(extension, "sigzip", async () => {
+        await this.extensionGalleryService.downloadSignatureArchive(extension, location);
+        try {
+          await this.validate(location.fsPath, ".signature.p7s");
+        } catch (error) {
           try {
-            await this.validate(location.fsPath, ".signature.p7s");
-          } catch (error) {
-            try {
-              await this.fileService.del(location);
-            } catch (e) {
-              this.logService.warn(
-                `Error while deleting: ${location.path}`,
-                getErrorMessage(e)
-              );
-            }
-            throw error;
+            await this.fileService.del(location);
+          } catch (e) {
+            this.logService.warn(`Error while deleting: ${location.path}`, getErrorMessage(e));
           }
-        },
-        2
-      );
+          throw error;
+        }
+      }, 2);
       if (attempts > 1) {
         this.telemetryService.publicLog2("extensiongallery:downloadsigzip:retry", {
           extensionId: extension.identifier.id,
@@ -192,10 +136,7 @@ let ExtensionsDownloader = class extends Disposable {
       }
       return location;
     } catch (e) {
-      throw toExtensionManagementError(
-        e,
-        ExtensionManagementErrorCode.DownloadSignature
-      );
+      throw toExtensionManagementError(e, ExtensionManagementErrorCode.DownloadSignature);
     }
   }
   async downloadFile(extension, location, downloadFn) {
@@ -206,10 +147,7 @@ let ExtensionsDownloader = class extends Disposable {
       await downloadFn(location);
       return;
     }
-    const tempLocation = joinPath(
-      this.extensionsDownloadDir,
-      `.${generateUuid()}`
-    );
+    const tempLocation = joinPath(this.extensionsDownloadDir, `.${generateUuid()}`);
     try {
       await downloadFn(tempLocation);
     } catch (error) {
@@ -224,6 +162,7 @@ let ExtensionsDownloader = class extends Disposable {
         tempLocation.fsPath,
         location.fsPath,
         2 * 60 * 1e3
+        /* Retry for 2 minutes */
       );
     } catch (error) {
       try {
@@ -236,16 +175,9 @@ let ExtensionsDownloader = class extends Disposable {
       } catch (e) {
       }
       if (exists) {
-        this.logService.info(
-          `Rename failed because the file was downloaded by another source. So ignoring renaming.`,
-          extension.identifier.id,
-          location.path
-        );
+        this.logService.info(`Rename failed because the file was downloaded by another source. So ignoring renaming.`, extension.identifier.id, location.path);
       } else {
-        this.logService.info(
-          `Rename failed because of ${getErrorMessage(error)}. Deleted the file from downloaded location`,
-          tempLocation.path
-        );
+        this.logService.info(`Rename failed because of ${getErrorMessage(error)}. Deleted the file from downloaded location`, tempLocation.path);
         throw error;
       }
     }
@@ -260,10 +192,7 @@ let ExtensionsDownloader = class extends Disposable {
         if (attempts++ > retries) {
           throw e;
         }
-        this.logService.warn(
-          `Failed downloading ${name}. ${getErrorMessage(e)}. Retry again...`,
-          extension.identifier.id
-        );
+        this.logService.warn(`Failed downloading ${name}. ${getErrorMessage(e)}. Retry again...`, extension.identifier.id);
       }
     }
   }
@@ -281,23 +210,16 @@ let ExtensionsDownloader = class extends Disposable {
   async cleanUp() {
     try {
       if (!await this.fileService.exists(this.extensionsDownloadDir)) {
-        this.logService.trace(
-          "Extension VSIX downloads cache dir does not exist"
-        );
+        this.logService.trace("Extension VSIX downloads cache dir does not exist");
         return;
       }
-      const folderStat = await this.fileService.resolve(
-        this.extensionsDownloadDir,
-        { resolveMetadata: true }
-      );
+      const folderStat = await this.fileService.resolve(this.extensionsDownloadDir, { resolveMetadata: true });
       if (folderStat.children) {
         const toDelete = [];
         const vsixs = [];
         const signatureArchives = [];
         for (const stat of folderStat.children) {
-          if (stat.name.endsWith(
-            ExtensionsDownloader.SignatureArchiveExtension
-          )) {
+          if (stat.name.endsWith(ExtensionsDownloader.SignatureArchiveExtension)) {
             signatureArchives.push(stat.resource);
           } else {
             const extension = ExtensionKey.parse(stat.name);
@@ -306,32 +228,20 @@ let ExtensionsDownloader = class extends Disposable {
             }
           }
         }
-        const byExtension = groupByExtension(
-          vsixs,
-          ([extension]) => extension
-        );
+        const byExtension = groupByExtension(vsixs, ([extension]) => extension);
         const distinct = [];
         for (const p of byExtension) {
-          p.sort(
-            (a, b) => semver.rcompare(a[0].version, b[0].version)
-          );
+          p.sort((a, b) => semver.rcompare(a[0].version, b[0].version));
           toDelete.push(...p.slice(1).map((e) => e[1].resource));
           distinct.push(p[0][1]);
         }
         distinct.sort((a, b) => a.mtime - b.mtime);
-        toDelete.push(
-          ...distinct.slice(0, Math.max(0, distinct.length - this.cache)).map((s) => s.resource)
-        );
+        toDelete.push(...distinct.slice(0, Math.max(0, distinct.length - this.cache)).map((s) => s.resource));
         toDelete.push(...signatureArchives);
-        await Promises.settled(
-          toDelete.map((resource) => {
-            this.logService.trace(
-              "Deleting from cache",
-              resource.path
-            );
-            return this.fileService.del(resource);
-          })
-        );
+        await Promises.settled(toDelete.map((resource) => {
+          this.logService.trace("Deleting from cache", resource.path);
+          return this.fileService.del(resource);
+        }));
       }
     } catch (e) {
       this.logService.error(e);

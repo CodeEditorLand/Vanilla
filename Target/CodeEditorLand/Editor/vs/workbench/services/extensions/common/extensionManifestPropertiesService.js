@@ -10,29 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { isNonEmptyArray } from "../../../../base/common/arrays.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import { isBoolean } from "../../../../base/common/types.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import {
-  ALL_EXTENSION_KINDS,
-  ExtensionIdentifierMap
-} from "../../../../platform/extensions/common/extensions.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkspaceTrustEnablementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { WORKSPACE_TRUST_EXTENSION_SUPPORT } from "../../workspaces/common/workspaceTrust.js";
+import { IExtensionManifest, ExtensionUntrustedWorkspaceSupportType, ExtensionVirtualWorkspaceSupportType, IExtensionIdentifier, ALL_EXTENSION_KINDS, ExtensionIdentifierMap } from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
 import { ExtensionsRegistry } from "./extensionsRegistry.js";
-const IExtensionManifestPropertiesService = createDecorator(
-  "extensionManifestPropertiesService"
-);
+import { getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ExtensionUntrustedWorkspaceSupport } from "../../../../base/common/product.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { WORKSPACE_TRUST_EXTENSION_SUPPORT } from "../../workspaces/common/workspaceTrust.js";
+import { isBoolean } from "../../../../base/common/types.js";
+import { IWorkspaceTrustEnablementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { isWeb } from "../../../../base/common/platform.js";
+const IExtensionManifestPropertiesService = createDecorator("extensionManifestPropertiesService");
 let ExtensionManifestPropertiesService = class extends Disposable {
   constructor(productService, configurationService, workspaceTrustEnablementService, logService) {
     super();
@@ -42,23 +36,13 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     this.logService = logService;
     this._configuredExtensionWorkspaceTrustRequestMap = new ExtensionIdentifierMap();
     const configuredExtensionWorkspaceTrustRequests = configurationService.inspect(WORKSPACE_TRUST_EXTENSION_SUPPORT).userValue || {};
-    for (const id of Object.keys(
-      configuredExtensionWorkspaceTrustRequests
-    )) {
-      this._configuredExtensionWorkspaceTrustRequestMap.set(
-        id,
-        configuredExtensionWorkspaceTrustRequests[id]
-      );
+    for (const id of Object.keys(configuredExtensionWorkspaceTrustRequests)) {
+      this._configuredExtensionWorkspaceTrustRequestMap.set(id, configuredExtensionWorkspaceTrustRequests[id]);
     }
     this._productExtensionWorkspaceTrustRequestMap = /* @__PURE__ */ new Map();
     if (productService.extensionUntrustedWorkspaceSupport) {
-      for (const id of Object.keys(
-        productService.extensionUntrustedWorkspaceSupport
-      )) {
-        this._productExtensionWorkspaceTrustRequestMap.set(
-          id,
-          productService.extensionUntrustedWorkspaceSupport[id]
-        );
+      for (const id of Object.keys(productService.extensionUntrustedWorkspaceSupport)) {
+        this._productExtensionWorkspaceTrustRequestMap.set(id, productService.extensionUntrustedWorkspaceSupport[id]);
       }
     }
   }
@@ -123,10 +107,7 @@ let ExtensionManifestPropertiesService = class extends Disposable {
       const configuredExtensionKindsMap = new ExtensionIdentifierMap();
       const configuredExtensionKinds = this.configurationService.getValue("remote.extensionKind") || {};
       for (const id of Object.keys(configuredExtensionKinds)) {
-        configuredExtensionKindsMap.set(
-          id,
-          configuredExtensionKinds[id]
-        );
+        configuredExtensionKindsMap.set(id, configuredExtensionKinds[id]);
       }
       this._configuredExtensionKindsMap = configuredExtensionKindsMap;
     }
@@ -192,33 +173,25 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     }
     if (manifest.contributes) {
       for (const contribution of Object.keys(manifest.contributes)) {
-        const supportedExtensionKinds = this.getSupportedExtensionKindsForExtensionPoint(
-          contribution
-        );
+        const supportedExtensionKinds = this.getSupportedExtensionKindsForExtensionPoint(contribution);
         if (supportedExtensionKinds.length) {
-          result = result.filter(
-            (extensionKind) => supportedExtensionKinds.includes(extensionKind)
-          );
+          result = result.filter((extensionKind) => supportedExtensionKinds.includes(extensionKind));
         }
       }
     }
     if (!result.length) {
-      this.logService.warn(
-        "Cannot deduce extensionKind for extension",
-        getGalleryExtensionId(manifest.publisher, manifest.name)
-      );
+      this.logService.warn("Cannot deduce extensionKind for extension", getGalleryExtensionId(manifest.publisher, manifest.name));
     }
     return result;
   }
   getSupportedExtensionKindsForExtensionPoint(extensionPoint) {
     if (this._extensionPointExtensionKindsMap === null) {
       const extensionPointExtensionKindsMap = /* @__PURE__ */ new Map();
-      ExtensionsRegistry.getExtensionPoints().forEach(
-        (e) => extensionPointExtensionKindsMap.set(
-          e.name,
-          e.defaultExtensionKind || []
-        )
-      );
+      ExtensionsRegistry.getExtensionPoints().forEach((e) => extensionPointExtensionKindsMap.set(
+        e.name,
+        e.defaultExtensionKind || []
+        /* supports all */
+      ));
       this._extensionPointExtensionKindsMap = extensionPointExtensionKindsMap;
     }
     let extensionPointExtensionKind = this._extensionPointExtensionKindsMap.get(extensionPoint);
@@ -232,9 +205,7 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     return isWeb ? ["workspace", "web"] : ["workspace"];
   }
   getConfiguredExtensionKind(manifest) {
-    const extensionIdentifier = {
-      id: getGalleryExtensionId(manifest.publisher, manifest.name)
-    };
+    const extensionIdentifier = { id: getGalleryExtensionId(manifest.publisher, manifest.name) };
     let result = this.getUserConfiguredExtensionKind(extensionIdentifier);
     if (typeof result !== "undefined") {
       return this.toArray(result);
@@ -254,71 +225,44 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     if (this._productExtensionKindsMap === null) {
       const productExtensionKindsMap = new ExtensionIdentifierMap();
       if (this.productService.extensionKind) {
-        for (const id of Object.keys(
-          this.productService.extensionKind
-        )) {
-          productExtensionKindsMap.set(
-            id,
-            this.productService.extensionKind[id]
-          );
+        for (const id of Object.keys(this.productService.extensionKind)) {
+          productExtensionKindsMap.set(id, this.productService.extensionKind[id]);
         }
       }
       this._productExtensionKindsMap = productExtensionKindsMap;
     }
-    const extensionId = getGalleryExtensionId(
-      manifest.publisher,
-      manifest.name
-    );
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
     return this._productExtensionKindsMap.get(extensionId);
   }
   getProductVirtualWorkspaceSupport(manifest) {
     if (this._productVirtualWorkspaceSupportMap === null) {
       const productWorkspaceSchemesMap = new ExtensionIdentifierMap();
       if (this.productService.extensionVirtualWorkspacesSupport) {
-        for (const id of Object.keys(
-          this.productService.extensionVirtualWorkspacesSupport
-        )) {
-          productWorkspaceSchemesMap.set(
-            id,
-            this.productService.extensionVirtualWorkspacesSupport[id]
-          );
+        for (const id of Object.keys(this.productService.extensionVirtualWorkspacesSupport)) {
+          productWorkspaceSchemesMap.set(id, this.productService.extensionVirtualWorkspacesSupport[id]);
         }
       }
       this._productVirtualWorkspaceSupportMap = productWorkspaceSchemesMap;
     }
-    const extensionId = getGalleryExtensionId(
-      manifest.publisher,
-      manifest.name
-    );
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
     return this._productVirtualWorkspaceSupportMap.get(extensionId);
   }
   getConfiguredVirtualWorkspaceSupport(manifest) {
     if (this._configuredVirtualWorkspaceSupportMap === null) {
       const configuredWorkspaceSchemesMap = new ExtensionIdentifierMap();
-      const configuredWorkspaceSchemes = this.configurationService.getValue(
-        "extensions.supportVirtualWorkspaces"
-      ) || {};
+      const configuredWorkspaceSchemes = this.configurationService.getValue("extensions.supportVirtualWorkspaces") || {};
       for (const id of Object.keys(configuredWorkspaceSchemes)) {
         if (configuredWorkspaceSchemes[id] !== void 0) {
-          configuredWorkspaceSchemesMap.set(
-            id,
-            configuredWorkspaceSchemes[id]
-          );
+          configuredWorkspaceSchemesMap.set(id, configuredWorkspaceSchemes[id]);
         }
       }
       this._configuredVirtualWorkspaceSupportMap = configuredWorkspaceSchemesMap;
     }
-    const extensionId = getGalleryExtensionId(
-      manifest.publisher,
-      manifest.name
-    );
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
     return this._configuredVirtualWorkspaceSupportMap.get(extensionId);
   }
   getConfiguredExtensionWorkspaceTrustRequest(manifest) {
-    const extensionId = getGalleryExtensionId(
-      manifest.publisher,
-      manifest.name
-    );
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
     const extensionWorkspaceTrustRequest = this._configuredExtensionWorkspaceTrustRequestMap.get(extensionId);
     if (extensionWorkspaceTrustRequest && (extensionWorkspaceTrustRequest.version === void 0 || extensionWorkspaceTrustRequest.version === manifest.version)) {
       return extensionWorkspaceTrustRequest.supported;
@@ -326,10 +270,7 @@ let ExtensionManifestPropertiesService = class extends Disposable {
     return void 0;
   }
   getProductExtensionWorkspaceTrustRequest(manifest) {
-    const extensionId = getGalleryExtensionId(
-      manifest.publisher,
-      manifest.name
-    );
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
     return this._productExtensionWorkspaceTrustRequestMap.get(extensionId);
   }
   toArray(extensionKind) {
@@ -345,11 +286,7 @@ ExtensionManifestPropertiesService = __decorateClass([
   __decorateParam(2, IWorkspaceTrustEnablementService),
   __decorateParam(3, ILogService)
 ], ExtensionManifestPropertiesService);
-registerSingleton(
-  IExtensionManifestPropertiesService,
-  ExtensionManifestPropertiesService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionManifestPropertiesService, ExtensionManifestPropertiesService, InstantiationType.Delayed);
 export {
   ExtensionManifestPropertiesService,
   IExtensionManifestPropertiesService

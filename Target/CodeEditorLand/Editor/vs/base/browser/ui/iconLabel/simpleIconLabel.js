@@ -4,6 +4,7 @@ import { reset } from "../../dom.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
 import { renderLabelWithIcons } from "./iconLabels.js";
+import { IDisposable } from "../../../common/lifecycle.js";
 class SimpleIconLabel {
   constructor(_container) {
     this._container = _container;
@@ -17,11 +18,7 @@ class SimpleIconLabel {
   }
   set title(title) {
     if (!this.hover && title) {
-      this.hover = getBaseLayerHoverDelegate().setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this._container,
-        title
-      );
+      this.hover = getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), this._container, title);
     } else if (this.hover) {
       this.hover.update(title);
     }

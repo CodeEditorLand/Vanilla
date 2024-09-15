@@ -1,14 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  isEditorInput
-} from "../../../common/editor.js";
-const IEditorGroupsService = createDecorator(
-  "editorGroupsService"
-);
+import { Event } from "../../../../base/common/event.js";
+import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorPane, GroupIdentifier, EditorInputWithOptions, CloseDirection, IEditorPartOptions, IEditorPartOptionsChangeEvent, EditorsOrder, IVisibleEditorPane, IEditorCloseEvent, IUntypedEditorInput, isEditorInput, IEditorWillMoveEvent, IMatchEditorOptions, IActiveEditorChangeEvent, IFindEditorOptions, IToolbarActions } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDimension } from "../../../../editor/common/core/dimension.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ContextKeyValue, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IGroupModelChangeEvent } from "../../../common/editor/editorGroupModel.js";
+import { IRectangle } from "../../../../platform/window/common/window.js";
+import { IMenuChangeEvent } from "../../../../platform/actions/common/actions.js";
+import { DeepPartial } from "../../../../base/common/types.js";
+const IEditorGroupsService = createDecorator("editorGroupsService");
 var GroupDirection = /* @__PURE__ */ ((GroupDirection2) => {
   GroupDirection2[GroupDirection2["UP"] = 0] = "UP";
   GroupDirection2[GroupDirection2["DOWN"] = 1] = "DOWN";
@@ -62,9 +68,7 @@ function isEditorGroup(obj) {
 }
 __name(isEditorGroup, "isEditorGroup");
 function preferredSideBySideGroupDirection(configurationService) {
-  const openSideBySideDirection = configurationService.getValue(
-    "workbench.editor.openSideBySideDirection"
-  );
+  const openSideBySideDirection = configurationService.getValue("workbench.editor.openSideBySideDirection");
   if (openSideBySideDirection === "down") {
     return 1 /* DOWN */;
   }

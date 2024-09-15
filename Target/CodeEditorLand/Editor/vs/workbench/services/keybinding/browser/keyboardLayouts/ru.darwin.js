@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.Russian",
-    lang: "ru",
-    localizedName: "Russian"
-  },
+  layout: { id: "com.apple.keylayout.Russian", lang: "ru", localizedName: "Russian" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["\u0444", "\u0424", "\u0192", "\u0192", 0],

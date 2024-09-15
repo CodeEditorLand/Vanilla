@@ -5,7 +5,7 @@ import * as extpath from "./extpath.js";
 import { Schemas } from "./network.js";
 import * as paths from "./path.js";
 import { isLinux, isWindows } from "./platform.js";
-import { equalsIgnoreCase, compare as strCompare } from "./strings.js";
+import { compare as strCompare, equalsIgnoreCase } from "./strings.js";
 import { URI, uriToFsPath } from "./uri.js";
 function originalFSPath(uri) {
   return uriToFsPath(uri, true);
@@ -22,10 +22,7 @@ class ExtUri {
     if (uri1 === uri2) {
       return 0;
     }
-    return strCompare(
-      this.getComparisonKey(uri1, ignoreFragment),
-      this.getComparisonKey(uri2, ignoreFragment)
-    );
+    return strCompare(this.getComparisonKey(uri1, ignoreFragment), this.getComparisonKey(uri2, ignoreFragment));
   }
   isEqual(uri1, uri2, ignoreFragment = false) {
     if (uri1 === uri2) {
@@ -48,19 +45,10 @@ class ExtUri {
   isEqualOrParent(base, parentCandidate, ignoreFragment = false) {
     if (base.scheme === parentCandidate.scheme) {
       if (base.scheme === Schemas.file) {
-        return extpath.isEqualOrParent(
-          originalFSPath(base),
-          originalFSPath(parentCandidate),
-          this._ignorePathCasing(base)
-        ) && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
+        return extpath.isEqualOrParent(originalFSPath(base), originalFSPath(parentCandidate), this._ignorePathCasing(base)) && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
       }
       if (isEqualAuthority(base.authority, parentCandidate.authority)) {
-        return extpath.isEqualOrParent(
-          base.path,
-          parentCandidate.path,
-          this._ignorePathCasing(base),
-          "/"
-        ) && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
+        return extpath.isEqualOrParent(base.path, parentCandidate.path, this._ignorePathCasing(base), "/") && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
       }
     }
     return false;
@@ -88,9 +76,7 @@ class ExtUri {
     } else {
       dirname2 = paths.posix.dirname(resource.path);
       if (resource.authority && dirname2.length && dirname2.charCodeAt(0) !== CharCode.Slash) {
-        console.error(
-          `dirname("${resource.toString})) resulted in a relative path`
-        );
+        console.error(`dirname("${resource.toString})) resulted in a relative path`);
         dirname2 = "/";
       }
     }
@@ -104,9 +90,7 @@ class ExtUri {
     }
     let normalizedPath;
     if (resource.scheme === Schemas.file) {
-      normalizedPath = URI.file(
-        paths.normalize(originalFSPath(resource))
-      ).path;
+      normalizedPath = URI.file(paths.normalize(originalFSPath(resource))).path;
     } else {
       normalizedPath = paths.posix.normalize(resource.path);
     }
@@ -119,10 +103,7 @@ class ExtUri {
       return void 0;
     }
     if (from.scheme === Schemas.file) {
-      const relativePath2 = paths.relative(
-        originalFSPath(from),
-        originalFSPath(to)
-      );
+      const relativePath2 = paths.relative(originalFSPath(from), originalFSPath(to));
       return isWindows ? extpath.toSlashes(relativePath2) : relativePath2;
     }
     let fromPath = from.path || "/";
@@ -171,9 +152,7 @@ class ExtUri {
   }
   removeTrailingPathSeparator(resource, sep = paths.sep) {
     if (hasTrailingPathSeparator(resource, sep)) {
-      return resource.with({
-        path: resource.path.substr(0, resource.path.length - 1)
-      });
+      return resource.with({ path: resource.path.substr(0, resource.path.length - 1) });
     }
     return resource;
   }
@@ -222,10 +201,7 @@ function distinctParents(items, resourceAccessor) {
       if (index === i) {
         return false;
       }
-      return isEqualOrParent(
-        candidateResource,
-        resourceAccessor(otherItem)
-      );
+      return isEqualOrParent(candidateResource, resourceAccessor(otherItem));
     })) {
       continue;
     }
@@ -242,10 +218,7 @@ var DataUri;
   DataUri2.META_DATA_MIME = "mime";
   function parseMetaData(dataUri) {
     const metadata = /* @__PURE__ */ new Map();
-    const meta = dataUri.path.substring(
-      dataUri.path.indexOf(";") + 1,
-      dataUri.path.lastIndexOf(";")
-    );
+    const meta = dataUri.path.substring(dataUri.path.indexOf(";") + 1, dataUri.path.lastIndexOf(";"));
     meta.split(";").forEach((property) => {
       const [key, value] = property.split(":");
       if (key && value) {

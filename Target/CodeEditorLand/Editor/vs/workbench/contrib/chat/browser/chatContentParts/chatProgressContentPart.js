@@ -6,9 +6,11 @@ import { Codicon } from "../../../../../base/common/codicons.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
-import {
-  isResponseVM
-} from "../../common/chatViewModel.js";
+import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { ChatTreeItem } from "../chat.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
+import { IChatProgressMessage, IChatTask } from "../../common/chatService.js";
+import { IChatRendererContent, isResponseVM } from "../../common/chatViewModel.js";
 class ChatProgressContentPart extends Disposable {
   static {
     __name(this, "ChatProgressContentPart");
@@ -28,12 +30,9 @@ class ChatProgressContentPart extends Disposable {
       alert(progress.content.value);
     }
     const codicon = this.showSpinner ? ThemeIcon.modify(Codicon.loading, "spin").id : Codicon.check.id;
-    const markdown = new MarkdownString(
-      `$(${codicon}) ${progress.content.value}`,
-      {
-        supportThemeIcons: true
-      }
-    );
+    const markdown = new MarkdownString(`$(${codicon}) ${progress.content.value}`, {
+      supportThemeIcons: true
+    });
     const result = this._register(renderer.render(markdown));
     result.element.classList.add("progress-step");
     this.domNode = result.element;

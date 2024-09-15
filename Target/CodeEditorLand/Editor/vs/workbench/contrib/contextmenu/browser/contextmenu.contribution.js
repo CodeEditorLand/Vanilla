@@ -14,9 +14,7 @@ import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions, IWorkbenchContribution } from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 let ContextMenuContribution = class extends Disposable {
   static {
@@ -24,26 +22,14 @@ let ContextMenuContribution = class extends Disposable {
   }
   constructor(layoutService, contextMenuService) {
     super();
-    const update = /* @__PURE__ */ __name((visible) => layoutService.activeContainer.classList.toggle(
-      "context-menu-visible",
-      visible
-    ), "update");
-    this._register(
-      contextMenuService.onDidShowContextMenu(() => update(true))
-    );
-    this._register(
-      contextMenuService.onDidHideContextMenu(() => update(false))
-    );
+    const update = /* @__PURE__ */ __name((visible) => layoutService.activeContainer.classList.toggle("context-menu-visible", visible), "update");
+    this._register(contextMenuService.onDidShowContextMenu(() => update(true)));
+    this._register(contextMenuService.onDidHideContextMenu(() => update(false)));
   }
 };
 ContextMenuContribution = __decorateClass([
   __decorateParam(0, ILayoutService),
   __decorateParam(1, IContextMenuService)
 ], ContextMenuContribution);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  ContextMenuContribution,
-  LifecyclePhase.Eventually
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(ContextMenuContribution, LifecyclePhase.Eventually);
 //# sourceMappingURL=contextmenu.contribution.js.map

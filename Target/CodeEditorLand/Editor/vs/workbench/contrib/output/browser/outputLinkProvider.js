@@ -10,30 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createWebWorker } from "../../../../base/browser/defaultWorkerFactory.js";
+import { URI } from "../../../../base/common/uri.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
-import {
-  Disposable,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
-import { WorkerTextModelSyncClient } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
+import { ILink } from "../../../../editor/common/languages.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import {
-  LOG_MODE_ID,
-  OUTPUT_MODE_ID
-} from "../../../services/output/common/output.js";
+import { OUTPUT_MODE_ID, LOG_MODE_ID } from "../../../services/output/common/output.js";
+import { OutputLinkComputer } from "../common/outputLinkComputer.js";
+import { IDisposable, dispose, Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { createWebWorker } from "../../../../base/browser/defaultWorkerFactory.js";
+import { IWorkerClient } from "../../../../base/common/worker/simpleWorker.js";
+import { WorkerTextModelSyncClient } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
 let OutputLinkProvider = class extends Disposable {
   constructor(contextService, modelService, languageFeaturesService) {
     super();
     this.contextService = contextService;
     this.modelService = modelService;
     this.languageFeaturesService = languageFeaturesService;
-    this.disposeWorkerScheduler = new RunOnceScheduler(
-      () => this.disposeWorker(),
-      OutputLinkProvider.DISPOSE_WORKER_TIME
-    );
+    this.disposeWorkerScheduler = new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider.DISPOSE_WORKER_TIME);
     this.registerListeners();
     this.updateLinkProviderWorker();
   }
@@ -46,30 +41,18 @@ let OutputLinkProvider = class extends Disposable {
   disposeWorkerScheduler;
   linkProviderRegistration;
   registerListeners() {
-    this._register(
-      this.contextService.onDidChangeWorkspaceFolders(
-        () => this.updateLinkProviderWorker()
-      )
-    );
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.updateLinkProviderWorker()));
   }
   updateLinkProviderWorker() {
     const folders = this.contextService.getWorkspace().folders;
     if (folders.length > 0) {
       if (!this.linkProviderRegistration) {
-        this.linkProviderRegistration = this.languageFeaturesService.linkProvider.register(
-          [
-            { language: OUTPUT_MODE_ID, scheme: "*" },
-            { language: LOG_MODE_ID, scheme: "*" }
-          ],
-          {
-            provideLinks: /* @__PURE__ */ __name(async (model) => {
-              const links = await this.provideLinks(
-                model.uri
-              );
-              return links && { links };
-            }, "provideLinks")
-          }
-        );
+        this.linkProviderRegistration = this.languageFeaturesService.linkProvider.register([{ language: OUTPUT_MODE_ID, scheme: "*" }, { language: LOG_MODE_ID, scheme: "*" }], {
+          provideLinks: /* @__PURE__ */ __name(async (model) => {
+            const links = await this.provideLinks(model.uri);
+            return links && { links };
+          }, "provideLinks")
+        });
       }
     } else {
       dispose(this.linkProviderRegistration);
@@ -81,10 +64,7 @@ let OutputLinkProvider = class extends Disposable {
   getOrCreateWorker() {
     this.disposeWorkerScheduler.schedule();
     if (!this.worker) {
-      this.worker = new OutputLinkWorkerClient(
-        this.contextService,
-        this.modelService
-      );
+      this.worker = new OutputLinkWorkerClient(this.contextService, this.modelService);
     }
     return this.worker;
   }
@@ -107,16 +87,11 @@ let OutputLinkWorkerClient = class extends Disposable {
   constructor(contextService, modelService) {
     super();
     this.contextService = contextService;
-    this._workerClient = this._register(
-      createWebWorker(
-        "vs/workbench/contrib/output/common/outputLinkComputer",
-        "OutputLinkDetectionWorker"
-      )
-    );
-    this._workerTextModelSyncClient = WorkerTextModelSyncClient.create(
-      this._workerClient,
-      modelService
-    );
+    this._workerClient = this._register(createWebWorker(
+      "vs/workbench/contrib/output/common/outputLinkComputer",
+      "OutputLinkDetectionWorker"
+    ));
+    this._workerTextModelSyncClient = WorkerTextModelSyncClient.create(this._workerClient, modelService);
     this._initializeBarrier = this._ensureWorkspaceFolders();
   }
   static {
@@ -126,9 +101,7 @@ let OutputLinkWorkerClient = class extends Disposable {
   _workerTextModelSyncClient;
   _initializeBarrier;
   async _ensureWorkspaceFolders() {
-    await this._workerClient.proxy.$setWorkspaceFolders(
-      this.contextService.getWorkspace().folders.map((folder) => folder.uri.toString())
-    );
+    await this._workerClient.proxy.$setWorkspaceFolders(this.contextService.getWorkspace().folders.map((folder) => folder.uri.toString()));
   }
   async provideLinks(modelUri) {
     await this._initializeBarrier;

@@ -10,22 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../base/common/event.js";
-import { getDriveLetter } from "../../base/common/extpath.js";
-import {
-  parse
-} from "../../base/common/glob.js";
-import { Disposable } from "../../base/common/lifecycle.js";
-import { ResourceSet } from "../../base/common/map.js";
-import { Schemas } from "../../base/common/network.js";
+import { URI } from "../../base/common/uri.js";
 import { equals } from "../../base/common/objects.js";
 import { isAbsolute } from "../../base/common/path.js";
+import { Emitter } from "../../base/common/event.js";
 import { relativePath } from "../../base/common/resources.js";
-import { URI } from "../../base/common/uri.js";
-import {
-  IConfigurationService
-} from "../../platform/configuration/common/configuration.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { ParsedExpression, IExpression, parse } from "../../base/common/glob.js";
 import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+import { IConfigurationService, IConfigurationChangeEvent } from "../../platform/configuration/common/configuration.js";
+import { Schemas } from "../../base/common/network.js";
+import { ResourceSet } from "../../base/common/map.js";
+import { getDriveLetter } from "../../base/common/extpath.js";
 let ResourceGlobMatcher = class extends Disposable {
   constructor(getExpression, shouldUpdate, contextService, configurationService) {
     super();
@@ -45,18 +41,12 @@ let ResourceGlobMatcher = class extends Disposable {
   mapFolderToParsedExpression = /* @__PURE__ */ new Map();
   mapFolderToConfiguredExpression = /* @__PURE__ */ new Map();
   registerListeners() {
-    this._register(
-      this.configurationService.onDidChangeConfiguration((e) => {
-        if (this.shouldUpdate(e)) {
-          this.updateExpressions(true);
-        }
-      })
-    );
-    this._register(
-      this.contextService.onDidChangeWorkspaceFolders(
-        () => this.updateExpressions(true)
-      )
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (this.shouldUpdate(e)) {
+        this.updateExpressions(true);
+      }
+    }));
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.updateExpressions(true)));
   }
   updateExpressions(fromEvent) {
     let changed = false;
@@ -65,29 +55,20 @@ let ResourceGlobMatcher = class extends Disposable {
       const newExpression = this.doGetExpression(folder.uri);
       const currentExpression = this.mapFolderToConfiguredExpression.get(folderUriStr);
       if (newExpression) {
-        if (!currentExpression || !equals(
-          currentExpression.expression,
-          newExpression.expression
-        )) {
+        if (!currentExpression || !equals(currentExpression.expression, newExpression.expression)) {
           changed = true;
-          this.mapFolderToParsedExpression.set(
-            folderUriStr,
-            parse(newExpression.expression)
-          );
-          this.mapFolderToConfiguredExpression.set(
-            folderUriStr,
-            newExpression
-          );
+          this.mapFolderToParsedExpression.set(folderUriStr, parse(newExpression.expression));
+          this.mapFolderToConfiguredExpression.set(folderUriStr, newExpression);
         }
-      } else if (currentExpression) {
-        changed = true;
-        this.mapFolderToParsedExpression.delete(folderUriStr);
-        this.mapFolderToConfiguredExpression.delete(folderUriStr);
+      } else {
+        if (currentExpression) {
+          changed = true;
+          this.mapFolderToParsedExpression.delete(folderUriStr);
+          this.mapFolderToConfiguredExpression.delete(folderUriStr);
+        }
       }
     }
-    const foldersMap = new ResourceSet(
-      this.contextService.getWorkspace().folders.map((folder) => folder.uri)
-    );
+    const foldersMap = new ResourceSet(this.contextService.getWorkspace().folders.map((folder) => folder.uri));
     for (const [folder] of this.mapFolderToConfiguredExpression) {
       if (folder === ResourceGlobMatcher.NO_FOLDER) {
         continue;
@@ -99,32 +80,19 @@ let ResourceGlobMatcher = class extends Disposable {
       }
     }
     const globalNewExpression = this.doGetExpression(void 0);
-    const globalCurrentExpression = this.mapFolderToConfiguredExpression.get(
-      ResourceGlobMatcher.NO_FOLDER
-    );
+    const globalCurrentExpression = this.mapFolderToConfiguredExpression.get(ResourceGlobMatcher.NO_FOLDER);
     if (globalNewExpression) {
-      if (!globalCurrentExpression || !equals(
-        globalCurrentExpression.expression,
-        globalNewExpression.expression
-      )) {
+      if (!globalCurrentExpression || !equals(globalCurrentExpression.expression, globalNewExpression.expression)) {
         changed = true;
-        this.mapFolderToParsedExpression.set(
-          ResourceGlobMatcher.NO_FOLDER,
-          parse(globalNewExpression.expression)
-        );
-        this.mapFolderToConfiguredExpression.set(
-          ResourceGlobMatcher.NO_FOLDER,
-          globalNewExpression
-        );
+        this.mapFolderToParsedExpression.set(ResourceGlobMatcher.NO_FOLDER, parse(globalNewExpression.expression));
+        this.mapFolderToConfiguredExpression.set(ResourceGlobMatcher.NO_FOLDER, globalNewExpression);
       }
-    } else if (globalCurrentExpression) {
-      changed = true;
-      this.mapFolderToParsedExpression.delete(
-        ResourceGlobMatcher.NO_FOLDER
-      );
-      this.mapFolderToConfiguredExpression.delete(
-        ResourceGlobMatcher.NO_FOLDER
-      );
+    } else {
+      if (globalCurrentExpression) {
+        changed = true;
+        this.mapFolderToParsedExpression.delete(ResourceGlobMatcher.NO_FOLDER);
+        this.mapFolderToConfiguredExpression.delete(ResourceGlobMatcher.NO_FOLDER);
+      }
     }
     if (fromEvent && changed) {
       this._onExpressionChange.fire();
@@ -149,6 +117,7 @@ let ResourceGlobMatcher = class extends Disposable {
       const driveLetter = getDriveLetter(
         massagedKey,
         true
+        /* probe for windows */
       );
       if (driveLetter) {
         const driveLetterLower = driveLetter.toLowerCase();
@@ -171,17 +140,11 @@ let ResourceGlobMatcher = class extends Disposable {
     let expressionForFolder;
     let expressionConfigForFolder;
     if (folder && this.mapFolderToParsedExpression.has(folder.uri.toString())) {
-      expressionForFolder = this.mapFolderToParsedExpression.get(
-        folder.uri.toString()
-      );
+      expressionForFolder = this.mapFolderToParsedExpression.get(folder.uri.toString());
       expressionConfigForFolder = this.mapFolderToConfiguredExpression.get(folder.uri.toString());
     } else {
-      expressionForFolder = this.mapFolderToParsedExpression.get(
-        ResourceGlobMatcher.NO_FOLDER
-      );
-      expressionConfigForFolder = this.mapFolderToConfiguredExpression.get(
-        ResourceGlobMatcher.NO_FOLDER
-      );
+      expressionForFolder = this.mapFolderToParsedExpression.get(ResourceGlobMatcher.NO_FOLDER);
+      expressionConfigForFolder = this.mapFolderToConfiguredExpression.get(ResourceGlobMatcher.NO_FOLDER);
     }
     if (!expressionForFolder) {
       return false;
@@ -196,11 +159,7 @@ let ResourceGlobMatcher = class extends Disposable {
       return true;
     }
     if (resourcePathToMatch !== this.uriToPath(resource) && expressionConfigForFolder?.hasAbsolutePath) {
-      return !!expressionForFolder(
-        this.uriToPath(resource),
-        void 0,
-        hasSibling
-      );
+      return !!expressionForFolder(this.uriToPath(resource), void 0, hasSibling);
     }
     return false;
   }

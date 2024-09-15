@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const module = { exports: {} };
-(() => {
+(function() {
   const isESM = true;
   function _definePolyfillMarks(timeOrigin) {
     const _data = [];
@@ -40,20 +40,11 @@ const module = { exports: {} };
             if (typeof timeOrigin !== "number") {
               timeOrigin = performance.timing.navigationStart || performance.timing.redirectStart || performance.timing.fetchStart;
             }
-            const result = [
-              {
-                name: "code/timeOrigin",
-                startTime: Math.round(timeOrigin)
-              }
-            ];
-            for (const entry of performance.getEntriesByType(
-              "mark"
-            )) {
+            const result = [{ name: "code/timeOrigin", startTime: Math.round(timeOrigin) }];
+            for (const entry of performance.getEntriesByType("mark")) {
               result.push({
                 name: entry.name,
-                startTime: Math.round(
-                  timeOrigin + entry.startTime
-                )
+                startTime: Math.round(timeOrigin + entry.startTime)
               });
             }
             return result;
@@ -85,13 +76,13 @@ const module = { exports: {} };
     sharedObj = {};
   }
   if (!isESM && typeof define === "function") {
-    define([], () => _factory(sharedObj));
+    define([], function() {
+      return _factory(sharedObj);
+    });
   } else if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = _factory(sharedObj);
   } else {
-    console.trace(
-      "perf-util defined in UNKNOWN context (neither requirejs or commonjs)"
-    );
+    console.trace("perf-util defined in UNKNOWN context (neither requirejs or commonjs)");
     sharedObj.perf = _factory(sharedObj);
   }
 })();

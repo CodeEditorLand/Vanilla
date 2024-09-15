@@ -10,17 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Action } from "../../../../base/common/actions.js";
 import * as nls from "../../../../nls.js";
+import { Action } from "../../../../base/common/actions.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { IWorkbenchIssueService } from "../../issue/common/issue.js";
 let ReportExtensionIssueAction = class extends Action {
   // TODO: Consider passing in IExtensionStatus or IExtensionHostProfile for additional data
   constructor(extension, issueService) {
-    super(
-      ReportExtensionIssueAction._id,
-      ReportExtensionIssueAction._label,
-      "extension-action report-issue"
-    );
+    super(ReportExtensionIssueAction._id, ReportExtensionIssueAction._label, "extension-action report-issue");
     this.extension = extension;
     this.issueService = issueService;
     this.enabled = extension.isBuiltin || !!extension.repository && !!extension.repository.url;
@@ -29,10 +26,7 @@ let ReportExtensionIssueAction = class extends Action {
     __name(this, "ReportExtensionIssueAction");
   }
   static _id = "workbench.extensions.action.reportExtensionIssue";
-  static _label = nls.localize(
-    "reportExtensionIssue",
-    "Report Issue"
-  );
+  static _label = nls.localize("reportExtensionIssue", "Report Issue");
   async run() {
     await this.issueService.openReporter({
       extensionId: this.extension.identifier.value

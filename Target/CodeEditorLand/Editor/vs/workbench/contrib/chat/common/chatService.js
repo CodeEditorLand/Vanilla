@@ -1,8 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
-import { Range } from "../../../../editor/common/core/range.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { ISelection } from "../../../../editor/common/core/selection.js";
+import { Command, Location, TextEdit } from "../../../../editor/common/languages.js";
+import { FileType } from "../../../../platform/files/common/files.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceSymbol } from "../../search/common/search.js";
+import { ChatAgentLocation, IChatAgentCommand, IChatAgentData, IChatAgentResult } from "./chatAgents.js";
+import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IChatRequestVariableEntry, IChatResponseModel, IExportableChatData, ISerializableChatData } from "./chatModel.js";
+import { IParsedChatRequest } from "./chatParserTypes.js";
+import { IChatParserContext } from "./chatRequestParser.js";
+import { IChatRequestVariableValue } from "./chatVariables.js";
 function isIDocumentContext(obj) {
   return !!obj && typeof obj === "object" && "uri" in obj && obj.uri instanceof URI && "version" in obj && typeof obj.version === "number" && "ranges" in obj && Array.isArray(obj.ranges) && obj.ranges.every(Range.isIRange);
 }

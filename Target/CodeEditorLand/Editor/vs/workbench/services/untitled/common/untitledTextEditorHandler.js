@@ -10,22 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ITextEditorService } from "../../textfile/common/textEditorService.js";
 import { isEqual, toLocalResource } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
 import { IPathService } from "../../path/common/pathService.js";
-import { ITextEditorService } from "../../textfile/common/textEditorService.js";
-import {
-  NO_TYPE_ID
-} from "../../workingCopy/common/workingCopy.js";
-import {
-  IWorkingCopyEditorService
-} from "../../workingCopy/common/workingCopyEditorService.js";
 import { UntitledTextEditorInput } from "./untitledTextEditorInput.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkingCopyIdentifier, NO_TYPE_ID } from "../../workingCopy/common/workingCopy.js";
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "../../workingCopy/common/workingCopyEditorService.js";
 import { IUntitledTextEditorService } from "./untitledTextEditorService.js";
 let UntitledTextEditorInputSerializer = class {
   constructor(filesConfigurationService, environmentService, pathService) {
@@ -46,11 +46,7 @@ let UntitledTextEditorInputSerializer = class {
     const untitledTextEditorInput = editorInput;
     let resource = untitledTextEditorInput.resource;
     if (untitledTextEditorInput.hasAssociatedFilePath) {
-      resource = toLocalResource(
-        resource,
-        this.environmentService.remoteAuthority,
-        this.pathService.defaultUriScheme
-      );
+      resource = toLocalResource(resource, this.environmentService.remoteAuthority, this.pathService.defaultUriScheme);
     }
     let languageId;
     const languageIdCandidate = untitledTextEditorInput.getLanguageId();
@@ -68,18 +64,11 @@ let UntitledTextEditorInputSerializer = class {
   }
   deserialize(instantiationService, serializedEditorInput) {
     return instantiationService.invokeFunction((accessor) => {
-      const deserialized = JSON.parse(
-        serializedEditorInput
-      );
+      const deserialized = JSON.parse(serializedEditorInput);
       const resource = URI.revive(deserialized.resourceJSON);
       const languageId = deserialized.modeId;
       const encoding = deserialized.encoding;
-      return accessor.get(ITextEditorService).createTextEditor({
-        resource,
-        languageId,
-        encoding,
-        forceUntitled: true
-      });
+      return accessor.get(ITextEditorService).createTextEditor({ resource, languageId, encoding, forceUntitled: true });
     });
   }
 };
@@ -112,21 +101,12 @@ let UntitledTextEditorWorkingCopyEditorHandler = class extends Disposable {
   }
   createEditor(workingCopy) {
     let editorInputResource;
-    if (this.untitledTextEditorService.isUntitledWithAssociatedResource(
-      workingCopy.resource
-    )) {
-      editorInputResource = toLocalResource(
-        workingCopy.resource,
-        this.environmentService.remoteAuthority,
-        this.pathService.defaultUriScheme
-      );
+    if (this.untitledTextEditorService.isUntitledWithAssociatedResource(workingCopy.resource)) {
+      editorInputResource = toLocalResource(workingCopy.resource, this.environmentService.remoteAuthority, this.pathService.defaultUriScheme);
     } else {
       editorInputResource = workingCopy.resource;
     }
-    return this.textEditorService.createTextEditor({
-      resource: editorInputResource,
-      forceUntitled: true
-    });
+    return this.textEditorService.createTextEditor({ resource: editorInputResource, forceUntitled: true });
   }
 };
 UntitledTextEditorWorkingCopyEditorHandler = __decorateClass([

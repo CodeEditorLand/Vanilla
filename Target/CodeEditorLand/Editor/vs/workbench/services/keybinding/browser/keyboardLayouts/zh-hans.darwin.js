@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.inputmethod.SCIM.ITABC",
-    lang: "zh-Hans",
-    localizedName: "\u641C\u72D7\u62FC\u97F3"
-  },
+  layout: { id: "com.apple.inputmethod.SCIM.ITABC", lang: "zh-Hans", localizedName: "\u641C\u72D7\u62FC\u97F3" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xE5", "\xC5", 0],

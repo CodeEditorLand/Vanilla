@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
 class StickyRange {
   constructor(startLineNumber, endLineNumber) {
     this.startLineNumber = startLineNumber;

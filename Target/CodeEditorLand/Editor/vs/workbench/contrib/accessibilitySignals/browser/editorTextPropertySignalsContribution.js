@@ -11,36 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { disposableTimeout } from "../../../../base/common/async.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived,
-  observableFromEvent,
-  observableFromPromise,
-  observableFromValueWithChangeEvent,
-  observableSignalFromEvent,
-  wasEventTriggeredRecently
-} from "../../../../base/common/observable.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IReader, autorun, autorunWithStore, derived, observableFromEvent, observableFromPromise, observableFromValueWithChangeEvent, observableSignalFromEvent, wasEventTriggeredRecently } from "../../../../base/common/observable.js";
 import { isDefined } from "../../../../base/common/types.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { Position } from "../../../../editor/common/core/position.js";
 import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { FoldingController } from "../../../../editor/contrib/folding/browser/folding.js";
-import {
-  AccessibilitySignal,
-  IAccessibilitySignalService
-} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { AccessibilityModality, AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IMarkerService,
-  MarkerSeverity
-} from "../../../../platform/markers/common/markers.js";
+import { IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IDebugService } from "../../debug/common/debug.js";
 let EditorTextPropertySignalsContribution = class extends Disposable {
@@ -49,52 +31,28 @@ let EditorTextPropertySignalsContribution = class extends Disposable {
     this._editorService = _editorService;
     this._instantiationService = _instantiationService;
     this._accessibilitySignalService = _accessibilitySignalService;
-    this._register(
-      autorunWithStore((reader, store) => {
-        if (!this._someAccessibilitySignalIsEnabled.read(reader)) {
-          return;
-        }
-        const activeEditor = this._activeEditorObservable.read(reader);
-        if (activeEditor) {
-          this._registerAccessibilitySignalsForEditor(
-            activeEditor.editor,
-            activeEditor.model,
-            store
-          );
-        }
-      })
-    );
+    this._register(autorunWithStore((reader, store) => {
+      if (!this._someAccessibilitySignalIsEnabled.read(reader)) {
+        return;
+      }
+      const activeEditor = this._activeEditorObservable.read(reader);
+      if (activeEditor) {
+        this._registerAccessibilitySignalsForEditor(activeEditor.editor, activeEditor.model, store);
+      }
+    }));
   }
   static {
     __name(this, "EditorTextPropertySignalsContribution");
   }
   _textProperties = [
-    this._instantiationService.createInstance(
-      MarkerTextProperty,
-      AccessibilitySignal.errorAtPosition,
-      AccessibilitySignal.errorOnLine,
-      MarkerSeverity.Error
-    ),
-    this._instantiationService.createInstance(
-      MarkerTextProperty,
-      AccessibilitySignal.warningAtPosition,
-      AccessibilitySignal.warningOnLine,
-      MarkerSeverity.Warning
-    ),
+    this._instantiationService.createInstance(MarkerTextProperty, AccessibilitySignal.errorAtPosition, AccessibilitySignal.errorOnLine, MarkerSeverity.Error),
+    this._instantiationService.createInstance(MarkerTextProperty, AccessibilitySignal.warningAtPosition, AccessibilitySignal.warningOnLine, MarkerSeverity.Warning),
     this._instantiationService.createInstance(FoldedAreaTextProperty),
     this._instantiationService.createInstance(BreakpointTextProperty)
   ];
   _someAccessibilitySignalIsEnabled = derived(
     this,
-    (reader) => this._textProperties.flatMap((p) => [p.lineSignal, p.positionSignal]).filter(isDefined).some(
-      (signal) => observableFromValueWithChangeEvent(
-        this,
-        this._accessibilitySignalService.getEnabledState(
-          signal,
-          false
-        )
-      ).read(reader)
-    )
+    (reader) => this._textProperties.flatMap((p) => [p.lineSignal, p.positionSignal]).filter(isDefined).some((signal) => observableFromValueWithChangeEvent(this, this._accessibilitySignalService.getEnabledState(signal, false)).read(reader))
   );
   _activeEditorObservable = observableFromEvent(
     this,
@@ -109,119 +67,67 @@ let EditorTextPropertySignalsContribution = class extends Disposable {
     let lastLine = -1;
     const ignoredLineSignalsForCurrentLine = /* @__PURE__ */ new Set();
     const timeouts = store.add(new DisposableStore());
-    const propertySources = this._textProperties.map((p) => ({
-      source: p.createSource(editor, editorModel),
-      property: p
-    }));
-    const didType = wasEventTriggeredRecently(
-      editor.onDidChangeModelContent,
-      100,
-      store
-    );
-    store.add(
-      editor.onDidChangeCursorPosition((args) => {
-        timeouts.clear();
-        if (args && args.reason !== CursorChangeReason.Explicit && args.reason !== CursorChangeReason.NotSet) {
-          ignoredLineSignalsForCurrentLine.clear();
+    const propertySources = this._textProperties.map((p) => ({ source: p.createSource(editor, editorModel), property: p }));
+    const didType = wasEventTriggeredRecently(editor.onDidChangeModelContent, 100, store);
+    store.add(editor.onDidChangeCursorPosition((args) => {
+      timeouts.clear();
+      if (args && args.reason !== CursorChangeReason.Explicit && args.reason !== CursorChangeReason.NotSet) {
+        ignoredLineSignalsForCurrentLine.clear();
+        return;
+      }
+      const trigger = /* @__PURE__ */ __name((property, source, mode) => {
+        const signal = mode === "line" ? property.lineSignal : property.positionSignal;
+        if (!signal || !this._accessibilitySignalService.getEnabledState(signal, false).value || !source.isPresent(position, mode, void 0)) {
           return;
         }
-        const trigger = /* @__PURE__ */ __name((property, source, mode) => {
-          const signal = mode === "line" ? property.lineSignal : property.positionSignal;
-          if (!signal || !this._accessibilitySignalService.getEnabledState(
-            signal,
-            false
-          ).value || !source.isPresent(position, mode, void 0)) {
-            return;
+        for (const modality of ["sound", "announcement"]) {
+          if (this._accessibilitySignalService.getEnabledState(signal, false, modality).value) {
+            const delay = this._accessibilitySignalService.getDelayMs(signal, modality, mode) + (didType.get() ? 1e3 : 0);
+            timeouts.add(disposableTimeout(() => {
+              if (source.isPresent(position, mode, void 0)) {
+                if (!(mode === "line") || !ignoredLineSignalsForCurrentLine.has(property)) {
+                  this._accessibilitySignalService.playSignal(signal, { modality });
+                }
+                ignoredLineSignalsForCurrentLine.add(property);
+              }
+            }, delay));
           }
-          for (const modality of [
-            "sound",
-            "announcement"
-          ]) {
-            if (this._accessibilitySignalService.getEnabledState(
-              signal,
-              false,
-              modality
-            ).value) {
-              const delay = this._accessibilitySignalService.getDelayMs(
-                signal,
-                modality,
-                mode
-              ) + (didType.get() ? 1e3 : 0);
-              timeouts.add(
-                disposableTimeout(() => {
-                  if (source.isPresent(
-                    position,
-                    mode,
-                    void 0
-                  )) {
-                    if (!(mode === "line") || !ignoredLineSignalsForCurrentLine.has(
-                      property
-                    )) {
-                      this._accessibilitySignalService.playSignal(
-                        signal,
-                        { modality }
-                      );
-                    }
-                    ignoredLineSignalsForCurrentLine.add(
-                      property
-                    );
-                  }
-                }, delay)
-              );
+        }
+      }, "trigger");
+      const position = args.position;
+      const lineNumber = position.lineNumber;
+      if (lineNumber !== lastLine) {
+        ignoredLineSignalsForCurrentLine.clear();
+        lastLine = lineNumber;
+        for (const p of propertySources) {
+          trigger(p.property, p.source, "line");
+        }
+      }
+      for (const p of propertySources) {
+        trigger(p.property, p.source, "positional");
+      }
+      for (const s of propertySources) {
+        if (![s.property.lineSignal, s.property.positionSignal].some((s2) => s2 && this._accessibilitySignalService.getEnabledState(s2, false).value)) {
+          return;
+        }
+        let lastValueAtPosition = void 0;
+        let lastValueOnLine = void 0;
+        timeouts.add(autorun((reader) => {
+          const newValueAtPosition = s.source.isPresentAtPosition(args.position, reader);
+          const newValueOnLine = s.source.isPresentOnLine(args.position.lineNumber, reader);
+          if (lastValueAtPosition !== void 0 && lastValueAtPosition !== void 0) {
+            if (!lastValueAtPosition && newValueAtPosition) {
+              trigger(s.property, s.source, "positional");
+            }
+            if (!lastValueOnLine && newValueOnLine) {
+              trigger(s.property, s.source, "line");
             }
           }
-        }, "trigger");
-        const position = args.position;
-        const lineNumber = position.lineNumber;
-        if (lineNumber !== lastLine) {
-          ignoredLineSignalsForCurrentLine.clear();
-          lastLine = lineNumber;
-          for (const p of propertySources) {
-            trigger(p.property, p.source, "line");
-          }
-        }
-        for (const p of propertySources) {
-          trigger(p.property, p.source, "positional");
-        }
-        for (const s of propertySources) {
-          if (![
-            s.property.lineSignal,
-            s.property.positionSignal
-          ].some(
-            (s2) => s2 && this._accessibilitySignalService.getEnabledState(
-              s2,
-              false
-            ).value
-          )) {
-            return;
-          }
-          let lastValueAtPosition;
-          let lastValueOnLine;
-          timeouts.add(
-            autorun((reader) => {
-              const newValueAtPosition = s.source.isPresentAtPosition(
-                args.position,
-                reader
-              );
-              const newValueOnLine = s.source.isPresentOnLine(
-                args.position.lineNumber,
-                reader
-              );
-              if (lastValueAtPosition !== void 0 && lastValueAtPosition !== void 0) {
-                if (!lastValueAtPosition && newValueAtPosition) {
-                  trigger(s.property, s.source, "positional");
-                }
-                if (!lastValueOnLine && newValueOnLine) {
-                  trigger(s.property, s.source, "line");
-                }
-              }
-              lastValueAtPosition = newValueAtPosition;
-              lastValueOnLine = newValueOnLine;
-            })
-          );
-        }
-      })
-    );
+          lastValueAtPosition = newValueAtPosition;
+          lastValueOnLine = newValueOnLine;
+        }));
+      }
+    }));
   }
 };
 EditorTextPropertySignalsContribution = __decorateClass([
@@ -233,10 +139,7 @@ class TextPropertySource {
   static {
     __name(this, "TextPropertySource");
   }
-  static notPresent = new TextPropertySource({
-    isPresentAtPosition: /* @__PURE__ */ __name(() => false, "isPresentAtPosition"),
-    isPresentOnLine: /* @__PURE__ */ __name(() => false, "isPresentOnLine")
-  });
+  static notPresent = new TextPropertySource({ isPresentAtPosition: /* @__PURE__ */ __name(() => false, "isPresentAtPosition"), isPresentOnLine: /* @__PURE__ */ __name(() => false, "isPresentOnLine") });
   isPresentOnLine;
   isPresentAtPosition;
   constructor(options) {
@@ -259,10 +162,7 @@ let MarkerTextProperty = class {
   }
   debounceWhileTyping = true;
   createSource(editor, model) {
-    const obs = observableSignalFromEvent(
-      "onMarkerChanged",
-      this.markerService.onMarkerChanged
-    );
+    const obs = observableSignalFromEvent("onMarkerChanged", this.markerService.onMarkerChanged);
     return new TextPropertySource({
       isPresentAtPosition: /* @__PURE__ */ __name((position, reader) => {
         obs.read(reader);
@@ -294,14 +194,12 @@ class FoldedAreaTextProperty {
     if (!foldingController) {
       return TextPropertySource.notPresent;
     }
-    const foldingModel = observableFromPromise(
-      foldingController.getFoldingModel() ?? Promise.resolve(void 0)
-    );
+    const foldingModel = observableFromPromise(foldingController.getFoldingModel() ?? Promise.resolve(void 0));
     return new TextPropertySource({
       isPresentOnLine(lineNumber, reader) {
         const m = foldingModel.read(reader);
         const regionAtLine = m.value?.getRegionAtLine(lineNumber);
-        const hasFolding = regionAtLine ? regionAtLine.isCollapsed && regionAtLine.startLineNumber === lineNumber : false;
+        const hasFolding = !regionAtLine ? false : regionAtLine.isCollapsed && regionAtLine.startLineNumber === lineNumber;
         return hasFolding;
       }
     });
@@ -316,10 +214,7 @@ let BreakpointTextProperty = class {
   }
   lineSignal = AccessibilitySignal.break;
   createSource(editor, model) {
-    const signal = observableSignalFromEvent(
-      "onDidChangeBreakpoints",
-      this.debugService.getModel().onDidChangeBreakpoints
-    );
+    const signal = observableSignalFromEvent("onDidChangeBreakpoints", this.debugService.getModel().onDidChangeBreakpoints);
     const debugService = this.debugService;
     return new TextPropertySource({
       isPresentOnLine(lineNumber, reader) {

@@ -14,114 +14,75 @@ import * as dom from "../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { Button } from "../../../../base/browser/ui/button/button.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import {
-  SelectBox
-} from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { ISelectOptionItem, SelectBox } from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import * as lifecycle from "../../../../base/common/lifecycle.js";
 import { URI as uri } from "../../../../base/common/uri.js";
 import "./media/breakpointWidget.css";
-import {
-  EditorCommand,
-  registerEditorCommand
-} from "../../../../editor/browser/editorExtensions.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorCommand, ServicesAccessor, registerEditorCommand } from "../../../../editor/browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import {
-  EditorOption
-} from "../../../../editor/common/config/editorOptions.js";
-import {
-  Position
-} from "../../../../editor/common/core/position.js";
-import { Range } from "../../../../editor/common/core/range.js";
+import { EditorOption, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IPosition, Position } from "../../../../editor/common/core/position.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { IDecorationOptions } from "../../../../editor/common/editorCommon.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
-import {
-  CompletionItemKind
-} from "../../../../editor/common/languages.js";
+import { CompletionContext, CompletionItemKind, CompletionList } from "../../../../editor/common/languages.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import {
-  CompletionOptions,
-  provideSuggestionItems
-} from "../../../../editor/contrib/suggest/browser/suggest.js";
+import { CompletionOptions, provideSuggestionItems } from "../../../../editor/contrib/suggest/browser/suggest.js";
 import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
 import * as nls from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import {
-  IInstantiationService,
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
-import {
-  defaultButtonStyles,
-  defaultSelectBoxStyles
-} from "../../../../platform/theme/browser/defaultStyles.js";
+import { defaultButtonStyles, defaultSelectBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { editorForeground } from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService
-} from "../../../../platform/theme/common/themeService.js";
-import {
-  getSimpleCodeEditorWidgetOptions,
-  getSimpleEditorOptions
-} from "../../codeEditor/browser/simpleEditorOptions.js";
-import {
-  BREAKPOINT_EDITOR_CONTRIBUTION_ID,
-  CONTEXT_BREAKPOINT_WIDGET_VISIBLE,
-  CONTEXT_IN_BREAKPOINT_WIDGET,
-  BreakpointWidgetContext as Context,
-  DEBUG_SCHEME,
-  IDebugService
-} from "../common/debug.js";
+import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { getSimpleCodeEditorWidgetOptions, getSimpleEditorOptions } from "../../codeEditor/browser/simpleEditorOptions.js";
+import { BREAKPOINT_EDITOR_CONTRIBUTION_ID, CONTEXT_BREAKPOINT_WIDGET_VISIBLE, CONTEXT_IN_BREAKPOINT_WIDGET, BreakpointWidgetContext as Context, DEBUG_SCHEME, IBreakpoint, IBreakpointEditorContribution, IBreakpointUpdateData, IDebugService } from "../common/debug.js";
 const $ = dom.$;
-const IPrivateBreakpointWidgetService = createDecorator(
-  "privateBreakpointWidgetService"
-);
+const IPrivateBreakpointWidgetService = createDecorator("privateBreakpointWidgetService");
 const DECORATION_KEY = "breakpointwidgetdecoration";
 function isPositionInCurlyBracketBlock(input) {
   const model = input.getModel();
-  const bracketPairs = model.bracketPairs.getBracketPairsInRange(
-    Range.fromPositions(input.getPosition())
-  );
+  const bracketPairs = model.bracketPairs.getBracketPairsInRange(Range.fromPositions(input.getPosition()));
   return bracketPairs.some((p) => p.openingBracketInfo.bracketText === "{");
 }
 __name(isPositionInCurlyBracketBlock, "isPositionInCurlyBracketBlock");
 function createDecorations(theme, placeHolder) {
   const transparentForeground = theme.getColor(editorForeground)?.transparent(0.4);
-  return [
-    {
-      range: {
-        startLineNumber: 0,
-        endLineNumber: 0,
-        startColumn: 0,
-        endColumn: 1
-      },
-      renderOptions: {
-        after: {
-          contentText: placeHolder,
-          color: transparentForeground ? transparentForeground.toString() : void 0
-        }
+  return [{
+    range: {
+      startLineNumber: 0,
+      endLineNumber: 0,
+      startColumn: 0,
+      endColumn: 1
+    },
+    renderOptions: {
+      after: {
+        contentText: placeHolder,
+        color: transparentForeground ? transparentForeground.toString() : void 0
       }
     }
-  ];
+  }];
 }
 __name(createDecorations, "createDecorations");
 let BreakpointWidget = class extends ZoneWidget {
   constructor(editor, lineNumber, column, context, contextViewService, debugService, themeService, contextKeyService, instantiationService, modelService, codeEditorService, _configurationService, languageFeaturesService, keybindingService, labelService, textModelService, hoverService) {
-    super(editor, {
-      showFrame: true,
-      showArrow: false,
-      frameWidth: 1,
-      isAccessible: true
-    });
+    super(editor, { showFrame: true, showArrow: false, frameWidth: 1, isAccessible: true });
     this.lineNumber = lineNumber;
     this.column = column;
     this.contextViewService = contextViewService;
@@ -141,11 +102,7 @@ let BreakpointWidget = class extends ZoneWidget {
     const model = this.editor.getModel();
     if (model) {
       const uri2 = model.uri;
-      const breakpoints = this.debugService.getModel().getBreakpoints({
-        lineNumber: this.lineNumber,
-        column: this.column,
-        uri: uri2
-      });
+      const breakpoints = this.debugService.getModel().getBreakpoints({ lineNumber: this.lineNumber, column: this.column, uri: uri2 });
       this.breakpoint = breakpoints.length ? breakpoints[0] : void 0;
     }
     if (context === void 0) {
@@ -161,18 +118,12 @@ let BreakpointWidget = class extends ZoneWidget {
     } else {
       this.context = context;
     }
-    this.toDispose.push(
-      this.debugService.getModel().onDidChangeBreakpoints((e) => {
-        if (this.breakpoint && e && e.removed && e.removed.indexOf(this.breakpoint) >= 0) {
-          this.dispose();
-        }
-      })
-    );
-    this.codeEditorService.registerDecorationType(
-      "breakpoint-widget",
-      DECORATION_KEY,
-      {}
-    );
+    this.toDispose.push(this.debugService.getModel().onDidChangeBreakpoints((e) => {
+      if (this.breakpoint && e && e.removed && e.removed.indexOf(this.breakpoint) >= 0) {
+        this.dispose();
+      }
+    }));
+    this.codeEditorService.registerDecorationType("breakpoint-widget", DECORATION_KEY, {});
     this.create();
   }
   static {
@@ -198,26 +149,11 @@ let BreakpointWidget = class extends ZoneWidget {
     const closeString = this.keybindingService.lookupKeybinding(CloseBreakpointWidgetCommand.ID)?.getLabel() || "Escape";
     switch (this.context) {
       case Context.LOG_MESSAGE:
-        return nls.localize(
-          "breakpointWidgetLogMessagePlaceholder",
-          "Message to log when breakpoint is hit. Expressions within {} are interpolated. '{0}' to accept, '{1}' to cancel.",
-          acceptString,
-          closeString
-        );
+        return nls.localize("breakpointWidgetLogMessagePlaceholder", "Message to log when breakpoint is hit. Expressions within {} are interpolated. '{0}' to accept, '{1}' to cancel.", acceptString, closeString);
       case Context.HIT_COUNT:
-        return nls.localize(
-          "breakpointWidgetHitCountPlaceholder",
-          "Break when hit count condition is met. '{0}' to accept, '{1}' to cancel.",
-          acceptString,
-          closeString
-        );
+        return nls.localize("breakpointWidgetHitCountPlaceholder", "Break when hit count condition is met. '{0}' to accept, '{1}' to cancel.", acceptString, closeString);
       default:
-        return nls.localize(
-          "breakpointWidgetExpressionPlaceholder",
-          "Break when expression evaluates to true. '{0}' to accept, '{1}' to cancel.",
-          acceptString,
-          closeString
-        );
+        return nls.localize("breakpointWidgetExpressionPlaceholder", "Break when expression evaluates to true. '{0}' to accept, '{1}' to cancel.", acceptString, closeString);
     }
   }
   getInputValue(breakpoint) {
@@ -261,18 +197,12 @@ let BreakpointWidget = class extends ZoneWidget {
   }
   _fillContainer(container) {
     this.setCssClass("breakpoint-widget");
-    const selectBox = new SelectBox(
-      [
-        { text: nls.localize("expression", "Expression") },
-        { text: nls.localize("hitCount", "Hit Count") },
-        { text: nls.localize("logMessage", "Log Message") },
-        { text: nls.localize("triggeredBy", "Wait for Breakpoint") }
-      ],
-      this.context,
-      this.contextViewService,
-      defaultSelectBoxStyles,
-      { ariaLabel: nls.localize("breakpointType", "Breakpoint Type") }
-    );
+    const selectBox = new SelectBox([
+      { text: nls.localize("expression", "Expression") },
+      { text: nls.localize("hitCount", "Hit Count") },
+      { text: nls.localize("logMessage", "Log Message") },
+      { text: nls.localize("triggeredBy", "Wait for Breakpoint") }
+    ], this.context, this.contextViewService, defaultSelectBoxStyles, { ariaLabel: nls.localize("breakpointType", "Breakpoint Type") });
     this.selectContainer = $(".breakpoint-select-container");
     selectBox.render(dom.append(container, this.selectContainer));
     selectBox.onDidSelect((e) => {
@@ -282,24 +212,13 @@ let BreakpointWidget = class extends ZoneWidget {
     });
     this.createModesInput(container);
     this.inputContainer = $(".inputContainer");
-    this.toDispose.push(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this.inputContainer,
-        this.placeholder
-      )
-    );
+    this.toDispose.push(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.inputContainer, this.placeholder));
     this.createBreakpointInput(dom.append(container, this.inputContainer));
     this.input.getModel().setValue(this.getInputValue(this.breakpoint));
-    this.toDispose.push(
-      this.input.getModel().onDidChangeContent(() => {
-        this.fitHeightToContent();
-      })
-    );
-    this.input.setPosition({
-      lineNumber: 1,
-      column: this.input.getModel().getLineMaxColumn(1)
-    });
+    this.toDispose.push(this.input.getModel().onDidChangeContent(() => {
+      this.fitHeightToContent();
+    }));
+    this.input.setPosition({ lineNumber: 1, column: this.input.getModel().getLineMaxColumn(1) });
     this.createTriggerBreakpointInput(container);
     this.updateContextInput();
     setTimeout(() => this.focusInput(), 150);
@@ -312,21 +231,16 @@ let BreakpointWidget = class extends ZoneWidget {
     const sb = this.selectModeBox = new SelectBox(
       [
         { text: nls.localize("bpMode", "Mode"), isDisabled: true },
-        ...modes.map((mode) => ({
-          text: mode.label,
-          description: mode.description
-        }))
+        ...modes.map((mode) => ({ text: mode.label, description: mode.description }))
       ],
       modes.findIndex((m) => m.mode === this.breakpoint?.mode) + 1,
       this.contextViewService,
       defaultSelectBoxStyles
     );
     this.toDispose.push(sb);
-    this.toDispose.push(
-      sb.onDidSelect((e) => {
-        this.modeInput = modes[e.index - 1];
-      })
-    );
+    this.toDispose.push(sb.onDidSelect((e) => {
+      this.modeInput = modes[e.index - 1];
+    }));
     const modeWrapper = $(".select-mode-container");
     const selectionWrapper = $(".select-box-container");
     dom.append(modeWrapper, selectionWrapper);
@@ -336,18 +250,13 @@ let BreakpointWidget = class extends ZoneWidget {
   createTriggerBreakpointInput(container) {
     const breakpoints = this.debugService.getModel().getBreakpoints().filter((bp) => bp !== this.breakpoint && !bp.logMessage);
     const breakpointOptions = [
-      {
-        text: nls.localize("noTriggerByBreakpoint", "None"),
-        isDisabled: true
-      },
+      { text: nls.localize("noTriggerByBreakpoint", "None"), isDisabled: true },
       ...breakpoints.map((bp) => ({
         text: `${this.labelService.getUriLabel(bp.uri, { relative: true })}: ${bp.lineNumber}`,
         description: nls.localize("triggerByLoading", "Loading...")
       }))
     ];
-    const index = breakpoints.findIndex(
-      (bp) => this.breakpoint?.triggeredBy === bp.getId()
-    );
+    const index = breakpoints.findIndex((bp) => this.breakpoint?.triggeredBy === bp.getId());
     for (const [i, bp] of breakpoints.entries()) {
       this.textModelService.createModelReference(bp.uri).then((ref) => {
         try {
@@ -356,24 +265,10 @@ let BreakpointWidget = class extends ZoneWidget {
           ref.dispose();
         }
       }).catch(() => {
-        breakpointOptions[i + 1].description = nls.localize(
-          "noBpSource",
-          "Could not load source."
-        );
+        breakpointOptions[i + 1].description = nls.localize("noBpSource", "Could not load source.");
       });
     }
-    const selectBreakpointBox = this.selectBreakpointBox = new SelectBox(
-      breakpointOptions,
-      index + 1,
-      this.contextViewService,
-      defaultSelectBoxStyles,
-      {
-        ariaLabel: nls.localize(
-          "selectBreakpoint",
-          "Select breakpoint"
-        )
-      }
-    );
+    const selectBreakpointBox = this.selectBreakpointBox = new SelectBox(breakpointOptions, index + 1, this.contextViewService, defaultSelectBoxStyles, { ariaLabel: nls.localize("selectBreakpoint", "Select breakpoint") });
     selectBreakpointBox.onDidSelect((e) => {
       if (e.index === 0) {
         this.triggeredByBreakpointInput = void 0;
@@ -383,26 +278,17 @@ let BreakpointWidget = class extends ZoneWidget {
     });
     this.toDispose.push(selectBreakpointBox);
     this.selectBreakpointContainer = $(".select-breakpoint-container");
-    this.toDispose.push(
-      dom.addDisposableListener(
-        this.selectBreakpointContainer,
-        dom.EventType.KEY_DOWN,
-        (e) => {
-          const event = new StandardKeyboardEvent(e);
-          if (event.equals(KeyCode.Escape)) {
-            this.close(false);
-          }
-        }
-      )
-    );
+    this.toDispose.push(dom.addDisposableListener(this.selectBreakpointContainer, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(KeyCode.Escape)) {
+        this.close(false);
+      }
+    }));
     const selectionWrapper = $(".select-box-container");
     dom.append(this.selectBreakpointContainer, selectionWrapper);
     selectBreakpointBox.render(selectionWrapper);
     dom.append(container, this.selectBreakpointContainer);
-    const closeButton = new Button(
-      this.selectBreakpointContainer,
-      defaultButtonStyles
-    );
+    const closeButton = new Button(this.selectBreakpointContainer, defaultButtonStyles);
     closeButton.label = nls.localize("ok", "Ok");
     this.toDispose.push(closeButton.onDidClick(() => this.close(true)));
     this.toDispose.push(closeButton);
@@ -433,28 +319,16 @@ let BreakpointWidget = class extends ZoneWidget {
   createBreakpointInput(container) {
     const scopedContextKeyService = this.contextKeyService.createScoped(container);
     this.toDispose.push(scopedContextKeyService);
-    const scopedInstatiationService = this.instantiationService.createChild(
-      new ServiceCollection(
-        [IContextKeyService, scopedContextKeyService],
-        [IPrivateBreakpointWidgetService, this]
-      )
-    );
+    const scopedInstatiationService = this.instantiationService.createChild(new ServiceCollection(
+      [IContextKeyService, scopedContextKeyService],
+      [IPrivateBreakpointWidgetService, this]
+    ));
     this.toDispose.push(scopedInstatiationService);
     const options = this.createEditorOptions();
     const codeEditorWidgetOptions = getSimpleCodeEditorWidgetOptions();
-    this.input = scopedInstatiationService.createInstance(
-      CodeEditorWidget,
-      container,
-      options,
-      codeEditorWidgetOptions
-    );
+    this.input = scopedInstatiationService.createInstance(CodeEditorWidget, container, options, codeEditorWidgetOptions);
     CONTEXT_IN_BREAKPOINT_WIDGET.bindTo(scopedContextKeyService).set(true);
-    const model = this.modelService.createModel(
-      "",
-      null,
-      uri.parse(`${DEBUG_SCHEME}:${this.editor.getId()}:breakpointinput`),
-      true
-    );
+    const model = this.modelService.createModel("", null, uri.parse(`${DEBUG_SCHEME}:${this.editor.getId()}:breakpointinput`), true);
     if (this.editor.hasModel()) {
       model.setLanguage(this.editor.getModel().getLanguageId());
     }
@@ -463,80 +337,46 @@ let BreakpointWidget = class extends ZoneWidget {
     this.toDispose.push(model);
     const setDecorations = /* @__PURE__ */ __name(() => {
       const value = this.input.getModel().getValue();
-      const decorations = !!value ? [] : createDecorations(
-        this.themeService.getColorTheme(),
-        this.placeholder
-      );
-      this.input.setDecorationsByType(
-        "breakpoint-widget",
-        DECORATION_KEY,
-        decorations
-      );
+      const decorations = !!value ? [] : createDecorations(this.themeService.getColorTheme(), this.placeholder);
+      this.input.setDecorationsByType("breakpoint-widget", DECORATION_KEY, decorations);
     }, "setDecorations");
     this.input.getModel().onDidChangeContent(() => setDecorations());
     this.themeService.onDidColorThemeChange(() => setDecorations());
-    this.toDispose.push(
-      this.languageFeaturesService.completionProvider.register(
-        { scheme: DEBUG_SCHEME, hasAccessToAllModels: true },
-        {
-          _debugDisplayName: "breakpointWidget",
-          provideCompletionItems: /* @__PURE__ */ __name((model2, position, _context, token) => {
-            let suggestionsPromise;
-            const underlyingModel = this.editor.getModel();
-            if (underlyingModel && (this.context === Context.CONDITION || this.context === Context.LOG_MESSAGE && isPositionInCurlyBracketBlock(this.input))) {
-              suggestionsPromise = provideSuggestionItems(
-                this.languageFeaturesService.completionProvider,
-                underlyingModel,
-                new Position(this.lineNumber, 1),
-                new CompletionOptions(
-                  void 0,
-                  (/* @__PURE__ */ new Set()).add(
-                    CompletionItemKind.Snippet
-                  )
-                ),
-                _context,
-                token
-              ).then((suggestions) => {
-                let overwriteBefore = 0;
-                if (this.context === Context.CONDITION) {
-                  overwriteBefore = position.column - 1;
-                } else {
-                  const value = this.input.getModel().getValue();
-                  while (position.column - 2 - overwriteBefore >= 0 && value[position.column - 2 - overwriteBefore] !== "{" && value[position.column - 2 - overwriteBefore] !== " ") {
-                    overwriteBefore++;
-                  }
-                }
-                return {
-                  suggestions: suggestions.items.map((s) => {
-                    s.completion.range = Range.fromPositions(
-                      position.delta(
-                        0,
-                        -overwriteBefore
-                      ),
-                      position
-                    );
-                    return s.completion;
-                  })
-                };
-              });
+    this.toDispose.push(this.languageFeaturesService.completionProvider.register({ scheme: DEBUG_SCHEME, hasAccessToAllModels: true }, {
+      _debugDisplayName: "breakpointWidget",
+      provideCompletionItems: /* @__PURE__ */ __name((model2, position, _context, token) => {
+        let suggestionsPromise;
+        const underlyingModel = this.editor.getModel();
+        if (underlyingModel && (this.context === Context.CONDITION || this.context === Context.LOG_MESSAGE && isPositionInCurlyBracketBlock(this.input))) {
+          suggestionsPromise = provideSuggestionItems(this.languageFeaturesService.completionProvider, underlyingModel, new Position(this.lineNumber, 1), new CompletionOptions(void 0, (/* @__PURE__ */ new Set()).add(CompletionItemKind.Snippet)), _context, token).then((suggestions) => {
+            let overwriteBefore = 0;
+            if (this.context === Context.CONDITION) {
+              overwriteBefore = position.column - 1;
             } else {
-              suggestionsPromise = Promise.resolve({
-                suggestions: []
-              });
+              const value = this.input.getModel().getValue();
+              while (position.column - 2 - overwriteBefore >= 0 && value[position.column - 2 - overwriteBefore] !== "{" && value[position.column - 2 - overwriteBefore] !== " ") {
+                overwriteBefore++;
+              }
             }
-            return suggestionsPromise;
-          }, "provideCompletionItems")
+            return {
+              suggestions: suggestions.items.map((s) => {
+                s.completion.range = Range.fromPositions(position.delta(0, -overwriteBefore), position);
+                return s.completion;
+              })
+            };
+          });
+        } else {
+          suggestionsPromise = Promise.resolve({ suggestions: [] });
         }
-      )
-    );
-    this.toDispose.push(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("editor.fontSize") || e.affectsConfiguration("editor.lineHeight")) {
-          this.input.updateOptions(this.createEditorOptions());
-          this.centerInputVertically();
-        }
-      })
-    );
+        return suggestionsPromise;
+      }, "provideCompletionItems")
+    }));
+    this.toDispose.push(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("editor.fontSize") || e.affectsConfiguration("editor.lineHeight")) {
+        this.input.updateOptions(this.createEditorOptions());
+        this.centerInputVertically();
+      }
+    }));
   }
   createEditorOptions() {
     const editorConfig = this._configurationService.getValue("editor");
@@ -558,12 +398,12 @@ let BreakpointWidget = class extends ZoneWidget {
   }
   close(success) {
     if (success) {
-      let condition;
-      let hitCondition;
-      let logMessage;
-      let triggeredBy;
-      let mode;
-      let modeLabel;
+      let condition = void 0;
+      let hitCondition = void 0;
+      let logMessage = void 0;
+      let triggeredBy = void 0;
+      let mode = void 0;
+      let modeLabel = void 0;
       this.rememberInput();
       if (this.conditionInput || this.context === Context.CONDITION) {
         condition = this.conditionInput;
@@ -598,19 +438,17 @@ let BreakpointWidget = class extends ZoneWidget {
       } else {
         const model = this.editor.getModel();
         if (model) {
-          this.debugService.addBreakpoints(model.uri, [
-            {
-              lineNumber: this.lineNumber,
-              column: this.column,
-              enabled: true,
-              condition,
-              hitCondition,
-              logMessage,
-              triggeredBy,
-              mode,
-              modeLabel
-            }
-          ]);
+          this.debugService.addBreakpoints(model.uri, [{
+            lineNumber: this.lineNumber,
+            column: this.column,
+            enabled: true,
+            condition,
+            hitCondition,
+            logMessage,
+            triggeredBy,
+            mode,
+            modeLabel
+          }]);
         }
       }
     }
@@ -683,9 +521,7 @@ class CloseBreakpointWidgetCommand extends EditorCommand {
     });
   }
   runEditorCommand(accessor, editor, args) {
-    const debugContribution = editor.getContribution(
-      BREAKPOINT_EDITOR_CONTRIBUTION_ID
-    );
+    const debugContribution = editor.getContribution(BREAKPOINT_EDITOR_CONTRIBUTION_ID);
     if (debugContribution) {
       return debugContribution.closeBreakpointWidget();
     }

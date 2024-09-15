@@ -2,11 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Iterable } from "../../../../base/common/iterator.js";
 import { TestResultState } from "./testTypes.js";
-import {
-  makeEmptyCounts,
-  maxPriority,
-  statePriority
-} from "./testingStates.js";
+import { makeEmptyCounts, maxPriority, statePriority } from "./testingStates.js";
 const isDurationAccessor = /* @__PURE__ */ __name((accessor) => "getOwnDuration" in accessor, "isDurationAccessor");
 const getComputedState = /* @__PURE__ */ __name((accessor, node, force = false) => {
   let computed = accessor.getCurrentComputedState(node);
@@ -90,10 +86,7 @@ const refreshComputedState = /* @__PURE__ */ __name((accessor, node, explicitNew
     }
   }
   if (isDurationAccessor(accessor) && refreshDuration) {
-    for (const parent of Iterable.concat(
-      Iterable.single(node),
-      accessor.getParents(node)
-    )) {
+    for (const parent of Iterable.concat(Iterable.single(node), accessor.getParents(node))) {
       const oldDuration = accessor.getCurrentComputedDuration(parent);
       const newDuration = getComputedDuration(accessor, parent, true);
       if (oldDuration === newDuration) {

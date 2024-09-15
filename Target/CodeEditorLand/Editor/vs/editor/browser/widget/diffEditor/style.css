@@ -158,7 +158,7 @@
   z-index: 10;
 }
 .modified-in-monaco-diff-editor .slider.active {
-  background: rgba(171, 171, 171, 0.4);
+  background: rgba(171, 171, 171, .4);
 }
 .modified-in-monaco-diff-editor.hc-black .slider.active {
   background: none;
@@ -210,7 +210,7 @@
 }
 .monaco-editor .line-insert,
 .monaco-diff-editor .line-insert {
-  background-color: var( --vscode-diffEditor-insertedLineBackground, var(--vscode-diffEditor-insertedTextBackground) );
+  background-color: var(--vscode-diffEditor-insertedLineBackground, var(--vscode-diffEditor-insertedTextBackground));
 }
 .monaco-editor .line-insert,
 .monaco-editor .char-insert {
@@ -237,7 +237,7 @@
 .monaco-editor .inline-added-margin-view-zone,
 .monaco-editor .gutter-insert,
 .monaco-diff-editor .gutter-insert {
-  background-color: var( --vscode-diffEditorGutter-insertedLineBackground, var(--vscode-diffEditor-insertedLineBackground), var(--vscode-diffEditor-insertedTextBackground) );
+  background-color: var(--vscode-diffEditorGutter-insertedLineBackground, var(--vscode-diffEditor-insertedLineBackground), var(--vscode-diffEditor-insertedTextBackground));
 }
 .monaco-editor .char-delete,
 .monaco-diff-editor .char-delete,
@@ -249,12 +249,12 @@
 }
 .monaco-editor .line-delete,
 .monaco-diff-editor .line-delete {
-  background-color: var( --vscode-diffEditor-removedLineBackground, var(--vscode-diffEditor-removedTextBackground) );
+  background-color: var(--vscode-diffEditor-removedLineBackground, var(--vscode-diffEditor-removedTextBackground));
 }
 .monaco-editor .inline-deleted-margin-view-zone,
 .monaco-editor .gutter-delete,
 .monaco-diff-editor .gutter-delete {
-  background-color: var( --vscode-diffEditorGutter-removedLineBackground, var(--vscode-diffEditor-removedLineBackground), var(--vscode-diffEditor-removedTextBackground) );
+  background-color: var(--vscode-diffEditorGutter-removedLineBackground, var(--vscode-diffEditor-removedLineBackground), var(--vscode-diffEditor-removedTextBackground));
 }
 .monaco-diff-editor.side-by-side .editor.modified {
   box-shadow: -6px 0 5px -5px var(--vscode-scrollbar-shadow);
@@ -330,10 +330,10 @@
           .actions-container {
             width: fit-content;
             border-radius: 4px;
-            background: var( --vscode-editorGutter-commentRangeForeground );
+            background: var(--vscode-editorGutter-commentRangeForeground);
             .action-item {
               &:hover {
-                background: var( --vscode-toolbar-hoverBackground );
+                background: var(--vscode-toolbar-hoverBackground);
               }
               .action-label {
                 padding: 1px 2px;

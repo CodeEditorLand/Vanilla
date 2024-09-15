@@ -1,10 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as glob from "../../../../base/common/glob.js";
+import { URI } from "../../../../base/common/uri.js";
 import { basename } from "../../../../base/common/path.js";
-import {
-  isDocumentExcludePattern
-} from "./notebookCommon.js";
+import { INotebookExclusiveDocumentFilter, isDocumentExcludePattern, TransientOptions } from "./notebookCommon.js";
+import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 class NotebookProviderInfo {
   static {
     __name(this, "NotebookProviderInfo");
@@ -48,16 +49,11 @@ class NotebookProviderInfo {
     }
   }
   matches(resource) {
-    return this.selectors?.some(
-      (selector) => NotebookProviderInfo.selectorMatches(selector, resource)
-    );
+    return this.selectors?.some((selector) => NotebookProviderInfo.selectorMatches(selector, resource));
   }
   static selectorMatches(selector, resource) {
     if (typeof selector === "string") {
-      if (glob.match(
-        selector.toLowerCase(),
-        basename(resource.fsPath).toLowerCase()
-      )) {
+      if (glob.match(selector.toLowerCase(), basename(resource.fsPath).toLowerCase())) {
         return true;
       }
     }
@@ -73,10 +69,7 @@ class NotebookProviderInfo {
     const excludeFilenamePattern = selector.exclude;
     if (glob.match(filenamePattern, basename(resource.fsPath).toLowerCase())) {
       if (excludeFilenamePattern) {
-        if (glob.match(
-          excludeFilenamePattern,
-          basename(resource.fsPath).toLowerCase()
-        )) {
+        if (glob.match(excludeFilenamePattern, basename(resource.fsPath).toLowerCase())) {
           return false;
         }
       }

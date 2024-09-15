@@ -10,11 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DeferredPromise } from "../../../base/common/async.js";
-import { canceled } from "../../../base/common/errors.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
 import { ILogService } from "../../log/common/log.js";
-import { ISharedTunnelsService } from "../common/tunnel.js";
+import { ISharedProcessTunnel, ISharedProcessTunnelService } from "../../remote/common/sharedProcessTunnelService.js";
+import { ISharedTunnelsService, RemoteTunnel } from "../common/tunnel.js";
+import { IAddress, IAddressProvider } from "../../remote/common/remoteAgentConnection.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { canceled } from "../../../base/common/errors.js";
+import { DeferredPromise } from "../../../base/common/async.js";
 class TunnelData extends Disposable {
   static {
     __name(this, "TunnelData");
@@ -69,21 +71,9 @@ let SharedProcessTunnelService = class extends Disposable {
   }
   async startTunnel(authority, id, tunnelRemoteHost, tunnelRemotePort, tunnelLocalHost, tunnelLocalPort, elevateIfNeeded) {
     const tunnelData = new TunnelData();
-    const tunnel = await Promise.resolve(
-      this._tunnelService.openTunnel(
-        authority,
-        tunnelData,
-        tunnelRemoteHost,
-        tunnelRemotePort,
-        tunnelLocalHost,
-        tunnelLocalPort,
-        elevateIfNeeded
-      )
-    );
+    const tunnel = await Promise.resolve(this._tunnelService.openTunnel(authority, tunnelData, tunnelRemoteHost, tunnelRemotePort, tunnelLocalHost, tunnelLocalPort, elevateIfNeeded));
     if (!tunnel || typeof tunnel === "string") {
-      this._logService.info(
-        `[SharedProcessTunnelService] Could not create a tunnel to ${tunnelRemoteHost}:${tunnelRemotePort} (remote).`
-      );
+      this._logService.info(`[SharedProcessTunnelService] Could not create a tunnel to ${tunnelRemoteHost}:${tunnelRemotePort} (remote).`);
       tunnelData.dispose();
       throw new Error(`Could not create tunnel`);
     }
@@ -95,9 +85,7 @@ let SharedProcessTunnelService = class extends Disposable {
     }
     tunnelData.setTunnel(tunnel);
     this._tunnels.set(id, tunnelData);
-    this._logService.info(
-      `[SharedProcessTunnelService] Created tunnel ${id}: ${tunnel.localAddress} (local) to ${tunnelRemoteHost}:${tunnelRemotePort} (remote).`
-    );
+    this._logService.info(`[SharedProcessTunnelService] Created tunnel ${id}: ${tunnel.localAddress} (local) to ${tunnelRemoteHost}:${tunnelRemotePort} (remote).`);
     const result = {
       tunnelLocalPort: tunnel.tunnelLocalPort,
       localAddress: tunnel.localAddress
@@ -114,9 +102,7 @@ let SharedProcessTunnelService = class extends Disposable {
   async destroyTunnel(id) {
     const tunnel = this._tunnels.get(id);
     if (tunnel) {
-      this._logService.info(
-        `[SharedProcessTunnelService] Disposing tunnel ${id}.`
-      );
+      this._logService.info(`[SharedProcessTunnelService] Disposing tunnel ${id}.`);
       this._tunnels.delete(id);
       await tunnel.dispose();
       return;

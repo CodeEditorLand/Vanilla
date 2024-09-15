@@ -5,17 +5,14 @@ import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { equals } from "../../../../base/common/objects.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import {
-  defaultUserDataProfileIcon
-} from "./userDataProfile.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { defaultUserDataProfileIcon, DidChangeUserDataProfileEvent, IUserDataProfileService } from "./userDataProfile.js";
 class UserDataProfileService extends Disposable {
   static {
     __name(this, "UserDataProfileService");
   }
   _serviceBrand;
-  _onDidChangeCurrentProfile = this._register(
-    new Emitter()
-  );
+  _onDidChangeCurrentProfile = this._register(new Emitter());
   onDidChangeCurrentProfile = this._onDidChangeCurrentProfile.event;
   _currentProfile;
   get currentProfile() {

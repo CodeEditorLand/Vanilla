@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as extHostProtocol from "../common/extHost.protocol.js";
 import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
 import { CellExecutionUpdateType } from "../../contrib/notebook/common/notebookExecutionService.js";
+import { ICellExecuteUpdate, ICellExecutionComplete } from "../../contrib/notebook/common/notebookExecutionStateService.js";
 var NotebookDto;
 ((NotebookDto2) => {
   function toNotebookOutputItemDto(item) {

@@ -10,24 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Action } from "../../../../base/common/actions.js";
-import { Promises } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../../platform/actions/common/actions.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IHostService } from "../../../services/host/browser/host.js";
 import { IExtensionsWorkbenchService } from "../common/extensions.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { MenuRegistry, MenuId } from "../../../../platform/actions/common/actions.js";
+import { localize } from "../../../../nls.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { Action } from "../../../../base/common/actions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Promises } from "../../../../base/common/async.js";
 let ExtensionDependencyChecker = class extends Disposable {
   constructor(extensionService, extensionsWorkbenchService, notificationService, hostService) {
     super();
@@ -35,18 +30,12 @@ let ExtensionDependencyChecker = class extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.notificationService = notificationService;
     this.hostService = hostService;
-    CommandsRegistry.registerCommand(
-      "workbench.extensions.installMissingDependencies",
-      () => this.installMissingDependencies()
-    );
+    CommandsRegistry.registerCommand("workbench.extensions.installMissingDependencies", () => this.installMissingDependencies());
     MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
       command: {
         id: "workbench.extensions.installMissingDependencies",
         category: localize("extensions", "Extensions"),
-        title: localize(
-          "auto install missing deps",
-          "Install Missing Dependencies"
-        )
+        title: localize("auto install missing deps", "Install Missing Dependencies")
       }
     });
   }
@@ -56,11 +45,7 @@ let ExtensionDependencyChecker = class extends Disposable {
   async getUninstalledMissingDependencies() {
     const allMissingDependencies = await this.getAllMissingDependencies();
     const localExtensions = await this.extensionsWorkbenchService.queryLocal();
-    return allMissingDependencies.filter(
-      (id) => localExtensions.every(
-        (l) => !areSameExtensions(l.identifier, { id })
-      )
-    );
+    return allMissingDependencies.filter((id) => localExtensions.every((l) => !areSameExtensions(l.identifier, { id })));
   }
   async getAllMissingDependencies() {
     await this.extensionService.whenInstalledExtensionsRegistered();
@@ -83,42 +68,25 @@ let ExtensionDependencyChecker = class extends Disposable {
   async installMissingDependencies() {
     const missingDependencies = await this.getUninstalledMissingDependencies();
     if (missingDependencies.length) {
-      const extensions = await this.extensionsWorkbenchService.getExtensions(
-        missingDependencies.map((id) => ({ id })),
-        CancellationToken.None
-      );
+      const extensions = await this.extensionsWorkbenchService.getExtensions(missingDependencies.map((id) => ({ id })), CancellationToken.None);
       if (extensions.length) {
-        await Promises.settled(
-          extensions.map(
-            (extension) => this.extensionsWorkbenchService.install(extension)
-          )
-        );
+        await Promises.settled(extensions.map((extension) => this.extensionsWorkbenchService.install(extension)));
         this.notificationService.notify({
           severity: Severity.Info,
-          message: localize(
-            "finished installing missing deps",
-            "Finished installing missing dependencies. Please reload the window now."
-          ),
+          message: localize("finished installing missing deps", "Finished installing missing dependencies. Please reload the window now."),
           actions: {
-            primary: [
-              new Action(
-                "realod",
-                localize("reload", "Reload Window"),
-                "",
-                true,
-                () => this.hostService.reload()
-              )
-            ]
+            primary: [new Action(
+              "realod",
+              localize("reload", "Reload Window"),
+              "",
+              true,
+              () => this.hostService.reload()
+            )]
           }
         });
       }
     } else {
-      this.notificationService.info(
-        localize(
-          "no missing deps",
-          "There are no missing dependencies to install."
-        )
-      );
+      this.notificationService.info(localize("no missing deps", "There are no missing dependencies to install."));
     }
   }
 };

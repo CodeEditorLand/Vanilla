@@ -2,31 +2,20 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import electron from "electron";
 import { Color } from "../../../base/common/color.js";
+import { Event } from "../../../base/common/event.js";
 import { join } from "../../../base/common/path.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
+import { IProcessEnvironment, isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import {
-  createDecorator
-} from "../../instantiation/common/instantiation.js";
+import { ServicesAccessor, createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
-import {
-  TitlebarStyle,
-  WindowMinimumSize,
-  hasNativeTitlebar,
-  useNativeFullScreen,
-  useWindowControlsOverlay,
-  zoomLevelToZoomFactor
-} from "../../window/common/window.js";
-import {
-  WindowMode,
-  defaultWindowState
-} from "../../window/electron-main/window.js";
+import { IOpenEmptyWindowOptions, IWindowOpenable, IWindowSettings, TitlebarStyle, WindowMinimumSize, hasNativeTitlebar, useNativeFullScreen, useWindowControlsOverlay, zoomLevelToZoomFactor } from "../../window/common/window.js";
+import { ICodeWindow, IWindowState, WindowMode, defaultWindowState } from "../../window/electron-main/window.js";
 const IWindowsMainService = createDecorator("windowsMainService");
 var OpenContext = /* @__PURE__ */ ((OpenContext2) => {
   OpenContext2[OpenContext2["CLI"] = 0] = "CLI";
@@ -59,9 +48,7 @@ function defaultBrowserWindowOptions(accessor, windowState, overrides, webPrefer
       ...webPreferences,
       enableWebSQL: false,
       spellcheck: false,
-      zoomFactor: zoomLevelToZoomFactor(
-        windowState.zoomLevel ?? windowSettings?.zoomLevel
-      ),
+      zoomFactor: zoomLevelToZoomFactor(windowState.zoomLevel ?? windowSettings?.zoomLevel),
       autoplayPolicy: "user-gesture-required",
       // Enable experimental css highlight api https://chromestatus.com/feature/5436441440026624
       // Refs https://github.com/microsoft/vscode/issues/140098
@@ -71,15 +58,9 @@ function defaultBrowserWindowOptions(accessor, windowState, overrides, webPrefer
     experimentalDarkMode: true
   };
   if (isLinux) {
-    options.icon = join(
-      environmentMainService.appRoot,
-      "resources/linux/code.png"
-    );
+    options.icon = join(environmentMainService.appRoot, "resources/linux/code.png");
   } else if (isWindows && !environmentMainService.isBuilt) {
-    options.icon = join(
-      environmentMainService.appRoot,
-      "resources/win32/code_150x150.png"
-    );
+    options.icon = join(environmentMainService.appRoot, "resources/win32/code_150x150.png");
   }
   if (isMacintosh) {
     options.acceptFirstMouse = true;
@@ -96,10 +77,7 @@ function defaultBrowserWindowOptions(accessor, windowState, overrides, webPrefer
   if (useNativeTabs) {
     options.tabbingIdentifier = productService.nameShort;
   }
-  const hideNativeTitleBar = !hasNativeTitlebar(
-    configurationService,
-    overrides?.forceNativeTitlebar ? TitlebarStyle.NATIVE : void 0
-  );
+  const hideNativeTitleBar = !hasNativeTitlebar(configurationService, overrides?.forceNativeTitlebar ? TitlebarStyle.NATIVE : void 0);
   if (hideNativeTitleBar) {
     options.titleBarStyle = "hidden";
     if (!isMacintosh) {
@@ -120,7 +98,7 @@ function defaultBrowserWindowOptions(accessor, windowState, overrides, webPrefer
 }
 __name(defaultBrowserWindowOptions, "defaultBrowserWindowOptions");
 function getLastFocused(windows) {
-  let lastFocusedWindow;
+  let lastFocusedWindow = void 0;
   let maxLastFocusTime = Number.MIN_VALUE;
   for (const window of windows) {
     if (window.lastFocusTime > maxLastFocusTime) {
@@ -134,28 +112,18 @@ __name(getLastFocused, "getLastFocused");
 var WindowStateValidator;
 ((WindowStateValidator2) => {
   function validateWindowState(logService, state, displays = electron.screen.getAllDisplays()) {
-    logService.trace(
-      `window#validateWindowState: validating window state on ${displays.length} display(s)`,
-      state
-    );
+    logService.trace(`window#validateWindowState: validating window state on ${displays.length} display(s)`, state);
     if (typeof state.x !== "number" || typeof state.y !== "number" || typeof state.width !== "number" || typeof state.height !== "number") {
-      logService.trace(
-        "window#validateWindowState: unexpected type of state values"
-      );
+      logService.trace("window#validateWindowState: unexpected type of state values");
       return void 0;
     }
     if (state.width <= 0 || state.height <= 0) {
-      logService.trace(
-        "window#validateWindowState: unexpected negative values"
-      );
+      logService.trace("window#validateWindowState: unexpected negative values");
       return void 0;
     }
     if (displays.length === 1) {
       const displayWorkingArea2 = getWorkingArea(displays[0]);
-      logService.trace(
-        "window#validateWindowState: single monitor working area",
-        displayWorkingArea2
-      );
+      logService.trace("window#validateWindowState: single monitor working area", displayWorkingArea2);
       if (displayWorkingArea2) {
         let ensureStateInDisplayWorkingArea2 = function() {
           if (!state || typeof state.x !== "number" || typeof state.y !== "number" || !displayWorkingArea2) {
@@ -190,9 +158,7 @@ var WindowStateValidator;
     if (state.display && state.mode === WindowMode.Fullscreen) {
       const display2 = displays.find((d) => d.id === state.display);
       if (display2 && typeof display2.bounds?.x === "number" && typeof display2.bounds?.y === "number") {
-        logService.trace(
-          "window#validateWindowState: restoring fullscreen to previous display"
-        );
+        logService.trace("window#validateWindowState: restoring fullscreen to previous display");
         const defaults = defaultWindowState(WindowMode.Fullscreen);
         defaults.x = display2.bounds.x;
         defaults.y = display2.bounds.y;
@@ -202,22 +168,11 @@ var WindowStateValidator;
     let display;
     let displayWorkingArea;
     try {
-      display = electron.screen.getDisplayMatching({
-        x: state.x,
-        y: state.y,
-        width: state.width,
-        height: state.height
-      });
+      display = electron.screen.getDisplayMatching({ x: state.x, y: state.y, width: state.width, height: state.height });
       displayWorkingArea = getWorkingArea(display);
-      logService.trace(
-        "window#validateWindowState: multi-monitor working area",
-        displayWorkingArea
-      );
+      logService.trace("window#validateWindowState: multi-monitor working area", displayWorkingArea);
     } catch (error) {
-      logService.error(
-        "window#validateWindowState: error finding display for window state",
-        error
-      );
+      logService.error("window#validateWindowState: error finding display for window state", error);
     }
     if (display && // we have a display matching the desired bounds
     displayWorkingArea && // we have valid working area bounds
@@ -227,9 +182,7 @@ var WindowStateValidator;
     state.y < displayWorkingArea.y + displayWorkingArea.height) {
       return state;
     }
-    logService.trace(
-      "window#validateWindowState: state is outside of the multi-monitor working area"
-    );
+    logService.trace("window#validateWindowState: state is outside of the multi-monitor working area");
     return void 0;
   }
   WindowStateValidator2.validateWindowState = validateWindowState;

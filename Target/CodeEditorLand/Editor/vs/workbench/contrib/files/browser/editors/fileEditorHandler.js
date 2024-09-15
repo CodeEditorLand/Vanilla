@@ -11,16 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { isEqual } from "../../../../../base/common/resources.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
+import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { IEditorSerializer } from "../../../../common/editor.js";
+import { EditorInput } from "../../../../common/editor/editorInput.js";
 import { ITextEditorService } from "../../../../services/textfile/common/textEditorService.js";
-import {
-  NO_TYPE_ID
-} from "../../../../services/workingCopy/common/workingCopy.js";
-import {
-  IWorkingCopyEditorService
-} from "../../../../services/workingCopy/common/workingCopyEditorService.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { IWorkingCopyIdentifier, NO_TYPE_ID } from "../../../../services/workingCopy/common/workingCopy.js";
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "../../../../services/workingCopy/common/workingCopyEditorService.js";
+import { FileEditorInput } from "./fileEditorInput.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
 class FileEditorInputSerializer {
   static {
     __name(this, "FileEditorInputSerializer");
@@ -48,21 +49,12 @@ class FileEditorInputSerializer {
     return instantiationService.invokeFunction((accessor) => {
       const serializedFileEditorInput = JSON.parse(serializedEditorInput);
       const resource = URI.revive(serializedFileEditorInput.resourceJSON);
-      const preferredResource = URI.revive(
-        serializedFileEditorInput.preferredResourceJSON
-      );
+      const preferredResource = URI.revive(serializedFileEditorInput.preferredResourceJSON);
       const name = serializedFileEditorInput.name;
       const description = serializedFileEditorInput.description;
       const encoding = serializedFileEditorInput.encoding;
       const languageId = serializedFileEditorInput.modeId;
-      const fileEditorInput = accessor.get(ITextEditorService).createTextEditor({
-        resource,
-        label: name,
-        description,
-        encoding,
-        languageId,
-        forceFile: true
-      });
+      const fileEditorInput = accessor.get(ITextEditorService).createTextEditor({ resource, label: name, description, encoding, languageId, forceFile: true });
       if (preferredResource) {
         fileEditorInput.setPreferredResource(preferredResource);
       }
@@ -94,10 +86,7 @@ let FileEditorWorkingCopyEditorHandler = class extends Disposable {
     return isEqual(workingCopy.resource, editor.resource);
   }
   createEditor(workingCopy) {
-    return this.textEditorService.createTextEditor({
-      resource: workingCopy.resource,
-      forceFile: true
-    });
+    return this.textEditorService.createTextEditor({ resource: workingCopy.resource, forceFile: true });
   }
 };
 FileEditorWorkingCopyEditorHandler = __decorateClass([

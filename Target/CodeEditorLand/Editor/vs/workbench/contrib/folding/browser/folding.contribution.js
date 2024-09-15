@@ -11,35 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { editorConfigurationBaseNode } from "../../../../editor/common/config/editorConfigurationSchema.js";
 import { FoldingController } from "../../../../editor/contrib/folding/browser/folding.js";
 import * as nls from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  Extensions as ConfigurationExtensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, IWorkbenchContribution } from "../../../common/contributions.js";
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { editorConfigurationBaseNode } from "../../../../editor/common/config/editorConfigurationSchema.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { FoldingRangeProvider } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 let DefaultFoldingRangeProvider = class extends Disposable {
   constructor(_extensionService, _configurationService) {
     super();
     this._extensionService = _extensionService;
     this._configurationService = _configurationService;
-    this._store.add(
-      this._extensionService.onDidChangeExtensions(
-        this._updateConfigValues,
-        this
-      )
-    );
-    this._store.add(
-      FoldingController.setFoldingRangeProviderSelector(
-        this._selectFoldingRangeProvider.bind(this)
-      )
-    );
+    this._store.add(this._extensionService.onDidChangeExtensions(this._updateConfigValues, this));
+    this._store.add(FoldingController.setFoldingRangeProviderSelector(this._selectFoldingRangeProvider.bind(this)));
     this._updateConfigValues();
   }
   static {
@@ -55,22 +45,13 @@ let DefaultFoldingRangeProvider = class extends Disposable {
     DefaultFoldingRangeProvider.extensionItemLabels.length = 0;
     DefaultFoldingRangeProvider.extensionDescriptions.length = 0;
     DefaultFoldingRangeProvider.extensionIds.push(null);
-    DefaultFoldingRangeProvider.extensionItemLabels.push(
-      nls.localize("null", "All")
-    );
-    DefaultFoldingRangeProvider.extensionDescriptions.push(
-      nls.localize(
-        "nullFormatterDescription",
-        "All active folding range providers"
-      )
-    );
+    DefaultFoldingRangeProvider.extensionItemLabels.push(nls.localize("null", "All"));
+    DefaultFoldingRangeProvider.extensionDescriptions.push(nls.localize("nullFormatterDescription", "All active folding range providers"));
     const languageExtensions = [];
     const otherExtensions = [];
     for (const extension of this._extensionService.extensions) {
       if (extension.main || extension.browser) {
-        if (extension.categories?.find(
-          (cat) => cat === "Programming Languages"
-        )) {
+        if (extension.categories?.find((cat) => cat === "Programming Languages")) {
           languageExtensions.push(extension);
         } else {
           otherExtensions.push(extension);
@@ -79,33 +60,18 @@ let DefaultFoldingRangeProvider = class extends Disposable {
     }
     const sorter = /* @__PURE__ */ __name((a, b) => a.name.localeCompare(b.name), "sorter");
     for (const extension of languageExtensions.sort(sorter)) {
-      DefaultFoldingRangeProvider.extensionIds.push(
-        extension.identifier.value
-      );
-      DefaultFoldingRangeProvider.extensionItemLabels.push(
-        extension.displayName ?? ""
-      );
-      DefaultFoldingRangeProvider.extensionDescriptions.push(
-        extension.description ?? ""
-      );
+      DefaultFoldingRangeProvider.extensionIds.push(extension.identifier.value);
+      DefaultFoldingRangeProvider.extensionItemLabels.push(extension.displayName ?? "");
+      DefaultFoldingRangeProvider.extensionDescriptions.push(extension.description ?? "");
     }
     for (const extension of otherExtensions.sort(sorter)) {
-      DefaultFoldingRangeProvider.extensionIds.push(
-        extension.identifier.value
-      );
-      DefaultFoldingRangeProvider.extensionItemLabels.push(
-        extension.displayName ?? ""
-      );
-      DefaultFoldingRangeProvider.extensionDescriptions.push(
-        extension.description ?? ""
-      );
+      DefaultFoldingRangeProvider.extensionIds.push(extension.identifier.value);
+      DefaultFoldingRangeProvider.extensionItemLabels.push(extension.displayName ?? "");
+      DefaultFoldingRangeProvider.extensionDescriptions.push(extension.description ?? "");
     }
   }
   _selectFoldingRangeProvider(providers, document) {
-    const value = this._configurationService.getValue(
-      DefaultFoldingRangeProvider.configName,
-      { overrideIdentifier: document.getLanguageId() }
-    );
+    const value = this._configurationService.getValue(DefaultFoldingRangeProvider.configName, { overrideIdentifier: document.getLanguageId() });
     if (value) {
       return providers.filter((p) => p.id === value);
     }
@@ -116,16 +82,11 @@ DefaultFoldingRangeProvider = __decorateClass([
   __decorateParam(0, IExtensionService),
   __decorateParam(1, IConfigurationService)
 ], DefaultFoldingRangeProvider);
-Registry.as(
-  ConfigurationExtensions.Configuration
-).registerConfiguration({
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
   ...editorConfigurationBaseNode,
   properties: {
     [DefaultFoldingRangeProvider.configName]: {
-      description: nls.localize(
-        "formatter.default",
-        "Defines a default folding range provider that takes precedence over all other folding range providers. Must be the identifier of an extension contributing a folding range provider."
-      ),
+      description: nls.localize("formatter.default", "Defines a default folding range provider that takes precedence over all other folding range providers. Must be the identifier of an extension contributing a folding range provider."),
       type: ["string", "null"],
       default: null,
       enum: DefaultFoldingRangeProvider.extensionIds,
@@ -134,9 +95,7 @@ Registry.as(
     }
   }
 });
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
   DefaultFoldingRangeProvider,
   LifecyclePhase.Restored
 );

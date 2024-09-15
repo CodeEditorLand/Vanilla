@@ -18,13 +18,10 @@ import { Disposable } from "../../../base/common/lifecycle.js";
 import { RemoteAuthorities } from "../../../base/common/network.js";
 import * as performance from "../../../base/common/performance.js";
 import { StopWatch } from "../../../base/common/stopwatch.js";
+import { URI } from "../../../base/common/uri.js";
 import { ILogService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
-import {
-  RemoteConnectionType,
-  WebSocketRemoteConnection,
-  getRemoteAuthorityPrefix
-} from "../common/remoteAuthorityResolver.js";
+import { IRemoteAuthorityResolverService, IRemoteConnectionData, RemoteConnectionType, ResolvedAuthority, ResolvedOptions, ResolverResult, WebSocketRemoteConnection, getRemoteAuthorityPrefix } from "../common/remoteAuthorityResolver.js";
 import { parseAuthorityWithOptionalPort } from "../common/remoteHosts.js";
 let RemoteAuthorityResolverService = class extends Disposable {
   constructor(isWorkbenchOptionsBasedResolution, connectionToken, resourceUriProvider, serverBasePath, productService, _logService) {
@@ -41,9 +38,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
   static {
     __name(this, "RemoteAuthorityResolverService");
   }
-  _onDidChangeConnectionData = this._register(
-    new Emitter()
-  );
+  _onDidChangeConnectionData = this._register(new Emitter());
   onDidChangeConnectionData = this._onDidChangeConnectionData.event;
   _resolveAuthorityRequests = /* @__PURE__ */ new Map();
   _cache = /* @__PURE__ */ new Map();
@@ -56,10 +51,7 @@ let RemoteAuthorityResolverService = class extends Disposable {
       result = new DeferredPromise();
       this._resolveAuthorityRequests.set(authority, result);
       if (this._isWorkbenchOptionsBasedResolution) {
-        this._doResolveAuthority(authority).then(
-          (v) => result.complete(v),
-          (err) => result.error(err)
-        );
+        this._doResolveAuthority(authority).then((v) => result.complete(v), (err) => result.error(err));
       }
     }
     return result.p;
@@ -81,29 +73,14 @@ let RemoteAuthorityResolverService = class extends Disposable {
   async _doResolveAuthority(authority) {
     const authorityPrefix = getRemoteAuthorityPrefix(authority);
     const sw = StopWatch.create(false);
-    this._logService.info(
-      `Resolving connection token (${authorityPrefix})...`
-    );
+    this._logService.info(`Resolving connection token (${authorityPrefix})...`);
     performance.mark(`code/willResolveConnectionToken/${authorityPrefix}`);
-    const connectionToken = await Promise.resolve(
-      this._connectionTokens.get(authority) || this._connectionToken
-    );
+    const connectionToken = await Promise.resolve(this._connectionTokens.get(authority) || this._connectionToken);
     performance.mark(`code/didResolveConnectionToken/${authorityPrefix}`);
-    this._logService.info(
-      `Resolved connection token (${authorityPrefix}) after ${sw.elapsed()} ms`
-    );
+    this._logService.info(`Resolved connection token (${authorityPrefix}) after ${sw.elapsed()} ms`);
     const defaultPort = /^https:/.test(mainWindow.location.href) ? 443 : 80;
-    const { host, port } = parseAuthorityWithOptionalPort(
-      authority,
-      defaultPort
-    );
-    const result = {
-      authority: {
-        authority,
-        connectTo: new WebSocketRemoteConnection(host, port),
-        connectionToken
-      }
-    };
+    const { host, port } = parseAuthorityWithOptionalPort(authority, defaultPort);
+    const result = { authority: { authority, connectTo: new WebSocketRemoteConnection(host, port), connectionToken } };
     RemoteAuthorities.set(authority, host, port);
     this._cache.set(authority, result);
     this._onDidChangeConnectionData.fire();
@@ -117,21 +94,12 @@ let RemoteAuthorityResolverService = class extends Disposable {
   }
   _setResolvedAuthority(resolvedAuthority, options) {
     if (this._resolveAuthorityRequests.has(resolvedAuthority.authority)) {
-      const request = this._resolveAuthorityRequests.get(
-        resolvedAuthority.authority
-      );
+      const request = this._resolveAuthorityRequests.get(resolvedAuthority.authority);
       if (resolvedAuthority.connectTo.type === RemoteConnectionType.WebSocket) {
-        RemoteAuthorities.set(
-          resolvedAuthority.authority,
-          resolvedAuthority.connectTo.host,
-          resolvedAuthority.connectTo.port
-        );
+        RemoteAuthorities.set(resolvedAuthority.authority, resolvedAuthority.connectTo.host, resolvedAuthority.connectTo.port);
       }
       if (resolvedAuthority.connectionToken) {
-        RemoteAuthorities.setConnectionToken(
-          resolvedAuthority.authority,
-          resolvedAuthority.connectionToken
-        );
+        RemoteAuthorities.setConnectionToken(resolvedAuthority.authority, resolvedAuthority.connectionToken);
       }
       request.complete({ authority: resolvedAuthority, options });
       this._onDidChangeConnectionData.fire();

@@ -1,7 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Schemas } from "../../../base/common/network.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { IQuickAccessController } from "./quickAccess.js";
+import { IMatch } from "../../../base/common/filters.js";
+import { IItemAccessor } from "../../../base/common/fuzzyScorer.js";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { Schemas } from "../../../base/common/network.js";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
 const NO_KEY_MODS = { ctrlCmd: false, alt: false };
 var QuickInputHideReason = /* @__PURE__ */ ((QuickInputHideReason2) => {
   QuickInputHideReason2[QuickInputHideReason2["Blur"] = 1] = "Blur";

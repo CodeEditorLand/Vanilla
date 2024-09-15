@@ -11,90 +11,55 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { ICompressedTreeElement, ICompressedTreeNode } from "../../../../base/browser/ui/tree/compressedObjectTreeModel.js";
+import { ICompressibleTreeRenderer } from "../../../../base/browser/ui/tree/objectTree.js";
+import { ITreeNode, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
 import { findLast } from "../../../../base/common/arraysFind.js";
 import { assertNever } from "../../../../base/common/assert.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { memoize } from "../../../../base/common/decorators.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
+import { FuzzyScore, createMatches } from "../../../../base/common/filters.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  observableValue
-} from "../../../../base/common/observable.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, autorun, observableValue } from "../../../../base/common/observable.js";
+import { IPrefixTreeNode } from "../../../../base/common/prefixTree.js";
 import { basenameOrAuthority } from "../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
 import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  EditorOpenSource,
-  TextEditorSelectionRevealType
-} from "../../../../platform/editor/common/editor.js";
+import { EditorOpenSource, TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
 import { FileKind } from "../../../../platform/files/common/files.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
+import { IQuickInputService, IQuickPickItem, QuickPickInput } from "../../../../platform/quickinput/common/quickInput.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  ResourceLabels
-} from "../../../browser/labels.js";
-import {
-  ViewAction,
-  ViewPane
-} from "../../../browser/parts/views/viewPane.js";
+import { IResourceLabel, ResourceLabels } from "../../../browser/labels.js";
+import { IViewPaneOptions, ViewAction, ViewPane } from "../../../browser/parts/views/viewPane.js";
 import { IViewDescriptorService } from "../../../common/views.js";
-import {
-  ACTIVE_GROUP,
-  IEditorService,
-  SIDE_GROUP
-} from "../../../services/editor/common/editorService.js";
-import { TestCommandId, Testing } from "../common/constants.js";
-import { onObservableChange } from "../common/observableUtils.js";
-import {
-  BypassedFileCoverage,
-  FileCoverage,
-  getTotalCoveragePercent
-} from "../common/testCoverage.js";
-import { ITestCoverageService } from "../common/testCoverageService.js";
-import { TestId } from "../common/testId.js";
-import {
-  DetailType,
-  TestResultState
-} from "../common/testTypes.js";
-import { TestingContextKeys } from "../common/testingContextKeys.js";
 import * as coverUtils from "./codeCoverageDisplayUtils.js";
 import { testingStatesToIcons, testingWasCovered } from "./icons.js";
-import {
-  ManagedTestCoverageBars
-} from "./testCoverageBars.js";
+import { CoverageBarSource, ManagedTestCoverageBars } from "./testCoverageBars.js";
+import { TestCommandId, Testing } from "../common/constants.js";
+import { onObservableChange } from "../common/observableUtils.js";
+import { BypassedFileCoverage, ComputedFileCoverage, FileCoverage, TestCoverage, getTotalCoveragePercent } from "../common/testCoverage.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
+import { TestId } from "../common/testId.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
+import { CoverageDetails, DetailType, ICoverageCount, IDeclarationCoverage, TestResultState } from "../common/testTypes.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 var CoverageSortOrder = /* @__PURE__ */ ((CoverageSortOrder2) => {
   CoverageSortOrder2[CoverageSortOrder2["Coverage"] = 0] = "Coverage";
   CoverageSortOrder2[CoverageSortOrder2["Location"] = 1] = "Location";
@@ -103,63 +68,32 @@ var CoverageSortOrder = /* @__PURE__ */ ((CoverageSortOrder2) => {
 })(CoverageSortOrder || {});
 let TestCoverageView = class extends ViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, coverageService) {
-    super(
-      options,
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService
-    );
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
     this.coverageService = coverageService;
   }
   static {
     __name(this, "TestCoverageView");
   }
   tree = new MutableDisposable();
-  sortOrder = observableValue(
-    "sortOrder",
-    1 /* Location */
-  );
+  sortOrder = observableValue("sortOrder", 1 /* Location */);
   renderBody(container) {
     super.renderBody(container);
-    const labels = this._register(
-      this.instantiationService.createInstance(ResourceLabels, {
-        onDidChangeVisibility: this.onDidChangeBodyVisibility
-      })
-    );
-    this._register(
-      autorun((reader) => {
-        const coverage = this.coverageService.selected.read(reader);
-        if (coverage) {
-          const t = this.tree.value ??= this.instantiationService.createInstance(
-            TestCoverageTree,
-            container,
-            labels,
-            this.sortOrder
-          );
-          t.setInput(
-            coverage,
-            this.coverageService.filterToTest.read(reader)
-          );
-        } else {
-          this.tree.clear();
-        }
-      })
-    );
-    this._register(
-      autorun((reader) => {
-        this.element.classList.toggle(
-          "coverage-view-is-filtered",
-          !!this.coverageService.filterToTest.read(reader)
-        );
-      })
-    );
+    const labels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility }));
+    this._register(autorun((reader) => {
+      const coverage = this.coverageService.selected.read(reader);
+      if (coverage) {
+        const t = this.tree.value ??= this.instantiationService.createInstance(TestCoverageTree, container, labels, this.sortOrder);
+        t.setInput(coverage, this.coverageService.filterToTest.read(reader));
+      } else {
+        this.tree.clear();
+      }
+    }));
+    this._register(autorun((reader) => {
+      this.element.classList.toggle(
+        "coverage-view-is-filtered",
+        !!this.coverageService.filterToTest.read(reader)
+      );
+    }));
   }
   layoutBody(height, width) {
     super.layoutBody(height, width);
@@ -251,11 +185,7 @@ class RevealUncoveredDeclarations {
   }
   id = String(fnNodeId++);
   get label() {
-    return localize(
-      "functionsWithoutCoverage",
-      "{0} declarations without coverage...",
-      this.n
-    );
+    return localize("functionsWithoutCoverage", "{0} declarations without coverage...", this.n);
   }
 }
 class LoadingDetails {
@@ -263,10 +193,7 @@ class LoadingDetails {
     __name(this, "LoadingDetails");
   }
   id = String(fnNodeId++);
-  label = localize(
-    "loadingCoverageDetails",
-    "Loading Coverage Details..."
-  );
+  label = localize("loadingCoverageDetails", "Loading Coverage Details...");
 }
 const isFileCoverage = /* @__PURE__ */ __name((c) => typeof c === "object" && "value" in c, "isFileCoverage");
 const isDeclarationCoverage = /* @__PURE__ */ __name((c) => c instanceof DeclarationCoverageNode, "isDeclarationCoverage");
@@ -285,13 +212,8 @@ let TestCoverageTree = class extends Disposable {
       container,
       new TestCoverageTreeListDelegate(),
       [
-        instantiationService.createInstance(
-          FileCoverageRenderer,
-          labels
-        ),
-        instantiationService.createInstance(
-          DeclarationCoverageRenderer
-        ),
+        instantiationService.createInstance(FileCoverageRenderer, labels),
+        instantiationService.createInstance(DeclarationCoverageRenderer),
         instantiationService.createInstance(BasicRenderer)
       ],
       {
@@ -308,85 +230,59 @@ let TestCoverageTree = class extends Disposable {
         accessibilityProvider: {
           getAriaLabel(element) {
             if (isFileCoverage(element)) {
-              const name = basenameOrAuthority(
-                element.value.uri
-              );
-              return localize(
-                "testCoverageItemLabel",
-                "{0} coverage: {0}%",
-                name,
-                (element.value.tpc * 100).toFixed(2)
-              );
+              const name = basenameOrAuthority(element.value.uri);
+              return localize("testCoverageItemLabel", "{0} coverage: {0}%", name, (element.value.tpc * 100).toFixed(2));
             } else {
               return element.label;
             }
           },
           getWidgetAriaLabel() {
-            return localize(
-              "testCoverageTreeLabel",
-              "Test Coverage Explorer"
-            );
+            return localize("testCoverageTreeLabel", "Test Coverage Explorer");
           }
         },
         identityProvider: new TestCoverageIdentityProvider()
       }
     );
-    this._register(
-      autorun((reader) => {
-        sortOrder.read(reader);
-        this.tree.resort(null, true);
-      })
-    );
+    this._register(autorun((reader) => {
+      sortOrder.read(reader);
+      this.tree.resort(null, true);
+    }));
     this._register(this.tree);
-    this._register(
-      this.tree.onDidChangeCollapseState((e) => {
-        const el = e.node.element;
-        if (!e.node.collapsed && !e.node.children.length && el && shouldShowDeclDetailsOnExpand(el)) {
-          if (el.value.hasSynchronousDetails) {
-            this.tree.setChildren(el, [
-              {
-                element: new LoadingDetails(),
-                incompressible: true
-              }
-            ]);
-          }
-          el.value.details().then(
-            (details) => this.updateWithDetails(el, details)
-          );
+    this._register(this.tree.onDidChangeCollapseState((e) => {
+      const el = e.node.element;
+      if (!e.node.collapsed && !e.node.children.length && el && shouldShowDeclDetailsOnExpand(el)) {
+        if (el.value.hasSynchronousDetails) {
+          this.tree.setChildren(el, [{ element: new LoadingDetails(), incompressible: true }]);
         }
-      })
-    );
-    this._register(
-      this.tree.onDidOpen((e) => {
-        let resource;
-        let selection;
-        if (e.element) {
-          if (isFileCoverage(e.element) && !e.element.children?.size) {
-            resource = e.element.value.uri;
-          } else if (isDeclarationCoverage(e.element)) {
-            resource = e.element.uri;
-            selection = e.element.location;
-          }
+        el.value.details().then((details) => this.updateWithDetails(el, details));
+      }
+    }));
+    this._register(this.tree.onDidOpen((e) => {
+      let resource;
+      let selection;
+      if (e.element) {
+        if (isFileCoverage(e.element) && !e.element.children?.size) {
+          resource = e.element.value.uri;
+        } else if (isDeclarationCoverage(e.element)) {
+          resource = e.element.uri;
+          selection = e.element.location;
         }
-        if (!resource) {
-          return;
+      }
+      if (!resource) {
+        return;
+      }
+      editorService.openEditor({
+        resource,
+        options: {
+          selection: selection instanceof Position ? Range.fromPositions(selection, selection) : selection,
+          revealIfOpened: true,
+          selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport,
+          preserveFocus: e.editorOptions.preserveFocus,
+          pinned: e.editorOptions.pinned,
+          source: EditorOpenSource.USER
         }
-        editorService.openEditor(
-          {
-            resource,
-            options: {
-              selection: selection instanceof Position ? Range.fromPositions(selection, selection) : selection,
-              revealIfOpened: true,
-              selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport,
-              preserveFocus: e.editorOptions.preserveFocus,
-              pinned: e.editorOptions.pinned,
-              source: EditorOpenSource.USER
-            }
-          },
-          e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP
-        );
-      })
-    );
+      }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+    }));
   }
   setInput(coverage, showOnlyTest) {
     this.inputDisposables.clear();
@@ -412,28 +308,16 @@ let TestCoverageTree = class extends Disposable {
         children: value.children && Iterable.map(value.children?.values(), toChild)
       };
     }, "toChild");
-    this.inputDisposables.add(
-      onObservableChange(coverage.didAddCoverage, (nodes) => {
-        const toRender = findLast(
-          nodes,
-          (n) => this.tree.hasElement(n)
+    this.inputDisposables.add(onObservableChange(coverage.didAddCoverage, (nodes) => {
+      const toRender = findLast(nodes, (n) => this.tree.hasElement(n));
+      if (toRender) {
+        this.tree.setChildren(
+          toRender,
+          Iterable.map(toRender.children?.values() || [], toChild),
+          { diffIdentityProvider: { getId: /* @__PURE__ */ __name((el) => el.value.id, "getId") } }
         );
-        if (toRender) {
-          this.tree.setChildren(
-            toRender,
-            Iterable.map(
-              toRender.children?.values() || [],
-              toChild
-            ),
-            {
-              diffIdentityProvider: {
-                getId: /* @__PURE__ */ __name((el) => el.value.id, "getId")
-              }
-            }
-          );
-        }
-      })
-    );
+      }
+    }));
     this.tree.setChildren(null, Iterable.map(files, toChild));
   }
   layout(height, width) {
@@ -547,28 +431,17 @@ let FileCoverageRenderer = class {
     container.classList.add("test-coverage-list-item");
     return {
       container,
-      bars: templateDisposables.add(
-        this.instantiationService.createInstance(
-          ManagedTestCoverageBars,
-          { compact: false, container }
-        )
-      ),
-      label: templateDisposables.add(
-        this.labels.create(container, {
-          supportHighlights: true
-        })
-      ),
+      bars: templateDisposables.add(this.instantiationService.createInstance(ManagedTestCoverageBars, { compact: false, container })),
+      label: templateDisposables.add(this.labels.create(container, {
+        supportHighlights: true
+      })),
       elementsDisposables: templateDisposables.add(new DisposableStore()),
       templateDisposables
     };
   }
   /** @inheritdoc */
   renderElement(node, _index, templateData) {
-    this.doRender(
-      node.element,
-      templateData,
-      node.filterData
-    );
+    this.doRender(node.element, templateData, node.filterData);
   }
   /** @inheritdoc */
   renderCompressedElements(node, _index, templateData) {
@@ -582,34 +455,22 @@ let FileCoverageRenderer = class {
     templateData.elementsDisposables.clear();
     const stat = element instanceof Array ? element[element.length - 1] : element;
     const file = stat.value;
-    const name = element instanceof Array ? element.map(
-      (e) => basenameOrAuthority(
-        e.value.uri
-      )
-    ) : basenameOrAuthority(file.uri);
+    const name = element instanceof Array ? element.map((e) => basenameOrAuthority(e.value.uri)) : basenameOrAuthority(file.uri);
     if (file instanceof BypassedFileCoverage) {
       templateData.bars.setCoverageInfo(void 0);
     } else {
-      templateData.elementsDisposables.add(
-        autorun((reader) => {
-          stat.value?.didChange.read(reader);
-          templateData.bars.setCoverageInfo(file);
-        })
-      );
+      templateData.elementsDisposables.add(autorun((reader) => {
+        stat.value?.didChange.read(reader);
+        templateData.bars.setCoverageInfo(file);
+      }));
       templateData.bars.setCoverageInfo(file);
     }
-    templateData.label.setResource(
-      { resource: file.uri, name },
-      {
-        fileKind: stat.children?.size ? FileKind.FOLDER : FileKind.FILE,
-        matches: createMatches(filterData),
-        separator: this.labelService.getSeparator(
-          file.uri.scheme,
-          file.uri.authority
-        ),
-        extraClasses: ["test-coverage-list-item-label"]
-      }
-    );
+    templateData.label.setResource({ resource: file.uri, name }, {
+      fileKind: stat.children?.size ? FileKind.FOLDER : FileKind.FILE,
+      matches: createMatches(filterData),
+      separator: this.labelService.getSeparator(file.uri.scheme, file.uri.authority),
+      extraClasses: ["test-coverage-list-item-label"]
+    });
   }
 };
 FileCoverageRenderer = __decorateClass([
@@ -633,12 +494,7 @@ let DeclarationCoverageRenderer = class {
     const label = dom.append(container, dom.$(".name"));
     return {
       container,
-      bars: templateDisposables.add(
-        this.instantiationService.createInstance(
-          ManagedTestCoverageBars,
-          { compact: false, container }
-        )
-      ),
+      bars: templateDisposables.add(this.instantiationService.createInstance(ManagedTestCoverageBars, { compact: false, container })),
       templateDisposables,
       icon,
       label
@@ -646,19 +502,11 @@ let DeclarationCoverageRenderer = class {
   }
   /** @inheritdoc */
   renderElement(node, _index, templateData) {
-    this.doRender(
-      node.element,
-      templateData,
-      node.filterData
-    );
+    this.doRender(node.element, templateData, node.filterData);
   }
   /** @inheritdoc */
   renderCompressedElements(node, _index, templateData) {
-    this.doRender(
-      node.element.elements[node.element.elements.length - 1],
-      templateData,
-      node.filterData
-    );
+    this.doRender(node.element.elements[node.element.elements.length - 1], templateData, node.filterData);
   }
   disposeTemplate(templateData) {
     templateData.templateDisposables.dispose();
@@ -683,10 +531,7 @@ class BasicRenderer {
   static ID = "B";
   templateId = BasicRenderer.ID;
   renderCompressedElements(node, _index, container) {
-    this.renderInner(
-      node.element.elements[node.element.elements.length - 1],
-      container
-    );
+    this.renderInner(node.element.elements[node.element.elements.length - 1], container);
   }
   renderTemplate(container) {
     return container;
@@ -708,170 +553,96 @@ class TestCoverageIdentityProvider {
     return isFileCoverage(element) ? element.value.uri.toString() : element.id;
   }
 }
-registerAction2(
-  class TestCoverageChangePerTestFilterAction extends Action2 {
-    static {
-      __name(this, "TestCoverageChangePerTestFilterAction");
-    }
-    constructor() {
-      super({
-        id: TestCommandId.CoverageFilterToTest,
-        category: Categories.Test,
-        title: localize2(
-          "testing.changeCoverageFilter",
-          "Filter Coverage by Test"
-        ),
-        icon: Codicon.filter,
-        toggled: {
-          icon: Codicon.filterFilled,
-          condition: TestingContextKeys.isCoverageFilteredToTest
-        },
-        menu: [
-          {
-            id: MenuId.CommandPalette,
-            when: TestingContextKeys.hasPerTestCoverage
-          },
-          {
-            id: MenuId.ViewTitle,
-            when: ContextKeyExpr.and(
-              TestingContextKeys.hasPerTestCoverage,
-              ContextKeyExpr.equals(
-                "view",
-                Testing.CoverageViewId
-              )
-            ),
-            group: "navigation"
-          }
-        ]
-      });
-    }
-    run(accessor) {
-      const coverageService = accessor.get(ITestCoverageService);
-      const quickInputService = accessor.get(IQuickInputService);
-      const coverage = coverageService.selected.get();
-      if (!coverage) {
-        return;
-      }
-      const tests = [...coverage.allPerTestIDs()].map(TestId.fromString);
-      const commonPrefix = TestId.getLengthOfCommonPrefix(
-        tests.length,
-        (i) => tests[i]
-      );
-      const result = coverage.result;
-      const previousSelection = coverageService.filterToTest.get();
-      const previousSelectionStr = previousSelection?.toString();
-      const items = [
-        { label: coverUtils.labels.allTests, id: void 0 },
-        { type: "separator" },
-        ...tests.map((testId) => ({
-          label: coverUtils.getLabelForItem(
-            result,
-            testId,
-            commonPrefix
-          ),
-          testId
-        }))
-      ];
-      quickInputService.pick(items, {
-        activeItem: items.find(
-          (item) => "testId" in item && item.testId?.toString() === previousSelectionStr
-        ),
-        placeHolder: coverUtils.labels.pickShowCoverage,
-        onDidFocus: /* @__PURE__ */ __name((entry) => {
-          coverageService.filterToTest.set(
-            entry.testId,
-            void 0
-          );
-        }, "onDidFocus")
-      }).then((selected) => {
-        coverageService.filterToTest.set(
-          selected ? selected.testId : previousSelection,
-          void 0
-        );
-      });
-    }
+registerAction2(class TestCoverageChangePerTestFilterAction extends Action2 {
+  static {
+    __name(this, "TestCoverageChangePerTestFilterAction");
   }
-);
-registerAction2(
-  class TestCoverageChangeSortingAction extends ViewAction {
-    static {
-      __name(this, "TestCoverageChangeSortingAction");
-    }
-    constructor() {
-      super({
-        id: TestCommandId.CoverageViewChangeSorting,
-        viewId: Testing.CoverageViewId,
-        title: localize2(
-          "testing.changeCoverageSort",
-          "Change Sort Order"
-        ),
-        icon: Codicon.sortPrecedence,
-        menu: {
+  constructor() {
+    super({
+      id: TestCommandId.CoverageFilterToTest,
+      category: Categories.Test,
+      title: localize2("testing.changeCoverageFilter", "Filter Coverage by Test"),
+      icon: Codicon.filter,
+      toggled: {
+        icon: Codicon.filterFilled,
+        condition: TestingContextKeys.isCoverageFilteredToTest
+      },
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.hasPerTestCoverage },
+        {
           id: MenuId.ViewTitle,
-          when: ContextKeyExpr.equals("view", Testing.CoverageViewId),
+          when: ContextKeyExpr.and(TestingContextKeys.hasPerTestCoverage, ContextKeyExpr.equals("view", Testing.CoverageViewId)),
           group: "navigation"
         }
-      });
-    }
-    runInView(accessor, view) {
-      const disposables = new DisposableStore();
-      const quickInput = disposables.add(
-        accessor.get(IQuickInputService).createQuickPick()
-      );
-      const items = [
-        {
-          label: localize(
-            "testing.coverageSortByLocation",
-            "Sort by Location"
-          ),
-          value: 1 /* Location */,
-          description: localize(
-            "testing.coverageSortByLocationDescription",
-            "Files are sorted alphabetically, declarations are sorted by position"
-          )
-        },
-        {
-          label: localize(
-            "testing.coverageSortByCoverage",
-            "Sort by Coverage"
-          ),
-          value: 0 /* Coverage */,
-          description: localize(
-            "testing.coverageSortByCoverageDescription",
-            "Files and declarations are sorted by total coverage"
-          )
-        },
-        {
-          label: localize(
-            "testing.coverageSortByName",
-            "Sort by Name"
-          ),
-          value: 2 /* Name */,
-          description: localize(
-            "testing.coverageSortByNameDescription",
-            "Files and declarations are sorted alphabetically"
-          )
-        }
-      ];
-      quickInput.placeholder = localize(
-        "testing.coverageSortPlaceholder",
-        "Sort the Test Coverage view..."
-      );
-      quickInput.items = items;
-      quickInput.show();
-      disposables.add(quickInput.onDidHide(() => disposables.dispose()));
-      disposables.add(
-        quickInput.onDidAccept(() => {
-          const picked = quickInput.selectedItems[0]?.value;
-          if (picked !== void 0) {
-            view.sortOrder.set(picked, void 0);
-            quickInput.dispose();
-          }
-        })
-      );
-    }
+      ]
+    });
   }
-);
+  run(accessor) {
+    const coverageService = accessor.get(ITestCoverageService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const coverage = coverageService.selected.get();
+    if (!coverage) {
+      return;
+    }
+    const tests = [...coverage.allPerTestIDs()].map(TestId.fromString);
+    const commonPrefix = TestId.getLengthOfCommonPrefix(tests.length, (i) => tests[i]);
+    const result = coverage.result;
+    const previousSelection = coverageService.filterToTest.get();
+    const previousSelectionStr = previousSelection?.toString();
+    const items = [
+      { label: coverUtils.labels.allTests, id: void 0 },
+      { type: "separator" },
+      ...tests.map((testId) => ({ label: coverUtils.getLabelForItem(result, testId, commonPrefix), testId }))
+    ];
+    quickInputService.pick(items, {
+      activeItem: items.find((item) => "testId" in item && item.testId?.toString() === previousSelectionStr),
+      placeHolder: coverUtils.labels.pickShowCoverage,
+      onDidFocus: /* @__PURE__ */ __name((entry) => {
+        coverageService.filterToTest.set(entry.testId, void 0);
+      }, "onDidFocus")
+    }).then((selected) => {
+      coverageService.filterToTest.set(selected ? selected.testId : previousSelection, void 0);
+    });
+  }
+});
+registerAction2(class TestCoverageChangeSortingAction extends ViewAction {
+  static {
+    __name(this, "TestCoverageChangeSortingAction");
+  }
+  constructor() {
+    super({
+      id: TestCommandId.CoverageViewChangeSorting,
+      viewId: Testing.CoverageViewId,
+      title: localize2("testing.changeCoverageSort", "Change Sort Order"),
+      icon: Codicon.sortPrecedence,
+      menu: {
+        id: MenuId.ViewTitle,
+        when: ContextKeyExpr.equals("view", Testing.CoverageViewId),
+        group: "navigation"
+      }
+    });
+  }
+  runInView(accessor, view) {
+    const disposables = new DisposableStore();
+    const quickInput = disposables.add(accessor.get(IQuickInputService).createQuickPick());
+    const items = [
+      { label: localize("testing.coverageSortByLocation", "Sort by Location"), value: 1 /* Location */, description: localize("testing.coverageSortByLocationDescription", "Files are sorted alphabetically, declarations are sorted by position") },
+      { label: localize("testing.coverageSortByCoverage", "Sort by Coverage"), value: 0 /* Coverage */, description: localize("testing.coverageSortByCoverageDescription", "Files and declarations are sorted by total coverage") },
+      { label: localize("testing.coverageSortByName", "Sort by Name"), value: 2 /* Name */, description: localize("testing.coverageSortByNameDescription", "Files and declarations are sorted alphabetically") }
+    ];
+    quickInput.placeholder = localize("testing.coverageSortPlaceholder", "Sort the Test Coverage view...");
+    quickInput.items = items;
+    quickInput.show();
+    disposables.add(quickInput.onDidHide(() => disposables.dispose()));
+    disposables.add(quickInput.onDidAccept(() => {
+      const picked = quickInput.selectedItems[0]?.value;
+      if (picked !== void 0) {
+        view.sortOrder.set(picked, void 0);
+        quickInput.dispose();
+      }
+    }));
+  }
+});
 export {
   TestCoverageView
 };

@@ -1,20 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Promises } from "../../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
 import * as glob from "../../../../base/common/glob.js";
-import { revive } from "../../../../base/common/marshalling.js";
+import { UriComponents, URI } from "../../../../base/common/uri.js";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { ILocalFileSearchSimpleWorker, LocalFileSearchSimpleWorkerHost, IWorkerFileSearchComplete, IWorkerFileSystemDirectoryHandle, IWorkerFileSystemHandle, IWorkerTextSearchComplete } from "../common/localFileSearchWorkerTypes.js";
+import { ICommonQueryProps, IFileMatch, IFileQueryProps, IFolderQuery, IPatternInfo, ITextQueryProps } from "../common/search.js";
 import * as paths from "../../../../base/common/path.js";
-import { ExtUri } from "../../../../base/common/resources.js";
-import { createRegExp } from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { getFileResults } from "../common/getFileResults.js";
 import { IgnoreFile } from "../common/ignoreFile.js";
-import {
-  LocalFileSearchSimpleWorkerHost
-} from "../common/localFileSearchWorkerTypes.js";
+import { createRegExp } from "../../../../base/common/strings.js";
+import { Promises } from "../../../../base/common/async.js";
+import { ExtUri } from "../../../../base/common/resources.js";
+import { revive } from "../../../../base/common/marshalling.js";
 const PERF = false;
 const globalStart = +/* @__PURE__ */ new Date();
 const itrcount = {};
@@ -24,12 +22,7 @@ const time = /* @__PURE__ */ __name(async (name, task) => {
   }
   const start = Date.now();
   const itr = (itrcount[name] ?? 0) + 1;
-  console.info(
-    name,
-    itr,
-    "starting",
-    Math.round((start - globalStart) * 10) / 1e4
-  );
+  console.info(name, itr, "starting", Math.round((start - globalStart) * 10) / 1e4);
   itrcount[name] = itr;
   const r = await task();
   const end = Date.now();
@@ -67,27 +60,17 @@ class LocalFileSearchSimpleWorker {
     let count = 0;
     const max = query.maxResults || 512;
     const filePatternMatcher = query.filePattern ? (name) => query.filePattern.split("").every((c) => name.includes(c)) : (name) => true;
-    await time(
-      "listDirectory",
-      () => this.walkFolderQuery(
-        handle,
-        reviveQueryProps(query),
-        revivedFolderQuery,
-        extUri,
-        (file) => {
-          if (!filePatternMatcher(file.name)) {
-            return;
-          }
-          count++;
-          if (max && count > max) {
-            limitHit = true;
-            token.cancel();
-          }
-          return entries.push(file.path);
-        },
-        token.token
-      )
-    );
+    await time("listDirectory", () => this.walkFolderQuery(handle, reviveQueryProps(query), revivedFolderQuery, extUri, (file) => {
+      if (!filePatternMatcher(file.name)) {
+        return;
+      }
+      count++;
+      if (max && count > max) {
+        limitHit = true;
+        token.cancel();
+      }
+      return entries.push(file.path);
+    }, token.token));
     return {
       results: entries,
       limitHit
@@ -134,19 +117,9 @@ class LocalFileSearchSimpleWorker {
       }, "processFile");
       await time(
         "walkFolderToResolve",
-        () => this.walkFolderQuery(
-          handle,
-          reviveQueryProps(query),
-          revivedQuery,
-          extUri,
-          async (file) => onGoingProcesses.push(processFile(file)),
-          token.token
-        )
+        () => this.walkFolderQuery(handle, reviveQueryProps(query), revivedQuery, extUri, async (file) => onGoingProcesses.push(processFile(file)), token.token)
       );
-      await time(
-        "resolveOngoingProcesses",
-        () => Promise.all(onGoingProcesses)
-      );
+      await time("resolveOngoingProcesses", () => Promise.all(onGoingProcesses));
       if (PERF) {
         console.log("Searched in", fileCount, "files");
       }
@@ -157,11 +130,7 @@ class LocalFileSearchSimpleWorker {
     });
   }
   async walkFolderQuery(handle, queryProps, folderQuery, extUri, onFile, token) {
-    const folderExcludes = folderQuery.excludePattern?.map(
-      (excludePattern) => glob.parse(excludePattern.pattern ?? {}, {
-        trimForExclusions: true
-      })
-    );
+    const folderExcludes = folderQuery.excludePattern?.map((excludePattern) => glob.parse(excludePattern.pattern ?? {}, { trimForExclusions: true }));
     const evalFolderExcludes = /* @__PURE__ */ __name((path, basename, hasSibling) => {
       return folderExcludes?.some((folderExclude) => {
         return folderExclude(path, basename, hasSibling);
@@ -208,61 +177,40 @@ class LocalFileSearchSimpleWorker {
           directory.getFileHandle(".gitignore").catch((e) => void 0),
           directory.getFileHandle(".ignore").catch((e) => void 0)
         ]);
-        await Promise.all(
-          ignoreFiles.map(async (file) => {
-            if (!file) {
-              return;
-            }
-            const ignoreContents = new TextDecoder("utf8").decode(
-              new Uint8Array(
-                await (await file.getFile()).arrayBuffer()
-              )
-            );
-            ignoreFile = new IgnoreFile(
-              ignoreContents,
-              prior,
-              ignoreFile
-            );
-          })
-        );
+        await Promise.all(ignoreFiles.map(async (file) => {
+          if (!file) {
+            return;
+          }
+          const ignoreContents = new TextDecoder("utf8").decode(new Uint8Array(await (await file.getFile()).arrayBuffer()));
+          ignoreFile = new IgnoreFile(ignoreContents, prior, ignoreFile);
+        }));
       }
-      const entries = Promises.withAsyncBody(
-        async (c) => {
-          const files = [];
-          const dirs = [];
-          const entries2 = [];
-          const sibilings = /* @__PURE__ */ new Set();
-          for await (const entry of directory.entries()) {
-            entries2.push(entry);
-            sibilings.add(entry[0]);
-          }
-          for (const [basename, handle2] of entries2) {
-            if (token.isCancellationRequested) {
-              break;
-            }
-            const path = prior + basename;
-            if (ignoreFile && !ignoreFile.isPathIncludedInTraversal(
-              path,
-              handle2.kind === "directory"
-            )) {
-              continue;
-            }
-            const hasSibling = /* @__PURE__ */ __name((query) => sibilings.has(query), "hasSibling");
-            if (isFileSystemDirectoryHandle(handle2) && !isFolderExcluded(path, basename, hasSibling)) {
-              dirs.push(
-                processDirectory(
-                  handle2,
-                  path + "/",
-                  ignoreFile
-                )
-              );
-            } else if (isFileSystemFileHandle(handle2) && isFileIncluded(path, basename, hasSibling)) {
-              files.push(processFile(handle2, path));
-            }
-          }
-          c([...await Promise.all(dirs), ...files]);
+      const entries = Promises.withAsyncBody(async (c) => {
+        const files = [];
+        const dirs = [];
+        const entries2 = [];
+        const sibilings = /* @__PURE__ */ new Set();
+        for await (const entry of directory.entries()) {
+          entries2.push(entry);
+          sibilings.add(entry[0]);
         }
-      );
+        for (const [basename, handle2] of entries2) {
+          if (token.isCancellationRequested) {
+            break;
+          }
+          const path = prior + basename;
+          if (ignoreFile && !ignoreFile.isPathIncludedInTraversal(path, handle2.kind === "directory")) {
+            continue;
+          }
+          const hasSibling = /* @__PURE__ */ __name((query) => sibilings.has(query), "hasSibling");
+          if (isFileSystemDirectoryHandle(handle2) && !isFolderExcluded(path, basename, hasSibling)) {
+            dirs.push(processDirectory(handle2, path + "/", ignoreFile));
+          } else if (isFileSystemFileHandle(handle2) && isFileIncluded(path, basename, hasSibling)) {
+            files.push(processFile(handle2, path));
+          }
+        }
+        c([...await Promise.all(dirs), ...files]);
+      });
       return {
         type: "dir",
         name: directory.name,
@@ -274,9 +222,7 @@ class LocalFileSearchSimpleWorker {
         return;
       }
       await Promise.all(
-        (await directory.entries).sort(
-          (a, b) => -(a.type === "dir" ? 0 : 1) + (b.type === "dir" ? 0 : 1)
-        ).map(async (entry) => {
+        (await directory.entries).sort((a, b) => -(a.type === "dir" ? 0 : 1) + (b.type === "dir" ? 0 : 1)).map(async (entry) => {
           if (entry.type === "dir") {
             return resolveDirectory(entry, onFile2);
           } else {
@@ -285,10 +231,7 @@ class LocalFileSearchSimpleWorker {
         })
       );
     }, "resolveDirectory");
-    const processed = await time(
-      "process",
-      () => processDirectory(handle, "/")
-    );
+    const processed = await time("process", () => processDirectory(handle, "/"));
     await time("resolve", () => resolveDirectory(processed, onFile));
   }
 }
@@ -305,10 +248,7 @@ __name(createSearchRegExp, "createSearchRegExp");
 function reviveFolderQuery(folderQuery) {
   return revive({
     ...revive(folderQuery),
-    excludePattern: folderQuery.excludePattern?.map((ep) => ({
-      folder: URI.revive(ep.folder),
-      pattern: ep.pattern
-    })),
+    excludePattern: folderQuery.excludePattern?.map((ep) => ({ folder: URI.revive(ep.folder), pattern: ep.pattern })),
     folder: URI.revive(folderQuery.folder)
   });
 }
@@ -316,12 +256,8 @@ __name(reviveFolderQuery, "reviveFolderQuery");
 function reviveQueryProps(queryProps) {
   return {
     ...queryProps,
-    extraFileResources: queryProps.extraFileResources?.map(
-      (r) => URI.revive(r)
-    ),
-    folderQueries: queryProps.folderQueries.map(
-      (fq) => reviveFolderQuery(fq)
-    )
+    extraFileResources: queryProps.extraFileResources?.map((r) => URI.revive(r)),
+    folderQueries: queryProps.folderQueries.map((fq) => reviveFolderQuery(fq))
   };
 }
 __name(reviveQueryProps, "reviveQueryProps");
@@ -345,10 +281,7 @@ function pathIncludedInQuery(queryProps, path, extUri) {
         const searchPath = fq.folder;
         const uri = URI.file(path);
         if (extUri.isEqualOrParent(uri, searchPath)) {
-          const relPath = paths.relative(
-            searchPath.path,
-            uri.path
-          );
+          const relPath = paths.relative(searchPath.path, uri.path);
           return !fq.includePattern || !!glob.match(fq.includePattern, relPath);
         } else {
           return false;

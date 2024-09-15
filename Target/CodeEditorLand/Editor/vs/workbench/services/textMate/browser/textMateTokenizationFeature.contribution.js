@@ -10,16 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../common/contributions.js";
+import { registerSingleton, InstantiationType } from "../../../../platform/instantiation/common/extensions.js";
 import { ITextMateTokenizationService } from "./textMateTokenizationFeature.js";
 import { TextMateTokenizationFeature } from "./textMateTokenizationFeatureImpl.js";
+import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
 let TextMateTokenizationInstantiator = class {
   static {
     __name(this, "TextMateTokenizationInstantiator");
@@ -31,14 +25,6 @@ let TextMateTokenizationInstantiator = class {
 TextMateTokenizationInstantiator = __decorateClass([
   __decorateParam(0, ITextMateTokenizationService)
 ], TextMateTokenizationInstantiator);
-registerSingleton(
-  ITextMateTokenizationService,
-  TextMateTokenizationFeature,
-  InstantiationType.Eager
-);
-registerWorkbenchContribution2(
-  TextMateTokenizationInstantiator.ID,
-  TextMateTokenizationInstantiator,
-  WorkbenchPhase.BlockRestore
-);
+registerSingleton(ITextMateTokenizationService, TextMateTokenizationFeature, InstantiationType.Eager);
+registerWorkbenchContribution2(TextMateTokenizationInstantiator.ID, TextMateTokenizationInstantiator, WorkbenchPhase.BlockRestore);
 //# sourceMappingURL=textMateTokenizationFeature.contribution.js.map

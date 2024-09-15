@@ -10,19 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
 import * as nls from "../../../../nls.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { IDebugService, State, IDebugConfiguration } from "../common/debug.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IStatusbarService,
-  StatusbarAlignment
-} from "../../../services/statusbar/browser/statusbar.js";
-import {
-  IDebugService,
-  State
-} from "../common/debug.js";
+import { IStatusbarEntry, IStatusbarService, StatusbarAlignment, IStatusbarEntryAccessor } from "../../../services/statusbar/browser/statusbar.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 let DebugStatusContribution = class {
   constructor(statusBarService, debugService, configurationService) {
     this.statusBarService = statusBarService;
@@ -33,40 +26,33 @@ let DebugStatusContribution = class {
         "status.debug",
         StatusbarAlignment.LEFT,
         30
+        /* Low Priority */
       );
     }, "addStatusBarEntry");
     const setShowInStatusBar = /* @__PURE__ */ __name(() => {
-      this.showInStatusBar = configurationService.getValue(
-        "debug"
-      ).showInStatusBar;
+      this.showInStatusBar = configurationService.getValue("debug").showInStatusBar;
       if (this.showInStatusBar === "always" && !this.entryAccessor) {
         addStatusBarEntry();
       }
     }, "setShowInStatusBar");
     setShowInStatusBar();
-    this.toDispose.push(
-      this.debugService.onDidChangeState((state) => {
-        if (state !== State.Inactive && this.showInStatusBar === "onFirstSessionStart" && !this.entryAccessor) {
-          addStatusBarEntry();
+    this.toDispose.push(this.debugService.onDidChangeState((state) => {
+      if (state !== State.Inactive && this.showInStatusBar === "onFirstSessionStart" && !this.entryAccessor) {
+        addStatusBarEntry();
+      }
+    }));
+    this.toDispose.push(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug.showInStatusBar")) {
+        setShowInStatusBar();
+        if (this.entryAccessor && this.showInStatusBar === "never") {
+          this.entryAccessor.dispose();
+          this.entryAccessor = void 0;
         }
-      })
-    );
-    this.toDispose.push(
-      configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("debug.showInStatusBar")) {
-          setShowInStatusBar();
-          if (this.entryAccessor && this.showInStatusBar === "never") {
-            this.entryAccessor.dispose();
-            this.entryAccessor = void 0;
-          }
-        }
-      })
-    );
-    this.toDispose.push(
-      this.debugService.getConfigurationManager().onDidSelectConfiguration((e) => {
-        this.entryAccessor?.update(this.entry);
-      })
-    );
+      }
+    }));
+    this.toDispose.push(this.debugService.getConfigurationManager().onDidSelectConfiguration((e) => {
+      this.entryAccessor?.update(this.entry);
+    }));
   }
   static {
     __name(this, "DebugStatusContribution");
@@ -86,10 +72,7 @@ let DebugStatusContribution = class {
       name: nls.localize("status.debug", "Debug"),
       text: "$(debug-alt-small) " + text,
       ariaLabel: nls.localize("debugTarget", "Debug: {0}", text),
-      tooltip: nls.localize(
-        "selectAndStartDebug",
-        "Select and Start Debug Configuration"
-      ),
+      tooltip: nls.localize("selectAndStartDebug", "Select and Start Debug Configuration"),
       command: "workbench.action.debug.selectandstart"
     };
   }

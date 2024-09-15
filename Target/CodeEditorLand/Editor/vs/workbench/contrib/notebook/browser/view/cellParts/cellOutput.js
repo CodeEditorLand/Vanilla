@@ -11,52 +11,36 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../../base/browser/dom.js";
+import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
 import { renderMarkdown } from "../../../../../../base/browser/markdownRenderer.js";
-import { Action } from "../../../../../../base/common/actions.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../../base/common/lifecycle.js";
+import { Action, IAction } from "../../../../../../base/common/actions.js";
+import { IMarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../../../base/common/marshallingIds.js";
-import {
-  autorun,
-  observableValue
-} from "../../../../../../base/common/observable.js";
-import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import * as nls from "../../../../../../nls.js";
 import { createAndFillInActionBarActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { WorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../../../platform/actions/common/actions.js";
+import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
-import {
-  IQuickInputService
-} from "../../../../../../platform/quickinput/common/quickInput.js";
+import { IQuickInputService, IQuickPickItem } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { IExtensionsWorkbenchService } from "../../../../extensions/common/extensions.js";
-import {
-  CellUri,
-  NotebookCellExecutionState,
-  RENDERER_NOT_AVAILABLE,
-  isTextStreamMime
-} from "../../../common/notebookCommon.js";
-import {
-  NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS,
-  NOTEBOOK_CELL_IS_FIRST_OUTPUT
-} from "../../../common/notebookContextKeys.js";
-import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { INotebookService } from "../../../common/notebookService.js";
-import { TEXT_BASED_MIMETYPES } from "../../contrib/clipboard/cellOutputClipboard.js";
-import { COPY_OUTPUT_COMMAND_ID } from "../../controller/cellOutputActions.js";
-import {
-  JUPYTER_EXTENSION_ID,
-  RenderOutputType
-} from "../../notebookBrowser.js";
+import { ICellOutputViewModel, ICellViewModel, IInsetRenderOutput, INotebookEditorDelegate, JUPYTER_EXTENSION_ID, RenderOutputType } from "../../notebookBrowser.js";
 import { mimetypeIcon } from "../../notebookIcons.js";
 import { CellContentPart } from "../cellPart.js";
+import { CodeCellRenderTemplate } from "../notebookRenderingCommon.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { CellUri, IOrderedMimeType, NotebookCellExecutionState, NotebookCellOutputsSplice, RENDERER_NOT_AVAILABLE, isTextStreamMime } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { INotebookKernel } from "../../../common/notebookKernelService.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { COPY_OUTPUT_COMMAND_ID } from "../../controller/cellOutputActions.js";
+import { TEXT_BASED_MIMETYPES } from "../../contrib/clipboard/cellOutputClipboard.js";
+import { autorun, observableValue } from "../../../../../../base/common/observable.js";
+import { NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS, NOTEBOOK_CELL_IS_FIRST_OUTPUT } from "../../../common/notebookContextKeys.js";
 let CellOutputElement = class extends Disposable {
   constructor(notebookEditor, viewCell, cellOutputContainer, outputContainer, output, notebookService, quickInputService, parentContextKeyService, menuService, extensionsWorkbenchService, instantiationService) {
     super();
@@ -71,16 +55,12 @@ let CellOutputElement = class extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.instantiationService = instantiationService;
     this.contextKeyService = parentContextKeyService;
-    this._register(
-      this.output.model.onDidChangeData(() => {
-        this.rerender();
-      })
-    );
-    this._register(
-      this.output.onDidResetRenderer(() => {
-        this.rerender();
-      })
-    );
+    this._register(this.output.model.onDidChangeData(() => {
+      this.rerender();
+    }));
+    this._register(this.output.onDidResetRenderer(() => {
+      this.rerender();
+    }));
   }
   static {
     __name(this, "CellOutputElement");
@@ -116,24 +96,19 @@ let CellOutputElement = class extends Disposable {
   }
   rerender() {
     if (this.notebookEditor.hasModel() && this.innerContainer && this.renderResult && this.renderResult.type === RenderOutputType.Extension) {
-      const [mimeTypes, pick] = this.output.resolveMimeTypes(
-        this.notebookEditor.textModel,
-        this.notebookEditor.activeKernel?.preloadProvides
-      );
+      const [mimeTypes, pick] = this.output.resolveMimeTypes(this.notebookEditor.textModel, this.notebookEditor.activeKernel?.preloadProvides);
       const pickedMimeType = mimeTypes[pick];
       if (pickedMimeType.mimeType === this.renderResult.mimeType && pickedMimeType.rendererId === this.renderResult.renderer.id) {
-        const index = this.viewCell.outputsViewModels.indexOf(
-          this.output
-        );
-        this.notebookEditor.updateOutput(
-          this.viewCell,
-          this.renderResult,
-          this.viewCell.getOutputOffset(index)
-        );
+        const index = this.viewCell.outputsViewModels.indexOf(this.output);
+        this.notebookEditor.updateOutput(this.viewCell, this.renderResult, this.viewCell.getOutputOffset(index));
         return;
       }
     }
-    if (this.innerContainer) {
+    if (!this.innerContainer) {
+      const currOutputIndex = this.cellOutputContainer.renderedOutputEntries.findIndex((entry) => entry.element === this);
+      const previousSibling = currOutputIndex > 0 && !!this.cellOutputContainer.renderedOutputEntries[currOutputIndex - 1].element.innerContainer?.parentElement ? this.cellOutputContainer.renderedOutputEntries[currOutputIndex - 1].element.innerContainer : void 0;
+      this.render(previousSibling);
+    } else {
       const nextElement = this.innerContainer.nextElementSibling;
       this.toolbarDisposables.clear();
       const element = this.innerContainer;
@@ -142,12 +117,6 @@ let CellOutputElement = class extends Disposable {
         this.notebookEditor.removeInset(this.output);
       }
       this.render(nextElement);
-    } else {
-      const currOutputIndex = this.cellOutputContainer.renderedOutputEntries.findIndex(
-        (entry) => entry.element === this
-      );
-      const previousSibling = currOutputIndex > 0 && !!this.cellOutputContainer.renderedOutputEntries[currOutputIndex - 1].element.innerContainer?.parentElement ? this.cellOutputContainer.renderedOutputEntries[currOutputIndex - 1].element.innerContainer : void 0;
-      this.render(previousSibling);
     }
     this._relayoutCell();
   }
@@ -155,17 +124,11 @@ let CellOutputElement = class extends Disposable {
   _generateInnerOutputContainer(previousSibling, pickedMimeTypeRenderer) {
     this.innerContainer = DOM.$(".output-inner-container");
     if (previousSibling && previousSibling.nextElementSibling) {
-      this.outputContainer.domNode.insertBefore(
-        this.innerContainer,
-        previousSibling.nextElementSibling
-      );
+      this.outputContainer.domNode.insertBefore(this.innerContainer, previousSibling.nextElementSibling);
     } else {
       this.outputContainer.domNode.appendChild(this.innerContainer);
     }
-    this.innerContainer.setAttribute(
-      "output-mime-type",
-      pickedMimeTypeRenderer.mimeType
-    );
+    this.innerContainer.setAttribute("output-mime-type", pickedMimeTypeRenderer.mimeType);
     return this.innerContainer;
   }
   render(previousSibling) {
@@ -179,129 +142,57 @@ let CellOutputElement = class extends Disposable {
       return void 0;
     }
     const notebookTextModel = this.notebookEditor.textModel;
-    const [mimeTypes, pick] = this.output.resolveMimeTypes(
-      notebookTextModel,
-      this.notebookEditor.activeKernel?.preloadProvides
-    );
+    const [mimeTypes, pick] = this.output.resolveMimeTypes(notebookTextModel, this.notebookEditor.activeKernel?.preloadProvides);
     if (!mimeTypes.find((mimeType) => mimeType.isTrusted) || mimeTypes.length === 0) {
-      this.viewCell.updateOutputHeight(
-        index,
-        0,
-        "CellOutputElement#noMimeType"
-      );
+      this.viewCell.updateOutputHeight(index, 0, "CellOutputElement#noMimeType");
       return void 0;
     }
     const selectedPresentation = mimeTypes[pick];
-    let renderer = this.notebookService.getRendererInfo(
-      selectedPresentation.rendererId
-    );
+    let renderer = this.notebookService.getRendererInfo(selectedPresentation.rendererId);
     if (!renderer && selectedPresentation.mimeType.indexOf("text/") > -1) {
-      renderer = this.notebookService.getRendererInfo(
-        "vscode.builtin-renderer"
-      );
+      renderer = this.notebookService.getRendererInfo("vscode.builtin-renderer");
     }
-    const innerContainer = this._generateInnerOutputContainer(
-      previousSibling,
-      selectedPresentation
-    );
+    const innerContainer = this._generateInnerOutputContainer(previousSibling, selectedPresentation);
     if (index === 0 || this.output.visible.get()) {
-      this._attachToolbar(
-        innerContainer,
-        notebookTextModel,
-        this.notebookEditor.activeKernel,
-        index,
-        mimeTypes
-      );
+      this._attachToolbar(innerContainer, notebookTextModel, this.notebookEditor.activeKernel, index, mimeTypes);
     } else {
-      this._register(
-        autorun((reader) => {
-          const visible = reader.readObservable(this.output.visible);
-          if (visible && !this.toolbarAttached) {
-            this._attachToolbar(
-              innerContainer,
-              notebookTextModel,
-              this.notebookEditor.activeKernel,
-              index,
-              mimeTypes
-            );
-          } else if (!visible) {
-            this.toolbarDisposables.clear();
-          }
-          this.cellOutputContainer.checkForHiddenOutputs();
-        })
-      );
+      this._register(autorun((reader) => {
+        const visible = reader.readObservable(this.output.visible);
+        if (visible && !this.toolbarAttached) {
+          this._attachToolbar(innerContainer, notebookTextModel, this.notebookEditor.activeKernel, index, mimeTypes);
+        } else if (!visible) {
+          this.toolbarDisposables.clear();
+        }
+        this.cellOutputContainer.checkForHiddenOutputs();
+      }));
       this.cellOutputContainer.hasHiddenOutputs.set(true, void 0);
     }
-    this.renderedOutputContainer = DOM.append(
-      innerContainer,
-      DOM.$(".rendered-output")
-    );
-    this.renderResult = renderer ? {
-      type: RenderOutputType.Extension,
-      renderer,
-      source: this.output,
-      mimeType: selectedPresentation.mimeType
-    } : this._renderMissingRenderer(
-      this.output,
-      selectedPresentation.mimeType
-    );
+    this.renderedOutputContainer = DOM.append(innerContainer, DOM.$(".rendered-output"));
+    this.renderResult = renderer ? { type: RenderOutputType.Extension, renderer, source: this.output, mimeType: selectedPresentation.mimeType } : this._renderMissingRenderer(this.output, selectedPresentation.mimeType);
     this.output.pickedMimeType = selectedPresentation;
     if (!this.renderResult) {
-      this.viewCell.updateOutputHeight(
-        index,
-        0,
-        "CellOutputElement#renderResultUndefined"
-      );
+      this.viewCell.updateOutputHeight(index, 0, "CellOutputElement#renderResultUndefined");
       return void 0;
     }
-    this.notebookEditor.createOutput(
-      this.viewCell,
-      this.renderResult,
-      this.viewCell.getOutputOffset(index),
-      false
-    );
+    this.notebookEditor.createOutput(this.viewCell, this.renderResult, this.viewCell.getOutputOffset(index), false);
     innerContainer.classList.add("background");
     return { initRenderIsSynchronous: false };
   }
   _renderMissingRenderer(viewModel, preferredMimeType) {
     if (!viewModel.model.outputs.length) {
-      return this._renderMessage(
-        viewModel,
-        nls.localize("empty", "Cell has no output")
-      );
+      return this._renderMessage(viewModel, nls.localize("empty", "Cell has no output"));
     }
     if (!preferredMimeType) {
       const mimeTypes = viewModel.model.outputs.map((op) => op.mime);
       const mimeTypesMessage = mimeTypes.join(", ");
-      return this._renderMessage(
-        viewModel,
-        nls.localize(
-          "noRenderer.2",
-          "No renderer could be found for output. It has the following mimetypes: {0}",
-          mimeTypesMessage
-        )
-      );
+      return this._renderMessage(viewModel, nls.localize("noRenderer.2", "No renderer could be found for output. It has the following mimetypes: {0}", mimeTypesMessage));
     }
     return this._renderSearchForMimetype(viewModel, preferredMimeType);
   }
   _renderSearchForMimetype(viewModel, mimeType) {
     const query = `@tag:notebookRenderer ${mimeType}`;
-    const p = DOM.$(
-      "p",
-      void 0,
-      `No renderer could be found for mimetype "${mimeType}", but one might be available on the Marketplace.`
-    );
-    const a = DOM.$(
-      "a",
-      {
-        href: `command:workbench.extensions.search?%22${query}%22`,
-        class: "monaco-button monaco-text-button",
-        tabindex: 0,
-        role: "button",
-        style: "padding: 8px; text-decoration: none; color: rgb(255, 255, 255); background-color: rgb(14, 99, 156); max-width: 200px;"
-      },
-      `Search Marketplace`
-    );
+    const p = DOM.$("p", void 0, `No renderer could be found for mimetype "${mimeType}", but one might be available on the Marketplace.`);
+    const a = DOM.$("a", { href: `command:workbench.extensions.search?%22${query}%22`, class: "monaco-button monaco-text-button", tabindex: 0, role: "button", style: "padding: 8px; text-decoration: none; color: rgb(255, 255, 255); background-color: rgb(14, 99, 156); max-width: 200px;" }, `Search Marketplace`);
     return {
       type: RenderOutputType.Html,
       source: viewModel,
@@ -310,16 +201,10 @@ let CellOutputElement = class extends Disposable {
   }
   _renderMessage(viewModel, message) {
     const el = DOM.$("p", void 0, message);
-    return {
-      type: RenderOutputType.Html,
-      source: viewModel,
-      htmlContent: el.outerHTML
-    };
+    return { type: RenderOutputType.Html, source: viewModel, htmlContent: el.outerHTML };
   }
   shouldEnableCopy(mimeTypes) {
-    if (!mimeTypes.find(
-      (mimeType) => TEXT_BASED_MIMETYPES.indexOf(mimeType.mimeType) || mimeType.mimeType.startsWith("image/")
-    )) {
+    if (!mimeTypes.find((mimeType) => TEXT_BASED_MIMETYPES.indexOf(mimeType.mimeType) || mimeType.mimeType.startsWith("image/"))) {
       return false;
     }
     if (isTextStreamMime(mimeTypes[0].mimeType)) {
@@ -344,15 +229,9 @@ let CellOutputElement = class extends Disposable {
     outputItemDiv.style.position = "relative";
     const mimeTypePicker = DOM.$(".cell-output-toolbar");
     outputItemDiv.appendChild(mimeTypePicker);
-    const toolbar = this.toolbarDisposables.add(
-      this.instantiationService.createInstance(
-        WorkbenchToolBar,
-        mimeTypePicker,
-        {
-          renderDropdownAsChildElement: false
-        }
-      )
-    );
+    const toolbar = this.toolbarDisposables.add(this.instantiationService.createInstance(WorkbenchToolBar, mimeTypePicker, {
+      renderDropdownAsChildElement: false
+    }));
     toolbar.context = {
       ui: true,
       cell: this.output.cellViewModel,
@@ -360,59 +239,28 @@ let CellOutputElement = class extends Disposable {
       notebookEditor: this.notebookEditor,
       $mid: MarshalledId.NotebookCellActionContext
     };
-    const pickAction = this.toolbarDisposables.add(
-      new Action(
-        "notebook.output.pickMimetype",
-        nls.localize("pickMimeType", "Change Presentation"),
-        ThemeIcon.asClassName(mimetypeIcon),
-        void 0,
-        async (_context) => this._pickActiveMimeTypeRenderer(
-          outputItemDiv,
-          notebookTextModel,
-          kernel,
-          this.output
-        )
-      )
-    );
-    const menuContextKeyService = this.toolbarDisposables.add(
-      this.contextKeyService.createScoped(outputItemDiv)
-    );
-    const hasHiddenOutputs = NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS.bindTo(
-      menuContextKeyService
-    );
-    const isFirstCellOutput = NOTEBOOK_CELL_IS_FIRST_OUTPUT.bindTo(
-      menuContextKeyService
-    );
+    const pickAction = this.toolbarDisposables.add(new Action(
+      "notebook.output.pickMimetype",
+      nls.localize("pickMimeType", "Change Presentation"),
+      ThemeIcon.asClassName(mimetypeIcon),
+      void 0,
+      async (_context) => this._pickActiveMimeTypeRenderer(outputItemDiv, notebookTextModel, kernel, this.output)
+    ));
+    const menuContextKeyService = this.toolbarDisposables.add(this.contextKeyService.createScoped(outputItemDiv));
+    const hasHiddenOutputs = NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS.bindTo(menuContextKeyService);
+    const isFirstCellOutput = NOTEBOOK_CELL_IS_FIRST_OUTPUT.bindTo(menuContextKeyService);
     isFirstCellOutput.set(index === 0);
-    this.toolbarDisposables.add(
-      autorun((reader) => {
-        hasHiddenOutputs.set(
-          reader.readObservable(
-            this.cellOutputContainer.hasHiddenOutputs
-          )
-        );
-      })
-    );
-    const menu = this.toolbarDisposables.add(
-      this.menuService.createMenu(
-        MenuId.NotebookOutputToolbar,
-        menuContextKeyService
-      )
-    );
+    this.toolbarDisposables.add(autorun((reader) => {
+      hasHiddenOutputs.set(reader.readObservable(this.cellOutputContainer.hasHiddenOutputs));
+    }));
+    const menu = this.toolbarDisposables.add(this.menuService.createMenu(MenuId.NotebookOutputToolbar, menuContextKeyService));
     const updateMenuToolbar = /* @__PURE__ */ __name(() => {
       const primary = [];
       let secondary = [];
       const result = { primary, secondary };
-      createAndFillInActionBarActions(
-        menu,
-        { shouldForwardArgs: true },
-        result,
-        () => false
-      );
+      createAndFillInActionBarActions(menu, { shouldForwardArgs: true }, result, () => false);
       if (!isCopyEnabled) {
-        secondary = secondary.filter(
-          (action) => action.id !== COPY_OUTPUT_COMMAND_ID
-        );
+        secondary = secondary.filter((action) => action.id !== COPY_OUTPUT_COMMAND_ID);
       }
       if (hasMultipleMimeTypes) {
         secondary = [pickAction, ...secondary];
@@ -423,10 +271,7 @@ let CellOutputElement = class extends Disposable {
     this.toolbarDisposables.add(menu.onDidChange(updateMenuToolbar));
   }
   async _pickActiveMimeTypeRenderer(outputItemDiv, notebookTextModel, kernel, viewModel) {
-    const [mimeTypes, currIndex] = viewModel.resolveMimeTypes(
-      notebookTextModel,
-      kernel?.preloadProvides
-    );
+    const [mimeTypes, currIndex] = viewModel.resolveMimeTypes(notebookTextModel, kernel?.preloadProvides);
     const items = [];
     const unsupportedItems = [];
     mimeTypes.forEach((mimeType2, index) => {
@@ -438,51 +283,33 @@ let CellOutputElement = class extends Disposable {
           index,
           picked: index === currIndex,
           detail: this._generateRendererInfo(mimeType2.rendererId),
-          description: index === currIndex ? nls.localize(
-            "curruentActiveMimeType",
-            "Currently Active"
-          ) : void 0
+          description: index === currIndex ? nls.localize("curruentActiveMimeType", "Currently Active") : void 0
         });
       }
     });
-    if (unsupportedItems.some(
-      (m) => JUPYTER_RENDERER_MIMETYPES.includes(m.id)
-    )) {
+    if (unsupportedItems.some((m) => JUPYTER_RENDERER_MIMETYPES.includes(m.id))) {
       unsupportedItems.push({
-        label: nls.localize(
-          "installJupyterPrompt",
-          "Install additional renderers from the marketplace"
-        ),
+        label: nls.localize("installJupyterPrompt", "Install additional renderers from the marketplace"),
         id: "installRenderers",
         index: mimeTypes.length
       });
     }
     const disposables = new DisposableStore();
-    const picker = disposables.add(
-      this.quickInputService.createQuickPick({ useSeparators: true })
-    );
-    picker.items = [...items, { type: "separator" }, ...unsupportedItems];
+    const picker = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
+    picker.items = [
+      ...items,
+      { type: "separator" },
+      ...unsupportedItems
+    ];
     picker.activeItems = items.filter((item) => !!item.picked);
-    picker.placeholder = items.length !== mimeTypes.length ? nls.localize(
-      "promptChooseMimeTypeInSecure.placeHolder",
-      "Select mimetype to render for current output"
-    ) : nls.localize(
-      "promptChooseMimeType.placeHolder",
-      "Select mimetype to render for current output"
-    );
-    const pick = await new Promise(
-      (resolve) => {
-        disposables.add(
-          picker.onDidAccept(() => {
-            resolve(
-              picker.selectedItems.length === 1 ? picker.selectedItems[0] : void 0
-            );
-            disposables.dispose();
-          })
-        );
-        picker.show();
-      }
-    );
+    picker.placeholder = items.length !== mimeTypes.length ? nls.localize("promptChooseMimeTypeInSecure.placeHolder", "Select mimetype to render for current output") : nls.localize("promptChooseMimeType.placeHolder", "Select mimetype to render for current output");
+    const pick = await new Promise((resolve) => {
+      disposables.add(picker.onDidAccept(() => {
+        resolve(picker.selectedItems.length === 1 ? picker.selectedItems[0] : void 0);
+        disposables.dispose();
+      }));
+      picker.show();
+    });
     if (pick === void 0 || pick.index === currIndex) {
       return;
     }
@@ -498,24 +325,15 @@ let CellOutputElement = class extends Disposable {
       this.notebookEditor.removeInset(viewModel);
     }
     viewModel.pickedMimeType = mimeTypes[pick.index];
-    this.viewCell.updateOutputMinHeight(
-      this.viewCell.layoutInfo.outputTotalHeight
-    );
+    this.viewCell.updateOutputMinHeight(this.viewCell.layoutInfo.outputTotalHeight);
     const { mimeType, rendererId } = mimeTypes[pick.index];
-    this.notebookService.updateMimePreferredRenderer(
-      notebookTextModel.viewType,
-      mimeType,
-      rendererId,
-      mimeTypes.map((m) => m.mimeType)
-    );
+    this.notebookService.updateMimePreferredRenderer(notebookTextModel.viewType, mimeType, rendererId, mimeTypes.map((m) => m.mimeType));
     this.render(nextElement);
     this._validateFinalOutputHeight(false);
     this._relayoutCell();
   }
   async _showJupyterExtension() {
-    await this.extensionsWorkbenchService.openSearch(
-      `@id:${JUPYTER_EXTENSION_ID}`
-    );
+    await this.extensionsWorkbenchService.openSearch(`@id:${JUPYTER_EXTENSION_ID}`);
   }
   _generateRendererInfo(renderId) {
     const renderInfo = this.notebookService.getRendererInfo(renderId);
@@ -539,10 +357,7 @@ let CellOutputElement = class extends Disposable {
     }
   }
   _relayoutCell() {
-    this.notebookEditor.layoutNotebookCell(
-      this.viewCell,
-      this.viewCell.layoutInfo.totalHeight
-    );
+    this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
   }
   dispose() {
     if (this._outputHeightTimer) {
@@ -584,32 +399,20 @@ let CellOutputContainer = class extends CellContentPart {
     this.openerService = openerService;
     this._notebookExecutionStateService = _notebookExecutionStateService;
     this.instantiationService = instantiationService;
-    this._register(
-      viewCell.onDidStartExecution(() => {
-        viewCell.updateOutputMinHeight(
-          viewCell.layoutInfo.outputTotalHeight
-        );
-      })
-    );
-    this._register(
-      viewCell.onDidStopExecution(() => {
-        this._validateFinalOutputHeight(false);
-      })
-    );
-    this._register(
-      viewCell.onDidChangeOutputs((splice) => {
-        const executionState = this._notebookExecutionStateService.getCellExecution(
-          viewCell.uri
-        );
-        const context = executionState ? 1 /* Execution */ : 2 /* Other */;
-        this._updateOutputs(splice, context);
-      })
-    );
-    this._register(
-      viewCell.onDidChangeLayout(() => {
-        this.updateInternalLayoutNow(viewCell);
-      })
-    );
+    this._register(viewCell.onDidStartExecution(() => {
+      viewCell.updateOutputMinHeight(viewCell.layoutInfo.outputTotalHeight);
+    }));
+    this._register(viewCell.onDidStopExecution(() => {
+      this._validateFinalOutputHeight(false);
+    }));
+    this._register(viewCell.onDidChangeOutputs((splice) => {
+      const executionState = this._notebookExecutionStateService.getCellExecution(viewCell.uri);
+      const context = executionState ? 1 /* Execution */ : 2 /* Other */;
+      this._updateOutputs(splice, context);
+    }));
+    this._register(viewCell.onDidChangeLayout(() => {
+      this.updateInternalLayoutNow(viewCell);
+    }));
   }
   static {
     __name(this, "CellOutputContainer");
@@ -630,12 +433,8 @@ let CellOutputContainer = class extends CellContentPart {
     return this._outputEntries;
   }
   updateInternalLayoutNow(viewCell) {
-    this.templateData.outputContainer.setTop(
-      viewCell.layoutInfo.outputContainerOffset
-    );
-    this.templateData.outputShowMoreContainer.setTop(
-      viewCell.layoutInfo.outputShowMoreContainerOffset
-    );
+    this.templateData.outputContainer.setTop(viewCell.layoutInfo.outputContainerOffset);
+    this.templateData.outputShowMoreContainer.setTop(viewCell.layoutInfo.outputShowMoreContainerOffset);
     this._outputEntries.forEach((entry) => {
       const index = this.viewCell.outputsViewModels.indexOf(entry.model);
       if (index >= 0) {
@@ -660,27 +459,13 @@ let CellOutputContainer = class extends CellContentPart {
   _doRender() {
     if (this.viewCell.outputsViewModels.length > 0) {
       if (this.viewCell.layoutInfo.outputTotalHeight !== 0) {
-        this.viewCell.updateOutputMinHeight(
-          this.viewCell.layoutInfo.outputTotalHeight
-        );
+        this.viewCell.updateOutputMinHeight(this.viewCell.layoutInfo.outputTotalHeight);
       }
       DOM.show(this.templateData.outputContainer.domNode);
-      for (let index = 0; index < Math.min(
-        this.options.limit,
-        this.viewCell.outputsViewModels.length
-      ); index++) {
+      for (let index = 0; index < Math.min(this.options.limit, this.viewCell.outputsViewModels.length); index++) {
         const currOutput = this.viewCell.outputsViewModels[index];
-        const entry = this.instantiationService.createInstance(
-          CellOutputElement,
-          this.notebookEditor,
-          this.viewCell,
-          this,
-          this.templateData.outputContainer,
-          currOutput
-        );
-        this._outputEntries.push(
-          new OutputEntryViewHandler(currOutput, entry)
-        );
+        const entry = this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, currOutput);
+        this._outputEntries.push(new OutputEntryViewHandler(currOutput, entry));
         entry.render(void 0);
       }
       if (this.viewCell.outputsViewModels.length > this.options.limit) {
@@ -693,11 +478,7 @@ let CellOutputContainer = class extends CellContentPart {
     }
     this.templateData.outputShowMoreContainer.domNode.innerText = "";
     if (this.viewCell.outputsViewModels.length > this.options.limit) {
-      this.templateData.outputShowMoreContainer.domNode.appendChild(
-        this._generateShowMoreElement(
-          this.templateData.templateDisposables
-        )
-      );
+      this.templateData.outputShowMoreContainer.domNode.appendChild(this._generateShowMoreElement(this.templateData.templateDisposables));
     } else {
       DOM.hide(this.templateData.outputShowMoreContainer.domNode);
       this.viewCell.updateOutputShowMoreContainerHeight(0);
@@ -714,12 +495,7 @@ let CellOutputContainer = class extends CellContentPart {
       const viewHandler = this._outputEntries[index];
       const outputEntry = viewHandler.element;
       if (outputEntry.renderResult) {
-        this.notebookEditor.createOutput(
-          this.viewCell,
-          outputEntry.renderResult,
-          this.viewCell.getOutputOffset(index),
-          false
-        );
+        this.notebookEditor.createOutput(this.viewCell, outputEntry.renderResult, this.viewCell.getOutputOffset(index), false);
       } else {
         outputEntry.render(void 0);
       }
@@ -736,9 +512,7 @@ let CellOutputContainer = class extends CellContentPart {
     if (this._outputHeightTimer !== null) {
       clearTimeout(this._outputHeightTimer);
     }
-    const executionState = this._notebookExecutionStateService.getCellExecution(
-      this.viewCell.uri
-    );
+    const executionState = this._notebookExecutionStateService.getCellExecution(this.viewCell.uri);
     if (synchronous) {
       this.viewCell.unlockOutputHeight();
     } else if (executionState?.state !== NotebookCellExecutionState.Executing) {
@@ -755,11 +529,7 @@ let CellOutputContainer = class extends CellContentPart {
     } else {
       DOM.hide(this.templateData.outputContainer.domNode);
     }
-    this.viewCell.spliceOutputHeights(
-      splice.start,
-      splice.deleteCount,
-      splice.newOutputs.map((_) => 0)
-    );
+    this.viewCell.spliceOutputHeights(splice.start, splice.deleteCount, splice.newOutputs.map((_) => 0));
     this._renderNow(splice, context);
   }
   _renderNow(splice, context) {
@@ -767,79 +537,34 @@ let CellOutputContainer = class extends CellContentPart {
       return;
     }
     const firstGroupEntries = this._outputEntries.slice(0, splice.start);
-    const deletedEntries = this._outputEntries.slice(
-      splice.start,
-      splice.start + splice.deleteCount
-    );
-    const secondGroupEntries = this._outputEntries.slice(
-      splice.start + splice.deleteCount
-    );
-    let newlyInserted = this.viewCell.outputsViewModels.slice(
-      splice.start,
-      splice.start + splice.newOutputs.length
-    );
+    const deletedEntries = this._outputEntries.slice(splice.start, splice.start + splice.deleteCount);
+    const secondGroupEntries = this._outputEntries.slice(splice.start + splice.deleteCount);
+    let newlyInserted = this.viewCell.outputsViewModels.slice(splice.start, splice.start + splice.newOutputs.length);
     if (firstGroupEntries.length + newlyInserted.length + secondGroupEntries.length > this.options.limit) {
       if (firstGroupEntries.length + newlyInserted.length > this.options.limit) {
         [...deletedEntries, ...secondGroupEntries].forEach((entry) => {
           entry.element.detach();
           entry.element.dispose();
         });
-        newlyInserted = newlyInserted.slice(
-          0,
-          this.options.limit - firstGroupEntries.length
-        );
+        newlyInserted = newlyInserted.slice(0, this.options.limit - firstGroupEntries.length);
         const newlyInsertedEntries = newlyInserted.map((insert) => {
-          return new OutputEntryViewHandler(
-            insert,
-            this.instantiationService.createInstance(
-              CellOutputElement,
-              this.notebookEditor,
-              this.viewCell,
-              this,
-              this.templateData.outputContainer,
-              insert
-            )
-          );
+          return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
         });
-        this._outputEntries = [
-          ...firstGroupEntries,
-          ...newlyInsertedEntries
-        ];
+        this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries];
         for (let i = firstGroupEntries.length; i < this._outputEntries.length; i++) {
           this._outputEntries[i].element.render(void 0);
         }
       } else {
-        const elementsPushedOutOfView = secondGroupEntries.slice(
-          this.options.limit - firstGroupEntries.length - newlyInserted.length
-        );
-        [...deletedEntries, ...elementsPushedOutOfView].forEach(
-          (entry) => {
-            entry.element.detach();
-            entry.element.dispose();
-          }
-        );
+        const elementsPushedOutOfView = secondGroupEntries.slice(this.options.limit - firstGroupEntries.length - newlyInserted.length);
+        [...deletedEntries, ...elementsPushedOutOfView].forEach((entry) => {
+          entry.element.detach();
+          entry.element.dispose();
+        });
         const reRenderRightBoundary = firstGroupEntries.length + newlyInserted.length;
         const newlyInsertedEntries = newlyInserted.map((insert) => {
-          return new OutputEntryViewHandler(
-            insert,
-            this.instantiationService.createInstance(
-              CellOutputElement,
-              this.notebookEditor,
-              this.viewCell,
-              this,
-              this.templateData.outputContainer,
-              insert
-            )
-          );
+          return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
         });
-        this._outputEntries = [
-          ...firstGroupEntries,
-          ...newlyInsertedEntries,
-          ...secondGroupEntries.slice(
-            0,
-            this.options.limit - firstGroupEntries.length - newlyInserted.length
-          )
-        ];
+        this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries.slice(0, this.options.limit - firstGroupEntries.length - newlyInserted.length)];
         for (let i = firstGroupEntries.length; i < reRenderRightBoundary; i++) {
           const previousSibling = i - 1 >= 0 && this._outputEntries[i - 1] && !!this._outputEntries[i - 1].element.innerContainer?.parentElement ? this._outputEntries[i - 1].element.innerContainer : void 0;
           this._outputEntries[i].element.render(previousSibling);
@@ -852,47 +577,16 @@ let CellOutputContainer = class extends CellContentPart {
       });
       const reRenderRightBoundary = firstGroupEntries.length + newlyInserted.length;
       const newlyInsertedEntries = newlyInserted.map((insert) => {
-        return new OutputEntryViewHandler(
-          insert,
-          this.instantiationService.createInstance(
-            CellOutputElement,
-            this.notebookEditor,
-            this.viewCell,
-            this,
-            this.templateData.outputContainer,
-            insert
-          )
-        );
+        return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
       });
       let outputsNewlyAvailable = [];
       if (firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length < this.viewCell.outputsViewModels.length) {
-        const last = Math.min(
-          this.options.limit,
-          this.viewCell.outputsViewModels.length
-        );
-        outputsNewlyAvailable = this.viewCell.outputsViewModels.slice(
-          firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length,
-          last
-        ).map((output) => {
-          return new OutputEntryViewHandler(
-            output,
-            this.instantiationService.createInstance(
-              CellOutputElement,
-              this.notebookEditor,
-              this.viewCell,
-              this,
-              this.templateData.outputContainer,
-              output
-            )
-          );
+        const last = Math.min(this.options.limit, this.viewCell.outputsViewModels.length);
+        outputsNewlyAvailable = this.viewCell.outputsViewModels.slice(firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length, last).map((output) => {
+          return new OutputEntryViewHandler(output, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, output));
         });
       }
-      this._outputEntries = [
-        ...firstGroupEntries,
-        ...newlyInsertedEntries,
-        ...secondGroupEntries,
-        ...outputsNewlyAvailable
-      ];
+      this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries, ...outputsNewlyAvailable];
       for (let i = firstGroupEntries.length; i < reRenderRightBoundary; i++) {
         const previousSibling = i - 1 >= 0 && this._outputEntries[i - 1] && !!this._outputEntries[i - 1].element.innerContainer?.parentElement ? this._outputEntries[i - 1].element.innerContainer : void 0;
         this._outputEntries[i].element.render(previousSibling);
@@ -904,20 +598,14 @@ let CellOutputContainer = class extends CellContentPart {
     if (this.viewCell.outputsViewModels.length > this.options.limit) {
       DOM.show(this.templateData.outputShowMoreContainer.domNode);
       if (!this.templateData.outputShowMoreContainer.domNode.hasChildNodes()) {
-        this.templateData.outputShowMoreContainer.domNode.appendChild(
-          this._generateShowMoreElement(
-            this.templateData.templateDisposables
-          )
-        );
+        this.templateData.outputShowMoreContainer.domNode.appendChild(this._generateShowMoreElement(this.templateData.templateDisposables));
       }
       this.viewCell.updateOutputShowMoreContainerHeight(46);
     } else {
       DOM.hide(this.templateData.outputShowMoreContainer.domNode);
     }
     this._relayoutCell();
-    this._validateFinalOutputHeight(
-      context === 2 /* Other */ && this.viewCell.outputsViewModels.length === 0
-    );
+    this._validateFinalOutputHeight(context === 2 /* Other */ && this.viewCell.outputsViewModels.length === 0);
   }
   _generateShowMoreElement(disposables) {
     const md = {
@@ -929,11 +617,7 @@ let CellOutputContainer = class extends CellContentPart {
       actionHandler: {
         callback: /* @__PURE__ */ __name((content) => {
           if (content === "command:workbench.action.openLargeOutput") {
-            this.openerService.open(
-              CellUri.generateCellOutputUri(
-                this.notebookEditor.textModel.uri
-              )
-            );
+            this.openerService.open(CellUri.generateCellOutputUri(this.notebookEditor.textModel.uri));
           }
           return;
         }, "callback"),
@@ -945,10 +629,7 @@ let CellOutputContainer = class extends CellContentPart {
     return rendered.element;
   }
   _relayoutCell() {
-    this.notebookEditor.layoutNotebookCell(
-      this.viewCell,
-      this.viewCell.layoutInfo.totalHeight
-    );
+    this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
   }
   dispose() {
     this.viewCell.updateOutputMinHeight(0);

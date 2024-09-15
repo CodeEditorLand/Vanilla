@@ -2,19 +2,13 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../../base/common/arrays.js";
 import { Position } from "../core/position.js";
-import {
-  ColorId,
-  FontStyle,
-  MetadataConsts,
-  StandardTokenType,
-  TokenMetadata
-} from "../encodedTokenAttributes.js";
-import {
-  ContiguousTokensEditing,
-  EMPTY_LINE_TOKENS,
-  toUint32Array
-} from "./contiguousTokensEditing.js";
+import { IRange } from "../core/range.js";
+import { ContiguousTokensEditing, EMPTY_LINE_TOKENS, toUint32Array } from "./contiguousTokensEditing.js";
 import { LineTokens } from "./lineTokens.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { LanguageId, FontStyle, ColorId, StandardTokenType, MetadataConsts, TokenMetadata } from "../encodedTokenAttributes.js";
+import { ITextModel } from "../model.js";
+import { ContiguousMultilineTokens } from "./contiguousMultilineTokens.js";
 class ContiguousTokensStore {
   static {
     __name(this, "ContiguousTokensStore");
@@ -40,17 +34,11 @@ class ContiguousTokensStore {
       rawLineTokens = this._lineTokens[lineIndex];
     }
     if (rawLineTokens !== null && rawLineTokens !== EMPTY_LINE_TOKENS) {
-      return new LineTokens(
-        toUint32Array(rawLineTokens),
-        lineText,
-        this._languageIdCodec
-      );
+      return new LineTokens(toUint32Array(rawLineTokens), lineText, this._languageIdCodec);
     }
     const lineTokens = new Uint32Array(2);
     lineTokens[0] = lineText.length;
-    lineTokens[1] = getDefaultMetadata(
-      this._languageIdCodec.encodeLanguageId(topLevelLanguageId)
-    );
+    lineTokens[1] = getDefaultMetadata(this._languageIdCodec.encodeLanguageId(topLevelLanguageId));
     return new LineTokens(lineTokens, lineText, this._languageIdCodec);
   }
   static _massageTokens(topLevelLanguageId, lineTextLength, _tokens) {
@@ -100,19 +88,11 @@ class ContiguousTokensStore {
     for (let i = 0; i < insertCount; i++) {
       lineTokens[i] = null;
     }
-    this._lineTokens = arrays.arrayInsert(
-      this._lineTokens,
-      insertIndex,
-      lineTokens
-    );
+    this._lineTokens = arrays.arrayInsert(this._lineTokens, insertIndex, lineTokens);
     this._len += insertCount;
   }
   setTokens(topLevelLanguageId, lineIndex, lineTextLength, _tokens, checkEquality) {
-    const tokens = ContiguousTokensStore._massageTokens(
-      this._languageIdCodec.encodeLanguageId(topLevelLanguageId),
-      lineTextLength,
-      _tokens
-    );
+    const tokens = ContiguousTokensStore._massageTokens(this._languageIdCodec.encodeLanguageId(topLevelLanguageId), lineTextLength, _tokens);
     this._ensureLine(lineIndex);
     const oldTokens = this._lineTokens[lineIndex];
     this._lineTokens[lineIndex] = tokens;
@@ -140,11 +120,7 @@ class ContiguousTokensStore {
   //#region Editing
   acceptEdit(range, eolCount, firstLineLength) {
     this._acceptDeleteRange(range);
-    this._acceptInsertText(
-      new Position(range.startLineNumber, range.startColumn),
-      eolCount,
-      firstLineLength
-    );
+    this._acceptInsertText(new Position(range.startLineNumber, range.startColumn), eolCount, firstLineLength);
   }
   _acceptDeleteRange(range) {
     const firstLineIndex = range.startLineNumber - 1;
@@ -155,33 +131,17 @@ class ContiguousTokensStore {
       if (range.startColumn === range.endColumn) {
         return;
       }
-      this._lineTokens[firstLineIndex] = ContiguousTokensEditing.delete(
-        this._lineTokens[firstLineIndex],
-        range.startColumn - 1,
-        range.endColumn - 1
-      );
+      this._lineTokens[firstLineIndex] = ContiguousTokensEditing.delete(this._lineTokens[firstLineIndex], range.startColumn - 1, range.endColumn - 1);
       return;
     }
-    this._lineTokens[firstLineIndex] = ContiguousTokensEditing.deleteEnding(
-      this._lineTokens[firstLineIndex],
-      range.startColumn - 1
-    );
+    this._lineTokens[firstLineIndex] = ContiguousTokensEditing.deleteEnding(this._lineTokens[firstLineIndex], range.startColumn - 1);
     const lastLineIndex = range.endLineNumber - 1;
     let lastLineTokens = null;
     if (lastLineIndex < this._len) {
-      lastLineTokens = ContiguousTokensEditing.deleteBeginning(
-        this._lineTokens[lastLineIndex],
-        range.endColumn - 1
-      );
+      lastLineTokens = ContiguousTokensEditing.deleteBeginning(this._lineTokens[lastLineIndex], range.endColumn - 1);
     }
-    this._lineTokens[firstLineIndex] = ContiguousTokensEditing.append(
-      this._lineTokens[firstLineIndex],
-      lastLineTokens
-    );
-    this._deleteLines(
-      range.startLineNumber,
-      range.endLineNumber - range.startLineNumber
-    );
+    this._lineTokens[firstLineIndex] = ContiguousTokensEditing.append(this._lineTokens[firstLineIndex], lastLineTokens);
+    this._deleteLines(range.startLineNumber, range.endLineNumber - range.startLineNumber);
   }
   _acceptInsertText(position, eolCount, firstLineLength) {
     if (eolCount === 0 && firstLineLength === 0) {
@@ -192,22 +152,11 @@ class ContiguousTokensStore {
       return;
     }
     if (eolCount === 0) {
-      this._lineTokens[lineIndex] = ContiguousTokensEditing.insert(
-        this._lineTokens[lineIndex],
-        position.column - 1,
-        firstLineLength
-      );
+      this._lineTokens[lineIndex] = ContiguousTokensEditing.insert(this._lineTokens[lineIndex], position.column - 1, firstLineLength);
       return;
     }
-    this._lineTokens[lineIndex] = ContiguousTokensEditing.deleteEnding(
-      this._lineTokens[lineIndex],
-      position.column - 1
-    );
-    this._lineTokens[lineIndex] = ContiguousTokensEditing.insert(
-      this._lineTokens[lineIndex],
-      position.column - 1,
-      firstLineLength
-    );
+    this._lineTokens[lineIndex] = ContiguousTokensEditing.deleteEnding(this._lineTokens[lineIndex], position.column - 1);
+    this._lineTokens[lineIndex] = ContiguousTokensEditing.insert(this._lineTokens[lineIndex], position.column - 1, firstLineLength);
     this._insertLines(position.lineNumber, eolCount);
   }
   //#endregion
@@ -223,22 +172,10 @@ class ContiguousTokensStore {
       let hasChange = false;
       for (let lineNumber = element.startLineNumber; lineNumber <= element.endLineNumber; lineNumber++) {
         if (hasChange) {
-          this.setTokens(
-            textModel.getLanguageId(),
-            lineNumber - 1,
-            textModel.getLineLength(lineNumber),
-            element.getLineTokens(lineNumber),
-            false
-          );
+          this.setTokens(textModel.getLanguageId(), lineNumber - 1, textModel.getLineLength(lineNumber), element.getLineTokens(lineNumber), false);
           maxChangedLineNumber = lineNumber;
         } else {
-          const lineHasChange = this.setTokens(
-            textModel.getLanguageId(),
-            lineNumber - 1,
-            textModel.getLineLength(lineNumber),
-            element.getLineTokens(lineNumber),
-            true
-          );
+          const lineHasChange = this.setTokens(textModel.getLanguageId(), lineNumber - 1, textModel.getLineLength(lineNumber), element.getLineTokens(lineNumber), true);
           if (lineHasChange) {
             hasChange = true;
             minChangedLineNumber = lineNumber;
@@ -247,18 +184,14 @@ class ContiguousTokensStore {
         }
       }
       if (hasChange) {
-        ranges.push({
-          fromLineNumber: minChangedLineNumber,
-          toLineNumber: maxChangedLineNumber
-        });
+        ranges.push({ fromLineNumber: minChangedLineNumber, toLineNumber: maxChangedLineNumber });
       }
     }
     return { changes: ranges };
   }
 }
 function getDefaultMetadata(topLevelLanguageId) {
-  return (topLevelLanguageId << MetadataConsts.LANGUAGEID_OFFSET | StandardTokenType.Other << MetadataConsts.TOKEN_TYPE_OFFSET | FontStyle.None << MetadataConsts.FONT_STYLE_OFFSET | ColorId.DefaultForeground << MetadataConsts.FOREGROUND_OFFSET | ColorId.DefaultBackground << MetadataConsts.BACKGROUND_OFFSET | // If there is no grammar, we just take a guess and try to match brackets.
-  MetadataConsts.BALANCED_BRACKETS_MASK) >>> 0;
+  return (topLevelLanguageId << MetadataConsts.LANGUAGEID_OFFSET | StandardTokenType.Other << MetadataConsts.TOKEN_TYPE_OFFSET | FontStyle.None << MetadataConsts.FONT_STYLE_OFFSET | ColorId.DefaultForeground << MetadataConsts.FOREGROUND_OFFSET | ColorId.DefaultBackground << MetadataConsts.BACKGROUND_OFFSET | MetadataConsts.BALANCED_BRACKETS_MASK) >>> 0;
 }
 __name(getDefaultMetadata, "getDefaultMetadata");
 export {

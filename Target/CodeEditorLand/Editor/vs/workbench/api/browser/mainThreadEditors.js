@@ -11,33 +11,31 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { illegalArgument } from "../../../base/common/errors.js";
-import {
-  DisposableStore,
-  dispose
-} from "../../../base/common/lifecycle.js";
+import { IDisposable, dispose, DisposableStore } from "../../../base/common/lifecycle.js";
 import { equals as objectEquals } from "../../../base/common/objects.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  getCodeEditor
-} from "../../../editor/browser/editorBrowser.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
+import { IRange } from "../../../editor/common/core/range.js";
+import { ISelection } from "../../../editor/common/core/selection.js";
+import { IDecorationOptions, IDecorationRenderOptions } from "../../../editor/common/editorCommon.js";
+import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
 import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import {
-  EditorActivation,
-  EditorResolution
-} from "../../../platform/editor/common/editor.js";
-import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import {
-  columnToEditorGroup,
-  editorGroupToColumn
-} from "../../services/editor/common/editorGroupColumn.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { ITextEditorOptions, IResourceEditorInput, EditorActivation, EditorResolution } from "../../../platform/editor/common/editor.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { MainThreadTextEditor } from "./mainThreadEditor.js";
+import { ExtHostContext, ExtHostEditorsShape, IApplyEditsOptions, ITextDocumentShowOptions, ITextEditorConfigurationUpdate, ITextEditorPositionData, IUndoStopOptions, MainThreadTextEditorsShape, TextEditorRevealType } from "../common/extHost.protocol.js";
+import { editorGroupToColumn, columnToEditorGroup, EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
 import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
 import { IWorkingCopyService } from "../../services/workingCopy/common/workingCopyService.js";
-import {
-  ExtHostContext
-} from "../common/extHost.protocol.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { IChange } from "../../../editor/common/diff/legacyLinesDiffComputer.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IEditorControl } from "../../common/editor.js";
+import { getCodeEditor, ICodeEditor } from "../../../editor/browser/editorBrowser.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { DirtyDiffContribution } from "../../contrib/scm/browser/dirtydiffDecorator.js";
 let MainThreadTextEditors = class {
   constructor(_editorLocator, extHostContext, _codeEditorService, _editorService, _editorGroupService, _configurationService) {
     this._editorLocator = _editorLocator;
@@ -49,21 +47,9 @@ let MainThreadTextEditors = class {
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostEditors);
     this._textEditorsListenersMap = /* @__PURE__ */ Object.create(null);
     this._editorPositionData = null;
-    this._toDispose.add(
-      this._editorService.onDidVisibleEditorsChange(
-        () => this._updateActiveAndVisibleTextEditors()
-      )
-    );
-    this._toDispose.add(
-      this._editorGroupService.onDidRemoveGroup(
-        () => this._updateActiveAndVisibleTextEditors()
-      )
-    );
-    this._toDispose.add(
-      this._editorGroupService.onDidMoveGroup(
-        () => this._updateActiveAndVisibleTextEditors()
-      )
-    );
+    this._toDispose.add(this._editorService.onDidVisibleEditorsChange(() => this._updateActiveAndVisibleTextEditors()));
+    this._toDispose.add(this._editorGroupService.onDidRemoveGroup(() => this._updateActiveAndVisibleTextEditors()));
+    this._toDispose.add(this._editorGroupService.onDidMoveGroup(() => this._updateActiveAndVisibleTextEditors()));
     this._registeredDecorationTypes = /* @__PURE__ */ Object.create(null);
   }
   static {
@@ -90,11 +76,9 @@ let MainThreadTextEditors = class {
   handleTextEditorAdded(textEditor) {
     const id = textEditor.getId();
     const toDispose = [];
-    toDispose.push(
-      textEditor.onPropertiesChanged((data) => {
-        this._proxy.$acceptEditorPropertiesChanged(id, data);
-      })
-    );
+    toDispose.push(textEditor.onPropertiesChanged((data) => {
+      this._proxy.$acceptEditorPropertiesChanged(id, data);
+    }));
     this._textEditorsListenersMap[id] = toDispose;
   }
   handleTextEditorRemoved(id) {
@@ -113,10 +97,7 @@ let MainThreadTextEditors = class {
     for (const editorPane of this._editorService.visibleEditorPanes) {
       const id = this._editorLocator.findTextEditorIdFor(editorPane);
       if (id) {
-        result[id] = editorGroupToColumn(
-          this._editorGroupService,
-          editorPane.group
-        );
+        result[id] = editorGroupToColumn(this._editorGroupService, editorPane.group);
       }
     }
     return result;
@@ -137,14 +118,7 @@ let MainThreadTextEditors = class {
       resource: uri,
       options: editorOptions
     };
-    const editor = await this._editorService.openEditor(
-      input,
-      columnToEditorGroup(
-        this._editorGroupService,
-        this._configurationService,
-        options.position
-      )
-    );
+    const editor = await this._editorService.openEditor(input, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
     if (!editor) {
       return void 0;
     }
@@ -156,17 +130,10 @@ let MainThreadTextEditors = class {
     const mainThreadEditor = this._editorLocator.getEditor(id);
     if (mainThreadEditor) {
       const model = mainThreadEditor.getModel();
-      await this._editorService.openEditor(
-        {
-          resource: model.uri,
-          options: { preserveFocus: false }
-        },
-        columnToEditorGroup(
-          this._editorGroupService,
-          this._configurationService,
-          position
-        )
-      );
+      await this._editorService.openEditor({
+        resource: model.uri,
+        options: { preserveFocus: false }
+      }, columnToEditorGroup(this._editorGroupService, this._configurationService, position));
       return;
     }
   }
@@ -236,18 +203,12 @@ let MainThreadTextEditors = class {
     if (!editor) {
       return Promise.reject(illegalArgument(`TextEditor(${id})`));
     }
-    return Promise.resolve(
-      editor.insertSnippet(modelVersionId, template, ranges, opts)
-    );
+    return Promise.resolve(editor.insertSnippet(modelVersionId, template, ranges, opts));
   }
   $registerTextEditorDecorationType(extensionId, key, options) {
     key = `${this._instanceId}-${key}`;
     this._registeredDecorationTypes[key] = true;
-    this._codeEditorService.registerDecorationType(
-      `exthost-api-${extensionId}`,
-      key,
-      options
-    );
+    this._codeEditorService.registerDecorationType(`exthost-api-${extensionId}`, key, options);
   }
   $removeTextEditorDecorationType(key) {
     key = `${this._instanceId}-${key}`;
@@ -265,19 +226,13 @@ let MainThreadTextEditors = class {
     }
     const codeEditorId = codeEditor.getId();
     const diffEditors = this._codeEditorService.listDiffEditors();
-    const [diffEditor] = diffEditors.filter(
-      (d) => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId
-    );
+    const [diffEditor] = diffEditors.filter((d) => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId);
     if (diffEditor) {
       return Promise.resolve(diffEditor.getLineChanges() || []);
     }
-    const dirtyDiffContribution = codeEditor.getContribution(
-      "editor.contrib.dirtydiff"
-    );
+    const dirtyDiffContribution = codeEditor.getContribution("editor.contrib.dirtydiff");
     if (dirtyDiffContribution) {
-      return Promise.resolve(
-        dirtyDiffContribution.getChanges()
-      );
+      return Promise.resolve(dirtyDiffContribution.getChanges());
     }
     return Promise.resolve([]);
   }
@@ -288,21 +243,16 @@ MainThreadTextEditors = __decorateClass([
   __decorateParam(4, IEditorGroupsService),
   __decorateParam(5, IConfigurationService)
 ], MainThreadTextEditors);
-CommandsRegistry.registerCommand(
-  "_workbench.revertAllDirty",
-  async (accessor) => {
-    const environmentService = accessor.get(IEnvironmentService);
-    if (!environmentService.extensionTestsLocationURI) {
-      throw new Error(
-        "Command is only available when running extension tests."
-      );
-    }
-    const workingCopyService = accessor.get(IWorkingCopyService);
-    for (const workingCopy of workingCopyService.dirtyWorkingCopies) {
-      await workingCopy.revert({ soft: true });
-    }
+CommandsRegistry.registerCommand("_workbench.revertAllDirty", async function(accessor) {
+  const environmentService = accessor.get(IEnvironmentService);
+  if (!environmentService.extensionTestsLocationURI) {
+    throw new Error("Command is only available when running extension tests.");
   }
-);
+  const workingCopyService = accessor.get(IWorkingCopyService);
+  for (const workingCopy of workingCopyService.dirtyWorkingCopies) {
+    await workingCopy.revert({ soft: true });
+  }
+});
 export {
   MainThreadTextEditors
 };

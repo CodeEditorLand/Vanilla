@@ -11,30 +11,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { IHighlight } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import {
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import {
-  CommandsRegistry,
-  ICommandService
-} from "../../../../platform/commands/common/commands.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
-import {
-  Expression,
-  ExpressionContainer,
-  Variable
-} from "../common/debugModel.js";
+import { IDebugSession, IExpressionValue } from "../common/debug.js";
+import { Expression, ExpressionContainer, Variable } from "../common/debugModel.js";
 import { ReplEvaluationResult } from "../common/replModel.js";
+import { IVariableTemplateData } from "./baseDebugView.js";
 import { handleANSIOutput } from "./debugANSIHandling.js";
 import { COPY_EVALUATE_PATH_ID, COPY_VALUE_ID } from "./debugCommands.js";
-import {
-  DebugLinkHoverBehavior,
-  LinkDetector
-} from "./linkDetector.js";
+import { DebugLinkHoverBehavior, DebugLinkHoverBehaviorTypeData, ILinkDetector, LinkDetector } from "./linkDetector.js";
 const MAX_VALUE_RENDER_LENGTH_IN_VIEWLET = 1024;
 const booleanRegex = /^(true|false)$/i;
 const stringRegex = /^(['"]).*\1$/;
@@ -43,11 +35,7 @@ let DebugExpressionRenderer = class {
     this.commandService = commandService;
     this.hoverService = hoverService;
     this.linkDetector = instantiationService.createInstance(LinkDetector);
-    this.displayType = observableConfigValue(
-      "debug.showVariableTypes",
-      false,
-      configurationService
-    );
+    this.displayType = observableConfigValue("debug.showVariableTypes", false, configurationService);
   }
   static {
     __name(this, "DebugExpressionRenderer");
@@ -67,26 +55,13 @@ let DebugExpressionRenderer = class {
           text += " =";
         }
       }
-      data.label.set(
-        text,
-        options.highlights,
-        variable.type && !displayType ? variable.type : variable.name
-      );
-      data.name.classList.toggle(
-        "virtual",
-        variable.presentationHint?.kind === "virtual"
-      );
-      data.name.classList.toggle(
-        "internal",
-        variable.presentationHint?.visibility === "internal"
-      );
+      data.label.set(text, options.highlights, variable.type && !displayType ? variable.type : variable.name);
+      data.name.classList.toggle("virtual", variable.presentationHint?.kind === "virtual");
+      data.name.classList.toggle("internal", variable.presentationHint?.visibility === "internal");
     } else if (variable.value && typeof variable.name === "string" && variable.name) {
       data.label.set(":");
     }
-    data.expression.classList.toggle(
-      "lazy",
-      !!variable.presentationHint?.lazy
-    );
+    data.expression.classList.toggle("lazy", !!variable.presentationHint?.lazy);
     const commands = [
       { id: COPY_VALUE_ID, args: [variable, [variable]] }
     ];
@@ -140,76 +115,37 @@ let DebugExpressionRenderer = class {
     const locationReference = options.locationReference ?? (expressionOrValue instanceof ExpressionContainer && expressionOrValue.valueLocationReference);
     let linkDetector = this.linkDetector;
     if (locationReference && session) {
-      linkDetector = this.linkDetector.makeReferencedLinkDetector(
-        locationReference,
-        session
-      );
+      linkDetector = this.linkDetector.makeReferencedLinkDetector(locationReference, session);
     }
     if (supportsANSI) {
-      container.appendChild(
-        handleANSIOutput(
-          value,
-          linkDetector,
-          session ? session.root : void 0
-        )
-      );
+      container.appendChild(handleANSIOutput(value, linkDetector, session ? session.root : void 0));
     } else {
-      container.appendChild(
-        linkDetector.linkify(
-          value,
-          false,
-          session?.root,
-          true,
-          hoverBehavior
-        )
-      );
+      container.appendChild(linkDetector.linkify(value, false, session?.root, true, hoverBehavior));
     }
     if (options.hover !== false) {
       const { commands = [] } = options.hover || {};
-      store.add(
-        this.hoverService.setupManagedHover(
-          getDefaultHoverDelegate("mouse"),
-          container,
-          () => {
-            const container2 = dom.$("div");
-            const markdownHoverElement = dom.$("div.hover-row");
-            const hoverContentsElement = dom.append(
-              markdownHoverElement,
-              dom.$("div.hover-contents")
-            );
-            const hoverContentsPre = dom.append(
-              hoverContentsElement,
-              dom.$("pre.debug-var-hover-pre")
-            );
-            if (supportsANSI) {
-              hoverContentsPre.appendChild(
-                handleANSIOutput(
-                  value,
-                  this.linkDetector,
-                  session ? session.root : void 0
-                )
-              );
-            } else {
-              hoverContentsPre.textContent = value;
-            }
-            container2.appendChild(markdownHoverElement);
-            return container2;
-          },
-          {
-            actions: commands.map(({ id, args }) => {
-              const description = CommandsRegistry.getCommand(id)?.metadata?.description;
-              return {
-                label: typeof description === "string" ? description : description ? description.value : id,
-                commandId: id,
-                run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-                  id,
-                  ...args
-                ), "run")
-              };
-            })
-          }
-        )
-      );
+      store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), container, () => {
+        const container2 = dom.$("div");
+        const markdownHoverElement = dom.$("div.hover-row");
+        const hoverContentsElement = dom.append(markdownHoverElement, dom.$("div.hover-contents"));
+        const hoverContentsPre = dom.append(hoverContentsElement, dom.$("pre.debug-var-hover-pre"));
+        if (supportsANSI) {
+          hoverContentsPre.appendChild(handleANSIOutput(value, this.linkDetector, session ? session.root : void 0));
+        } else {
+          hoverContentsPre.textContent = value;
+        }
+        container2.appendChild(markdownHoverElement);
+        return container2;
+      }, {
+        actions: commands.map(({ id, args }) => {
+          const description = CommandsRegistry.getCommand(id)?.metadata?.description;
+          return {
+            label: typeof description === "string" ? description : description ? description.value : id,
+            commandId: id,
+            run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(id, ...args), "run")
+          };
+        })
+      }));
     }
     return store;
   }

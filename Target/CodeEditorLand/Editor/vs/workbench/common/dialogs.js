@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { DeferredPromise } from "../../base/common/async.js";
-import { Emitter } from "../../base/common/event.js";
+import { Event, Emitter } from "../../base/common/event.js";
 import { Disposable } from "../../base/common/lifecycle.js";
+import { IDialogArgs, IDialogResult } from "../../platform/dialogs/common/dialogs.js";
 class DialogsModel extends Disposable {
   static {
     __name(this, "DialogsModel");

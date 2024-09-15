@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getAllMethodNames } from "../../../base/common/objects.js";
+import { URI } from "../../../base/common/uri.js";
+import { IWorkerDescriptor } from "../../../base/common/worker/simpleWorker.js";
 import { EditorWorkerClient } from "../../browser/services/editorWorkerService.js";
+import { IModelService } from "../../common/services/model.js";
 import { standaloneEditorWorkerDescriptor } from "./standaloneServices.js";
 function createWebWorker(modelService, opts) {
   return new MonacoWebWorkerImpl(modelService, opts);
@@ -30,19 +33,10 @@ class MonacoWebWorkerImpl extends EditorWorkerClient {
   // foreign host request
   fhr(method, args) {
     if (!this._foreignModuleHost || typeof this._foreignModuleHost[method] !== "function") {
-      return Promise.reject(
-        new Error(
-          "Missing method " + method + " or missing main thread foreign host."
-        )
-      );
+      return Promise.reject(new Error("Missing method " + method + " or missing main thread foreign host."));
     }
     try {
-      return Promise.resolve(
-        this._foreignModuleHost[method].apply(
-          this._foreignModuleHost,
-          args
-        )
-      );
+      return Promise.resolve(this._foreignModuleHost[method].apply(this._foreignModuleHost, args));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -51,30 +45,20 @@ class MonacoWebWorkerImpl extends EditorWorkerClient {
     if (!this._foreignProxy) {
       this._foreignProxy = this._getProxy().then((proxy) => {
         const foreignHostMethods = this._foreignModuleHost ? getAllMethodNames(this._foreignModuleHost) : [];
-        return proxy.$loadForeignModule(
-          this._foreignModuleId,
-          this._foreignModuleCreateData,
-          foreignHostMethods
-        ).then((foreignMethods) => {
+        return proxy.$loadForeignModule(this._foreignModuleId, this._foreignModuleCreateData, foreignHostMethods).then((foreignMethods) => {
           this._foreignModuleCreateData = null;
           const proxyMethodRequest = /* @__PURE__ */ __name((method, args) => {
             return proxy.$fmr(method, args);
           }, "proxyMethodRequest");
           const createProxyMethod = /* @__PURE__ */ __name((method, proxyMethodRequest2) => {
-            return () => {
-              const args = Array.prototype.slice.call(
-                arguments,
-                0
-              );
+            return function() {
+              const args = Array.prototype.slice.call(arguments, 0);
               return proxyMethodRequest2(method, args);
             };
           }, "createProxyMethod");
           const foreignProxy = {};
           for (const foreignMethod of foreignMethods) {
-            foreignProxy[foreignMethod] = createProxyMethod(
-              foreignMethod,
-              proxyMethodRequest
-            );
+            foreignProxy[foreignMethod] = createProxyMethod(foreignMethod, proxyMethodRequest);
           }
           return foreignProxy;
         });
@@ -86,9 +70,7 @@ class MonacoWebWorkerImpl extends EditorWorkerClient {
     return this._getForeignProxy();
   }
   withSyncedResources(resources) {
-    return this.workerWithSyncedResources(resources).then(
-      (_) => this.getProxy()
-    );
+    return this.workerWithSyncedResources(resources).then((_) => this.getProxy());
   }
 }
 export {

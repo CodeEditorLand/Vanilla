@@ -10,38 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Codicon } from "../../../../base/common/codicons.js";
-import { debounce } from "../../../../base/common/decorators.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { deepClone } from "../../../../base/common/objects.js";
-import * as path from "../../../../base/common/path.js";
-import {
-  OS,
-  OperatingSystem
-} from "../../../../base/common/platform.js";
 import { env } from "../../../../base/common/process.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  ITerminalLogService,
-  TerminalSettingId
-} from "../../../../platform/terminal/common/terminal.js";
-import { isUriComponents } from "../../../../platform/terminal/common/terminalProfiles.js";
-import {
-  getIconRegistry
-} from "../../../../platform/theme/common/iconRegistry.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
 import { IHistoryService } from "../../../services/history/common/history.js";
+import { IProcessEnvironment, OperatingSystem, OS } from "../../../../base/common/platform.js";
+import { IShellLaunchConfig, ITerminalLogService, ITerminalProfile, TerminalIcon, TerminalSettingId } from "../../../../platform/terminal/common/terminal.js";
+import { IShellLaunchConfigResolveOptions, ITerminalProfileResolverService, ITerminalProfileService } from "../common/terminal.js";
+import * as path from "../../../../base/common/path.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { getIconRegistry, IIconRegistry } from "../../../../platform/theme/common/iconRegistry.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import {
-  ITerminalProfileService
-} from "../common/terminal.js";
+import { debounce } from "../../../../base/common/decorators.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { deepClone } from "../../../../base/common/objects.js";
+import { isUriComponents } from "../../../../platform/terminal/common/terminalProfiles.js";
 import { ITerminalInstanceService } from "./terminal.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 const generatedProfileName = "Generated";
 class BaseTerminalProfileResolverService extends Disposable {
   constructor(_context, _configurationService, _configurationResolverService, _historyService, _logService, _terminalProfileService, _workspaceContextService, _remoteAgentService) {
@@ -59,24 +47,12 @@ class BaseTerminalProfileResolverService extends Disposable {
     } else {
       this._primaryBackendOs = OS;
     }
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          TerminalSettingId.DefaultProfileWindows
-        ) || e.affectsConfiguration(
-          TerminalSettingId.DefaultProfileMacOs
-        ) || e.affectsConfiguration(
-          TerminalSettingId.DefaultProfileLinux
-        )) {
-          this._refreshDefaultProfileName();
-        }
-      })
-    );
-    this._register(
-      this._terminalProfileService.onDidChangeAvailableProfiles(
-        () => this._refreshDefaultProfileName()
-      )
-    );
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TerminalSettingId.DefaultProfileWindows) || e.affectsConfiguration(TerminalSettingId.DefaultProfileMacOs) || e.affectsConfiguration(TerminalSettingId.DefaultProfileLinux)) {
+        this._refreshDefaultProfileName();
+      }
+    }));
+    this._register(this._terminalProfileService.onDidChangeAvailableProfiles(() => this._refreshDefaultProfileName()));
   }
   static {
     __name(this, "BaseTerminalProfileResolverService");
@@ -116,25 +92,17 @@ class BaseTerminalProfileResolverService extends Disposable {
     }
   }
   getDefaultIcon(resource) {
-    return this._iconRegistry.getIcon(
-      this._configurationService.getValue(
-        TerminalSettingId.TabsDefaultIcon,
-        { resource }
-      )
-    ) || Codicon.terminal;
+    return this._iconRegistry.getIcon(this._configurationService.getValue(TerminalSettingId.TabsDefaultIcon, { resource })) || Codicon.terminal;
   }
   async resolveShellLaunchConfig(shellLaunchConfig, options) {
     let resolvedProfile;
     if (shellLaunchConfig.executable) {
-      resolvedProfile = await this._resolveProfile(
-        {
-          path: shellLaunchConfig.executable,
-          args: shellLaunchConfig.args,
-          profileName: generatedProfileName,
-          isDefault: false
-        },
-        options
-      );
+      resolvedProfile = await this._resolveProfile({
+        path: shellLaunchConfig.executable,
+        args: shellLaunchConfig.args,
+        profileName: generatedProfileName,
+        isDefault: false
+      }, options);
     } else {
       resolvedProfile = await this.getDefaultProfile(options);
     }
@@ -142,10 +110,7 @@ class BaseTerminalProfileResolverService extends Disposable {
     shellLaunchConfig.args = resolvedProfile.args;
     if (resolvedProfile.env) {
       if (shellLaunchConfig.env) {
-        shellLaunchConfig.env = {
-          ...shellLaunchConfig.env,
-          ...resolvedProfile.env
-        };
+        shellLaunchConfig.env = { ...shellLaunchConfig.env, ...resolvedProfile.env };
       } else {
         shellLaunchConfig.env = resolvedProfile.env;
       }
@@ -155,14 +120,9 @@ class BaseTerminalProfileResolverService extends Disposable {
     if (resolvedProfile.overrideName) {
       shellLaunchConfig.name = resolvedProfile.profileName;
     }
-    shellLaunchConfig.color = shellLaunchConfig.color || resolvedProfile.color || this._configurationService.getValue(
-      TerminalSettingId.TabsDefaultColor,
-      { resource }
-    );
+    shellLaunchConfig.color = shellLaunchConfig.color || resolvedProfile.color || this._configurationService.getValue(TerminalSettingId.TabsDefaultColor, { resource });
     if (shellLaunchConfig.useShellEnvironment === void 0) {
-      shellLaunchConfig.useShellEnvironment = this._configurationService.getValue(
-        TerminalSettingId.InheritEnv
-      );
+      shellLaunchConfig.useShellEnvironment = this._configurationService.getValue(TerminalSettingId.InheritEnv);
     }
   }
   async getDefaultShell(options) {
@@ -172,10 +132,7 @@ class BaseTerminalProfileResolverService extends Disposable {
     return (await this.getDefaultProfile(options)).args || [];
   }
   async getDefaultProfile(options) {
-    return this._resolveProfile(
-      await this._getUnresolvedDefaultProfile(options),
-      options
-    );
+    return this._resolveProfile(await this._getUnresolvedDefaultProfile(options), options);
   }
   getEnvironment(remoteAuthority) {
     return this._context.getEnvironment(remoteAuthority);
@@ -196,10 +153,7 @@ class BaseTerminalProfileResolverService extends Disposable {
     if (typeof icon === "object" && "light" in icon && "dark" in icon) {
       const castedIcon = icon;
       if ((URI.isUri(castedIcon.light) || isUriComponents(castedIcon.light)) && (URI.isUri(castedIcon.dark) || isUriComponents(castedIcon.dark))) {
-        return {
-          light: URI.revive(castedIcon.light),
-          dark: URI.revive(castedIcon.dark)
-        };
+        return { light: URI.revive(castedIcon.light), dark: URI.revive(castedIcon.dark) };
       }
     }
     return void 0;
@@ -212,16 +166,11 @@ class BaseTerminalProfileResolverService extends Disposable {
       }
     }
     await this._terminalProfileService.profilesReady;
-    const defaultProfile = this._getUnresolvedRealDefaultProfile(
-      options.os
-    );
+    const defaultProfile = this._getUnresolvedRealDefaultProfile(options.os);
     if (defaultProfile) {
       return this._setIconForAutomation(options, defaultProfile);
     }
-    return this._setIconForAutomation(
-      options,
-      await this._getUnresolvedFallbackDefaultProfile(options)
-    );
+    return this._setIconForAutomation(options, await this._getUnresolvedFallbackDefaultProfile(options));
   }
   _setIconForAutomation(options, profile) {
     if (options.allowAutomationShell) {
@@ -235,14 +184,9 @@ class BaseTerminalProfileResolverService extends Disposable {
     return this._terminalProfileService.getDefaultProfile(os);
   }
   async _getUnresolvedFallbackDefaultProfile(options) {
-    const executable = await this._context.getDefaultSystemShell(
-      options.remoteAuthority,
-      options.os
-    );
+    const executable = await this._context.getDefaultSystemShell(options.remoteAuthority, options.os);
     if (options.os === OS) {
-      let existingProfile = this._terminalProfileService.availableProfiles.find(
-        (e) => path.parse(e.path).name === path.parse(executable).name
-      );
+      let existingProfile = this._terminalProfileService.availableProfiles.find((e) => path.parse(e.path).name === path.parse(executable).name);
       if (existingProfile) {
         if (options.allowAutomationShell) {
           existingProfile = deepClone(existingProfile);
@@ -267,9 +211,7 @@ class BaseTerminalProfileResolverService extends Disposable {
     };
   }
   _getUnresolvedAutomationShellProfile(options) {
-    const automationProfile = this._configurationService.getValue(
-      `terminal.integrated.automationProfile.${this._getOsKey(options.os)}`
-    );
+    const automationProfile = this._configurationService.getValue(`terminal.integrated.automationProfile.${this._getOsKey(options.os)}`);
     if (this._isValidAutomationProfile(automationProfile, options.os)) {
       automationProfile.icon = this._getCustomIcon(automationProfile.icon) || Codicon.tools;
       return automationProfile;
@@ -284,52 +226,28 @@ class BaseTerminalProfileResolverService extends Disposable {
       if (!isWoW64 && windir) {
         const sysnativePath = path.join(windir, "Sysnative").replace(/\//g, "\\").toLowerCase();
         if (profile.path && profile.path.toLowerCase().indexOf(sysnativePath) === 0) {
-          profile.path = path.join(
-            windir,
-            "System32",
-            profile.path.substr(sysnativePath.length + 1)
-          );
+          profile.path = path.join(windir, "System32", profile.path.substr(sysnativePath.length + 1));
         }
       }
       if (profile.path) {
         profile.path = profile.path.replace(/\//g, "\\");
       }
     }
-    const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot(
-      options.remoteAuthority ? Schemas.vscodeRemote : Schemas.file
-    );
-    const lastActiveWorkspace = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(
-      activeWorkspaceRootUri
-    ) ?? void 0 : void 0;
-    profile.path = await this._resolveVariables(
-      profile.path,
-      env2,
-      lastActiveWorkspace
-    );
+    const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot(options.remoteAuthority ? Schemas.vscodeRemote : Schemas.file);
+    const lastActiveWorkspace = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+    profile.path = await this._resolveVariables(profile.path, env2, lastActiveWorkspace);
     if (profile.args) {
       if (typeof profile.args === "string") {
-        profile.args = await this._resolveVariables(
-          profile.args,
-          env2,
-          lastActiveWorkspace
-        );
+        profile.args = await this._resolveVariables(profile.args, env2, lastActiveWorkspace);
       } else {
-        profile.args = await Promise.all(
-          profile.args.map(
-            (arg) => this._resolveVariables(arg, env2, lastActiveWorkspace)
-          )
-        );
+        profile.args = await Promise.all(profile.args.map((arg) => this._resolveVariables(arg, env2, lastActiveWorkspace)));
       }
     }
     return profile;
   }
   async _resolveVariables(value, env2, lastActiveWorkspace) {
     try {
-      value = await this._configurationResolverService.resolveWithEnvironment(
-        env2,
-        lastActiveWorkspace,
-        value
-      );
+      value = await this._configurationResolverService.resolveWithEnvironment(env2, lastActiveWorkspace, value);
     } catch (e) {
       this._logService.error(`Could not resolve shell`, e);
     }
@@ -382,18 +300,14 @@ let BrowserTerminalProfileResolverService = class extends BaseTerminalProfileRes
     super(
       {
         getDefaultSystemShell: /* @__PURE__ */ __name(async (remoteAuthority, os) => {
-          const backend = await terminalInstanceService.getBackend(
-            remoteAuthority
-          );
+          const backend = await terminalInstanceService.getBackend(remoteAuthority);
           if (!remoteAuthority || !backend) {
             return os === OperatingSystem.Windows ? "pwsh" : "bash";
           }
           return backend.getDefaultSystemShell(os);
         }, "getDefaultSystemShell"),
         getEnvironment: /* @__PURE__ */ __name(async (remoteAuthority) => {
-          const backend = await terminalInstanceService.getBackend(
-            remoteAuthority
-          );
+          const backend = await terminalInstanceService.getBackend(remoteAuthority);
           if (!remoteAuthority || !backend) {
             return env;
           }

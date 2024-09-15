@@ -1,36 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../base/common/codicons.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { IExtensionTerminalProfile, ITerminalProfile, TerminalIcon } from "./terminal.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
 function createProfileSchemaEnums(detectedProfiles, extensionProfiles) {
-  const result = [
-    {
-      name: null,
-      description: localize(
-        "terminalAutomaticProfile",
-        "Automatically detect the default"
-      )
-    }
-  ];
-  result.push(
-    ...detectedProfiles.map((e) => {
-      return {
-        name: e.profileName,
-        description: createProfileDescription(e)
-      };
-    })
-  );
+  const result = [{
+    name: null,
+    description: localize("terminalAutomaticProfile", "Automatically detect the default")
+  }];
+  result.push(...detectedProfiles.map((e) => {
+    return {
+      name: e.profileName,
+      description: createProfileDescription(e)
+    };
+  }));
   if (extensionProfiles) {
-    result.push(
-      ...extensionProfiles.map((extensionProfile) => {
-        return {
-          name: extensionProfile.title,
-          description: createExtensionProfileDescription(extensionProfile)
-        };
-      })
-    );
+    result.push(...extensionProfiles.map((extensionProfile) => {
+      return {
+        name: extensionProfile.title,
+        description: createExtensionProfileDescription(extensionProfile)
+      };
+    }));
   }
   return {
     values: result.map((e) => e.name),
@@ -106,7 +98,7 @@ function terminalIconsEqual(a, b) {
       return castedA.light.path === castedB.light.path && castedA.dark.path === castedB.dark.path;
     }
   }
-  if (URI.isUri(a) && URI.isUri(b) || isUriComponents(a) || isUriComponents(b)) {
+  if (URI.isUri(a) && URI.isUri(b) || (isUriComponents(a) || isUriComponents(b))) {
     const castedA = a;
     const castedB = b;
     return castedA.path === castedB.path && castedA.scheme === castedB.scheme;

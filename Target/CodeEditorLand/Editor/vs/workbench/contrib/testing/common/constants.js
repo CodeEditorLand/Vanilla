@@ -35,17 +35,10 @@ const testStateNames = {
   [TestResultState.Skipped]: localize("testState.skipped", "Skipped"),
   [TestResultState.Unset]: localize("testState.unset", "Not yet run")
 };
-const labelForTestInState = /* @__PURE__ */ __name((label, state) => localize(
-  {
-    key: "testing.treeElementLabel",
-    comment: [
-      'label then the unit tests state, for example "Addition Tests (Running)"'
-    ]
-  },
-  "{0} ({1})",
-  stripIcons(label),
-  testStateNames[state]
-), "labelForTestInState");
+const labelForTestInState = /* @__PURE__ */ __name((label, state) => localize({
+  key: "testing.treeElementLabel",
+  comment: ['label then the unit tests state, for example "Addition Tests (Running)"']
+}, "{0} ({1})", stripIcons(label), testStateNames[state]), "labelForTestInState");
 const testConfigurationGroupNames = {
   [TestRunProfileBitset.Debug]: localize("testGroup.debug", "Debug"),
   [TestRunProfileBitset.Run]: localize("testGroup.run", "Run"),

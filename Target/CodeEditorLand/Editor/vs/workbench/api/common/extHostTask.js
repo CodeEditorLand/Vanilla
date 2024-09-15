@@ -10,33 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { asPromise } from "../../../base/common/async.js";
-import { Emitter } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { asArray } from "../../../base/common/arrays.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { MainContext, MainThreadTaskShape, ExtHostTaskShape } from "./extHost.protocol.js";
+import * as types from "./extHostTypes.js";
+import { IExtHostWorkspaceProvider, IExtHostWorkspace } from "./extHostWorkspace.js";
+import * as tasks from "./shared/tasks.js";
+import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostConfiguration } from "./extHostConfiguration.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import {
-  ErrorNoTelemetry,
-  NotSupportedError
-} from "../../../base/common/errors.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IExtHostTerminalService } from "./extHostTerminalService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { Schemas } from "../../../base/common/network.js";
 import * as Platform from "../../../base/common/platform.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import { USER_TASKS_GROUP_KEY } from "../../contrib/tasks/common/tasks.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
 import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
-import { IExtHostConfiguration } from "./extHostConfiguration.js";
-import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IExtHostTerminalService } from "./extHostTerminalService.js";
-import * as types from "./extHostTypes.js";
-import {
-  IExtHostWorkspace
-} from "./extHostWorkspace.js";
+import { USER_TASKS_GROUP_KEY } from "../../contrib/tasks/common/tasks.js";
+import { ErrorNoTelemetry, NotSupportedError } from "../../../base/common/errors.js";
+import { asArray } from "../../../base/common/arrays.js";
 var TaskDefinitionDTO;
 ((TaskDefinitionDTO2) => {
   function from(value) {
@@ -125,11 +120,7 @@ var ProcessExecutionDTO;
     if (value === void 0 || value === null) {
       return void 0;
     }
-    return new types.ProcessExecution(
-      value.process,
-      value.args,
-      value.options
-    );
+    return new types.ProcessExecution(value.process, value.args, value.options);
   }
   ProcessExecutionDTO2.to = to;
   __name(to, "to");
@@ -190,11 +181,7 @@ var ShellExecutionDTO;
     if (value.commandLine) {
       return new types.ShellExecution(value.commandLine, value.options);
     } else {
-      return new types.ShellExecution(
-        value.command,
-        value.args ? value.args : [],
-        value.options
-      );
+      return new types.ShellExecution(value.command, value.args ? value.args : [], value.options);
     }
   }
   ShellExecutionDTO2.to = to;
@@ -259,12 +246,12 @@ var TaskGroupDTO;
 })(TaskGroupDTO || (TaskGroupDTO = {}));
 var TaskDTO;
 ((TaskDTO2) => {
-  function fromMany(tasks, extension) {
-    if (tasks === void 0 || tasks === null) {
+  function fromMany(tasks2, extension) {
+    if (tasks2 === void 0 || tasks2 === null) {
       return [];
     }
     const result = [];
-    for (const task of tasks) {
+    for (const task of tasks2) {
       const converted = from(task, extension);
       if (converted) {
         result.push(converted);
@@ -284,9 +271,7 @@ var TaskDTO;
     } else if (value.execution instanceof types.ShellExecution) {
       execution = ShellExecutionDTO.from(value.execution);
     } else if (value.execution && value.execution instanceof types.CustomExecution) {
-      execution = CustomExecutionDTO.from(
-        value.execution
-      );
+      execution = CustomExecutionDTO.from(value.execution);
     }
     const definition = TaskDefinitionDTO.from(value.definition);
     let scope;
@@ -314,9 +299,7 @@ var TaskDTO;
       execution,
       isBackground: value.isBackground,
       group: TaskGroupDTO.from(value.group),
-      presentationOptions: TaskPresentationOptionsDTO.from(
-        value.presentationOptions
-      ),
+      presentationOptions: TaskPresentationOptionsDTO.from(value.presentationOptions),
       problemMatchers: asArray(value.problemMatchers),
       hasDefinedMatchers: value.hasDefinedMatchers,
       runOptions: value.runOptions ? value.runOptions : { reevaluateOnRerun: true },
@@ -336,10 +319,7 @@ var TaskDTO;
     } else if (ShellExecutionDTO.is(value.execution)) {
       execution = ShellExecutionDTO.to(value.execution);
     } else if (CustomExecutionDTO.is(value.execution)) {
-      execution = CustomExecutionDTO.to(
-        value._id,
-        providedCustomExeutions
-      );
+      execution = CustomExecutionDTO.to(value._id, providedCustomExeutions);
     }
     const definition = TaskDefinitionDTO.to(value.definition);
     let scope;
@@ -348,9 +328,7 @@ var TaskDTO;
         if (typeof value.source.scope === "number") {
           scope = value.source.scope;
         } else {
-          scope = await workspace.resolveWorkspaceFolder(
-            URI.revive(value.source.scope)
-          );
+          scope = await workspace.resolveWorkspaceFolder(URI.revive(value.source.scope));
         }
       } else {
         scope = types.TaskScope.Workspace;
@@ -359,33 +337,21 @@ var TaskDTO;
     if (!definition || !scope) {
       return void 0;
     }
-    const result = new types.Task(
-      definition,
-      scope,
-      value.name,
-      value.source.label,
-      execution,
-      value.problemMatchers
-    );
+    const result = new types.Task(definition, scope, value.name, value.source.label, execution, value.problemMatchers);
     if (value.isBackground !== void 0) {
       result.isBackground = value.isBackground;
     }
     if (value.group !== void 0) {
       result.group = types.TaskGroup.from(value.group._id);
       if (result.group && value.group.isDefault) {
-        result.group = new types.TaskGroup(
-          result.group.id,
-          result.group.label
-        );
+        result.group = new types.TaskGroup(result.group.id, result.group.label);
         if (value.group.isDefault === true) {
           result.group.isDefault = value.group.isDefault;
         }
       }
     }
     if (value.presentationOptions) {
-      result.presentationOptions = TaskPresentationOptionsDTO.to(
-        value.presentationOptions
-      );
+      result.presentationOptions = TaskPresentationOptionsDTO.to(value.presentationOptions);
     }
     if (value._id) {
       result._id = value._id;
@@ -415,10 +381,10 @@ var TaskFilterDTO;
   __name(to, "to");
 })(TaskFilterDTO || (TaskFilterDTO = {}));
 class TaskExecutionImpl {
-  constructor(tasks, _id, _task) {
+  constructor(tasks2, _id, _task) {
     this._id = _id;
     this._task = _task;
-    this.#tasks = tasks;
+    this.#tasks = tasks2;
   }
   static {
     __name(this, "TaskExecutionImpl");
@@ -497,11 +463,7 @@ let ExtHostTaskBase = class {
     return this._proxy.$fetchTasks(TaskFilterDTO.from(filter)).then(async (values) => {
       const result = [];
       for (const value of values) {
-        const task = await TaskDTO.to(
-          value,
-          this._workspaceProvider,
-          this._providedCustomExecutions2
-        );
+        const task = await TaskDTO.to(value, this._workspaceProvider, this._providedCustomExecutions2);
         if (task) {
           result.push(task);
         }
@@ -527,10 +489,7 @@ let ExtHostTaskBase = class {
     const customExecution = this._providedCustomExecutions2.get(execution.id);
     if (customExecution) {
       this._activeCustomExecutions2.set(execution.id, customExecution);
-      this._terminalService.attachPtyToTerminal(
-        terminalId,
-        await customExecution.callback(resolvedDefinition)
-      );
+      this._terminalService.attachPtyToTerminal(terminalId, await customExecution.callback(resolvedDefinition));
     }
     this._lastStartedTask = execution.id;
     this._onDidExecuteTask.fire({
@@ -578,15 +537,8 @@ let ExtHostTaskBase = class {
       return Promise.reject(new Error("no handler found"));
     }
     const taskIdPromises = [];
-    const fetchPromise = asPromise(
-      () => handler.provider.provideTasks(CancellationToken.None)
-    ).then((value) => {
-      return this.provideTasksInternal(
-        validTypes,
-        taskIdPromises,
-        handler,
-        value
-      );
+    const fetchPromise = asPromise(() => handler.provider.provideTasks(CancellationToken.None)).then((value) => {
+      return this.provideTasksInternal(validTypes, taskIdPromises, handler, value);
     });
     return new Promise((resolve) => {
       fetchPromise.then((result) => {
@@ -602,37 +554,23 @@ let ExtHostTaskBase = class {
       return Promise.reject(new Error("no handler found"));
     }
     if (taskDTO.definition.type !== handler.type) {
-      throw new Error(
-        `Unexpected: Task of type [${taskDTO.definition.type}] cannot be resolved by provider of type [${handler.type}].`
-      );
+      throw new Error(`Unexpected: Task of type [${taskDTO.definition.type}] cannot be resolved by provider of type [${handler.type}].`);
     }
-    const task = await TaskDTO.to(
-      taskDTO,
-      this._workspaceProvider,
-      this._providedCustomExecutions2
-    );
+    const task = await TaskDTO.to(taskDTO, this._workspaceProvider, this._providedCustomExecutions2);
     if (!task) {
       throw new Error("Unexpected: Task cannot be resolved.");
     }
-    const resolvedTask = await handler.provider.resolveTask(
-      task,
-      CancellationToken.None
-    );
+    const resolvedTask = await handler.provider.resolveTask(task, CancellationToken.None);
     if (!resolvedTask) {
       return;
     }
     this.checkDeprecation(resolvedTask, handler);
-    const resolvedTaskDTO = TaskDTO.from(
-      resolvedTask,
-      handler.extension
-    );
+    const resolvedTaskDTO = TaskDTO.from(resolvedTask, handler.extension);
     if (!resolvedTaskDTO) {
       throw new Error("Unexpected: Task cannot be resolved.");
     }
     if (resolvedTask.definition !== task.definition) {
-      throw new Error(
-        "Unexpected: The resolved task definition must be the same object as the original task definition. The task definition cannot be changed."
-      );
+      throw new Error("Unexpected: The resolved task definition must be the same object as the original task definition. The task definition cannot be changed.");
     }
     if (CustomExecutionDTO.is(resolvedTaskDTO.execution)) {
       await this.addCustomExecution(resolvedTaskDTO, resolvedTask, true);
@@ -646,23 +584,15 @@ let ExtHostTaskBase = class {
     const taskId = await this._proxy.$createTaskId(taskDTO);
     if (!isProvided && !this._providedCustomExecutions2.has(taskId)) {
       this._notProvidedCustomExecutions.add(taskId);
-      this._activeCustomExecutions2.set(
-        taskId,
-        task.execution
-      );
+      this._activeCustomExecutions2.set(taskId, task.execution);
     }
-    this._providedCustomExecutions2.set(
-      taskId,
-      task.execution
-    );
+    this._providedCustomExecutions2.set(taskId, task.execution);
   }
   async getTaskExecution(execution, task) {
     if (typeof execution === "string") {
       const taskExecution = this._taskExecutionPromises.get(execution);
       if (!taskExecution) {
-        throw new ErrorNoTelemetry(
-          "Unexpected: The specified task is missing an execution"
-        );
+        throw new ErrorNoTelemetry("Unexpected: The specified task is missing an execution");
       }
       return taskExecution;
     }
@@ -671,23 +601,15 @@ let ExtHostTaskBase = class {
       return result;
     }
     let executionPromise;
-    if (task) {
-      executionPromise = Promise.resolve(
-        new TaskExecutionImpl(this, execution.id, task)
-      );
-    } else {
-      executionPromise = TaskDTO.to(
-        execution.task,
-        this._workspaceProvider,
-        this._providedCustomExecutions2
-      ).then((t) => {
+    if (!task) {
+      executionPromise = TaskDTO.to(execution.task, this._workspaceProvider, this._providedCustomExecutions2).then((t) => {
         if (!t) {
-          throw new ErrorNoTelemetry(
-            "Unexpected: Task does not exist."
-          );
+          throw new ErrorNoTelemetry("Unexpected: Task does not exist.");
         }
         return new TaskExecutionImpl(this, execution.id, t);
       });
+    } else {
+      executionPromise = Promise.resolve(new TaskExecutionImpl(this, execution.id, task));
     }
     this._taskExecutionPromises.set(execution.id, executionPromise);
     return executionPromise.then((taskExecution) => {
@@ -698,11 +620,7 @@ let ExtHostTaskBase = class {
   checkDeprecation(task, handler) {
     const tTask = task;
     if (tTask._deprecated) {
-      this._deprecationService.report(
-        "Task.constructor",
-        handler.extension,
-        "Use the Task constructor that takes a `scope` instead."
-      );
+      this._deprecationService.report("Task.constructor", handler.extension, "Use the Task constructor that takes a `scope` instead.");
     }
   }
   customExecutionComplete(execution) {
@@ -740,16 +658,7 @@ let WorkerExtHostTask = class extends ExtHostTaskBase {
     __name(this, "WorkerExtHostTask");
   }
   constructor(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService) {
-    super(
-      extHostRpc,
-      initData,
-      workspaceService,
-      editorService,
-      configurationService,
-      extHostTerminalService,
-      logService,
-      deprecationService
-    );
+    super(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService);
     this.registerTaskSystem(Schemas.vscodeRemote, {
       scheme: Schemas.vscodeRemote,
       authority: "",
@@ -769,10 +678,7 @@ let WorkerExtHostTask = class extends ExtHostTaskBase {
     } else {
       throw new NotSupportedError();
     }
-    const execution = await this.getTaskExecution(
-      await this._proxy.$getTaskExecution(dto),
-      task
-    );
+    const execution = await this.getTaskExecution(await this._proxy.$getTaskExecution(dto), task);
     this._proxy.$executeTask(dto).catch((error) => {
       throw new Error(error);
     });
@@ -785,23 +691,14 @@ let WorkerExtHostTask = class extends ExtHostTaskBase {
         this.checkDeprecation(task, handler);
         if (!task.definition || !validTypes[task.definition.type]) {
           const source = task.source ? task.source : "No task source";
-          this._logService.warn(
-            `The task [${source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`
-          );
+          this._logService.warn(`The task [${source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`);
         }
-        const taskDTO = TaskDTO.from(
-          task,
-          handler.extension
-        );
+        const taskDTO = TaskDTO.from(task, handler.extension);
         if (taskDTO && CustomExecutionDTO.is(taskDTO.execution)) {
           taskDTOs.push(taskDTO);
-          taskIdPromises.push(
-            this.addCustomExecution(taskDTO, task, true)
-          );
+          taskIdPromises.push(this.addCustomExecution(taskDTO, task, true));
         } else {
-          this._logService.warn(
-            "Only custom execution tasks supported."
-          );
+          this._logService.warn("Only custom execution tasks supported.");
         }
       }
     }

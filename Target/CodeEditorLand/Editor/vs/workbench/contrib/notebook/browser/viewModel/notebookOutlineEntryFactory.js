@@ -11,16 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { renderMarkdownAsPlaintext } from "../../../../../base/browser/markdownRenderer.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import {
-  IOutlineModelService
-} from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { IOutlineModelService, OutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
 import { localize } from "../../../../../nls.js";
-import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ICellViewModel } from "../notebookBrowser.js";
+import { getMarkdownHeadersInCell } from "./foldingModel.js";
+import { OutlineEntry } from "./OutlineEntry.js";
 import { CellKind } from "../../common/notebookCommon.js";
 import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { OutlineEntry } from "./OutlineEntry.js";
-import { getMarkdownHeadersInCell } from "./foldingModel.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { SymbolKind } from "../../../../../editor/common/languages.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 var NotebookOutlineConstants = /* @__PURE__ */ ((NotebookOutlineConstants2) => {
   NotebookOutlineConstants2[NotebookOutlineConstants2["NonHeaderOutlineLevel"] = 7] = "NonHeaderOutlineLevel";
   return NotebookOutlineConstants2;
@@ -32,16 +34,14 @@ function getMarkdownHeadersInCellFallbackToHtmlTags(fullContent) {
   }
   const match = fullContent.match(/<h([1-6]).*>(.*)<\/h\1>/i);
   if (match) {
-    const level = Number.parseInt(match[1]);
+    const level = parseInt(match[1]);
     const text = match[2].trim();
     headers.push({ depth: level, text });
   }
   return headers;
 }
 __name(getMarkdownHeadersInCellFallbackToHtmlTags, "getMarkdownHeadersInCellFallbackToHtmlTags");
-const INotebookOutlineEntryFactory = createDecorator(
-  "INotebookOutlineEntryFactory"
-);
+const INotebookOutlineEntryFactory = createDecorator("INotebookOutlineEntryFactory");
 let NotebookOutlineEntryFactory = class {
   constructor(executionStateService, outlineModelService, textModelService) {
     this.executionStateService = executionStateService;
@@ -61,20 +61,11 @@ let NotebookOutlineEntryFactory = class {
     if (isMarkdown) {
       const fullContent = cell.getText().substring(0, 1e4);
       const cache = this.cachedMarkdownOutlineEntries.get(cell);
-      const headers = cache?.alternativeId === cell.getAlternativeId() ? cache.headers : Array.from(
-        getMarkdownHeadersInCellFallbackToHtmlTags(
-          fullContent
-        )
-      );
-      this.cachedMarkdownOutlineEntries.set(cell, {
-        alternativeId: cell.getAlternativeId(),
-        headers
-      });
+      const headers = cache?.alternativeId === cell.getAlternativeId() ? cache.headers : Array.from(getMarkdownHeadersInCellFallbackToHtmlTags(fullContent));
+      this.cachedMarkdownOutlineEntries.set(cell, { alternativeId: cell.getAlternativeId(), headers });
       for (const { depth, text } of headers) {
         hasHeader = true;
-        entries.push(
-          new OutlineEntry(index++, depth, cell, text, false, false)
-        );
+        entries.push(new OutlineEntry(index++, depth, cell, text, false, false));
       }
       if (!hasHeader) {
         content = renderMarkdownAsPlaintext({ value: content });
@@ -86,29 +77,9 @@ let NotebookOutlineEntryFactory = class {
       if (!isMarkdown) {
         const cached = this.cellOutlineEntryCache[cell.id];
         if (cached) {
-          entries.push(
-            new OutlineEntry(
-              index++,
-              7 /* NonHeaderOutlineLevel */,
-              cell,
-              preview,
-              !!exeState,
-              exeState ? exeState.isPaused : false
-            )
-          );
+          entries.push(new OutlineEntry(index++, 7 /* NonHeaderOutlineLevel */, cell, preview, !!exeState, exeState ? exeState.isPaused : false));
           cached.forEach((entry) => {
-            entries.push(
-              new OutlineEntry(
-                index++,
-                entry.level,
-                cell,
-                entry.name,
-                false,
-                false,
-                entry.range,
-                entry.kind
-              )
-            );
+            entries.push(new OutlineEntry(index++, entry.level, cell, entry.name, false, false, entry.range, entry.kind));
           });
         }
       }
@@ -116,16 +87,7 @@ let NotebookOutlineEntryFactory = class {
         if (preview.length === 0) {
           preview = localize("empty", "empty cell");
         }
-        entries.push(
-          new OutlineEntry(
-            index++,
-            7 /* NonHeaderOutlineLevel */,
-            cell,
-            preview,
-            !!exeState,
-            exeState ? exeState.isPaused : false
-          )
-        );
+        entries.push(new OutlineEntry(index++, 7 /* NonHeaderOutlineLevel */, cell, preview, !!exeState, exeState ? exeState.isPaused : false));
       }
     }
     return entries;
@@ -137,14 +99,8 @@ let NotebookOutlineEntryFactory = class {
     const ref = await this.textModelService.createModelReference(cell.uri);
     try {
       const textModel = ref.object.textEditorModel;
-      const outlineModel = await this.outlineModelService.getOrCreate(
-        textModel,
-        cancelToken
-      );
-      const entries = createOutlineEntries(
-        outlineModel.getTopLevelSymbols(),
-        8
-      );
+      const outlineModel = await this.outlineModelService.getOrCreate(textModel, cancelToken);
+      const entries = createOutlineEntries(outlineModel.getTopLevelSymbols(), 8);
       this.cellOutlineEntryCache[cell.id] = entries;
     } finally {
       ref.dispose();
@@ -159,12 +115,7 @@ NotebookOutlineEntryFactory = __decorateClass([
 function createOutlineEntries(symbols, level) {
   const entries = [];
   symbols.forEach((symbol) => {
-    entries.push({
-      name: symbol.name,
-      range: symbol.range,
-      level,
-      kind: symbol.kind
-    });
+    entries.push({ name: symbol.name, range: symbol.range, level, kind: symbol.kind });
     if (symbol.children) {
       entries.push(...createOutlineEntries(symbol.children, level + 1));
     }
@@ -175,9 +126,7 @@ __name(createOutlineEntries, "createOutlineEntries");
 function getCellFirstNonEmptyLine(cell) {
   const textBuffer = cell.textBuffer;
   for (let i = 0; i < textBuffer.getLineCount(); i++) {
-    const firstNonWhitespace = textBuffer.getLineFirstNonWhitespaceColumn(
-      i + 1
-    );
+    const firstNonWhitespace = textBuffer.getLineFirstNonWhitespaceColumn(i + 1);
     const lineLength = textBuffer.getLineLength(i + 1);
     if (firstNonWhitespace < lineLength) {
       return textBuffer.getLineContent(i + 1);

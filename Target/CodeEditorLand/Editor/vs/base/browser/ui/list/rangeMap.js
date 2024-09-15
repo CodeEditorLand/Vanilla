@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Range } from "../../../common/range.js";
+import { IRange, Range } from "../../../common/range.js";
 function groupIntersect(range, groups) {
   const result = [];
   for (const r of groups) {
@@ -68,22 +68,13 @@ class RangeMap {
   splice(index, deleteCount, items = []) {
     const diff = items.length - deleteCount;
     const before = groupIntersect({ start: 0, end: index }, this.groups);
-    const after = groupIntersect(
-      { start: index + deleteCount, end: Number.POSITIVE_INFINITY },
-      this.groups
-    ).map((g) => ({
-      range: shift(g.range, diff),
-      size: g.size
-    }));
+    const after = groupIntersect({ start: index + deleteCount, end: Number.POSITIVE_INFINITY }, this.groups).map((g) => ({ range: shift(g.range, diff), size: g.size }));
     const middle = items.map((item, i) => ({
       range: { start: index + i, end: index + i + 1 },
       size: item.size
     }));
     this.groups = concat(before, middle, after);
-    this._size = this._paddingTop + this.groups.reduce(
-      (t, g) => t + g.size * (g.range.end - g.range.start),
-      0
-    );
+    this._size = this._paddingTop + this.groups.reduce((t, g) => t + g.size * (g.range.end - g.range.start), 0);
   }
   /**
    * Returns the number of items in the range map.

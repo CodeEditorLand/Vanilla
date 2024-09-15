@@ -12,21 +12,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Schemas } from "../../../../../base/common/network.js";
 import { URI } from "../../../../../base/common/uri.js";
-import {
-  LinkComputer
-} from "../../../../../editor/common/languages/linkComputer.js";
-import {
-  ITerminalLogService
-} from "../../../../../platform/terminal/common/terminal.js";
+import { ILinkComputerTarget, LinkComputer } from "../../../../../editor/common/languages/linkComputer.js";
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import {
-  TerminalBuiltinLinkType
-} from "./links.js";
-import {
-  convertLinkRangeToBuffer,
-  getXtermLineContent
-} from "./terminalLinkHelpers.js";
+import { ITerminalLinkDetector, ITerminalLinkResolver, ITerminalSimpleLink, TerminalBuiltinLinkType } from "./links.js";
+import { convertLinkRangeToBuffer, getXtermLineContent } from "./terminalLinkHelpers.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { ITerminalBackend, ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["MaxResolvedLinksInLine"] = 10] = "MaxResolvedLinksInLine";
   return Constants2;
@@ -48,24 +40,12 @@ let TerminalUriLinkDetector = class {
   maxLinkLength = 2048;
   async detect(lines, startLine, endLine) {
     const links = [];
-    const linkComputerTarget = new TerminalLinkAdapter(
-      this.xterm,
-      startLine,
-      endLine
-    );
+    const linkComputerTarget = new TerminalLinkAdapter(this.xterm, startLine, endLine);
     const computedLinks = LinkComputer.computeLinks(linkComputerTarget);
     let resolvedLinkCount = 0;
-    this._logService.trace(
-      "terminalUriLinkDetector#detect computedLinks",
-      computedLinks
-    );
+    this._logService.trace("terminalUriLinkDetector#detect computedLinks", computedLinks);
     for (const computedLink of computedLinks) {
-      const bufferRange = convertLinkRangeToBuffer(
-        lines,
-        this.xterm.cols,
-        computedLink.range,
-        startLine
-      );
+      const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, computedLink.range, startLine);
       const uri = computedLink.url ? typeof computedLink.url === "string" ? URI.parse(this._excludeLineAndColSuffix(computedLink.url)) : computedLink.url : void 0;
       if (!uri) {
         continue;
@@ -90,16 +70,9 @@ let TerminalUriLinkDetector = class {
       if (uri.authority.length > 0) {
         uriCandidates.push(URI.from({ ...uri, authority: void 0 }));
       }
-      this._logService.trace(
-        "terminalUriLinkDetector#detect uriCandidates",
-        uriCandidates
-      );
+      this._logService.trace("terminalUriLinkDetector#detect uriCandidates", uriCandidates);
       for (const uriCandidate of uriCandidates) {
-        const linkStat = await this._linkResolver.resolveLink(
-          this._processManager,
-          text,
-          uriCandidate
-        );
+        const linkStat = await this._linkResolver.resolveLink(this._processManager, text, uriCandidate);
         if (linkStat) {
           let type;
           if (linkStat.isDirectory) {
@@ -118,10 +91,7 @@ let TerminalUriLinkDetector = class {
             bufferRange,
             type
           };
-          this._logService.trace(
-            "terminalUriLinkDetector#detect verified link",
-            simpleLink
-          );
+          this._logService.trace("terminalUriLinkDetector#detect verified link", simpleLink);
           links.push(simpleLink);
           resolvedLinkCount++;
           break;
@@ -136,10 +106,7 @@ let TerminalUriLinkDetector = class {
   _isDirectoryInsideWorkspace(uri) {
     const folders = this._workspaceContextService.getWorkspace().folders;
     for (let i = 0; i < folders.length; i++) {
-      if (this._uriIdentityService.extUri.isEqualOrParent(
-        uri,
-        folders[i].uri
-      )) {
+      if (this._uriIdentityService.extUri.isEqualOrParent(uri, folders[i].uri)) {
         return true;
       }
     }
@@ -167,12 +134,7 @@ class TerminalLinkAdapter {
     return 1;
   }
   getLineContent() {
-    return getXtermLineContent(
-      this._xterm.buffer.active,
-      this._lineStart,
-      this._lineEnd,
-      this._xterm.cols
-    );
+    return getXtermLineContent(this._xterm.buffer.active, this._lineStart, this._lineEnd, this._xterm.cols);
   }
 }
 export {

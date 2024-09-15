@@ -1,4 +1,8 @@
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { GroupIdentifier } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { URI } from "../../../../base/common/uri.js";
 const IHistoryService = createDecorator("historyService");
 var GoFilter = /* @__PURE__ */ ((GoFilter2) => {
   GoFilter2[GoFilter2["NONE"] = 0] = "NONE";

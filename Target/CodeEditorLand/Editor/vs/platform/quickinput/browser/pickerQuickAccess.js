@@ -1,14 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { timeout } from "../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../base/common/lifecycle.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../base/common/lifecycle.js";
+import { IKeyMods, IQuickPickDidAcceptEvent, IQuickPickSeparator, IQuickPick, IQuickPickItem, IQuickInputButton } from "../common/quickInput.js";
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../common/quickAccess.js";
 import { isFunction } from "../../../base/common/types.js";
 var TriggerAction = /* @__PURE__ */ ((TriggerAction2) => {
   TriggerAction2[TriggerAction2["NO_ACTION"] = 0] = "NO_ACTION";
@@ -40,7 +36,7 @@ class PickerQuickAccessProvider extends Disposable {
     const disposables = new DisposableStore();
     picker.canAcceptInBackground = !!this.options?.canAcceptInBackground;
     picker.matchOnLabel = picker.matchOnDescription = picker.matchOnDetail = picker.sortByLabel = false;
-    let picksCts;
+    let picksCts = void 0;
     const picksDisposable = disposables.add(new MutableDisposable());
     const updatePickerItems = /* @__PURE__ */ __name(async () => {
       const picksDisposables = picksDisposable.value = new DisposableStore();
@@ -52,15 +48,10 @@ class PickerQuickAccessProvider extends Disposable {
       if (!this.options?.shouldSkipTrimPickFilter) {
         picksFilter = picksFilter.trim();
       }
-      const providedPicks = this._getPicks(
-        picksFilter,
-        picksDisposables,
-        picksToken,
-        runOptions
-      );
+      const providedPicks = this._getPicks(picksFilter, picksDisposables, picksToken, runOptions);
       const applyPicks = /* @__PURE__ */ __name((picks, skipEmpty) => {
         let items;
-        let activeItem;
+        let activeItem = void 0;
         if (isPicksWithActive(picks)) {
           items = picks.items;
           activeItem = picks.active;
@@ -105,6 +96,7 @@ class PickerQuickAccessProvider extends Disposable {
               fastPicksApplied = applyPicks(
                 fastAndSlowPicks.picks,
                 true
+                /* skip over empty to reduce flicker */
               );
             }
           })(),
@@ -119,7 +111,7 @@ class PickerQuickAccessProvider extends Disposable {
                 return;
               }
               let picks;
-              let activePick;
+              let activePick = void 0;
               if (isPicksWithActive(fastAndSlowPicks.picks)) {
                 picks = fastAndSlowPicks.picks.items;
                 activePick = fastAndSlowPicks.picks.active;
@@ -127,7 +119,7 @@ class PickerQuickAccessProvider extends Disposable {
                 picks = fastAndSlowPicks.picks;
               }
               let additionalPicks;
-              let additionalActivePick;
+              let additionalActivePick = void 0;
               if (isPicksWithActive(awaitedAdditionalPicks)) {
                 additionalPicks = awaitedAdditionalPicks.items;
                 additionalActivePick = awaitedAdditionalPicks.active;
@@ -135,12 +127,10 @@ class PickerQuickAccessProvider extends Disposable {
                 additionalPicks = awaitedAdditionalPicks;
               }
               if (additionalPicks.length > 0 || !fastPicksApplied) {
-                let fallbackActivePick;
+                let fallbackActivePick = void 0;
                 if (!activePick && !additionalActivePick) {
                   const fallbackActivePickCandidate = picker.activeItems[0];
-                  if (fallbackActivePickCandidate && picks.indexOf(
-                    fallbackActivePickCandidate
-                  ) !== -1) {
+                  if (fallbackActivePickCandidate && picks.indexOf(fallbackActivePickCandidate) !== -1) {
                     fallbackActivePick = fallbackActivePickCandidate;
                   }
                 }
@@ -161,7 +151,9 @@ class PickerQuickAccessProvider extends Disposable {
       if (providedPicks === null) {
       } else if (isFastAndSlowPicks(providedPicks)) {
         await applyFastAndSlowPicks(providedPicks);
-      } else if (providedPicks instanceof Promise) {
+      } else if (!(providedPicks instanceof Promise)) {
+        applyPicks(providedPicks);
+      } else {
         picker.busy = true;
         try {
           const awaitedPicks = await providedPicks;
@@ -178,30 +170,26 @@ class PickerQuickAccessProvider extends Disposable {
             picker.busy = false;
           }
         }
-      } else {
-        applyPicks(providedPicks);
       }
     }, "updatePickerItems");
     disposables.add(picker.onDidChangeValue(() => updatePickerItems()));
     updatePickerItems();
-    disposables.add(
-      picker.onDidAccept((event) => {
-        if (runOptions?.handleAccept) {
-          if (!event.inBackground) {
-            picker.hide();
-          }
-          runOptions.handleAccept?.(picker.activeItems[0]);
-          return;
+    disposables.add(picker.onDidAccept((event) => {
+      if (runOptions?.handleAccept) {
+        if (!event.inBackground) {
+          picker.hide();
         }
-        const [item] = picker.selectedItems;
-        if (typeof item?.accept === "function") {
-          if (!event.inBackground) {
-            picker.hide();
-          }
-          item.accept(picker.keyMods, event);
+        runOptions.handleAccept?.(picker.activeItems[0]);
+        return;
+      }
+      const [item] = picker.selectedItems;
+      if (typeof item?.accept === "function") {
+        if (!event.inBackground) {
+          picker.hide();
         }
-      })
-    );
+        item.accept(picker.keyMods, event);
+      }
+    }));
     const buttonTrigger = /* @__PURE__ */ __name(async (button, item) => {
       if (typeof item.trigger !== "function") {
         return;
@@ -227,9 +215,7 @@ class PickerQuickAccessProvider extends Disposable {
             if (index !== -1) {
               const items = picker.items.slice();
               const removed = items.splice(index, 1);
-              const activeItems = picker.activeItems.filter(
-                (activeItem) => activeItem !== removed[0]
-              );
+              const activeItems = picker.activeItems.filter((activeItem) => activeItem !== removed[0]);
               const keepScrollPositionBefore = picker.keepScrollPosition;
               picker.keepScrollPosition = true;
               picker.items = items;
@@ -243,16 +229,8 @@ class PickerQuickAccessProvider extends Disposable {
         }
       }
     }, "buttonTrigger");
-    disposables.add(
-      picker.onDidTriggerItemButton(
-        ({ button, item }) => buttonTrigger(button, item)
-      )
-    );
-    disposables.add(
-      picker.onDidTriggerSeparatorButton(
-        ({ button, separator }) => buttonTrigger(button, separator)
-      )
-    );
+    disposables.add(picker.onDidTriggerItemButton(({ button, item }) => buttonTrigger(button, item)));
+    disposables.add(picker.onDidTriggerSeparatorButton(({ button, separator }) => buttonTrigger(button, separator)));
     return disposables;
   }
 }

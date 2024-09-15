@@ -1,14 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  findFirstMonotonous,
-  findLastIdxMonotonous,
-  findLastMonotonous
-} from "../../../../base/common/arraysFind.js";
+import { findLastIdxMonotonous, findLastMonotonous, findFirstMonotonous } from "../../../../base/common/arraysFind.js";
 import { CharCode } from "../../../../base/common/charCode.js";
 import { OffsetRange } from "../../core/offsetRange.js";
 import { Position } from "../../core/position.js";
 import { Range } from "../../core/range.js";
+import { ISequence } from "./algorithms/diffAlgorithm.js";
 import { isSpace } from "./utils.js";
 class LinesSliceCharSequence {
   constructor(lines, range, considerWhitespaceChanges) {
@@ -31,10 +28,7 @@ class LinesSliceCharSequence {
         line = trimmedStartLine.trimEnd();
       }
       this.trimmedWsLengthsByLineIdx.push(trimmedWsLength);
-      const lineLength = lineNumber === this.range.endLineNumber ? Math.min(
-        this.range.endColumn - 1 - lineStartOffset - trimmedWsLength,
-        line.length
-      ) : line.length;
+      const lineLength = lineNumber === this.range.endLineNumber ? Math.min(this.range.endColumn - 1 - lineStartOffset - trimmedWsLength, line.length) : line.length;
       for (let i = 0; i < lineLength; i++) {
         this.elements.push(line.charCodeAt(i));
       }
@@ -67,12 +61,8 @@ class LinesSliceCharSequence {
     return this.elements.length;
   }
   getBoundaryScore(length) {
-    const prevCategory = getCategory(
-      length > 0 ? this.elements[length - 1] : -1
-    );
-    const nextCategory = getCategory(
-      length < this.elements.length ? this.elements[length] : -1
-    );
+    const prevCategory = getCategory(length > 0 ? this.elements[length - 1] : -1);
+    const nextCategory = getCategory(length < this.elements.length ? this.elements[length] : -1);
     if (prevCategory === 7 /* LineBreakCR */ && nextCategory === 8 /* LineBreakLF */) {
       return 0;
     }
@@ -91,10 +81,7 @@ class LinesSliceCharSequence {
     return score2;
   }
   translateOffset(offset, preference = "right") {
-    const i = findLastIdxMonotonous(
-      this.firstElementOffsetByLineIdx,
-      (value) => value <= offset
-    );
+    const i = findLastIdxMonotonous(this.firstElementOffsetByLineIdx, (value) => value <= offset);
     const lineOffset = offset - this.firstElementOffsetByLineIdx[i];
     return new Position(
       this.range.startLineNumber + i,
@@ -136,14 +123,8 @@ class LinesSliceCharSequence {
     return this.elements[offset1] === this.elements[offset2];
   }
   extendToFullLines(range) {
-    const start = findLastMonotonous(
-      this.firstElementOffsetByLineIdx,
-      (x) => x <= range.start
-    ) ?? 0;
-    const end = findFirstMonotonous(
-      this.firstElementOffsetByLineIdx,
-      (x) => range.endExclusive <= x
-    ) ?? this.elements.length;
+    const start = findLastMonotonous(this.firstElementOffsetByLineIdx, (x) => x <= range.start) ?? 0;
+    const end = findFirstMonotonous(this.firstElementOffsetByLineIdx, (x) => range.endExclusive <= x) ?? this.elements.length;
     return new OffsetRange(start, end);
   }
 }

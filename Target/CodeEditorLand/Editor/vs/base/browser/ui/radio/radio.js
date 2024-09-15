@@ -1,11 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../common/event.js";
 import { Widget } from "../widget.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { Emitter } from "../../../common/event.js";
 import "./radio.css";
-import { DisposableMap, DisposableStore } from "../../../common/lifecycle.js";
 import { $ } from "../../dom.js";
+import { IHoverDelegate } from "../hover/hoverDelegate.js";
 import { Button } from "../button/button.js";
+import { DisposableMap, DisposableStore } from "../../../common/lifecycle.js";
 import { createInstantHoverDelegate } from "../hover/hoverDelegateFactory.js";
 class Radio extends Widget {
   static {
@@ -17,9 +19,7 @@ class Radio extends Widget {
   hoverDelegate;
   items = [];
   activeItem;
-  buttons = this._register(
-    new DisposableMap()
-  );
+  buttons = this._register(new DisposableMap());
   constructor(opts) {
     super();
     this.hoverDelegate = opts.hoverDelegate ?? this._register(createInstantHoverDelegate());
@@ -34,27 +34,20 @@ class Radio extends Widget {
     for (let index = 0; index < this.items.length; index++) {
       const item = this.items[index];
       const disposables = new DisposableStore();
-      const button = disposables.add(
-        new Button(this.domNode, {
-          hoverDelegate: this.hoverDelegate,
-          title: item.tooltip,
-          supportIcons: true
-        })
-      );
+      const button = disposables.add(new Button(this.domNode, {
+        hoverDelegate: this.hoverDelegate,
+        title: item.tooltip,
+        supportIcons: true
+      }));
       button.enabled = !item.disabled;
-      disposables.add(
-        button.onDidClick(() => {
-          if (this.activeItem !== item) {
-            this.activeItem = item;
-            this.updateButtons();
-            this._onDidSelect.fire(index);
-          }
-        })
-      );
-      this.buttons.set(button, {
-        item,
-        dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
-      });
+      disposables.add(button.onDidClick(() => {
+        if (this.activeItem !== item) {
+          this.activeItem = item;
+          this.updateButtons();
+          this._onDidSelect.fire(index);
+        }
+      }));
+      this.buttons.set(button, { item, dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose") });
     }
     this.updateButtons();
   }
@@ -76,10 +69,7 @@ class Radio extends Widget {
       const isPreviousActive = isActive;
       isActive = item === this.activeItem;
       button.element.classList.toggle("active", isActive);
-      button.element.classList.toggle(
-        "previous-active",
-        isPreviousActive
-      );
+      button.element.classList.toggle("previous-active", isPreviousActive);
       button.label = item.text;
     }
   }

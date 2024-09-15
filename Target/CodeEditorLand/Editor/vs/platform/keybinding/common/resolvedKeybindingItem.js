@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
+import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
 class ResolvedKeybindingItem {
   static {
     __name(this, "ResolvedKeybindingItem");
@@ -19,9 +21,7 @@ class ResolvedKeybindingItem {
     this.resolvedKeybinding = resolvedKeybinding;
     this.chords = resolvedKeybinding ? toEmptyArrayIfContainsNull(resolvedKeybinding.getDispatchChords()) : [];
     if (resolvedKeybinding && this.chords.length === 0) {
-      this.chords = toEmptyArrayIfContainsNull(
-        resolvedKeybinding.getSingleModifierDispatchChords()
-      );
+      this.chords = toEmptyArrayIfContainsNull(resolvedKeybinding.getSingleModifierDispatchChords());
     }
     this.bubble = command ? command.charCodeAt(0) === CharCode.Caret : false;
     this.command = this.bubble ? command.substr(1) : command;

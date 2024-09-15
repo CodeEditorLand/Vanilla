@@ -1,23 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { localize, localize2 } from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  MenuId,
-  MenuRegistry,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IProcessMainService } from "../../../../platform/issue/common/issue.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
+import { MenuRegistry, MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
 import { IWorkbenchProcessService } from "../common/issue.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProgressService, ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { IProcessMainService } from "../../../../platform/issue/common/issue.js";
 import "./processService.js";
 import "./issueMainService.js";
 class OpenProcessExplorer extends Action2 {
@@ -43,13 +36,7 @@ MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
   group: "5_tools",
   command: {
     id: OpenProcessExplorer.ID,
-    title: localize(
-      {
-        key: "miOpenProcessExplorerer",
-        comment: ["&& denotes a mnemonic"]
-      },
-      "Open &&Process Explorer"
-    )
+    title: localize({ key: "miOpenProcessExplorerer", comment: ["&& denotes a mnemonic"] }, "Open &&Process Explorer")
   },
   order: 2
 });
@@ -74,34 +61,19 @@ class StopTracing extends Action2 {
     const progressService = accessor.get(IProgressService);
     if (!environmentService.args.trace) {
       const { confirmed } = await dialogService.confirm({
-        message: localize(
-          "stopTracing.message",
-          "Tracing requires to launch with a '--trace' argument"
-        ),
-        primaryButton: localize(
-          {
-            key: "stopTracing.button",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Relaunch and Enable Tracing"
-        )
+        message: localize("stopTracing.message", "Tracing requires to launch with a '--trace' argument"),
+        primaryButton: localize({ key: "stopTracing.button", comment: ["&& denotes a mnemonic"] }, "&&Relaunch and Enable Tracing")
       });
       if (confirmed) {
         return nativeHostService.relaunch({ addArgs: ["--trace"] });
       }
     }
-    await progressService.withProgress(
-      {
-        location: ProgressLocation.Dialog,
-        title: localize("stopTracing.title", "Creating trace file..."),
-        cancellable: false,
-        detail: localize(
-          "stopTracing.detail",
-          "This can take up to one minute to complete."
-        )
-      },
-      () => processService.stopTracing()
-    );
+    await progressService.withProgress({
+      location: ProgressLocation.Dialog,
+      title: localize("stopTracing.title", "Creating trace file..."),
+      cancellable: false,
+      detail: localize("stopTracing.detail", "This can take up to one minute to complete.")
+    }, () => processService.stopTracing());
   }
 }
 registerAction2(StopTracing);

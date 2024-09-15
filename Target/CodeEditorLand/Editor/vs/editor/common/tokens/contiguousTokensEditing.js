@@ -18,11 +18,7 @@ class ContiguousTokensEditing {
     }
     const tokens = toUint32Array(lineTokens);
     const lineTextLength = tokens[tokens.length - 2];
-    return ContiguousTokensEditing.delete(
-      lineTokens,
-      fromChIndex,
-      lineTextLength
-    );
+    return ContiguousTokensEditing.delete(lineTokens, fromChIndex, lineTextLength);
   }
   static delete(lineTokens, fromChIndex, toChIndex) {
     if (lineTokens === null || lineTokens === EMPTY_LINE_TOKENS || fromChIndex === toChIndex) {
@@ -33,10 +29,7 @@ class ContiguousTokensEditing {
     if (fromChIndex === 0 && tokens[tokens.length - 2] === toChIndex) {
       return EMPTY_LINE_TOKENS;
     }
-    const fromTokenIndex = LineTokens.findIndexInTokensArray(
-      tokens,
-      fromChIndex
-    );
+    const fromTokenIndex = LineTokens.findIndexInTokensArray(tokens, fromChIndex);
     const fromTokenStartOffset = fromTokenIndex > 0 ? tokens[fromTokenIndex - 1 << 1] : 0;
     const fromTokenEndOffset = tokens[fromTokenIndex << 1];
     if (toChIndex < fromTokenEndOffset) {

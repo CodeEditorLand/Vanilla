@@ -10,25 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { revive } from "../../../base/common/marshalling.js";
-import { URI } from "../../../base/common/uri.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ExtHostSearchShape, MainThreadSearchShape, MainContext } from "./extHost.protocol.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
 import { FileSearchManager } from "../../services/search/common/fileSearchManager.js";
-import {
-  OldAITextSearchProviderConverter,
-  OldFileSearchProviderConverter,
-  OldTextSearchProviderConverter
-} from "../../services/search/common/searchExtConversionTypes.js";
-import { TextSearchManager } from "../../services/search/common/textSearchManager.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { IURITransformerService } from "./extHostUriTransformerService.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IRawFileQuery, ISearchCompleteStats, IFileQuery, IRawTextQuery, IRawQuery, ITextQuery, IFolderQuery, IRawAITextQuery, IAITextQuery } from "../../services/search/common/search.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { TextSearchManager } from "../../services/search/common/textSearchManager.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { OldAITextSearchProviderConverter, OldFileSearchProviderConverter, OldTextSearchProviderConverter } from "../../services/search/common/searchExtConversionTypes.js";
 const IExtHostSearch = createDecorator("IExtHostSearch");
 let ExtHostSearch = class {
   constructor(extHostRpc, _uriTransformer, _logService) {
@@ -39,9 +33,7 @@ let ExtHostSearch = class {
   static {
     __name(this, "ExtHostSearch");
   }
-  _proxy = this.extHostRpc.getProxy(
-    MainContext.MainThreadSearch
-  );
+  _proxy = this.extHostRpc.getProxy(MainContext.MainThreadSearch);
   _handlePool = 0;
   _textSearchProvider = /* @__PURE__ */ new Map();
   _textSearchUsedSchemes = /* @__PURE__ */ new Set();
@@ -55,20 +47,12 @@ let ExtHostSearch = class {
   }
   registerTextSearchProviderOld(scheme, provider) {
     if (this._textSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `a text search provider for the scheme '${scheme}' is already registered`
-      );
+      throw new Error(`a text search provider for the scheme '${scheme}' is already registered`);
     }
     this._textSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
-    this._textSearchProvider.set(
-      handle,
-      new OldTextSearchProviderConverter(provider)
-    );
-    this._proxy.$registerTextSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._textSearchProvider.set(handle, new OldTextSearchProviderConverter(provider));
+    this._proxy.$registerTextSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._textSearchUsedSchemes.delete(scheme);
       this._textSearchProvider.delete(handle);
@@ -77,17 +61,12 @@ let ExtHostSearch = class {
   }
   registerTextSearchProvider(scheme, provider) {
     if (this._textSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `a text search provider for the scheme '${scheme}' is already registered`
-      );
+      throw new Error(`a text search provider for the scheme '${scheme}' is already registered`);
     }
     this._textSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
     this._textSearchProvider.set(handle, provider);
-    this._proxy.$registerTextSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._proxy.$registerTextSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._textSearchUsedSchemes.delete(scheme);
       this._textSearchProvider.delete(handle);
@@ -96,20 +75,12 @@ let ExtHostSearch = class {
   }
   registerAITextSearchProviderOld(scheme, provider) {
     if (this._aiTextSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `an AI text search provider for the scheme '${scheme}'is already registered`
-      );
+      throw new Error(`an AI text search provider for the scheme '${scheme}'is already registered`);
     }
     this._aiTextSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
-    this._aiTextSearchProvider.set(
-      handle,
-      new OldAITextSearchProviderConverter(provider)
-    );
-    this._proxy.$registerAITextSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._aiTextSearchProvider.set(handle, new OldAITextSearchProviderConverter(provider));
+    this._proxy.$registerAITextSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._aiTextSearchUsedSchemes.delete(scheme);
       this._aiTextSearchProvider.delete(handle);
@@ -118,17 +89,12 @@ let ExtHostSearch = class {
   }
   registerAITextSearchProvider(scheme, provider) {
     if (this._aiTextSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `an AI text search provider for the scheme '${scheme}'is already registered`
-      );
+      throw new Error(`an AI text search provider for the scheme '${scheme}'is already registered`);
     }
     this._aiTextSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
     this._aiTextSearchProvider.set(handle, provider);
-    this._proxy.$registerAITextSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._proxy.$registerAITextSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._aiTextSearchUsedSchemes.delete(scheme);
       this._aiTextSearchProvider.delete(handle);
@@ -137,20 +103,12 @@ let ExtHostSearch = class {
   }
   registerFileSearchProviderOld(scheme, provider) {
     if (this._fileSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `a file search provider for the scheme '${scheme}' is already registered`
-      );
+      throw new Error(`a file search provider for the scheme '${scheme}' is already registered`);
     }
     this._fileSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
-    this._fileSearchProvider.set(
-      handle,
-      new OldFileSearchProviderConverter(provider)
-    );
-    this._proxy.$registerFileSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._fileSearchProvider.set(handle, new OldFileSearchProviderConverter(provider));
+    this._proxy.$registerFileSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._fileSearchUsedSchemes.delete(scheme);
       this._fileSearchProvider.delete(handle);
@@ -159,17 +117,12 @@ let ExtHostSearch = class {
   }
   registerFileSearchProvider(scheme, provider) {
     if (this._fileSearchUsedSchemes.has(scheme)) {
-      throw new Error(
-        `a file search provider for the scheme '${scheme}' is already registered`
-      );
+      throw new Error(`a file search provider for the scheme '${scheme}' is already registered`);
     }
     this._fileSearchUsedSchemes.add(scheme);
     const handle = this._handlePool++;
     this._fileSearchProvider.set(handle, provider);
-    this._proxy.$registerFileSearchProvider(
-      handle,
-      this._transformScheme(scheme)
-    );
+    this._proxy.$registerFileSearchProvider(handle, this._transformScheme(scheme));
     return toDisposable(() => {
       this._fileSearchUsedSchemes.delete(scheme);
       this._fileSearchProvider.delete(handle);
@@ -180,18 +133,9 @@ let ExtHostSearch = class {
     const query = reviveQuery(rawQuery);
     const provider = this._fileSearchProvider.get(handle);
     if (provider) {
-      return this._fileSearchManager.fileSearch(
-        query,
-        provider,
-        (batch) => {
-          this._proxy.$handleFileMatch(
-            handle,
-            session,
-            batch.map((p) => p.resource)
-          );
-        },
-        token
-      );
+      return this._fileSearchManager.fileSearch(query, provider, (batch) => {
+        this._proxy.$handleFileMatch(handle, session, batch.map((p) => p.resource));
+      }, token);
     } else {
       throw new Error("unknown provider: " + handle);
     }
@@ -210,10 +154,7 @@ let ExtHostSearch = class {
     }
     const query = reviveQuery(rawQuery);
     const engine = this.createTextSearchManager(query, provider);
-    return engine.search(
-      (progress) => this._proxy.$handleTextMatch(handle, session, progress),
-      token
-    );
+    return engine.search((progress) => this._proxy.$handleTextMatch(handle, session, progress), token);
   }
   $provideAITextSearchResults(handle, session, rawQuery, token) {
     const provider = this._aiTextSearchProvider.get(handle);
@@ -222,32 +163,21 @@ let ExtHostSearch = class {
     }
     const query = reviveQuery(rawQuery);
     const engine = this.createAITextSearchManager(query, provider);
-    return engine.search(
-      (progress) => this._proxy.$handleTextMatch(handle, session, progress),
-      token
-    );
+    return engine.search((progress) => this._proxy.$handleTextMatch(handle, session, progress), token);
   }
   $enableExtensionHostSearch() {
   }
   createTextSearchManager(query, provider) {
-    return new TextSearchManager(
-      { query, provider },
-      {
-        readdir: /* @__PURE__ */ __name((resource) => Promise.resolve([]), "readdir"),
-        toCanonicalName: /* @__PURE__ */ __name((encoding) => encoding, "toCanonicalName")
-      },
-      "textSearchProvider"
-    );
+    return new TextSearchManager({ query, provider }, {
+      readdir: /* @__PURE__ */ __name((resource) => Promise.resolve([]), "readdir"),
+      toCanonicalName: /* @__PURE__ */ __name((encoding) => encoding, "toCanonicalName")
+    }, "textSearchProvider");
   }
   createAITextSearchManager(query, provider) {
-    return new TextSearchManager(
-      { query, provider },
-      {
-        readdir: /* @__PURE__ */ __name((resource) => Promise.resolve([]), "readdir"),
-        toCanonicalName: /* @__PURE__ */ __name((encoding) => encoding, "toCanonicalName")
-      },
-      "aiTextSearchProvider"
-    );
+    return new TextSearchManager({ query, provider }, {
+      readdir: /* @__PURE__ */ __name((resource) => Promise.resolve([]), "readdir"),
+      toCanonicalName: /* @__PURE__ */ __name((encoding) => encoding, "toCanonicalName")
+    }, "aiTextSearchProvider");
   }
 };
 ExtHostSearch = __decorateClass([
@@ -261,9 +191,7 @@ function reviveQuery(rawQuery) {
     // TODO@rob ???
     ...{
       folderQueries: rawQuery.folderQueries && rawQuery.folderQueries.map(reviveFolderQuery),
-      extraFileResources: rawQuery.extraFileResources && rawQuery.extraFileResources.map(
-        (components) => URI.revive(components)
-      )
+      extraFileResources: rawQuery.extraFileResources && rawQuery.extraFileResources.map((components) => URI.revive(components))
     }
   };
 }

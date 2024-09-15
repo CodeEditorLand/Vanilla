@@ -10,22 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  renderMarkdown
-} from "../../../../../base/browser/markdownRenderer.js";
+import { MarkdownRenderOptions, MarkedOptions, renderMarkdown } from "../../../../../base/browser/markdownRenderer.js";
 import { createTrustedTypesPolicy } from "../../../../../base/browser/trustedTypes.js";
 import { onUnexpectedError } from "../../../../../base/common/errors.js";
 import { Emitter } from "../../../../../base/common/event.js";
-import {
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
+import { IMarkdownString, MarkdownStringTrustedOptions } from "../../../../../base/common/htmlContent.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
 import "./renderedMarkdown.css";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { ICodeEditor } from "../../../editorBrowser.js";
 import { EditorOption } from "../../../../common/config/editorOptions.js";
 import { ILanguageService } from "../../../../common/languages/language.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../../common/languages/modesRegistry.js";
 import { tokenizeToString } from "../../../../common/languages/textToHtmlTokenizer.js";
-import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 let MarkdownRenderer = class {
   constructor(_options, _languageService, _openerService) {
     this._options = _options;
@@ -35,14 +33,11 @@ let MarkdownRenderer = class {
   static {
     __name(this, "MarkdownRenderer");
   }
-  static _ttpTokenizer = createTrustedTypesPolicy(
-    "tokenizeToString",
-    {
-      createHTML(html) {
-        return html;
-      }
+  static _ttpTokenizer = createTrustedTypesPolicy("tokenizeToString", {
+    createHTML(html) {
+      return html;
     }
-  );
+  });
   _onDidRenderAsync = new Emitter();
   onDidRenderAsync = this._onDidRenderAsync.event;
   dispose() {
@@ -55,16 +50,7 @@ let MarkdownRenderer = class {
       }, "dispose") };
     }
     const disposables = new DisposableStore();
-    const rendered = disposables.add(
-      renderMarkdown(
-        markdown,
-        {
-          ...this._getRenderOptions(markdown, disposables),
-          ...options
-        },
-        markedOptions
-      )
-    );
+    const rendered = disposables.add(renderMarkdown(markdown, { ...this._getRenderOptions(markdown, disposables), ...options }, markedOptions));
     rendered.element.classList.add("rendered-markdown");
     return {
       element: rendered.element,
@@ -76,28 +62,18 @@ let MarkdownRenderer = class {
       codeBlockRenderer: /* @__PURE__ */ __name(async (languageAlias, value) => {
         let languageId;
         if (languageAlias) {
-          languageId = this._languageService.getLanguageIdByLanguageName(
-            languageAlias
-          );
+          languageId = this._languageService.getLanguageIdByLanguageName(languageAlias);
         } else if (this._options.editor) {
           languageId = this._options.editor.getModel()?.getLanguageId();
         }
         if (!languageId) {
           languageId = PLAINTEXT_LANGUAGE_ID;
         }
-        const html = await tokenizeToString(
-          this._languageService,
-          value,
-          languageId
-        );
+        const html = await tokenizeToString(this._languageService, value, languageId);
         const element = document.createElement("span");
-        element.innerHTML = MarkdownRenderer._ttpTokenizer?.createHTML(
-          html
-        ) ?? html;
+        element.innerHTML = MarkdownRenderer._ttpTokenizer?.createHTML(html) ?? html;
         if (this._options.editor) {
-          const fontInfo = this._options.editor.getOption(
-            EditorOption.fontInfo
-          );
+          const fontInfo = this._options.editor.getOption(EditorOption.fontInfo);
           applyFontInfo(element, fontInfo);
         } else if (this._options.codeBlockFontFamily) {
           element.style.fontFamily = this._options.codeBlockFontFamily;
@@ -115,11 +91,7 @@ let MarkdownRenderer = class {
     };
   }
   async openMarkdownLink(link, markdown) {
-    await openLinkFromMarkdown(
-      this._openerService,
-      link,
-      markdown.isTrusted
-    );
+    await openLinkFromMarkdown(this._openerService, link, markdown.isTrusted);
   }
 };
 MarkdownRenderer = __decorateClass([

@@ -11,60 +11,33 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/panelpart.css";
-import { Dimension } from "../../../../base/browser/dom.js";
-import { ActionsOrientation } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import {
-  Separator,
-  SubmenuAction,
-  toAction
-} from "../../../../base/common/actions.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
-import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IAction, Separator, SubmenuAction, toAction } from "../../../../base/common/actions.js";
+import { ActionsOrientation } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActivePanelContext, PanelFocusContext } from "../../../common/contextkeys.js";
+import { IWorkbenchLayoutService, Parts, Position } from "../../../services/layout/browser/layoutService.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import {
-  badgeBackground,
-  badgeForeground,
-  contrastBorder
-} from "../../../../platform/theme/common/colorRegistry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  ActivePanelContext,
-  PanelFocusContext
-} from "../../../common/contextkeys.js";
-import {
-  PANEL_ACTIVE_TITLE_BORDER,
-  PANEL_ACTIVE_TITLE_FOREGROUND,
-  PANEL_BACKGROUND,
-  PANEL_BORDER,
-  PANEL_DRAG_AND_DROP_BORDER,
-  PANEL_INACTIVE_TITLE_FOREGROUND
-} from "../../../common/theme.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  IWorkbenchLayoutService,
-  Parts,
-  Position
-} from "../../../services/layout/browser/layoutService.js";
-import {
-  AbstractPaneCompositePart,
-  CompositeBarPosition
-} from "../paneCompositePart.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { TogglePanelAction } from "./panelActions.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { PANEL_BACKGROUND, PANEL_BORDER, PANEL_ACTIVE_TITLE_FOREGROUND, PANEL_INACTIVE_TITLE_FOREGROUND, PANEL_ACTIVE_TITLE_BORDER, PANEL_DRAG_AND_DROP_BORDER } from "../../../common/theme.js";
+import { contrastBorder, badgeBackground, badgeForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Dimension } from "../../../../base/browser/dom.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { AbstractPaneCompositePart, CompositeBarPosition } from "../paneCompositePart.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IPaneCompositeBarOptions } from "../paneCompositeBar.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 let PanelPart = class extends AbstractPaneCompositePart {
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, commandService, menuService, configurationService) {
     super(
@@ -140,9 +113,7 @@ let PanelPart = class extends AbstractPaneCompositePart {
       pinnedViewContainersKey: "workbench.panel.pinnedPanels",
       placeholderViewContainersKey: "workbench.panel.placeholderPanels",
       viewContainersWorkspaceStateKey: "workbench.panel.viewContainersWorkspaceState",
-      icon: !this.configurationService.getValue(
-        "workbench.panel.showLabel"
-      ),
+      icon: !this.configurationService.getValue("workbench.panel.showLabel"),
       orientation: ActionsOrientation.HORIZONTAL,
       recomputeSizes: true,
       activityHoverOptions: {
@@ -157,15 +128,9 @@ let PanelPart = class extends AbstractPaneCompositePart {
         // Background color for overflow action
         inactiveBackgroundColor: theme.getColor(PANEL_BACKGROUND),
         // Background color for overflow action
-        activeBorderBottomColor: theme.getColor(
-          PANEL_ACTIVE_TITLE_BORDER
-        ),
-        activeForegroundColor: theme.getColor(
-          PANEL_ACTIVE_TITLE_FOREGROUND
-        ),
-        inactiveForegroundColor: theme.getColor(
-          PANEL_INACTIVE_TITLE_FOREGROUND
-        ),
+        activeBorderBottomColor: theme.getColor(PANEL_ACTIVE_TITLE_BORDER),
+        activeForegroundColor: theme.getColor(PANEL_ACTIVE_TITLE_FOREGROUND),
+        inactiveForegroundColor: theme.getColor(PANEL_INACTIVE_TITLE_FOREGROUND),
         badgeBackground: theme.getColor(badgeBackground),
         badgeForeground: theme.getColor(badgeForeground),
         dragAndDropBorder: theme.getColor(PANEL_DRAG_AND_DROP_BORDER)
@@ -173,48 +138,18 @@ let PanelPart = class extends AbstractPaneCompositePart {
     };
   }
   fillExtraContextMenuActions(actions) {
-    const panelPositionMenu = this.menuService.getMenuActions(
-      MenuId.PanelPositionMenu,
-      this.contextKeyService,
-      { shouldForwardArgs: true }
-    );
-    const panelAlignMenu = this.menuService.getMenuActions(
-      MenuId.PanelAlignmentMenu,
-      this.contextKeyService,
-      { shouldForwardArgs: true }
-    );
+    const panelPositionMenu = this.menuService.getMenuActions(MenuId.PanelPositionMenu, this.contextKeyService, { shouldForwardArgs: true });
+    const panelAlignMenu = this.menuService.getMenuActions(MenuId.PanelAlignmentMenu, this.contextKeyService, { shouldForwardArgs: true });
     const positionActions = [];
     const alignActions = [];
-    createAndFillInContextMenuActions(panelPositionMenu, {
-      primary: [],
-      secondary: positionActions
-    });
-    createAndFillInContextMenuActions(panelAlignMenu, {
-      primary: [],
-      secondary: alignActions
-    });
-    actions.push(
-      ...[
-        new Separator(),
-        new SubmenuAction(
-          "workbench.action.panel.position",
-          localize("panel position", "Panel Position"),
-          positionActions
-        ),
-        new SubmenuAction(
-          "workbench.action.panel.align",
-          localize("align panel", "Align Panel"),
-          alignActions
-        ),
-        toAction({
-          id: TogglePanelAction.ID,
-          label: localize("hidePanel", "Hide Panel"),
-          run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(
-            TogglePanelAction.ID
-          ), "run")
-        })
-      ]
-    );
+    createAndFillInContextMenuActions(panelPositionMenu, { primary: [], secondary: positionActions });
+    createAndFillInContextMenuActions(panelAlignMenu, { primary: [], secondary: alignActions });
+    actions.push(...[
+      new Separator(),
+      new SubmenuAction("workbench.action.panel.position", localize("panel position", "Panel Position"), positionActions),
+      new SubmenuAction("workbench.action.panel.align", localize("align panel", "Align Panel"), alignActions),
+      toAction({ id: TogglePanelAction.ID, label: localize("hidePanel", "Hide Panel"), run: /* @__PURE__ */ __name(() => this.commandService.executeCommand(TogglePanelAction.ID), "run") })
+    ]);
   }
   layout(width, height, top, left) {
     let dimensions;

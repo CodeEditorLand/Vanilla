@@ -12,23 +12,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import * as nls from "../../../nls.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  DisposableTunnel,
-  TunnelPrivacyId
-} from "../../../platform/tunnel/common/tunnel.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { DisposableTunnel, ProvidedOnAutoForward, ProvidedPortAttributes, RemoteTunnel, TunnelCreationOptions, TunnelOptions, TunnelPrivacyId } from "../../../platform/tunnel/common/tunnel.js";
+import { ExtHostTunnelServiceShape, MainContext, MainThreadTunnelServiceShape, PortAttributesSelector, TunnelDto } from "./extHost.protocol.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import * as types from "./extHostTypes.js";
+import { CandidatePort } from "../../services/remote/common/tunnelModel.js";
+import * as vscode from "vscode";
 class ExtensionTunnel extends DisposableTunnel {
   static {
     __name(this, "ExtensionTunnel");
@@ -62,9 +57,7 @@ var TunnelDtoConverter;
   TunnelDtoConverter2.fromServiceTunnel = fromServiceTunnel;
   __name(fromServiceTunnel, "fromServiceTunnel");
 })(TunnelDtoConverter || (TunnelDtoConverter = {}));
-const IExtHostTunnelService = createDecorator(
-  "IExtHostTunnelService"
-);
+const IExtHostTunnelService = createDecorator("IExtHostTunnelService");
 let ExtHostTunnelService = class extends Disposable {
   constructor(extHostRpc, initData, logService) {
     super();
@@ -86,21 +79,12 @@ let ExtHostTunnelService = class extends Disposable {
   _providerHandleCounter = 0;
   _portAttributesProviders = /* @__PURE__ */ new Map();
   async openTunnel(extension, forward) {
-    this.logService.trace(
-      `ForwardedPorts: (ExtHostTunnelService) ${extension.identifier.value} called openTunnel API for ${forward.remoteAddress.host}:${forward.remoteAddress.port}.`
-    );
-    const tunnel = await this._proxy.$openTunnel(
-      forward,
-      extension.displayName
-    );
+    this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) ${extension.identifier.value} called openTunnel API for ${forward.remoteAddress.host}:${forward.remoteAddress.port}.`);
+    const tunnel = await this._proxy.$openTunnel(forward, extension.displayName);
     if (tunnel) {
-      const disposableTunnel = new ExtensionTunnel(
-        tunnel.remoteAddress,
-        tunnel.localAddress,
-        () => {
-          return this._proxy.$closeTunnel(tunnel.remoteAddress);
-        }
-      );
+      const disposableTunnel = new ExtensionTunnel(tunnel.remoteAddress, tunnel.localAddress, () => {
+        return this._proxy.$closeTunnel(tunnel.remoteAddress);
+      });
       this._register(disposableTunnel);
       return disposableTunnel;
     }
@@ -114,19 +98,11 @@ let ExtHostTunnelService = class extends Disposable {
   }
   registerPortsAttributesProvider(portSelector, provider) {
     if (portSelector.portRange === void 0 && portSelector.commandPattern === void 0) {
-      this.logService.error(
-        "PortAttributesProvider must specify either a portRange or a commandPattern"
-      );
+      this.logService.error("PortAttributesProvider must specify either a portRange or a commandPattern");
     }
     const providerHandle = this.nextPortAttributesProviderHandle();
-    this._portAttributesProviders.set(providerHandle, {
-      selector: portSelector,
-      provider
-    });
-    this._proxy.$registerPortsAttributesProvider(
-      portSelector,
-      providerHandle
-    );
+    this._portAttributesProviders.set(providerHandle, { selector: portSelector, provider });
+    this._proxy.$registerPortsAttributesProvider(portSelector, providerHandle);
     return new types.Disposable(() => {
       this._portAttributesProviders.delete(providerHandle);
       this._proxy.$unregisterPortsAttributesProvider(providerHandle);
@@ -139,26 +115,17 @@ let ExtHostTunnelService = class extends Disposable {
       if (!provider) {
         return [];
       }
-      providedAttributes.push(
-        ...await Promise.all(
-          ports.map(async (port) => {
-            let providedAttributes2;
-            try {
-              providedAttributes2 = await provider.provider.providePortAttributes(
-                { port, pid, commandLine },
-                cancellationToken
-              );
-            } catch (e) {
-              providedAttributes2 = await provider.provider.providePortAttributes(port, pid, commandLine, cancellationToken);
-            }
-            return { providedAttributes: providedAttributes2, port };
-          })
-        )
-      );
+      providedAttributes.push(...await Promise.all(ports.map(async (port) => {
+        let providedAttributes2;
+        try {
+          providedAttributes2 = await provider.provider.providePortAttributes({ port, pid, commandLine }, cancellationToken);
+        } catch (e) {
+          providedAttributes2 = await provider.provider.providePortAttributes(port, pid, commandLine, cancellationToken);
+        }
+        return { providedAttributes: providedAttributes2, port };
+      })));
     }
-    const allAttributes = providedAttributes.filter(
-      (attribute) => !!attribute.providedAttributes
-    );
+    const allAttributes = providedAttributes.filter((attribute) => !!attribute.providedAttributes);
     return allAttributes.length > 0 ? allAttributes.map((attributes) => {
       return {
         autoForwardAction: attributes.providedAttributes.autoForwardAction,
@@ -170,16 +137,10 @@ let ExtHostTunnelService = class extends Disposable {
   }
   registerTunnelProvider(provider, information) {
     if (this._forwardPortProvider) {
-      throw new Error(
-        "A tunnel provider has already been registered. Only the first tunnel provider to be registered will be used."
-      );
+      throw new Error("A tunnel provider has already been registered. Only the first tunnel provider to be registered will be used.");
     }
     this._forwardPortProvider = async (tunnelOptions, tunnelCreationOptions) => {
-      const result = await provider.provideTunnel(
-        tunnelOptions,
-        tunnelCreationOptions,
-        CancellationToken.None
-      );
+      const result = await provider.provideTunnel(tunnelOptions, tunnelCreationOptions, CancellationToken.None);
       return result ?? void 0;
     };
     const tunnelFeatures = information.tunnelFeatures ? {
@@ -188,12 +149,10 @@ let ExtHostTunnelService = class extends Disposable {
       protocol: information.tunnelFeatures.protocol === void 0 ? true : information.tunnelFeatures.protocol
     } : void 0;
     this._proxy.$setTunnelProvider(tunnelFeatures, true);
-    return Promise.resolve(
-      toDisposable(() => {
-        this._forwardPortProvider = void 0;
-        this._proxy.$setTunnelProvider(void 0, false);
-      })
-    );
+    return Promise.resolve(toDisposable(() => {
+      this._forwardPortProvider = void 0;
+      this._proxy.$setTunnelProvider(void 0, false);
+    }));
   }
   /**
    * Applies the tunnel metadata and factory found in the remote authority
@@ -206,9 +165,7 @@ let ExtHostTunnelService = class extends Disposable {
   async setTunnelFactory(provider, managedRemoteAuthority) {
     if (provider) {
       if (provider.candidatePortSource !== void 0) {
-        this._proxy.$setCandidatePortSource(
-          provider.candidatePortSource
-        );
+        this._proxy.$setCandidatePortSource(provider.candidatePortSource);
       }
       if (provider.showCandidatePort) {
         this._showCandidatePort = provider.showCandidatePort;
@@ -222,18 +179,12 @@ let ExtHostTunnelService = class extends Disposable {
           privacyOptions = [
             {
               id: "private",
-              label: nls.localize(
-                "tunnelPrivacy.private",
-                "Private"
-              ),
+              label: nls.localize("tunnelPrivacy.private", "Private"),
               themeIcon: "lock"
             },
             {
               id: "public",
-              label: nls.localize(
-                "tunnelPrivacy.public",
-                "Public"
-              ),
+              label: nls.localize("tunnelPrivacy.public", "Public"),
               themeIcon: "eye"
             }
           ];
@@ -244,10 +195,7 @@ let ExtHostTunnelService = class extends Disposable {
           privacyOptions,
           protocol: true
         } : void 0;
-        this._proxy.$setTunnelProvider(
-          tunnelFeatures,
-          !!provider.tunnelFactory
-        );
+        this._proxy.$setTunnelProvider(tunnelFeatures, !!provider.tunnelFactory);
       }
     } else {
       this._forwardPortProvider = void 0;
@@ -277,59 +225,30 @@ let ExtHostTunnelService = class extends Disposable {
   async $forwardPort(tunnelOptions, tunnelCreationOptions) {
     if (this._forwardPortProvider) {
       try {
-        this.logService.trace(
-          "ForwardedPorts: (ExtHostTunnelService) Getting tunnel from provider."
-        );
-        const providedPort = this._forwardPortProvider(
-          tunnelOptions,
-          tunnelCreationOptions
-        );
-        this.logService.trace(
-          "ForwardedPorts: (ExtHostTunnelService) Got tunnel promise from provider."
-        );
+        this.logService.trace("ForwardedPorts: (ExtHostTunnelService) Getting tunnel from provider.");
+        const providedPort = this._forwardPortProvider(tunnelOptions, tunnelCreationOptions);
+        this.logService.trace("ForwardedPorts: (ExtHostTunnelService) Got tunnel promise from provider.");
         if (providedPort !== void 0) {
           const tunnel = await providedPort;
-          this.logService.trace(
-            "ForwardedPorts: (ExtHostTunnelService) Successfully awaited tunnel from provider."
-          );
+          this.logService.trace("ForwardedPorts: (ExtHostTunnelService) Successfully awaited tunnel from provider.");
           if (tunnel === void 0) {
-            this.logService.error(
-              "ForwardedPorts: (ExtHostTunnelService) Resolved tunnel is undefined"
-            );
+            this.logService.error("ForwardedPorts: (ExtHostTunnelService) Resolved tunnel is undefined");
             return void 0;
           }
-          if (!this._extensionTunnels.has(
-            tunnelOptions.remoteAddress.host
-          )) {
-            this._extensionTunnels.set(
-              tunnelOptions.remoteAddress.host,
-              /* @__PURE__ */ new Map()
-            );
+          if (!this._extensionTunnels.has(tunnelOptions.remoteAddress.host)) {
+            this._extensionTunnels.set(tunnelOptions.remoteAddress.host, /* @__PURE__ */ new Map());
           }
-          const disposeListener = this._register(
-            tunnel.onDidDispose(() => {
-              this.logService.trace(
-                "ForwardedPorts: (ExtHostTunnelService) Extension fired tunnel's onDidDispose."
-              );
-              return this._proxy.$closeTunnel(
-                tunnel.remoteAddress
-              );
-            })
-          );
-          this._extensionTunnels.get(tunnelOptions.remoteAddress.host).set(tunnelOptions.remoteAddress.port, {
-            tunnel,
-            disposeListener
-          });
+          const disposeListener = this._register(tunnel.onDidDispose(() => {
+            this.logService.trace("ForwardedPorts: (ExtHostTunnelService) Extension fired tunnel's onDidDispose.");
+            return this._proxy.$closeTunnel(tunnel.remoteAddress);
+          }));
+          this._extensionTunnels.get(tunnelOptions.remoteAddress.host).set(tunnelOptions.remoteAddress.port, { tunnel, disposeListener });
           return TunnelDtoConverter.fromApiTunnel(tunnel);
         } else {
-          this.logService.trace(
-            "ForwardedPorts: (ExtHostTunnelService) Tunnel is undefined"
-          );
+          this.logService.trace("ForwardedPorts: (ExtHostTunnelService) Tunnel is undefined");
         }
       } catch (e) {
-        this.logService.trace(
-          "ForwardedPorts: (ExtHostTunnelService) tunnel provider error"
-        );
+        this.logService.trace("ForwardedPorts: (ExtHostTunnelService) tunnel provider error");
         if (e instanceof Error) {
           return e.message;
         }
@@ -338,19 +257,9 @@ let ExtHostTunnelService = class extends Disposable {
     return void 0;
   }
   async $applyCandidateFilter(candidates) {
-    const filter = await Promise.all(
-      candidates.map(
-        (candidate) => this._showCandidatePort(
-          candidate.host,
-          candidate.port,
-          candidate.detail ?? ""
-        )
-      )
-    );
+    const filter = await Promise.all(candidates.map((candidate) => this._showCandidatePort(candidate.host, candidate.port, candidate.detail ?? "")));
     const result = candidates.filter((candidate, index) => filter[index]);
-    this.logService.trace(
-      `ForwardedPorts: (ExtHostTunnelService) filtered from ${candidates.map((port) => port.port).join(", ")} to ${result.map((port) => port.port).join(", ")}`
-    );
+    this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) filtered from ${candidates.map((port) => port.port).join(", ")} to ${result.map((port) => port.port).join(", ")}`);
     return result;
   }
 };

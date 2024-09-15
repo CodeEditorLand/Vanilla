@@ -10,40 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { RunOnceScheduler } from "../../../base/common/async.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import {
-  LoadReason
-} from "../../window/electron-main/window.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import {
-  toWorkspaceIdentifier
-} from "../../workspace/common/workspace.js";
+import { ICodeWindow, LoadReason } from "../../window/electron-main/window.js";
 import { IUserDataProfilesMainService } from "./userDataProfile.js";
+import { IAnyWorkspaceIdentifier, toWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { RunOnceScheduler } from "../../../base/common/async.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
 let UserDataProfilesHandler = class extends Disposable {
   constructor(lifecycleMainService, userDataProfilesService, windowsMainService) {
     super();
     this.userDataProfilesService = userDataProfilesService;
     this.windowsMainService = windowsMainService;
-    this._register(
-      lifecycleMainService.onWillLoadWindow((e) => {
-        if (e.reason === LoadReason.LOAD) {
-          this.unsetProfileForWorkspace(e.window);
-        }
-      })
-    );
-    this._register(
-      lifecycleMainService.onBeforeCloseWindow(
-        (window) => this.unsetProfileForWorkspace(window)
-      )
-    );
-    this._register(
-      new RunOnceScheduler(
-        () => this.cleanUpEmptyWindowAssociations(),
-        30 * 1e3
-      )
-    ).schedule();
+    this._register(lifecycleMainService.onWillLoadWindow((e) => {
+      if (e.reason === LoadReason.LOAD) {
+        this.unsetProfileForWorkspace(e.window);
+      }
+    }));
+    this._register(lifecycleMainService.onBeforeCloseWindow((window) => this.unsetProfileForWorkspace(window)));
+    this._register(new RunOnceScheduler(
+      () => this.cleanUpEmptyWindowAssociations(),
+      30 * 1e3
+      /* after 30s */
+    )).schedule();
   }
   static {
     __name(this, "UserDataProfilesHandler");
@@ -52,20 +41,14 @@ let UserDataProfilesHandler = class extends Disposable {
     const workspace = this.getWorkspace(window);
     const profile = this.userDataProfilesService.getProfileForWorkspace(workspace);
     if (profile?.isTransient) {
-      this.userDataProfilesService.unsetWorkspace(
-        workspace,
-        profile.isTransient
-      );
+      this.userDataProfilesService.unsetWorkspace(workspace, profile.isTransient);
       if (profile.isTransient) {
         await this.userDataProfilesService.cleanUpTransientProfiles();
       }
     }
   }
   getWorkspace(window) {
-    return window.openedWorkspace ?? toWorkspaceIdentifier(
-      window.backupPath,
-      window.isExtensionDevelopmentHost
-    );
+    return window.openedWorkspace ?? toWorkspaceIdentifier(window.backupPath, window.isExtensionDevelopmentHost);
   }
   cleanUpEmptyWindowAssociations() {
     const associatedEmptyWindows = this.userDataProfilesService.getAssociatedEmptyWindows();
@@ -74,15 +57,10 @@ let UserDataProfilesHandler = class extends Disposable {
     }
     const openedWorkspaces = this.windowsMainService.getWindows().map((window) => this.getWorkspace(window));
     for (const associatedEmptyWindow of associatedEmptyWindows) {
-      if (openedWorkspaces.some(
-        (openedWorkspace) => openedWorkspace.id === associatedEmptyWindow.id
-      )) {
+      if (openedWorkspaces.some((openedWorkspace) => openedWorkspace.id === associatedEmptyWindow.id)) {
         continue;
       }
-      this.userDataProfilesService.unsetWorkspace(
-        associatedEmptyWindow,
-        false
-      );
+      this.userDataProfilesService.unsetWorkspace(associatedEmptyWindow, false);
     }
   }
 };

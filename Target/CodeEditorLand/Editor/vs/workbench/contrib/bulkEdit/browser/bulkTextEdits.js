@@ -10,29 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
-import {
-  EditOperation
-} from "../../../../editor/common/core/editOperation.js";
+import { dispose, IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditOperation, ISingleEditOperation } from "../../../../editor/common/core/editOperation.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  MultiModelEditStackElement,
-  SingleModelEditStackElement
-} from "../../../../editor/common/model/editStack.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { EndOfLineSequence, ITextModel } from "../../../../editor/common/model.js";
+import { ITextModelService, IResolvedTextEditorModel } from "../../../../editor/common/services/resolverService.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
 import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { IUndoRedoService, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { SingleModelEditStackElement, MultiModelEditStackElement } from "../../../../editor/common/model/editStack.js";
+import { ResourceMap } from "../../../../base/common/map.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
+import { ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
 import { SnippetParser } from "../../../../editor/contrib/snippet/browser/snippetParser.js";
-import {
-  IUndoRedoService
-} from "../../../../platform/undoRedo/common/undoRedo.js";
+import { ISnippetEdit } from "../../../../editor/contrib/snippet/browser/snippetSession.js";
 class ModelEditTask {
   constructor(_modelReference) {
     this._modelReference = _modelReference;
@@ -71,15 +67,12 @@ class ModelEditTask {
       return;
     }
     let range;
-    if (textEdit.range) {
-      range = Range.lift(textEdit.range);
-    } else {
+    if (!textEdit.range) {
       range = this.model.getFullModelRange();
+    } else {
+      range = Range.lift(textEdit.range);
     }
-    this._edits.push({
-      ...EditOperation.replaceMove(range, textEdit.text),
-      insertAsSnippet: textEdit.insertAsSnippet
-    });
+    this._edits.push({ ...EditOperation.replaceMove(range, textEdit.text), insertAsSnippet: textEdit.insertAsSnippet });
   }
   validate() {
     if (typeof this._expectedModelVersionId === "undefined" || this.model.getVersionId() === this._expectedModelVersionId) {
@@ -92,9 +85,7 @@ class ModelEditTask {
   }
   apply() {
     if (this._edits.length > 0) {
-      this._edits = this._edits.map(this._transformSnippetStringToInsertText, this).sort(
-        (a, b) => Range.compareRangesUsingStarts(a.range, b.range)
-      );
+      this._edits = this._edits.map(this._transformSnippetStringToInsertText, this).sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
       this.model.pushEditOperations(null, this._edits, () => null);
     }
     if (this._newEol !== void 0) {
@@ -141,14 +132,9 @@ class EditorEditTask extends ModelEditTask {
             });
           }
         }
-        snippetCtrl.apply(snippetEdits, {
-          undoStopBefore: false,
-          undoStopAfter: false
-        });
+        snippetCtrl.apply(snippetEdits, { undoStopBefore: false, undoStopAfter: false });
       } else {
-        this._edits = this._edits.map(this._transformSnippetStringToInsertText, this).sort(
-          (a, b) => Range.compareRangesUsingStarts(a.range, b.range)
-        );
+        this._edits = this._edits.map(this._transformSnippetStringToInsertText, this).sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
         this._editor.executeEdits("", this._edits);
       }
     }
@@ -194,9 +180,7 @@ let BulkTextEdits = class {
         if (typeof edit.versionId === "number") {
           const model = this._modelService.getModel(edit.resource);
           if (model && model.getVersionId() !== edit.versionId) {
-            throw new Error(
-              `${model.uri.toString()} has changed in the meantime`
-            );
+            throw new Error(`${model.uri.toString()} has changed in the meantime`);
           }
         }
       }
@@ -222,24 +206,11 @@ let BulkTextEdits = class {
         }
         const makeGroupMoreMinimal = /* @__PURE__ */ __name(async (start2, end) => {
           const oldEdits = edits.slice(start2, end);
-          const newEdits = await this._editorWorker.computeMoreMinimalEdits(
-            ref.object.textEditorModel.uri,
-            oldEdits.map((e) => e.textEdit),
-            false
-          );
-          if (newEdits) {
-            newEdits.forEach(
-              (edit) => task.addEdit(
-                new ResourceTextEdit(
-                  ref.object.textEditorModel.uri,
-                  edit,
-                  void 0,
-                  void 0
-                )
-              )
-            );
-          } else {
+          const newEdits = await this._editorWorker.computeMoreMinimalEdits(ref.object.textEditorModel.uri, oldEdits.map((e) => e.textEdit), false);
+          if (!newEdits) {
             oldEdits.forEach(task.addEdit, task);
+          } else {
+            newEdits.forEach((edit) => task.addEdit(new ResourceTextEdit(ref.object.textEditorModel.uri, edit, void 0, void 0)));
           }
         }, "makeGroupMoreMinimal");
         let start = 0;
@@ -277,24 +248,13 @@ let BulkTextEdits = class {
       const resources = [];
       const validation = this._validateTasks(tasks);
       if (!validation.canApply) {
-        throw new Error(
-          `${validation.reason.toString()} has changed in the meantime`
-        );
+        throw new Error(`${validation.reason.toString()} has changed in the meantime`);
       }
       if (tasks.length === 1) {
         const task = tasks[0];
         if (!task.isNoOp()) {
-          const singleModelEditStackElement = new SingleModelEditStackElement(
-            this._label,
-            this._code,
-            task.model,
-            task.getBeforeCursorState()
-          );
-          this._undoRedoService.pushElement(
-            singleModelEditStackElement,
-            this._undoRedoGroup,
-            this._undoRedoSource
-          );
+          const singleModelEditStackElement = new SingleModelEditStackElement(this._label, this._code, task.model, task.getBeforeCursorState());
+          this._undoRedoService.pushElement(singleModelEditStackElement, this._undoRedoGroup, this._undoRedoSource);
           task.apply();
           singleModelEditStackElement.close();
           resources.push(task.model.uri);
@@ -304,20 +264,9 @@ let BulkTextEdits = class {
         const multiModelEditStackElement = new MultiModelEditStackElement(
           this._label,
           this._code,
-          tasks.map(
-            (t) => new SingleModelEditStackElement(
-              this._label,
-              this._code,
-              t.model,
-              t.getBeforeCursorState()
-            )
-          )
+          tasks.map((t) => new SingleModelEditStackElement(this._label, this._code, t.model, t.getBeforeCursorState()))
         );
-        this._undoRedoService.pushElement(
-          multiModelEditStackElement,
-          this._undoRedoGroup,
-          this._undoRedoSource
-        );
+        this._undoRedoService.pushElement(multiModelEditStackElement, this._undoRedoGroup, this._undoRedoSource);
         for (const task of tasks) {
           task.apply();
           this._progress.report(void 0);

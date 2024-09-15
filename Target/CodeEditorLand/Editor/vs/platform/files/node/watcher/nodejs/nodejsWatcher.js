@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Event } from "../../../../../base/common/event.js";
-import { isEqual } from "../../../../../base/common/extpath.js";
 import { patternsEquals } from "../../../../../base/common/glob.js";
-import { isLinux } from "../../../../../base/common/platform.js";
 import { BaseWatcher } from "../baseWatcher.js";
+import { isLinux } from "../../../../../base/common/platform.js";
+import { INonRecursiveWatchRequest, INonRecursiveWatcher, IRecursiveWatcherWithSubscribe } from "../../../common/watcher.js";
 import { NodeJSFileWatcherLibrary } from "./nodejsWatcherLib.js";
+import { isEqual } from "../../../../../base/common/extpath.js";
 class NodeJSWatcher extends BaseWatcher {
   constructor(recursiveWatcher) {
     super();
@@ -29,14 +30,10 @@ class NodeJSWatcher extends BaseWatcher {
       }
     }
     if (requestsToStart.length) {
-      this.trace(
-        `Request to start watching: ${requestsToStart.map((request) => this.requestToString(request)).join(",")}`
-      );
+      this.trace(`Request to start watching: ${requestsToStart.map((request) => this.requestToString(request)).join(",")}`);
     }
     if (watchersToStop.size) {
-      this.trace(
-        `Request to stop watching: ${Array.from(watchersToStop).map((watcher) => this.requestToString(watcher.request)).join(",")}`
-      );
+      this.trace(`Request to stop watching: ${Array.from(watchersToStop).map((watcher) => this.requestToString(watcher.request)).join(",")}`);
     }
     for (const watcher of watchersToStop) {
       this.stopWatching(watcher);
@@ -51,25 +48,21 @@ class NodeJSWatcher extends BaseWatcher {
         if (watcher.request.correlationId === request.correlationId) {
           return watcher;
         }
-      } else if (isEqual(
-        watcher.request.path,
-        request.path,
-        !isLinux
-      )) {
-        return watcher;
+      } else {
+        if (isEqual(
+          watcher.request.path,
+          request.path,
+          !isLinux
+          /* ignorecase */
+        )) {
+          return watcher;
+        }
       }
     }
     return void 0;
   }
   startWatching(request) {
-    const instance = new NodeJSFileWatcherLibrary(
-      request,
-      this.recursiveWatcher,
-      (changes) => this._onDidChangeFile.fire(changes),
-      () => this._onDidWatchFail.fire(request),
-      (msg) => this._onDidLogMessage.fire(msg),
-      this.verboseLogging
-    );
+    const instance = new NodeJSFileWatcherLibrary(request, this.recursiveWatcher, (changes) => this._onDidChangeFile.fire(changes), () => this._onDidWatchFail.fire(request), (msg) => this._onDidLogMessage.fire(msg), this.verboseLogging);
     const watcher = { request, instance };
     this.watchers.add(watcher);
   }
@@ -88,26 +81,17 @@ class NodeJSWatcher extends BaseWatcher {
     const mapCorrelationtoRequests = /* @__PURE__ */ new Map();
     for (const request of requests) {
       const path = isLinux ? request.path : request.path.toLowerCase();
-      let requestsForCorrelation = mapCorrelationtoRequests.get(
-        request.correlationId
-      );
+      let requestsForCorrelation = mapCorrelationtoRequests.get(request.correlationId);
       if (!requestsForCorrelation) {
         requestsForCorrelation = /* @__PURE__ */ new Map();
-        mapCorrelationtoRequests.set(
-          request.correlationId,
-          requestsForCorrelation
-        );
+        mapCorrelationtoRequests.set(request.correlationId, requestsForCorrelation);
       }
       if (requestsForCorrelation.has(path)) {
-        this.trace(
-          `ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`
-        );
+        this.trace(`ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`);
       }
       requestsForCorrelation.set(path, request);
     }
-    return Array.from(mapCorrelationtoRequests.values()).flatMap(
-      (requests2) => Array.from(requests2.values())
-    );
+    return Array.from(mapCorrelationtoRequests.values()).map((requests2) => Array.from(requests2.values())).flat();
   }
   async setVerboseLogging(enabled) {
     super.setVerboseLogging(enabled);
@@ -117,17 +101,11 @@ class NodeJSWatcher extends BaseWatcher {
   }
   trace(message, watcher) {
     if (this.verboseLogging) {
-      this._onDidLogMessage.fire({
-        type: "trace",
-        message: this.toMessage(message, watcher)
-      });
+      this._onDidLogMessage.fire({ type: "trace", message: this.toMessage(message, watcher) });
     }
   }
   warn(message) {
-    this._onDidLogMessage.fire({
-      type: "warn",
-      message: this.toMessage(message)
-    });
+    this._onDidLogMessage.fire({ type: "warn", message: this.toMessage(message) });
   }
   toMessage(message, watcher) {
     return watcher ? `[File Watcher (node.js)] ${message} (${this.requestToString(watcher.request)})` : `[File Watcher (node.js)] ${message}`;

@@ -11,33 +11,27 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { IKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import {
-  HighlightedLabel
-} from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { HighlightedLabel, IHighlight } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import {
-  InputBox
-} from "../../../../base/browser/ui/inputbox/inputBox.js";
+import { IInputValidationOptions, InputBox } from "../../../../base/browser/ui/inputbox/inputBox.js";
+import { IAsyncDataSource, ITreeNode, ITreeRenderer } from "../../../../base/browser/ui/tree/tree.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
+import { FuzzyScore, createMatches } from "../../../../base/common/filters.js";
 import { createSingleCallFunction } from "../../../../base/common/functional.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import {
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { DisposableStore, IDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import { IDebugService } from "../common/debug.js";
+import { IDebugService, IExpression } from "../common/debug.js";
 import { Variable } from "../common/debugModel.js";
 import { IDebugVisualizerService } from "../common/debugVisualizers.js";
+import { LinkDetector } from "./linkDetector.js";
 const $ = dom.$;
 function renderViewTree(container) {
   const treeContainer = $(".");
@@ -57,24 +51,19 @@ let AbstractExpressionDataSource = class {
   async getChildren(element) {
     const vm = this.debugService.getViewModel();
     const children = await this.doGetChildren(element);
-    return Promise.all(
-      children.map(async (r) => {
-        const vizOrTree = vm.getVisualizedExpression(r);
-        if (typeof vizOrTree === "string") {
-          const viz = await this.debugVisualizer.getVisualizedNodeFor(
-            vizOrTree,
-            r
-          );
-          if (viz) {
-            vm.setVisualizedExpression(r, viz);
-            return viz;
-          }
-        } else if (vizOrTree) {
-          return vizOrTree;
+    return Promise.all(children.map(async (r) => {
+      const vizOrTree = vm.getVisualizedExpression(r);
+      if (typeof vizOrTree === "string") {
+        const viz = await this.debugVisualizer.getVisualizedNodeFor(vizOrTree, r);
+        if (viz) {
+          vm.setVisualizedExpression(r, viz);
+          return viz;
         }
-        return r;
-      })
-    );
+      } else if (vizOrTree) {
+        return vizOrTree;
+      }
+      return r;
+    }));
   }
 };
 AbstractExpressionDataSource = __decorateClass([
@@ -96,72 +85,35 @@ let AbstractExpressionsRenderer = class {
     const name = dom.append(expression, $("span.name"));
     const lazyButton = dom.append(expression, $("span.lazy-button"));
     lazyButton.classList.add(...ThemeIcon.asClassNameArray(Codicon.eye));
-    templateDisposable.add(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        lazyButton,
-        localize("debug.lazyButton.tooltip", "Click to expand")
-      )
-    );
+    templateDisposable.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), lazyButton, localize("debug.lazyButton.tooltip", "Click to expand")));
     const type = dom.append(expression, $("span.type"));
     const value = dom.append(expression, $("span.value"));
     const label = templateDisposable.add(new HighlightedLabel(name));
-    const inputBoxContainer = dom.append(
-      expression,
-      $(".inputBoxContainer")
-    );
+    const inputBoxContainer = dom.append(expression, $(".inputBoxContainer"));
     let actionBar;
     if (this.renderActionBar) {
       dom.append(expression, $(".span.actionbar-spacer"));
       actionBar = templateDisposable.add(new ActionBar(expression));
     }
-    const template = {
-      expression,
-      name,
-      type,
-      value,
-      label,
-      inputBoxContainer,
-      actionBar,
-      elementDisposable: new DisposableStore(),
-      templateDisposable,
-      lazyButton,
-      currentElement: void 0
-    };
-    templateDisposable.add(
-      dom.addDisposableListener(lazyButton, dom.EventType.CLICK, () => {
-        if (template.currentElement) {
-          this.debugService.getViewModel().evaluateLazyExpression(template.currentElement);
-        }
-      })
-    );
+    const template = { expression, name, type, value, label, inputBoxContainer, actionBar, elementDisposable: new DisposableStore(), templateDisposable, lazyButton, currentElement: void 0 };
+    templateDisposable.add(dom.addDisposableListener(lazyButton, dom.EventType.CLICK, () => {
+      if (template.currentElement) {
+        this.debugService.getViewModel().evaluateLazyExpression(template.currentElement);
+      }
+    }));
     return template;
   }
   renderExpressionElement(element, node, data) {
     data.currentElement = element;
-    this.renderExpression(
-      node.element,
-      data,
-      createMatches(node.filterData)
-    );
+    this.renderExpression(node.element, data, createMatches(node.filterData));
     if (data.actionBar) {
       this.renderActionBar(data.actionBar, element, data);
     }
     const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
     if (element === selectedExpression?.expression || element instanceof Variable && element.errorMessage) {
-      const options = this.getInputBoxOptions(
-        element,
-        !!selectedExpression?.settingWatch
-      );
+      const options = this.getInputBoxOptions(element, !!selectedExpression?.settingWatch);
       if (options) {
-        data.elementDisposable.add(
-          this.renderInputBox(
-            data.name,
-            data.value,
-            data.inputBoxContainer,
-            options
-          )
-        );
+        data.elementDisposable.add(this.renderInputBox(data.name, data.value, data.inputBoxContainer, options));
       }
     }
   }
@@ -170,57 +122,39 @@ let AbstractExpressionsRenderer = class {
     valueElement.style.display = "none";
     inputBoxContainer.style.display = "initial";
     dom.clearNode(inputBoxContainer);
-    const inputBox = new InputBox(
-      inputBoxContainer,
-      this.contextViewService,
-      { ...options, inputBoxStyles: defaultInputBoxStyles }
-    );
+    const inputBox = new InputBox(inputBoxContainer, this.contextViewService, { ...options, inputBoxStyles: defaultInputBoxStyles });
     inputBox.value = options.initialValue;
     inputBox.focus();
     inputBox.select();
-    const done = createSingleCallFunction(
-      (success, finishEditing) => {
-        nameElement.style.display = "";
-        valueElement.style.display = "";
-        inputBoxContainer.style.display = "none";
-        const value = inputBox.value;
-        dispose(toDispose);
-        if (finishEditing) {
-          this.debugService.getViewModel().setSelectedExpression(void 0, false);
-          options.onFinish(value, success);
-        }
+    const done = createSingleCallFunction((success, finishEditing) => {
+      nameElement.style.display = "";
+      valueElement.style.display = "";
+      inputBoxContainer.style.display = "none";
+      const value = inputBox.value;
+      dispose(toDispose);
+      if (finishEditing) {
+        this.debugService.getViewModel().setSelectedExpression(void 0, false);
+        options.onFinish(value, success);
       }
-    );
+    });
     const toDispose = [
       inputBox,
-      dom.addStandardDisposableListener(
-        inputBox.inputElement,
-        dom.EventType.KEY_DOWN,
-        (e) => {
-          const isEscape = e.equals(KeyCode.Escape);
-          const isEnter = e.equals(KeyCode.Enter);
-          if (isEscape || isEnter) {
-            e.preventDefault();
-            e.stopPropagation();
-            done(isEnter, true);
-          }
-        }
-      ),
-      dom.addDisposableListener(
-        inputBox.inputElement,
-        dom.EventType.BLUR,
-        () => {
-          done(true, true);
-        }
-      ),
-      dom.addDisposableListener(
-        inputBox.inputElement,
-        dom.EventType.CLICK,
-        (e) => {
+      dom.addStandardDisposableListener(inputBox.inputElement, dom.EventType.KEY_DOWN, (e) => {
+        const isEscape = e.equals(KeyCode.Escape);
+        const isEnter = e.equals(KeyCode.Enter);
+        if (isEscape || isEnter) {
           e.preventDefault();
           e.stopPropagation();
+          done(isEnter, true);
         }
-      )
+      }),
+      dom.addDisposableListener(inputBox.inputElement, dom.EventType.BLUR, () => {
+        done(true, true);
+      }),
+      dom.addDisposableListener(inputBox.inputElement, dom.EventType.CLICK, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
     ];
     return toDisposable(() => {
       done(false, false);

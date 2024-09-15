@@ -1,27 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isThenable } from "../../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../../base/common/errorMessage.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as path from "../../../../base/common/path.js";
 import * as resources from "../../../../base/common/resources.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  DEFAULT_MAX_SEARCH_RESULTS,
-  DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS,
-  QueryGlobTester,
-  QueryType,
-  excludeToGlobPattern,
-  hasSiblingPromiseFn,
-  resolvePatternsForProvider
-} from "./search.js";
-import {
-  TextSearchMatchNew
-} from "./searchExtTypes.js";
+import { DEFAULT_MAX_SEARCH_RESULTS, hasSiblingPromiseFn, IAITextQuery, IExtendedExtensionSearchOptions, IFileMatch, IFolderQuery, excludeToGlobPattern, IPatternInfo, ISearchCompleteStats, ITextQuery, ITextSearchContext, ITextSearchMatch, ITextSearchResult, ITextSearchStats, QueryGlobTester, QueryType, resolvePatternsForProvider, ISearchRange, DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS } from "./search.js";
+import { AITextSearchProviderNew, TextSearchCompleteNew, TextSearchMatchNew, TextSearchProviderFolderOptions, TextSearchProviderNew, TextSearchProviderOptions, TextSearchQueryNew, TextSearchResultNew } from "./searchExtTypes.js";
 class TextSearchManager {
   constructor(queryProviderPair, fileUtils, processType) {
     this.queryProviderPair = queryProviderPair;
@@ -53,10 +41,7 @@ class TextSearchManager {
             this.isLimitHit = true;
             isCanceled = true;
             tokenSource.cancel();
-            result = this.trimResultToSize(
-              result,
-              this.query.maxResults - this.resultCount
-            );
+            result = this.trimResultToSize(result, this.query.maxResults - this.resultCount);
           }
           const newResultSize = this.resultSize(result);
           this.resultCount += newResultSize;
@@ -66,24 +51,21 @@ class TextSearchManager {
           }
         }
       }, "onResult");
-      this.doSearch(folderQueries, onResult, tokenSource.token).then(
-        (result) => {
-          tokenSource.dispose();
-          this.collector.flush();
-          resolve({
-            limitHit: this.isLimitHit || result?.limitHit,
-            messages: this.getMessagesFromResults(result),
-            stats: {
-              type: this.processType
-            }
-          });
-        },
-        (err) => {
-          tokenSource.dispose();
-          const errMsg = toErrorMessage(err);
-          reject(new Error(errMsg));
-        }
-      );
+      this.doSearch(folderQueries, onResult, tokenSource.token).then((result) => {
+        tokenSource.dispose();
+        this.collector.flush();
+        resolve({
+          limitHit: this.isLimitHit || result?.limitHit,
+          messages: this.getMessagesFromResults(result),
+          stats: {
+            type: this.processType
+          }
+        });
+      }, (err) => {
+        tokenSource.dispose();
+        const errMsg = toErrorMessage(err);
+        reject(new Error(errMsg));
+      });
     });
   }
   getMessagesFromResults(result) {
@@ -103,46 +85,27 @@ class TextSearchManager {
     }
   }
   trimResultToSize(result, size) {
-    return new TextSearchMatchNew(
-      result.uri,
-      result.ranges.slice(0, size),
-      result.previewText
-    );
+    return new TextSearchMatchNew(result.uri, result.ranges.slice(0, size), result.previewText);
   }
   async doSearch(folderQueries, onResult, token) {
     const folderMappings = TernarySearchTree.forUris();
     folderQueries.forEach((fq, i) => {
       const queryTester = new QueryGlobTester(this.query, fq);
-      folderMappings.set(fq.folder, {
-        queryTester,
-        folder: fq.folder,
-        folderIdx: i
-      });
+      folderMappings.set(fq.folder, { queryTester, folder: fq.folder, folderIdx: i });
     });
     const testingPs = [];
     const progress = {
       report: /* @__PURE__ */ __name((result2) => {
         if (result2.uri === void 0) {
-          throw Error(
-            "Text search result URI is undefined. Please check provider implementation."
-          );
+          throw Error("Text search result URI is undefined. Please check provider implementation.");
         }
         const folderQuery = folderMappings.findSubstr(result2.uri);
         const hasSibling = folderQuery.folder.scheme === Schemas.file ? hasSiblingPromiseFn(() => {
-          return this.fileUtils.readdir(
-            resources.dirname(result2.uri)
-          );
+          return this.fileUtils.readdir(resources.dirname(result2.uri));
         }) : void 0;
-        const relativePath = resources.relativePath(
-          folderQuery.folder,
-          result2.uri
-        );
+        const relativePath = resources.relativePath(folderQuery.folder, result2.uri);
         if (relativePath) {
-          const included = folderQuery.queryTester.includedInQuery(
-            relativePath,
-            path.basename(relativePath),
-            hasSibling
-          );
+          const included = folderQuery.queryTester.includedInQuery(relativePath, path.basename(relativePath), hasSibling);
           if (isThenable(included)) {
             testingPs.push(
               included.then((isIncluded) => {
@@ -157,9 +120,7 @@ class TextSearchManager {
         }
       }, "report")
     };
-    const folderOptions = folderQueries.map(
-      (fq) => this.getSearchOptionsForFolder(fq)
-    );
+    const folderOptions = folderQueries.map((fq) => this.getSearchOptionsForFolder(fq));
     const searchOptions = {
       folderOptions,
       maxFileSize: this.query.maxFileSize,
@@ -172,19 +133,9 @@ class TextSearchManager {
     }
     let result;
     if (this.queryProviderPair.query.type === QueryType.aiText) {
-      result = await this.queryProviderPair.provider.provideAITextSearchResults(
-        this.queryProviderPair.query.contentPattern,
-        searchOptions,
-        progress,
-        token
-      );
+      result = await this.queryProviderPair.provider.provideAITextSearchResults(this.queryProviderPair.query.contentPattern, searchOptions, progress, token);
     } else {
-      result = await this.queryProviderPair.provider.provideTextSearchResults(
-        patternInfoToQuery(this.queryProviderPair.query.contentPattern),
-        searchOptions,
-        progress,
-        token
-      );
+      result = await this.queryProviderPair.provider.provideTextSearchResults(patternInfoToQuery(this.queryProviderPair.query.contentPattern), searchOptions, progress, token);
     }
     if (testingPs.length) {
       await Promise.all(testingPs);
@@ -192,27 +143,16 @@ class TextSearchManager {
     return result;
   }
   getSearchOptionsForFolder(fq) {
-    const includes = resolvePatternsForProvider(
-      this.query.includePattern,
-      fq.includePattern
-    );
+    const includes = resolvePatternsForProvider(this.query.includePattern, fq.includePattern);
     let excludePattern = fq.excludePattern?.map((e) => ({
       folder: e.folder,
-      patterns: resolvePatternsForProvider(
-        this.query.excludePattern,
-        e.pattern
-      )
+      patterns: resolvePatternsForProvider(this.query.excludePattern, e.pattern)
     }));
     if (!excludePattern || excludePattern.length === 0) {
-      excludePattern = [
-        {
-          folder: void 0,
-          patterns: resolvePatternsForProvider(
-            this.query.excludePattern,
-            void 0
-          )
-        }
-      ];
+      excludePattern = [{
+        folder: void 0,
+        patterns: resolvePatternsForProvider(this.query.excludePattern, void 0)
+      }];
     }
     const excludes = excludeToGlobPattern(excludePattern);
     const options = {
@@ -243,10 +183,7 @@ __name(patternInfoToQuery, "patternInfoToQuery");
 class TextSearchResultsCollector {
   constructor(_onResult) {
     this._onResult = _onResult;
-    this._batchedCollector = new BatchedCollector(
-      512,
-      (items) => this.sendItems(items)
-    );
+    this._batchedCollector = new BatchedCollector(512, (items) => this.sendItems(items));
   }
   static {
     __name(this, "TextSearchResultsCollector");
@@ -267,9 +204,7 @@ class TextSearchResultsCollector {
         results: []
       };
     }
-    this._currentFileMatch.results.push(
-      extensionResultToFrontendResult(data)
-    );
+    this._currentFileMatch.results.push(extensionResultToFrontendResult(data));
   }
   pushToCollector() {
     const size = this._currentFileMatch && this._currentFileMatch.results ? this._currentFileMatch.results.length : 0;

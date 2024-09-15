@@ -118,13 +118,11 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(popState, "popState");
   function fail(msg) {
-    throw new Error(
-      "Near offset " + pos + ": " + msg + " ~~~" + content.substr(pos, 50) + "~~~"
-    );
+    throw new Error("Near offset " + pos + ": " + msg + " ~~~" + content.substr(pos, 50) + "~~~");
   }
   __name(fail, "fail");
   const dictState = {
-    enterDict: /* @__PURE__ */ __name(() => {
+    enterDict: /* @__PURE__ */ __name(function() {
       if (curKey === null) {
         return fail("missing <key>");
       }
@@ -140,7 +138,7 @@ function _parse(content, filename, locationKeyName) {
       curKey = null;
       pushState(1 /* DICT_STATE */, newDict);
     }, "enterDict"),
-    enterArray: /* @__PURE__ */ __name(() => {
+    enterArray: /* @__PURE__ */ __name(function() {
       if (curKey === null) {
         return fail("missing <key>");
       }
@@ -151,7 +149,7 @@ function _parse(content, filename, locationKeyName) {
     }, "enterArray")
   };
   const arrState = {
-    enterDict: /* @__PURE__ */ __name(() => {
+    enterDict: /* @__PURE__ */ __name(function() {
       const newDict = {};
       if (locationKeyName !== null) {
         newDict[locationKeyName] = {
@@ -163,7 +161,7 @@ function _parse(content, filename, locationKeyName) {
       cur.push(newDict);
       pushState(1 /* DICT_STATE */, newDict);
     }, "enterDict"),
-    enterArray: /* @__PURE__ */ __name(() => {
+    enterArray: /* @__PURE__ */ __name(function() {
       const newArr = [];
       cur.push(newArr);
       pushState(2 /* ARR_STATE */, newArr);
@@ -322,13 +320,11 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(acceptBool, "acceptBool");
   function escapeVal(str) {
-    return str.replace(
-      /&#([0-9]+);/g,
-      (_, m0) => String.fromCodePoint(Number.parseInt(m0, 10))
-    ).replace(
-      /&#x([0-9a-f]+);/g,
-      (_, m0) => String.fromCodePoint(Number.parseInt(m0, 16))
-    ).replace(/&amp;|&lt;|&gt;|&quot;|&apos;/g, (_) => {
+    return str.replace(/&#([0-9]+);/g, function(_, m0) {
+      return String.fromCodePoint(parseInt(m0, 10));
+    }).replace(/&#x([0-9a-f]+);/g, function(_, m0) {
+      return String.fromCodePoint(parseInt(m0, 16));
+    }).replace(/&amp;|&lt;|&gt;|&quot;|&apos;/g, function(_) {
       switch (_) {
         case "&amp;":
           return "&";
@@ -435,10 +431,10 @@ function _parse(content, filename, locationKeyName) {
         acceptString(parseTagValue(tag));
         continue;
       case "real":
-        acceptReal(Number.parseFloat(parseTagValue(tag)));
+        acceptReal(parseFloat(parseTagValue(tag)));
         continue;
       case "integer":
-        acceptInteger(Number.parseInt(parseTagValue(tag), 10));
+        acceptInteger(parseInt(parseTagValue(tag), 10));
         continue;
       case "date":
         acceptDate(new Date(parseTagValue(tag)));

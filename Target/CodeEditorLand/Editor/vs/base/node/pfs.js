@@ -4,11 +4,7 @@ import * as fs from "fs";
 import { tmpdir } from "os";
 import { promisify } from "util";
 import { ResourceQueue, timeout } from "../common/async.js";
-import {
-  isEqualOrParent,
-  isRootOrDriveLetter,
-  randomPath
-} from "../common/extpath.js";
+import { isEqualOrParent, isRootOrDriveLetter, randomPath } from "../common/extpath.js";
 import { normalizeNFC } from "../common/normalization.js";
 import { join } from "../common/path.js";
 import { isLinux, isMacintosh, isWindows } from "../common/platform.js";
@@ -49,11 +45,7 @@ async function rimrafMove(path, moveToPath = randomPath(tmpdir())) {
 }
 __name(rimrafMove, "rimrafMove");
 async function rimrafUnlink(path) {
-  return fs.promises.rm(path, {
-    recursive: true,
-    force: true,
-    maxRetries: 3
-  });
+  return fs.promises.rm(path, { recursive: true, force: true, maxRetries: 3 });
 }
 __name(rimrafUnlink, "rimrafUnlink");
 function rimrafSync(path) {
@@ -64,19 +56,14 @@ function rimrafSync(path) {
 }
 __name(rimrafSync, "rimrafSync");
 async function readdir(path, options) {
-  return handleDirectoryChildren(
-    await (options ? safeReaddirWithFileTypes(path) : fs.promises.readdir(path))
-  );
+  return handleDirectoryChildren(await (options ? safeReaddirWithFileTypes(path) : fs.promises.readdir(path)));
 }
 __name(readdir, "readdir");
 async function safeReaddirWithFileTypes(path) {
   try {
     return await fs.promises.readdir(path, { withFileTypes: true });
   } catch (error) {
-    console.warn(
-      "[node.js fs] readdir with filetypes failed with error: ",
-      error
-    );
+    console.warn("[node.js fs] readdir with filetypes failed with error: ", error);
   }
   const result = [];
   const children = await readdir(path);
@@ -90,10 +77,7 @@ async function safeReaddirWithFileTypes(path) {
       isDirectory = lstat.isDirectory();
       isSymbolicLink = lstat.isSymbolicLink();
     } catch (error) {
-      console.warn(
-        "[node.js fs] unexpected error from lstat after readdir: ",
-        error
-      );
+      console.warn("[node.js fs] unexpected error from lstat after readdir: ", error);
     }
     result.push({
       name: child,
@@ -161,26 +145,18 @@ var SymlinkSupport;
     }
     try {
       const stats = await fs.promises.stat(path);
-      return {
-        stat: stats,
-        symbolicLink: lstats?.isSymbolicLink() ? { dangling: false } : void 0
-      };
+      return { stat: stats, symbolicLink: lstats?.isSymbolicLink() ? { dangling: false } : void 0 };
     } catch (error) {
       if (error.code === "ENOENT" && lstats) {
         return { stat: lstats, symbolicLink: { dangling: true } };
       }
       if (isWindows && error.code === "EACCES") {
         try {
-          const stats = await fs.promises.stat(
-            await fs.promises.readlink(path)
-          );
+          const stats = await fs.promises.stat(await fs.promises.readlink(path));
           return { stat: stats, symbolicLink: { dangling: false } };
         } catch (error2) {
           if (error2.code === "ENOENT" && lstats) {
-            return {
-              stat: lstats,
-              symbolicLink: { dangling: true }
-            };
+            return { stat: lstats, symbolicLink: { dangling: true } };
           }
           throw error2;
         }
@@ -213,21 +189,10 @@ var SymlinkSupport;
 })(SymlinkSupport || (SymlinkSupport = {}));
 const writeQueues = new ResourceQueue();
 function writeFile(path, data, options) {
-  return writeQueues.queueFor(
-    URI.file(path),
-    () => {
-      const ensuredOptions = ensureWriteOptions(options);
-      return new Promise(
-        (resolve, reject) => doWriteFileAndFlush(
-          path,
-          data,
-          ensuredOptions,
-          (error) => error ? reject(error) : resolve()
-        )
-      );
-    },
-    extUriBiasedIgnorePathCase
-  );
+  return writeQueues.queueFor(URI.file(path), () => {
+    const ensuredOptions = ensureWriteOptions(options);
+    return new Promise((resolve, reject) => doWriteFileAndFlush(path, data, ensuredOptions, (error) => error ? reject(error) : resolve()));
+  }, extUriBiasedIgnorePathCase);
 }
 __name(writeFile, "writeFile");
 let canFlush = true;
@@ -237,12 +202,7 @@ function configureFlushOnWrite(enabled) {
 __name(configureFlushOnWrite, "configureFlushOnWrite");
 function doWriteFileAndFlush(path, data, options, callback) {
   if (!canFlush) {
-    return fs.writeFile(
-      path,
-      data,
-      { mode: options.mode, flag: options.flag },
-      callback
-    );
+    return fs.writeFile(path, data, { mode: options.mode, flag: options.flag }, callback);
   }
   fs.open(path, options.flag, options.mode, (openError, fd) => {
     if (openError) {
@@ -254,10 +214,7 @@ function doWriteFileAndFlush(path, data, options, callback) {
       }
       fs.fdatasync(fd, (syncError) => {
         if (syncError) {
-          console.warn(
-            "[node.js fs] fdatasync is now disabled for this session because it failed: ",
-            syncError
-          );
+          console.warn("[node.js fs] fdatasync is now disabled for this session because it failed: ", syncError);
           configureFlushOnWrite(false);
         }
         return fs.close(fd, (closeError) => callback(closeError));
@@ -269,10 +226,7 @@ __name(doWriteFileAndFlush, "doWriteFileAndFlush");
 function writeFileSync(path, data, options) {
   const ensuredOptions = ensureWriteOptions(options);
   if (!canFlush) {
-    return fs.writeFileSync(path, data, {
-      mode: ensuredOptions.mode,
-      flag: ensuredOptions.flag
-    });
+    return fs.writeFileSync(path, data, { mode: ensuredOptions.mode, flag: ensuredOptions.flag });
   }
   const fd = fs.openSync(path, ensuredOptions.flag, ensuredOptions.mode);
   try {
@@ -280,10 +234,7 @@ function writeFileSync(path, data, options) {
     try {
       fs.fdatasyncSync(fd);
     } catch (syncError) {
-      console.warn(
-        "[node.js fs] fdatasyncSync is now disabled for this session because it failed: ",
-        syncError
-      );
+      console.warn("[node.js fs] fdatasyncSync is now disabled for this session because it failed: ", syncError);
       configureFlushOnWrite(false);
     }
   } finally {
@@ -307,12 +258,7 @@ async function rename(source, target, windowsRetryTimeout = 6e4) {
   }
   try {
     if (isWindows && typeof windowsRetryTimeout === "number") {
-      await renameWithRetry(
-        source,
-        target,
-        Date.now(),
-        windowsRetryTimeout
-      );
+      await renameWithRetry(source, target, Date.now(), windowsRetryTimeout);
     } else {
       await fs.promises.rename(source, target);
     }
@@ -320,6 +266,7 @@ async function rename(source, target, windowsRetryTimeout = 6e4) {
     if (source.toLowerCase() !== target.toLowerCase() && error.code === "EXDEV" || source.endsWith(".")) {
       await copy(source, target, {
         preserveSymlinks: false
+        /* copying to another device */
       });
       await rimraf(source, 1 /* MOVE */);
     } else {
@@ -336,9 +283,7 @@ async function renameWithRetry(source, target, startTime, retryTimeout, attempt 
       throw error;
     }
     if (Date.now() - startTime >= retryTimeout) {
-      console.error(
-        `[node.js fs] rename failed after ${attempt} retries with error: ${error}`
-      );
+      console.error(`[node.js fs] rename failed after ${attempt} retries with error: ${error}`);
       throw error;
     }
     if (attempt === 0) {
@@ -355,22 +300,12 @@ async function renameWithRetry(source, target, startTime, retryTimeout, attempt 
       }
     }
     await timeout(Math.min(100, attempt * 10));
-    return renameWithRetry(
-      source,
-      target,
-      startTime,
-      retryTimeout,
-      attempt + 1
-    );
+    return renameWithRetry(source, target, startTime, retryTimeout, attempt + 1);
   }
 }
 __name(renameWithRetry, "renameWithRetry");
 async function copy(source, target, options) {
-  return doCopy(source, target, {
-    root: { source, target },
-    options,
-    handledSourcePaths: /* @__PURE__ */ new Set()
-  });
+  return doCopy(source, target, { root: { source, target }, options, handledSourcePaths: /* @__PURE__ */ new Set() });
 }
 __name(copy, "copy");
 const COPY_MODE_MASK = 511;
@@ -393,12 +328,7 @@ async function doCopy(source, target, payload) {
     }
   }
   if (stat.isDirectory()) {
-    return doCopyDirectory(
-      source,
-      target,
-      stat.mode & COPY_MODE_MASK,
-      payload
-    );
+    return doCopyDirectory(source, target, stat.mode & COPY_MODE_MASK, payload);
   } else {
     return doCopyFile(source, target, stat.mode & COPY_MODE_MASK);
   }
@@ -420,10 +350,7 @@ __name(doCopyFile, "doCopyFile");
 async function doCopySymlink(source, target, payload) {
   let linkTarget = await fs.promises.readlink(source);
   if (isEqualOrParent(linkTarget, payload.root.source, !isLinux)) {
-    linkTarget = join(
-      payload.root.target,
-      linkTarget.substr(payload.root.source.length + 1)
-    );
+    linkTarget = join(payload.root.target, linkTarget.substr(payload.root.source.length + 1));
   }
   await fs.promises.symlink(linkTarget, target);
 }
@@ -432,44 +359,26 @@ const Promises = new class {
   //#region Implemented by node.js
   get read() {
     return (fd, buffer, offset, length, position) => {
-      return new Promise(
-        (resolve, reject) => {
-          fs.read(
-            fd,
-            buffer,
-            offset,
-            length,
-            position,
-            (err, bytesRead, buffer2) => {
-              if (err) {
-                return reject(err);
-              }
-              return resolve({ bytesRead, buffer: buffer2 });
-            }
-          );
-        }
-      );
+      return new Promise((resolve, reject) => {
+        fs.read(fd, buffer, offset, length, position, (err, bytesRead, buffer2) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve({ bytesRead, buffer: buffer2 });
+        });
+      });
     };
   }
   get write() {
     return (fd, buffer, offset, length, position) => {
-      return new Promise(
-        (resolve, reject) => {
-          fs.write(
-            fd,
-            buffer,
-            offset,
-            length,
-            position,
-            (err, bytesWritten, buffer2) => {
-              if (err) {
-                return reject(err);
-              }
-              return resolve({ bytesWritten, buffer: buffer2 });
-            }
-          );
-        }
-      );
+      return new Promise((resolve, reject) => {
+        fs.write(fd, buffer, offset, length, position, (err, bytesWritten, buffer2) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve({ bytesWritten, buffer: buffer2 });
+        });
+      });
     };
   }
   get fdatasync() {

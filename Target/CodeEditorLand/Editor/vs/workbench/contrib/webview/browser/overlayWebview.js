@@ -10,24 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindowById } from "../../../../base/browser/dom.js";
+import { Dimension, getWindowById } from "../../../../base/browser/dom.js";
 import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService, IScopedContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import {
-  IWebviewService,
-  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED,
-  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE
-} from "./webview.js";
+import { IOverlayWebview, IWebview, IWebviewElement, IWebviewService, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent, WebviewOptions } from "./webview.js";
 let OverlayWebview = class extends Disposable {
   constructor(initInfo, _layoutService, _webviewService, _baseContextKeyService) {
     super();
@@ -46,9 +40,7 @@ let OverlayWebview = class extends Disposable {
   }
   _isFirstLoad = true;
   _firstLoadPendingMessages = /* @__PURE__ */ new Set();
-  _webview = this._register(
-    new MutableDisposable()
-  );
+  _webview = this._register(new MutableDisposable());
   _webviewEvents = this._register(new DisposableStore());
   _html = "";
   _title;
@@ -62,9 +54,7 @@ let OverlayWebview = class extends Disposable {
   get window() {
     return getWindowById(this._windowId, true).window;
   }
-  _scopedContextKeyService = this._register(
-    new MutableDisposable()
-  );
+  _scopedContextKeyService = this._register(new MutableDisposable());
   _findWidgetVisible;
   _findWidgetEnabled;
   _shouldShowFindWidgetOnRestore = false;
@@ -123,18 +113,12 @@ let OverlayWebview = class extends Disposable {
       this._scopedContextKeyService.value = contextKeyService.createScoped(this.container);
       const wasFindVisible = this._findWidgetVisible?.get();
       this._findWidgetVisible?.reset();
-      this._findWidgetVisible = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE.bindTo(
-        contextKeyService
-      );
+      this._findWidgetVisible = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE.bindTo(contextKeyService);
       this._findWidgetVisible.set(!!wasFindVisible);
       this._findWidgetEnabled?.reset();
-      this._findWidgetEnabled = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED.bindTo(
-        contextKeyService
-      );
+      this._findWidgetEnabled = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED.bindTo(contextKeyService);
       this._findWidgetEnabled.set(!!this.options.enableFindWidget);
-      this._webview.value?.setContextKeyService(
-        this._scopedContextKeyService.value
-      );
+      this._webview.value?.setContextKeyService(this._scopedContextKeyService.value);
     }
   }
   release(owner) {
@@ -160,19 +144,9 @@ let OverlayWebview = class extends Disposable {
     }
     const whenContainerStylesLoaded = this._layoutService.whenContainerStylesLoaded(this.window);
     if (whenContainerStylesLoaded) {
-      whenContainerStylesLoaded.then(
-        () => this.doLayoutWebviewOverElement(
-          element,
-          dimension,
-          clippingContainer
-        )
-      );
+      whenContainerStylesLoaded.then(() => this.doLayoutWebviewOverElement(element, dimension, clippingContainer));
     } else {
-      this.doLayoutWebviewOverElement(
-        element,
-        dimension,
-        clippingContainer
-      );
+      this.doLayoutWebviewOverElement(element, dimension, clippingContainer);
     }
   }
   doLayoutWebviewOverElement(element, dimension, clippingContainer) {
@@ -183,21 +157,12 @@ let OverlayWebview = class extends Disposable {
     const containerRect = this._container.domNode.parentElement.getBoundingClientRect();
     const parentBorderTop = (containerRect.height - this._container.domNode.parentElement.clientHeight) / 2;
     const parentBorderLeft = (containerRect.width - this._container.domNode.parentElement.clientWidth) / 2;
-    this._container.setTop(
-      frameRect.top - containerRect.top - parentBorderTop
-    );
-    this._container.setLeft(
-      frameRect.left - containerRect.left - parentBorderLeft
-    );
+    this._container.setTop(frameRect.top - containerRect.top - parentBorderTop);
+    this._container.setLeft(frameRect.left - containerRect.left - parentBorderLeft);
     this._container.setWidth(dimension ? dimension.width : frameRect.width);
-    this._container.setHeight(
-      dimension ? dimension.height : frameRect.height
-    );
+    this._container.setHeight(dimension ? dimension.height : frameRect.height);
     if (clippingContainer) {
-      const { top, left, right, bottom } = computeClippingRect(
-        frameRect,
-        clippingContainer
-      );
+      const { top, left, right, bottom } = computeClippingRect(frameRect, clippingContainer);
       this._container.domNode.style.clipPath = `polygon(${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px)`;
     }
   }
@@ -217,9 +182,7 @@ let OverlayWebview = class extends Disposable {
       this._webview.value = webview;
       webview.state = this._state;
       if (this._scopedContextKeyService.value) {
-        this._webview.value.setContextKeyService(
-          this._scopedContextKeyService.value
-        );
+        this._webview.value.setContextKeyService(this._scopedContextKeyService.value);
       }
       if (this._html) {
         webview.setHtml(this._html);
@@ -230,63 +193,41 @@ let OverlayWebview = class extends Disposable {
       this._findWidgetEnabled?.set(!!this.options.enableFindWidget);
       webview.mountTo(this.container, targetWindow);
       this._webviewEvents.clear();
-      this._webviewEvents.add(
-        webview.onDidFocus(() => {
-          this._onDidFocus.fire();
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidBlur(() => {
-          this._onDidBlur.fire();
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidClickLink((x) => {
-          this._onDidClickLink.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onMessage((x) => {
-          this._onMessage.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onMissingCsp((x) => {
-          this._onMissingCsp.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidWheel((x) => {
-          this._onDidWheel.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidReload(() => {
-          this._onDidReload.fire();
-        })
-      );
-      this._webviewEvents.add(
-        webview.onFatalError((x) => {
-          this._onFatalError.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidScroll((x) => {
-          this._initialScrollProgress = x.scrollYPercentage;
-          this._onDidScroll.fire(x);
-        })
-      );
-      this._webviewEvents.add(
-        webview.onDidUpdateState((state) => {
-          this._state = state;
-          this._onDidUpdateState.fire(state);
-        })
-      );
+      this._webviewEvents.add(webview.onDidFocus(() => {
+        this._onDidFocus.fire();
+      }));
+      this._webviewEvents.add(webview.onDidBlur(() => {
+        this._onDidBlur.fire();
+      }));
+      this._webviewEvents.add(webview.onDidClickLink((x) => {
+        this._onDidClickLink.fire(x);
+      }));
+      this._webviewEvents.add(webview.onMessage((x) => {
+        this._onMessage.fire(x);
+      }));
+      this._webviewEvents.add(webview.onMissingCsp((x) => {
+        this._onMissingCsp.fire(x);
+      }));
+      this._webviewEvents.add(webview.onDidWheel((x) => {
+        this._onDidWheel.fire(x);
+      }));
+      this._webviewEvents.add(webview.onDidReload(() => {
+        this._onDidReload.fire();
+      }));
+      this._webviewEvents.add(webview.onFatalError((x) => {
+        this._onFatalError.fire(x);
+      }));
+      this._webviewEvents.add(webview.onDidScroll((x) => {
+        this._initialScrollProgress = x.scrollYPercentage;
+        this._onDidScroll.fire(x);
+      }));
+      this._webviewEvents.add(webview.onDidUpdateState((state) => {
+        this._state = state;
+        this._onDidUpdateState.fire(state);
+      }));
       if (this._isFirstLoad) {
         this._firstLoadPendingMessages.forEach(async (msg) => {
-          msg.resolve(
-            await webview.postMessage(msg.message, msg.transfer)
-          );
+          msg.resolve(await webview.postMessage(msg.message, msg.transfer));
         });
       }
       this._isFirstLoad = false;
@@ -331,10 +272,7 @@ let OverlayWebview = class extends Disposable {
     return this._options;
   }
   set options(value) {
-    this._options = {
-      customClasses: this._options.customClasses,
-      ...value
-    };
+    this._options = { customClasses: this._options.customClasses, ...value };
   }
   get contentOptions() {
     return this._contentOptions;
@@ -344,9 +282,7 @@ let OverlayWebview = class extends Disposable {
     this._withWebview((webview) => webview.contentOptions = value);
   }
   set localResourcesRoot(resources) {
-    this._withWebview(
-      (webview) => webview.localResourcesRoot = resources
-    );
+    this._withWebview((webview) => webview.localResourcesRoot = resources);
   }
   _onDidFocus = this._register(new Emitter());
   onDidFocus = this._onDidFocus.event;
@@ -356,29 +292,17 @@ let OverlayWebview = class extends Disposable {
   onDidClickLink = this._onDidClickLink.event;
   _onDidReload = this._register(new Emitter());
   onDidReload = this._onDidReload.event;
-  _onDidScroll = this._register(
-    new Emitter()
-  );
+  _onDidScroll = this._register(new Emitter());
   onDidScroll = this._onDidScroll.event;
-  _onDidUpdateState = this._register(
-    new Emitter()
-  );
+  _onDidUpdateState = this._register(new Emitter());
   onDidUpdateState = this._onDidUpdateState.event;
-  _onMessage = this._register(
-    new Emitter()
-  );
+  _onMessage = this._register(new Emitter());
   onMessage = this._onMessage.event;
-  _onMissingCsp = this._register(
-    new Emitter()
-  );
+  _onMissingCsp = this._register(new Emitter());
   onMissingCsp = this._onMissingCsp.event;
-  _onDidWheel = this._register(
-    new Emitter()
-  );
+  _onDidWheel = this._register(new Emitter());
   onDidWheel = this._onDidWheel.event;
-  _onFatalError = this._register(
-    new Emitter()
-  );
+  _onFatalError = this._register(new Emitter());
   onFatalError = this._onFatalError.event;
   async postMessage(message, transfer) {
     if (this._webview.value) {
@@ -387,11 +311,7 @@ let OverlayWebview = class extends Disposable {
     if (this._isFirstLoad) {
       let resolve;
       const p = new Promise((r) => resolve = r);
-      this._firstLoadPendingMessages.add({
-        message,
-        transfer,
-        resolve
-      });
+      this._firstLoadPendingMessages.add({ message, transfer, resolve });
       return p;
     }
     return false;
@@ -456,14 +376,8 @@ OverlayWebview = __decorateClass([
 function computeClippingRect(frameRect, clipper) {
   const rootRect = clipper.getBoundingClientRect();
   const top = Math.max(rootRect.top - frameRect.top, 0);
-  const right = Math.max(
-    frameRect.width - (frameRect.right - rootRect.right),
-    0
-  );
-  const bottom = Math.max(
-    frameRect.height - (frameRect.bottom - rootRect.bottom),
-    0
-  );
+  const right = Math.max(frameRect.width - (frameRect.right - rootRect.right), 0);
+  const bottom = Math.max(frameRect.height - (frameRect.bottom - rootRect.bottom), 0);
   const left = Math.max(rootRect.left - frameRect.left, 0);
   return { top, right, bottom, left };
 }

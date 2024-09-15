@@ -12,55 +12,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  extHostCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import * as extHostProtocol from "../common/extHost.protocol.js";
 import { MainThreadCustomEditors } from "./mainThreadCustomEditors.js";
 import { MainThreadWebviewPanels } from "./mainThreadWebviewPanels.js";
-import { MainThreadWebviewsViews } from "./mainThreadWebviewViews.js";
 import { MainThreadWebviews } from "./mainThreadWebviews.js";
+import { MainThreadWebviewsViews } from "./mainThreadWebviewViews.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
+import { extHostCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadWebviewManager = class extends Disposable {
   constructor(context, instantiationService) {
     super();
-    const webviews = this._register(
-      instantiationService.createInstance(MainThreadWebviews, context)
-    );
+    const webviews = this._register(instantiationService.createInstance(MainThreadWebviews, context));
     context.set(extHostProtocol.MainContext.MainThreadWebviews, webviews);
-    const webviewPanels = this._register(
-      instantiationService.createInstance(
-        MainThreadWebviewPanels,
-        context,
-        webviews
-      )
-    );
-    context.set(
-      extHostProtocol.MainContext.MainThreadWebviewPanels,
-      webviewPanels
-    );
-    const customEditors = this._register(
-      instantiationService.createInstance(
-        MainThreadCustomEditors,
-        context,
-        webviews,
-        webviewPanels
-      )
-    );
-    context.set(
-      extHostProtocol.MainContext.MainThreadCustomEditors,
-      customEditors
-    );
-    const webviewViews = this._register(
-      instantiationService.createInstance(
-        MainThreadWebviewsViews,
-        context,
-        webviews
-      )
-    );
-    context.set(
-      extHostProtocol.MainContext.MainThreadWebviewViews,
-      webviewViews
-    );
+    const webviewPanels = this._register(instantiationService.createInstance(MainThreadWebviewPanels, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewPanels, webviewPanels);
+    const customEditors = this._register(instantiationService.createInstance(MainThreadCustomEditors, context, webviews, webviewPanels));
+    context.set(extHostProtocol.MainContext.MainThreadCustomEditors, customEditors);
+    const webviewViews = this._register(instantiationService.createInstance(MainThreadWebviewsViews, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewViews, webviewViews);
   }
 };
 __name(MainThreadWebviewManager, "MainThreadWebviewManager");

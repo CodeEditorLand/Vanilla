@@ -1,7 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IAction } from "../../../../base/common/actions.js";
 import { binarySearch } from "../../../../base/common/arrays.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { IModelDeltaDecoration } from "../../../../editor/common/model.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITestMessage } from "./testTypes.js";
 class TestDecorations {
   static {
     __name(this, "TestDecorations");
@@ -11,16 +17,8 @@ class TestDecorations {
    * Adds a new value to the decorations.
    */
   push(value) {
-    const searchIndex = binarySearch(
-      this.value,
-      value,
-      (a, b) => a.line - b.line
-    );
-    this.value.splice(
-      searchIndex < 0 ? ~searchIndex : searchIndex,
-      0,
-      value
-    );
+    const searchIndex = binarySearch(this.value, value, (a, b) => a.line - b.line);
+    this.value.splice(searchIndex < 0 ? ~searchIndex : searchIndex, 0, value);
   }
   /**
    * Gets decorations on each line.

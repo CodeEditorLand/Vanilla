@@ -12,11 +12,7 @@ class ContiguousMultilineTokensBuilder {
     offset += 4;
     const result = [];
     for (let i = 0; i < count; i++) {
-      offset = ContiguousMultilineTokens.deserialize(
-        buff,
-        offset,
-        result
-      );
+      offset = ContiguousMultilineTokens.deserialize(buff, offset, result);
     }
     return result;
   }
@@ -32,9 +28,7 @@ class ContiguousMultilineTokensBuilder {
         return;
       }
     }
-    this._tokens.push(
-      new ContiguousMultilineTokens(lineNumber, [lineTokens])
-    );
+    this._tokens.push(new ContiguousMultilineTokens(lineNumber, [lineTokens]));
   }
   finalize() {
     return this._tokens;

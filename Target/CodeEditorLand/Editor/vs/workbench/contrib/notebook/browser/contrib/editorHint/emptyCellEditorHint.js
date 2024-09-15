@@ -11,10 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Schemas } from "../../../../../../base/common/network.js";
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../../../../editor/browser/editorExtensions.js";
+import { ICodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../../../../editor/browser/editorExtensions.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
@@ -22,14 +20,12 @@ import { IHoverService } from "../../../../../../platform/hover/browser/hover.js
 import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
 import { IProductService } from "../../../../../../platform/product/common/productService.js";
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
-import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { IChatAgentService } from "../../../../chat/common/chatAgents.js";
-import {
-  EmptyTextEditorHintContribution
-} from "../../../../codeEditor/browser/emptyTextEditorHint/emptyTextEditorHint.js";
+import { EmptyTextEditorHintContribution, IEmptyTextEditorHintOptions } from "../../../../codeEditor/browser/emptyTextEditorHint/emptyTextEditorHint.js";
 import { IInlineChatSessionService } from "../../../../inlineChat/browser/inlineChatSessionService.js";
 import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 let EmptyCellEditorHintContribution = class extends EmptyTextEditorHintContribution {
   constructor(editor, _editorService, editorGroupsService, commandService, configurationService, hoverService, keybindingService, inlineChatSessionService, chatAgentService, telemetryService, productService, contextMenuService) {
     super(
@@ -46,15 +42,11 @@ let EmptyCellEditorHintContribution = class extends EmptyTextEditorHintContribut
       contextMenuService
     );
     this._editorService = _editorService;
-    const activeEditor = getNotebookEditorFromEditorPane(
-      this._editorService.activeEditorPane
-    );
+    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
     if (!activeEditor) {
       return;
     }
-    this.toDispose.push(
-      activeEditor.onDidChangeActiveCell(() => this.update())
-    );
+    this.toDispose.push(activeEditor.onDidChangeActiveCell(() => this.update()));
   }
   static {
     __name(this, "EmptyCellEditorHintContribution");
@@ -76,9 +68,7 @@ let EmptyCellEditorHintContribution = class extends EmptyTextEditorHintContribut
     if (!isNotebookCell) {
       return false;
     }
-    const activeEditor = getNotebookEditorFromEditorPane(
-      this._editorService.activeEditorPane
-    );
+    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
     if (!activeEditor) {
       return false;
     }
@@ -102,11 +92,7 @@ EmptyCellEditorHintContribution = __decorateClass([
   __decorateParam(10, IProductService),
   __decorateParam(11, IContextMenuService)
 ], EmptyCellEditorHintContribution);
-registerEditorContribution(
-  EmptyCellEditorHintContribution.CONTRIB_ID,
-  EmptyCellEditorHintContribution,
-  EditorContributionInstantiation.Eager
-);
+registerEditorContribution(EmptyCellEditorHintContribution.CONTRIB_ID, EmptyCellEditorHintContribution, EditorContributionInstantiation.Eager);
 export {
   EmptyCellEditorHintContribution
 };

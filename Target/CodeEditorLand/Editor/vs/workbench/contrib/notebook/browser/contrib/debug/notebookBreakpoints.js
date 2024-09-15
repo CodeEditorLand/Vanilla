@@ -10,99 +10,69 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable
-} from "../../../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../../base/common/map.js";
 import { Schemas } from "../../../../../../base/common/network.js";
 import { isEqual } from "../../../../../../base/common/resources.js";
 import { Registry } from "../../../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../../../common/contributions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from "../../../../../common/contributions.js";
+import { IBreakpoint, IDebugService } from "../../../../debug/common/debug.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { CellUri, NotebookCellsChangeType } from "../../../common/notebookCommon.js";
+import { INotebookService } from "../../../common/notebookService.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
-import {
-  IDebugService
-} from "../../../../debug/common/debug.js";
-import {
-  CellUri,
-  NotebookCellsChangeType
-} from "../../../common/notebookCommon.js";
-import { INotebookService } from "../../../common/notebookService.js";
-import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
 let NotebookBreakpoints = class extends Disposable {
   constructor(_debugService, _notebookService, _editorService) {
     super();
     this._debugService = _debugService;
     this._editorService = _editorService;
     const listeners = new ResourceMap();
-    this._register(
-      _notebookService.onWillAddNotebookDocument((model) => {
-        listeners.set(
-          model.uri,
-          model.onWillAddRemoveCells((e) => {
-            const debugModel = this._debugService.getModel();
-            if (!debugModel.getBreakpoints().length) {
-              return;
-            }
-            if (e.rawEvent.kind !== NotebookCellsChangeType.ModelChange) {
-              return;
-            }
-            for (const change of e.rawEvent.changes) {
-              const [start, deleteCount] = change;
-              if (deleteCount > 0) {
-                const deleted = model.cells.slice(
-                  start,
-                  start + deleteCount
-                );
-                for (const deletedCell of deleted) {
-                  const cellBps = debugModel.getBreakpoints({
-                    uri: deletedCell.uri
-                  });
-                  cellBps.forEach(
-                    (cellBp) => this._debugService.removeBreakpoints(
-                      cellBp.getId()
-                    )
-                  );
-                }
-              }
-            }
-          })
-        );
-      })
-    );
-    this._register(
-      _notebookService.onWillRemoveNotebookDocument((model) => {
-        this.updateBreakpoints(model);
-        listeners.get(model.uri)?.dispose();
-        listeners.delete(model.uri);
-      })
-    );
-    this._register(
-      this._debugService.getModel().onDidChangeBreakpoints((e) => {
-        const newCellBp = e?.added?.find(
-          (bp) => "uri" in bp && bp.uri.scheme === Schemas.vscodeNotebookCell
-        );
-        if (newCellBp) {
-          const parsed = CellUri.parse(newCellBp.uri);
-          if (!parsed) {
-            return;
-          }
-          const editor = getNotebookEditorFromEditorPane(
-            this._editorService.activeEditorPane
-          );
-          if (!editor || !editor.hasModel() || editor.textModel.uri.toString() !== parsed.notebook.toString()) {
-            return;
-          }
-          const cell = editor.getCellByHandle(parsed.handle);
-          if (!cell) {
-            return;
-          }
-          editor.focusElement(cell);
+    this._register(_notebookService.onWillAddNotebookDocument((model) => {
+      listeners.set(model.uri, model.onWillAddRemoveCells((e) => {
+        const debugModel = this._debugService.getModel();
+        if (!debugModel.getBreakpoints().length) {
+          return;
         }
-      })
-    );
+        if (e.rawEvent.kind !== NotebookCellsChangeType.ModelChange) {
+          return;
+        }
+        for (const change of e.rawEvent.changes) {
+          const [start, deleteCount] = change;
+          if (deleteCount > 0) {
+            const deleted = model.cells.slice(start, start + deleteCount);
+            for (const deletedCell of deleted) {
+              const cellBps = debugModel.getBreakpoints({ uri: deletedCell.uri });
+              cellBps.forEach((cellBp) => this._debugService.removeBreakpoints(cellBp.getId()));
+            }
+          }
+        }
+      }));
+    }));
+    this._register(_notebookService.onWillRemoveNotebookDocument((model) => {
+      this.updateBreakpoints(model);
+      listeners.get(model.uri)?.dispose();
+      listeners.delete(model.uri);
+    }));
+    this._register(this._debugService.getModel().onDidChangeBreakpoints((e) => {
+      const newCellBp = e?.added?.find((bp) => "uri" in bp && bp.uri.scheme === Schemas.vscodeNotebookCell);
+      if (newCellBp) {
+        const parsed = CellUri.parse(newCellBp.uri);
+        if (!parsed) {
+          return;
+        }
+        const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+        if (!editor || !editor.hasModel() || editor.textModel.uri.toString() !== parsed.notebook.toString()) {
+          return;
+        }
+        const cell = editor.getCellByHandle(parsed.handle);
+        if (!cell) {
+          return;
+        }
+        editor.focusElement(cell);
+      }
+    }));
   }
   static {
     __name(this, "NotebookBreakpoints");
@@ -148,7 +118,5 @@ NotebookBreakpoints = __decorateClass([
   __decorateParam(1, INotebookService),
   __decorateParam(2, IEditorService)
 ], NotebookBreakpoints);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(NotebookBreakpoints, LifecyclePhase.Restored);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(NotebookBreakpoints, LifecyclePhase.Restored);
 //# sourceMappingURL=notebookBreakpoints.js.map

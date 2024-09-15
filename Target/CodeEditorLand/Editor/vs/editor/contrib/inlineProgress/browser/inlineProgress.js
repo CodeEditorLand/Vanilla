@@ -13,21 +13,18 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as dom from "../../../../base/browser/dom.js";
 import { disposableTimeout } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { noBreakWhitespace } from "../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import "./inlineProgressWidget.css";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import { IPosition } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
+import { IEditorDecorationsCollection } from "../../../common/editorCommon.js";
 import { TrackedRangeStickiness } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 const inlineProgressDecoration = ModelDecorationOptions.register({
   description: "inline-progress-widget",
   stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
@@ -62,32 +59,21 @@ class InlineProgressWidget extends Disposable {
     this.domNode.title = title;
     const iconElement = dom.$("span.icon");
     this.domNode.append(iconElement);
-    iconElement.classList.add(
-      ...ThemeIcon.asClassNameArray(Codicon.loading),
-      "codicon-modifier-spin"
-    );
+    iconElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.loading), "codicon-modifier-spin");
     const updateSize = /* @__PURE__ */ __name(() => {
       const lineHeight = this.editor.getOption(EditorOption.lineHeight);
       this.domNode.style.height = `${lineHeight}px`;
       this.domNode.style.width = `${Math.ceil(0.8 * lineHeight)}px`;
     }, "updateSize");
     updateSize();
-    this._register(
-      this.editor.onDidChangeConfiguration((c) => {
-        if (c.hasChanged(EditorOption.fontSize) || c.hasChanged(EditorOption.lineHeight)) {
-          updateSize();
-        }
-      })
-    );
-    this._register(
-      dom.addDisposableListener(
-        this.domNode,
-        dom.EventType.CLICK,
-        (e) => {
-          this.delegate.cancel();
-        }
-      )
-    );
+    this._register(this.editor.onDidChangeConfiguration((c) => {
+      if (c.hasChanged(EditorOption.fontSize) || c.hasChanged(EditorOption.lineHeight)) {
+        updateSize();
+      }
+    }));
+    this._register(dom.addDisposableListener(this.domNode, dom.EventType.CLICK, (e) => {
+      this.delegate.cancel();
+    }));
   }
   getId() {
     return InlineProgressWidget.baseId + "." + this.typeId;
@@ -97,10 +83,7 @@ class InlineProgressWidget extends Disposable {
   }
   getPosition() {
     return {
-      position: {
-        lineNumber: this.range.startLineNumber,
-        column: this.range.startColumn
-      },
+      position: { lineNumber: this.range.startLineNumber, column: this.range.startColumn },
       preference: [ContentWidgetPositionPreference.EXACT]
     };
   }
@@ -125,9 +108,7 @@ let InlineProgressManager = class extends Disposable {
   // ms
   _showPromise = this._register(new MutableDisposable());
   _currentDecorations;
-  _currentWidget = this._register(
-    new MutableDisposable()
-  );
+  _currentWidget = this._register(new MutableDisposable());
   _operationIdPool = 0;
   _currentOperation;
   dispose() {
@@ -140,21 +121,12 @@ let InlineProgressManager = class extends Disposable {
     this.clear();
     this._showPromise.value = disposableTimeout(() => {
       const range = Range.fromPositions(position);
-      const decorationIds = this._currentDecorations.set([
-        {
-          range,
-          options: inlineProgressDecoration
-        }
-      ]);
+      const decorationIds = this._currentDecorations.set([{
+        range,
+        options: inlineProgressDecoration
+      }]);
       if (decorationIds.length > 0) {
-        this._currentWidget.value = this._instantiationService.createInstance(
-          InlineProgressWidget,
-          this.id,
-          this._editor,
-          range,
-          title,
-          delegate
-        );
+        this._currentWidget.value = this._instantiationService.createInstance(InlineProgressWidget, this.id, this._editor, range, title, delegate);
       }
     }, delayOverride ?? this._showDelay);
     try {

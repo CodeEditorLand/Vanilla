@@ -10,38 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../base/common/lifecycle.js";
-import { getIEditor } from "../../editor/browser/editorBrowser.js";
 import { localize } from "../../nls.js";
-import {
-  ContextKeyExpr,
-  RawContextKey
-} from "../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, RawContextKey } from "../../platform/contextkey/common/contextkey.js";
+import { ICommandHandler } from "../../platform/commands/common/commands.js";
 import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
 import { IQuickInputService } from "../../platform/quickinput/common/quickInput.js";
-import {
-  IEditorGroupsService
-} from "../services/editor/common/editorGroupsService.js";
-import {
-  IEditorService
-} from "../services/editor/common/editorService.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { getIEditor } from "../../editor/browser/editorBrowser.js";
+import { ICodeEditorViewState, IDiffEditorViewState } from "../../editor/common/editorCommon.js";
+import { IResourceEditorInput, ITextResourceEditorInput } from "../../platform/editor/common/editor.js";
+import { EditorInput } from "../common/editor/editorInput.js";
+import { IEditorGroup, IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, IEditorService, SIDE_GROUP_TYPE } from "../services/editor/common/editorService.js";
+import { IUntitledTextResourceEditorInput, IUntypedEditorInput, GroupIdentifier, IEditorPane } from "../common/editor.js";
 const inQuickPickContextKeyValue = "inQuickOpen";
-const InQuickPickContextKey = new RawContextKey(
-  inQuickPickContextKeyValue,
-  false,
-  localize(
-    "inQuickOpen",
-    "Whether keyboard focus is inside the quick open control"
-  )
-);
-const inQuickPickContext = ContextKeyExpr.has(
-  inQuickPickContextKeyValue
-);
+const InQuickPickContextKey = new RawContextKey(inQuickPickContextKeyValue, false, localize("inQuickOpen", "Whether keyboard focus is inside the quick open control"));
+const inQuickPickContext = ContextKeyExpr.has(inQuickPickContextKeyValue);
 const defaultQuickAccessContextKeyValue = "inFilesPicker";
-const defaultQuickAccessContext = ContextKeyExpr.and(
-  inQuickPickContext,
-  ContextKeyExpr.has(defaultQuickAccessContextKeyValue)
-);
+const defaultQuickAccessContext = ContextKeyExpr.and(inQuickPickContext, ContextKeyExpr.has(defaultQuickAccessContextKeyValue));
 function getQuickNavigateHandler(id, next) {
   return (accessor) => {
     const keybindingService = accessor.get(IKeybindingService);
@@ -73,9 +59,7 @@ let PickerEditorState = class extends Disposable {
       this._editorViewState = {
         group: activeEditorPane.group,
         editor: activeEditorPane.input,
-        state: getIEditor(
-          activeEditorPane.getControl()
-        )?.saveViewState() ?? void 0
+        state: getIEditor(activeEditorPane.getControl())?.saveViewState() ?? void 0
       };
     }
   }
@@ -99,20 +83,15 @@ let PickerEditorState = class extends Disposable {
         }
         for (const group of this.editorGroupsService.groups) {
           if (group.isTransient(editor)) {
-            await group.closeEditor(editor, {
-              preserveFocus: true
-            });
+            await group.closeEditor(editor, { preserveFocus: true });
           }
         }
       }
-      await this._editorViewState.group.openEditor(
-        this._editorViewState.editor,
-        {
-          viewState: this._editorViewState.state,
-          preserveFocus: true
-          // important to not close the picker as a result
-        }
-      );
+      await this._editorViewState.group.openEditor(this._editorViewState.editor, {
+        viewState: this._editorViewState.state,
+        preserveFocus: true
+        // important to not close the picker as a result
+      });
       this.reset();
     }
   }

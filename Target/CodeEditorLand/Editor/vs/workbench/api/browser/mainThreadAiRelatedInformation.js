@@ -12,52 +12,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
-import {
-  IAiRelatedInformationService
-} from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ExtHostAiRelatedInformationShape, ExtHostContext, MainContext, MainThreadAiRelatedInformationShape } from "../common/extHost.protocol.js";
+import { RelatedInformationType } from "../common/extHostTypes.js";
+import { IAiRelatedInformationProvider, IAiRelatedInformationService, RelatedInformationResult } from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadAiRelatedInformation = class extends Disposable {
   constructor(context, _aiRelatedInformationService) {
     super();
     this._aiRelatedInformationService = _aiRelatedInformationService;
-    this._proxy = context.getProxy(
-      ExtHostContext.ExtHostAiRelatedInformation
-    );
+    this._proxy = context.getProxy(ExtHostContext.ExtHostAiRelatedInformation);
   }
   _proxy;
-  _registrations = this._register(
-    new DisposableMap()
-  );
+  _registrations = this._register(new DisposableMap());
   $getAiRelatedInformation(query, types) {
-    return this._aiRelatedInformationService.getRelatedInformation(
-      query,
-      types,
-      CancellationToken.None
-    );
+    return this._aiRelatedInformationService.getRelatedInformation(query, types, CancellationToken.None);
   }
   $registerAiRelatedInformationProvider(handle, type) {
     const provider = {
       provideAiRelatedInformation: /* @__PURE__ */ __name((query, token) => {
-        return this._proxy.$provideAiRelatedInformation(
-          handle,
-          query,
-          token
-        );
+        return this._proxy.$provideAiRelatedInformation(handle, query, token);
       }, "provideAiRelatedInformation")
     };
-    this._registrations.set(
-      handle,
-      this._aiRelatedInformationService.registerAiRelatedInformationProvider(
-        type,
-        provider
-      )
-    );
+    this._registrations.set(handle, this._aiRelatedInformationService.registerAiRelatedInformationProvider(type, provider));
   }
   $unregisterAiRelatedInformationProvider(handle) {
     this._registrations.deleteAndDispose(handle);

@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.USExtended",
-    lang: "en",
-    localizedName: "ABC - Extended"
-  },
+  layout: { id: "com.apple.keylayout.USExtended", lang: "en", localizedName: "ABC - Extended" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xAF", "\u0304", 4],

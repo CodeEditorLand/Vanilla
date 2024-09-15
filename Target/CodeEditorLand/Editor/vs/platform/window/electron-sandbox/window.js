@@ -1,16 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  getZoomLevel,
-  setZoomFactor,
-  setZoomLevel
-} from "../../../base/browser/browser.js";
+import { getZoomLevel, setZoomFactor, setZoomLevel } from "../../../base/browser/browser.js";
 import { getActiveWindow, getWindows } from "../../../base/browser/dom.js";
 import { mainWindow } from "../../../base/browser/window.js";
-import {
-  ipcRenderer,
-  webFrame
-} from "../../../base/parts/sandbox/electron-sandbox/globals.js";
+import { ISandboxGlobals, ipcRenderer, webFrame } from "../../../base/parts/sandbox/electron-sandbox/globals.js";
 import { zoomLevelToZoomFactor } from "../common/window.js";
 var ApplyZoomTarget = /* @__PURE__ */ ((ApplyZoomTarget2) => {
   ApplyZoomTarget2[ApplyZoomTarget2["ACTIVE_WINDOW"] = 1] = "ACTIVE_WINDOW";
@@ -25,9 +18,7 @@ function applyZoom(zoomLevel, target) {
   if (target === 1 /* ACTIVE_WINDOW */) {
     targetWindows.push(getActiveWindow());
   } else if (target === 2 /* ALL_WINDOWS */) {
-    targetWindows.push(
-      ...Array.from(getWindows()).map(({ window }) => window)
-    );
+    targetWindows.push(...Array.from(getWindows()).map(({ window }) => window));
   } else {
     targetWindows.push(target);
   }
@@ -51,17 +42,11 @@ function getGlobals(win) {
 }
 __name(getGlobals, "getGlobals");
 function zoomIn(target) {
-  applyZoom(
-    getZoomLevel(typeof target === "number" ? getActiveWindow() : target) + 1,
-    target
-  );
+  applyZoom(getZoomLevel(typeof target === "number" ? getActiveWindow() : target) + 1, target);
 }
 __name(zoomIn, "zoomIn");
 function zoomOut(target) {
-  applyZoom(
-    getZoomLevel(typeof target === "number" ? getActiveWindow() : target) - 1,
-    target
-  );
+  applyZoom(getZoomLevel(typeof target === "number" ? getActiveWindow() : target) - 1, target);
 }
 __name(zoomOut, "zoomOut");
 export {

@@ -10,37 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  CancellationTokenSource
-} from "../../../../../base/common/cancellation.js";
-import {
-  equalsIfDefined,
-  itemEquals
-} from "../../../../../base/common/equals.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { equalsIfDefined, itemEquals } from "../../../../../base/common/equals.js";
 import { matchesSubString } from "../../../../../base/common/filters.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../../base/common/lifecycle.js";
-import {
-  derivedOpts,
-  disposableObservableValue,
-  transaction
-} from "../../../../../base/common/observable.js";
+import { Disposable, IDisposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IReader, ITransaction, derivedOpts, disposableObservableValue, transaction } from "../../../../../base/common/observable.js";
+import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
 import { SingleTextEdit } from "../../../../common/core/textEdit.js";
 import { TextLength } from "../../../../common/core/textLength.js";
-import {
-  InlineCompletionTriggerKind
-} from "../../../../common/languages.js";
+import { InlineCompletionContext, InlineCompletionTriggerKind } from "../../../../common/languages.js";
 import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
-import {
-  EndOfLinePreference
-} from "../../../../common/model.js";
+import { EndOfLinePreference, ITextModel } from "../../../../common/model.js";
+import { IFeatureDebounceInformation } from "../../../../common/services/languageFeatureDebounce.js";
 import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
-import {
-  provideInlineCompletions
-} from "./provideInlineCompletions.js";
+import { InlineCompletionItem, InlineCompletionProviderResult, provideInlineCompletions } from "./provideInlineCompletions.js";
 import { singleTextRemoveCommonPrefix } from "./singleTextEditHelpers.js";
 let InlineCompletionsSource = class extends Disposable {
   constructor(_textModel, _versionId, _debounceValue, _languageFeaturesService, _languageConfigurationService) {
@@ -57,17 +41,11 @@ let InlineCompletionsSource = class extends Disposable {
   static {
     __name(this, "InlineCompletionsSource");
   }
-  _updateOperation = this._register(
-    new MutableDisposable()
-  );
+  _updateOperation = this._register(new MutableDisposable());
   inlineCompletions = disposableObservableValue("inlineCompletions", void 0);
   suggestWidgetInlineCompletions = disposableObservableValue("suggestWidgetInlineCompletions", void 0);
   fetch(position, context, activeInlineCompletion) {
-    const request = new UpdateRequest(
-      position,
-      context,
-      this._textModel.getVersionId()
-    );
+    const request = new UpdateRequest(position, context, this._textModel.getVersionId());
     const target = context.selectedSuggestionInfo ? this.suggestWidgetInlineCompletions : this.inlineCompletions;
     if (this._updateOperation.value?.request.satisfies(request)) {
       return this._updateOperation.value.promise;
@@ -80,10 +58,7 @@ let InlineCompletionsSource = class extends Disposable {
     const promise = (async () => {
       const shouldDebounce = updateOngoing || context.triggerKind === InlineCompletionTriggerKind.Automatic;
       if (shouldDebounce) {
-        await wait(
-          this._debounceValue.get(this._textModel),
-          source.token
-        );
+        await wait(this._debounceValue.get(this._textModel), source.token);
       }
       if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
         return false;
@@ -101,27 +76,12 @@ let InlineCompletionsSource = class extends Disposable {
         return false;
       }
       const endTime = /* @__PURE__ */ new Date();
-      this._debounceValue.update(
-        this._textModel,
-        endTime.getTime() - startTime.getTime()
-      );
-      const completions = new UpToDateInlineCompletions(
-        updatedCompletions,
-        request,
-        this._textModel,
-        this._versionId
-      );
+      this._debounceValue.update(this._textModel, endTime.getTime() - startTime.getTime());
+      const completions = new UpToDateInlineCompletions(updatedCompletions, request, this._textModel, this._versionId);
       if (activeInlineCompletion) {
         const asInlineCompletion = activeInlineCompletion.toInlineCompletion(void 0);
-        if (activeInlineCompletion.canBeReused(
-          this._textModel,
-          position
-        ) && !updatedCompletions.has(asInlineCompletion)) {
-          completions.prepend(
-            activeInlineCompletion.inlineCompletion,
-            asInlineCompletion.range,
-            true
-          );
+        if (activeInlineCompletion.canBeReused(this._textModel, position) && !updatedCompletions.has(asInlineCompletion)) {
+          completions.prepend(activeInlineCompletion.inlineCompletion, asInlineCompletion.range, true);
         }
       }
       this._updateOperation.clear();
@@ -155,7 +115,7 @@ InlineCompletionsSource = __decorateClass([
 ], InlineCompletionsSource);
 function wait(ms, cancellationToken) {
   return new Promise((resolve) => {
-    let d;
+    let d = void 0;
     const handle = setTimeout(() => {
       if (d) {
         d.dispose();
@@ -184,11 +144,7 @@ class UpdateRequest {
     __name(this, "UpdateRequest");
   }
   satisfies(other) {
-    return this.position.equals(other.position) && equalsIfDefined(
-      this.context.selectedSuggestionInfo,
-      other.context.selectedSuggestionInfo,
-      itemEquals()
-    ) && (other.context.triggerKind === InlineCompletionTriggerKind.Automatic || this.context.triggerKind === InlineCompletionTriggerKind.Explicit) && this.versionId === other.versionId;
+    return this.position.equals(other.position) && equalsIfDefined(this.context.selectedSuggestionInfo, other.context.selectedSuggestionInfo, itemEquals()) && (other.context.triggerKind === InlineCompletionTriggerKind.Automatic || this.context.triggerKind === InlineCompletionTriggerKind.Explicit) && this.versionId === other.versionId;
   }
 }
 class UpdateOperation {
@@ -210,22 +166,14 @@ class UpToDateInlineCompletions {
     this.request = request;
     this._textModel = _textModel;
     this._versionId = _versionId;
-    const ids = _textModel.deltaDecorations(
-      [],
-      inlineCompletionProviderResult.completions.map((i) => ({
-        range: i.range,
-        options: {
-          description: "inline-completion-tracking-range"
-        }
-      }))
-    );
+    const ids = _textModel.deltaDecorations([], inlineCompletionProviderResult.completions.map((i) => ({
+      range: i.range,
+      options: {
+        description: "inline-completion-tracking-range"
+      }
+    })));
     this._inlineCompletions = inlineCompletionProviderResult.completions.map(
-      (i, index) => new InlineCompletionWithUpdatedRange(
-        i,
-        ids[index],
-        this._textModel,
-        this._versionId
-      )
+      (i, index) => new InlineCompletionWithUpdatedRange(i, ids[index], this._textModel, this._versionId)
     );
   }
   static {
@@ -246,10 +194,7 @@ class UpToDateInlineCompletions {
     if (this._refCount === 0) {
       setTimeout(() => {
         if (!this._textModel.isDisposed()) {
-          this._textModel.deltaDecorations(
-            this._inlineCompletions.map((i) => i.decorationId),
-            []
-          );
+          this._textModel.deltaDecorations(this._inlineCompletions.map((i) => i.decorationId), []);
         }
       }, 0);
       this.inlineCompletionProviderResult.dispose();
@@ -262,25 +207,13 @@ class UpToDateInlineCompletions {
     if (addRefToSource) {
       inlineCompletion.source.addRef();
     }
-    const id = this._textModel.deltaDecorations(
-      [],
-      [
-        {
-          range,
-          options: {
-            description: "inline-completion-tracking-range"
-          }
-        }
-      ]
-    )[0];
-    this._inlineCompletions.unshift(
-      new InlineCompletionWithUpdatedRange(
-        inlineCompletion,
-        id,
-        this._textModel,
-        this._versionId
-      )
-    );
+    const id = this._textModel.deltaDecorations([], [{
+      range,
+      options: {
+        description: "inline-completion-tracking-range"
+      }
+    }])[0];
+    this._inlineCompletions.unshift(new InlineCompletionWithUpdatedRange(inlineCompletion, id, this._textModel, this._versionId));
     this._prependedInlineCompletionItems.push(inlineCompletion);
   }
 }
@@ -302,49 +235,30 @@ class InlineCompletionWithUpdatedRange {
   get forwardStable() {
     return this.inlineCompletion.source.inlineCompletions.enableForwardStability ?? false;
   }
-  _updatedRange = derivedOpts(
-    { owner: this, equalsFn: Range.equalsRange },
-    (reader) => {
-      this._modelVersion.read(reader);
-      return this._textModel.getDecorationRange(this.decorationId);
-    }
-  );
+  _updatedRange = derivedOpts({ owner: this, equalsFn: Range.equalsRange }, (reader) => {
+    this._modelVersion.read(reader);
+    return this._textModel.getDecorationRange(this.decorationId);
+  });
   toInlineCompletion(reader) {
-    return this.inlineCompletion.withRange(
-      this._updatedRange.read(reader) ?? emptyRange
-    );
+    return this.inlineCompletion.withRange(this._updatedRange.read(reader) ?? emptyRange);
   }
   toSingleTextEdit(reader) {
-    return new SingleTextEdit(
-      this._updatedRange.read(reader) ?? emptyRange,
-      this.inlineCompletion.insertText
-    );
+    return new SingleTextEdit(this._updatedRange.read(reader) ?? emptyRange, this.inlineCompletion.insertText);
   }
   isVisible(model, cursorPosition, reader) {
-    const minimizedReplacement = singleTextRemoveCommonPrefix(
-      this._toFilterTextReplacement(reader),
-      model
-    );
+    const minimizedReplacement = singleTextRemoveCommonPrefix(this._toFilterTextReplacement(reader), model);
     const updatedRange = this._updatedRange.read(reader);
     if (!updatedRange || !this.inlineCompletion.range.getStartPosition().equals(updatedRange.getStartPosition()) || cursorPosition.lineNumber !== minimizedReplacement.range.startLineNumber) {
       return false;
     }
-    const originalValue = model.getValueInRange(
-      minimizedReplacement.range,
-      EndOfLinePreference.LF
-    );
+    const originalValue = model.getValueInRange(minimizedReplacement.range, EndOfLinePreference.LF);
     const filterText = minimizedReplacement.text;
-    const cursorPosIndex = Math.max(
-      0,
-      cursorPosition.column - minimizedReplacement.range.startColumn
-    );
+    const cursorPosIndex = Math.max(0, cursorPosition.column - minimizedReplacement.range.startColumn);
     let filterTextBefore = filterText.substring(0, cursorPosIndex);
     let filterTextAfter = filterText.substring(cursorPosIndex);
     let originalValueBefore = originalValue.substring(0, cursorPosIndex);
     let originalValueAfter = originalValue.substring(cursorPosIndex);
-    const originalValueIndent = model.getLineIndentColumn(
-      minimizedReplacement.range.startLineNumber
-    );
+    const originalValueIndent = model.getLineIndentColumn(minimizedReplacement.range.startLineNumber);
     if (minimizedReplacement.range.startColumn <= originalValueIndent) {
       originalValueBefore = originalValueBefore.trimStart();
       if (originalValueBefore.length === 0) {
@@ -359,16 +273,11 @@ class InlineCompletionWithUpdatedRange {
   }
   canBeReused(model, position) {
     const updatedRange = this._updatedRange.read(void 0);
-    const result = !!updatedRange && updatedRange.containsPosition(position) && this.isVisible(model, position, void 0) && TextLength.ofRange(updatedRange).isGreaterThanOrEqualTo(
-      TextLength.ofRange(this.inlineCompletion.range)
-    );
+    const result = !!updatedRange && updatedRange.containsPosition(position) && this.isVisible(model, position, void 0) && TextLength.ofRange(updatedRange).isGreaterThanOrEqualTo(TextLength.ofRange(this.inlineCompletion.range));
     return result;
   }
   _toFilterTextReplacement(reader) {
-    return new SingleTextEdit(
-      this._updatedRange.read(reader) ?? emptyRange,
-      this.inlineCompletion.filterText
-    );
+    return new SingleTextEdit(this._updatedRange.read(reader) ?? emptyRange, this.inlineCompletion.filterText);
   }
 }
 const emptyRange = new Range(1, 1, 1, 1);

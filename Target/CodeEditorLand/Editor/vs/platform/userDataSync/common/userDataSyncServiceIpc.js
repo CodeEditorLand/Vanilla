@@ -10,32 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { URI } from "../../../base/common/uri.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfilesService, reviveProfile } from "../../userDataProfile/common/userDataProfile.js";
 import {
-  IUserDataProfilesService,
-  reviveProfile
-} from "../../userDataProfile/common/userDataProfile.js";
-import {
+  IUserDataManualSyncTask,
+  IUserDataSyncResourceConflicts,
+  IUserDataSyncResourceError,
+  IUserDataSyncResource,
+  ISyncResourceHandle,
+  IUserDataSyncTask,
+  IUserDataSyncService,
+  SyncResource,
   SyncStatus,
   UserDataSyncError
 } from "./userDataSync.js";
 function reviewSyncResource(syncResource, userDataProfilesService) {
-  return {
-    ...syncResource,
-    profile: reviveProfile(
-      syncResource.profile,
-      userDataProfilesService.profilesHome.scheme
-    )
-  };
+  return { ...syncResource, profile: reviveProfile(syncResource.profile, userDataProfilesService.profilesHome.scheme) };
 }
 __name(reviewSyncResource, "reviewSyncResource");
 function reviewSyncResourceHandle(syncResourceHandle) {
-  return {
-    created: syncResourceHandle.created,
-    uri: URI.revive(syncResourceHandle.uri)
-  };
+  return { created: syncResourceHandle.created, uri: URI.revive(syncResourceHandle.uri) };
 }
 __name(reviewSyncResourceHandle, "reviewSyncResourceHandle");
 class UserDataSyncServiceChannel {
@@ -70,9 +69,7 @@ class UserDataSyncServiceChannel {
       case "manualSync/onSynchronizeResources":
         return this.onManualSynchronizeResources.event;
     }
-    throw new Error(
-      `[UserDataSyncServiceChannel] Event not found: ${event}`
-    );
+    throw new Error(`[UserDataSyncServiceChannel] Event not found: ${event}`);
   }
   async call(context, command, args) {
     try {
@@ -87,11 +84,7 @@ class UserDataSyncServiceChannel {
     switch (command) {
       // sync
       case "_getInitialData":
-        return Promise.resolve([
-          this.service.status,
-          this.service.conflicts,
-          this.service.lastSyncTime
-        ]);
+        return Promise.resolve([this.service.status, this.service.conflicts, this.service.lastSyncTime]);
       case "reset":
         return this.service.reset();
       case "resetRemote":
@@ -105,12 +98,7 @@ class UserDataSyncServiceChannel {
       case "resolveContent":
         return this.service.resolveContent(URI.revive(args[0]));
       case "accept":
-        return this.service.accept(
-          reviewSyncResource(args[0], this.userDataProfilesService),
-          URI.revive(args[1]),
-          args[2],
-          args[3]
-        );
+        return this.service.accept(reviewSyncResource(args[0], this.userDataProfilesService), URI.revive(args[1]), args[2], args[3]);
       case "replace":
         return this.service.replace(reviewSyncResourceHandle(args[0]));
       case "cleanUpRemoteData":
@@ -118,17 +106,12 @@ class UserDataSyncServiceChannel {
       case "getRemoteActivityData":
         return this.service.saveRemoteActivityData(URI.revive(args[0]));
       case "extractActivityData":
-        return this.service.extractActivityData(
-          URI.revive(args[0]),
-          URI.revive(args[1])
-        );
+        return this.service.extractActivityData(URI.revive(args[0]), URI.revive(args[1]));
       case "createManualSyncTask":
         return this.createManualSyncTask();
     }
     if (command.startsWith("manualSync/")) {
-      const manualSyncTaskCommand = command.substring(
-        "manualSync/".length
-      );
+      const manualSyncTaskCommand = command.substring("manualSync/".length);
       const manualSyncTaskId = args[0];
       const manualSyncTask = this.getManualSyncTask(manualSyncTaskId);
       args = args.slice(1);
@@ -136,25 +119,15 @@ class UserDataSyncServiceChannel {
         case "merge":
           return manualSyncTask.merge();
         case "apply":
-          return manualSyncTask.apply().then(
-            () => this.manualSyncTasks.delete(
-              this.createKey(manualSyncTask.id)
-            )
-          );
+          return manualSyncTask.apply().then(() => this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)));
         case "stop":
-          return manualSyncTask.stop().finally(
-            () => this.manualSyncTasks.delete(
-              this.createKey(manualSyncTask.id)
-            )
-          );
+          return manualSyncTask.stop().finally(() => this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)));
       }
     }
     throw new Error("Invalid call");
   }
   getManualSyncTask(manualSyncTaskId) {
-    const manualSyncTask = this.manualSyncTasks.get(
-      this.createKey(manualSyncTaskId)
-    );
+    const manualSyncTask = this.manualSyncTasks.get(this.createKey(manualSyncTaskId));
     if (!manualSyncTask) {
       throw new Error(`Manual sync taks not found: ${manualSyncTaskId}`);
     }
@@ -162,10 +135,7 @@ class UserDataSyncServiceChannel {
   }
   async createManualSyncTask() {
     const manualSyncTask = await this.service.createManualSyncTask();
-    this.manualSyncTasks.set(
-      this.createKey(manualSyncTask.id),
-      manualSyncTask
-    );
+    this.manualSyncTasks.set(this.createKey(manualSyncTask.id), manualSyncTask);
     return manualSyncTask.id;
   }
   createKey(manualSyncTaskId) {
@@ -192,34 +162,11 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
       if (lastSyncTime) {
         this.updateLastSyncTime(lastSyncTime);
       }
-      this._register(
-        this.channel.listen("onDidChangeStatus")(
-          (status2) => this.updateStatus(status2)
-        )
-      );
-      this._register(
-        this.channel.listen("onDidChangeLastSyncTime")(
-          (lastSyncTime2) => this.updateLastSyncTime(lastSyncTime2)
-        )
-      );
+      this._register(this.channel.listen("onDidChangeStatus")((status2) => this.updateStatus(status2)));
+      this._register(this.channel.listen("onDidChangeLastSyncTime")((lastSyncTime2) => this.updateLastSyncTime(lastSyncTime2)));
     });
-    this._register(
-      this.channel.listen(
-        "onDidChangeConflicts"
-      )((conflicts) => this.updateConflicts(conflicts))
-    );
-    this._register(
-      this.channel.listen("onSyncErrors")(
-        (errors) => this._onSyncErrors.fire(
-          errors.map((syncError) => ({
-            ...syncError,
-            error: UserDataSyncError.toUserDataSyncError(
-              syncError.error
-            )
-          }))
-        )
-      )
-    );
+    this._register(this.channel.listen("onDidChangeConflicts")((conflicts) => this.updateConflicts(conflicts)));
+    this._register(this.channel.listen("onSyncErrors")((errors) => this._onSyncErrors.fire(errors.map((syncError) => ({ ...syncError, error: UserDataSyncError.toUserDataSyncError(syncError.error) })))));
   }
   static {
     __name(this, "UserDataSyncServiceChannelClient");
@@ -229,9 +176,7 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
   get status() {
     return this._status;
   }
-  _onDidChangeStatus = this._register(
-    new Emitter()
-  );
+  _onDidChangeStatus = this._register(new Emitter());
   onDidChangeStatus = this._onDidChangeStatus.event;
   get onDidChangeLocal() {
     return this.channel.listen("onDidChangeLocal");
@@ -240,21 +185,15 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
   get conflicts() {
     return this._conflicts;
   }
-  _onDidChangeConflicts = this._register(
-    new Emitter()
-  );
+  _onDidChangeConflicts = this._register(new Emitter());
   onDidChangeConflicts = this._onDidChangeConflicts.event;
   _lastSyncTime = void 0;
   get lastSyncTime() {
     return this._lastSyncTime;
   }
-  _onDidChangeLastSyncTime = this._register(
-    new Emitter()
-  );
+  _onDidChangeLastSyncTime = this._register(new Emitter());
   onDidChangeLastSyncTime = this._onDidChangeLastSyncTime.event;
-  _onSyncErrors = this._register(
-    new Emitter()
-  );
+  _onSyncErrors = this._register(new Emitter());
   onSyncErrors = this._onSyncErrors.event;
   get onDidResetLocal() {
     return this.channel.listen("onDidResetLocal");
@@ -268,21 +207,14 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
   async createManualSyncTask() {
     const id = await this.channel.call("createManualSyncTask");
     const that = this;
-    const manualSyncTaskChannelClient = new ManualSyncTaskChannelClient(
-      id,
-      {
-        async call(command, arg, cancellationToken) {
-          return that.channel.call(
-            `manualSync/${command}`,
-            [id, ...Array.isArray(arg) ? arg : [arg]],
-            cancellationToken
-          );
-        },
-        listen() {
-          throw new Error("not supported");
-        }
+    const manualSyncTaskChannelClient = new ManualSyncTaskChannelClient(id, {
+      async call(command, arg, cancellationToken) {
+        return that.channel.call(`manualSync/${command}`, [id, ...Array.isArray(arg) ? arg : [arg]], cancellationToken);
+      },
+      listen() {
+        throw new Error("not supported");
       }
-    );
+    });
     return manualSyncTaskChannelClient;
   }
   reset() {
@@ -301,12 +233,7 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
     return this.channel.call("hasLocalData");
   }
   accept(syncResource, resource, content, apply) {
-    return this.channel.call("accept", [
-      syncResource,
-      resource,
-      content,
-      apply
-    ]);
+    return this.channel.call("accept", [syncResource, resource, content, apply]);
   }
   resolveContent(resource) {
     return this.channel.call("resolveContent", [resource]);
@@ -321,10 +248,7 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
     return this.channel.call("getRemoteActivityData", [location]);
   }
   extractActivityData(activityDataResource, location) {
-    return this.channel.call("extractActivityData", [
-      activityDataResource,
-      location
-    ]);
+    return this.channel.call("extractActivityData", [activityDataResource, location]);
   }
   async updateStatus(status) {
     this._status = status;
@@ -333,10 +257,7 @@ let UserDataSyncServiceChannelClient = class extends Disposable {
   async updateConflicts(conflicts) {
     this._conflicts = conflicts.map((syncConflict) => ({
       syncResource: syncConflict.syncResource,
-      profile: reviveProfile(
-        syncConflict.profile,
-        this.userDataProfilesService.profilesHome.scheme
-      ),
+      profile: reviveProfile(syncConflict.profile, this.userDataProfilesService.profilesHome.scheme),
       conflicts: syncConflict.conflicts.map((r) => ({
         ...r,
         baseResource: URI.revive(r.baseResource),

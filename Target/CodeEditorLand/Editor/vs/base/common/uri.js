@@ -9,9 +9,7 @@ const _singleSlashStart = /^\//;
 const _doubleSlashStart = /^\/\//;
 function _validateUri(ret, _strict) {
   if (!ret.scheme && _strict) {
-    throw new Error(
-      `[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`
-    );
+    throw new Error(`[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`);
   }
   if (ret.scheme && !_schemePattern.test(ret.scheme)) {
     throw new Error("[UriError]: Scheme contains illegal characters.");
@@ -19,14 +17,12 @@ function _validateUri(ret, _strict) {
   if (ret.path) {
     if (ret.authority) {
       if (!_singleSlashStart.test(ret.path)) {
-        throw new Error(
-          '[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character'
-        );
+        throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
       }
-    } else if (_doubleSlashStart.test(ret.path)) {
-      throw new Error(
-        '[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")'
-      );
+    } else {
+      if (_doubleSlashStart.test(ret.path)) {
+        throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
+      }
     }
   }
 }
@@ -260,15 +256,11 @@ class URI {
    */
   static joinPath(uri, ...pathFragment) {
     if (!uri.path) {
-      throw new Error(
-        `[UriError]: cannot call joinPath on URI without path`
-      );
+      throw new Error(`[UriError]: cannot call joinPath on URI without path`);
     }
     let newPath;
     if (isWindows && uri.scheme === "file") {
-      newPath = URI.file(
-        paths.win32.join(uriToFsPath(uri, true), ...pathFragment)
-      ).path;
+      newPath = URI.file(paths.win32.join(uriToFsPath(uri, true), ...pathFragment)).path;
     } else {
       newPath = paths.posix.join(uri.path, ...pathFragment);
     }
@@ -329,13 +321,13 @@ class Uri extends URI {
     return this._fsPath;
   }
   toString(skipEncoding = false) {
-    if (skipEncoding) {
-      return _asFormatted(this, true);
-    } else {
+    if (!skipEncoding) {
       if (!this._formatted) {
         this._formatted = _asFormatted(this, false);
       }
       return this._formatted;
+    } else {
+      return _asFormatted(this, true);
     }
   }
   toJSON() {
@@ -391,15 +383,13 @@ const encodeTable = {
   [CharCode.Space]: "%20"
 };
 function encodeURIComponentFast(uriComponent, isPath, isAuthority) {
-  let res;
+  let res = void 0;
   let nativeEncodePos = -1;
   for (let pos = 0; pos < uriComponent.length; pos++) {
     const code = uriComponent.charCodeAt(pos);
     if (code >= CharCode.a && code <= CharCode.z || code >= CharCode.A && code <= CharCode.Z || code >= CharCode.Digit0 && code <= CharCode.Digit9 || code === CharCode.Dash || code === CharCode.Period || code === CharCode.Underline || code === CharCode.Tilde || isPath && code === CharCode.Slash || isAuthority && code === CharCode.OpenSquareBracket || isAuthority && code === CharCode.CloseSquareBracket || isAuthority && code === CharCode.Colon) {
       if (nativeEncodePos !== -1) {
-        res += encodeURIComponent(
-          uriComponent.substring(nativeEncodePos, pos)
-        );
+        res += encodeURIComponent(uriComponent.substring(nativeEncodePos, pos));
         nativeEncodePos = -1;
       }
       if (res !== void 0) {
@@ -412,9 +402,7 @@ function encodeURIComponentFast(uriComponent, isPath, isAuthority) {
       const escaped = encodeTable[code];
       if (escaped !== void 0) {
         if (nativeEncodePos !== -1) {
-          res += encodeURIComponent(
-            uriComponent.substring(nativeEncodePos, pos)
-          );
+          res += encodeURIComponent(uriComponent.substring(nativeEncodePos, pos));
           nativeEncodePos = -1;
         }
         res += escaped;
@@ -430,7 +418,7 @@ function encodeURIComponentFast(uriComponent, isPath, isAuthority) {
 }
 __name(encodeURIComponentFast, "encodeURIComponentFast");
 function encodeURIComponentMinimal(path) {
-  let res;
+  let res = void 0;
   for (let pos = 0; pos < path.length; pos++) {
     const code = path.charCodeAt(pos);
     if (code === CharCode.Hash || code === CharCode.QuestionMark) {
@@ -438,8 +426,10 @@ function encodeURIComponentMinimal(path) {
         res = path.substr(0, pos);
       }
       res += encodeTable[code];
-    } else if (res !== void 0) {
-      res += path[pos];
+    } else {
+      if (res !== void 0) {
+        res += path[pos];
+      }
     }
   }
   return res !== void 0 ? res : path;
@@ -450,10 +440,10 @@ function uriToFsPath(uri, keepDriveLetterCasing) {
   if (uri.authority && uri.path.length > 1 && uri.scheme === "file") {
     value = `//${uri.authority}${uri.path}`;
   } else if (uri.path.charCodeAt(0) === CharCode.Slash && (uri.path.charCodeAt(1) >= CharCode.A && uri.path.charCodeAt(1) <= CharCode.Z || uri.path.charCodeAt(1) >= CharCode.a && uri.path.charCodeAt(1) <= CharCode.z) && uri.path.charCodeAt(2) === CharCode.Colon) {
-    if (keepDriveLetterCasing) {
-      value = uri.path.substr(1);
-    } else {
+    if (!keepDriveLetterCasing) {
       value = uri.path[1].toLowerCase() + uri.path.substr(2);
+    } else {
+      value = uri.path.substr(1);
     }
   } else {
     value = uri.path;
@@ -465,7 +455,7 @@ function uriToFsPath(uri, keepDriveLetterCasing) {
 }
 __name(uriToFsPath, "uriToFsPath");
 function _asFormatted(uri, skipEncoding) {
-  const encoder = skipEncoding ? encodeURIComponentMinimal : encodeURIComponentFast;
+  const encoder = !skipEncoding ? encodeURIComponentFast : encodeURIComponentMinimal;
   let res = "";
   let { scheme, authority, path, query, fragment } = uri;
   if (scheme) {
@@ -520,7 +510,7 @@ function _asFormatted(uri, skipEncoding) {
   }
   if (fragment) {
     res += "#";
-    res += skipEncoding ? fragment : encodeURIComponentFast(fragment, false, false);
+    res += !skipEncoding ? encodeURIComponentFast(fragment, false, false) : fragment;
   }
   return res;
 }
@@ -542,10 +532,7 @@ function percentDecode(str) {
   if (!str.match(_rEncodedAsHex)) {
     return str;
   }
-  return str.replace(
-    _rEncodedAsHex,
-    (match) => decodeURIComponentGraceful(match)
-  );
+  return str.replace(_rEncodedAsHex, (match) => decodeURIComponentGraceful(match));
 }
 __name(percentDecode, "percentDecode");
 export {

@@ -2,11 +2,13 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../base/common/network.js";
 import { DataUri } from "../../../base/common/resources.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import { FileKind } from "../../../platform/files/common/files.js";
+import { URI, URI as uri } from "../../../base/common/uri.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
-const fileIconDirectoryRegex = /(?:\/|^)(?:([^/]+)\/)?([^/]+)$/;
+import { ILanguageService } from "../languages/language.js";
+import { IModelService } from "./model.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+const fileIconDirectoryRegex = /(?:\/|^)(?:([^\/]+)\/)?([^\/]+)$/;
 function getIconClasses(modelService, languageService, resource, fileKind, icon) {
   if (ThemeIcon.isThemeIcon(icon)) {
     return [`codicon-${icon.id}`, "predefined-file-icon"];
@@ -25,9 +27,7 @@ function getIconClasses(modelService, languageService, resource, fileKind, icon)
       if (match) {
         name = cssEscape(match[2].toLowerCase());
         if (match[1]) {
-          classes.push(
-            `${cssEscape(match[1].toLowerCase())}-name-dir-icon`
-          );
+          classes.push(`${cssEscape(match[1].toLowerCase())}-name-dir-icon`);
         }
       } else {
         name = cssEscape(resource.authority.toLowerCase());
@@ -44,18 +44,12 @@ function getIconClasses(modelService, languageService, resource, fileKind, icon)
         if (name.length <= 255) {
           const dotSegments = name.split(".");
           for (let i = 1; i < dotSegments.length; i++) {
-            classes.push(
-              `${dotSegments.slice(i).join(".")}-ext-file-icon`
-            );
+            classes.push(`${dotSegments.slice(i).join(".")}-ext-file-icon`);
           }
         }
         classes.push(`ext-file-icon`);
       }
-      const detectedLanguageId = detectLanguageId(
-        modelService,
-        languageService,
-        resource
-      );
+      const detectedLanguageId = detectLanguageId(modelService, languageService, resource);
       if (detectedLanguageId) {
         classes.push(`${cssEscape(detectedLanguageId)}-lang-file-icon`);
       }

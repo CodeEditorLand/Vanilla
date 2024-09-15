@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as platform from "../common/platform.js";
 import * as browser from "./browser.js";
 import { IframeUtils } from "./iframe.js";
+import * as platform from "../common/platform.js";
 class StandardMouseEvent {
   static {
     __name(this, "StandardMouseEvent");
@@ -44,10 +44,7 @@ class StandardMouseEvent {
       this.posx = e.clientX + this.target.ownerDocument.body.scrollLeft + this.target.ownerDocument.documentElement.scrollLeft;
       this.posy = e.clientY + this.target.ownerDocument.body.scrollTop + this.target.ownerDocument.documentElement.scrollTop;
     }
-    const iframeOffsets = IframeUtils.getPositionOfChildWindowRelativeToAncestorWindow(
-      targetWindow,
-      e.view
-    );
+    const iframeOffsets = IframeUtils.getPositionOfChildWindowRelativeToAncestorWindow(targetWindow, e.view);
     this.posx -= iframeOffsets.left;
     this.posy -= iframeOffsets.top;
   }
@@ -84,7 +81,7 @@ class StandardWheelEvent {
     let shouldFactorDPR = false;
     if (browser.isChrome) {
       const chromeVersionMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
-      const chromeMajorVersion = chromeVersionMatch ? Number.parseInt(chromeVersionMatch[1]) : 123;
+      const chromeMajorVersion = chromeVersionMatch ? parseInt(chromeVersionMatch[1]) : 123;
       shouldFactorDPR = chromeMajorVersion <= 122;
     }
     if (e) {

@@ -1,21 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { SymbolKind, ProviderResult, SymbolTag } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
-import {
-  RefCountedDisposable
-} from "../../../../base/common/lifecycle.js";
-import { assertType } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  Position
-} from "../../../../editor/common/core/position.js";
-import { Range } from "../../../../editor/common/core/range.js";
 import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IPosition, Position } from "../../../../editor/common/core/position.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { IDisposable, RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { assertType } from "../../../../base/common/types.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 var TypeHierarchyDirection = /* @__PURE__ */ ((TypeHierarchyDirection2) => {
   TypeHierarchyDirection2["Subtypes"] = "subtypes";
   TypeHierarchyDirection2["Supertypes"] = "supertypes";
@@ -38,20 +36,11 @@ class TypeHierarchyModel {
     if (!provider) {
       return void 0;
     }
-    const session = await provider.prepareTypeHierarchy(
-      model,
-      position,
-      token
-    );
+    const session = await provider.prepareTypeHierarchy(model, position, token);
     if (!session) {
       return void 0;
     }
-    return new TypeHierarchyModel(
-      session.roots.reduce((p, c) => p + c._sessionId, ""),
-      provider,
-      session.roots,
-      new RefCountedDisposable(session)
-    );
+    return new TypeHierarchyModel(session.roots.reduce((p, c) => p + c._sessionId, ""), provider, session.roots, new RefCountedDisposable(session));
   }
   root;
   dispose() {
@@ -89,72 +78,59 @@ class TypeHierarchyModel {
   }
 }
 const _models = /* @__PURE__ */ new Map();
-CommandsRegistry.registerCommand(
-  "_executePrepareTypeHierarchy",
-  async (accessor, ...args) => {
-    const [resource, position] = args;
-    assertType(URI.isUri(resource));
-    assertType(Position.isIPosition(position));
-    const modelService = accessor.get(IModelService);
-    let textModel = modelService.getModel(resource);
-    let textModelReference;
-    if (!textModel) {
-      const textModelService = accessor.get(ITextModelService);
-      const result = await textModelService.createModelReference(resource);
-      textModel = result.object.textEditorModel;
-      textModelReference = result;
-    }
-    try {
-      const model = await TypeHierarchyModel.create(
-        textModel,
-        position,
-        CancellationToken.None
-      );
-      if (!model) {
-        return [];
-      }
-      _models.set(model.id, model);
-      _models.forEach((value, key, map) => {
-        if (map.size > 10) {
-          value.dispose();
-          _models.delete(key);
-        }
-      });
-      return [model.root];
-    } finally {
-      textModelReference?.dispose();
-    }
+CommandsRegistry.registerCommand("_executePrepareTypeHierarchy", async (accessor, ...args) => {
+  const [resource, position] = args;
+  assertType(URI.isUri(resource));
+  assertType(Position.isIPosition(position));
+  const modelService = accessor.get(IModelService);
+  let textModel = modelService.getModel(resource);
+  let textModelReference;
+  if (!textModel) {
+    const textModelService = accessor.get(ITextModelService);
+    const result = await textModelService.createModelReference(resource);
+    textModel = result.object.textEditorModel;
+    textModelReference = result;
   }
-);
+  try {
+    const model = await TypeHierarchyModel.create(textModel, position, CancellationToken.None);
+    if (!model) {
+      return [];
+    }
+    _models.set(model.id, model);
+    _models.forEach((value, key, map) => {
+      if (map.size > 10) {
+        value.dispose();
+        _models.delete(key);
+      }
+    });
+    return [model.root];
+  } finally {
+    textModelReference?.dispose();
+  }
+});
 function isTypeHierarchyItemDto(obj) {
   const item = obj;
   return typeof obj === "object" && typeof item.name === "string" && typeof item.kind === "number" && URI.isUri(item.uri) && Range.isIRange(item.range) && Range.isIRange(item.selectionRange);
 }
 __name(isTypeHierarchyItemDto, "isTypeHierarchyItemDto");
-CommandsRegistry.registerCommand(
-  "_executeProvideSupertypes",
-  async (_accessor, ...args) => {
-    const [item] = args;
-    assertType(isTypeHierarchyItemDto(item));
-    const model = _models.get(item._sessionId);
-    if (!model) {
-      return void 0;
-    }
-    return model.provideSupertypes(item, CancellationToken.None);
+CommandsRegistry.registerCommand("_executeProvideSupertypes", async (_accessor, ...args) => {
+  const [item] = args;
+  assertType(isTypeHierarchyItemDto(item));
+  const model = _models.get(item._sessionId);
+  if (!model) {
+    return void 0;
   }
-);
-CommandsRegistry.registerCommand(
-  "_executeProvideSubtypes",
-  async (_accessor, ...args) => {
-    const [item] = args;
-    assertType(isTypeHierarchyItemDto(item));
-    const model = _models.get(item._sessionId);
-    if (!model) {
-      return void 0;
-    }
-    return model.provideSubtypes(item, CancellationToken.None);
+  return model.provideSupertypes(item, CancellationToken.None);
+});
+CommandsRegistry.registerCommand("_executeProvideSubtypes", async (_accessor, ...args) => {
+  const [item] = args;
+  assertType(isTypeHierarchyItemDto(item));
+  const model = _models.get(item._sessionId);
+  if (!model) {
+    return void 0;
   }
-);
+  return model.provideSubtypes(item, CancellationToken.None);
+});
 export {
   TypeHierarchyDirection,
   TypeHierarchyModel,

@@ -35,7 +35,7 @@
 }
 .monaco-editor .rename-box .rename-label {
   display: none;
-  opacity: 0.8;
+  opacity: .8;
 }
 .monaco-editor .rename-box.preview .rename-label {
   display: inherit;

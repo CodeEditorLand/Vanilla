@@ -10,68 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Barrier,
-  TimeoutTimer,
-  raceCancellation,
-  timeout
-} from "../../../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../../../base/common/cancellation.js";
-import { onUnexpectedError } from "../../../../../base/common/errors.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
-import { isEqual } from "../../../../../base/common/resources.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../../editor/browser/editorBrowser.js";
-import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { ScrollType } from "../../../../../editor/common/editorCommon.js";
-import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
-import { IMarkerDecorationsService } from "../../../../../editor/common/services/markerDecorations.js";
-import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
-import {
-  IOutlineModelService,
-  OutlineElement,
-  OutlineGroup,
-  OutlineModel,
-  TreeElement
-} from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
-import { localize } from "../../../../../nls.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import {
-  TextEditorSelectionRevealType
-} from "../../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { OutlineConfigCollapseItemsValues, IBreadcrumbsDataSource, IOutline, IOutlineCreator, IOutlineListConfig, IOutlineService, OutlineChangeEvent, OutlineConfigKeys, OutlineTarget } from "../../../../services/outline/browser/outline.js";
+import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from "../../../../common/contributions.js";
 import { Registry } from "../../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../../common/contributions.js";
 import { LifecyclePhase } from "../../../../services/lifecycle/common/lifecycle.js";
-import {
-  IOutlineService,
-  OutlineConfigCollapseItemsValues,
-  OutlineConfigKeys,
-  OutlineTarget
-} from "../../../../services/outline/browser/outline.js";
-import {
-  DocumentSymbolAccessibilityProvider,
-  DocumentSymbolComparator,
-  DocumentSymbolFilter,
-  DocumentSymbolGroupRenderer,
-  DocumentSymbolIdentityProvider,
-  DocumentSymbolNavigationLabelProvider,
-  DocumentSymbolRenderer,
-  DocumentSymbolVirtualDelegate
-} from "./documentSymbolsTree.js";
+import { IEditorPane } from "../../../../common/editor.js";
+import { DocumentSymbolComparator, DocumentSymbolAccessibilityProvider, DocumentSymbolRenderer, DocumentSymbolFilter, DocumentSymbolGroupRenderer, DocumentSymbolIdentityProvider, DocumentSymbolNavigationLabelProvider, DocumentSymbolVirtualDelegate } from "./documentSymbolsTree.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { OutlineGroup, OutlineElement, OutlineModel, TreeElement, IOutlineMarker, IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { raceCancellation, TimeoutTimer, timeout, Barrier } from "../../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../../base/common/errors.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IPosition } from "../../../../../editor/common/core/position.js";
+import { ScrollType } from "../../../../../editor/common/editorCommon.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { IEditorOptions, TextEditorSelectionRevealType } from "../../../../../platform/editor/common/editor.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { IModelContentChangedEvent } from "../../../../../editor/common/textModelEvents.js";
+import { IDataSource } from "../../../../../base/browser/ui/tree/tree.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { localize } from "../../../../../nls.js";
+import { IMarkerDecorationsService } from "../../../../../editor/common/services/markerDecorations.js";
+import { MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
 let DocumentSymbolBreadcrumbsSource = class {
   constructor(_editor, _textResourceConfigurationService) {
     this._editor = _editor;
@@ -131,10 +99,7 @@ let DocumentSymbolBreadcrumbsSource = class {
       const model = this._editor.getModel();
       uri = model.uri;
     }
-    return !this._textResourceConfigurationService.getValue(
-      uri,
-      key
-    );
+    return !this._textResourceConfigurationService.getValue(uri, key);
   }
 };
 DocumentSymbolBreadcrumbsSource = __decorateClass([
@@ -148,19 +113,9 @@ let DocumentSymbolsOutline = class {
     this._outlineModelService = _outlineModelService;
     this._configurationService = _configurationService;
     this._markerDecorationsService = _markerDecorationsService;
-    this._breadcrumbsDataSource = new DocumentSymbolBreadcrumbsSource(
-      _editor,
-      textResourceConfigurationService
-    );
+    this._breadcrumbsDataSource = new DocumentSymbolBreadcrumbsSource(_editor, textResourceConfigurationService);
     const delegate = new DocumentSymbolVirtualDelegate();
-    const renderers = [
-      new DocumentSymbolGroupRenderer(),
-      instantiationService.createInstance(
-        DocumentSymbolRenderer,
-        true,
-        target
-      )
-    ];
+    const renderers = [new DocumentSymbolGroupRenderer(), instantiationService.createInstance(DocumentSymbolRenderer, true, target)];
     const treeDataSource = {
       getChildren: /* @__PURE__ */ __name((parent) => {
         if (parent instanceof OutlineElement || parent instanceof OutlineGroup) {
@@ -173,26 +128,15 @@ let DocumentSymbolsOutline = class {
       }, "getChildren")
     };
     const comparator = new DocumentSymbolComparator();
-    const initialState = textResourceConfigurationService.getValue(
-      _editor.getModel()?.uri,
-      OutlineConfigKeys.collapseItems
-    );
+    const initialState = textResourceConfigurationService.getValue(_editor.getModel()?.uri, OutlineConfigKeys.collapseItems);
     const options = {
       collapseByDefault: target === OutlineTarget.Breadcrumbs || target === OutlineTarget.OutlinePane && initialState === OutlineConfigCollapseItemsValues.Collapsed,
       expandOnlyOnTwistieClick: true,
       multipleSelectionSupport: false,
       identityProvider: new DocumentSymbolIdentityProvider(),
       keyboardNavigationLabelProvider: new DocumentSymbolNavigationLabelProvider(),
-      accessibilityProvider: new DocumentSymbolAccessibilityProvider(
-        localize("document", "Document Symbols")
-      ),
-      filter: target === OutlineTarget.OutlinePane ? instantiationService.createInstance(
-        DocumentSymbolFilter,
-        "outline"
-      ) : target === OutlineTarget.Breadcrumbs ? instantiationService.createInstance(
-        DocumentSymbolFilter,
-        "breadcrumbs"
-      ) : void 0
+      accessibilityProvider: new DocumentSymbolAccessibilityProvider(localize("document", "Document Symbols")),
+      filter: target === OutlineTarget.OutlinePane ? instantiationService.createInstance(DocumentSymbolFilter, "outline") : target === OutlineTarget.Breadcrumbs ? instantiationService.createInstance(DocumentSymbolFilter, "breadcrumbs") : void 0
     };
     this.config = {
       breadcrumbsDataSource: this._breadcrumbsDataSource,
@@ -201,40 +145,23 @@ let DocumentSymbolsOutline = class {
       treeDataSource,
       comparator,
       options,
-      quickPickDataSource: {
-        getQuickPickElements: /* @__PURE__ */ __name(() => {
-          throw new Error("not implemented");
-        }, "getQuickPickElements")
-      }
+      quickPickDataSource: { getQuickPickElements: /* @__PURE__ */ __name(() => {
+        throw new Error("not implemented");
+      }, "getQuickPickElements") }
     };
-    this._disposables.add(
-      _languageFeaturesService.documentSymbolProvider.onDidChange(
-        (_) => this._createOutline()
-      )
-    );
-    this._disposables.add(
-      this._editor.onDidChangeModel((_) => this._createOutline())
-    );
-    this._disposables.add(
-      this._editor.onDidChangeModelLanguage((_) => this._createOutline())
-    );
+    this._disposables.add(_languageFeaturesService.documentSymbolProvider.onDidChange((_) => this._createOutline()));
+    this._disposables.add(this._editor.onDidChangeModel((_) => this._createOutline()));
+    this._disposables.add(this._editor.onDidChangeModelLanguage((_) => this._createOutline()));
     const updateSoon = new TimeoutTimer();
     this._disposables.add(updateSoon);
-    this._disposables.add(
-      this._editor.onDidChangeModelContent((event) => {
-        const model = this._editor.getModel();
-        if (model) {
-          const timeout2 = _outlineModelService.getDebounceValue(model);
-          updateSoon.cancelAndSet(
-            () => this._createOutline(event),
-            timeout2
-          );
-        }
-      })
-    );
-    this._disposables.add(
-      this._editor.onDidDispose(() => this._outlineDisposables.clear())
-    );
+    this._disposables.add(this._editor.onDidChangeModelContent((event) => {
+      const model = this._editor.getModel();
+      if (model) {
+        const timeout2 = _outlineModelService.getDebounceValue(model);
+        updateSoon.cancelAndSet(() => this._createOutline(event), timeout2);
+      }
+    }));
+    this._disposables.add(this._editor.onDidDispose(() => this._outlineDisposables.clear()));
     this._createOutline().finally(() => firstLoadBarrier.open());
   }
   static {
@@ -271,38 +198,29 @@ let DocumentSymbolsOutline = class {
     if (!model || !(entry instanceof OutlineElement)) {
       return;
     }
-    await this._codeEditorService.openCodeEditor(
-      {
-        resource: model.uri,
-        options: {
-          ...options,
-          selection: select ? entry.symbol.range : Range.collapseToStart(entry.symbol.selectionRange),
-          selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport
-        }
-      },
-      this._editor,
-      sideBySide
-    );
+    await this._codeEditorService.openCodeEditor({
+      resource: model.uri,
+      options: {
+        ...options,
+        selection: select ? entry.symbol.range : Range.collapseToStart(entry.symbol.selectionRange),
+        selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport
+      }
+    }, this._editor, sideBySide);
   }
   preview(entry) {
     if (!(entry instanceof OutlineElement)) {
       return Disposable.None;
     }
     const { symbol } = entry;
-    this._editor.revealRangeInCenterIfOutsideViewport(
-      symbol.range,
-      ScrollType.Smooth
-    );
-    const decorationsCollection = this._editor.createDecorationsCollection([
-      {
-        range: symbol.range,
-        options: {
-          description: "document-symbols-outline-range-highlight",
-          className: "rangeHighlight",
-          isWholeLine: true
-        }
+    this._editor.revealRangeInCenterIfOutsideViewport(symbol.range, ScrollType.Smooth);
+    const decorationsCollection = this._editor.createDecorationsCollection([{
+      range: symbol.range,
+      options: {
+        description: "document-symbols-outline-range-highlight",
+        className: "rangeHighlight",
+        isWholeLine: true
       }
-    ]);
+    }]);
     return toDisposable(() => decorationsCollection.clear());
   }
   captureViewState() {
@@ -331,10 +249,7 @@ let DocumentSymbolsOutline = class {
     this._outlineDisposables.add(timeoutTimer);
     this._outlineDisposables.add(toDisposable(() => cts.dispose(true)));
     try {
-      const model = await this._outlineModelService.getOrCreate(
-        buffer,
-        cts.token
-      );
+      const model = await this._outlineModelService.getOrCreate(buffer, cts.token);
       if (cts.token.isCancellationRequested) {
         return;
       }
@@ -347,88 +262,57 @@ let DocumentSymbolsOutline = class {
         const newLength = buffer.getValueLength();
         const newRatio = newSize / newLength;
         const oldSize = TreeElement.size(this._outlineModel);
-        const oldLength = newLength - contentChangeEvent.changes.reduce(
-          (prev, value) => prev + value.rangeLength,
-          0
-        );
+        const oldLength = newLength - contentChangeEvent.changes.reduce((prev, value) => prev + value.rangeLength, 0);
         const oldRatio = oldSize / oldLength;
         if (newRatio <= oldRatio * 0.5 || newRatio >= oldRatio * 1.5) {
-          const value = await raceCancellation(
-            timeout(2e3).then(() => true),
-            cts.token,
-            false
-          );
+          const value = await raceCancellation(timeout(2e3).then(() => true), cts.token, false);
           if (!value) {
             return;
           }
         }
       }
       this._applyMarkersToOutline(model);
-      this._outlineDisposables.add(
-        this._markerDecorationsService.onDidChangeMarker(
-          (textModel) => {
-            if (isEqual(model.uri, textModel.uri)) {
-              this._applyMarkersToOutline(model);
-              this._onDidChange.fire({});
-            }
+      this._outlineDisposables.add(this._markerDecorationsService.onDidChangeMarker((textModel) => {
+        if (isEqual(model.uri, textModel.uri)) {
+          this._applyMarkersToOutline(model);
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(OutlineConfigKeys.problemsEnabled) || e.affectsConfiguration("problems.visibility")) {
+          const problem = this._configurationService.getValue("problems.visibility");
+          const config = this._configurationService.getValue(OutlineConfigKeys.problemsEnabled);
+          if (!problem || !config) {
+            model.updateMarker([]);
+          } else {
+            this._applyMarkersToOutline(model);
           }
-        )
-      );
-      this._outlineDisposables.add(
-        this._configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration(
-            OutlineConfigKeys.problemsEnabled
-          ) || e.affectsConfiguration("problems.visibility")) {
-            const problem = this._configurationService.getValue(
-              "problems.visibility"
-            );
-            const config = this._configurationService.getValue(
-              OutlineConfigKeys.problemsEnabled
-            );
-            if (!problem || !config) {
-              model.updateMarker([]);
-            } else {
-              this._applyMarkersToOutline(model);
-            }
-            this._onDidChange.fire({});
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("outline")) {
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("breadcrumbs") && this._editor.hasModel()) {
+          this._breadcrumbsDataSource.update(model, this._editor.getPosition());
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(OutlineConfigKeys.icons)) {
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("outline")) {
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._editor.onDidChangeCursorPosition((_) => {
+        timeoutTimer.cancelAndSet(() => {
+          if (!buffer.isDisposed() && versionIdThen === buffer.getVersionId() && this._editor.hasModel()) {
+            this._breadcrumbsDataSource.update(model, this._editor.getPosition());
+            this._onDidChange.fire({ affectOnlyActiveElement: true });
           }
-          if (e.affectsConfiguration("outline")) {
-            this._onDidChange.fire({});
-          }
-          if (e.affectsConfiguration("breadcrumbs") && this._editor.hasModel()) {
-            this._breadcrumbsDataSource.update(
-              model,
-              this._editor.getPosition()
-            );
-            this._onDidChange.fire({});
-          }
-        })
-      );
-      this._outlineDisposables.add(
-        this._configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration(OutlineConfigKeys.icons)) {
-            this._onDidChange.fire({});
-          }
-          if (e.affectsConfiguration("outline")) {
-            this._onDidChange.fire({});
-          }
-        })
-      );
-      this._outlineDisposables.add(
-        this._editor.onDidChangeCursorPosition((_) => {
-          timeoutTimer.cancelAndSet(() => {
-            if (!buffer.isDisposed() && versionIdThen === buffer.getVersionId() && this._editor.hasModel()) {
-              this._breadcrumbsDataSource.update(
-                model,
-                this._editor.getPosition()
-              );
-              this._onDidChange.fire({
-                affectOnlyActiveElement: true
-              });
-            }
-          }, 150);
-        })
-      );
+        }, 150);
+      }));
       this._setOutlineModel(model);
     } catch (err) {
       this._setOutlineModel(void 0);
@@ -436,20 +320,13 @@ let DocumentSymbolsOutline = class {
     }
   }
   _applyMarkersToOutline(model) {
-    const problem = this._configurationService.getValue(
-      "problems.visibility"
-    );
-    const config = this._configurationService.getValue(
-      OutlineConfigKeys.problemsEnabled
-    );
+    const problem = this._configurationService.getValue("problems.visibility");
+    const config = this._configurationService.getValue(OutlineConfigKeys.problemsEnabled);
     if (!model || !problem || !config) {
       return;
     }
     const markers = [];
-    for (const [
-      range,
-      marker
-    ] of this._markerDecorationsService.getLiveMarkers(model.uri)) {
+    for (const [range, marker] of this._markerDecorationsService.getLiveMarkers(model.uri)) {
       if (marker.severity === MarkerSeverity.Error || marker.severity === MarkerSeverity.Warning) {
         markers.push({ ...range, severity: marker.severity });
       }
@@ -504,14 +381,7 @@ let DocumentSymbolsOutlineCreator = class {
       return void 0;
     }
     const firstLoadBarrier = new Barrier();
-    const result = editor.invokeWithinContext(
-      (accessor) => accessor.get(IInstantiationService).createInstance(
-        DocumentSymbolsOutline,
-        editor,
-        target,
-        firstLoadBarrier
-      )
-    );
+    const result = editor.invokeWithinContext((accessor) => accessor.get(IInstantiationService).createInstance(DocumentSymbolsOutline, editor, target, firstLoadBarrier));
     await firstLoadBarrier.wait();
     return result;
   }
@@ -519,10 +389,5 @@ let DocumentSymbolsOutlineCreator = class {
 DocumentSymbolsOutlineCreator = __decorateClass([
   __decorateParam(0, IOutlineService)
 ], DocumentSymbolsOutlineCreator);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  DocumentSymbolsOutlineCreator,
-  LifecyclePhase.Eventually
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(DocumentSymbolsOutlineCreator, LifecyclePhase.Eventually);
 //# sourceMappingURL=documentSymbolsOutline.js.map

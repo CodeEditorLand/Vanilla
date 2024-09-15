@@ -10,16 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Promises } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, dispose, IDisposable } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
+import { Promises } from "../../../../base/common/async.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { URI } from "../../../../base/common/uri.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { IFileWorkingCopy, IFileWorkingCopyModel } from "./fileWorkingCopy.js";
 let BaseFileWorkingCopyManager = class extends Disposable {
   constructor(fileService, logService, workingCopyBackupService) {
     super();
@@ -44,10 +43,7 @@ let BaseFileWorkingCopyManager = class extends Disposable {
     }
     this.mapResourceToWorkingCopy.set(resource, workingCopy);
     this.mapResourceToDisposeListener.get(resource)?.dispose();
-    this.mapResourceToDisposeListener.set(
-      resource,
-      workingCopy.onWillDispose(() => this.remove(resource))
-    );
+    this.mapResourceToDisposeListener.set(resource, workingCopy.onWillDispose(() => this.remove(resource)));
     this._onDidCreate.fire(workingCopy);
   }
   remove(resource) {
@@ -75,13 +71,11 @@ let BaseFileWorkingCopyManager = class extends Disposable {
   }
   async destroy() {
     try {
-      await Promises.settled(
-        this.workingCopies.map(async (workingCopy) => {
-          if (workingCopy.isDirty()) {
-            await this.saveWithFallback(workingCopy);
-          }
-        })
-      );
+      await Promises.settled(this.workingCopies.map(async (workingCopy) => {
+        if (workingCopy.isDirty()) {
+          await this.saveWithFallback(workingCopy);
+        }
+      }));
     } catch (error) {
       this.logService.error(error);
     }
@@ -97,11 +91,7 @@ let BaseFileWorkingCopyManager = class extends Disposable {
     if (!saveSuccess || workingCopy.isDirty()) {
       const backup = await this.workingCopyBackupService.resolve(workingCopy);
       if (backup) {
-        await this.fileService.writeFile(
-          workingCopy.resource,
-          backup.value,
-          { unlock: true }
-        );
+        await this.fileService.writeFile(workingCopy.resource, backup.value, { unlock: true });
       }
     }
   }

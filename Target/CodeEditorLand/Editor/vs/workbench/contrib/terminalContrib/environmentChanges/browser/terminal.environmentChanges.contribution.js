@@ -10,45 +10,37 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../../base/common/event.js";
 import { URI } from "../../../../../base/common/uri.js";
+import { Event } from "../../../../../base/common/event.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
-import {
-  ITextModelService
-} from "../../../../../editor/common/services/resolverService.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { localize, localize2 } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  EnvironmentVariableMutatorType
-} from "../../../../../platform/terminal/common/environmentVariable.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { EnvironmentVariableMutatorType, EnvironmentVariableScope, IEnvironmentVariableMutator, IMergedEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
 import { registerActiveInstanceAction } from "../../../terminal/browser/terminalActions.js";
 import { TerminalCommandId } from "../../../terminal/common/terminal.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 registerActiveInstanceAction({
   id: TerminalCommandId.ShowEnvironmentContributions,
-  title: localize2(
-    "workbench.action.terminal.showEnvironmentContributions",
-    "Show Environment Contributions"
-  ),
+  title: localize2("workbench.action.terminal.showEnvironmentContributions", "Show Environment Contributions"),
   run: /* @__PURE__ */ __name(async (activeInstance, c, accessor, arg) => {
     const collection = activeInstance.extEnvironmentVariableCollection;
     if (collection) {
       const scope = arg;
       const instantiationService = accessor.get(IInstantiationService);
-      const outputProvider = instantiationService.createInstance(
-        EnvironmentCollectionProvider
-      );
+      const outputProvider = instantiationService.createInstance(EnvironmentCollectionProvider);
       const editorService = accessor.get(IEditorService);
       const timestamp = (/* @__PURE__ */ new Date()).getTime();
       const scopeDesc = scope?.workspaceFolder ? ` - ${scope.workspaceFolder.name}` : "";
-      const textContent = await outputProvider.provideTextContent(
-        URI.from({
+      const textContent = await outputProvider.provideTextContent(URI.from(
+        {
           scheme: EnvironmentCollectionProvider.scheme,
           path: `Environment changes${scopeDesc}`,
           fragment: describeEnvironmentChanges(collection, scope),
           query: `environment-collection-${timestamp}`
-        })
-      );
+        }
+      ));
       if (textContent) {
         await editorService.openEditor({
           resource: textContent.uri
@@ -114,10 +106,7 @@ __name(mutatorTypeLabel, "mutatorTypeLabel");
 let EnvironmentCollectionProvider = class {
   constructor(textModelResolverService, _modelService) {
     this._modelService = _modelService;
-    textModelResolverService.registerTextModelContentProvider(
-      EnvironmentCollectionProvider.scheme,
-      this
-    );
+    textModelResolverService.registerTextModelContentProvider(EnvironmentCollectionProvider.scheme, this);
   }
   static {
     __name(this, "EnvironmentCollectionProvider");
@@ -128,12 +117,7 @@ let EnvironmentCollectionProvider = class {
     if (existing && !existing.isDisposed()) {
       return existing;
     }
-    return this._modelService.createModel(
-      resource.fragment,
-      { languageId: "markdown", onDidChange: Event.None },
-      resource,
-      false
-    );
+    return this._modelService.createModel(resource.fragment, { languageId: "markdown", onDidChange: Event.None }, resource, false);
   }
 };
 EnvironmentCollectionProvider = __decorateClass([

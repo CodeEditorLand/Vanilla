@@ -10,28 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { VSBuffer } from "../../../base/common/buffer.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { isWeb } from "../../../base/common/platform.js";
 import { escape } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
 import { IOpenerService } from "../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../platform/product/common/productService.js";
-import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 import * as extHostProtocol from "../common/extHost.protocol.js";
-import {
-  deserializeWebviewMessage,
-  serializeWebviewMessage
-} from "../common/extHostWebviewMessaging.js";
+import { deserializeWebviewMessage, serializeWebviewMessage } from "../common/extHostWebviewMessaging.js";
+import { IOverlayWebview, IWebview, WebviewContentOptions, WebviewExtensionDescription } from "../../contrib/webview/browser/webview.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 let MainThreadWebviews = class extends Disposable {
   constructor(context, _openerService, _productService) {
     super();
     this._openerService = _openerService;
     this._productService = _productService;
-    this._proxy = context.getProxy(
-      extHostProtocol.ExtHostContext.ExtHostWebviews
-    );
+    this._proxy = context.getProxy(extHostProtocol.ExtHostContext.ExtHostWebviews);
   }
   static {
     __name(this, "MainThreadWebviews");
@@ -66,51 +65,26 @@ let MainThreadWebviews = class extends Disposable {
     if (!webview) {
       return false;
     }
-    const { message, arrayBuffers } = deserializeWebviewMessage(
-      jsonMessage,
-      buffers
-    );
+    const { message, arrayBuffers } = deserializeWebviewMessage(jsonMessage, buffers);
     return webview.postMessage(message, arrayBuffers);
   }
   hookupWebviewEventDelegate(handle, webview, options) {
     const disposables = new DisposableStore();
-    disposables.add(
-      webview.onDidClickLink((uri) => this.onDidClickLink(handle, uri))
-    );
-    disposables.add(
-      webview.onMessage((message) => {
-        const serialized = serializeWebviewMessage(
-          message.message,
-          options
-        );
-        this._proxy.$onMessage(
-          handle,
-          serialized.message,
-          new SerializableObjectWithBuffers(serialized.buffers)
-        );
-      })
-    );
-    disposables.add(
-      webview.onMissingCsp(
-        (extension) => this._proxy.$onMissingCsp(handle, extension.value)
-      )
-    );
-    disposables.add(
-      webview.onDidDispose(() => {
-        disposables.dispose();
-        this._webviews.delete(handle);
-      })
-    );
+    disposables.add(webview.onDidClickLink((uri) => this.onDidClickLink(handle, uri)));
+    disposables.add(webview.onMessage((message) => {
+      const serialized = serializeWebviewMessage(message.message, options);
+      this._proxy.$onMessage(handle, serialized.message, new SerializableObjectWithBuffers(serialized.buffers));
+    }));
+    disposables.add(webview.onMissingCsp((extension) => this._proxy.$onMissingCsp(handle, extension.value)));
+    disposables.add(webview.onDidDispose(() => {
+      disposables.dispose();
+      this._webviews.delete(handle);
+    }));
   }
   onDidClickLink(handle, link) {
     const webview = this.getWebview(handle);
     if (this.isSupportedLink(webview, URI.parse(link))) {
-      this._openerService.open(link, {
-        fromUserGesture: true,
-        allowContributedOpeners: true,
-        allowCommands: Array.isArray(webview.contentOptions.enableCommandUris) || webview.contentOptions.enableCommandUris === true,
-        fromWorkspace: true
-      });
+      this._openerService.open(link, { fromUserGesture: true, allowContributedOpeners: true, allowCommands: Array.isArray(webview.contentOptions.enableCommandUris) || webview.contentOptions.enableCommandUris === true, fromWorkspace: true });
     }
   }
   isSupportedLink(webview, link) {
@@ -122,9 +96,7 @@ let MainThreadWebviews = class extends Disposable {
     }
     if (link.scheme === Schemas.command) {
       if (Array.isArray(webview.contentOptions.enableCommandUris)) {
-        return webview.contentOptions.enableCommandUris.includes(
-          link.path
-        );
+        return webview.contentOptions.enableCommandUris.includes(link.path);
       }
       return webview.contentOptions.enableCommandUris === true;
     }

@@ -31,22 +31,16 @@ async function hasChildProcesses(processId) {
         });
       });
     } else {
-      return spawnAsPromised("/usr/bin/pgrep", [
-        "-lP",
-        String(processId)
-      ]).then(
-        (stdout) => {
-          const r = stdout.trim();
-          if (r.length === 0 || r.indexOf(" tmux") >= 0) {
-            return false;
-          } else {
-            return true;
-          }
-        },
-        (error) => {
+      return spawnAsPromised("/usr/bin/pgrep", ["-lP", String(processId)]).then((stdout) => {
+        const r = stdout.trim();
+        if (r.length === 0 || r.indexOf(" tmux") >= 0) {
+          return false;
+        } else {
           return true;
         }
-      );
+      }, (error) => {
+        return true;
+      });
     }
   }
   return Promise.resolve(true);
@@ -77,7 +71,7 @@ function prepareCommand(shell, args, argsCanBeInterpretedByShell, cwd, env) {
   switch (shellType) {
     case 1 /* powershell */:
       quote = /* @__PURE__ */ __name((s) => {
-        s = s.replace(/'/g, "''");
+        s = s.replace(/\'/g, "''");
         if (s.length > 0 && s.charAt(s.length - 1) === "\\") {
           return `'${s}\\'`;
         }
@@ -112,7 +106,7 @@ function prepareCommand(shell, args, argsCanBeInterpretedByShell, cwd, env) {
       break;
     case 0 /* cmd */:
       quote = /* @__PURE__ */ __name((s) => {
-        s = s.replace(/"/g, '""');
+        s = s.replace(/\"/g, '""');
         s = s.replace(/([><!^&|])/g, "^$1");
         return ' "'.split("").some((char) => s.includes(char)) || s.length === 0 ? `"${s}"` : s;
       }, "quote");
@@ -145,11 +139,11 @@ function prepareCommand(shell, args, argsCanBeInterpretedByShell, cwd, env) {
       break;
     case 2 /* bash */: {
       quote = /* @__PURE__ */ __name((s) => {
-        s = s.replace(/(["'\\$!><#()[\]*&^| ;{}?`])/g, "\\$1");
+        s = s.replace(/(["'\\\$!><#()\[\]*&^| ;{}?`])/g, "\\$1");
         return s.length === 0 ? `""` : s;
       }, "quote");
       const hardQuote = /* @__PURE__ */ __name((s) => {
-        return /[^\w@%/+=,.:^-]/.test(s) ? `'${s.replace(/'/g, "'\\''")}'` : s;
+        return /[^\w@%\/+=,.:^-]/.test(s) ? `'${s.replace(/'/g, "'\\''")}'` : s;
       }, "hardQuote");
       if (cwd) {
         command += `cd ${quote(cwd)} ; `;

@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "./buffer.js";
+import { MarshalledObject } from "./marshalling.js";
 import { MarshalledId } from "./marshallingIds.js";
-import { URI } from "./uri.js";
+import { URI, UriComponents } from "./uri.js";
 function toJSON(uri) {
   return uri.toJSON();
 }
@@ -55,11 +56,7 @@ function _transformOutgoingURIs(obj, transformer, depth) {
     }
     for (const key in obj) {
       if (Object.hasOwnProperty.call(obj, key)) {
-        const r = _transformOutgoingURIs(
-          obj[key],
-          transformer,
-          depth + 1
-        );
+        const r = _transformOutgoingURIs(obj[key], transformer, depth + 1);
         if (r !== null) {
           obj[key] = r;
         }
@@ -90,12 +87,7 @@ function _transformIncomingURIs(obj, transformer, revive, depth) {
     }
     for (const key in obj) {
       if (Object.hasOwnProperty.call(obj, key)) {
-        const r = _transformIncomingURIs(
-          obj[key],
-          transformer,
-          revive,
-          depth + 1
-        );
+        const r = _transformIncomingURIs(obj[key], transformer, revive, depth + 1);
         if (r !== null) {
           obj[key] = r;
         }

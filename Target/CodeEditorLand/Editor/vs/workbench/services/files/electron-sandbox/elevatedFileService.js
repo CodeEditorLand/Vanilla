@@ -10,16 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
 import { randomPath } from "../../../../base/common/extpath.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { IFileService, IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 import { IElevatedFileService } from "../common/elevatedFileService.js";
@@ -37,16 +33,10 @@ let NativeElevatedFileService = class {
     return resource.scheme === Schemas.file;
   }
   async writeFileElevated(resource, value, options) {
-    const source = URI.file(
-      randomPath(this.environmentService.userDataPath, "code-elevated")
-    );
+    const source = URI.file(randomPath(this.environmentService.userDataPath, "code-elevated"));
     try {
       await this.fileService.writeFile(source, value, options);
-      await this.nativeHostService.writeElevated(
-        source,
-        resource,
-        options
-      );
+      await this.nativeHostService.writeElevated(source, resource, options);
     } finally {
       await this.fileService.del(source);
     }
@@ -58,11 +48,7 @@ NativeElevatedFileService = __decorateClass([
   __decorateParam(1, IFileService),
   __decorateParam(2, INativeWorkbenchEnvironmentService)
 ], NativeElevatedFileService);
-registerSingleton(
-  IElevatedFileService,
-  NativeElevatedFileService,
-  InstantiationType.Delayed
-);
+registerSingleton(IElevatedFileService, NativeElevatedFileService, InstantiationType.Delayed);
 export {
   NativeElevatedFileService
 };

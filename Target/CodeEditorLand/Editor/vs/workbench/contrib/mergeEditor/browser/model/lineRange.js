@@ -1,12 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  compareBy,
-  numberComparator
-} from "../../../../../base/common/arrays.js";
+import { Comparator, compareBy, numberComparator } from "../../../../../base/common/arrays.js";
 import { BugIndicatingError } from "../../../../../base/common/errors.js";
 import { Constants } from "../../../../../base/common/uint.js";
 import { Range } from "../../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 class LineRange {
   constructor(startLineNumber, lineCount) {
     this.startLineNumber = startLineNumber;
@@ -18,10 +16,7 @@ class LineRange {
   static {
     __name(this, "LineRange");
   }
-  static compareByStart = compareBy(
-    (l) => l.startLineNumber,
-    numberComparator
-  );
+  static compareByStart = compareBy((l) => l.startLineNumber, numberComparator);
   static join(ranges) {
     if (ranges.length === 0) {
       return void 0;
@@ -30,27 +25,15 @@ class LineRange {
     let endLineNumber = 0;
     for (const range of ranges) {
       startLineNumber = Math.min(startLineNumber, range.startLineNumber);
-      endLineNumber = Math.max(
-        endLineNumber,
-        range.startLineNumber + range.lineCount
-      );
+      endLineNumber = Math.max(endLineNumber, range.startLineNumber + range.lineCount);
     }
     return new LineRange(startLineNumber, endLineNumber - startLineNumber);
   }
   static fromLineNumbers(startLineNumber, endExclusiveLineNumber) {
-    return new LineRange(
-      startLineNumber,
-      endExclusiveLineNumber - startLineNumber
-    );
+    return new LineRange(startLineNumber, endExclusiveLineNumber - startLineNumber);
   }
   join(other) {
-    return new LineRange(
-      Math.min(this.startLineNumber, other.startLineNumber),
-      Math.max(
-        this.endLineNumberExclusive,
-        other.endLineNumberExclusive
-      ) - this.startLineNumber
-    );
+    return new LineRange(Math.min(this.startLineNumber, other.startLineNumber), Math.max(this.endLineNumberExclusive, other.endLineNumberExclusive) - this.startLineNumber);
   }
   get endLineNumberExclusive() {
     return this.startLineNumber + this.lineCount;
@@ -60,7 +43,7 @@ class LineRange {
   }
   /**
    * Returns false if there is at least one line between `this` and `other`.
-   */
+  */
   touches(other) {
     return this.endLineNumberExclusive >= other.startLineNumber && other.endLineNumberExclusive >= this.startLineNumber;
   }
@@ -86,10 +69,7 @@ class LineRange {
     return new LineRange(this.startLineNumber, this.lineCount + delta);
   }
   deltaStart(lineDelta) {
-    return new LineRange(
-      this.startLineNumber + lineDelta,
-      this.lineCount - lineDelta
-    );
+    return new LineRange(this.startLineNumber + lineDelta, this.lineCount - lineDelta);
   }
   getLines(model) {
     const result = new Array(this.lineCount);
@@ -102,34 +82,19 @@ class LineRange {
     return this.startLineNumber <= range.startLineNumber && range.endLineNumberExclusive <= this.endLineNumberExclusive;
   }
   toRange() {
-    return new Range(
-      this.startLineNumber,
-      1,
-      this.endLineNumberExclusive,
-      1
-    );
+    return new Range(this.startLineNumber, 1, this.endLineNumberExclusive, 1);
   }
   toInclusiveRange() {
     if (this.isEmpty) {
       return void 0;
     }
-    return new Range(
-      this.startLineNumber,
-      1,
-      this.endLineNumberExclusive - 1,
-      Constants.MAX_SAFE_SMALL_INTEGER
-    );
+    return new Range(this.startLineNumber, 1, this.endLineNumberExclusive - 1, Constants.MAX_SAFE_SMALL_INTEGER);
   }
   toInclusiveRangeOrEmpty() {
     if (this.isEmpty) {
       return new Range(this.startLineNumber, 1, this.startLineNumber, 1);
     }
-    return new Range(
-      this.startLineNumber,
-      1,
-      this.endLineNumberExclusive - 1,
-      Constants.MAX_SAFE_SMALL_INTEGER
-    );
+    return new Range(this.startLineNumber, 1, this.endLineNumberExclusive - 1, Constants.MAX_SAFE_SMALL_INTEGER);
   }
   intersects(lineRange) {
     return this.startLineNumber <= lineRange.endLineNumberExclusive && lineRange.startLineNumber <= this.endLineNumberExclusive;

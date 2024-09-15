@@ -1,20 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Event } from "../../../../base/common/event.js";
+import Severity from "../../../../base/common/severity.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  getExtensionId,
-  getGalleryExtensionId
-} from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
+import { getExtensionId, getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
 import { ImplicitActivationEvents } from "../../../../platform/extensionManagement/common/implicitActivationEvents.js";
-import {
-  ExtensionIdentifier,
-  ExtensionIdentifierMap,
-  ExtensionIdentifierSet,
-  ExtensionType,
-  TargetPlatform
-} from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifier, ExtensionIdentifierMap, ExtensionIdentifierSet, ExtensionType, IExtension, IExtensionContributions, IExtensionDescription, TargetPlatform } from "../../../../platform/extensions/common/extensions.js";
+import { ApiProposalName } from "../../../../platform/extensions/common/extensionsApiProposals.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IV8Profile } from "../../../../platform/profiling/common/profiling.js";
+import { ExtensionHostKind } from "./extensionHostKind.js";
+import { IExtensionDescriptionDelta, IExtensionDescriptionSnapshot } from "./extensionHostProtocol.js";
+import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
+import { IExtensionPoint } from "./extensionsRegistry.js";
 const nullExtensionDescription = Object.freeze({
   identifier: new ExtensionIdentifier("nullExtensionDescription"),
   name: "Null Extension Description",
@@ -71,24 +70,18 @@ class ExtensionHostExtensions {
       versionId: this._versionId,
       allExtensions: this._allExtensions,
       myExtensions: this._myExtensions,
-      activationEvents: ImplicitActivationEvents.createActivationEventsMap(
-        this._allExtensions
-      )
+      activationEvents: ImplicitActivationEvents.createActivationEventsMap(this._allExtensions)
     };
   }
   set(versionId, allExtensions, myExtensions) {
     if (this._versionId > versionId) {
-      throw new Error(
-        `ExtensionHostExtensions: invalid versionId ${versionId} (current: ${this._versionId})`
-      );
+      throw new Error(`ExtensionHostExtensions: invalid versionId ${versionId} (current: ${this._versionId})`);
     }
     const toRemove = [];
     const toAdd = [];
     const myToRemove = [];
     const myToAdd = [];
-    const oldExtensionsMap = extensionDescriptionArrayToMap(
-      this._allExtensions
-    );
+    const oldExtensionsMap = extensionDescriptionArrayToMap(this._allExtensions);
     const newExtensionsMap = extensionDescriptionArrayToMap(allExtensions);
     const extensionsAreTheSame = /* @__PURE__ */ __name((a, b) => {
       return a.extensionLocation.toString() === b.extensionLocation.toString() || a.isBuiltin === b.isBuiltin || a.isUserBuiltin === b.isUserBuiltin || a.isUnderDevelopment === b.isUnderDevelopment;
@@ -118,9 +111,7 @@ class ExtensionHostExtensions {
         continue;
       }
     }
-    const myOldExtensionsSet = new ExtensionIdentifierSet(
-      this._myExtensions
-    );
+    const myOldExtensionsSet = new ExtensionIdentifierSet(this._myExtensions);
     const myNewExtensionsSet = new ExtensionIdentifierSet(myExtensions);
     for (const oldExtensionId of this._myExtensions) {
       if (!myNewExtensionsSet.has(oldExtensionId)) {
@@ -133,14 +124,7 @@ class ExtensionHostExtensions {
       }
     }
     const addActivationEvents = ImplicitActivationEvents.createActivationEventsMap(toAdd);
-    const delta = {
-      versionId,
-      toRemove,
-      toAdd,
-      addActivationEvents,
-      myToRemove,
-      myToAdd
-    };
+    const delta = { versionId, toRemove, toAdd, addActivationEvents, myToRemove, myToAdd };
     this.delta(delta);
     return delta;
   }
@@ -192,9 +176,7 @@ class ExtensionHostExtensions {
       if (!this.containsExtension(extensionDescription.identifier)) {
         continue;
       }
-      const activationEvents = ImplicitActivationEvents.readActivationEvents(
-        extensionDescription
-      );
+      const activationEvents = ImplicitActivationEvents.readActivationEvents(extensionDescription);
       for (const activationEvent of activationEvents) {
         result.add(activationEvent);
       }
@@ -219,11 +201,9 @@ function isProposedApiEnabled(extension, proposal) {
 __name(isProposedApiEnabled, "isProposedApiEnabled");
 function checkProposedApiEnabled(extension, proposal) {
   if (!isProposedApiEnabled(extension, proposal)) {
-    throw new Error(
-      `Extension '${extension.identifier.value}' CANNOT use API proposal: ${proposal}.
+    throw new Error(`Extension '${extension.identifier.value}' CANNOT use API proposal: ${proposal}.
 Its package.json#enabledApiProposals-property declares: ${extension.enabledApiProposals?.join(", ") ?? "[]"} but NOT ${proposal}.
- The missing proposal MUST be added and you must start in extension development mode or use the following command line switch: --enable-proposed-api ${extension.identifier.value}`
-    );
+ The missing proposal MUST be added and you must start in extension development mode or use the following command line switch: --enable-proposed-api ${extension.identifier.value}`);
   }
 }
 __name(checkProposedApiEnabled, "checkProposedApiEnabled");
@@ -258,13 +238,7 @@ function toExtension(extensionDescription) {
   return {
     type: extensionDescription.isBuiltin ? ExtensionType.System : ExtensionType.User,
     isBuiltin: extensionDescription.isBuiltin || extensionDescription.isUserBuiltin,
-    identifier: {
-      id: getGalleryExtensionId(
-        extensionDescription.publisher,
-        extensionDescription.name
-      ),
-      uuid: extensionDescription.uuid
-    },
+    identifier: { id: getGalleryExtensionId(extensionDescription.publisher, extensionDescription.name), uuid: extensionDescription.uuid },
     manifest: extensionDescription,
     location: extensionDescription.extensionLocation,
     targetPlatform: extensionDescription.targetPlatform,
@@ -274,10 +248,7 @@ function toExtension(extensionDescription) {
 }
 __name(toExtension, "toExtension");
 function toExtensionDescription(extension, isUnderDevelopment) {
-  const id = getExtensionId(
-    extension.manifest.publisher,
-    extension.manifest.name
-  );
+  const id = getExtensionId(extension.manifest.publisher, extension.manifest.name);
   return {
     id,
     identifier: new ExtensionIdentifier(id),

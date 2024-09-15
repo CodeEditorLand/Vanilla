@@ -10,32 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Barrier, Promises } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { isString } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
+import { IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IRequestService,
-  asJson
-} from "../../../../platform/request/common/request.js";
-import {
-  IStorageService,
-  StorageScope
-} from "../../../../platform/storage/common/storage.js";
+import { Barrier, Promises } from "../../../../base/common/async.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import {
-  IUserDataProfileService
-} from "../common/userDataProfile.js";
-import { ExtensionsResourceInitializer } from "./extensionsResource.js";
+import { IUserDataInitializer } from "../../userData/browser/userDataInit.js";
+import { IProfileResourceInitializer, IUserDataProfileService, IUserDataProfileTemplate } from "../common/userDataProfile.js";
+import { SettingsResourceInitializer } from "./settingsResource.js";
 import { GlobalStateResourceInitializer } from "./globalStateResource.js";
 import { KeybindingsResourceInitializer } from "./keybindingsResource.js";
-import { SettingsResourceInitializer } from "./settingsResource.js";
-import { SnippetsResourceInitializer } from "./snippetsResource.js";
 import { TasksResourceInitializer } from "./tasksResource.js";
+import { SnippetsResourceInitializer } from "./snippetsResource.js";
+import { ExtensionsResourceInitializer } from "./extensionsResource.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { isString } from "../../../../base/common/types.js";
+import { IRequestService, asJson } from "../../../../platform/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 let UserDataProfileInitializer = class {
   constructor(environmentService, fileService, userDataProfileService, storageService, logService, uriIdentityService, requestService) {
     this.environmentService = environmentService;
@@ -65,84 +59,32 @@ let UserDataProfileInitializer = class {
     return true;
   }
   async initializeRequiredResources() {
-    this.logService.trace(
-      `UserDataProfileInitializer#initializeRequiredResources`
-    );
+    this.logService.trace(`UserDataProfileInitializer#initializeRequiredResources`);
     const promises = [];
     const profileTemplate = await this.getProfileTemplate();
     if (profileTemplate?.settings) {
-      promises.push(
-        this.initialize(
-          new SettingsResourceInitializer(
-            this.userDataProfileService,
-            this.fileService,
-            this.logService
-          ),
-          profileTemplate.settings,
-          ProfileResourceType.Settings
-        )
-      );
+      promises.push(this.initialize(new SettingsResourceInitializer(this.userDataProfileService, this.fileService, this.logService), profileTemplate.settings, ProfileResourceType.Settings));
     }
     if (profileTemplate?.globalState) {
-      promises.push(
-        this.initialize(
-          new GlobalStateResourceInitializer(this.storageService),
-          profileTemplate.globalState,
-          ProfileResourceType.GlobalState
-        )
-      );
+      promises.push(this.initialize(new GlobalStateResourceInitializer(this.storageService), profileTemplate.globalState, ProfileResourceType.GlobalState));
     }
     await Promise.all(promises);
   }
   async initializeOtherResources(instantiationService) {
     try {
-      this.logService.trace(
-        `UserDataProfileInitializer#initializeOtherResources`
-      );
+      this.logService.trace(`UserDataProfileInitializer#initializeOtherResources`);
       const promises = [];
       const profileTemplate = await this.getProfileTemplate();
       if (profileTemplate?.keybindings) {
-        promises.push(
-          this.initialize(
-            new KeybindingsResourceInitializer(
-              this.userDataProfileService,
-              this.fileService,
-              this.logService
-            ),
-            profileTemplate.keybindings,
-            ProfileResourceType.Keybindings
-          )
-        );
+        promises.push(this.initialize(new KeybindingsResourceInitializer(this.userDataProfileService, this.fileService, this.logService), profileTemplate.keybindings, ProfileResourceType.Keybindings));
       }
       if (profileTemplate?.tasks) {
-        promises.push(
-          this.initialize(
-            new TasksResourceInitializer(
-              this.userDataProfileService,
-              this.fileService,
-              this.logService
-            ),
-            profileTemplate.tasks,
-            ProfileResourceType.Tasks
-          )
-        );
+        promises.push(this.initialize(new TasksResourceInitializer(this.userDataProfileService, this.fileService, this.logService), profileTemplate.tasks, ProfileResourceType.Tasks));
       }
       if (profileTemplate?.snippets) {
-        promises.push(
-          this.initialize(
-            new SnippetsResourceInitializer(
-              this.userDataProfileService,
-              this.fileService,
-              this.uriIdentityService
-            ),
-            profileTemplate.snippets,
-            ProfileResourceType.Snippets
-          )
-        );
+        promises.push(this.initialize(new SnippetsResourceInitializer(this.userDataProfileService, this.fileService, this.uriIdentityService), profileTemplate.snippets, ProfileResourceType.Snippets));
       }
-      promises.push(
-        this.initializeInstalledExtensions(instantiationService)
-      );
+      promises.push(this.initializeInstalledExtensions(instantiationService));
       await Promises.settled(promises);
     } finally {
       this.initializationFinished.open();
@@ -153,13 +95,7 @@ let UserDataProfileInitializer = class {
     if (!this.initializeInstalledExtensionsPromise) {
       const profileTemplate = await this.getProfileTemplate();
       if (profileTemplate?.extensions) {
-        this.initializeInstalledExtensionsPromise = this.initialize(
-          instantiationService.createInstance(
-            ExtensionsResourceInitializer
-          ),
-          profileTemplate.extensions,
-          ProfileResourceType.Extensions
-        );
+        this.initializeInstalledExtensionsPromise = this.initialize(instantiationService.createInstance(ExtensionsResourceInitializer), profileTemplate.extensions, ProfileResourceType.Extensions);
       } else {
         this.initializeInstalledExtensionsPromise = Promise.resolve();
       }
@@ -179,28 +115,19 @@ let UserDataProfileInitializer = class {
     }
     if (isString(this.environmentService.options.profile.contents)) {
       try {
-        return JSON.parse(
-          this.environmentService.options.profile.contents
-        );
+        return JSON.parse(this.environmentService.options.profile.contents);
       } catch (error) {
         this.logService.error(error);
         return null;
       }
     }
     try {
-      const url = URI.revive(
-        this.environmentService.options.profile.contents
-      ).toString(true);
-      const context = await this.requestService.request(
-        { type: "GET", url },
-        CancellationToken.None
-      );
+      const url = URI.revive(this.environmentService.options.profile.contents).toString(true);
+      const context = await this.requestService.request({ type: "GET", url }, CancellationToken.None);
       if (context.res.statusCode === 200) {
         return await asJson(context);
       } else {
-        this.logService.warn(
-          `UserDataProfileInitializer: Failed to get profile from URL: ${url}. Status code: ${context.res.statusCode}.`
-        );
+        this.logService.warn(`UserDataProfileInitializer: Failed to get profile from URL: ${url}. Status code: ${context.res.statusCode}.`);
       }
     } catch (error) {
       this.logService.error(error);
@@ -210,23 +137,15 @@ let UserDataProfileInitializer = class {
   async initialize(initializer, content, profileResource) {
     try {
       if (this.initialized.includes(profileResource)) {
-        this.logService.info(
-          `UserDataProfileInitializer: ${profileResource} initialized already.`
-        );
+        this.logService.info(`UserDataProfileInitializer: ${profileResource} initialized already.`);
         return;
       }
       this.initialized.push(profileResource);
-      this.logService.trace(
-        `UserDataProfileInitializer: Initializing ${profileResource}`
-      );
+      this.logService.trace(`UserDataProfileInitializer: Initializing ${profileResource}`);
       await initializer.initialize(content);
-      this.logService.info(
-        `UserDataProfileInitializer: Initialized ${profileResource}`
-      );
+      this.logService.info(`UserDataProfileInitializer: Initialized ${profileResource}`);
     } catch (error) {
-      this.logService.info(
-        `UserDataProfileInitializer: Error while initializing ${profileResource}`
-      );
+      this.logService.info(`UserDataProfileInitializer: Error while initializing ${profileResource}`);
       this.logService.error(error);
     }
   }

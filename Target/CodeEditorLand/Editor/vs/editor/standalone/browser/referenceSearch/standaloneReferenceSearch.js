@@ -10,17 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { ReferencesController } from "../../../contrib/gotoSymbol/browser/peek/referencesController.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
-import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
-import { ReferencesController } from "../../../contrib/gotoSymbol/browser/peek/referencesController.js";
 let StandaloneReferencesController = class extends ReferencesController {
   static {
     __name(this, "StandaloneReferencesController");
@@ -46,11 +44,7 @@ StandaloneReferencesController = __decorateClass([
   __decorateParam(5, IStorageService),
   __decorateParam(6, IConfigurationService)
 ], StandaloneReferencesController);
-registerEditorContribution(
-  ReferencesController.ID,
-  StandaloneReferencesController,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(ReferencesController.ID, StandaloneReferencesController, EditorContributionInstantiation.Lazy);
 export {
   StandaloneReferencesController
 };

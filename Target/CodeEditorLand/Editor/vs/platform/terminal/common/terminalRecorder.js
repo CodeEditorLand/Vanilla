@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IPtyHostProcessReplayEvent } from "./capabilities/capabilities.js";
+import { ReplayEntry } from "./terminalProcess.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["MaxRecorderDataSize"] = 10485760] = "MaxRecorderDataSize";
   return Constants2;
@@ -59,11 +61,7 @@ class TerminalRecorder {
       }
     });
     return {
-      events: this._entries.map((entry) => ({
-        cols: entry.cols,
-        rows: entry.rows,
-        data: entry.data[0] ?? ""
-      })),
+      events: this._entries.map((entry) => ({ cols: entry.cols, rows: entry.rows, data: entry.data[0] ?? "" })),
       // No command restoration is needed when relaunching terminals
       commands: {
         isWindowsPty: false,

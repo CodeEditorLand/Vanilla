@@ -1,7 +1,6 @@
+import { Event } from "../../../../base/common/event.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IHostColorSchemeService = createDecorator(
-  "hostColorSchemeService"
-);
+const IHostColorSchemeService = createDecorator("hostColorSchemeService");
 export {
   IHostColorSchemeService
 };

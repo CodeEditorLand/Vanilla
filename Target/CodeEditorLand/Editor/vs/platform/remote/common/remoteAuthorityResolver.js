@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ErrorNoTelemetry } from "../../../base/common/errors.js";
+import { Event } from "../../../base/common/event.js";
+import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IRemoteAuthorityResolverService = createDecorator(
-  "remoteAuthorityResolverService"
-);
+const IRemoteAuthorityResolverService = createDecorator("remoteAuthorityResolverService");
 var RemoteConnectionType = /* @__PURE__ */ ((RemoteConnectionType2) => {
   RemoteConnectionType2[RemoteConnectionType2["WebSocket"] = 0] = "WebSocket";
   RemoteConnectionType2[RemoteConnectionType2["Managed"] = 1] = "Managed";

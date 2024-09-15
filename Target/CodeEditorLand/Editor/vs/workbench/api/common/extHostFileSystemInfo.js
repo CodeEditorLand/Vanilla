@@ -1,9 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../base/common/network.js";
-import { ExtUri } from "../../../base/common/resources.js";
+import { ExtUri, IExtUri } from "../../../base/common/resources.js";
+import { UriComponents } from "../../../base/common/uri.js";
 import { FileSystemProviderCapabilities } from "../../../platform/files/common/files.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { ExtHostFileSystemInfoShape } from "./extHost.protocol.js";
 class ExtHostFileSystemInfo {
   static {
     __name(this, "ExtHostFileSystemInfo");
@@ -37,9 +39,7 @@ class ExtHostFileSystemInfo {
     return this._providerInfo.get(scheme);
   }
 }
-const IExtHostFileSystemInfo = createDecorator(
-  "IExtHostFileSystemInfo"
-);
+const IExtHostFileSystemInfo = createDecorator("IExtHostFileSystemInfo");
 export {
   ExtHostFileSystemInfo,
   IExtHostFileSystemInfo

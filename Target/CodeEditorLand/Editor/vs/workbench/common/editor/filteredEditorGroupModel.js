@@ -1,32 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IUntypedEditorInput, IMatchEditorOptions, EditorsOrder, GroupIdentifier } from "../editor.js";
+import { EditorInput } from "./editorInput.js";
 import { Emitter } from "../../../base/common/event.js";
+import { IGroupModelChangeEvent, IReadonlyEditorGroupModel } from "./editorGroupModel.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import {
-  EditorsOrder
-} from "../editor.js";
 class FilteredEditorGroupModel extends Disposable {
   constructor(model) {
     super();
     this.model = model;
-    this._register(
-      this.model.onDidModelChange((e) => {
-        const candidateOrIndex = e.editorIndex ?? e.editor;
-        if (candidateOrIndex !== void 0) {
-          if (!this.filter(candidateOrIndex)) {
-            return;
-          }
+    this._register(this.model.onDidModelChange((e) => {
+      const candidateOrIndex = e.editorIndex ?? e.editor;
+      if (candidateOrIndex !== void 0) {
+        if (!this.filter(candidateOrIndex)) {
+          return;
         }
-        this._onDidModelChange.fire(e);
-      })
-    );
+      }
+      this._onDidModelChange.fire(e);
+    }));
   }
   static {
     __name(this, "FilteredEditorGroupModel");
   }
-  _onDidModelChange = this._register(
-    new Emitter()
-  );
+  _onDidModelChange = this._register(new Emitter());
   onDidModelChange = this._onDidModelChange.event;
   get id() {
     return this.model.id;
@@ -62,16 +58,10 @@ class FilteredEditorGroupModel extends Disposable {
     return this.model.isSelected(editorOrIndex);
   }
   isFirst(editor) {
-    return this.model.isFirst(
-      editor,
-      this.getEditors(EditorsOrder.SEQUENTIAL)
-    );
+    return this.model.isFirst(editor, this.getEditors(EditorsOrder.SEQUENTIAL));
   }
   isLast(editor) {
-    return this.model.isLast(
-      editor,
-      this.getEditors(EditorsOrder.SEQUENTIAL)
-    );
+    return this.model.isLast(editor, this.getEditors(EditorsOrder.SEQUENTIAL));
   }
   getEditors(order, options) {
     const editors = this.model.getEditors(order, options);

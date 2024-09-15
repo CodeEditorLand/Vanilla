@@ -30,39 +30,18 @@ var TokenType = /* @__PURE__ */ ((TokenType2) => {
 function hintDidYouMean(...meant) {
   switch (meant.length) {
     case 1:
-      return localize(
-        "contextkey.scanner.hint.didYouMean1",
-        "Did you mean {0}?",
-        meant[0]
-      );
+      return localize("contextkey.scanner.hint.didYouMean1", "Did you mean {0}?", meant[0]);
     case 2:
-      return localize(
-        "contextkey.scanner.hint.didYouMean2",
-        "Did you mean {0} or {1}?",
-        meant[0],
-        meant[1]
-      );
+      return localize("contextkey.scanner.hint.didYouMean2", "Did you mean {0} or {1}?", meant[0], meant[1]);
     case 3:
-      return localize(
-        "contextkey.scanner.hint.didYouMean3",
-        "Did you mean {0}, {1} or {2}?",
-        meant[0],
-        meant[1],
-        meant[2]
-      );
+      return localize("contextkey.scanner.hint.didYouMean3", "Did you mean {0}, {1} or {2}?", meant[0], meant[1], meant[2]);
     default:
       return void 0;
   }
 }
 __name(hintDidYouMean, "hintDidYouMean");
-const hintDidYouForgetToOpenOrCloseQuote = localize(
-  "contextkey.scanner.hint.didYouForgetToOpenOrCloseQuote",
-  "Did you forget to open or close the quote?"
-);
-const hintDidYouForgetToEscapeSlash = localize(
-  "contextkey.scanner.hint.didYouForgetToEscapeSlash",
-  "Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/'."
-);
+const hintDidYouForgetToOpenOrCloseQuote = localize("contextkey.scanner.hint.didYouForgetToOpenOrCloseQuote", "Did you forget to open or close the quote?");
+const hintDidYouForgetToEscapeSlash = localize("contextkey.scanner.hint.didYouForgetToEscapeSlash", "Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/'.");
 class Scanner {
   static {
     __name(this, "Scanner");
@@ -112,14 +91,10 @@ class Scanner {
       case 20 /* EOF */:
         return "EOF";
       default:
-        throw illegalState(
-          `unhandled token type: ${JSON.stringify(token)}; have you forgotten to add a case?`
-        );
+        throw illegalState(`unhandled token type: ${JSON.stringify(token)}; have you forgotten to add a case?`);
     }
   }
-  static _regexFlags = new Set(
-    ["i", "g", "s", "m", "y", "u"].map((ch) => ch.charCodeAt(0))
-  );
+  static _regexFlags = new Set(["i", "g", "s", "m", "y", "u"].map((ch) => ch.charCodeAt(0)));
   static _keywords = /* @__PURE__ */ new Map([
     ["not", 14 /* Not */],
     ["in", 13 /* In */],
@@ -156,11 +131,7 @@ class Scanner {
         case CharCode.ExclamationMark:
           if (this._match(CharCode.Equals)) {
             const isTripleEq = this._match(CharCode.Equals);
-            this._tokens.push({
-              type: 4 /* NotEq */,
-              offset: this._start,
-              isTripleEq
-            });
+            this._tokens.push({ type: 4 /* NotEq */, offset: this._start, isTripleEq });
           } else {
             this._addToken(2 /* Neg */);
           }
@@ -174,11 +145,7 @@ class Scanner {
         case CharCode.Equals:
           if (this._match(CharCode.Equals)) {
             const isTripleEq = this._match(CharCode.Equals);
-            this._tokens.push({
-              type: 3 /* Eq */,
-              offset: this._start,
-              isTripleEq
-            });
+            this._tokens.push({ type: 3 /* Eq */, offset: this._start, isTripleEq });
           } else if (this._match(CharCode.Tilde)) {
             this._addToken(9 /* RegexOp */);
           } else {
@@ -186,14 +153,10 @@ class Scanner {
           }
           break;
         case CharCode.LessThan:
-          this._addToken(
-            this._match(CharCode.Equals) ? 6 /* LtEq */ : 5 /* Lt */
-          );
+          this._addToken(this._match(CharCode.Equals) ? 6 /* LtEq */ : 5 /* Lt */);
           break;
         case CharCode.GreaterThan:
-          this._addToken(
-            this._match(CharCode.Equals) ? 8 /* GtEq */ : 7 /* Gt */
-          );
+          this._addToken(this._match(CharCode.Equals) ? 8 /* GtEq */ : 7 /* Gt */);
           break;
         case CharCode.Ampersand:
           if (this._match(CharCode.Ampersand)) {
@@ -246,16 +209,12 @@ class Scanner {
   _error(additional) {
     const offset = this._start;
     const lexeme = this._input.substring(this._start, this._current);
-    const errToken = {
-      type: 19 /* Error */,
-      offset: this._start,
-      lexeme
-    };
+    const errToken = { type: 19 /* Error */, offset: this._start, lexeme };
     this._errors.push({ offset, lexeme, additionalInfo: additional });
     this._tokens.push(errToken);
   }
   // u - unicode, y - sticky // TODO@ulugbekna: we accept double quotes as part of the string rather than as a delimiter (to preserve old parser's behavior)
-  stringRe = /[a-zA-Z0-9_<>\-./\\:*?+[\]^,#@;"%$\p{L}-]+/uy;
+  stringRe = /[a-zA-Z0-9_<>\-\./\\:\*\?\+\[\]\^,#@;"%\$\p{L}-]+/uy;
   _string() {
     this.stringRe.lastIndex = this._start;
     const match = this.stringRe.exec(this._input);
@@ -266,11 +225,7 @@ class Scanner {
       if (keyword) {
         this._addToken(keyword);
       } else {
-        this._tokens.push({
-          type: 17 /* Str */,
-          lexeme,
-          offset: this._start
-        });
+        this._tokens.push({ type: 17 /* Str */, lexeme, offset: this._start });
       }
     }
   }
@@ -284,11 +239,7 @@ class Scanner {
       return;
     }
     this._advance();
-    this._tokens.push({
-      type: 18 /* QuotedStr */,
-      lexeme: this._input.substring(this._start + 1, this._current - 1),
-      offset: this._start + 1
-    });
+    this._tokens.push({ type: 18 /* QuotedStr */, lexeme: this._input.substring(this._start + 1, this._current - 1), offset: this._start + 1 });
   }
   /*
    * Lexing a regex expression: /.../[igsmyu]*
@@ -326,11 +277,7 @@ class Scanner {
     }
     this._current = p;
     const lexeme = this._input.substring(this._start, this._current);
-    this._tokens.push({
-      type: 10 /* RegexStr */,
-      lexeme,
-      offset: this._start
-    });
+    this._tokens.push({ type: 10 /* RegexStr */, lexeme, offset: this._start });
   }
   _isAtEnd() {
     return this._current >= this._input.length;

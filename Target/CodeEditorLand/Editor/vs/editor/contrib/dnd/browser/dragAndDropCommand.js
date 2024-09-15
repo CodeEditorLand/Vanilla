@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
 class DragAndDropCommand {
   static {
     __name(this, "DragAndDropCommand");
@@ -21,15 +24,7 @@ class DragAndDropCommand {
     if (!this.copy) {
       builder.addEditOperation(this.selection, null);
     }
-    builder.addEditOperation(
-      new Range(
-        this.targetPosition.lineNumber,
-        this.targetPosition.column,
-        this.targetPosition.lineNumber,
-        this.targetPosition.column
-      ),
-      text
-    );
+    builder.addEditOperation(new Range(this.targetPosition.lineNumber, this.targetPosition.column, this.targetPosition.lineNumber, this.targetPosition.column), text);
     if (this.selection.containsPosition(this.targetPosition) && !(this.copy && (this.selection.getEndPosition().equals(this.targetPosition) || this.selection.getStartPosition().equals(this.targetPosition)))) {
       this.targetSelection = this.selection;
       return;

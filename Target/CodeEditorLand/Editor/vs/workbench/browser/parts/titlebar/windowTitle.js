@@ -10,51 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindowById } from "../../../../base/browser/dom.js";
-import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { template } from "../../../../base/common/labels.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import {
-  isMacintosh,
-  isNative,
-  isWeb,
-  isWindows
-} from "../../../../base/common/platform.js";
-import { basename, dirname } from "../../../../base/common/resources.js";
-import { trim } from "../../../../base/common/strings.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../editor/browser/editorBrowser.js";
 import { localize } from "../../../../nls.js";
-import {
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  ILabelService,
-  Verbosity as LabelVerbosity
-} from "../../../../platform/label/common/label.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  EditorResourceAccessor,
-  SideBySideEditor,
-  Verbosity
-} from "../../../common/editor.js";
+import { dirname, basename } from "../../../../base/common/resources.js";
+import { ITitleProperties, ITitleVariable } from "./titlebarPart.js";
+import { IConfigurationService, IConfigurationChangeEvent } from "../../../../platform/configuration/common/configuration.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { EditorResourceAccessor, Verbosity, SideBySideEditor } from "../../../common/editor.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IWorkspaceContextService, WorkbenchState, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { isWindows, isWeb, isMacintosh, isNative } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { trim } from "../../../../base/common/strings.js";
+import { IEditorGroupsContainer } from "../../../services/editor/common/editorGroupsService.js";
+import { template } from "../../../../base/common/labels.js";
+import { ILabelService, Verbosity as LabelVerbosity } from "../../../../platform/label/common/label.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
 import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { getWindowById } from "../../../../base/browser/dom.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
 var WindowSettingNames = /* @__PURE__ */ ((WindowSettingNames2) => {
   WindowSettingNames2["titleSeparator"] = "window.titleSeparator";
   WindowSettingNames2["title"] = "window.title";
@@ -91,32 +72,19 @@ let WindowTitle = class extends Disposable {
     __name(this, "WindowTitle");
   }
   static NLS_USER_IS_ADMIN = isWindows ? localize("userIsAdmin", "[Administrator]") : localize("userIsSudo", "[Superuser]");
-  static NLS_EXTENSION_HOST = localize(
-    "devExtensionWindowTitlePrefix",
-    "[Extension Development Host]"
-  );
+  static NLS_EXTENSION_HOST = localize("devExtensionWindowTitlePrefix", "[Extension Development Host]");
   static TITLE_DIRTY = "\u25CF ";
-  properties = {
-    isPure: true,
-    isAdmin: false,
-    prefix: void 0
-  };
+  properties = { isPure: true, isAdmin: false, prefix: void 0 };
   variables = /* @__PURE__ */ new Map();
-  activeEditorListeners = this._register(
-    new DisposableStore()
-  );
-  titleUpdater = this._register(
-    new RunOnceScheduler(() => this.doUpdateTitle(), 0)
-  );
+  activeEditorListeners = this._register(new DisposableStore());
+  titleUpdater = this._register(new RunOnceScheduler(() => this.doUpdateTitle(), 0));
   onDidChangeEmitter = new Emitter();
   onDidChange = this.onDidChangeEmitter.event;
   get value() {
     return this.title ?? "";
   }
   get workspaceName() {
-    return this.labelService.getWorkspaceLabel(
-      this.contextService.getWorkspace()
-    );
+    return this.labelService.getWorkspaceLabel(this.contextService.getWorkspace());
   }
   get fileName() {
     const activeEditor = this.editorService.activeEditor;
@@ -132,55 +100,23 @@ let WindowTitle = class extends Disposable {
   editorService;
   windowId;
   registerListeners() {
-    this._register(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => this.onConfigurationChanged(e)
-      )
-    );
-    this._register(
-      this.editorService.onDidActiveEditorChange(
-        () => this.onActiveEditorChange()
-      )
-    );
-    this._register(
-      this.contextService.onDidChangeWorkspaceFolders(
-        () => this.titleUpdater.schedule()
-      )
-    );
-    this._register(
-      this.contextService.onDidChangeWorkbenchState(
-        () => this.titleUpdater.schedule()
-      )
-    );
-    this._register(
-      this.contextService.onDidChangeWorkspaceName(
-        () => this.titleUpdater.schedule()
-      )
-    );
-    this._register(
-      this.labelService.onDidChangeFormatters(
-        () => this.titleUpdater.schedule()
-      )
-    );
-    this._register(
-      this.userDataProfileService.onDidChangeCurrentProfile(
-        () => this.titleUpdater.schedule()
-      )
-    );
-    this._register(
-      this.viewsService.onDidChangeFocusedView(() => {
-        if (this.titleIncludesFocusedView) {
-          this.titleUpdater.schedule();
-        }
-      })
-    );
-    this._register(
-      this.contextKeyService.onDidChangeContext((e) => {
-        if (e.affectsSome(this.variables)) {
-          this.titleUpdater.schedule();
-        }
-      })
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChanged(e)));
+    this._register(this.editorService.onDidActiveEditorChange(() => this.onActiveEditorChange()));
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.titleUpdater.schedule()));
+    this._register(this.contextService.onDidChangeWorkbenchState(() => this.titleUpdater.schedule()));
+    this._register(this.contextService.onDidChangeWorkspaceName(() => this.titleUpdater.schedule()));
+    this._register(this.labelService.onDidChangeFormatters(() => this.titleUpdater.schedule()));
+    this._register(this.userDataProfileService.onDidChangeCurrentProfile(() => this.titleUpdater.schedule()));
+    this._register(this.viewsService.onDidChangeFocusedView(() => {
+      if (this.titleIncludesFocusedView) {
+        this.titleUpdater.schedule();
+      }
+    }));
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(this.variables)) {
+        this.titleUpdater.schedule();
+      }
+    }));
   }
   onConfigurationChanged(event) {
     if (event.affectsConfiguration("window.title" /* title */)) {
@@ -191,9 +127,7 @@ let WindowTitle = class extends Disposable {
     }
   }
   updateTitleIncludesFocusedView() {
-    const titleTemplate = this.configurationService.getValue(
-      "window.title" /* title */
-    );
+    const titleTemplate = this.configurationService.getValue("window.title" /* title */);
     this.titleIncludesFocusedView = typeof titleTemplate === "string" && titleTemplate.includes("${focusedView}");
   }
   onActiveEditorChange() {
@@ -201,16 +135,8 @@ let WindowTitle = class extends Disposable {
     this.titleUpdater.schedule();
     const activeEditor = this.editorService.activeEditor;
     if (activeEditor) {
-      this.activeEditorListeners.add(
-        activeEditor.onDidChangeDirty(
-          () => this.titleUpdater.schedule()
-        )
-      );
-      this.activeEditorListeners.add(
-        activeEditor.onDidChangeLabel(
-          () => this.titleUpdater.schedule()
-        )
-      );
+      this.activeEditorListeners.add(activeEditor.onDidChangeDirty(() => this.titleUpdater.schedule()));
+      this.activeEditorListeners.add(activeEditor.onDidChangeLabel(() => this.titleUpdater.schedule()));
     }
     if (this.titleIncludesFocusedView) {
       const activeTextEditorControl = this.editorService.activeTextEditorControl;
@@ -218,22 +144,11 @@ let WindowTitle = class extends Disposable {
       if (isCodeEditor(activeTextEditorControl)) {
         textEditorControls.push(activeTextEditorControl);
       } else if (isDiffEditor(activeTextEditorControl)) {
-        textEditorControls.push(
-          activeTextEditorControl.getOriginalEditor(),
-          activeTextEditorControl.getModifiedEditor()
-        );
+        textEditorControls.push(activeTextEditorControl.getOriginalEditor(), activeTextEditorControl.getModifiedEditor());
       }
       for (const textEditorControl of textEditorControls) {
-        this.activeEditorListeners.add(
-          textEditorControl.onDidBlurEditorText(
-            () => this.titleUpdater.schedule()
-          )
-        );
-        this.activeEditorListeners.add(
-          textEditorControl.onDidFocusEditorText(
-            () => this.titleUpdater.schedule()
-          )
-        );
+        this.activeEditorListeners.add(textEditorControl.onDidBlurEditorText(() => this.titleUpdater.schedule()));
+        this.activeEditorListeners.add(textEditorControl.onDidFocusEditorText(() => this.titleUpdater.schedule()));
       }
     }
   }
@@ -271,7 +186,7 @@ let WindowTitle = class extends Disposable {
       prefix = this.properties.prefix;
     }
     if (this.environmentService.isExtensionDevelopment) {
-      prefix = prefix ? `${WindowTitle.NLS_EXTENSION_HOST} - ${prefix}` : WindowTitle.NLS_EXTENSION_HOST;
+      prefix = !prefix ? WindowTitle.NLS_EXTENSION_HOST : `${WindowTitle.NLS_EXTENSION_HOST} - ${prefix}`;
     }
     if (this.properties.isAdmin) {
       suffix = WindowTitle.NLS_USER_IS_ADMIN;
@@ -329,46 +244,34 @@ let WindowTitle = class extends Disposable {
     } else if (workspace.folders.length) {
       root = workspace.folders[0].uri;
     }
-    const editorResource = EditorResourceAccessor.getOriginalUri(editor, {
-      supportSideBySide: SideBySideEditor.PRIMARY
-    });
+    const editorResource = EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY });
     let editorFolderResource = editorResource ? dirname(editorResource) : void 0;
     if (editorFolderResource?.path === ".") {
       editorFolderResource = void 0;
     }
-    let folder;
+    let folder = void 0;
     if (this.contextService.getWorkbenchState() === WorkbenchState.FOLDER) {
       folder = workspace.folders[0];
     } else if (editorResource) {
       folder = this.contextService.getWorkspaceFolder(editorResource) ?? void 0;
     }
-    let remoteName;
+    let remoteName = void 0;
     if (this.environmentService.remoteAuthority && !isWeb) {
-      remoteName = this.labelService.getHostLabel(
-        Schemas.vscodeRemote,
-        this.environmentService.remoteAuthority
-      );
+      remoteName = this.labelService.getHostLabel(Schemas.vscodeRemote, this.environmentService.remoteAuthority);
     } else {
       const virtualWorkspaceLocation = getVirtualWorkspaceLocation(workspace);
       if (virtualWorkspaceLocation) {
-        remoteName = this.labelService.getHostLabel(
-          virtualWorkspaceLocation.scheme,
-          virtualWorkspaceLocation.authority
-        );
+        remoteName = this.labelService.getHostLabel(virtualWorkspaceLocation.scheme, virtualWorkspaceLocation.authority);
       }
     }
     const activeEditorShort = editor ? editor.getTitle(Verbosity.SHORT) : "";
     const activeEditorMedium = editor ? editor.getTitle(Verbosity.MEDIUM) : activeEditorShort;
     const activeEditorLong = editor ? editor.getTitle(Verbosity.LONG) : activeEditorMedium;
     const activeFolderShort = editorFolderResource ? basename(editorFolderResource) : "";
-    const activeFolderMedium = editorFolderResource ? this.labelService.getUriLabel(editorFolderResource, {
-      relative: true
-    }) : "";
+    const activeFolderMedium = editorFolderResource ? this.labelService.getUriLabel(editorFolderResource, { relative: true }) : "";
     const activeFolderLong = editorFolderResource ? this.labelService.getUriLabel(editorFolderResource) : "";
     const rootName = this.labelService.getWorkspaceLabel(workspace);
-    const rootNameShort = this.labelService.getWorkspaceLabel(workspace, {
-      verbose: LabelVerbosity.SHORT
-    });
+    const rootNameShort = this.labelService.getWorkspaceLabel(workspace, { verbose: LabelVerbosity.SHORT });
     const rootPath = root ? this.labelService.getUriLabel(root) : "";
     const folderName = folder ? folder.name : "";
     const folderPath = folder ? this.labelService.getUriLabel(folder.uri) : "";
@@ -380,15 +283,11 @@ let WindowTitle = class extends Disposable {
     for (const [contextKey, name] of this.variables) {
       variables[name] = this.contextKeyService.getContextKeyValue(contextKey) ?? "";
     }
-    let titleTemplate = this.configurationService.getValue(
-      "window.title" /* title */
-    );
+    let titleTemplate = this.configurationService.getValue("window.title" /* title */);
     if (typeof titleTemplate !== "string") {
       titleTemplate = defaultWindowTitle;
     }
-    let separator = this.configurationService.getValue(
-      "window.titleSeparator" /* titleSeparator */
-    );
+    let separator = this.configurationService.getValue("window.titleSeparator" /* titleSeparator */);
     if (typeof separator !== "string") {
       separator = defaultWindowTitleSeparator;
     }
@@ -414,12 +313,8 @@ let WindowTitle = class extends Disposable {
     });
   }
   isCustomTitleFormat() {
-    const title = this.configurationService.inspect(
-      "window.title" /* title */
-    );
-    const titleSeparator = this.configurationService.inspect(
-      "window.titleSeparator" /* titleSeparator */
-    );
+    const title = this.configurationService.inspect("window.title" /* title */);
+    const titleSeparator = this.configurationService.inspect("window.titleSeparator" /* titleSeparator */);
     return title.value !== title.defaultValue || titleSeparator.value !== titleSeparator.defaultValue;
   }
 };

@@ -10,48 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindow } from "../../../base/browser/dom.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Emitter } from "../../../base/common/event.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { ILayoutService } from "../../layout/browser/layoutService.js";
 import { IOpenerService } from "../../opener/common/opener.js";
-import {
-  defaultButtonStyles,
-  defaultCountBadgeStyles,
-  defaultInputBoxStyles,
-  defaultKeybindingLabelStyles,
-  defaultProgressBarStyles,
-  defaultToggleStyles,
-  getListStyles
-} from "../../theme/browser/defaultStyles.js";
-import {
-  activeContrastBorder,
-  asCssVariable,
-  pickerGroupBorder,
-  pickerGroupForeground,
-  quickInputBackground,
-  quickInputForeground,
-  quickInputListFocusBackground,
-  quickInputListFocusForeground,
-  quickInputListFocusIconForeground,
-  quickInputTitleBackground,
-  widgetBorder,
-  widgetShadow
-} from "../../theme/common/colorRegistry.js";
-import { IThemeService, Themable } from "../../theme/common/themeService.js";
 import { QuickAccessController } from "./quickAccess.js";
-import {
-  QuickInputHoverDelegate
-} from "./quickInput.js";
-import {
-  QuickInputController
-} from "./quickInputController.js";
+import { IQuickAccessController } from "../common/quickAccess.js";
+import { IInputBox, IInputOptions, IKeyMods, IPickOptions, IQuickInputButton, IQuickInputService, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, IQuickWidget, QuickPickInput } from "../common/quickInput.js";
+import { defaultButtonStyles, defaultCountBadgeStyles, defaultInputBoxStyles, defaultKeybindingLabelStyles, defaultProgressBarStyles, defaultToggleStyles, getListStyles } from "../../theme/browser/defaultStyles.js";
+import { activeContrastBorder, asCssVariable, pickerGroupBorder, pickerGroupForeground, quickInputBackground, quickInputForeground, quickInputListFocusBackground, quickInputListFocusForeground, quickInputListFocusIconForeground, quickInputTitleBackground, widgetBorder, widgetShadow } from "../../theme/common/colorRegistry.js";
+import { IThemeService, Themable } from "../../theme/common/themeService.js";
+import { IQuickInputOptions, IQuickInputStyles, QuickInputHoverDelegate } from "./quickInput.js";
+import { QuickInputController, IQuickInputControllerHost } from "./quickInputController.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { getWindow } from "../../../base/browser/dom.js";
 let QuickInputService = class extends Themable {
   constructor(instantiationService, contextKeyService, themeService, layoutService, configurationService) {
     super(themeService);
@@ -86,9 +60,7 @@ let QuickInputService = class extends Themable {
   _quickAccess;
   get quickAccess() {
     if (!this._quickAccess) {
-      this._quickAccess = this._register(
-        this.instantiationService.createInstance(QuickAccessController)
-      );
+      this._quickAccess = this._register(this.instantiationService.createInstance(QuickAccessController));
     }
     return this._quickAccess;
   }
@@ -103,63 +75,40 @@ let QuickInputService = class extends Themable {
       linkOpenerDelegate: /* @__PURE__ */ __name((content) => {
         this.instantiationService.invokeFunction((accessor) => {
           const openerService = accessor.get(IOpenerService);
-          openerService.open(content, {
-            allowCommands: true,
-            fromUserGesture: true
-          });
+          openerService.open(content, { allowCommands: true, fromUserGesture: true });
         });
       }, "linkOpenerDelegate"),
       returnFocus: /* @__PURE__ */ __name(() => host.focus(), "returnFocus"),
       styles: this.computeStyles(),
-      hoverDelegate: this._register(
-        this.instantiationService.createInstance(
-          QuickInputHoverDelegate
-        )
-      )
+      hoverDelegate: this._register(this.instantiationService.createInstance(QuickInputHoverDelegate))
     };
-    const controller = this._register(
-      this.instantiationService.createInstance(QuickInputController, {
+    const controller = this._register(this.instantiationService.createInstance(
+      QuickInputController,
+      {
         ...defaultOptions,
         ...options
-      })
-    );
-    controller.layout(
-      host.activeContainerDimension,
-      host.activeContainerOffset.quickPickTop
-    );
-    this._register(
-      host.onDidLayoutActiveContainer((dimension) => {
-        if (getWindow(host.activeContainer) === getWindow(controller.container)) {
-          controller.layout(
-            dimension,
-            host.activeContainerOffset.quickPickTop
-          );
-        }
-      })
-    );
-    this._register(
-      host.onDidChangeActiveContainer(() => {
-        if (controller.isVisible()) {
-          return;
-        }
-        controller.layout(
-          host.activeContainerDimension,
-          host.activeContainerOffset.quickPickTop
-        );
-      })
-    );
-    this._register(
-      controller.onShow(() => {
-        this.resetContextKeys();
-        this._onShow.fire();
-      })
-    );
-    this._register(
-      controller.onHide(() => {
-        this.resetContextKeys();
-        this._onHide.fire();
-      })
-    );
+      }
+    ));
+    controller.layout(host.activeContainerDimension, host.activeContainerOffset.quickPickTop);
+    this._register(host.onDidLayoutActiveContainer((dimension) => {
+      if (getWindow(host.activeContainer) === getWindow(controller.container)) {
+        controller.layout(dimension, host.activeContainerOffset.quickPickTop);
+      }
+    }));
+    this._register(host.onDidChangeActiveContainer(() => {
+      if (controller.isVisible()) {
+        return;
+      }
+      controller.layout(host.activeContainerDimension, host.activeContainerOffset.quickPickTop);
+    }));
+    this._register(controller.onShow(() => {
+      this.resetContextKeys();
+      this._onShow.fire();
+    }));
+    this._register(controller.onHide(() => {
+      this.resetContextKeys();
+      this._onHide.fire();
+    }));
     return controller;
   }
   setContextKey(id) {
@@ -167,9 +116,7 @@ let QuickInputService = class extends Themable {
     if (id) {
       key = this.contexts.get(id);
       if (!key) {
-        key = new RawContextKey(id, false).bindTo(
-          this.contextKeyService
-        );
+        key = new RawContextKey(id, false).bindTo(this.contextKeyService);
         this.contexts.set(id, key);
       }
     }
@@ -229,9 +176,7 @@ let QuickInputService = class extends Themable {
       widget: {
         quickInputBackground: asCssVariable(quickInputBackground),
         quickInputForeground: asCssVariable(quickInputForeground),
-        quickInputTitleBackground: asCssVariable(
-          quickInputTitleBackground
-        ),
+        quickInputTitleBackground: asCssVariable(quickInputTitleBackground),
         widgetBorder: asCssVariable(widgetBorder),
         widgetShadow: asCssVariable(widgetShadow)
       },

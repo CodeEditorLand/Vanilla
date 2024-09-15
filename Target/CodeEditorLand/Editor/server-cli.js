@@ -3,25 +3,17 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import "./bootstrap-server.js";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import * as bootstrapAmd from "./bootstrap-amd.js";
-import { product } from "./bootstrap-meta.js";
 import * as bootstrapNode from "./bootstrap-node.js";
+import * as bootstrapAmd from "./bootstrap-amd.js";
 import { resolveNLSConfiguration } from "./vs/base/node/nls.js";
+import { product } from "./bootstrap-meta.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function start() {
-  const nlsConfiguration = await resolveNLSConfiguration({
-    userLocale: "en",
-    osLocale: "en",
-    commit: product.commit,
-    userDataPath: "",
-    nlsMetadataPath: __dirname
-  });
+  const nlsConfiguration = await resolveNLSConfiguration({ userLocale: "en", osLocale: "en", commit: product.commit, userDataPath: "", nlsMetadataPath: __dirname });
   process.env["VSCODE_NLS_CONFIG"] = JSON.stringify(nlsConfiguration);
   if (process.env["VSCODE_DEV"]) {
     process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] = process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"] || path.join(__dirname, "..", "remote", "node_modules");
-    bootstrapNode.devInjectNodeModuleLookupPath(
-      process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]
-    );
+    bootstrapNode.devInjectNodeModuleLookupPath(process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"]);
   } else {
     delete process.env["VSCODE_DEV_INJECT_NODE_MODULE_LOOKUP_PATH"];
   }

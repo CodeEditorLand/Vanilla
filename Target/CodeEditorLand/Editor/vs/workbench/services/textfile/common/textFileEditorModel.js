@@ -10,67 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { TaskSequentializer, timeout } from "../../../../base/common/async.js";
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { basename } from "../../../../base/common/path.js";
-import { mark } from "../../../../base/common/performance.js";
-import { extUri } from "../../../../base/common/resources.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
-import { createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
 import { localize } from "../../../../nls.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import {
-  ETAG_DISABLED,
-  FileChangeType,
-  FileOperationResult,
-  IFileService,
-  NotModifiedSinceFileOperationError
-} from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
-import {
-  SaveReason,
-  SaveSourceRegistry
-} from "../../../common/editor.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { mark } from "../../../../base/common/performance.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { EncodingMode, ITextFileService, TextFileEditorModelState, ITextFileEditorModel, ITextFileStreamContent, ITextFileResolveOptions, IResolvedTextFileEditorModel, TextFileResolveReason, ITextFileEditorModelSaveEvent, ITextFileSaveAsOptions } from "./textfiles.js";
+import { IRevertOptions, SaveReason, SaveSourceRegistry } from "../../../common/editor.js";
 import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IWorkingCopyBackupService, IResolvedWorkingCopyBackup } from "../../workingCopy/common/workingCopyBackup.js";
+import { IFileService, FileOperationError, FileOperationResult, FileChangesEvent, FileChangeType, IFileStatWithMetadata, ETAG_DISABLED, NotModifiedSinceFileOperationError } from "../../../../platform/files/common/files.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { timeout, TaskSequentializer } from "../../../../base/common/async.js";
+import { ITextBufferFactory, ITextModel } from "../../../../editor/common/model.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { basename } from "../../../../base/common/path.js";
+import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
+import { IWorkingCopyBackup, WorkingCopyCapabilities, NO_TYPE_ID, IWorkingCopyBackupMeta } from "../../workingCopy/common/workingCopy.js";
 import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { UTF16be, UTF16le, UTF8, UTF8_with_bom } from "./encoding.js";
+import { createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
 import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
 import { IPathService } from "../../path/common/pathService.js";
-import {
-  NO_TYPE_ID,
-  WorkingCopyCapabilities
-} from "../../workingCopy/common/workingCopy.js";
-import {
-  IWorkingCopyBackupService
-} from "../../workingCopy/common/workingCopyBackup.js";
-import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
-import { UTF8, UTF8_with_bom, UTF16be, UTF16le } from "./encoding.js";
-import {
-  EncodingMode,
-  ITextFileService,
-  TextFileEditorModelState,
-  TextFileResolveReason
-} from "./textfiles.js";
+import { extUri } from "../../../../base/common/resources.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IProgress, IProgressService, IProgressStep, ProgressLocation } from "../../../../platform/progress/common/progress.js";
 let TextFileEditorModel = class extends BaseTextEditorModel {
   constructor(resource, preferredEncoding, preferredLanguageId, languageService, modelService, fileService, textFileService, workingCopyBackupService, logService, workingCopyService, filesConfigurationService, labelService, languageDetectionService, accessibilityService, pathService, extensionService, progressService) {
-    super(
-      modelService,
-      languageService,
-      languageDetectionService,
-      accessibilityService
-    );
+    super(modelService, languageService, languageDetectionService, accessibilityService);
     this.resource = resource;
     this.preferredEncoding = preferredEncoding;
     this.preferredLanguageId = preferredLanguageId;
@@ -90,24 +63,17 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   static {
     __name(this, "TextFileEditorModel");
   }
-  static TEXTFILE_SAVE_ENCODING_SOURCE = SaveSourceRegistry.registerSource(
-    "textFileEncoding.source",
-    localize("textFileCreate.source", "File Encoding Changed")
-  );
+  static TEXTFILE_SAVE_ENCODING_SOURCE = SaveSourceRegistry.registerSource("textFileEncoding.source", localize("textFileCreate.source", "File Encoding Changed"));
   //#region Events
   _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
-  _onDidResolve = this._register(
-    new Emitter()
-  );
+  _onDidResolve = this._register(new Emitter());
   onDidResolve = this._onDidResolve.event;
   _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
   _onDidSaveError = this._register(new Emitter());
   onDidSaveError = this._onDidSaveError.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
   _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
@@ -139,37 +105,21 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   inOrphanMode = false;
   inErrorMode = false;
   registerListeners() {
-    this._register(
-      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
-    );
-    this._register(
-      this.filesConfigurationService.onDidChangeFilesAssociation(
-        () => this.onDidChangeFilesAssociation()
-      )
-    );
-    this._register(
-      this.filesConfigurationService.onDidChangeReadonly(
-        () => this._onDidChangeReadonly.fire()
-      )
-    );
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
+    this._register(this.filesConfigurationService.onDidChangeFilesAssociation(() => this.onDidChangeFilesAssociation()));
+    this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeReadonly.fire()));
   }
   async onDidFilesChange(e) {
     let fileEventImpactsModel = false;
     let newInOrphanModeGuess;
     if (this.inOrphanMode) {
-      const modelFileAdded = e.contains(
-        this.resource,
-        FileChangeType.ADDED
-      );
+      const modelFileAdded = e.contains(this.resource, FileChangeType.ADDED);
       if (modelFileAdded) {
         newInOrphanModeGuess = false;
         fileEventImpactsModel = true;
       }
     } else {
-      const modelFileDeleted = e.contains(
-        this.resource,
-        FileChangeType.DELETED
-      );
+      const modelFileDeleted = e.contains(this.resource, FileChangeType.DELETED);
       if (modelFileDeleted) {
         newInOrphanModeGuess = true;
         fileEventImpactsModel = true;
@@ -202,12 +152,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
       return;
     }
     const firstLineText = this.getFirstLineText(this.textEditorModel);
-    const languageSelection = this.getOrCreateLanguage(
-      this.resource,
-      this.languageService,
-      this.preferredLanguageId,
-      firstLineText
-    );
+    const languageSelection = this.getOrCreateLanguage(this.resource, this.languageService, this.preferredLanguageId, firstLineText);
     this.textEditorModel.setLanguage(languageSelection);
   }
   setLanguageId(languageId, source) {
@@ -216,7 +161,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   }
   //#region Backup
   async backup(token) {
-    let meta;
+    let meta = void 0;
     if (this.lastResolvedFileStat) {
       meta = {
         mtime: this.lastResolvedFileStat.mtime,
@@ -226,11 +171,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
         orphaned: this.inOrphanMode
       };
     }
-    const content = await this.textFileService.getEncodedReadable(
-      this.resource,
-      this.createSnapshot() ?? void 0,
-      { encoding: UTF8 }
-    );
+    const content = await this.textFileService.getEncodedReadable(this.resource, this.createSnapshot() ?? void 0, { encoding: UTF8 });
     return { meta, content };
   }
   //#endregion
@@ -263,15 +204,11 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     this.trace("resolve() - enter");
     mark("code/willResolveTextFileEditorModel");
     if (this.isDisposed()) {
-      this.trace(
-        "resolve() - exit - without resolving because model is disposed"
-      );
+      this.trace("resolve() - exit - without resolving because model is disposed");
       return;
     }
     if (!options?.contents && (this.dirty || this.saveSequentializer.isRunning())) {
-      this.trace(
-        "resolve() - exit - without resolving because model is dirty or being saved"
-      );
+      this.trace("resolve() - exit - without resolving because model is dirty or being saved");
       return;
     }
     await this.doResolve(options);
@@ -308,45 +245,31 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
       ctime = Date.now();
       size = 0;
       etag = ETAG_DISABLED;
-      this.setOrphaned(
-        error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND
-      );
+      this.setOrphaned(error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND);
     }
-    const preferredEncoding = await this.textFileService.encoding.getPreferredWriteEncoding(
-      this.resource,
-      this.preferredEncoding
-    );
-    this.resolveFromContent(
-      {
-        resource: this.resource,
-        name: this.name,
-        mtime,
-        ctime,
-        size,
-        etag,
-        value: buffer,
-        encoding: preferredEncoding.encoding,
-        readonly: false,
-        locked: false
-      },
-      true,
-      options
-    );
+    const preferredEncoding = await this.textFileService.encoding.getPreferredWriteEncoding(this.resource, this.preferredEncoding);
+    this.resolveFromContent({
+      resource: this.resource,
+      name: this.name,
+      mtime,
+      ctime,
+      size,
+      etag,
+      value: buffer,
+      encoding: preferredEncoding.encoding,
+      readonly: false,
+      locked: false
+    }, true, options);
   }
   async resolveFromBackup(options) {
     const backup = await this.workingCopyBackupService.resolve(this);
     let encoding = UTF8;
     if (backup) {
-      encoding = (await this.textFileService.encoding.getPreferredWriteEncoding(
-        this.resource,
-        this.preferredEncoding
-      )).encoding;
+      encoding = (await this.textFileService.encoding.getPreferredWriteEncoding(this.resource, this.preferredEncoding)).encoding;
     }
     const isNewModel = !this.isResolved();
     if (!isNewModel) {
-      this.trace(
-        "resolveFromBackup() - exit - without resolving because previously new model got created meanwhile"
-      );
+      this.trace("resolveFromBackup() - exit - without resolving because previously new model got created meanwhile");
       return true;
     }
     if (backup) {
@@ -357,29 +280,19 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   }
   async doResolveFromBackup(backup, encoding, options) {
     this.trace("doResolveFromBackup()");
-    this.resolveFromContent(
-      {
-        resource: this.resource,
-        name: this.name,
-        mtime: backup.meta ? backup.meta.mtime : Date.now(),
-        ctime: backup.meta ? backup.meta.ctime : Date.now(),
-        size: backup.meta ? backup.meta.size : 0,
-        etag: backup.meta ? backup.meta.etag : ETAG_DISABLED,
-        // etag disabled if unknown!
-        value: await createTextBufferFactoryFromStream(
-          await this.textFileService.getDecodedStream(
-            this.resource,
-            backup.value,
-            { encoding: UTF8 }
-          )
-        ),
-        encoding,
-        readonly: false,
-        locked: false
-      },
-      true,
-      options
-    );
+    this.resolveFromContent({
+      resource: this.resource,
+      name: this.name,
+      mtime: backup.meta ? backup.meta.mtime : Date.now(),
+      ctime: backup.meta ? backup.meta.ctime : Date.now(),
+      size: backup.meta ? backup.meta.size : 0,
+      etag: backup.meta ? backup.meta.etag : ETAG_DISABLED,
+      // etag disabled if unknown!
+      value: await createTextBufferFactoryFromStream(await this.textFileService.getDecodedStream(this.resource, backup.value, { encoding: UTF8 })),
+      encoding,
+      readonly: false,
+      locked: false
+    }, true, options);
     if (backup.meta?.orphaned) {
       this.setOrphaned(true);
     }
@@ -396,27 +309,18 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     }
     const currentVersionId = this.versionId;
     try {
-      const content = await this.textFileService.readStream(
-        this.resource,
-        {
-          acceptTextOnly: !allowBinary,
-          etag,
-          encoding: this.preferredEncoding,
-          limits: options?.limits
-        }
-      );
+      const content = await this.textFileService.readStream(this.resource, {
+        acceptTextOnly: !allowBinary,
+        etag,
+        encoding: this.preferredEncoding,
+        limits: options?.limits
+      });
       this.setOrphaned(false);
       if (currentVersionId !== this.versionId) {
-        this.trace(
-          "resolveFromFile() - exit - without resolving because model content changed"
-        );
+        this.trace("resolveFromFile() - exit - without resolving because model content changed");
         return;
       }
-      return this.resolveFromContent(
-        content,
-        false,
-        options
-      );
+      return this.resolveFromContent(content, false, options);
     } catch (error) {
       const result = error.fileOperationResult;
       this.setOrphaned(result === FileOperationResult.FILE_NOT_FOUND);
@@ -435,9 +339,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   resolveFromContent(content, dirty, options) {
     this.trace("resolveFromContent() - enter");
     if (this.isDisposed()) {
-      this.trace(
-        "resolveFromContent() - exit - because model is disposed"
-      );
+      this.trace("resolveFromContent() - exit - because model is disposed");
       return;
     }
     this.updateLastResolvedFileStat({
@@ -471,11 +373,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   }
   doCreateTextModel(resource, value) {
     this.trace("doCreateTextModel()");
-    const textModel = this.createTextEditorModel(
-      value,
-      resource,
-      this.preferredLanguageId
-    );
+    const textModel = this.createTextEditorModel(value, resource, this.preferredLanguageId);
     this.installModelListeners(textModel);
     this.autoDetectLanguage();
   }
@@ -489,14 +387,8 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     }
   }
   installModelListeners(model) {
-    this._register(
-      model.onDidChangeContent(
-        (e) => this.onModelContentChanged(model, e.isUndoing || e.isRedoing)
-      )
-    );
-    this._register(
-      model.onDidChangeLanguage(() => this.onMaybeShouldChangeEncoding())
-    );
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(model, e.isUndoing || e.isRedoing)));
+    this._register(model.onDidChangeLanguage(() => this.onMaybeShouldChangeEncoding()));
     super.installModelListeners(model);
   }
   onModelContentChanged(model, isUndoingOrRedoing) {
@@ -508,18 +400,14 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     }
     if (!this.ignoreDirtyOnModelContentChange && !this.isReadonly()) {
       if (model.getAlternativeVersionId() === this.bufferSavedVersionId) {
-        this.trace(
-          "onModelContentChanged() - model content changed back to last saved version"
-        );
+        this.trace("onModelContentChanged() - model content changed back to last saved version");
         const wasDirty = this.dirty;
         this.setDirty(false);
         if (wasDirty) {
           this._onDidRevert.fire();
         }
       } else {
-        this.trace(
-          "onModelContentChanged() - model content changed and marked as dirty"
-        );
+        this.trace("onModelContentChanged() - model content changed and marked as dirty");
         this.setDirty(true);
       }
     }
@@ -567,13 +455,13 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     const wasInConflictMode = this.inConflictMode;
     const wasInErrorMode = this.inErrorMode;
     const oldBufferSavedVersionId = this.bufferSavedVersionId;
-    if (dirty) {
-      this.dirty = true;
-    } else {
+    if (!dirty) {
       this.dirty = false;
       this.inConflictMode = false;
       this.inErrorMode = false;
       this.updateSavedVersionId();
+    } else {
+      this.dirty = true;
     }
     return () => {
       this.dirty = wasDirty;
@@ -593,9 +481,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
       return false;
     }
     if ((this.hasState(TextFileEditorModelState.CONFLICT) || this.hasState(TextFileEditorModelState.ERROR)) && (options.reason === SaveReason.AUTO || options.reason === SaveReason.FOCUS_CHANGE || options.reason === SaveReason.WINDOW_CHANGE)) {
-      this.trace(
-        "save() - ignoring auto save request for model that is in conflict or error"
-      );
+      this.trace("save() - ignoring auto save request for model that is in conflict or error");
       return false;
     }
     this.trace("save() - enter");
@@ -610,21 +496,15 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     const versionId = this.versionId;
     this.trace(`doSave(${versionId}) - enter with versionId ${versionId}`);
     if (this.ignoreSaveFromSaveParticipants) {
-      this.trace(
-        `doSave(${versionId}) - exit - refusing to save() recursively from save participant`
-      );
+      this.trace(`doSave(${versionId}) - exit - refusing to save() recursively from save participant`);
       return;
     }
     if (this.saveSequentializer.isRunning(versionId)) {
-      this.trace(
-        `doSave(${versionId}) - exit - found a running save for versionId ${versionId}`
-      );
+      this.trace(`doSave(${versionId}) - exit - found a running save for versionId ${versionId}`);
       return this.saveSequentializer.running;
     }
     if (!options.force && !this.dirty) {
-      this.trace(
-        `doSave(${versionId}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.dirty}, this.versionId: ${this.versionId})`
-      );
+      this.trace(`doSave(${versionId}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.dirty}, this.versionId: ${this.versionId})`);
       return;
     }
     if (this.saveSequentializer.isRunning()) {
@@ -636,142 +516,87 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
       this.textEditorModel.pushStackElement();
     }
     const saveCancellation = new CancellationTokenSource();
-    return this.progressService.withProgress(
-      {
-        title: localize(
-          "saveParticipants",
-          "Saving '{0}'",
-          this.name
-        ),
-        location: ProgressLocation.Window,
-        cancellable: true,
-        delay: this.isDirty() ? 3e3 : 5e3
-      },
-      (progress) => {
-        return this.doSaveSequential(
-          versionId,
-          options,
-          progress,
-          saveCancellation
-        );
-      },
-      () => {
-        saveCancellation.cancel();
-      }
-    ).finally(() => {
+    return this.progressService.withProgress({
+      title: localize("saveParticipants", "Saving '{0}'", this.name),
+      location: ProgressLocation.Window,
+      cancellable: true,
+      delay: this.isDirty() ? 3e3 : 5e3
+    }, (progress) => {
+      return this.doSaveSequential(versionId, options, progress, saveCancellation);
+    }, () => {
+      saveCancellation.cancel();
+    }).finally(() => {
       saveCancellation.dispose();
     });
   }
   doSaveSequential(versionId, options, progress, saveCancellation) {
-    return this.saveSequentializer.run(
-      versionId,
-      (async () => {
-        if (this.isResolved() && !options.skipSaveParticipants) {
-          try {
-            if (options.reason === SaveReason.AUTO && typeof this.lastModelContentChangeFromUndoRedo === "number") {
-              const timeFromUndoRedoToSave = Date.now() - this.lastModelContentChangeFromUndoRedo;
-              if (timeFromUndoRedoToSave < TextFileEditorModel.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD) {
-                await timeout(
-                  TextFileEditorModel.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD - timeFromUndoRedoToSave
-                );
-              }
+    return this.saveSequentializer.run(versionId, (async () => {
+      if (this.isResolved() && !options.skipSaveParticipants) {
+        try {
+          if (options.reason === SaveReason.AUTO && typeof this.lastModelContentChangeFromUndoRedo === "number") {
+            const timeFromUndoRedoToSave = Date.now() - this.lastModelContentChangeFromUndoRedo;
+            if (timeFromUndoRedoToSave < TextFileEditorModel.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD) {
+              await timeout(TextFileEditorModel.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD - timeFromUndoRedoToSave);
             }
-            if (!saveCancellation.token.isCancellationRequested) {
-              this.ignoreSaveFromSaveParticipants = true;
-              try {
-                await this.textFileService.files.runSaveParticipants(
-                  this,
-                  {
-                    reason: options.reason ?? SaveReason.EXPLICIT,
-                    savedFrom: options.from
-                  },
-                  progress,
-                  saveCancellation.token
-                );
-              } finally {
-                this.ignoreSaveFromSaveParticipants = false;
-              }
-            }
-          } catch (error) {
-            this.logService.error(
-              `[text file model] runSaveParticipants(${versionId}) - resulted in an error: ${error.toString()}`,
-              this.resource.toString()
-            );
           }
-        }
-        if (saveCancellation.token.isCancellationRequested) {
-          return;
-        } else {
-          saveCancellation.dispose();
-        }
-        if (this.isDisposed()) {
-          return;
-        }
-        if (!this.isResolved()) {
-          return;
-        }
-        versionId = this.versionId;
-        this.inErrorMode = false;
-        progress.report({
-          message: localize("saveTextFile", "Writing into file...")
-        });
-        this.trace(`doSave(${versionId}) - before write()`);
-        const lastResolvedFileStat = assertIsDefined(
-          this.lastResolvedFileStat
-        );
-        const resolvedTextFileEditorModel = this;
-        return this.saveSequentializer.run(
-          versionId,
-          (async () => {
+          if (!saveCancellation.token.isCancellationRequested) {
+            this.ignoreSaveFromSaveParticipants = true;
             try {
-              const stat = await this.textFileService.write(
-                lastResolvedFileStat.resource,
-                resolvedTextFileEditorModel.createSnapshot(),
-                {
-                  mtime: lastResolvedFileStat.mtime,
-                  encoding: this.getEncoding(),
-                  etag: options.ignoreModifiedSince || !this.filesConfigurationService.preventSaveConflicts(
-                    lastResolvedFileStat.resource,
-                    resolvedTextFileEditorModel.getLanguageId()
-                  ) ? ETAG_DISABLED : lastResolvedFileStat.etag,
-                  unlock: options.writeUnlock,
-                  writeElevated: options.writeElevated
-                }
-              );
-              this.handleSaveSuccess(stat, versionId, options);
-            } catch (error) {
-              this.handleSaveError(error, versionId, options);
+              await this.textFileService.files.runSaveParticipants(this, { reason: options.reason ?? SaveReason.EXPLICIT, savedFrom: options.from }, progress, saveCancellation.token);
+            } finally {
+              this.ignoreSaveFromSaveParticipants = false;
             }
-          })()
-        );
-      })(),
-      () => saveCancellation.cancel()
-    );
+          }
+        } catch (error) {
+          this.logService.error(`[text file model] runSaveParticipants(${versionId}) - resulted in an error: ${error.toString()}`, this.resource.toString());
+        }
+      }
+      if (saveCancellation.token.isCancellationRequested) {
+        return;
+      } else {
+        saveCancellation.dispose();
+      }
+      if (this.isDisposed()) {
+        return;
+      }
+      if (!this.isResolved()) {
+        return;
+      }
+      versionId = this.versionId;
+      this.inErrorMode = false;
+      progress.report({ message: localize("saveTextFile", "Writing into file...") });
+      this.trace(`doSave(${versionId}) - before write()`);
+      const lastResolvedFileStat = assertIsDefined(this.lastResolvedFileStat);
+      const resolvedTextFileEditorModel = this;
+      return this.saveSequentializer.run(versionId, (async () => {
+        try {
+          const stat = await this.textFileService.write(lastResolvedFileStat.resource, resolvedTextFileEditorModel.createSnapshot(), {
+            mtime: lastResolvedFileStat.mtime,
+            encoding: this.getEncoding(),
+            etag: options.ignoreModifiedSince || !this.filesConfigurationService.preventSaveConflicts(lastResolvedFileStat.resource, resolvedTextFileEditorModel.getLanguageId()) ? ETAG_DISABLED : lastResolvedFileStat.etag,
+            unlock: options.writeUnlock,
+            writeElevated: options.writeElevated
+          });
+          this.handleSaveSuccess(stat, versionId, options);
+        } catch (error) {
+          this.handleSaveError(error, versionId, options);
+        }
+      })());
+    })(), () => saveCancellation.cancel());
   }
   handleSaveSuccess(stat, versionId, options) {
     this.updateLastResolvedFileStat(stat);
     if (versionId === this.versionId) {
-      this.trace(
-        `handleSaveSuccess(${versionId}) - setting dirty to false because versionId did not change`
-      );
+      this.trace(`handleSaveSuccess(${versionId}) - setting dirty to false because versionId did not change`);
       this.setDirty(false);
     } else {
-      this.trace(
-        `handleSaveSuccess(${versionId}) - not setting dirty to false because versionId did change meanwhile`
-      );
+      this.trace(`handleSaveSuccess(${versionId}) - not setting dirty to false because versionId did change meanwhile`);
     }
     this.setOrphaned(false);
-    this._onDidSave.fire({
-      reason: options.reason,
-      stat,
-      source: options.source
-    });
+    this._onDidSave.fire({ reason: options.reason, stat, source: options.source });
   }
   handleSaveError(error, versionId, options) {
-    (options.ignoreErrorHandler ? this.logService.trace : this.logService.error).apply(this.logService, [
-      `[text file model] handleSaveError(${versionId}) - exit - resulted in a save error: ${error.toString()}`,
-      this.resource.toString()
-    ]);
+    (options.ignoreErrorHandler ? this.logService.trace : this.logService.error).apply(this.logService, [`[text file model] handleSaveError(${versionId}) - exit - resulted in a save error: ${error.toString()}`, this.resource.toString()]);
     if (options.ignoreErrorHandler) {
       throw error;
     }
@@ -780,11 +605,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     if (error.fileOperationResult === FileOperationResult.FILE_MODIFIED_SINCE) {
       this.inConflictMode = true;
     }
-    this.textFileService.files.saveErrorHandler.onSaveError(
-      error,
-      this,
-      options
-    );
+    this.textFileService.files.saveErrorHandler.onSaveError(error, this, options);
     this._onDidSaveError.fire();
   }
   updateSavedVersionId() {
@@ -799,11 +620,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
     } else if (this.lastResolvedFileStat.mtime <= newFileStat.mtime) {
       this.lastResolvedFileStat = newFileStat;
     } else {
-      this.lastResolvedFileStat = {
-        ...this.lastResolvedFileStat,
-        readonly: newFileStat.readonly,
-        locked: newFileStat.locked
-      };
+      this.lastResolvedFileStat = { ...this.lastResolvedFileStat, readonly: newFileStat.readonly, locked: newFileStat.locked };
     }
     if (this.isReadonly() !== oldReadonly) {
       this._onDidChangeReadonly.fire();
@@ -838,35 +655,23 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   //#region Encoding
   async onMaybeShouldChangeEncoding() {
     if (this.hasEncodingSetExplicitly) {
-      this.trace(
-        "onMaybeShouldChangeEncoding() - ignoring because encoding was set explicitly"
-      );
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because encoding was set explicitly");
       return;
     }
     if (this.contentEncoding === UTF8_with_bom || this.contentEncoding === UTF16be || this.contentEncoding === UTF16le) {
-      this.trace(
-        "onMaybeShouldChangeEncoding() - ignoring because content encoding has a BOM"
-      );
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because content encoding has a BOM");
       return;
     }
-    const { encoding } = await this.textFileService.encoding.getPreferredReadEncoding(
-      this.resource
-    );
+    const { encoding } = await this.textFileService.encoding.getPreferredReadEncoding(this.resource);
     if (typeof encoding !== "string" || !this.isNewEncoding(encoding)) {
-      this.trace(
-        `onMaybeShouldChangeEncoding() - ignoring because preferred encoding ${encoding} is not new`
-      );
+      this.trace(`onMaybeShouldChangeEncoding() - ignoring because preferred encoding ${encoding} is not new`);
       return;
     }
     if (this.isDirty()) {
-      this.trace(
-        "onMaybeShouldChangeEncoding() - ignoring because model is dirty"
-      );
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because model is dirty");
       return;
     }
-    this.logService.info(
-      `Adjusting encoding based on configured language override to '${encoding}' for ${this.resource.toString(true)}.`
-    );
+    this.logService.info(`Adjusting encoding based on configured language override to '${encoding}' for ${this.resource.toString(true)}.`);
     return this.forceResolveFromFile();
   }
   hasEncodingSetExplicitly = false;
@@ -882,9 +687,7 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
         this.setDirty(true);
       }
       if (!this.inConflictMode) {
-        await this.save({
-          source: TextFileEditorModel.TEXTFILE_SAVE_ENCODING_SOURCE
-        });
+        await this.save({ source: TextFileEditorModel.TEXTFILE_SAVE_ENCODING_SOURCE });
       }
     } else {
       if (!this.isNewEncoding(encoding)) {
@@ -918,19 +721,13 @@ let TextFileEditorModel = class extends BaseTextEditorModel {
   }
   //#endregion
   trace(msg) {
-    this.logService.trace(
-      `[text file model] ${msg}`,
-      this.resource.toString()
-    );
+    this.logService.trace(`[text file model] ${msg}`, this.resource.toString());
   }
   isResolved() {
     return !!this.textEditorModel;
   }
   isReadonly() {
-    return this.filesConfigurationService.isReadonly(
-      this.resource,
-      this.lastResolvedFileStat
-    );
+    return this.filesConfigurationService.isReadonly(this.resource, this.lastResolvedFileStat);
   }
   dispose() {
     this.trace("dispose()");

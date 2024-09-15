@@ -1,15 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../../base/common/charCode.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import * as strings from "../../../../base/common/strings.js";
-import {
-  DefaultEndOfLine
-} from "../../model.js";
-import {
-  StringBuffer,
-  createLineStarts,
-  createLineStartsFast
-} from "./pieceTreeBase.js";
+import { DefaultEndOfLine, ITextBuffer, ITextBufferBuilder, ITextBufferFactory } from "../../model.js";
+import { StringBuffer, createLineStarts, createLineStartsFast } from "./pieceTreeBase.js";
 import { PieceTreeTextBuffer } from "./pieceTreeTextBuffer.js";
 class PieceTreeTextBufferFactory {
   constructor(_chunks, _bom, _cr, _lf, _crlf, _containsRTL, _containsUnusualLineTerminators, _isBasicASCII, _normalizeEOL) {
@@ -47,15 +42,7 @@ class PieceTreeTextBufferFactory {
         chunks[i] = new StringBuffer(str, newLineStart);
       }
     }
-    const textBuffer = new PieceTreeTextBuffer(
-      chunks,
-      this._bom,
-      eol,
-      this._containsRTL,
-      this._containsUnusualLineTerminators,
-      this._isBasicASCII,
-      this._normalizeEOL
-    );
+    const textBuffer = new PieceTreeTextBuffer(chunks, this._bom, eol, this._containsRTL, this._containsUnusualLineTerminators, this._isBasicASCII, this._normalizeEOL);
     return { textBuffer, disposable: textBuffer };
   }
   getFirstLineText(lengthLimit) {

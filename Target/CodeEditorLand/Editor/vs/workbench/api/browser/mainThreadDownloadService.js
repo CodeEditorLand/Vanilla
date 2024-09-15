@@ -11,14 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
+import { MainContext, MainThreadDownloadServiceShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { IDownloadService } from "../../../platform/download/common/download.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
+import { UriComponents, URI } from "../../../base/common/uri.js";
 let MainThreadDownloadService = class extends Disposable {
   constructor(extHostContext, downloadService) {
     super();

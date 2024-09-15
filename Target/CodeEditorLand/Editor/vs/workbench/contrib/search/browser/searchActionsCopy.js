@@ -1,114 +1,93 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { isWindows } from "../../../../base/common/platform.js";
 import * as nls from "../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
 import * as Constants from "../common/constants.js";
+import { FileMatch, FolderMatch, FolderMatchWithResource, Match, RenderableMatch, searchMatchComparer } from "./searchModel.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { category, getSearchView } from "./searchActionsBase.js";
-import {
-  FileMatch,
-  FolderMatch,
-  FolderMatchWithResource,
-  Match,
-  searchMatchComparer
-} from "./searchModel.js";
-registerAction2(
-  class CopyMatchCommandAction extends Action2 {
-    static {
-      __name(this, "CopyMatchCommandAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.CopyMatchCommandId,
-        title: nls.localize2("copyMatchLabel", "Copy"),
-        category,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: Constants.SearchContext.FileMatchOrMatchFocusKey,
-          primary: KeyMod.CtrlCmd | KeyCode.KeyC
-        },
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: Constants.SearchContext.FileMatchOrMatchFocusKey,
-            group: "search_2",
-            order: 1
-          }
-        ]
-      });
-    }
-    async run(accessor, match) {
-      await copyMatchCommand(accessor, match);
-    }
+import { isWindows } from "../../../../base/common/platform.js";
+registerAction2(class CopyMatchCommandAction extends Action2 {
+  static {
+    __name(this, "CopyMatchCommandAction");
   }
-);
-registerAction2(
-  class CopyPathCommandAction extends Action2 {
-    static {
-      __name(this, "CopyPathCommandAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.CopyPathCommandId,
-        title: nls.localize2("copyPathLabel", "Copy Path"),
-        category,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: Constants.SearchContext.FileMatchOrFolderMatchWithResourceFocusKey,
-          primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyC,
-          win: {
-            primary: KeyMod.Shift | KeyMod.Alt | KeyCode.KeyC
-          }
-        },
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: Constants.SearchContext.FileMatchOrFolderMatchWithResourceFocusKey,
-            group: "search_2",
-            order: 2
-          }
-        ]
-      });
-    }
-    async run(accessor, fileMatch) {
-      await copyPathCommand(accessor, fileMatch);
-    }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.CopyMatchCommandId,
+      title: nls.localize2("copyMatchLabel", "Copy"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: Constants.SearchContext.FileMatchOrMatchFocusKey,
+        primary: KeyMod.CtrlCmd | KeyCode.KeyC
+      },
+      menu: [{
+        id: MenuId.SearchContext,
+        when: Constants.SearchContext.FileMatchOrMatchFocusKey,
+        group: "search_2",
+        order: 1
+      }]
+    });
   }
-);
-registerAction2(
-  class CopyAllCommandAction extends Action2 {
-    static {
-      __name(this, "CopyAllCommandAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.CopyAllCommandId,
-        title: nls.localize2("copyAllLabel", "Copy All"),
-        category,
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: Constants.SearchContext.HasSearchResults,
-            group: "search_2",
-            order: 3
-          }
-        ]
-      });
-    }
-    async run(accessor) {
-      await copyAllCommand(accessor);
-    }
+  async run(accessor, match) {
+    await copyMatchCommand(accessor, match);
   }
-);
+});
+registerAction2(class CopyPathCommandAction extends Action2 {
+  static {
+    __name(this, "CopyPathCommandAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.CopyPathCommandId,
+      title: nls.localize2("copyPathLabel", "Copy Path"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: Constants.SearchContext.FileMatchOrFolderMatchWithResourceFocusKey,
+        primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyC,
+        win: {
+          primary: KeyMod.Shift | KeyMod.Alt | KeyCode.KeyC
+        }
+      },
+      menu: [{
+        id: MenuId.SearchContext,
+        when: Constants.SearchContext.FileMatchOrFolderMatchWithResourceFocusKey,
+        group: "search_2",
+        order: 2
+      }]
+    });
+  }
+  async run(accessor, fileMatch) {
+    await copyPathCommand(accessor, fileMatch);
+  }
+});
+registerAction2(class CopyAllCommandAction extends Action2 {
+  static {
+    __name(this, "CopyAllCommandAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.CopyAllCommandId,
+      title: nls.localize2("copyAllLabel", "Copy All"),
+      category,
+      menu: [{
+        id: MenuId.SearchContext,
+        when: Constants.SearchContext.HasSearchResults,
+        group: "search_2",
+        order: 3
+      }]
+    });
+  }
+  async run(accessor) {
+    await copyAllCommand(accessor);
+  }
+});
 const lineDelimiter = isWindows ? "\r\n" : "\n";
 async function copyPathCommand(accessor, fileMatch) {
   if (!fileMatch) {
@@ -120,9 +99,7 @@ async function copyPathCommand(accessor, fileMatch) {
   }
   const clipboardService = accessor.get(IClipboardService);
   const labelService = accessor.get(ILabelService);
-  const text = labelService.getUriLabel(fileMatch.resource, {
-    noPrefix: true
-  });
+  const text = labelService.getUriLabel(fileMatch.resource, { noPrefix: true });
   await clipboardService.writeText(text);
 }
 __name(copyPathCommand, "copyPathCommand");
@@ -156,10 +133,7 @@ async function copyAllCommand(accessor) {
   const searchView = getSearchView(viewsService);
   if (searchView) {
     const root = searchView.searchResult;
-    const text = allFolderMatchesToString(
-      root.folderMatches(),
-      labelService
-    );
+    const text = allFolderMatchesToString(root.folderMatches(), labelService);
     await clipboardService.writeText(text);
   }
 }
@@ -191,9 +165,7 @@ function fileFolderMatchToString(match, labelService) {
 __name(fileFolderMatchToString, "fileFolderMatchToString");
 function fileMatchToString(fileMatch, labelService) {
   const matchTextRows = fileMatch.matches().sort(searchMatchComparer).map((match) => matchToString(match, 2));
-  const uriString = labelService.getUriLabel(fileMatch.resource, {
-    noPrefix: true
-  });
+  const uriString = labelService.getUriLabel(fileMatch.resource, { noPrefix: true });
   return {
     text: `${uriString}${lineDelimiter}${matchTextRows.join(lineDelimiter)}`,
     count: matchTextRows.length
@@ -219,10 +191,7 @@ function allFolderMatchesToString(folderMatches, labelService) {
   const folderResults = [];
   folderMatches = folderMatches.sort(searchMatchComparer);
   for (let i = 0; i < folderMatches.length; i++) {
-    const folderResult = folderMatchToString(
-      folderMatches[i],
-      labelService
-    );
+    const folderResult = folderMatchToString(folderMatches[i], labelService);
     if (folderResult.count) {
       folderResults.push(folderResult.text);
     }

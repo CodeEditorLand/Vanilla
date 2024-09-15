@@ -14,30 +14,19 @@ import { h } from "../../../../base/browser/dom.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  observableValue
-} from "../../../../base/common/observable.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ITransaction, autorun, observableValue } from "../../../../base/common/observable.js";
 import { isDefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  ExplorerExtensions
-} from "../../files/browser/explorerFileContrib.js";
-import {
-  TestingConfigKeys,
-  getTestingConfiguration,
-  observeTestingConfiguration
-} from "../common/configuration.js";
-import { ITestCoverageService } from "../common/testCoverageService.js";
+import { ExplorerExtensions, IExplorerFileContribution, IExplorerFileContributionRegistry } from "../../files/browser/explorerFileContrib.js";
 import * as coverUtils from "./codeCoverageDisplayUtils.js";
+import { ITestingCoverageBarThresholds, TestingConfigKeys, getTestingConfiguration, observeTestingConfiguration } from "../common/configuration.js";
+import { AbstractFileCoverage } from "../common/testCoverage.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
 let ManagedTestCoverageBars = class extends Disposable {
   constructor(options, configurationService, hoverService) {
     super();
@@ -77,13 +66,7 @@ let ManagedTestCoverageBars = class extends Disposable {
     return !!this._coverage;
   }
   attachHover(target, factory) {
-    this._register(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("element"),
-        target,
-        () => this._coverage && factory(this._coverage)
-      )
-    );
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), target, () => this._coverage && factory(this._coverage)));
   }
   setCoverageInfo(coverage) {
     const ds = this.visibleStore;
@@ -99,20 +82,14 @@ let ManagedTestCoverageBars = class extends Disposable {
       const root = this.el.value.root;
       ds.add(toDisposable(() => root.remove()));
       this.options.container.appendChild(root);
-      ds.add(
-        this.configurationService.onDidChangeConfiguration((c) => {
-          if (!this._coverage) {
-            return;
-          }
-          if (c.affectsConfiguration(
-            TestingConfigKeys.CoveragePercent
-          ) || c.affectsConfiguration(
-            TestingConfigKeys.CoverageBarThresholds
-          )) {
-            this.doRender(this._coverage);
-          }
-        })
-      );
+      ds.add(this.configurationService.onDidChangeConfiguration((c) => {
+        if (!this._coverage) {
+          return;
+        }
+        if (c.affectsConfiguration(TestingConfigKeys.CoveragePercent) || c.affectsConfiguration(TestingConfigKeys.CoverageBarThresholds)) {
+          this.doRender(this._coverage);
+        }
+      }));
     }
     this._coverage = coverage;
     this.doRender(coverage);
@@ -120,46 +97,19 @@ let ManagedTestCoverageBars = class extends Disposable {
   doRender(coverage) {
     const el = this.el.value;
     const precision = this.options.compact ? 0 : 2;
-    const thresholds = getTestingConfiguration(
-      this.configurationService,
-      TestingConfigKeys.CoverageBarThresholds
-    );
-    const overallStat = coverUtils.calculateDisplayedStat(
-      coverage,
-      getTestingConfiguration(
-        this.configurationService,
-        TestingConfigKeys.CoveragePercent
-      )
-    );
+    const thresholds = getTestingConfiguration(this.configurationService, TestingConfigKeys.CoverageBarThresholds);
+    const overallStat = coverUtils.calculateDisplayedStat(coverage, getTestingConfiguration(this.configurationService, TestingConfigKeys.CoveragePercent));
     if (this.options.overall !== false) {
-      el.overall.textContent = coverUtils.displayPercent(
-        overallStat,
-        precision
-      );
+      el.overall.textContent = coverUtils.displayPercent(overallStat, precision);
     } else {
       el.overall.style.display = "none";
     }
     if ("tpcBar" in el) {
       renderBar(el.tpcBar, overallStat, false, thresholds);
     } else {
-      renderBar(
-        el.statement,
-        coverUtils.percent(coverage.statement),
-        coverage.statement.total === 0,
-        thresholds
-      );
-      renderBar(
-        el.function,
-        coverage.declaration && coverUtils.percent(coverage.declaration),
-        coverage.declaration?.total === 0,
-        thresholds
-      );
-      renderBar(
-        el.branch,
-        coverage.branch && coverUtils.percent(coverage.branch),
-        coverage.branch?.total === 0,
-        thresholds
-      );
+      renderBar(el.statement, coverUtils.percent(coverage.statement), coverage.statement.total === 0, thresholds);
+      renderBar(el.function, coverage.declaration && coverUtils.percent(coverage.declaration), coverage.declaration?.total === 0, thresholds);
+      renderBar(el.branch, coverage.branch && coverUtils.percent(coverage.branch), coverage.branch?.total === 0, thresholds);
     }
   }
 };
@@ -185,27 +135,9 @@ const renderBar = /* @__PURE__ */ __name((bar, pct, isZero, thresholds) => {
   bar.style.opacity = "1";
 }, "renderBar");
 const nf = new Intl.NumberFormat();
-const stmtCoverageText = /* @__PURE__ */ __name((coverage) => localize(
-  "statementCoverage",
-  "{0}/{1} statements covered ({2})",
-  nf.format(coverage.statement.covered),
-  nf.format(coverage.statement.total),
-  coverUtils.displayPercent(coverUtils.percent(coverage.statement))
-), "stmtCoverageText");
-const fnCoverageText = /* @__PURE__ */ __name((coverage) => coverage.declaration && localize(
-  "functionCoverage",
-  "{0}/{1} functions covered ({2})",
-  nf.format(coverage.declaration.covered),
-  nf.format(coverage.declaration.total),
-  coverUtils.displayPercent(coverUtils.percent(coverage.declaration))
-), "fnCoverageText");
-const branchCoverageText = /* @__PURE__ */ __name((coverage) => coverage.branch && localize(
-  "branchCoverage",
-  "{0}/{1} branches covered ({2})",
-  nf.format(coverage.branch.covered),
-  nf.format(coverage.branch.total),
-  coverUtils.displayPercent(coverUtils.percent(coverage.branch))
-), "branchCoverageText");
+const stmtCoverageText = /* @__PURE__ */ __name((coverage) => localize("statementCoverage", "{0}/{1} statements covered ({2})", nf.format(coverage.statement.covered), nf.format(coverage.statement.total), coverUtils.displayPercent(coverUtils.percent(coverage.statement))), "stmtCoverageText");
+const fnCoverageText = /* @__PURE__ */ __name((coverage) => coverage.declaration && localize("functionCoverage", "{0}/{1} functions covered ({2})", nf.format(coverage.declaration.covered), nf.format(coverage.declaration.total), coverUtils.displayPercent(coverUtils.percent(coverage.declaration))), "fnCoverageText");
+const branchCoverageText = /* @__PURE__ */ __name((coverage) => coverage.branch && localize("branchCoverage", "{0}/{1} branches covered ({2})", nf.format(coverage.branch.covered), nf.format(coverage.branch.total), coverUtils.displayPercent(coverUtils.percent(coverage.branch))), "branchCoverageText");
 const getOverallHoverText = /* @__PURE__ */ __name((coverage) => {
   const str = [
     stmtCoverageText(coverage),
@@ -221,46 +153,36 @@ let ExplorerTestCoverageBars = class extends ManagedTestCoverageBars {
   static {
     __name(this, "ExplorerTestCoverageBars");
   }
-  resource = observableValue(
-    this,
-    void 0
-  );
+  resource = observableValue(this, void 0);
   static hasRegistered = false;
   static register() {
     if (this.hasRegistered) {
       return;
     }
     this.hasRegistered = true;
-    Registry.as(
-      ExplorerExtensions.FileContributionRegistry
-    ).register({
+    Registry.as(ExplorerExtensions.FileContributionRegistry).register({
       create(insta, container) {
-        return insta.createInstance(ExplorerTestCoverageBars, {
-          compact: true,
-          container
-        });
+        return insta.createInstance(
+          ExplorerTestCoverageBars,
+          { compact: true, container }
+        );
       }
     });
   }
   constructor(options, configurationService, hoverService, testCoverageService) {
     super(options, configurationService, hoverService);
-    const isEnabled = observeTestingConfiguration(
-      configurationService,
-      TestingConfigKeys.ShowCoverageInExplorer
-    );
-    this._register(
-      autorun(async (reader) => {
-        let info;
-        const coverage = testCoverageService.selected.read(reader);
-        if (coverage && isEnabled.read(reader)) {
-          const resource = this.resource.read(reader);
-          if (resource) {
-            info = coverage.getComputedForUri(resource);
-          }
+    const isEnabled = observeTestingConfiguration(configurationService, TestingConfigKeys.ShowCoverageInExplorer);
+    this._register(autorun(async (reader) => {
+      let info;
+      const coverage = testCoverageService.selected.read(reader);
+      if (coverage && isEnabled.read(reader)) {
+        const resource = this.resource.read(reader);
+        if (resource) {
+          info = coverage.getComputedForUri(resource);
         }
-        this.setCoverageInfo(info);
-      })
-    );
+      }
+      this.setCoverageInfo(info);
+    }));
   }
   /** @inheritdoc */
   setResource(resource, transaction) {
@@ -268,10 +190,7 @@ let ExplorerTestCoverageBars = class extends ManagedTestCoverageBars {
   }
   setCoverageInfo(coverage) {
     super.setCoverageInfo(coverage);
-    this.options.container?.classList.toggle(
-      "explorer-item-with-test-coverage",
-      this.visible
-    );
+    this.options.container?.classList.toggle("explorer-item-with-test-coverage", this.visible);
   }
 };
 ExplorerTestCoverageBars = __decorateClass([

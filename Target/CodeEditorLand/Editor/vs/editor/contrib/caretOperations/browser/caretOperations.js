@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
-import {
-  EditorAction,
-  registerEditorAction
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, IActionOptions, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { ICommand } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import { MoveCaretCommand } from "./moveCaretCommand.js";
+import * as nls from "../../../../nls.js";
 class MoveCaretAction extends EditorAction {
   static {
     __name(this, "MoveCaretAction");

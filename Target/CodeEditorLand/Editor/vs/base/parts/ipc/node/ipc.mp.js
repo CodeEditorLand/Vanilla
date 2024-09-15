@@ -1,14 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MessagePortMain, isUtilityProcess, MessageEvent } from "../../sandbox/node/electronTypes.js";
 import { VSBuffer } from "../../../common/buffer.js";
+import { ClientConnectionEvent, IMessagePassingProtocol, IPCServer } from "../common/ipc.js";
 import { Emitter, Event } from "../../../common/event.js";
 import { assertType } from "../../../common/types.js";
-import {
-  isUtilityProcess
-} from "../../sandbox/node/electronTypes.js";
-import {
-  IPCServer
-} from "../common/ipc.js";
 class Protocol {
   constructor(port) {
     this.port = port;
@@ -17,16 +13,12 @@ class Protocol {
   static {
     __name(this, "Protocol");
   }
-  onMessage = Event.fromNodeEventEmitter(
-    this.port,
-    "message",
-    (e) => {
-      if (e.data) {
-        return VSBuffer.wrap(e.data);
-      }
-      return VSBuffer.alloc(0);
+  onMessage = Event.fromNodeEventEmitter(this.port, "message", (e) => {
+    if (e.data) {
+      return VSBuffer.wrap(e.data);
     }
-  );
+    return VSBuffer.alloc(0);
+  });
   send(message) {
     this.port.postMessage(message.buffer);
   }
@@ -57,10 +49,7 @@ class Server extends IPCServer {
         // Not part of the standard spec, but in Electron we get a `close` event
         // when the other side closes. We can use this to detect disconnects
         // (https://github.com/electron/electron/blob/11-x-y/docs/api/message-port-main.md#event-close)
-        onDidClientDisconnect: Event.fromNodeEventEmitter(
-          port,
-          "close"
-        )
+        onDidClientDisconnect: Event.fromNodeEventEmitter(port, "close")
       };
       return result;
     });

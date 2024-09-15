@@ -11,82 +11,52 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { h } from "../../../../base/browser/dom.js";
-import {
-  KeybindingLabel,
-  unthemedKeybindingLabelOptions
-} from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
-import { Separator } from "../../../../base/common/actions.js";
+import { KeybindingLabel, unthemedKeybindingLabelOptions } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { IAction, Separator } from "../../../../base/common/actions.js";
 import { equals } from "../../../../base/common/arrays.js";
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived,
-  observableFromEvent
-} from "../../../../base/common/observable.js";
+import { IObservable, autorun, autorunWithStore, derived, observableFromEvent } from "../../../../base/common/observable.js";
 import { OS } from "../../../../base/common/platform.js";
 import "./inlineEditHintsWidget.css";
-import {
-  MenuEntryActionViewItem,
-  createAndFillInActionBarActions
-} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  WorkbenchToolBar
-} from "../../../../platform/actions/browser/toolbar.js";
-import {
-  IMenuService,
-  MenuId,
-  MenuItemAction
-} from "../../../../platform/actions/common/actions.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { Position } from "../../../common/core/position.js";
+import { PositionAffinity } from "../../../common/model.js";
+import { GhostTextWidget } from "./ghostTextWidget.js";
+import { MenuEntryActionViewItem, createAndFillInActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuWorkbenchToolBarOptions, WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { Position } from "../../../common/core/position.js";
-import { PositionAffinity } from "../../../common/model.js";
 let InlineEditHintsWidget = class extends Disposable {
   constructor(editor, model, instantiationService) {
     super();
     this.editor = editor;
     this.model = model;
     this.instantiationService = instantiationService;
-    this._register(
-      autorunWithStore((reader, store) => {
-        const model2 = this.model.read(reader);
-        if (!model2 || !this.alwaysShowToolbar.read(reader)) {
-          return;
-        }
-        const contentWidget = store.add(
-          this.instantiationService.createInstance(
-            InlineEditHintsContentWidget,
-            this.editor,
-            true,
-            this.position
-          )
-        );
-        editor.addContentWidget(contentWidget);
-        store.add(
-          toDisposable(
-            () => editor.removeContentWidget(contentWidget)
-          )
-        );
-      })
-    );
+    this._register(autorunWithStore((reader, store) => {
+      const model2 = this.model.read(reader);
+      if (!model2 || !this.alwaysShowToolbar.read(reader)) {
+        return;
+      }
+      const contentWidget = store.add(this.instantiationService.createInstance(
+        InlineEditHintsContentWidget,
+        this.editor,
+        true,
+        this.position
+      ));
+      editor.addContentWidget(contentWidget);
+      store.add(toDisposable(() => editor.removeContentWidget(contentWidget)));
+    }));
   }
   static {
     __name(this, "InlineEditHintsWidget");
   }
-  alwaysShowToolbar = observableFromEvent(
-    this,
-    this.editor.onDidChangeConfiguration,
-    () => this.editor.getOption(EditorOption.inlineEdit).showToolbar === "always"
-  );
+  alwaysShowToolbar = observableFromEvent(this, this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineEdit).showToolbar === "always");
   sessionPosition = void 0;
   position = derived(this, (reader) => {
     const ghostText = this.model.read(reader)?.model.ghostText.read(reader);
@@ -98,13 +68,7 @@ let InlineEditHintsWidget = class extends Disposable {
     if (this.sessionPosition && this.sessionPosition.lineNumber !== ghostText.lineNumber) {
       this.sessionPosition = void 0;
     }
-    const position = new Position(
-      ghostText.lineNumber,
-      Math.min(
-        firstColumn,
-        this.sessionPosition?.column ?? Number.MAX_SAFE_INTEGER
-      )
-    );
+    const position = new Position(ghostText.lineNumber, Math.min(firstColumn, this.sessionPosition?.column ?? Number.MAX_SAFE_INTEGER));
     this.sessionPosition = position;
     return position;
   });
@@ -120,61 +84,38 @@ let InlineEditHintsContentWidget = class extends Disposable {
     this._position = _position;
     this._contextKeyService = _contextKeyService;
     this._menuService = _menuService;
-    this.toolBar = this._register(
-      instantiationService.createInstance(
-        CustomizedMenuWorkbenchToolBar,
-        this.nodes.toolBar,
-        this.editor,
-        MenuId.InlineEditToolbar,
-        {
-          menuOptions: { renderShortTitle: true },
-          toolbarOptions: {
-            primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
-          },
-          actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
-            if (action instanceof MenuItemAction) {
-              return instantiationService.createInstance(
-                StatusBarViewItem,
-                action,
-                void 0
-              );
-            }
-            return void 0;
-          }, "actionViewItemProvider"),
-          telemetrySource: "InlineEditToolbar"
+    this.toolBar = this._register(instantiationService.createInstance(CustomizedMenuWorkbenchToolBar, this.nodes.toolBar, this.editor, MenuId.InlineEditToolbar, {
+      menuOptions: { renderShortTitle: true },
+      toolbarOptions: { primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup") },
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof MenuItemAction) {
+          return instantiationService.createInstance(StatusBarViewItem, action, void 0);
         }
-      )
-    );
-    this._register(
-      this.toolBar.onDidChangeDropdownVisibility((e) => {
-        InlineEditHintsContentWidget._dropDownVisible = e;
-      })
-    );
-    this._register(
-      autorun((reader) => {
-        this._position.read(reader);
-        this.editor.layoutContentWidget(this);
-      })
-    );
-    this._register(
-      autorun((reader) => {
-        const extraActions = [];
-        for (const [
-          _,
-          group
-        ] of this.inlineCompletionsActionsMenus.getActions()) {
-          for (const action of group) {
-            if (action instanceof MenuItemAction) {
-              extraActions.push(action);
-            }
+        return void 0;
+      }, "actionViewItemProvider"),
+      telemetrySource: "InlineEditToolbar"
+    }));
+    this._register(this.toolBar.onDidChangeDropdownVisibility((e) => {
+      InlineEditHintsContentWidget._dropDownVisible = e;
+    }));
+    this._register(autorun((reader) => {
+      this._position.read(reader);
+      this.editor.layoutContentWidget(this);
+    }));
+    this._register(autorun((reader) => {
+      const extraActions = [];
+      for (const [_, group] of this.inlineCompletionsActionsMenus.getActions()) {
+        for (const action of group) {
+          if (action instanceof MenuItemAction) {
+            extraActions.push(action);
           }
         }
-        if (extraActions.length > 0) {
-          extraActions.unshift(new Separator());
-        }
-        this.toolBar.setAdditionalSecondaryActions(extraActions);
-      })
-    );
+      }
+      if (extraActions.length > 0) {
+        extraActions.unshift(new Separator());
+      }
+      this.toolBar.setAdditionalSecondaryActions(extraActions);
+    }));
   }
   static {
     __name(this, "InlineEditHintsContentWidget");
@@ -187,18 +128,14 @@ let InlineEditHintsContentWidget = class extends Disposable {
   id = `InlineEditHintsContentWidget${InlineEditHintsContentWidget.id++}`;
   allowEditorOverflow = true;
   suppressMouseDown = false;
-  nodes = h(
-    "div.inlineEditHints",
-    { className: this.withBorder ? ".withBorder" : "" },
-    [h("div@toolBar")]
-  );
+  nodes = h("div.inlineEditHints", { className: this.withBorder ? ".withBorder" : "" }, [
+    h("div@toolBar")
+  ]);
   toolBar;
-  inlineCompletionsActionsMenus = this._register(
-    this._menuService.createMenu(
-      MenuId.InlineEditActions,
-      this._contextKeyService
-    )
-  );
+  inlineCompletionsActionsMenus = this._register(this._menuService.createMenu(
+    MenuId.InlineEditActions,
+    this._contextKeyService
+  ));
   getId() {
     return this.id;
   }
@@ -208,10 +145,7 @@ let InlineEditHintsContentWidget = class extends Disposable {
   getPosition() {
     return {
       position: this._position.get(),
-      preference: [
-        ContentWidgetPositionPreference.ABOVE,
-        ContentWidgetPositionPreference.BELOW
-      ],
+      preference: [ContentWidgetPositionPreference.ABOVE, ContentWidgetPositionPreference.BELOW],
       positionAffinity: PositionAffinity.LeftOfInjectedText
     };
   }
@@ -226,21 +160,13 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
     __name(this, "StatusBarViewItem");
   }
   updateLabel() {
-    const kb = this._keybindingService.lookupKeybinding(
-      this._action.id,
-      this._contextKeyService
-    );
+    const kb = this._keybindingService.lookupKeybinding(this._action.id, this._contextKeyService);
     if (!kb) {
       return super.updateLabel();
     }
     if (this.label) {
       const div = h("div.keybinding").root;
-      const k = this._register(
-        new KeybindingLabel(div, OS, {
-          disableTitle: true,
-          ...unthemedKeybindingLabelOptions
-        })
-      );
+      const k = this._register(new KeybindingLabel(div, OS, { disableTitle: true, ...unthemedKeybindingLabelOptions }));
       k.set(kb);
       this.label.textContent = this._action.label;
       this.label.appendChild(div);
@@ -252,35 +178,20 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
 }
 let CustomizedMenuWorkbenchToolBar = class extends WorkbenchToolBar {
   constructor(container, editor, menuId, options2, menuService, contextKeyService, contextMenuService, keybindingService, commandService, telemetryService) {
-    super(
-      container,
-      { resetMenu: menuId, ...options2 },
-      menuService,
-      contextKeyService,
-      contextMenuService,
-      keybindingService,
-      commandService,
-      telemetryService
-    );
+    super(container, { resetMenu: menuId, ...options2 }, menuService, contextKeyService, contextMenuService, keybindingService, commandService, telemetryService);
     this.editor = editor;
     this.menuId = menuId;
     this.options2 = options2;
     this.menuService = menuService;
     this.contextKeyService = contextKeyService;
     this._store.add(this.menu.onDidChange(() => this.updateToolbar()));
-    this._store.add(
-      this.editor.onDidChangeCursorPosition(() => this.updateToolbar())
-    );
+    this._store.add(this.editor.onDidChangeCursorPosition(() => this.updateToolbar()));
     this.updateToolbar();
   }
   static {
     __name(this, "CustomizedMenuWorkbenchToolBar");
   }
-  menu = this._store.add(
-    this.menuService.createMenu(this.menuId, this.contextKeyService, {
-      emitEventsForSubmenuChanges: true
-    })
-  );
+  menu = this._store.add(this.menuService.createMenu(this.menuId, this.contextKeyService, { emitEventsForSubmenuChanges: true }));
   additionalActions = [];
   prependedPrimaryActions = [];
   updateToolbar() {

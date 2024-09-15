@@ -10,22 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-const IAuthenticationAccessService = createDecorator(
-  "IAuthenticationAccessService"
-);
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { AllowedExtension } from "../common/authentication.js";
+const IAuthenticationAccessService = createDecorator("IAuthenticationAccessService");
 let AuthenticationAccessService = class extends Disposable {
   constructor(_storageService, _productService) {
     super();
@@ -36,9 +28,7 @@ let AuthenticationAccessService = class extends Disposable {
     __name(this, "AuthenticationAccessService");
   }
   _serviceBrand;
-  _onDidChangeExtensionSessionAccess = this._register(
-    new Emitter()
-  );
+  _onDidChangeExtensionSessionAccess = this._register(new Emitter());
   onDidChangeExtensionSessionAccess = this._onDidChangeExtensionSessionAccess.event;
   isAccessAllowed(providerId, accountName, extensionId) {
     const trustedExtensionAuthAccess = this._productService.trustedExtensionAuthAccess;
@@ -50,9 +40,7 @@ let AuthenticationAccessService = class extends Disposable {
       return true;
     }
     const allowList = this.readAllowedExtensions(providerId, accountName);
-    const extensionData = allowList.find(
-      (extension) => extension.id === extensionId
-    );
+    const extensionData = allowList.find((extension) => extension.id === extensionId);
     if (!extensionData) {
       return void 0;
     }
@@ -61,10 +49,7 @@ let AuthenticationAccessService = class extends Disposable {
   readAllowedExtensions(providerId, accountName) {
     let trustedExtensions = [];
     try {
-      const trustedExtensionSrc = this._storageService.get(
-        `${providerId}-${accountName}`,
-        StorageScope.APPLICATION
-      );
+      const trustedExtensionSrc = this._storageService.get(`${providerId}-${accountName}`, StorageScope.APPLICATION);
       if (trustedExtensionSrc) {
         trustedExtensions = JSON.parse(trustedExtensionSrc);
       }
@@ -82,37 +67,19 @@ let AuthenticationAccessService = class extends Disposable {
         allowList[index].allowed = extension.allowed;
       }
     }
-    this._storageService.store(
-      `${providerId}-${accountName}`,
-      JSON.stringify(allowList),
-      StorageScope.APPLICATION,
-      StorageTarget.USER
-    );
-    this._onDidChangeExtensionSessionAccess.fire({
-      providerId,
-      accountName
-    });
+    this._storageService.store(`${providerId}-${accountName}`, JSON.stringify(allowList), StorageScope.APPLICATION, StorageTarget.USER);
+    this._onDidChangeExtensionSessionAccess.fire({ providerId, accountName });
   }
   removeAllowedExtensions(providerId, accountName) {
-    this._storageService.remove(
-      `${providerId}-${accountName}`,
-      StorageScope.APPLICATION
-    );
-    this._onDidChangeExtensionSessionAccess.fire({
-      providerId,
-      accountName
-    });
+    this._storageService.remove(`${providerId}-${accountName}`, StorageScope.APPLICATION);
+    this._onDidChangeExtensionSessionAccess.fire({ providerId, accountName });
   }
 };
 AuthenticationAccessService = __decorateClass([
   __decorateParam(0, IStorageService),
   __decorateParam(1, IProductService)
 ], AuthenticationAccessService);
-registerSingleton(
-  IAuthenticationAccessService,
-  AuthenticationAccessService,
-  InstantiationType.Delayed
-);
+registerSingleton(IAuthenticationAccessService, AuthenticationAccessService, InstantiationType.Delayed);
 export {
   AuthenticationAccessService,
   IAuthenticationAccessService

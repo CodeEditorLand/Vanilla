@@ -10,24 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { rtrim } from "../../../../base/common/strings.js";
 import { localize } from "../../../../nls.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { rtrim } from "../../../../base/common/strings.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  ISpeechService,
-  SpeechToTextStatus
-} from "../../speech/common/speechService.js";
 import { IChatAgentService } from "./chatAgents.js";
+import { IChatModel } from "./chatModel.js";
 import { chatAgentLeader, chatSubcommandLeader } from "./chatParserTypes.js";
+import { ISpeechService, ISpeechToTextEvent, SpeechToTextStatus } from "../../speech/common/speechService.js";
 const IVoiceChatService = createDecorator("voiceChatService");
 var PhraseTextType = /* @__PURE__ */ ((PhraseTextType2) => {
   PhraseTextType2[PhraseTextType2["AGENT"] = 1] = "AGENT";
@@ -35,17 +28,7 @@ var PhraseTextType = /* @__PURE__ */ ((PhraseTextType2) => {
   PhraseTextType2[PhraseTextType2["AGENT_AND_COMMAND"] = 3] = "AGENT_AND_COMMAND";
   return PhraseTextType2;
 })(PhraseTextType || {});
-const VoiceChatInProgress = new RawContextKey(
-  "voiceChatInProgress",
-  false,
-  {
-    type: "boolean",
-    description: localize(
-      "voiceChatInProgress",
-      "A speech-to-text session is in progress for chat."
-    )
-  }
-);
+const VoiceChatInProgress = new RawContextKey("voiceChatInProgress", false, { type: "boolean", description: localize("voiceChatInProgress", "A speech-to-text session is in progress for chat.") });
 let VoiceChatService = class extends Disposable {
   constructor(speechService, chatAgentService, contextKeyService) {
     super();
@@ -67,12 +50,8 @@ let VoiceChatService = class extends Disposable {
     [this.AGENT_PREFIX]: "At",
     [this.COMMAND_PREFIX]: "Slash"
   };
-  static CHAT_AGENT_ALIAS = /* @__PURE__ */ new Map([
-    ["vscode", "code"]
-  ]);
-  voiceChatInProgress = VoiceChatInProgress.bindTo(
-    this.contextKeyService
-  );
+  static CHAT_AGENT_ALIAS = /* @__PURE__ */ new Map([["vscode", "code"]]);
+  voiceChatInProgress = VoiceChatInProgress.bindTo(this.contextKeyService);
   activeVoiceChatSessions = 0;
   createPhrases(model) {
     const phrases = /* @__PURE__ */ new Map();
@@ -81,15 +60,9 @@ let VoiceChatService = class extends Disposable {
       phrases.set(agentPhrase, { agent: agent.name });
       for (const slashCommand of agent.slashCommands) {
         const slashCommandPhrase = `${VoiceChatService.PHRASES_LOWER[VoiceChatService.COMMAND_PREFIX]} ${slashCommand.name}`.toLowerCase();
-        phrases.set(slashCommandPhrase, {
-          agent: agent.name,
-          command: slashCommand.name
-        });
+        phrases.set(slashCommandPhrase, { agent: agent.name, command: slashCommand.name });
         const agentSlashCommandPhrase = `${agentPhrase} ${slashCommandPhrase}`.toLowerCase();
-        phrases.set(agentSlashCommandPhrase, {
-          agent: agent.name,
-          command: slashCommand.name
-        });
+        phrases.set(agentSlashCommandPhrase, { agent: agent.name, command: slashCommand.name });
       }
     }
     return phrases;
@@ -107,10 +80,7 @@ let VoiceChatService = class extends Disposable {
   async createVoiceChatSession(token, options) {
     const disposables = new DisposableStore();
     const onSessionStoppedOrCanceled = /* @__PURE__ */ __name((dispose) => {
-      this.activeVoiceChatSessions = Math.max(
-        0,
-        this.activeVoiceChatSessions - 1
-      );
+      this.activeVoiceChatSessions = Math.max(0, this.activeVoiceChatSessions - 1);
       if (this.activeVoiceChatSessions === 0) {
         this.voiceChatInProgress.reset();
       }
@@ -118,133 +88,89 @@ let VoiceChatService = class extends Disposable {
         disposables.dispose();
       }
     }, "onSessionStoppedOrCanceled");
-    disposables.add(
-      token.onCancellationRequested(
-        () => onSessionStoppedOrCanceled(true)
-      )
-    );
+    disposables.add(token.onCancellationRequested(() => onSessionStoppedOrCanceled(true)));
     let detectedAgent = false;
     let detectedSlashCommand = false;
     const emitter = disposables.add(new Emitter());
-    const session = await this.speechService.createSpeechToTextSession(
-      token,
-      "chat"
-    );
+    const session = await this.speechService.createSpeechToTextSession(token, "chat");
     if (token.isCancellationRequested) {
       onSessionStoppedOrCanceled(true);
     }
     const phrases = this.createPhrases(options.model);
-    disposables.add(
-      session.onDidChange((e) => {
-        switch (e.status) {
-          case SpeechToTextStatus.Recognizing:
-          case SpeechToTextStatus.Recognized: {
-            let massagedEvent = e;
-            if (e.text) {
-              const startsWithAgent = e.text.startsWith(
-                VoiceChatService.PHRASES_UPPER[VoiceChatService.AGENT_PREFIX]
-              ) || e.text.startsWith(
-                VoiceChatService.PHRASES_LOWER[VoiceChatService.AGENT_PREFIX]
-              );
-              const startsWithSlashCommand = e.text.startsWith(
-                VoiceChatService.PHRASES_UPPER[VoiceChatService.COMMAND_PREFIX]
-              ) || e.text.startsWith(
-                VoiceChatService.PHRASES_LOWER[VoiceChatService.COMMAND_PREFIX]
-              );
-              if (startsWithAgent || startsWithSlashCommand) {
-                const originalWords = e.text.split(" ");
-                let transformedWords;
-                let waitingForInput = false;
-                if (options.usesAgents && startsWithAgent && !detectedAgent && !detectedSlashCommand && originalWords.length >= 4) {
-                  const phrase = phrases.get(
-                    originalWords.slice(0, 4).map(
-                      (word) => this.normalizeWord(word)
-                    ).join(" ")
-                  );
-                  if (phrase) {
-                    transformedWords = [
-                      this.toText(
-                        phrase,
-                        3 /* AGENT_AND_COMMAND */
-                      ),
-                      ...originalWords.slice(4)
-                    ];
-                    waitingForInput = originalWords.length === 4;
-                    if (e.status === SpeechToTextStatus.Recognized) {
-                      detectedAgent = true;
-                      detectedSlashCommand = true;
-                    }
+    disposables.add(session.onDidChange((e) => {
+      switch (e.status) {
+        case SpeechToTextStatus.Recognizing:
+        case SpeechToTextStatus.Recognized: {
+          let massagedEvent = e;
+          if (e.text) {
+            const startsWithAgent = e.text.startsWith(VoiceChatService.PHRASES_UPPER[VoiceChatService.AGENT_PREFIX]) || e.text.startsWith(VoiceChatService.PHRASES_LOWER[VoiceChatService.AGENT_PREFIX]);
+            const startsWithSlashCommand = e.text.startsWith(VoiceChatService.PHRASES_UPPER[VoiceChatService.COMMAND_PREFIX]) || e.text.startsWith(VoiceChatService.PHRASES_LOWER[VoiceChatService.COMMAND_PREFIX]);
+            if (startsWithAgent || startsWithSlashCommand) {
+              const originalWords = e.text.split(" ");
+              let transformedWords;
+              let waitingForInput = false;
+              if (options.usesAgents && startsWithAgent && !detectedAgent && !detectedSlashCommand && originalWords.length >= 4) {
+                const phrase = phrases.get(originalWords.slice(0, 4).map((word) => this.normalizeWord(word)).join(" "));
+                if (phrase) {
+                  transformedWords = [this.toText(phrase, 3 /* AGENT_AND_COMMAND */), ...originalWords.slice(4)];
+                  waitingForInput = originalWords.length === 4;
+                  if (e.status === SpeechToTextStatus.Recognized) {
+                    detectedAgent = true;
+                    detectedSlashCommand = true;
                   }
                 }
-                if (options.usesAgents && startsWithAgent && !detectedAgent && !transformedWords && originalWords.length >= 2) {
-                  const phrase = phrases.get(
-                    originalWords.slice(0, 2).map(
-                      (word) => this.normalizeWord(word)
-                    ).join(" ")
-                  );
-                  if (phrase) {
-                    transformedWords = [
-                      this.toText(
-                        phrase,
-                        1 /* AGENT */
-                      ),
-                      ...originalWords.slice(2)
-                    ];
-                    waitingForInput = originalWords.length === 2;
-                    if (e.status === SpeechToTextStatus.Recognized) {
-                      detectedAgent = true;
-                    }
-                  }
-                }
-                if (startsWithSlashCommand && !detectedSlashCommand && !transformedWords && originalWords.length >= 2) {
-                  const phrase = phrases.get(
-                    originalWords.slice(0, 2).map(
-                      (word) => this.normalizeWord(word)
-                    ).join(" ")
-                  );
-                  if (phrase) {
-                    transformedWords = [
-                      this.toText(
-                        phrase,
-                        options.usesAgents && !detectedAgent ? 3 /* AGENT_AND_COMMAND */ : (
-                          // rewrite `/fix` to `@workspace /foo` in this case
-                          2 /* COMMAND */
-                        )
-                        // when we have not yet detected an agent before
-                      ),
-                      ...originalWords.slice(2)
-                    ];
-                    waitingForInput = originalWords.length === 2;
-                    if (e.status === SpeechToTextStatus.Recognized) {
-                      detectedSlashCommand = true;
-                    }
-                  }
-                }
-                massagedEvent = {
-                  status: e.status,
-                  text: (transformedWords ?? originalWords).join(" "),
-                  waitingForInput
-                };
               }
+              if (options.usesAgents && startsWithAgent && !detectedAgent && !transformedWords && originalWords.length >= 2) {
+                const phrase = phrases.get(originalWords.slice(0, 2).map((word) => this.normalizeWord(word)).join(" "));
+                if (phrase) {
+                  transformedWords = [this.toText(phrase, 1 /* AGENT */), ...originalWords.slice(2)];
+                  waitingForInput = originalWords.length === 2;
+                  if (e.status === SpeechToTextStatus.Recognized) {
+                    detectedAgent = true;
+                  }
+                }
+              }
+              if (startsWithSlashCommand && !detectedSlashCommand && !transformedWords && originalWords.length >= 2) {
+                const phrase = phrases.get(originalWords.slice(0, 2).map((word) => this.normalizeWord(word)).join(" "));
+                if (phrase) {
+                  transformedWords = [this.toText(
+                    phrase,
+                    options.usesAgents && !detectedAgent ? 3 /* AGENT_AND_COMMAND */ : (
+                      // rewrite `/fix` to `@workspace /foo` in this case
+                      2 /* COMMAND */
+                    )
+                    // when we have not yet detected an agent before
+                  ), ...originalWords.slice(2)];
+                  waitingForInput = originalWords.length === 2;
+                  if (e.status === SpeechToTextStatus.Recognized) {
+                    detectedSlashCommand = true;
+                  }
+                }
+              }
+              massagedEvent = {
+                status: e.status,
+                text: (transformedWords ?? originalWords).join(" "),
+                waitingForInput
+              };
             }
-            emitter.fire(massagedEvent);
-            break;
           }
-          case SpeechToTextStatus.Started:
-            this.activeVoiceChatSessions++;
-            this.voiceChatInProgress.set(true);
-            emitter.fire(e);
-            break;
-          case SpeechToTextStatus.Stopped:
-            onSessionStoppedOrCanceled(false);
-            emitter.fire(e);
-            break;
-          case SpeechToTextStatus.Error:
-            emitter.fire(e);
-            break;
+          emitter.fire(massagedEvent);
+          break;
         }
-      })
-    );
+        case SpeechToTextStatus.Started:
+          this.activeVoiceChatSessions++;
+          this.voiceChatInProgress.set(true);
+          emitter.fire(e);
+          break;
+        case SpeechToTextStatus.Stopped:
+          onSessionStoppedOrCanceled(false);
+          emitter.fire(e);
+          break;
+        case SpeechToTextStatus.Error:
+          emitter.fire(e);
+          break;
+      }
+    }));
     return {
       onDidChange: emitter.event
     };

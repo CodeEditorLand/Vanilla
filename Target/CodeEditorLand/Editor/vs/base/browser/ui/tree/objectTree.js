@@ -9,24 +9,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
+import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../list/list.js";
+import { AbstractTree, IAbstractTreeOptions, IAbstractTreeOptionsUpdate, IStickyScrollDelegate, StickyScrollNode } from "./abstractTree.js";
+import { CompressibleObjectTreeModel, ElementMapper, ICompressedTreeElement, ICompressedTreeNode } from "./compressedObjectTreeModel.js";
+import { IObjectTreeModel, ObjectTreeModel } from "./objectTreeModel.js";
+import { ICollapseStateChangeEvent, IObjectTreeElement, ITreeModel, ITreeNode, ITreeRenderer, ITreeSorter } from "./tree.js";
 import { memoize } from "../../../common/decorators.js";
+import { Event } from "../../../common/event.js";
 import { Iterable } from "../../../common/iterator.js";
-import {
-  AbstractTree
-} from "./abstractTree.js";
-import {
-  CompressibleObjectTreeModel
-} from "./compressedObjectTreeModel.js";
-import { ObjectTreeModel } from "./objectTreeModel.js";
 class ObjectTree extends AbstractTree {
   constructor(user, container, delegate, renderers, options = {}) {
-    super(
-      user,
-      container,
-      delegate,
-      renderers,
-      options
-    );
+    super(user, container, delegate, renderers, options);
     this.user = user;
   }
   static {
@@ -87,38 +80,21 @@ class CompressibleRenderer {
   renderElement(node, index, templateData, height) {
     let compressedTreeNode = this.stickyScrollDelegate.getCompressedNode(node);
     if (!compressedTreeNode) {
-      compressedTreeNode = this.compressedTreeNodeProvider.getCompressedTreeNode(
-        node.element
-      );
+      compressedTreeNode = this.compressedTreeNodeProvider.getCompressedTreeNode(node.element);
     }
     if (compressedTreeNode.element.elements.length === 1) {
       templateData.compressedTreeNode = void 0;
       this.renderer.renderElement(node, index, templateData.data, height);
     } else {
       templateData.compressedTreeNode = compressedTreeNode;
-      this.renderer.renderCompressedElements(
-        compressedTreeNode,
-        index,
-        templateData.data,
-        height
-      );
+      this.renderer.renderCompressedElements(compressedTreeNode, index, templateData.data, height);
     }
   }
   disposeElement(node, index, templateData, height) {
     if (templateData.compressedTreeNode) {
-      this.renderer.disposeCompressedElements?.(
-        templateData.compressedTreeNode,
-        index,
-        templateData.data,
-        height
-      );
+      this.renderer.disposeCompressedElements?.(templateData.compressedTreeNode, index, templateData.data, height);
     } else {
-      this.renderer.disposeElement?.(
-        node,
-        index,
-        templateData.data,
-        height
-      );
+      this.renderer.disposeElement?.(node, index, templateData.data, height);
     }
   }
   disposeTemplate(templateData) {
@@ -157,9 +133,7 @@ class CompressibleStickyScrollDelegate {
       if (followingReachesMaxHeight || i >= stickyScrollMaxItemCount - 1 && stickyScrollMaxItemCount < stickyNodes.length) {
         const uncompressedStickyNodes = stickyNodes.slice(0, i);
         const overflowingStickyNodes = stickyNodes.slice(i);
-        const compressedStickyNode = this.compressStickyNodes(
-          overflowingStickyNodes
-        );
+        const compressedStickyNode = this.compressStickyNodes(overflowingStickyNodes);
         return [...uncompressedStickyNodes, compressedStickyNode];
       }
     }
@@ -176,9 +150,7 @@ class CompressibleStickyScrollDelegate {
     const elements = [];
     for (let i = 0; i < stickyNodes.length; i++) {
       const stickyNode = stickyNodes[i];
-      const compressedNode2 = compressionModel.getCompressedTreeNode(
-        stickyNode.node.element
-      );
+      const compressedNode2 = compressionModel.getCompressedTreeNode(stickyNode.node.element);
       if (compressedNode2.element) {
         if (i !== 0 && compressedNode2.element.incompressible) {
           break;
@@ -190,15 +162,8 @@ class CompressibleStickyScrollDelegate {
       return stickyNodes[0];
     }
     const lastStickyNode = stickyNodes[stickyNodes.length - 1];
-    const compressedElement = {
-      elements,
-      incompressible: false
-    };
-    const compressedNode = {
-      ...lastStickyNode.node,
-      children: [],
-      element: compressedElement
-    };
+    const compressedElement = { elements, incompressible: false };
+    const compressedNode = { ...lastStickyNode.node, children: [], element: compressedElement };
     const stickyTreeNode = new Proxy(stickyNodes[0].node, {});
     const compressedStickyNode = {
       node: stickyTreeNode,
@@ -218,22 +183,14 @@ function asObjectTreeOptions(compressedTreeNodeProvider, options) {
       getKeyboardNavigationLabel(e) {
         let compressedTreeNode;
         try {
-          compressedTreeNode = compressedTreeNodeProvider().getCompressedTreeNode(
-            e
-          );
+          compressedTreeNode = compressedTreeNodeProvider().getCompressedTreeNode(e);
         } catch {
-          return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(
-            e
-          );
+          return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(e);
         }
         if (compressedTreeNode.element.elements.length === 1) {
-          return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(
-            e
-          );
+          return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(e);
         } else {
-          return options.keyboardNavigationLabelProvider.getCompressedNodeKeyboardNavigationLabel(
-            compressedTreeNode.element.elements
-          );
+          return options.keyboardNavigationLabelProvider.getCompressedNodeKeyboardNavigationLabel(compressedTreeNode.element.elements);
         }
       }
     }
@@ -247,20 +204,8 @@ class CompressibleObjectTree extends ObjectTree {
   constructor(user, container, delegate, renderers, options = {}) {
     const compressedTreeNodeProvider = /* @__PURE__ */ __name(() => this, "compressedTreeNodeProvider");
     const stickyScrollDelegate = new CompressibleStickyScrollDelegate(() => this.model);
-    const compressibleRenderers = renderers.map(
-      (r) => new CompressibleRenderer(
-        compressedTreeNodeProvider,
-        stickyScrollDelegate,
-        r
-      )
-    );
-    super(user, container, delegate, compressibleRenderers, {
-      ...asObjectTreeOptions(
-        compressedTreeNodeProvider,
-        options
-      ),
-      stickyScrollDelegate
-    });
+    const compressibleRenderers = renderers.map((r) => new CompressibleRenderer(compressedTreeNodeProvider, stickyScrollDelegate, r));
+    super(user, container, delegate, compressibleRenderers, { ...asObjectTreeOptions(compressedTreeNodeProvider, options), stickyScrollDelegate });
   }
   setChildren(element, children = Iterable.empty(), options) {
     this.model.setChildren(element, children, options);

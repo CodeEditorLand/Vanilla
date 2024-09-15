@@ -16,15 +16,14 @@ import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/icon
 import { coalesce } from "../../../../base/common/arrays.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  containsDragType,
-  extractEditorsDropData
-} from "../../../../platform/dnd/browser/dnd.js";
-import {
-  IThemeService,
-  Themable
-} from "../../../../platform/theme/common/themeService.js";
+import { containsDragType, extractEditorsDropData, IDraggedResourceEditorInput } from "../../../../platform/dnd/browser/dnd.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IChatRequestVariableEntry } from "../common/chatModel.js";
+import { ChatInputPart } from "./chatInputPart.js";
+import { IChatWidgetStyles } from "./chatWidget.js";
 var ChatDragAndDropType = /* @__PURE__ */ ((ChatDragAndDropType2) => {
   ChatDragAndDropType2[ChatDragAndDropType2["FILE"] = 0] = "FILE";
   return ChatDragAndDropType2;
@@ -36,27 +35,25 @@ let ChatDragAndDrop = class extends Themable {
     this.inputPart = inputPart;
     this.styles = styles;
     let mouseInside = false;
-    this._register(
-      new DragAndDropObserver(this.contianer, {
-        onDragEnter: /* @__PURE__ */ __name((e) => {
-          if (!mouseInside) {
-            mouseInside = true;
-            this.onDragEnter(e);
-          }
-        }, "onDragEnter"),
-        onDragOver: /* @__PURE__ */ __name((e) => {
-          e.stopPropagation();
-        }, "onDragOver"),
-        onDragLeave: /* @__PURE__ */ __name((e) => {
-          this.onDragLeave(e);
-          mouseInside = false;
-        }, "onDragLeave"),
-        onDrop: /* @__PURE__ */ __name((e) => {
-          this.onDrop(e);
-          mouseInside = false;
-        }, "onDrop")
-      })
-    );
+    this._register(new DragAndDropObserver(this.contianer, {
+      onDragEnter: /* @__PURE__ */ __name((e) => {
+        if (!mouseInside) {
+          mouseInside = true;
+          this.onDragEnter(e);
+        }
+      }, "onDragEnter"),
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        this.onDragLeave(e);
+        mouseInside = false;
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        this.onDrop(e);
+        mouseInside = false;
+      }, "onDrop")
+    }));
     this.overlay = document.createElement("div");
     this.overlay.classList.add("chat-dnd-overlay");
     this.contianer.appendChild(this.overlay);
@@ -81,11 +78,7 @@ let ChatDragAndDrop = class extends Themable {
     if (contexts.length === 0) {
       return;
     }
-    const currentContextIds = new Set(
-      Array.from(this.inputPart.attachedContext).map(
-        (context) => context.id
-      )
-    );
+    const currentContextIds = new Set(Array.from(this.inputPart.attachedContext).map((context) => context.id));
     const filteredContext = [];
     for (const context of contexts) {
       if (!currentContextIds.has(context.id)) {
@@ -104,11 +97,7 @@ let ChatDragAndDrop = class extends Themable {
     this.setOverlay(dropType);
   }
   getActiveDropType(e) {
-    if (containsDragType(
-      e,
-      DataTransfers.FILES,
-      DataTransfers.INTERNAL_URI_LIST
-    )) {
+    if (containsDragType(e, DataTransfers.FILES, DataTransfers.INTERNAL_URI_LIST)) {
       return 0 /* FILE */;
     }
     return void 0;
@@ -123,9 +112,7 @@ let ChatDragAndDrop = class extends Themable {
     switch (this.getActiveDropType(e)) {
       case 0 /* FILE */: {
         const data = extractEditorsDropData(e);
-        const contexts = data.map(
-          (editorInput) => getEditorAttachContext(editorInput)
-        );
+        const contexts = data.map((editorInput) => getEditorAttachContext(editorInput));
         return coalesce(contexts);
       }
       default:
@@ -137,20 +124,14 @@ let ChatDragAndDrop = class extends Themable {
     this.overlayText = void 0;
     if (type !== void 0) {
       const typeName = this.getDropTypeName(type);
-      const iconAndtextElements = renderLabelWithIcons(
-        `$(${Codicon.attach.id}) ${localize("attach", "Attach")} ${typeName}`
-      );
+      const iconAndtextElements = renderLabelWithIcons(`$(${Codicon.attach.id}) ${localize("attach", "Attach")} ${typeName}`);
       const htmlElements = iconAndtextElements.map((element) => {
         if (typeof element === "string") {
           return $("span.overlay-text", void 0, element);
         }
         return element;
       });
-      this.overlayText = $(
-        "span.attach-context-overlay-text",
-        void 0,
-        ...htmlElements
-      );
+      this.overlayText = $("span.attach-context-overlay-text", void 0, ...htmlElements);
       this.overlayText.style.backgroundColor = this.overlayTextBackground;
       this.overlay.appendChild(this.overlayText);
     }

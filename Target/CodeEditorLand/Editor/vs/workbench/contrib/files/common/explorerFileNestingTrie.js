@@ -113,11 +113,7 @@ class PreTrie {
     if (this.value.hasItems) {
       lines.push("* => \n" + this.value.toString(indentation + "  "));
     }
-    [...this.map.entries()].map(
-      ([key, trie]) => lines.push(
-        "^" + key + " => \n" + trie.toString(indentation + "  ")
-      )
-    );
+    [...this.map.entries()].map(([key, trie]) => lines.push("^" + key + " => \n" + trie.toString(indentation + "  ")));
     return lines.map((l) => indentation + l).join("\n");
   }
 }
@@ -154,14 +150,10 @@ class SufTrie {
   get(key, attributes) {
     const results = [];
     if (key === "") {
-      results.push(
-        ...this.epsilon.map((ss) => ss.substitute(attributes))
-      );
+      results.push(...this.epsilon.map((ss) => ss.substitute(attributes)));
     }
     if (this.star.length) {
-      results.push(
-        ...this.star.map((ss) => ss.substitute(attributes, key))
-      );
+      results.push(...this.star.map((ss) => ss.substitute(attributes, key)));
     }
     const tail = key[key.length - 1];
     const rest = key.slice(0, key.length - 1);
@@ -179,11 +171,7 @@ class SufTrie {
     if (this.epsilon.length) {
       lines.push("\u03B5 => " + this.epsilon.join("; "));
     }
-    [...this.map.entries()].map(
-      ([key, trie]) => lines.push(
-        key + "$ => \n" + trie.toString(indentation + "  ")
-      )
-    );
+    [...this.map.entries()].map(([key, trie]) => lines.push(key + "$ => \n" + trie.toString(indentation + "  ")));
     return lines.map((l) => indentation + l).join("\n");
   }
 }

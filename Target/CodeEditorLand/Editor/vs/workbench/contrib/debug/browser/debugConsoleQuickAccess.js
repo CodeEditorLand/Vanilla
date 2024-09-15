@@ -10,26 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import {
-  PickerQuickAccessProvider
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { FastAndSlowPicks, IPickerQuickAccessItem, PickerQuickAccessProvider, Picks } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
-  IDebugService,
-  REPL_VIEW_ID
-} from "../common/debug.js";
-import {
-  DEBUG_CONSOLE_QUICK_ACCESS_PREFIX,
-  SELECT_AND_START_ID
-} from "./debugCommands.js";
+import { DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, SELECT_AND_START_ID } from "./debugCommands.js";
+import { IDebugService, IDebugSession, REPL_VIEW_ID } from "../common/debug.js";
 let DebugConsoleQuickAccess = class extends PickerQuickAccessProvider {
   constructor(_debugService, _viewsService, _commandService) {
-    super(DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, {
-      canAcceptInBackground: true
-    });
+    super(DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, { canAcceptInBackground: true });
     this._debugService = _debugService;
     this._viewsService = _viewsService;
     this._commandService = _commandService;
@@ -48,10 +41,7 @@ let DebugConsoleQuickAccess = class extends PickerQuickAccessProvider {
     if (debugConsolePicks.length > 0) {
       debugConsolePicks.push({ type: "separator" });
     }
-    const createTerminalLabel = localize(
-      "workbench.action.debug.startDebug",
-      "Start a New Debug Session"
-    );
+    const createTerminalLabel = localize("workbench.action.debug.startDebug", "Start a New Debug Session");
     debugConsolePicks.push({
       label: `$(plus) ${createTerminalLabel}`,
       ariaLabel: createTerminalLabel,
@@ -67,12 +57,7 @@ let DebugConsoleQuickAccess = class extends PickerQuickAccessProvider {
         label,
         highlights: { label: highlights },
         accept: /* @__PURE__ */ __name((keyMod, event) => {
-          this._debugService.focusStackFrame(
-            void 0,
-            void 0,
-            session,
-            { explicit: true }
-          );
+          this._debugService.focusStackFrame(void 0, void 0, session, { explicit: true });
           if (!this._viewsService.isViewVisible(REPL_VIEW_ID)) {
             this._viewsService.openView(REPL_VIEW_ID, true);
           }

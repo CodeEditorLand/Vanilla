@@ -11,15 +11,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import {
-  ActionBar
-} from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionBar, IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IAction } from "../../../../base/common/actions.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { TextOnlyMenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuItemAction
-} from "../../../../platform/actions/common/actions.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 let SuggestWidgetStatus = class {
@@ -29,18 +25,10 @@ let SuggestWidgetStatus = class {
     this._contextKeyService = _contextKeyService;
     this.element = dom.append(container, dom.$(".suggest-status-bar"));
     const actionViewItemProvider = /* @__PURE__ */ __name((action) => {
-      return action instanceof MenuItemAction ? instantiationService.createInstance(
-        TextOnlyMenuEntryActionViewItem,
-        action,
-        { useComma: true }
-      ) : void 0;
+      return action instanceof MenuItemAction ? instantiationService.createInstance(TextOnlyMenuEntryActionViewItem, action, { useComma: true }) : void 0;
     }, "actionViewItemProvider");
-    this._leftActions = new ActionBar(this.element, {
-      actionViewItemProvider
-    });
-    this._rightActions = new ActionBar(this.element, {
-      actionViewItemProvider
-    });
+    this._leftActions = new ActionBar(this.element, { actionViewItemProvider });
+    this._rightActions = new ActionBar(this.element, { actionViewItemProvider });
     this._leftActions.domNode.classList.add("left");
     this._rightActions.domNode.classList.add("right");
   }
@@ -58,10 +46,7 @@ let SuggestWidgetStatus = class {
     this.element.remove();
   }
   show() {
-    const menu = this._menuService.createMenu(
-      this._menuId,
-      this._contextKeyService
-    );
+    const menu = this._menuService.createMenu(this._menuId, this._contextKeyService);
     const renderMenu = /* @__PURE__ */ __name(() => {
       const left = [];
       const right = [];

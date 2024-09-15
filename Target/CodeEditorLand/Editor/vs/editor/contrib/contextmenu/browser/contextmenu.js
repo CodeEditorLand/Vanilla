@@ -11,45 +11,29 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { IKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { IMouseEvent, IMouseWheelEvent } from "../../../../base/browser/mouseEvent.js";
 import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import {
-  Separator,
-  SubmenuAction
-} from "../../../../base/common/actions.js";
+import { IAnchor } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IAction, Separator, SubmenuAction } from "../../../../base/common/actions.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { isIOS } from "../../../../base/common/platform.js";
+import { ICodeEditor, IEditorMouseEvent, MouseTargetType } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorContributionInstantiation, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { IEditorContribution, ScrollType } from "../../../common/editorCommon.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { ITextModel } from "../../../common/model.js";
 import * as nls from "../../../../nls.js";
-import {
-  IMenuService,
-  SubmenuItemAction
-} from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IMenuService, MenuId, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  IContextMenuService,
-  IContextViewService
-} from "../../../../platform/contextview/browser/contextView.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  IWorkspaceContextService,
-  isStandaloneEditorWorkspace
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  MouseTargetType
-} from "../../../browser/editorBrowser.js";
-import {
-  EditorAction,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import {
-  ScrollType
-} from "../../../common/editorCommon.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceContextService, isStandaloneEditorWorkspace } from "../../../../platform/workspace/common/workspace.js";
 let ContextMenuController = class {
   constructor(editor, _contextMenuService, _contextViewService, _contextKeyService, _keybindingService, _menuService, _configurationService, _workspaceContextService) {
     this._contextMenuService = _contextMenuService;
@@ -60,43 +44,33 @@ let ContextMenuController = class {
     this._configurationService = _configurationService;
     this._workspaceContextService = _workspaceContextService;
     this._editor = editor;
-    this._toDispose.add(
-      this._editor.onContextMenu(
-        (e) => this._onContextMenu(e)
-      )
-    );
-    this._toDispose.add(
-      this._editor.onMouseWheel((e) => {
-        if (this._contextMenuIsBeingShownCount > 0) {
-          const view = this._contextViewService.getContextViewElement();
-          const target = e.srcElement;
-          if (!(target.shadowRoot && dom.getShadowRoot(view) === target.shadowRoot)) {
-            this._contextViewService.hideContextView();
-          }
+    this._toDispose.add(this._editor.onContextMenu((e) => this._onContextMenu(e)));
+    this._toDispose.add(this._editor.onMouseWheel((e) => {
+      if (this._contextMenuIsBeingShownCount > 0) {
+        const view = this._contextViewService.getContextViewElement();
+        const target = e.srcElement;
+        if (!(target.shadowRoot && dom.getShadowRoot(view) === target.shadowRoot)) {
+          this._contextViewService.hideContextView();
         }
-      })
-    );
-    this._toDispose.add(
-      this._editor.onKeyDown((e) => {
-        if (!this._editor.getOption(EditorOption.contextmenu)) {
-          return;
-        }
-        if (e.keyCode === KeyCode.ContextMenu) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.showContextMenu();
-        }
-      })
-    );
+      }
+    }));
+    this._toDispose.add(this._editor.onKeyDown((e) => {
+      if (!this._editor.getOption(EditorOption.contextmenu)) {
+        return;
+      }
+      if (e.keyCode === KeyCode.ContextMenu) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showContextMenu();
+      }
+    }));
   }
   static {
     __name(this, "ContextMenuController");
   }
   static ID = "editor.contrib.contextmenu";
   static get(editor) {
-    return editor.getContribution(
-      ContextMenuController.ID
-    );
+    return editor.getContribution(ContextMenuController.ID);
   }
   _toDispose = new DisposableStore();
   _contextMenuIsBeingShownCount = 0;
@@ -162,28 +136,15 @@ let ContextMenuController = class {
   }
   _getMenuActions(model, menuId) {
     const result = [];
-    const groups = this._menuService.getMenuActions(
-      menuId,
-      this._contextKeyService,
-      { arg: model.uri }
-    );
+    const groups = this._menuService.getMenuActions(menuId, this._contextKeyService, { arg: model.uri });
     for (const group of groups) {
       const [, actions] = group;
       let addedItems = 0;
       for (const action of actions) {
         if (action instanceof SubmenuItemAction) {
-          const subActions = this._getMenuActions(
-            model,
-            action.item.submenu
-          );
+          const subActions = this._getMenuActions(model, action.item.submenu);
           if (subActions.length > 0) {
-            result.push(
-              new SubmenuAction(
-                action.id,
-                action.label,
-                subActions
-              )
-            );
+            result.push(new SubmenuAction(action.id, action.label, subActions));
             addedItems++;
           }
         } else {
@@ -212,17 +173,10 @@ let ContextMenuController = class {
     });
     let anchor = event;
     if (!anchor) {
-      this._editor.revealPosition(
-        this._editor.getPosition(),
-        ScrollType.Immediate
-      );
+      this._editor.revealPosition(this._editor.getPosition(), ScrollType.Immediate);
       this._editor.render();
-      const cursorCoords = this._editor.getScrolledVisiblePosition(
-        this._editor.getPosition()
-      );
-      const editorCoords = dom.getDomNodePagePosition(
-        this._editor.getDomNode()
-      );
+      const cursorCoords = this._editor.getScrolledVisiblePosition(this._editor.getPosition());
+      const editorCoords = dom.getDomNodePagePosition(this._editor.getDomNode());
       const posx = editorCoords.left + cursorCoords.left;
       const posy = editorCoords.top + cursorCoords.top + cursorCoords.height;
       anchor = { x: posx, y: posy };
@@ -236,21 +190,13 @@ let ContextMenuController = class {
       getActionViewItem: /* @__PURE__ */ __name((action) => {
         const keybinding = this._keybindingFor(action);
         if (keybinding) {
-          return new ActionViewItem(action, action, {
-            label: true,
-            keybinding: keybinding.getLabel(),
-            isMenu: true
-          });
+          return new ActionViewItem(action, action, { label: true, keybinding: keybinding.getLabel(), isMenu: true });
         }
         const customActionViewItem = action;
         if (typeof customActionViewItem.getActionViewItem === "function") {
           return customActionViewItem.getActionViewItem();
         }
-        return new ActionViewItem(action, action, {
-          icon: true,
-          label: true,
-          isMenu: true
-        });
+        return new ActionViewItem(action, action, { icon: true, label: true, isMenu: true });
       }, "getActionViewItem"),
       getKeyBinding: /* @__PURE__ */ __name((action) => {
         return this._keybindingFor(action);
@@ -267,9 +213,7 @@ let ContextMenuController = class {
     if (!this._editor.hasModel()) {
       return;
     }
-    if (isStandaloneEditorWorkspace(
-      this._workspaceContextService.getWorkspace()
-    )) {
+    if (isStandaloneEditorWorkspace(this._workspaceContextService.getWorkspace())) {
       return;
     }
     const minimapOptions = this._editor.getOption(EditorOption.minimap);
@@ -305,98 +249,63 @@ let ContextMenuController = class {
       }, "createRunner");
       const actions2 = [];
       for (const option of options) {
-        actions2.push(
-          createAction({
-            label: option.label,
-            checked: configuredValue === option.value,
-            run: createRunner(option.value)
-          })
-        );
+        actions2.push(createAction({
+          label: option.label,
+          checked: configuredValue === option.value,
+          run: createRunner(option.value)
+        }));
       }
-      return createSubmenuAction(label, actions2);
+      return createSubmenuAction(
+        label,
+        actions2
+      );
     }, "createEnumAction");
     const actions = [];
-    actions.push(
-      createAction({
-        label: nls.localize("context.minimap.minimap", "Minimap"),
-        checked: minimapOptions.enabled,
-        run: /* @__PURE__ */ __name(() => {
-          this._configurationService.updateValue(
-            `editor.minimap.enabled`,
-            !minimapOptions.enabled
-          );
-        }, "run")
-      })
-    );
+    actions.push(createAction({
+      label: nls.localize("context.minimap.minimap", "Minimap"),
+      checked: minimapOptions.enabled,
+      run: /* @__PURE__ */ __name(() => {
+        this._configurationService.updateValue(`editor.minimap.enabled`, !minimapOptions.enabled);
+      }, "run")
+    }));
     actions.push(new Separator());
-    actions.push(
-      createAction({
-        label: nls.localize(
-          "context.minimap.renderCharacters",
-          "Render Characters"
-        ),
-        enabled: minimapOptions.enabled,
-        checked: minimapOptions.renderCharacters,
-        run: /* @__PURE__ */ __name(() => {
-          this._configurationService.updateValue(
-            `editor.minimap.renderCharacters`,
-            !minimapOptions.renderCharacters
-          );
-        }, "run")
-      })
-    );
-    actions.push(
-      createEnumAction(
-        nls.localize("context.minimap.size", "Vertical size"),
-        minimapOptions.enabled,
-        "editor.minimap.size",
-        minimapOptions.size,
-        [
-          {
-            label: nls.localize(
-              "context.minimap.size.proportional",
-              "Proportional"
-            ),
-            value: "proportional"
-          },
-          {
-            label: nls.localize(
-              "context.minimap.size.fill",
-              "Fill"
-            ),
-            value: "fill"
-          },
-          {
-            label: nls.localize("context.minimap.size.fit", "Fit"),
-            value: "fit"
-          }
-        ]
-      )
-    );
-    actions.push(
-      createEnumAction(
-        nls.localize("context.minimap.slider", "Slider"),
-        minimapOptions.enabled,
-        "editor.minimap.showSlider",
-        minimapOptions.showSlider,
-        [
-          {
-            label: nls.localize(
-              "context.minimap.slider.mouseover",
-              "Mouse Over"
-            ),
-            value: "mouseover"
-          },
-          {
-            label: nls.localize(
-              "context.minimap.slider.always",
-              "Always"
-            ),
-            value: "always"
-          }
-        ]
-      )
-    );
+    actions.push(createAction({
+      label: nls.localize("context.minimap.renderCharacters", "Render Characters"),
+      enabled: minimapOptions.enabled,
+      checked: minimapOptions.renderCharacters,
+      run: /* @__PURE__ */ __name(() => {
+        this._configurationService.updateValue(`editor.minimap.renderCharacters`, !minimapOptions.renderCharacters);
+      }, "run")
+    }));
+    actions.push(createEnumAction(
+      nls.localize("context.minimap.size", "Vertical size"),
+      minimapOptions.enabled,
+      "editor.minimap.size",
+      minimapOptions.size,
+      [{
+        label: nls.localize("context.minimap.size.proportional", "Proportional"),
+        value: "proportional"
+      }, {
+        label: nls.localize("context.minimap.size.fill", "Fill"),
+        value: "fill"
+      }, {
+        label: nls.localize("context.minimap.size.fit", "Fit"),
+        value: "fit"
+      }]
+    ));
+    actions.push(createEnumAction(
+      nls.localize("context.minimap.slider", "Slider"),
+      minimapOptions.enabled,
+      "editor.minimap.showSlider",
+      minimapOptions.showSlider,
+      [{
+        label: nls.localize("context.minimap.slider.mouseover", "Mouse Over"),
+        value: "mouseover"
+      }, {
+        label: nls.localize("context.minimap.slider.always", "Always"),
+        value: "always"
+      }]
+    ));
     const useShadowDOM = this._editor.getOption(EditorOption.useShadowDOM) && !isIOS;
     this._contextMenuIsBeingShownCount++;
     this._contextMenuService.showContextMenu({
@@ -435,10 +344,7 @@ class ShowContextMenu extends EditorAction {
   constructor() {
     super({
       id: "editor.action.showContextMenu",
-      label: nls.localize(
-        "action.showContextMenu.label",
-        "Show Editor Context Menu"
-      ),
+      label: nls.localize("action.showContextMenu.label", "Show Editor Context Menu"),
       alias: "Show Editor Context Menu",
       precondition: void 0,
       kbOpts: {
@@ -452,11 +358,7 @@ class ShowContextMenu extends EditorAction {
     ContextMenuController.get(editor)?.showContextMenu();
   }
 }
-registerEditorContribution(
-  ContextMenuController.ID,
-  ContextMenuController,
-  EditorContributionInstantiation.BeforeFirstInteraction
-);
+registerEditorContribution(ContextMenuController.ID, ContextMenuController, EditorContributionInstantiation.BeforeFirstInteraction);
 registerEditorAction(ShowContextMenu);
 export {
   ContextMenuController

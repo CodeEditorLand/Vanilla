@@ -1,13 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
 import { quickSelect } from "../../../../base/common/arrays.js";
 import { CharCode } from "../../../../base/common/charCode.js";
-import {
-  FuzzyScore,
-  FuzzyScoreOptions,
-  fuzzyScore,
-  fuzzyScoreGracefulAggressive
-} from "../../../../base/common/filters.js";
+import { FuzzyScore, fuzzyScore, fuzzyScoreGracefulAggressive, FuzzyScoreOptions, FuzzyScorer } from "../../../../base/common/filters.js";
 import { isWindows } from "../../../../base/common/platform.js";
 class LineContext {
   constructor(leadingLineContent, characterCountDelta) {
@@ -94,15 +90,7 @@ class SimpleCompletionModel {
         if (wordPos >= wordLen) {
           item.score = FuzzyScore.Default;
         } else {
-          const match = scoreFn(
-            word,
-            wordLow,
-            wordPos,
-            item.completion.label,
-            item.labelLow,
-            0,
-            this._fuzzyScoreOptions
-          );
+          const match = scoreFn(word, wordLow, wordPos, item.completion.label, item.labelLow, 0, this._fuzzyScoreOptions);
           if (!match) {
             continue;
           }
@@ -141,56 +129,50 @@ class SimpleCompletionModel {
     });
     this._refilterKind = 0 /* Nothing */;
     this._stats = {
-      pLabelLen: labelLengths.length ? quickSelect(
-        labelLengths.length - 0.85,
-        labelLengths,
-        (a, b) => a - b
-      ) : 0
+      pLabelLen: labelLengths.length ? quickSelect(labelLengths.length - 0.85, labelLengths, (a, b) => a - b) : 0
     };
   }
 }
-const fileExtScores = new Map(
-  isWindows ? [
-    // Windows - .ps1 > .exe > .bat > .cmd. This is the command precedence when running the files
-    //           without an extension, tested manually in pwsh v7.4.4
-    ["ps1", 0.09],
-    ["exe", 0.08],
-    ["bat", 0.07],
-    ["cmd", 0.07],
-    // Non-Windows
-    ["sh", -0.05],
-    ["bash", -0.05],
-    ["zsh", -0.05],
-    ["fish", -0.05],
-    ["csh", -0.06],
-    // C shell
-    ["ksh", -0.06]
-    // Korn shell
-    // Scripting language files are excluded here as the standard behavior on Windows will just open
-    // the file in a text editor, not run the file
-  ] : [
-    // Pwsh
-    ["ps1", 0.05],
-    // Windows
-    ["bat", -0.05],
-    ["cmd", -0.05],
-    ["exe", -0.05],
-    // Non-Windows
-    ["sh", 0.05],
-    ["bash", 0.05],
-    ["zsh", 0.05],
-    ["fish", 0.05],
-    ["csh", 0.04],
-    // C shell
-    ["ksh", 0.04],
-    // Korn shell
-    // Scripting languages
-    ["py", 0.05],
-    // Python
-    ["pl", 0.05]
-    // Perl
-  ]
-);
+const fileExtScores = new Map(isWindows ? [
+  // Windows - .ps1 > .exe > .bat > .cmd. This is the command precedence when running the files
+  //           without an extension, tested manually in pwsh v7.4.4
+  ["ps1", 0.09],
+  ["exe", 0.08],
+  ["bat", 0.07],
+  ["cmd", 0.07],
+  // Non-Windows
+  ["sh", -0.05],
+  ["bash", -0.05],
+  ["zsh", -0.05],
+  ["fish", -0.05],
+  ["csh", -0.06],
+  // C shell
+  ["ksh", -0.06]
+  // Korn shell
+  // Scripting language files are excluded here as the standard behavior on Windows will just open
+  // the file in a text editor, not run the file
+] : [
+  // Pwsh
+  ["ps1", 0.05],
+  // Windows
+  ["bat", -0.05],
+  ["cmd", -0.05],
+  ["exe", -0.05],
+  // Non-Windows
+  ["sh", 0.05],
+  ["bash", 0.05],
+  ["zsh", 0.05],
+  ["fish", 0.05],
+  ["csh", 0.04],
+  // C shell
+  ["ksh", 0.04],
+  // Korn shell
+  // Scripting languages
+  ["py", 0.05],
+  // Python
+  ["pl", 0.05]
+  // Perl
+]);
 function fileExtScore(ext) {
   return fileExtScores.get(ext) || 0;
 }

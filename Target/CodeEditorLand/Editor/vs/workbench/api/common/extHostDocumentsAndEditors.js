@@ -11,22 +11,21 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as assert from "../../../base/common/assert.js";
-import { Emitter } from "../../../base/common/event.js";
-import { Iterable } from "../../../base/common/iterator.js";
-import { Lazy } from "../../../base/common/lazy.js";
+import * as vscode from "vscode";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { dispose } from "../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../base/common/map.js";
-import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta, MainContext } from "./extHost.protocol.js";
 import { ExtHostDocumentData } from "./extHostDocumentData.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { ExtHostTextEditor } from "./extHostTextEditor.js";
 import * as typeConverters from "./extHostTypeConverters.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { Schemas } from "../../../base/common/network.js";
+import { Iterable } from "../../../base/common/iterator.js";
+import { Lazy } from "../../../base/common/lazy.js";
 class Reference {
   constructor(value) {
     this.value = value;
@@ -85,25 +84,19 @@ let ExtHostDocumentsAndEditors = class {
         let ref = this._documents.get(resource);
         if (ref) {
           if (resource.scheme !== Schemas.vscodeNotebookCell && resource.scheme !== Schemas.vscodeInteractiveInput) {
-            throw new Error(
-              `document '${resource} already exists!'`
-            );
+            throw new Error(`document '${resource} already exists!'`);
           }
         }
         if (!ref) {
-          ref = new Reference(
-            new ExtHostDocumentData(
-              this._extHostRpc.getProxy(
-                MainContext.MainThreadDocuments
-              ),
-              resource,
-              data.lines,
-              data.EOL,
-              data.versionId,
-              data.languageId,
-              data.isDirty
-            )
-          );
+          ref = new Reference(new ExtHostDocumentData(
+            this._extHostRpc.getProxy(MainContext.MainThreadDocuments),
+            resource,
+            data.lines,
+            data.EOL,
+            data.versionId,
+            data.languageId,
+            data.isDirty
+          ));
           this._documents.set(resource, ref);
           addedDocuments.push(ref.value);
         }
@@ -122,37 +115,24 @@ let ExtHostDocumentsAndEditors = class {
     if (delta.addedEditors) {
       for (const data of delta.addedEditors) {
         const resource = URI.revive(data.documentUri);
-        assert.ok(
-          this._documents.has(resource),
-          `document '${resource}' does not exist`
-        );
-        assert.ok(
-          !this._editors.has(data.id),
-          `editor '${data.id}' already exists!`
-        );
+        assert.ok(this._documents.has(resource), `document '${resource}' does not exist`);
+        assert.ok(!this._editors.has(data.id), `editor '${data.id}' already exists!`);
         const documentData = this._documents.get(resource).value;
         const editor = new ExtHostTextEditor(
           data.id,
-          this._extHostRpc.getProxy(
-            MainContext.MainThreadTextEditors
-          ),
+          this._extHostRpc.getProxy(MainContext.MainThreadTextEditors),
           this._logService,
           new Lazy(() => documentData.document),
           data.selections.map(typeConverters.Selection.to),
           data.options,
-          data.visibleRanges.map(
-            (range) => typeConverters.Range.to(range)
-          ),
+          data.visibleRanges.map((range) => typeConverters.Range.to(range)),
           typeof data.editorPosition === "number" ? typeConverters.ViewColumn.to(data.editorPosition) : void 0
         );
         this._editors.set(data.id, editor);
       }
     }
     if (delta.newActiveEditor !== void 0) {
-      assert.ok(
-        delta.newActiveEditor === null || this._editors.has(delta.newActiveEditor),
-        `active editor '${delta.newActiveEditor}' does not exist`
-      );
+      assert.ok(delta.newActiveEditor === null || this._editors.has(delta.newActiveEditor), `active editor '${delta.newActiveEditor}' does not exist`);
       this._activeEditorId = delta.newActiveEditor;
     }
     dispose(removedDocuments);
@@ -164,9 +144,7 @@ let ExtHostDocumentsAndEditors = class {
       this._onDidAddDocuments.fire(addedDocuments);
     }
     if (delta.removedEditors || delta.addedEditors) {
-      this._onDidChangeVisibleTextEditors.fire(
-        this.allEditors().map((editor) => editor.value)
-      );
+      this._onDidChangeVisibleTextEditors.fire(this.allEditors().map((editor) => editor.value));
     }
     if (delta.newActiveEditor !== void 0) {
       this._onDidChangeActiveTextEditor.fire(this.activeEditor());

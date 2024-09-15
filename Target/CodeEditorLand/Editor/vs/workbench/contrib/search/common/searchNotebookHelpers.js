@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FindMatch, IReadonlyTextBuffer } from "../../../../editor/common/model.js";
+import { TextSearchMatch, IFileMatch, ITextSearchMatch } from "../../../services/search/common/search.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  TextSearchMatch
-} from "../../../services/search/common/search.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
 function isINotebookFileMatchNoModel(object) {
   return "cellResults" in object;
 }
@@ -35,14 +35,7 @@ function genericCellMatchesToTextSearchMatches(contentMatches, buffer) {
     }
     return new TextSearchMatch(
       lineTexts.join("\n") + "\n",
-      grouping.map(
-        (m) => new Range(
-          m.range.startLineNumber - 1,
-          m.range.startColumn - 1,
-          m.range.endLineNumber - 1,
-          m.range.endColumn - 1
-        )
-      )
+      grouping.map((m) => new Range(m.range.startLineNumber - 1, m.range.startColumn - 1, m.range.endLineNumber - 1, m.range.endColumn - 1))
     );
   });
   return textSearchResults;

@@ -18,9 +18,8 @@ import { sanitizeProcessEnvironment } from "../../../base/common/processes.js";
 import * as pfs from "../../../base/node/pfs.js";
 import * as processes from "../../../base/node/processes.js";
 import * as nls from "../../../nls.js";
-import {
-  DEFAULT_TERMINAL_OSX
-} from "../common/externalTerminal.js";
+import { DEFAULT_TERMINAL_OSX, IExternalTerminalService, IExternalTerminalSettings, ITerminalForPlatform } from "../common/externalTerminal.js";
+import { ITerminalEnvironment } from "../../terminal/common/terminal.js";
 const TERMINAL_TITLE = nls.localize("console.title", "VS Code Console");
 class ExternalTerminalService {
   static {
@@ -42,12 +41,7 @@ const _WindowsExternalTerminalService = class _WindowsExternalTerminalService ex
   static CMD = "cmd.exe";
   static _DEFAULT_TERMINAL_WINDOWS;
   openTerminal(configuration, cwd) {
-    return this.spawnTerminal(
-      cp,
-      configuration,
-      processes.getWindowsShell(),
-      cwd
-    );
+    return this.spawnTerminal(cp, configuration, processes.getWindowsShell(), cwd);
   }
   spawnTerminal(spawner, configuration, command, cwd) {
     const exec = configuration.windowsExec || _WindowsExternalTerminalService.getDefaultTerminalWindows();
@@ -69,11 +63,7 @@ const _WindowsExternalTerminalService = class _WindowsExternalTerminalService ex
     }
     return new Promise((c, e) => {
       const env2 = getSanitizedEnvironment(process);
-      const child = spawner.spawn(command, cmdArgs, {
-        cwd,
-        env: env2,
-        detached: true
-      });
+      const child = spawner.spawn(command, cmdArgs, { cwd, env: env2, detached: true });
       child.on("error", e);
       child.on("exit", () => c());
     });
@@ -84,11 +74,7 @@ const _WindowsExternalTerminalService = class _WindowsExternalTerminalService ex
     return new Promise((resolve, reject) => {
       const title2 = `"${dir} - ${TERMINAL_TITLE}"`;
       const command = `"${args.join('" "')}" & pause`;
-      const env2 = Object.assign(
-        {},
-        getSanitizedEnvironment(process),
-        envVars
-      );
+      const env2 = Object.assign({}, getSanitizedEnvironment(process), envVars);
       Object.keys(env2).filter((v) => env2[v] === null).forEach((key) => delete env2[key]);
       const options = {
         cwd: dir,
@@ -99,27 +85,13 @@ const _WindowsExternalTerminalService = class _WindowsExternalTerminalService ex
       let cmdArgs;
       if (path.basename(exec, ".exe") === "wt") {
         spawnExec = exec;
-        cmdArgs = [
-          "-d",
-          ".",
-          _WindowsExternalTerminalService.CMD,
-          "/c",
-          command
-        ];
+        cmdArgs = ["-d", ".", _WindowsExternalTerminalService.CMD, "/c", command];
       } else if (wt) {
         spawnExec = wt;
         cmdArgs = ["-d", ".", exec, "/c", command];
       } else {
         spawnExec = _WindowsExternalTerminalService.CMD;
-        cmdArgs = [
-          "/c",
-          "start",
-          title2,
-          "/wait",
-          exec,
-          "/c",
-          `"${command}"`
-        ];
+        cmdArgs = ["/c", "start", title2, "/wait", exec, "/c", `"${command}"`];
       }
       const cmd = cp.spawn(spawnExec, cmdArgs, options);
       cmd.on("error", (err) => {
@@ -130,9 +102,7 @@ const _WindowsExternalTerminalService = class _WindowsExternalTerminalService ex
   }
   static getDefaultTerminalWindows() {
     if (!_WindowsExternalTerminalService._DEFAULT_TERMINAL_WINDOWS) {
-      const isWoW64 = !!process.env.hasOwnProperty(
-        "PROCESSOR_ARCHITEW6432"
-      );
+      const isWoW64 = !!process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
       _WindowsExternalTerminalService._DEFAULT_TERMINAL_WINDOWS = `${process.env.windir ? process.env.windir : "C:\\Windows"}\\${isWoW64 ? "Sysnative" : "System32"}\\cmd.exe`;
     }
     return _WindowsExternalTerminalService._DEFAULT_TERMINAL_WINDOWS;
@@ -164,9 +134,7 @@ class MacExternalTerminalService extends ExternalTerminalService {
     return new Promise((resolve, reject) => {
       if (terminalApp === DEFAULT_TERMINAL_OSX || terminalApp === "iTerm.app") {
         const script = terminalApp === DEFAULT_TERMINAL_OSX ? "TerminalHelper" : "iTermHelper";
-        const scriptpath = FileAccess.asFileUri(
-          `vs/workbench/contrib/externalTerminal/node/${script}.scpt`
-        ).fsPath;
+        const scriptpath = FileAccess.asFileUri(`vs/workbench/contrib/externalTerminal/node/${script}.scpt`).fsPath;
         const osaArgs = [
           scriptpath,
           "-t",
@@ -179,11 +147,7 @@ class MacExternalTerminalService extends ExternalTerminalService {
           osaArgs.push(a);
         }
         if (envVars) {
-          const env2 = Object.assign(
-            {},
-            getSanitizedEnvironment(process),
-            envVars
-          );
+          const env2 = Object.assign({}, getSanitizedEnvironment(process), envVars);
           for (const key in env2) {
             const value = env2[key];
             if (value === null) {
@@ -196,10 +160,7 @@ class MacExternalTerminalService extends ExternalTerminalService {
           }
         }
         let stderr = "";
-        const osa = cp.spawn(
-          MacExternalTerminalService.OSASCRIPT,
-          osaArgs
-        );
+        const osa = cp.spawn(MacExternalTerminalService.OSASCRIPT, osaArgs);
         osa.on("error", (err) => {
           reject(improveError(err));
         });
@@ -209,32 +170,17 @@ class MacExternalTerminalService extends ExternalTerminalService {
         osa.on("exit", (code) => {
           if (code === 0) {
             resolve(void 0);
-          } else if (stderr) {
-            const lines = stderr.split("\n", 1);
-            reject(new Error(lines[0]));
           } else {
-            reject(
-              new Error(
-                nls.localize(
-                  "mac.terminal.script.failed",
-                  "Script '{0}' failed with exit code {1}",
-                  script,
-                  code
-                )
-              )
-            );
+            if (stderr) {
+              const lines = stderr.split("\n", 1);
+              reject(new Error(lines[0]));
+            } else {
+              reject(new Error(nls.localize("mac.terminal.script.failed", "Script '{0}' failed with exit code {1}", script, code)));
+            }
           }
         });
       } else {
-        reject(
-          new Error(
-            nls.localize(
-              "mac.terminal.type.not.supported",
-              "'{0}' not supported",
-              terminalApp
-            )
-          )
-        );
+        reject(new Error(nls.localize("mac.terminal.type.not.supported", "'{0}' not supported", terminalApp)));
       }
     });
   }
@@ -256,10 +202,7 @@ class LinuxExternalTerminalService extends ExternalTerminalService {
   static {
     __name(this, "LinuxExternalTerminalService");
   }
-  static WAIT_MESSAGE = nls.localize(
-    "press.any.key",
-    "Press any key to continue..."
-  );
+  static WAIT_MESSAGE = nls.localize("press.any.key", "Press any key to continue...");
   openTerminal(configuration, cwd) {
     return this.spawnTerminal(cp, configuration, cwd);
   }
@@ -277,11 +220,7 @@ class LinuxExternalTerminalService extends ExternalTerminalService {
         termArgs.push("-c");
         const bashCommand = `${quote(args)}; echo; read -p "${LinuxExternalTerminalService.WAIT_MESSAGE}" -n1;`;
         termArgs.push(`''${bashCommand}''`);
-        const env2 = Object.assign(
-          {},
-          getSanitizedEnvironment(process),
-          envVars
-        );
+        const env2 = Object.assign({}, getSanitizedEnvironment(process), envVars);
         Object.keys(env2).filter((v) => env2[v] === null).forEach((key) => delete env2[key]);
         const options = {
           cwd: dir,
@@ -298,20 +237,13 @@ class LinuxExternalTerminalService extends ExternalTerminalService {
         cmd.on("exit", (code) => {
           if (code === 0) {
             resolve(void 0);
-          } else if (stderr) {
-            const lines = stderr.split("\n", 1);
-            reject(new Error(lines[0]));
           } else {
-            reject(
-              new Error(
-                nls.localize(
-                  "linux.term.failed",
-                  "'{0}' failed with exit code {1}",
-                  exec,
-                  code
-                )
-              )
-            );
+            if (stderr) {
+              const lines = stderr.split("\n", 1);
+              reject(new Error(lines[0]));
+            } else {
+              reject(new Error(nls.localize("linux.term.failed", "'{0}' failed with exit code {1}", exec, code)));
+            }
           }
         });
       });
@@ -320,10 +252,10 @@ class LinuxExternalTerminalService extends ExternalTerminalService {
   static _DEFAULT_TERMINAL_LINUX_READY;
   static async getDefaultTerminalLinuxReady() {
     if (!LinuxExternalTerminalService._DEFAULT_TERMINAL_LINUX_READY) {
-      if (env.isLinux) {
-        const isDebian = await pfs.Promises.exists(
-          "/etc/debian_version"
-        );
+      if (!env.isLinux) {
+        LinuxExternalTerminalService._DEFAULT_TERMINAL_LINUX_READY = Promise.resolve("xterm");
+      } else {
+        const isDebian = await pfs.Promises.exists("/etc/debian_version");
         LinuxExternalTerminalService._DEFAULT_TERMINAL_LINUX_READY = new Promise((r) => {
           if (isDebian) {
             r("x-terminal-emulator");
@@ -339,8 +271,6 @@ class LinuxExternalTerminalService extends ExternalTerminalService {
             r("xterm");
           }
         });
-      } else {
-        LinuxExternalTerminalService._DEFAULT_TERMINAL_LINUX_READY = Promise.resolve("xterm");
       }
     }
     return LinuxExternalTerminalService._DEFAULT_TERMINAL_LINUX_READY;
@@ -365,13 +295,7 @@ function getSanitizedEnvironment(process2) {
 __name(getSanitizedEnvironment, "getSanitizedEnvironment");
 function improveError(err) {
   if ("errno" in err && err["errno"] === "ENOENT" && "path" in err && typeof err["path"] === "string") {
-    return new Error(
-      nls.localize(
-        "ext.term.app.not.found",
-        "can't find terminal application '{0}'",
-        err["path"]
-      )
-    );
+    return new Error(nls.localize("ext.term.app.not.found", "can't find terminal application '{0}'", err["path"]));
   }
   return err;
 }

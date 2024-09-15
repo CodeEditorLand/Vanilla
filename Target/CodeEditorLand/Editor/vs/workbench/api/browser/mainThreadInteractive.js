@@ -12,39 +12,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../editor/common/languages/modesRegistry.js";
+import { ExtHostContext, ExtHostInteractiveShape, MainContext, MainThreadInteractiveShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { IInteractiveDocumentService } from "../../contrib/interactive/browser/interactiveDocumentService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadInteractive = class {
   _proxy;
   _disposables = new DisposableStore();
   constructor(extHostContext, interactiveDocumentService) {
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostInteractive
-    );
-    this._disposables.add(
-      interactiveDocumentService.onWillAddInteractiveDocument((e) => {
-        this._proxy.$willAddInteractiveDocument(
-          e.inputUri,
-          "\n",
-          PLAINTEXT_LANGUAGE_ID,
-          e.notebookUri
-        );
-      })
-    );
-    this._disposables.add(
-      interactiveDocumentService.onWillRemoveInteractiveDocument((e) => {
-        this._proxy.$willRemoveInteractiveDocument(
-          e.inputUri,
-          e.notebookUri
-        );
-      })
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostInteractive);
+    this._disposables.add(interactiveDocumentService.onWillAddInteractiveDocument((e) => {
+      this._proxy.$willAddInteractiveDocument(e.inputUri, "\n", PLAINTEXT_LANGUAGE_ID, e.notebookUri);
+    }));
+    this._disposables.add(interactiveDocumentService.onWillRemoveInteractiveDocument((e) => {
+      this._proxy.$willRemoveInteractiveDocument(e.inputUri, e.notebookUri);
+    }));
   }
   dispose() {
     this._disposables.dispose();

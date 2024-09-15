@@ -1,15 +1,11 @@
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Iterable } from "../../../base/common/iterator.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../base/common/linkedList.js";
-import {
-  validateConstraints
-} from "../../../base/common/types.js";
-import {
-  createDecorator
-} from "../../instantiation/common/instantiation.js";
+import { TypeConstraint, validateConstraints } from "../../../base/common/types.js";
+import { ILocalizedString } from "../../action/common/action.js";
+import { createDecorator, ServicesAccessor } from "../../instantiation/common/instantiation.js";
 const ICommandService = createDecorator("commandService");
 const CommandsRegistry = new class {
   _commands = /* @__PURE__ */ new Map();
@@ -31,7 +27,7 @@ const CommandsRegistry = new class {
         constraints.push(arg.constraint);
       }
       const actualHandler = idOrCommand.handler;
-      idOrCommand.handler = (accessor, ...args) => {
+      idOrCommand.handler = function(accessor, ...args) {
         validateConstraints(args, constraints);
         return actualHandler(accessor, ...args);
       };
@@ -54,10 +50,7 @@ const CommandsRegistry = new class {
     return ret;
   }
   registerCommandAlias(oldId, newId) {
-    return CommandsRegistry.registerCommand(
-      oldId,
-      (accessor, ...args) => accessor.get(ICommandService).executeCommand(newId, ...args)
-    );
+    return CommandsRegistry.registerCommand(oldId, (accessor, ...args) => accessor.get(ICommandService).executeCommand(newId, ...args));
   }
   getCommand(id) {
     const list = this._commands.get(id);

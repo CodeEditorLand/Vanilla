@@ -5,111 +5,93 @@ import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
 import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
 import { Selection } from "../../../../../editor/common/core/selection.js";
 import { localize, localize2 } from "../../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { InlineChatController } from "../../../inlineChat/browser/inlineChatController.js";
-import { CONTEXT_CHAT_ENABLED } from "../../common/chatContextKeys.js";
-import { IQuickChatService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
+import { IQuickChatOpenOptions, IQuickChatService } from "../chat.js";
+import { CONTEXT_CHAT_ENABLED } from "../../common/chatContextKeys.js";
+import { InlineChatController } from "../../../inlineChat/browser/inlineChatController.js";
 const ASK_QUICK_QUESTION_ACTION_ID = "workbench.action.quickchat.toggle";
 function registerQuickChatActions() {
   registerAction2(QuickChatGlobalAction);
   registerAction2(AskQuickChatAction);
-  registerAction2(
-    class OpenInChatViewAction extends Action2 {
-      static {
-        __name(this, "OpenInChatViewAction");
-      }
-      constructor() {
-        super({
-          id: "workbench.action.quickchat.openInChatView",
-          title: localize2(
-            "chat.openInChatView.label",
-            "Open in Chat View"
-          ),
-          f1: false,
-          category: CHAT_CATEGORY,
-          icon: Codicon.commentDiscussion,
-          menu: {
-            id: MenuId.ChatInputSide,
-            group: "navigation",
-            order: 10
-          }
-        });
-      }
-      run(accessor) {
-        const quickChatService = accessor.get(IQuickChatService);
-        quickChatService.openInChatView();
-      }
+  registerAction2(class OpenInChatViewAction extends Action2 {
+    static {
+      __name(this, "OpenInChatViewAction");
     }
-  );
-  registerAction2(
-    class CloseQuickChatAction extends Action2 {
-      static {
-        __name(this, "CloseQuickChatAction");
-      }
-      constructor() {
-        super({
-          id: "workbench.action.quickchat.close",
-          title: localize2(
-            "chat.closeQuickChat.label",
-            "Close Quick Chat"
-          ),
-          f1: false,
-          category: CHAT_CATEGORY,
-          icon: Codicon.close,
-          menu: {
-            id: MenuId.ChatInputSide,
-            group: "navigation",
-            order: 20
-          }
-        });
-      }
-      run(accessor) {
-        const quickChatService = accessor.get(IQuickChatService);
+    constructor() {
+      super({
+        id: "workbench.action.quickchat.openInChatView",
+        title: localize2("chat.openInChatView.label", "Open in Chat View"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        icon: Codicon.commentDiscussion,
+        menu: {
+          id: MenuId.ChatInputSide,
+          group: "navigation",
+          order: 10
+        }
+      });
+    }
+    run(accessor) {
+      const quickChatService = accessor.get(IQuickChatService);
+      quickChatService.openInChatView();
+    }
+  });
+  registerAction2(class CloseQuickChatAction extends Action2 {
+    static {
+      __name(this, "CloseQuickChatAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.quickchat.close",
+        title: localize2("chat.closeQuickChat.label", "Close Quick Chat"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        icon: Codicon.close,
+        menu: {
+          id: MenuId.ChatInputSide,
+          group: "navigation",
+          order: 20
+        }
+      });
+    }
+    run(accessor) {
+      const quickChatService = accessor.get(IQuickChatService);
+      quickChatService.close();
+    }
+  });
+  registerAction2(class LaunchInlineChatFromQuickChatAction extends Action2 {
+    static {
+      __name(this, "LaunchInlineChatFromQuickChatAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.quickchat.launchInlineChat",
+        title: localize2("chat.launchInlineChat.label", "Launch Inline Chat"),
+        f1: false,
+        category: CHAT_CATEGORY
+      });
+    }
+    async run(accessor) {
+      const quickChatService = accessor.get(IQuickChatService);
+      const codeEditorService = accessor.get(ICodeEditorService);
+      if (quickChatService.focused) {
         quickChatService.close();
       }
+      const codeEditor = codeEditorService.getActiveCodeEditor();
+      if (!codeEditor) {
+        return;
+      }
+      const controller = InlineChatController.get(codeEditor);
+      if (!controller) {
+        return;
+      }
+      await controller.run();
+      controller.focus();
     }
-  );
-  registerAction2(
-    class LaunchInlineChatFromQuickChatAction extends Action2 {
-      static {
-        __name(this, "LaunchInlineChatFromQuickChatAction");
-      }
-      constructor() {
-        super({
-          id: "workbench.action.quickchat.launchInlineChat",
-          title: localize2(
-            "chat.launchInlineChat.label",
-            "Launch Inline Chat"
-          ),
-          f1: false,
-          category: CHAT_CATEGORY
-        });
-      }
-      async run(accessor) {
-        const quickChatService = accessor.get(IQuickChatService);
-        const codeEditorService = accessor.get(ICodeEditorService);
-        if (quickChatService.focused) {
-          quickChatService.close();
-        }
-        const codeEditor = codeEditorService.getActiveCodeEditor();
-        if (!codeEditor) {
-          return;
-        }
-        const controller = InlineChatController.get(codeEditor);
-        if (!controller) {
-          return;
-        }
-        await controller.run();
-        controller.focus();
-      }
-    }
-  );
+  });
 }
 __name(registerQuickChatActions, "registerQuickChatActions");
 class QuickChatGlobalAction extends Action2 {
@@ -133,42 +115,31 @@ class QuickChatGlobalAction extends Action2 {
       },
       metadata: {
         description: localize("toggle.desc", "Toggle the quick chat"),
-        args: [
-          {
-            name: "args",
-            schema: {
-              anyOf: [
-                {
-                  type: "object",
-                  required: ["query"],
-                  properties: {
-                    query: {
-                      description: localize(
-                        "toggle.query",
-                        "The query to open the quick chat with"
-                      ),
-                      type: "string"
-                    },
-                    isPartialQuery: {
-                      description: localize(
-                        "toggle.isPartialQuery",
-                        "Whether the query is partial; it will wait for more user input"
-                      ),
-                      type: "boolean"
-                    }
+        args: [{
+          name: "args",
+          schema: {
+            anyOf: [
+              {
+                type: "object",
+                required: ["query"],
+                properties: {
+                  query: {
+                    description: localize("toggle.query", "The query to open the quick chat with"),
+                    type: "string"
+                  },
+                  isPartialQuery: {
+                    description: localize("toggle.isPartialQuery", "Whether the query is partial; it will wait for more user input"),
+                    type: "boolean"
                   }
-                },
-                {
-                  type: "string",
-                  description: localize(
-                    "toggle.query",
-                    "The query to open the quick chat with"
-                  )
                 }
-              ]
-            }
+              },
+              {
+                type: "string",
+                description: localize("toggle.query", "The query to open the quick chat with")
+              }
+            ]
           }
-        ]
+        }]
       }
     });
   }
@@ -184,12 +155,7 @@ class QuickChatGlobalAction extends Action2 {
         break;
     }
     if (options?.query) {
-      options.selection = new Selection(
-        1,
-        options.query.length + 1,
-        1,
-        options.query.length + 1
-      );
+      options.selection = new Selection(1, options.query.length + 1, 1, options.query.length + 1);
     }
     quickChatService.toggle(options);
   }
@@ -208,17 +174,10 @@ class AskQuickChatAction extends Action2 {
   }
   run(accessor, query) {
     const quickChatService = accessor.get(IQuickChatService);
-    quickChatService.toggle(
-      query ? {
-        query,
-        selection: new Selection(
-          1,
-          query.length + 1,
-          1,
-          query.length + 1
-        )
-      } : void 0
-    );
+    quickChatService.toggle(query ? {
+      query,
+      selection: new Selection(1, query.length + 1, 1, query.length + 1)
+    } : void 0);
   }
 }
 export {

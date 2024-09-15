@@ -10,80 +10,46 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { ExtHostTelemetryShape } from "./extHost.protocol.js";
+import { ICommonProperties, TelemetryLevel } from "../../../platform/telemetry/common/telemetry.js";
+import { ILogger, ILoggerService, LogLevel, isLogLevel } from "../../../platform/log/common/log.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { UIKind } from "../../services/extensions/common/extensionHostProtocol.js";
+import { getRemoteName } from "../../../platform/remote/common/remoteHosts.js";
+import { cleanData, cleanRemoteAuthority, extensionTelemetryLogChannelId } from "../../../platform/telemetry/common/telemetryUtils.js";
 import { mixin } from "../../../base/common/objects.js";
 import { URI } from "../../../base/common/uri.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
 import { localize } from "../../../nls.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  ILoggerService,
-  LogLevel,
-  isLogLevel
-} from "../../../platform/log/common/log.js";
-import { getRemoteName } from "../../../platform/remote/common/remoteHosts.js";
-import {
-  TelemetryLevel
-} from "../../../platform/telemetry/common/telemetry.js";
-import {
-  cleanData,
-  cleanRemoteAuthority,
-  extensionTelemetryLogChannelId
-} from "../../../platform/telemetry/common/telemetryUtils.js";
-import { UIKind } from "../../services/extensions/common/extensionHostProtocol.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
 let ExtHostTelemetry = class extends Disposable {
   constructor(initData, loggerService) {
     super();
     this.initData = initData;
     this.loggerService = loggerService;
-    this.extHostTelemetryLogFile = URI.revive(
-      this.initData.environment.extensionTelemetryLogResource
-    );
+    this.extHostTelemetryLogFile = URI.revive(this.initData.environment.extensionTelemetryLogResource);
     this._inLoggingOnlyMode = this.initData.environment.isExtensionTelemetryLoggingOnly;
-    this._outputLogger = loggerService.createLogger(
-      this.extHostTelemetryLogFile,
-      {
-        id: extensionTelemetryLogChannelId,
-        name: localize(
-          "extensionTelemetryLog",
-          "Extension Telemetry{0}",
-          this._inLoggingOnlyMode ? " (Not Sent)" : ""
-        ),
-        hidden: true
-      }
-    );
+    this._outputLogger = loggerService.createLogger(this.extHostTelemetryLogFile, { id: extensionTelemetryLogChannelId, name: localize("extensionTelemetryLog", "Extension Telemetry{0}", this._inLoggingOnlyMode ? " (Not Sent)" : ""), hidden: true });
     this._register(this._outputLogger);
-    this._register(
-      loggerService.onDidChangeLogLevel((arg) => {
-        if (isLogLevel(arg)) {
-          this.updateLoggerVisibility();
-        }
-      })
-    );
-    this._outputLogger.info(
-      "Below are logs for extension telemetry events sent to the telemetry output channel API once the log level is set to trace."
-    );
-    this._outputLogger.info(
-      "==========================================================="
-    );
+    this._register(loggerService.onDidChangeLogLevel((arg) => {
+      if (isLogLevel(arg)) {
+        this.updateLoggerVisibility();
+      }
+    }));
+    this._outputLogger.info("Below are logs for extension telemetry events sent to the telemetry output channel API once the log level is set to trace.");
+    this._outputLogger.info("===========================================================");
   }
   static {
     __name(this, "ExtHostTelemetry");
   }
   _serviceBrand;
-  _onDidChangeTelemetryEnabled = this._register(
-    new Emitter()
-  );
+  _onDidChangeTelemetryEnabled = this._register(new Emitter());
   onDidChangeTelemetryEnabled = this._onDidChangeTelemetryEnabled.event;
-  _onDidChangeTelemetryConfiguration = this._register(
-    new Emitter()
-  );
+  _onDidChangeTelemetryConfiguration = this._register(new Emitter());
   onDidChangeTelemetryConfiguration = this._onDidChangeTelemetryConfiguration.event;
-  _productConfig = {
-    usage: true,
-    error: true
-  };
+  _productConfig = { usage: true, error: true };
   _level = TelemetryLevel.NONE;
   // This holds whether or not we're running with --disable-telemetry, etc. Usings supportsTelemtry() from the main thread
   _telemetryIsSupported = false;
@@ -93,10 +59,7 @@ let ExtHostTelemetry = class extends Disposable {
   _outputLogger;
   _telemetryLoggers = /* @__PURE__ */ new Map();
   updateLoggerVisibility() {
-    this.loggerService.setVisibility(
-      this.extHostTelemetryLogFile,
-      this._telemetryIsSupported && this.loggerService.getLogLevel() === LogLevel.Trace
-    );
+    this.loggerService.setVisibility(this.extHostTelemetryLogFile, this._telemetryIsSupported && this.loggerService.getLogLevel() === LogLevel.Trace);
   }
   getTelemetryConfiguration() {
     return this._level === TelemetryLevel.USAGE;
@@ -117,16 +80,10 @@ let ExtHostTelemetry = class extends Disposable {
       this._outputLogger,
       this._inLoggingOnlyMode,
       this.getBuiltInCommonProperties(extension),
-      {
-        isUsageEnabled: telemetryDetails.isUsageEnabled,
-        isErrorsEnabled: telemetryDetails.isErrorsEnabled
-      }
+      { isUsageEnabled: telemetryDetails.isUsageEnabled, isErrorsEnabled: telemetryDetails.isErrorsEnabled }
     );
     const loggers = this._telemetryLoggers.get(extension.identifier.value) ?? [];
-    this._telemetryLoggers.set(extension.identifier.value, [
-      ...loggers,
-      logger
-    ]);
+    this._telemetryLoggers.set(extension.identifier.value, [...loggers, logger]);
     return logger.apiTelemetryLogger;
   }
   $initializeTelemetryLevel(level, supportsTelemetry, productConfig) {
@@ -144,9 +101,7 @@ let ExtHostTelemetry = class extends Disposable {
     commonProperties["common.sqmid"] = this.initData.telemetryInfo.sqmId;
     commonProperties["common.devDeviceId"] = this.initData.telemetryInfo.devDeviceId;
     commonProperties["common.vscodeversion"] = this.initData.version;
-    commonProperties["common.isnewappinstall"] = isNewAppInstall(
-      this.initData.telemetryInfo.firstSessionDate
-    );
+    commonProperties["common.isnewappinstall"] = isNewAppInstall(this.initData.telemetryInfo.firstSessionDate);
     commonProperties["common.product"] = this.initData.environment.appHost;
     switch (this.initData.uiKind) {
       case UIKind.Web:
@@ -158,9 +113,7 @@ let ExtHostTelemetry = class extends Disposable {
       default:
         commonProperties["common.uikind"] = "unknown";
     }
-    commonProperties["common.remotename"] = getRemoteName(
-      cleanRemoteAuthority(this.initData.remote.authority)
-    );
+    commonProperties["common.remotename"] = getRemoteName(cleanRemoteAuthority(this.initData.remote.authority));
     return commonProperties;
   }
   $onDidChangeTelemetryLevel(level) {
@@ -177,20 +130,13 @@ let ExtHostTelemetry = class extends Disposable {
     });
     this._telemetryLoggers.forEach((loggers) => {
       for (const logger of loggers) {
-        logger.updateTelemetryEnablements(
-          telemetryDetails.isUsageEnabled,
-          telemetryDetails.isErrorsEnabled
-        );
+        logger.updateTelemetryEnablements(telemetryDetails.isUsageEnabled, telemetryDetails.isErrorsEnabled);
       }
     });
     if (this._oldTelemetryEnablement !== this.getTelemetryConfiguration()) {
-      this._onDidChangeTelemetryEnabled.fire(
-        this.getTelemetryConfiguration()
-      );
+      this._onDidChangeTelemetryEnabled.fire(this.getTelemetryConfiguration());
     }
-    this._onDidChangeTelemetryConfiguration.fire(
-      this.getTelemetryDetails()
-    );
+    this._onDidChangeTelemetryConfiguration.fire(this.getTelemetryDetails());
     this.updateLoggerVisibility();
   }
   onExtensionError(extension, error) {
@@ -225,10 +171,7 @@ class ExtHostTelemetryLogger {
     this._ignoreBuiltinCommonProperties = options?.ignoreBuiltInCommonProperties ?? false;
     this._additionalCommonProperties = options?.additionalCommonProperties;
     this._sender = sender;
-    this._telemetryEnablements = {
-      isUsageEnabled: telemetryEnablements.isUsageEnabled,
-      isErrorsEnabled: telemetryEnablements.isErrorsEnabled
-    };
+    this._telemetryEnablements = { isUsageEnabled: telemetryEnablements.isUsageEnabled, isErrorsEnabled: telemetryEnablements.isErrorsEnabled };
   }
   static {
     __name(this, "ExtHostTelemetryLogger");
@@ -238,19 +181,13 @@ class ExtHostTelemetryLogger {
       throw new TypeError("TelemetrySender argument is invalid");
     }
     if (typeof sender.sendEventData !== "function") {
-      throw new TypeError(
-        "TelemetrySender.sendEventData must be a function"
-      );
+      throw new TypeError("TelemetrySender.sendEventData must be a function");
     }
     if (typeof sender.sendErrorData !== "function") {
-      throw new TypeError(
-        "TelemetrySender.sendErrorData must be a function"
-      );
+      throw new TypeError("TelemetrySender.sendErrorData must be a function");
     }
     if (typeof sender.flush !== "undefined" && typeof sender.flush !== "function") {
-      throw new TypeError(
-        "TelemetrySender.flush must be a function or undefined"
-      );
+      throw new TypeError("TelemetrySender.flush must be a function or undefined");
     }
   }
   _onDidChangeEnableStates = new Emitter();

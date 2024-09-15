@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ThrottledDelayer } from "../../../common/async.js";
 import { Event, PauseableEmitter } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
 import { parse, stringify } from "../../../common/marshalling.js";
 import { isObject, isUndefinedOrNull } from "../../../common/types.js";
 var StorageHint = /* @__PURE__ */ ((StorageHint2) => {
@@ -32,25 +32,17 @@ class Storage extends Disposable {
     __name(this, "Storage");
   }
   static DEFAULT_FLUSH_DELAY = 100;
-  _onDidChangeStorage = this._register(
-    new PauseableEmitter()
-  );
+  _onDidChangeStorage = this._register(new PauseableEmitter());
   onDidChangeStorage = this._onDidChangeStorage.event;
   state = 0 /* None */;
   cache = /* @__PURE__ */ new Map();
-  flushDelayer = this._register(
-    new ThrottledDelayer(Storage.DEFAULT_FLUSH_DELAY)
-  );
+  flushDelayer = this._register(new ThrottledDelayer(Storage.DEFAULT_FLUSH_DELAY));
   pendingDeletes = /* @__PURE__ */ new Set();
   pendingInserts = /* @__PURE__ */ new Map();
   pendingClose = void 0;
   whenFlushedCallbacks = [];
   registerListeners() {
-    this._register(
-      this.database.onDidChangeItemsExternal(
-        (e) => this.onDidChangeItemsExternal(e)
-      )
-    );
+    this._register(this.database.onDidChangeItemsExternal((e) => this.onDidChangeItemsExternal(e)));
   }
   onDidChangeItemsExternal(e) {
     this._onDidChangeStorage.pause();
@@ -114,7 +106,7 @@ class Storage extends Disposable {
     if (isUndefinedOrNull(value)) {
       return fallbackValue;
     }
-    return Number.parseInt(value, 10);
+    return parseInt(value, 10);
   }
   getObject(key, fallbackValue) {
     const value = this.get(key);
@@ -187,10 +179,7 @@ class Storage extends Disposable {
     if (!this.hasPending) {
       return;
     }
-    const updateRequest = {
-      insert: this.pendingInserts,
-      delete: this.pendingDeletes
-    };
+    const updateRequest = { insert: this.pendingInserts, delete: this.pendingDeletes };
     this.pendingDeletes = /* @__PURE__ */ new Set();
     this.pendingInserts = /* @__PURE__ */ new Map();
     return this.database.updateItems(updateRequest).finally(() => {
@@ -218,9 +207,7 @@ class Storage extends Disposable {
     if (!this.hasPending) {
       return;
     }
-    return new Promise(
-      (resolve) => this.whenFlushedCallbacks.push(resolve)
-    );
+    return new Promise((resolve) => this.whenFlushedCallbacks.push(resolve));
   }
   isInMemory() {
     return this.options.hint === 1 /* STORAGE_IN_MEMORY */;

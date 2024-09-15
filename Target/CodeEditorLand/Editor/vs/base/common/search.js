@@ -3,28 +3,12 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import * as strings from "./strings.js";
 function buildReplaceStringWithCasePreserved(matches, pattern) {
   if (matches && matches[0] !== "") {
-    const containsHyphens = validateSpecificSpecialCharacter(
-      matches,
-      pattern,
-      "-"
-    );
-    const containsUnderscores = validateSpecificSpecialCharacter(
-      matches,
-      pattern,
-      "_"
-    );
+    const containsHyphens = validateSpecificSpecialCharacter(matches, pattern, "-");
+    const containsUnderscores = validateSpecificSpecialCharacter(matches, pattern, "_");
     if (containsHyphens && !containsUnderscores) {
-      return buildReplaceStringForSpecificSpecialCharacter(
-        matches,
-        pattern,
-        "-"
-      );
+      return buildReplaceStringForSpecificSpecialCharacter(matches, pattern, "-");
     } else if (!containsHyphens && containsUnderscores) {
-      return buildReplaceStringForSpecificSpecialCharacter(
-        matches,
-        pattern,
-        "_"
-      );
+      return buildReplaceStringForSpecificSpecialCharacter(matches, pattern, "_");
     }
     if (matches[0].toUpperCase() === matches[0]) {
       return pattern.toUpperCase();
@@ -52,10 +36,7 @@ function buildReplaceStringForSpecificSpecialCharacter(matches, pattern, special
   const splitMatchAtSpecialCharacter = matches[0].split(specialCharacter);
   let replaceString = "";
   splitPatternAtSpecialCharacter.forEach((splitValue, index) => {
-    replaceString += buildReplaceStringWithCasePreserved(
-      [splitMatchAtSpecialCharacter[index]],
-      splitValue
-    ) + specialCharacter;
+    replaceString += buildReplaceStringWithCasePreserved([splitMatchAtSpecialCharacter[index]], splitValue) + specialCharacter;
   });
   return replaceString.slice(0, -1);
 }

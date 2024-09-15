@@ -1,25 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  equals as arrayEquals,
-  tail2 as tail
-} from "../../../common/arrays.js";
+import { $ } from "../../dom.js";
+import { IBoundarySashes, Orientation, Sash } from "../sash/sash.js";
+import { DistributeSizing, ISplitViewStyles, IView as ISplitView, LayoutPriority, Sizing, AutoSizing, SplitView } from "../splitview/splitview.js";
+import { equals as arrayEquals, tail2 as tail } from "../../../common/arrays.js";
 import { Color } from "../../../common/color.js";
 import { Emitter, Event, Relay } from "../../../common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../common/lifecycle.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../common/lifecycle.js";
 import { rot } from "../../../common/numbers.js";
 import { isUndefined } from "../../../common/types.js";
-import { $ } from "../../dom.js";
-import { Orientation } from "../sash/sash.js";
-import {
-  LayoutPriority,
-  Sizing,
-  SplitView
-} from "../splitview/splitview.js";
 import "./gridview.css";
 import { Orientation as Orientation2 } from "../sash/sash.js";
 import { LayoutPriority as LayoutPriority2, Sizing as Sizing2 } from "../splitview/splitview.js";
@@ -44,37 +33,17 @@ class LayoutController {
 }
 function toAbsoluteBoundarySashes(sashes, orientation) {
   if (orientation === Orientation.HORIZONTAL) {
-    return {
-      left: sashes.start,
-      right: sashes.end,
-      top: sashes.orthogonalStart,
-      bottom: sashes.orthogonalEnd
-    };
+    return { left: sashes.start, right: sashes.end, top: sashes.orthogonalStart, bottom: sashes.orthogonalEnd };
   } else {
-    return {
-      top: sashes.start,
-      bottom: sashes.end,
-      left: sashes.orthogonalStart,
-      right: sashes.orthogonalEnd
-    };
+    return { top: sashes.start, bottom: sashes.end, left: sashes.orthogonalStart, right: sashes.orthogonalEnd };
   }
 }
 __name(toAbsoluteBoundarySashes, "toAbsoluteBoundarySashes");
 function fromAbsoluteBoundarySashes(sashes, orientation) {
   if (orientation === Orientation.HORIZONTAL) {
-    return {
-      start: sashes.left,
-      end: sashes.right,
-      orthogonalStart: sashes.top,
-      orthogonalEnd: sashes.bottom
-    };
+    return { start: sashes.left, end: sashes.right, orthogonalStart: sashes.top, orthogonalEnd: sashes.bottom };
   } else {
-    return {
-      start: sashes.top,
-      end: sashes.bottom,
-      orthogonalStart: sashes.left,
-      orthogonalEnd: sashes.right
-    };
+    return { start: sashes.top, end: sashes.bottom, orthogonalStart: sashes.left, orthogonalEnd: sashes.right };
   }
 }
 __name(fromAbsoluteBoundarySashes, "fromAbsoluteBoundarySashes");
@@ -94,7 +63,10 @@ class BranchNode {
     this._size = size;
     this._orthogonalSize = orthogonalSize;
     this.element = $(".monaco-grid-branch-node");
-    if (childDescriptors) {
+    if (!childDescriptors) {
+      this.splitview = new SplitView(this.element, { orientation, styles, proportionalLayout: splitviewProportionalLayout });
+      this.splitview.layout(size, { orthogonalSize, absoluteOffset: 0, absoluteOrthogonalOffset: 0, absoluteSize: size, absoluteOrthogonalSize: orthogonalSize });
+    } else {
       const descriptor = {
         views: childDescriptors.map((childDescriptor) => {
           return {
@@ -105,16 +77,9 @@ class BranchNode {
         }),
         size: this.orthogonalSize
       };
-      const options = {
-        proportionalLayout: splitviewProportionalLayout,
-        orientation,
-        styles
-      };
+      const options = { proportionalLayout: splitviewProportionalLayout, orientation, styles };
       this.children = childDescriptors.map((c) => c.node);
-      this.splitview = new SplitView(this.element, {
-        ...options,
-        descriptor
-      });
+      this.splitview = new SplitView(this.element, { ...options, descriptor });
       this.children.forEach((node, index) => {
         const first = index === 0;
         const last = index === this.children.length;
@@ -125,27 +90,9 @@ class BranchNode {
           orthogonalEnd: last ? this.boundarySashes.end : this.splitview.sashes[index]
         };
       });
-    } else {
-      this.splitview = new SplitView(this.element, {
-        orientation,
-        styles,
-        proportionalLayout: splitviewProportionalLayout
-      });
-      this.splitview.layout(size, {
-        orthogonalSize,
-        absoluteOffset: 0,
-        absoluteOrthogonalOffset: 0,
-        absoluteSize: size,
-        absoluteOrthogonalSize: orthogonalSize
-      });
     }
-    const onDidSashReset = Event.map(this.splitview.onDidSashReset, (i) => [
-      i
-    ]);
-    this.splitviewSashResetDisposable = onDidSashReset(
-      this._onDidSashReset.fire,
-      this._onDidSashReset
-    );
+    const onDidSashReset = Event.map(this.splitview.onDidSashReset, (i) => [i]);
+    this.splitviewSashResetDisposable = onDidSashReset(this._onDidSashReset.fire, this._onDidSashReset);
     this.updateChildrenEvents();
   }
   static {
@@ -188,26 +135,16 @@ class BranchNode {
     return this.orientation === Orientation.HORIZONTAL ? this._absoluteOrthogonalOffset : this._absoluteOffset;
   }
   get minimumSize() {
-    return this.children.length === 0 ? 0 : Math.max(
-      ...this.children.map(
-        (c, index) => this.splitview.isViewVisible(index) ? c.minimumOrthogonalSize : 0
-      )
-    );
+    return this.children.length === 0 ? 0 : Math.max(...this.children.map((c, index) => this.splitview.isViewVisible(index) ? c.minimumOrthogonalSize : 0));
   }
   get maximumSize() {
-    return Math.min(
-      ...this.children.map(
-        (c, index) => this.splitview.isViewVisible(index) ? c.maximumOrthogonalSize : Number.POSITIVE_INFINITY
-      )
-    );
+    return Math.min(...this.children.map((c, index) => this.splitview.isViewVisible(index) ? c.maximumOrthogonalSize : Number.POSITIVE_INFINITY));
   }
   get priority() {
     if (this.children.length === 0) {
       return LayoutPriority.Normal;
     }
-    const priorities = this.children.map(
-      (c) => typeof c.priority === "undefined" ? LayoutPriority.Normal : c.priority
-    );
+    const priorities = this.children.map((c) => typeof c.priority === "undefined" ? LayoutPriority.Normal : c.priority);
     if (priorities.some((p) => p === LayoutPriority.High)) {
       return LayoutPriority.High;
     } else if (priorities.some((p) => p === LayoutPriority.Low)) {
@@ -369,14 +306,8 @@ class BranchNode {
       return;
     }
     this.splitview.swapViews(from, to);
-    [this.children[from].boundarySashes, this.children[to].boundarySashes] = [
-      this.children[from].boundarySashes,
-      this.children[to].boundarySashes
-    ];
-    [this.children[from], this.children[to]] = [
-      this.children[to],
-      this.children[from]
-    ];
+    [this.children[from].boundarySashes, this.children[to].boundarySashes] = [this.children[from].boundarySashes, this.children[to].boundarySashes];
+    [this.children[from], this.children[to]] = [this.children[to], this.children[from]];
     this.onDidChildrenChange();
   }
   resizeChild(index, size) {
@@ -435,42 +366,21 @@ class BranchNode {
     this._onDidChange.fire(void 0);
   }
   updateChildrenEvents() {
-    const onDidChildrenChange = Event.map(
-      Event.any(...this.children.map((c) => c.onDidChange)),
-      () => void 0
-    );
+    const onDidChildrenChange = Event.map(Event.any(...this.children.map((c) => c.onDidChange)), () => void 0);
     this.childrenChangeDisposable.dispose();
-    this.childrenChangeDisposable = onDidChildrenChange(
-      this._onDidChange.fire,
-      this._onDidChange
-    );
-    const onDidChildrenSashReset = Event.any(
-      ...this.children.map(
-        (c, i) => Event.map(c.onDidSashReset, (location) => [i, ...location])
-      )
-    );
+    this.childrenChangeDisposable = onDidChildrenChange(this._onDidChange.fire, this._onDidChange);
+    const onDidChildrenSashReset = Event.any(...this.children.map((c, i) => Event.map(c.onDidSashReset, (location) => [i, ...location])));
     this.childrenSashResetDisposable.dispose();
-    this.childrenSashResetDisposable = onDidChildrenSashReset(
-      this._onDidSashReset.fire,
-      this._onDidSashReset
-    );
-    const onDidScroll = Event.any(
-      Event.signal(this.splitview.onDidScroll),
-      ...this.children.map((c) => c.onDidScroll)
-    );
+    this.childrenSashResetDisposable = onDidChildrenSashReset(this._onDidSashReset.fire, this._onDidSashReset);
+    const onDidScroll = Event.any(Event.signal(this.splitview.onDidScroll), ...this.children.map((c) => c.onDidScroll));
     this.onDidScrollDisposable.dispose();
-    this.onDidScrollDisposable = onDidScroll(
-      this._onDidScroll.fire,
-      this._onDidScroll
-    );
+    this.onDidScrollDisposable = onDidScroll(this._onDidScroll.fire, this._onDidScroll);
     this.childrenVisibilityChangeDisposable.clear();
     this.children.forEach((child, index) => {
       if (child instanceof BranchNode) {
-        this.childrenVisibilityChangeDisposable.add(
-          child.onDidVisibilityChange((visible) => {
-            this.setChildVisible(index, visible);
-          })
-        );
+        this.childrenVisibilityChangeDisposable.add(child.onDidVisibilityChange((visible) => {
+          this.setChildVisible(index, visible);
+        }));
       }
     });
   }
@@ -539,12 +449,7 @@ function createLatchedOnDidChangeViewEvent(view) {
     onDidSetViewSize,
     Event.map(
       Event.latch(
-        Event.map(onDidChangeViewConstraints, (_) => [
-          view.minimumWidth,
-          view.maximumWidth,
-          view.minimumHeight,
-          view.maximumHeight
-        ]),
+        Event.map(onDidChangeViewConstraints, (_) => [view.minimumWidth, view.maximumWidth, view.minimumHeight, view.maximumHeight]),
         arrayEquals
       ),
       (_) => void 0
@@ -560,17 +465,8 @@ class LeafNode {
     this._orthogonalSize = orthogonalSize;
     this._size = size;
     const onDidChange = createLatchedOnDidChangeViewEvent(view);
-    this._onDidViewChange = Event.map(
-      onDidChange,
-      (e) => e && (this.orientation === Orientation.VERTICAL ? e.width : e.height),
-      this.disposables
-    );
-    this.onDidChange = Event.any(
-      this._onDidViewChange,
-      this._onDidSetLinkedNode.event,
-      this._onDidLinkedWidthNodeChange.event,
-      this._onDidLinkedHeightNodeChange.event
-    );
+    this._onDidViewChange = Event.map(onDidChange, (e) => e && (this.orientation === Orientation.VERTICAL ? e.width : e.height), this.disposables);
+    this.onDidChange = Event.any(this._onDidViewChange, this._onDidSetLinkedNode.event, this._onDidLinkedWidthNodeChange.event, this._onDidLinkedHeightNodeChange.event);
   }
   static {
     __name(this, "LeafNode");
@@ -627,28 +523,16 @@ class LeafNode {
     return this.view.element;
   }
   get minimumWidth() {
-    return this.linkedWidthNode ? Math.max(
-      this.linkedWidthNode.view.minimumWidth,
-      this.view.minimumWidth
-    ) : this.view.minimumWidth;
+    return this.linkedWidthNode ? Math.max(this.linkedWidthNode.view.minimumWidth, this.view.minimumWidth) : this.view.minimumWidth;
   }
   get maximumWidth() {
-    return this.linkedWidthNode ? Math.min(
-      this.linkedWidthNode.view.maximumWidth,
-      this.view.maximumWidth
-    ) : this.view.maximumWidth;
+    return this.linkedWidthNode ? Math.min(this.linkedWidthNode.view.maximumWidth, this.view.maximumWidth) : this.view.maximumWidth;
   }
   get minimumHeight() {
-    return this.linkedHeightNode ? Math.max(
-      this.linkedHeightNode.view.minimumHeight,
-      this.view.minimumHeight
-    ) : this.view.minimumHeight;
+    return this.linkedHeightNode ? Math.max(this.linkedHeightNode.view.minimumHeight, this.view.minimumHeight) : this.view.minimumHeight;
   }
   get maximumHeight() {
-    return this.linkedHeightNode ? Math.min(
-      this.linkedHeightNode.view.maximumHeight,
-      this.view.maximumHeight
-    ) : this.view.maximumHeight;
+    return this.linkedHeightNode ? Math.min(this.linkedHeightNode.view.maximumHeight, this.view.maximumHeight) : this.view.maximumHeight;
   }
   get minimumSize() {
     return this.orientation === Orientation.HORIZONTAL ? this.minimumHeight : this.minimumWidth;
@@ -677,9 +561,7 @@ class LeafNode {
   }
   set boundarySashes(boundarySashes) {
     this._boundarySashes = boundarySashes;
-    this.view.setBoundarySashes?.(
-      toAbsoluteBoundarySashes(boundarySashes, this.orientation)
-    );
+    this.view.setBoundarySashes?.(toAbsoluteBoundarySashes(boundarySashes, this.orientation));
   }
   layout(size, offset, ctx) {
     if (!this.layoutController.isLayoutEnabled) {
@@ -717,15 +599,7 @@ class LeafNode {
 }
 function flipNode(node, size, orthogonalSize) {
   if (node instanceof BranchNode) {
-    const result = new BranchNode(
-      orthogonal(node.orientation),
-      node.layoutController,
-      node.styles,
-      node.splitviewProportionalLayout,
-      size,
-      orthogonalSize,
-      node.edgeSnapping
-    );
+    const result = new BranchNode(orthogonal(node.orientation), node.layoutController, node.styles, node.splitviewProportionalLayout, size, orthogonalSize, node.edgeSnapping);
     let totalSize = 0;
     for (let i = node.children.length - 1; i >= 0; i--) {
       const child = node.children[i];
@@ -735,22 +609,12 @@ function flipNode(node, size, orthogonalSize) {
       if (i === 0) {
         newSize += size - totalSize;
       }
-      result.addChild(
-        flipNode(child, orthogonalSize, newSize),
-        newSize,
-        0,
-        true
-      );
+      result.addChild(flipNode(child, orthogonalSize, newSize), newSize, 0, true);
     }
     node.dispose();
     return result;
   } else {
-    const result = new LeafNode(
-      node.view,
-      orthogonal(node.orientation),
-      node.layoutController,
-      orthogonalSize
-    );
+    const result = new LeafNode(node.view, orthogonal(node.orientation), node.layoutController, orthogonalSize);
     node.dispose();
     return result;
   }
@@ -855,20 +719,9 @@ class GridView {
     if (this._root.orientation === orientation) {
       return;
     }
-    const {
-      size,
-      orthogonalSize,
-      absoluteOffset,
-      absoluteOrthogonalOffset
-    } = this._root;
+    const { size, orthogonalSize, absoluteOffset, absoluteOrthogonalOffset } = this._root;
     this.root = flipNode(this._root, orthogonalSize, size);
-    this.root.layout(size, 0, {
-      orthogonalSize,
-      absoluteOffset: absoluteOrthogonalOffset,
-      absoluteOrthogonalOffset: absoluteOffset,
-      absoluteSize: size,
-      absoluteOrthogonalSize: orthogonalSize
-    });
+    this.root.layout(size, 0, { orthogonalSize, absoluteOffset: absoluteOrthogonalOffset, absoluteOrthogonalOffset: absoluteOffset, absoluteSize: size, absoluteOrthogonalSize: orthogonalSize });
     this.boundarySashes = this.boundarySashes;
   }
   /**
@@ -877,10 +730,7 @@ class GridView {
    */
   set boundarySashes(boundarySashes) {
     this._boundarySashes = boundarySashes;
-    this.root.boundarySashes = fromAbsoluteBoundarySashes(
-      boundarySashes,
-      this.orientation
-    );
+    this.root.boundarySashes = fromAbsoluteBoundarySashes(boundarySashes, this.orientation);
   }
   /**
    * Enable/disable edge snapping across all grid views.
@@ -902,12 +752,7 @@ class GridView {
     this.styles = options.styles || defaultStyles;
     this.proportionalLayout = typeof options.proportionalLayout !== "undefined" ? !!options.proportionalLayout : true;
     this.layoutController = new LayoutController(false);
-    this.root = new BranchNode(
-      Orientation.VERTICAL,
-      this.layoutController,
-      this.styles,
-      this.proportionalLayout
-    );
+    this.root = new BranchNode(Orientation.VERTICAL, this.layoutController, this.styles, this.proportionalLayout);
   }
   style(styles) {
     this.styles = styles;
@@ -927,13 +772,7 @@ class GridView {
   layout(width, height, top = 0, left = 0) {
     this.layoutController.isLayoutEnabled = true;
     const [size, orthogonalSize, offset, orthogonalOffset] = this.root.orientation === Orientation.HORIZONTAL ? [height, width, top, left] : [width, height, left, top];
-    this.root.layout(size, 0, {
-      orthogonalSize,
-      absoluteOffset: offset,
-      absoluteOrthogonalOffset: orthogonalOffset,
-      absoluteSize: size,
-      absoluteOrthogonalSize: orthogonalSize
-    });
+    this.root.layout(size, 0, { orthogonalSize, absoluteOffset: offset, absoluteOrthogonalOffset: orthogonalOffset, absoluteSize: size, absoluteOrthogonalSize: orthogonalSize });
   }
   /**
    * Add a {@link IView view} to this {@link GridView}.
@@ -951,12 +790,7 @@ class GridView {
     const [rest, index] = tail(location);
     const [pathToParent, parent] = this.getNode(rest);
     if (parent instanceof BranchNode) {
-      const node = new LeafNode(
-        view,
-        orthogonal(parent.orientation),
-        this.layoutController,
-        parent.orthogonalSize
-      );
+      const node = new LeafNode(view, orthogonal(parent.orientation), this.layoutController, parent.orthogonalSize);
       try {
         parent.addChild(node, size, index);
       } catch (err) {
@@ -973,32 +807,14 @@ class GridView {
       }
       const oldChild = grandParent.removeChild(parentIndex);
       oldChild.dispose();
-      const newParent = new BranchNode(
-        parent.orientation,
-        parent.layoutController,
-        this.styles,
-        this.proportionalLayout,
-        parent.size,
-        parent.orthogonalSize,
-        grandParent.edgeSnapping
-      );
+      const newParent = new BranchNode(parent.orientation, parent.layoutController, this.styles, this.proportionalLayout, parent.size, parent.orthogonalSize, grandParent.edgeSnapping);
       grandParent.addChild(newParent, parent.size, parentIndex);
-      const newSibling = new LeafNode(
-        parent.view,
-        grandParent.orientation,
-        this.layoutController,
-        parent.size
-      );
+      const newSibling = new LeafNode(parent.view, grandParent.orientation, this.layoutController, parent.size);
       newParent.addChild(newSibling, newSiblingSize, 0);
       if (typeof size !== "number" && size.type === "split") {
         size = Sizing.Split(0);
       }
-      const node = new LeafNode(
-        view,
-        grandParent.orientation,
-        this.layoutController,
-        parent.size
-      );
+      const node = new LeafNode(view, grandParent.orientation, this.layoutController, parent.size);
       newParent.addChild(node, size, index);
     }
     this.trySet2x2();
@@ -1049,32 +865,17 @@ class GridView {
     const [, parentIndex] = tail(rest);
     const isSiblingVisible = parent.isChildVisible(0);
     const sibling = parent.removeChild(0);
-    const sizes = grandParent.children.map(
-      (_, i) => grandParent.getChildSize(i)
-    );
+    const sizes = grandParent.children.map((_, i) => grandParent.getChildSize(i));
     grandParent.removeChild(parentIndex, sizing);
     parent.dispose();
     if (sibling instanceof BranchNode) {
-      sizes.splice(
-        parentIndex,
-        1,
-        ...sibling.children.map((c) => c.size)
-      );
+      sizes.splice(parentIndex, 1, ...sibling.children.map((c) => c.size));
       const siblingChildren = sibling.removeAllChildren();
       for (let i = 0; i < siblingChildren.length; i++) {
-        grandParent.addChild(
-          siblingChildren[i],
-          siblingChildren[i].size,
-          parentIndex + i
-        );
+        grandParent.addChild(siblingChildren[i], siblingChildren[i].size, parentIndex + i);
       }
     } else {
-      const newSibling = new LeafNode(
-        sibling.view,
-        orthogonal(sibling.orientation),
-        this.layoutController,
-        sibling.size
-      );
+      const newSibling = new LeafNode(sibling.view, orthogonal(sibling.orientation), this.layoutController, sibling.size);
       const sizing2 = isSiblingVisible ? sibling.orthogonalSize : Sizing.Invisible(sibling.orthogonalSize);
       grandParent.addChild(newSibling, sizing2, parentIndex);
     }
@@ -1366,38 +1167,22 @@ class GridView {
    */
   static deserialize(json, deserializer, options = {}) {
     if (typeof json.orientation !== "number") {
-      throw new Error(
-        "Invalid JSON: 'orientation' property must be a number."
-      );
+      throw new Error("Invalid JSON: 'orientation' property must be a number.");
     } else if (typeof json.width !== "number") {
       throw new Error("Invalid JSON: 'width' property must be a number.");
     } else if (typeof json.height !== "number") {
-      throw new Error(
-        "Invalid JSON: 'height' property must be a number."
-      );
+      throw new Error("Invalid JSON: 'height' property must be a number.");
     } else if (json.root?.type !== "branch") {
-      throw new Error(
-        "Invalid JSON: 'root' property must have 'type' value of branch."
-      );
+      throw new Error("Invalid JSON: 'root' property must have 'type' value of branch.");
     }
     const orientation = json.orientation;
     const height = json.height;
     const result = new GridView(options);
-    result._deserialize(
-      json.root,
-      orientation,
-      deserializer,
-      height
-    );
+    result._deserialize(json.root, orientation, deserializer, height);
     return result;
   }
   _deserialize(root, orientation, deserializer, orthogonalSize) {
-    this.root = this._deserializeNode(
-      root,
-      orientation,
-      deserializer,
-      orthogonalSize
-    );
+    this.root = this._deserializeNode(root, orientation, deserializer, orthogonalSize);
   }
   _deserializeNode(node, orientation, deserializer, orthogonalSize) {
     let result;
@@ -1405,33 +1190,13 @@ class GridView {
       const serializedChildren = node.data;
       const children = serializedChildren.map((serializedChild) => {
         return {
-          node: this._deserializeNode(
-            serializedChild,
-            orthogonal(orientation),
-            deserializer,
-            node.size
-          ),
+          node: this._deserializeNode(serializedChild, orthogonal(orientation), deserializer, node.size),
           visible: serializedChild.visible
         };
       });
-      result = new BranchNode(
-        orientation,
-        this.layoutController,
-        this.styles,
-        this.proportionalLayout,
-        node.size,
-        orthogonalSize,
-        void 0,
-        children
-      );
+      result = new BranchNode(orientation, this.layoutController, this.styles, this.proportionalLayout, node.size, orthogonalSize, void 0, children);
     } else {
-      result = new LeafNode(
-        deserializer.fromJSON(node.data),
-        orientation,
-        this.layoutController,
-        orthogonalSize,
-        node.size
-      );
+      result = new LeafNode(deserializer.fromJSON(node.data), orientation, this.layoutController, orthogonalSize, node.size);
       if (node.maximized && !this.maximizedNode) {
         this.maximizedNode = result;
         this._onDidChangeViewMaximized.fire(true);
@@ -1440,31 +1205,15 @@ class GridView {
     return result;
   }
   _getViews(node, orientation, cachedVisibleSize) {
-    const box = {
-      top: node.top,
-      left: node.left,
-      width: node.width,
-      height: node.height
-    };
+    const box = { top: node.top, left: node.left, width: node.width, height: node.height };
     if (node instanceof LeafNode) {
-      return {
-        view: node.view,
-        box,
-        cachedVisibleSize,
-        maximized: this.maximizedNode === node
-      };
+      return { view: node.view, box, cachedVisibleSize, maximized: this.maximizedNode === node };
     }
     const children = [];
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i];
       const cachedVisibleSize2 = node.getChildCachedVisibleSize(i);
-      children.push(
-        this._getViews(
-          child,
-          orthogonal(orientation),
-          cachedVisibleSize2
-        )
-      );
+      children.push(this._getViews(child, orthogonal(orientation), cachedVisibleSize2));
     }
     return { children, box };
   }

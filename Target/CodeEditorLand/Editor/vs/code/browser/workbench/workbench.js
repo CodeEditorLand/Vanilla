@@ -2,26 +2,19 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isStandalone } from "../../../base/browser/browser.js";
 import { mainWindow } from "../../../base/browser/window.js";
-import {
-  VSBuffer,
-  decodeBase64,
-  encodeBase64
-} from "../../../base/common/buffer.js";
+import { VSBuffer, decodeBase64, encodeBase64 } from "../../../base/common/buffer.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
 import { parse } from "../../../base/common/marshalling.js";
 import { Schemas } from "../../../base/common/network.js";
 import { posix } from "../../../base/common/path.js";
 import { isEqual } from "../../../base/common/resources.js";
 import { ltrim } from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import product from "../../../platform/product/common/product.js";
-import {
-  isFolderToOpen,
-  isWorkspaceToOpen
-} from "../../../platform/window/common/window.js";
+import { ISecretStorageProvider } from "../../../platform/secrets/common/secrets.js";
+import { isFolderToOpen, isWorkspaceToOpen } from "../../../platform/window/common/window.js";
+import { AuthenticationSessionInfo } from "../../../workbench/services/authentication/browser/authenticationService.js";
 import { create } from "../../../workbench/workbench.web.main.internal.js";
 class TransparentCrypto {
   static {
@@ -53,20 +46,13 @@ class ServerKeyedAESCrypto {
     return !!crypto.subtle;
   }
   async seal(data) {
-    const iv = mainWindow.crypto.getRandomValues(
-      new Uint8Array(12 /* IV_LENGTH */)
-    );
+    const iv = mainWindow.crypto.getRandomValues(new Uint8Array(12 /* IV_LENGTH */));
     const clientKeyObj = await mainWindow.crypto.subtle.generateKey(
-      {
-        name: "AES-GCM" /* ALGORITHM */,
-        length: 256 /* KEY_LENGTH */
-      },
+      { name: "AES-GCM" /* ALGORITHM */, length: 256 /* KEY_LENGTH */ },
       true,
       ["encrypt", "decrypt"]
     );
-    const clientKey = new Uint8Array(
-      await mainWindow.crypto.subtle.exportKey("raw", clientKeyObj)
-    );
+    const clientKey = new Uint8Array(await mainWindow.crypto.subtle.exportKey("raw", clientKeyObj));
     const key = await this.getKey(clientKey);
     const dataUint8Array = new TextEncoder().encode(data);
     const cipherText = await mainWindow.crypto.subtle.encrypt(
@@ -74,11 +60,7 @@ class ServerKeyedAESCrypto {
       key,
       dataUint8Array
     );
-    const result = new Uint8Array([
-      ...clientKey,
-      ...iv,
-      ...new Uint8Array(cipherText)
-    ]);
+    const result = new Uint8Array([...clientKey, ...iv, ...new Uint8Array(cipherText)]);
     return encodeBase64(VSBuffer.wrap(result));
   }
   async unseal(data) {
@@ -88,13 +70,8 @@ class ServerKeyedAESCrypto {
     }
     const keyLength = 256 /* KEY_LENGTH */ / 8;
     const clientKey = dataUint8Array.slice(0, keyLength);
-    const iv = dataUint8Array.slice(
-      keyLength,
-      keyLength + 12 /* IV_LENGTH */
-    );
-    const cipherText = dataUint8Array.slice(
-      keyLength + 12 /* IV_LENGTH */
-    );
+    const iv = dataUint8Array.slice(keyLength, keyLength + 12 /* IV_LENGTH */);
+    const cipherText = dataUint8Array.slice(keyLength + 12 /* IV_LENGTH */);
     const key = await this.getKey(clientKey.buffer);
     const decrypted = await mainWindow.crypto.subtle.decrypt(
       { name: "AES-GCM" /* ALGORITHM */, iv: iv.buffer },
@@ -135,27 +112,20 @@ class ServerKeyedAESCrypto {
     let lastError;
     while (attempt <= 3) {
       try {
-        const res = await fetch(this.authEndpoint, {
-          credentials: "include",
-          method: "POST"
-        });
+        const res = await fetch(this.authEndpoint, { credentials: "include", method: "POST" });
         if (!res.ok) {
           throw new Error(res.statusText);
         }
         const serverKey = new Uint8Array(await await res.arrayBuffer());
         if (serverKey.byteLength !== 256 /* KEY_LENGTH */ / 8) {
-          throw Error(
-            `The key retrieved by the server is not ${256 /* KEY_LENGTH */} bit long.`
-          );
+          throw Error(`The key retrieved by the server is not ${256 /* KEY_LENGTH */} bit long.`);
         }
         this._serverKey = serverKey;
         return this._serverKey;
       } catch (e) {
         lastError = e;
         attempt++;
-        await new Promise(
-          (resolve) => setTimeout(resolve, attempt * attempt * 100)
-        );
+        await new Promise((resolve) => setTimeout(resolve, attempt * attempt * 100));
       }
     }
     throw lastError;
@@ -176,15 +146,10 @@ class LocalStorageSecretStorageProvider {
     const encrypted = localStorage.getItem(this._storageKey);
     if (encrypted) {
       try {
-        const decrypted = JSON.parse(
-          await this.crypto.unseal(encrypted)
-        );
+        const decrypted = JSON.parse(await this.crypto.unseal(encrypted));
         return { ...record, ...decrypted };
       } catch (err) {
-        console.error(
-          "Failed to decrypt secrets from localStorage",
-          err
-        );
+        console.error("Failed to decrypt secrets from localStorage", err);
         localStorage.removeItem(this._storageKey);
       }
     }
@@ -192,9 +157,7 @@ class LocalStorageSecretStorageProvider {
   }
   loadAuthSessionFromElement() {
     let authSessionInfo;
-    const authSessionElement = mainWindow.document.getElementById(
-      "vscode-workbench-auth-session"
-    );
+    const authSessionElement = mainWindow.document.getElementById("vscode-workbench-auth-session");
     const authSessionElementAttribute = authSessionElement ? authSessionElement.getAttribute("data-settings") : void 0;
     if (authSessionElementAttribute) {
       try {
@@ -208,22 +171,15 @@ class LocalStorageSecretStorageProvider {
     const record = {};
     record[`${product.urlProtocol}.loginAccount`] = JSON.stringify(authSessionInfo);
     if (authSessionInfo.providerId !== "github") {
-      console.error(
-        `Unexpected auth provider: ${authSessionInfo.providerId}. Expected 'github'.`
-      );
+      console.error(`Unexpected auth provider: ${authSessionInfo.providerId}. Expected 'github'.`);
       return record;
     }
-    const authAccount = JSON.stringify({
-      extensionId: "vscode.github-authentication",
-      key: "github.auth"
-    });
-    record[authAccount] = JSON.stringify(
-      authSessionInfo.scopes.map((scopes) => ({
-        id: authSessionInfo.id,
-        scopes,
-        accessToken: authSessionInfo.accessToken
-      }))
-    );
+    const authAccount = JSON.stringify({ extensionId: "vscode.github-authentication", key: "github.auth" });
+    record[authAccount] = JSON.stringify(authSessionInfo.scopes.map((scopes) => ({
+      id: authSessionInfo.id,
+      scopes,
+      accessToken: authSessionInfo.accessToken
+    })));
     return record;
   }
   async get(key) {
@@ -244,9 +200,7 @@ class LocalStorageSecretStorageProvider {
   }
   async save() {
     try {
-      const encrypted = await this.crypto.seal(
-        JSON.stringify(await this._secretsPromise)
-      );
+      const encrypted = await this.crypto.seal(JSON.stringify(await this._secretsPromise));
       localStorage.setItem(this._storageKey, encrypted);
     } catch (err) {
       console.error(err);
@@ -262,7 +216,13 @@ class LocalStorageURLCallbackProvider extends Disposable {
     __name(this, "LocalStorageURLCallbackProvider");
   }
   static REQUEST_ID = 0;
-  static QUERY_KEYS = ["scheme", "authority", "path", "query", "fragment"];
+  static QUERY_KEYS = [
+    "scheme",
+    "authority",
+    "path",
+    "query",
+    "fragment"
+  ];
   _onCallback = this._register(new Emitter());
   onCallback = this._onCallback.event;
   pendingCallbacks = /* @__PURE__ */ new Set();
@@ -284,10 +244,7 @@ class LocalStorageURLCallbackProvider extends Disposable {
       this.pendingCallbacks.add(id);
       this.startListening();
     }
-    return URI.parse(mainWindow.location.href).with({
-      path: this._callbackRoute,
-      query: queryParams.join("&")
-    });
+    return URI.parse(mainWindow.location.href).with({ path: this._callbackRoute, query: queryParams.join("&") });
   }
   startListening() {
     if (this.onDidChangeLocalStorageDisposable) {
@@ -295,9 +252,7 @@ class LocalStorageURLCallbackProvider extends Disposable {
     }
     const fn = /* @__PURE__ */ __name(() => this.onDidChangeLocalStorage(), "fn");
     mainWindow.addEventListener("storage", fn);
-    this.onDidChangeLocalStorageDisposable = {
-      dispose: /* @__PURE__ */ __name(() => mainWindow.removeEventListener("storage", fn), "dispose")
-    };
+    this.onDidChangeLocalStorageDisposable = { dispose: /* @__PURE__ */ __name(() => mainWindow.removeEventListener("storage", fn), "dispose") };
   }
   stopListening() {
     this.onDidChangeLocalStorageDisposable?.dispose();
@@ -364,13 +319,7 @@ class WorkspaceProvider {
         // Folder
         case WorkspaceProvider.QUERY_PARAM_FOLDER:
           if (config.remoteAuthority && value.startsWith(posix.sep)) {
-            workspace = {
-              folderUri: URI.from({
-                scheme: Schemas.vscodeRemote,
-                path: value,
-                authority: config.remoteAuthority
-              })
-            };
+            workspace = { folderUri: URI.from({ scheme: Schemas.vscodeRemote, path: value, authority: config.remoteAuthority }) };
           } else {
             workspace = { folderUri: URI.parse(value) };
           }
@@ -379,13 +328,7 @@ class WorkspaceProvider {
         // Workspace
         case WorkspaceProvider.QUERY_PARAM_WORKSPACE:
           if (config.remoteAuthority && value.startsWith(posix.sep)) {
-            workspace = {
-              workspaceUri: URI.from({
-                scheme: Schemas.vscodeRemote,
-                path: value,
-                authority: config.remoteAuthority
-              })
-            };
+            workspace = { workspaceUri: URI.from({ scheme: Schemas.vscodeRemote, path: value, authority: config.remoteAuthority }) };
           } else {
             workspace = { workspaceUri: URI.parse(value) };
           }
@@ -428,11 +371,7 @@ class WorkspaceProvider {
       } else {
         let result;
         if (isStandalone()) {
-          result = mainWindow.open(
-            targetHref,
-            "_blank",
-            "toolbar=no"
-          );
+          result = mainWindow.open(targetHref, "_blank", "toolbar=no");
         } else {
           result = mainWindow.open(targetHref);
         }
@@ -442,18 +381,14 @@ class WorkspaceProvider {
     return false;
   }
   createTargetUrl(workspace, options) {
-    let targetHref;
+    let targetHref = void 0;
     if (!workspace) {
       targetHref = `${document.location.origin}${document.location.pathname}?${WorkspaceProvider.QUERY_PARAM_EMPTY_WINDOW}=true`;
     } else if (isFolderToOpen(workspace)) {
-      const queryParamFolder = this.encodeWorkspacePath(
-        workspace.folderUri
-      );
+      const queryParamFolder = this.encodeWorkspacePath(workspace.folderUri);
       targetHref = `${document.location.origin}${document.location.pathname}?${WorkspaceProvider.QUERY_PARAM_FOLDER}=${queryParamFolder}`;
     } else if (isWorkspaceToOpen(workspace)) {
-      const queryParamWorkspace = this.encodeWorkspacePath(
-        workspace.workspaceUri
-      );
+      const queryParamWorkspace = this.encodeWorkspacePath(workspace.workspaceUri);
       targetHref = `${document.location.origin}${document.location.pathname}?${WorkspaceProvider.QUERY_PARAM_WORKSPACE}=${queryParamWorkspace}`;
     }
     if (options?.payload) {
@@ -463,9 +398,7 @@ class WorkspaceProvider {
   }
   encodeWorkspacePath(uri) {
     if (this.config.remoteAuthority && uri.scheme === Schemas.vscodeRemote) {
-      return encodeURIComponent(
-        `${posix.sep}${ltrim(uri.path, posix.sep)}`
-      ).replaceAll("%2F", "/");
+      return encodeURIComponent(`${posix.sep}${ltrim(uri.path, posix.sep)}`).replaceAll("%2F", "/");
     }
     return encodeURIComponent(uri.toString(true));
   }
@@ -503,10 +436,8 @@ function readCookie(name) {
   return void 0;
 }
 __name(readCookie, "readCookie");
-(() => {
-  const configElement = mainWindow.document.getElementById(
-    "vscode-workbench-web-configuration"
-  );
+(function() {
+  const configElement = mainWindow.document.getElementById("vscode-workbench-web-configuration");
   const configElementAttribute = configElement ? configElement.getAttribute("data-settings") : void 0;
   if (!configElement || !configElementAttribute) {
     throw new Error("Missing web configuration element");
@@ -516,15 +447,10 @@ __name(readCookie, "readCookie");
   const secretStorageCrypto = secretStorageKeyPath && ServerKeyedAESCrypto.supported() ? new ServerKeyedAESCrypto(secretStorageKeyPath) : new TransparentCrypto();
   create(mainWindow.document.body, {
     ...config,
-    windowIndicator: config.windowIndicator ?? {
-      label: "$(remote)",
-      tooltip: `${product.nameShort} Web`
-    },
+    windowIndicator: config.windowIndicator ?? { label: "$(remote)", tooltip: `${product.nameShort} Web` },
     settingsSyncOptions: config.settingsSyncOptions ? { enabled: config.settingsSyncOptions.enabled } : void 0,
     workspaceProvider: WorkspaceProvider.create(config),
-    urlCallbackProvider: new LocalStorageURLCallbackProvider(
-      config.callbackRoute
-    ),
+    urlCallbackProvider: new LocalStorageURLCallbackProvider(config.callbackRoute),
     secretStorageProvider: config.remoteAuthority && !secretStorageKeyPath ? void 0 : new LocalStorageSecretStorageProvider(secretStorageCrypto)
   });
 })();

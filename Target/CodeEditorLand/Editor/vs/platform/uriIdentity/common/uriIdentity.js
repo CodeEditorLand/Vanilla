@@ -1,7 +1,7 @@
+import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IUriIdentityService = createDecorator(
-  "IUriIdentityService"
-);
+import { IExtUri } from "../../../base/common/resources.js";
+const IUriIdentityService = createDecorator("IUriIdentityService");
 export {
   IUriIdentityService
 };

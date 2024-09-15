@@ -10,84 +10,51 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { exec } from "child_process";
 import * as fs from "fs";
-import {
-  arch,
-  cpus,
-  freemem,
-  loadavg,
-  platform,
-  release,
-  totalmem,
-  type
-} from "os";
+import { exec } from "child_process";
+import { app, BrowserWindow, clipboard, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, SaveDialogOptions, SaveDialogReturnValue, screen, shell, webContents } from "electron";
+import { arch, cpus, freemem, loadavg, platform, release, totalmem, type } from "os";
 import { promisify } from "util";
-import {
-  Menu,
-  app,
-  clipboard,
-  powerMonitor,
-  screen,
-  shell,
-  webContents
-} from "electron";
-import { VSBuffer } from "../../../base/common/buffer.js";
 import { memoize } from "../../../base/common/decorators.js";
-import { CancellationError } from "../../../base/common/errors.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { Schemas, matchesSomeScheme } from "../../../base/common/network.js";
-import {
-  dirname,
-  join,
-  posix,
-  resolve,
-  win32
-} from "../../../base/common/path.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
+import { matchesSomeScheme, Schemas } from "../../../base/common/network.js";
+import { dirname, join, posix, resolve, win32 } from "../../../base/common/path.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { AddFirstParameterToFunctions } from "../../../base/common/types.js";
 import { URI } from "../../../base/common/uri.js";
 import { realpath } from "../../../base/node/extpath.js";
 import { virtualMachineHint } from "../../../base/node/id.js";
 import { Promises, SymlinkSupport } from "../../../base/node/pfs.js";
 import { findFreePort } from "../../../base/node/ports.js";
 import { localize } from "../../../nls.js";
-import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ISerializableCommandAction } from "../../action/common/action.js";
+import { INativeOpenDialogOptions } from "../../dialogs/common/dialogs.js";
 import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  ILifecycleMainService
-} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILifecycleMainService, IRelaunchOptions } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
+import { ICommonNativeHostService, INativeHostOptions, IOSProperties, IOSStatistics } from "../common/native.js";
 import { IProductService } from "../../product/common/productService.js";
-import { WindowProfiler } from "../../profiling/electron-main/windowProfiling.js";
-import { hasWSLFeatureInstalled } from "../../remote/node/wsl.js";
-import {
-  IRequestService
-} from "../../request/common/request.js";
+import { IPartsSplash } from "../../theme/common/themeService.js";
 import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
-import {
-  useWindowControlsOverlay
-} from "../../window/common/window.js";
-import {
-  IWindowsMainService,
-  OpenContext
-} from "../../windows/electron-main/windows.js";
-import {
-  isWorkspaceIdentifier,
-  toWorkspaceIdentifier
-} from "../../workspace/common/workspace.js";
+import { ICodeWindow } from "../../window/electron-main/window.js";
+import { IColorScheme, IOpenedAuxiliaryWindow, IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IPoint, IRectangle, IWindowOpenable, useWindowControlsOverlay } from "../../window/common/window.js";
+import { IWindowsMainService, OpenContext } from "../../windows/electron-main/windows.js";
+import { isWorkspaceIdentifier, toWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { hasWSLFeatureInstalled } from "../../remote/node/wsl.js";
+import { WindowProfiler } from "../../profiling/electron-main/windowProfiling.js";
+import { IV8Profile } from "../../profiling/common/profiling.js";
+import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { IAuxiliaryWindow } from "../../auxiliaryWindow/electron-main/auxiliaryWindow.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IProxyAuthService } from "./auth.js";
-const INativeHostMainService = createDecorator(
-  "nativeHostMainService"
-);
+import { AuthInfo, Credentials, IRequestService } from "../../request/common/request.js";
+const INativeHostMainService = createDecorator("nativeHostMainService");
 let NativeHostMainService = class extends Disposable {
   constructor(windowsMainService, auxiliaryWindowsMainService, dialogMainService, lifecycleMainService, environmentMainService, logService, productService, themeMainService, workspacesManagementMainService, configurationService, requestService, proxyAuthService) {
     super();
@@ -113,156 +80,64 @@ let NativeHostMainService = class extends Disposable {
   }
   //#endregion
   //#region Events
-  onDidOpenMainWindow = Event.map(
-    this.windowsMainService.onDidOpenWindow,
-    (window) => window.id
-  );
+  onDidOpenMainWindow = Event.map(this.windowsMainService.onDidOpenWindow, (window) => window.id);
   onDidTriggerWindowSystemContextMenu = Event.any(
-    Event.map(
-      this.windowsMainService.onDidTriggerSystemContextMenu,
-      ({ window, x, y }) => ({ windowId: window.id, x, y })
-    ),
-    Event.map(
-      this.auxiliaryWindowsMainService.onDidTriggerSystemContextMenu,
-      ({ window, x, y }) => ({ windowId: window.id, x, y })
-    )
+    Event.map(this.windowsMainService.onDidTriggerSystemContextMenu, ({ window, x, y }) => ({ windowId: window.id, x, y })),
+    Event.map(this.auxiliaryWindowsMainService.onDidTriggerSystemContextMenu, ({ window, x, y }) => ({ windowId: window.id, x, y }))
   );
   onDidMaximizeWindow = Event.any(
-    Event.map(
-      this.windowsMainService.onDidMaximizeWindow,
-      (window) => window.id
-    ),
-    Event.map(
-      this.auxiliaryWindowsMainService.onDidMaximizeWindow,
-      (window) => window.id
-    )
+    Event.map(this.windowsMainService.onDidMaximizeWindow, (window) => window.id),
+    Event.map(this.auxiliaryWindowsMainService.onDidMaximizeWindow, (window) => window.id)
   );
   onDidUnmaximizeWindow = Event.any(
-    Event.map(
-      this.windowsMainService.onDidUnmaximizeWindow,
-      (window) => window.id
-    ),
-    Event.map(
-      this.auxiliaryWindowsMainService.onDidUnmaximizeWindow,
-      (window) => window.id
-    )
+    Event.map(this.windowsMainService.onDidUnmaximizeWindow, (window) => window.id),
+    Event.map(this.auxiliaryWindowsMainService.onDidUnmaximizeWindow, (window) => window.id)
   );
   onDidChangeWindowFullScreen = Event.any(
-    Event.map(this.windowsMainService.onDidChangeFullScreen, (e) => ({
-      windowId: e.window.id,
-      fullscreen: e.fullscreen
-    })),
-    Event.map(
-      this.auxiliaryWindowsMainService.onDidChangeFullScreen,
-      (e) => ({ windowId: e.window.id, fullscreen: e.fullscreen })
-    )
+    Event.map(this.windowsMainService.onDidChangeFullScreen, (e) => ({ windowId: e.window.id, fullscreen: e.fullscreen })),
+    Event.map(this.auxiliaryWindowsMainService.onDidChangeFullScreen, (e) => ({ windowId: e.window.id, fullscreen: e.fullscreen }))
   );
-  onDidBlurMainWindow = Event.filter(
-    Event.fromNodeEventEmitter(
-      app,
-      "browser-window-blur",
-      (event, window) => window.id
-    ),
-    (windowId) => !!this.windowsMainService.getWindowById(windowId)
-  );
+  onDidBlurMainWindow = Event.filter(Event.fromNodeEventEmitter(app, "browser-window-blur", (event, window) => window.id), (windowId) => !!this.windowsMainService.getWindowById(windowId));
   onDidFocusMainWindow = Event.any(
-    Event.map(
-      Event.filter(
-        Event.map(
-          this.windowsMainService.onDidChangeWindowsCount,
-          () => this.windowsMainService.getLastActiveWindow()
-        ),
-        (window) => !!window
-      ),
-      (window) => window.id
-    ),
-    Event.filter(
-      Event.fromNodeEventEmitter(
-        app,
-        "browser-window-focus",
-        (event, window) => window.id
-      ),
-      (windowId) => !!this.windowsMainService.getWindowById(windowId)
-    )
+    Event.map(Event.filter(Event.map(this.windowsMainService.onDidChangeWindowsCount, () => this.windowsMainService.getLastActiveWindow()), (window) => !!window), (window) => window.id),
+    Event.filter(Event.fromNodeEventEmitter(app, "browser-window-focus", (event, window) => window.id), (windowId) => !!this.windowsMainService.getWindowById(windowId))
   );
   onDidBlurMainOrAuxiliaryWindow = Event.any(
     this.onDidBlurMainWindow,
-    Event.map(
-      Event.filter(
-        Event.fromNodeEventEmitter(
-          app,
-          "browser-window-blur",
-          (event, window) => this.auxiliaryWindowsMainService.getWindowByWebContents(
-            window.webContents
-          )
-        ),
-        (window) => !!window
-      ),
-      (window) => window.id
-    )
+    Event.map(Event.filter(Event.fromNodeEventEmitter(app, "browser-window-blur", (event, window) => this.auxiliaryWindowsMainService.getWindowByWebContents(window.webContents)), (window) => !!window), (window) => window.id)
   );
   onDidFocusMainOrAuxiliaryWindow = Event.any(
     this.onDidFocusMainWindow,
-    Event.map(
-      Event.filter(
-        Event.fromNodeEventEmitter(
-          app,
-          "browser-window-focus",
-          (event, window) => this.auxiliaryWindowsMainService.getWindowByWebContents(
-            window.webContents
-          )
-        ),
-        (window) => !!window
-      ),
-      (window) => window.id
-    )
+    Event.map(Event.filter(Event.fromNodeEventEmitter(app, "browser-window-focus", (event, window) => this.auxiliaryWindowsMainService.getWindowByWebContents(window.webContents)), (window) => !!window), (window) => window.id)
   );
   onDidResumeOS = Event.fromNodeEventEmitter(powerMonitor, "resume");
   onDidChangeColorScheme = this.themeMainService.onDidChangeColorScheme;
-  _onDidChangePassword = this._register(
-    new Emitter()
-  );
+  _onDidChangePassword = this._register(new Emitter());
   onDidChangePassword = this._onDidChangePassword.event;
-  onDidChangeDisplay = Event.debounce(
-    Event.any(
-      Event.filter(
-        Event.fromNodeEventEmitter(
-          screen,
-          "display-metrics-changed",
-          (event, display, changedMetrics) => changedMetrics
-        ),
-        (changedMetrics) => {
-          return !(Array.isArray(changedMetrics) && changedMetrics.length === 1 && changedMetrics[0] === "workArea");
-        }
-      ),
-      Event.fromNodeEventEmitter(screen, "display-added"),
-      Event.fromNodeEventEmitter(screen, "display-removed")
-    ),
-    () => {
-    },
-    100
-  );
+  onDidChangeDisplay = Event.debounce(Event.any(
+    Event.filter(Event.fromNodeEventEmitter(screen, "display-metrics-changed", (event, display, changedMetrics) => changedMetrics), (changedMetrics) => {
+      return !(Array.isArray(changedMetrics) && changedMetrics.length === 1 && changedMetrics[0] === "workArea");
+    }),
+    Event.fromNodeEventEmitter(screen, "display-added"),
+    Event.fromNodeEventEmitter(screen, "display-removed")
+  ), () => {
+  }, 100);
   async getWindows(windowId, options) {
     const mainWindows = this.windowsMainService.getWindows().map((window) => ({
       id: window.id,
-      workspace: window.openedWorkspace ?? toWorkspaceIdentifier(
-        window.backupPath,
-        window.isExtensionDevelopmentHost
-      ),
+      workspace: window.openedWorkspace ?? toWorkspaceIdentifier(window.backupPath, window.isExtensionDevelopmentHost),
       title: window.win?.getTitle() ?? "",
       filename: window.getRepresentedFilename(),
       dirty: window.isDocumentEdited()
     }));
     const auxiliaryWindows = [];
     if (options.includeAuxiliaryWindows) {
-      auxiliaryWindows.push(
-        ...this.auxiliaryWindowsMainService.getWindows().map((window) => ({
-          id: window.id,
-          parentId: window.parentId,
-          title: window.win?.getTitle() ?? "",
-          filename: window.getRepresentedFilename()
-        }))
-      );
+      auxiliaryWindows.push(...this.auxiliaryWindowsMainService.getWindows().map((window) => ({
+        id: window.id,
+        parentId: window.parentId,
+        title: window.win?.getTitle() ?? "",
+        filename: window.getRepresentedFilename()
+      })));
     }
     return [...mainWindows, ...auxiliaryWindows];
   }
@@ -312,13 +187,10 @@ let NativeHostMainService = class extends Disposable {
     }
   }
   async doOpenEmptyWindow(windowId, options) {
-    await this.windowsMainService.openEmptyWindow(
-      {
-        context: OpenContext.API,
-        contextWindowId: windowId
-      },
-      options
-    );
+    await this.windowsMainService.openEmptyWindow({
+      context: OpenContext.API,
+      contextWindowId: windowId
+    }, options);
   }
   async isFullScreen(windowId, options) {
     const window = this.windowById(options?.targetWindowId, windowId);
@@ -361,14 +233,7 @@ let NativeHostMainService = class extends Disposable {
     const window = this.windowById(options?.targetWindowId, windowId);
     if (window?.win) {
       if (window.win.isFullScreen()) {
-        const fullscreenLeftFuture = Event.toPromise(
-          Event.once(
-            Event.fromNodeEventEmitter(
-              window.win,
-              "leave-full-screen"
-            )
-          )
-        );
+        const fullscreenLeftFuture = Event.toPromise(Event.once(Event.fromNodeEventEmitter(window.win, "leave-full-screen")));
         window.win.setFullScreen(false);
         await fullscreenLeftFuture;
       }
@@ -388,19 +253,10 @@ let NativeHostMainService = class extends Disposable {
     if (window?.win) {
       const [windowWidth, windowHeight] = window.win.getSize();
       const [minWindowWidth, minWindowHeight] = window.win.getMinimumSize();
-      const [newMinWindowWidth, newMinWindowHeight] = [
-        width ?? minWindowWidth,
-        height ?? minWindowHeight
-      ];
-      const [newWindowWidth, newWindowHeight] = [
-        Math.max(windowWidth, newMinWindowWidth),
-        Math.max(windowHeight, newMinWindowHeight)
-      ];
+      const [newMinWindowWidth, newMinWindowHeight] = [width ?? minWindowWidth, height ?? minWindowHeight];
+      const [newWindowWidth, newWindowHeight] = [Math.max(windowWidth, newMinWindowWidth), Math.max(windowHeight, newMinWindowHeight)];
       if (minWindowWidth !== newMinWindowWidth || minWindowHeight !== newMinWindowHeight) {
-        window.win.setMinimumSize(
-          newMinWindowWidth,
-          newMinWindowHeight
-        );
+        window.win.setMinimumSize(newMinWindowWidth, newMinWindowHeight);
       }
       if (windowWidth !== newWindowWidth || windowHeight !== newWindowHeight) {
         window.win.setSize(newWindowWidth, newWindowHeight);
@@ -436,16 +292,9 @@ let NativeHostMainService = class extends Disposable {
       }
       const { response } = await this.showMessageBox(windowId, {
         type: "info",
-        message: localize(
-          "warnEscalation",
-          "{0} will now prompt with 'osascript' for Administrator privileges to install the shell command.",
-          this.productService.nameShort
-        ),
+        message: localize("warnEscalation", "{0} will now prompt with 'osascript' for Administrator privileges to install the shell command.", this.productService.nameShort),
         buttons: [
-          localize(
-            { key: "ok", comment: ["&& denotes a mnemonic"] },
-            "&&OK"
-          ),
+          localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
           localize("cancel", "Cancel")
         ]
       });
@@ -456,13 +305,7 @@ let NativeHostMainService = class extends Disposable {
         const command = `osascript -e "do shell script \\"mkdir -p /usr/local/bin && ln -sf '${target}' '${source}'\\" with administrator privileges"`;
         await promisify(exec)(command);
       } catch (error2) {
-        throw new Error(
-          localize(
-            "cantCreateBinFolder",
-            "Unable to install the shell command '{0}'.",
-            source
-          )
-        );
+        throw new Error(localize("cantCreateBinFolder", "Unable to install the shell command '{0}'.", source));
       }
     }
   }
@@ -475,19 +318,9 @@ let NativeHostMainService = class extends Disposable {
         case "EACCES": {
           const { response } = await this.showMessageBox(windowId, {
             type: "info",
-            message: localize(
-              "warnEscalationUninstall",
-              "{0} will now prompt with 'osascript' for Administrator privileges to uninstall the shell command.",
-              this.productService.nameShort
-            ),
+            message: localize("warnEscalationUninstall", "{0} will now prompt with 'osascript' for Administrator privileges to uninstall the shell command.", this.productService.nameShort),
             buttons: [
-              localize(
-                {
-                  key: "ok",
-                  comment: ["&& denotes a mnemonic"]
-                },
-                "&&OK"
-              ),
+              localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
               localize("cancel", "Cancel")
             ]
           });
@@ -498,13 +331,7 @@ let NativeHostMainService = class extends Disposable {
             const command = `osascript -e "do shell script \\"rm '${source}'\\" with administrator privileges"`;
             await promisify(exec)(command);
           } catch (error2) {
-            throw new Error(
-              localize(
-                "cantUninstall",
-                "Unable to uninstall the shell command '{0}'.",
-                source
-              )
-            );
+            throw new Error(localize("cantUninstall", "Unable to uninstall the shell command '{0}'.", source));
           }
           break;
         }
@@ -517,21 +344,11 @@ let NativeHostMainService = class extends Disposable {
     }
   }
   async getShellCommandLink() {
-    const target = resolve(
-      this.environmentMainService.appRoot,
-      "bin",
-      "code"
-    );
+    const target = resolve(this.environmentMainService.appRoot, "bin", "code");
     const source = `/usr/local/bin/${this.productService.applicationName}`;
     const sourceExists = await Promises.exists(target);
     if (!sourceExists) {
-      throw new Error(
-        localize(
-          "sourceMissing",
-          "Unable to find shell script in '{0}'",
-          target
-        )
-      );
+      throw new Error(localize("sourceMissing", "Unable to find shell script in '{0}'", target));
     }
     return { source, target };
   }
@@ -539,67 +356,38 @@ let NativeHostMainService = class extends Disposable {
   //#region Dialog
   async showMessageBox(windowId, options) {
     const window = this.windowById(options?.targetWindowId, windowId);
-    return this.dialogMainService.showMessageBox(
-      options,
-      window?.win ?? void 0
-    );
+    return this.dialogMainService.showMessageBox(options, window?.win ?? void 0);
   }
   async showSaveDialog(windowId, options) {
     const window = this.windowById(options?.targetWindowId, windowId);
-    return this.dialogMainService.showSaveDialog(
-      options,
-      window?.win ?? void 0
-    );
+    return this.dialogMainService.showSaveDialog(options, window?.win ?? void 0);
   }
   async showOpenDialog(windowId, options) {
     const window = this.windowById(options?.targetWindowId, windowId);
-    return this.dialogMainService.showOpenDialog(
-      options,
-      window?.win ?? void 0
-    );
+    return this.dialogMainService.showOpenDialog(options, window?.win ?? void 0);
   }
   async pickFileFolderAndOpen(windowId, options) {
     const paths = await this.dialogMainService.pickFileFolder(options);
     if (paths) {
-      await this.doOpenPicked(
-        await Promise.all(
-          paths.map(
-            async (path) => await SymlinkSupport.existsDirectory(path) ? { folderUri: URI.file(path) } : { fileUri: URI.file(path) }
-          )
-        ),
-        options,
-        windowId
-      );
+      await this.doOpenPicked(await Promise.all(paths.map(async (path) => await SymlinkSupport.existsDirectory(path) ? { folderUri: URI.file(path) } : { fileUri: URI.file(path) })), options, windowId);
     }
   }
   async pickFolderAndOpen(windowId, options) {
     const paths = await this.dialogMainService.pickFolder(options);
     if (paths) {
-      await this.doOpenPicked(
-        paths.map((path) => ({ folderUri: URI.file(path) })),
-        options,
-        windowId
-      );
+      await this.doOpenPicked(paths.map((path) => ({ folderUri: URI.file(path) })), options, windowId);
     }
   }
   async pickFileAndOpen(windowId, options) {
     const paths = await this.dialogMainService.pickFile(options);
     if (paths) {
-      await this.doOpenPicked(
-        paths.map((path) => ({ fileUri: URI.file(path) })),
-        options,
-        windowId
-      );
+      await this.doOpenPicked(paths.map((path) => ({ fileUri: URI.file(path) })), options, windowId);
     }
   }
   async pickWorkspaceAndOpen(windowId, options) {
     const paths = await this.dialogMainService.pickWorkspace(options);
     if (paths) {
-      await this.doOpenPicked(
-        paths.map((path) => ({ workspaceUri: URI.file(path) })),
-        options,
-        windowId
-      );
+      await this.doOpenPicked(paths.map((path) => ({ workspaceUri: URI.file(path) })), options, windowId);
     }
   }
   async doOpenPicked(openable, options, windowId) {
@@ -639,18 +427,14 @@ let NativeHostMainService = class extends Disposable {
     return true;
   }
   async openExternalBrowser(url, defaultApplication) {
-    const configuredBrowser = defaultApplication ?? this.configurationService.getValue(
-      "workbench.externalBrowser"
-    );
+    const configuredBrowser = defaultApplication ?? this.configurationService.getValue("workbench.externalBrowser");
     if (!configuredBrowser) {
       return shell.openExternal(url);
     }
     if (configuredBrowser.includes(posix.sep) || configuredBrowser.includes(win32.sep)) {
       const browserPathExists = await Promises.exists(configuredBrowser);
       if (!browserPathExists) {
-        this.logService.error(
-          `Configured external browser path does not exist: ${configuredBrowser}`
-        );
+        this.logService.error(`Configured external browser path does not exist: ${configuredBrowser}`);
         return shell.openExternal(url);
       }
     }
@@ -665,15 +449,11 @@ let NativeHostMainService = class extends Disposable {
         }
       });
       res.stderr?.once("data", (data) => {
-        this.logService.error(
-          `Error openening external URL '${url}' using browser '${configuredBrowser}': ${data.toString()}`
-        );
+        this.logService.error(`Error openening external URL '${url}' using browser '${configuredBrowser}': ${data.toString()}`);
         return shell.openExternal(url);
       });
     } catch (error) {
-      this.logService.error(
-        `Unable to open external URL '${url}' using browser '${configuredBrowser}' due to ${error}.`
-      );
+      this.logService.error(`Unable to open external URL '${url}' using browser '${configuredBrowser}' due to ${error}.`);
       return shell.openExternal(url);
     }
   }
@@ -696,39 +476,24 @@ let NativeHostMainService = class extends Disposable {
       if (options?.unlock) {
         sudoCommand.push("--file-chmod");
       }
-      sudoCommand.push(
-        "--file-write",
-        `"${source.fsPath}"`,
-        `"${target.fsPath}"`
-      );
+      sudoCommand.push("--file-write", `"${source.fsPath}"`, `"${target.fsPath}"`);
       const promptOptions = {
         name: this.productService.nameLong.replace("-", ""),
-        icns: isMacintosh && this.environmentMainService.isBuilt ? join(
-          dirname(this.environmentMainService.appRoot),
-          `${this.productService.nameShort}.icns`
-        ) : void 0
+        icns: isMacintosh && this.environmentMainService.isBuilt ? join(dirname(this.environmentMainService.appRoot), `${this.productService.nameShort}.icns`) : void 0
       };
-      sudoPrompt.exec(
-        sudoCommand.join(" "),
-        promptOptions,
-        (error, stdout, stderr) => {
-          if (stdout) {
-            this.logService.trace(
-              `[sudo-prompt] received stdout: ${stdout}`
-            );
-          }
-          if (stderr) {
-            this.logService.trace(
-              `[sudo-prompt] received stderr: ${stderr}`
-            );
-          }
-          if (error) {
-            reject(error);
-          } else {
-            resolve2(void 0);
-          }
+      sudoPrompt.exec(sudoCommand.join(" "), promptOptions, (error, stdout, stderr) => {
+        if (stdout) {
+          this.logService.trace(`[sudo-prompt] received stdout: ${stdout}`);
         }
-      );
+        if (stderr) {
+          this.logService.trace(`[sudo-prompt] received stderr: ${stderr}`);
+        }
+        if (error) {
+          reject(error);
+        } else {
+          resolve2(void 0);
+        }
+      });
     });
   }
   async isRunningUnderARM64Translation() {
@@ -740,40 +505,20 @@ let NativeHostMainService = class extends Disposable {
   get cliPath() {
     if (isWindows) {
       if (this.environmentMainService.isBuilt) {
-        return join(
-          dirname(process.execPath),
-          "bin",
-          `${this.productService.applicationName}.cmd`
-        );
+        return join(dirname(process.execPath), "bin", `${this.productService.applicationName}.cmd`);
       }
-      return join(
-        this.environmentMainService.appRoot,
-        "scripts",
-        "code-cli.bat"
-      );
+      return join(this.environmentMainService.appRoot, "scripts", "code-cli.bat");
     }
     if (isLinux) {
       if (this.environmentMainService.isBuilt) {
-        return join(
-          dirname(process.execPath),
-          "bin",
-          `${this.productService.applicationName}`
-        );
+        return join(dirname(process.execPath), "bin", `${this.productService.applicationName}`);
       }
-      return join(
-        this.environmentMainService.appRoot,
-        "scripts",
-        "code-cli.sh"
-      );
+      return join(this.environmentMainService.appRoot, "scripts", "code-cli.sh");
     }
     if (this.environmentMainService.isBuilt) {
       return join(this.environmentMainService.appRoot, "bin", "code");
     }
-    return join(
-      this.environmentMainService.appRoot,
-      "scripts",
-      "code-cli.sh"
-    );
+    return join(this.environmentMainService.appRoot, "scripts", "code-cli.sh");
   }
   async getOSStatistics() {
     return {
@@ -878,20 +623,13 @@ let NativeHostMainService = class extends Disposable {
       if (isWorkspaceIdentifier(window.openedWorkspace)) {
         const configPath = window.openedWorkspace.configPath;
         if (configPath.scheme === Schemas.file) {
-          const workspace = await this.workspacesManagementMainService.resolveLocalWorkspace(
-            configPath
-          );
+          const workspace = await this.workspacesManagementMainService.resolveLocalWorkspace(configPath);
           if (workspace?.transient) {
-            return this.openWindow(window.id, {
-              forceReuseWindow: true
-            });
+            return this.openWindow(window.id, { forceReuseWindow: true });
           }
         }
       }
-      return this.lifecycleMainService.reload(
-        window,
-        options?.disableExtensions !== void 0 ? { _: [], "disable-extensions": options.disableExtensions } : void 0
-      );
+      return this.lifecycleMainService.reload(window, options?.disableExtensions !== void 0 ? { _: [], "disable-extensions": options.disableExtensions } : void 0);
     }
   }
   async closeWindow(windowId, options) {
@@ -913,9 +651,7 @@ let NativeHostMainService = class extends Disposable {
   //#region Connectivity
   async resolveProxy(windowId, url) {
     if (this.environmentMainService.extensionTestsLocationURI) {
-      const testProxy = this.configurationService.getValue(
-        "integration-test.http.proxy"
-      );
+      const testProxy = this.configurationService.getValue("integration-test.http.proxy");
       if (testProxy) {
         return testProxy;
       }
@@ -940,7 +676,7 @@ let NativeHostMainService = class extends Disposable {
   //#region Development
   async openDevTools(windowId, options) {
     const window = this.windowById(options?.targetWindowId, windowId);
-    let mode;
+    let mode = void 0;
     if (isLinux && useWindowControlsOverlay(this.configurationService)) {
       mode = "bottom";
     }
@@ -965,11 +701,7 @@ let NativeHostMainService = class extends Disposable {
     if (!window || !window.win) {
       throw new Error();
     }
-    const profiler = new WindowProfiler(
-      window.win,
-      session,
-      this.logService
-    );
+    const profiler = new WindowProfiler(window.win, session, this.logService);
     const result = await profiler.inspect(duration);
     return result;
   }
@@ -1004,9 +736,7 @@ let NativeHostMainService = class extends Disposable {
     if (!contents) {
       return void 0;
     }
-    return this.auxiliaryWindowsMainService.getWindowByWebContents(
-      contents
-    );
+    return this.auxiliaryWindowsMainService.getWindowByWebContents(contents);
   }
 };
 __decorateClass([

@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Action } from "../../../../base/common/actions.js";
+import { IExtensionHostProfile } from "../../../services/extensions/common/extensions.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { AbstractRuntimeExtensionsEditor, IRuntimeExtension } from "./abstractRuntimeExtensionsEditor.js";
 import { ReportExtensionIssueAction } from "../common/reportExtensionIssueAction.js";
-import {
-  AbstractRuntimeExtensionsEditor
-} from "./abstractRuntimeExtensionsEditor.js";
 class RuntimeExtensionsEditor extends AbstractRuntimeExtensionsEditor {
   static {
     __name(this, "RuntimeExtensionsEditor");
@@ -19,10 +20,7 @@ class RuntimeExtensionsEditor extends AbstractRuntimeExtensionsEditor {
   }
   _createReportExtensionIssueAction(element) {
     if (element.marketplaceInfo) {
-      return this._instantiationService.createInstance(
-        ReportExtensionIssueAction,
-        element.description
-      );
+      return this._instantiationService.createInstance(ReportExtensionIssueAction, element.description);
     }
     return null;
   }

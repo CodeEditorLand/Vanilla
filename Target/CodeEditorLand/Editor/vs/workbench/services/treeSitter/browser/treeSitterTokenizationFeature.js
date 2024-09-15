@@ -11,42 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import {
-  FileAccess
-} from "../../../../base/common/network.js";
-import {
-  FontStyle,
-  MetadataConsts
-} from "../../../../editor/common/encodedTokenAttributes.js";
-import {
-  LazyTokenizationSupport,
-  TreeSitterTokenizationRegistry
-} from "../../../../editor/common/languages.js";
-import {
-  EDITOR_EXPERIMENTAL_PREFER_TREESITTER,
-  ITreeSitterParserService
-} from "../../../../editor/common/services/treeSitterParserService.js";
+import { Disposable, DisposableMap, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { AppResourcePath, FileAccess } from "../../../../base/common/network.js";
+import { FontStyle, MetadataConsts } from "../../../../editor/common/encodedTokenAttributes.js";
+import { ITreeSitterTokenizationSupport, LazyTokenizationSupport, TreeSitterTokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { EDITOR_EXPERIMENTAL_PREFER_TREESITTER, ITreeSitterParserService, ITreeSitterParseResult } from "../../../../editor/common/services/treeSitterParserService.js";
+import { IModelTokensChangedEvent } from "../../../../editor/common/textModelEvents.js";
 import { ColumnRange } from "../../../../editor/contrib/inlineCompletions/browser/utils.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IInstantiationService,
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { TokenStyle } from "../../../../platform/theme/common/tokenClassificationRegistry.js";
+import { ColorThemeData } from "../../themes/common/colorThemeData.js";
 const ALLOWED_SUPPORT = ["typescript"];
-const ITreeSitterTokenizationFeature = createDecorator(
-  "treeSitterTokenizationFeature"
-);
+const ITreeSitterTokenizationFeature = createDecorator("treeSitterTokenizationFeature");
 let TreeSitterTokenizationFeature = class extends Disposable {
   constructor(_configurationService, _instantiationService, _fileService) {
     super();
@@ -54,15 +35,11 @@ let TreeSitterTokenizationFeature = class extends Disposable {
     this._instantiationService = _instantiationService;
     this._fileService = _fileService;
     this._handleGrammarsExtPoint();
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          EDITOR_EXPERIMENTAL_PREFER_TREESITTER
-        )) {
-          this._handleGrammarsExtPoint();
-        }
-      })
-    );
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(EDITOR_EXPERIMENTAL_PREFER_TREESITTER)) {
+        this._handleGrammarsExtPoint();
+      }
+    }));
   }
   static {
     __name(this, "TreeSitterTokenizationFeature");
@@ -70,50 +47,33 @@ let TreeSitterTokenizationFeature = class extends Disposable {
   _serviceBrand;
   _tokenizersRegistrations = new DisposableMap();
   _getSetting() {
-    return this._configurationService.getValue(
-      EDITOR_EXPERIMENTAL_PREFER_TREESITTER
-    ) || [];
+    return this._configurationService.getValue(EDITOR_EXPERIMENTAL_PREFER_TREESITTER) || [];
   }
   _handleGrammarsExtPoint() {
     const setting = this._getSetting();
     for (const languageId of setting) {
       if (ALLOWED_SUPPORT.includes(languageId) && !this._tokenizersRegistrations.has(languageId)) {
-        const lazyTokenizationSupport = new LazyTokenizationSupport(
-          () => this._createTokenizationSupport(languageId)
-        );
+        const lazyTokenizationSupport = new LazyTokenizationSupport(() => this._createTokenizationSupport(languageId));
         const disposableStore = new DisposableStore();
         disposableStore.add(lazyTokenizationSupport);
-        disposableStore.add(
-          TreeSitterTokenizationRegistry.registerFactory(
-            languageId,
-            lazyTokenizationSupport
-          )
-        );
+        disposableStore.add(TreeSitterTokenizationRegistry.registerFactory(languageId, lazyTokenizationSupport));
         this._tokenizersRegistrations.set(languageId, disposableStore);
         TreeSitterTokenizationRegistry.getOrCreate(languageId);
       }
     }
-    const languagesToUnregister = [
-      ...this._tokenizersRegistrations.keys()
-    ].filter((languageId) => !setting.includes(languageId));
+    const languagesToUnregister = [...this._tokenizersRegistrations.keys()].filter((languageId) => !setting.includes(languageId));
     for (const languageId of languagesToUnregister) {
       this._tokenizersRegistrations.deleteAndDispose(languageId);
     }
   }
   async _fetchQueries(newLanguage) {
     const languageLocation = `vs/editor/common/languages/highlights/${newLanguage}.scm`;
-    const query = await this._fileService.readFile(
-      FileAccess.asFileUri(languageLocation)
-    );
+    const query = await this._fileService.readFile(FileAccess.asFileUri(languageLocation));
     return query.value.toString();
   }
   async _createTokenizationSupport(languageId) {
     const queries = await this._fetchQueries(languageId);
-    return this._instantiationService.createInstance(
-      TreeSitterTokenizationSupport,
-      queries,
-      languageId
-    );
+    return this._instantiationService.createInstance(TreeSitterTokenizationSupport, queries, languageId);
   }
 };
 TreeSitterTokenizationFeature = __decorateClass([
@@ -128,12 +88,7 @@ let TreeSitterTokenizationSupport = class extends Disposable {
     this._languageId = _languageId;
     this._treeSitterService = _treeSitterService;
     this._themeService = _themeService;
-    this._register(
-      Event.runAndSubscribe(
-        this._themeService.onDidColorThemeChange,
-        () => this.reset()
-      )
-    );
+    this._register(Event.runAndSubscribe(this._themeService.onDidColorThemeChange, () => this.reset()));
   }
   static {
     __name(this, "TreeSitterTokenizationSupport");
@@ -148,19 +103,12 @@ let TreeSitterTokenizationSupport = class extends Disposable {
   }
   _ensureQuery() {
     if (!this._query) {
-      const language = this._treeSitterService.getOrInitLanguage(
-        this._languageId
-      );
+      const language = this._treeSitterService.getOrInitLanguage(this._languageId);
       if (!language) {
         if (!this._languageAddedListener) {
-          this._languageAddedListener = this._register(
-            Event.onceIf(
-              this._treeSitterService.onDidAddLanguage,
-              (e) => e.id === this._languageId
-            )((e) => {
-              this._query = e.language.query(this._queries);
-            })
-          );
+          this._languageAddedListener = this._register(Event.onceIf(this._treeSitterService.onDidAddLanguage, (e) => e.id === this._languageId)((e) => {
+            this._query = e.language.query(this._queries);
+          }));
         }
         return;
       }
@@ -172,11 +120,7 @@ let TreeSitterTokenizationSupport = class extends Disposable {
     this._colorThemeData = this._themeService.getColorTheme();
   }
   captureAtPosition(lineNumber, column, textModel) {
-    const captures = this._captureAtRange(
-      lineNumber,
-      new ColumnRange(column, column),
-      textModel
-    );
+    const captures = this._captureAtRange(lineNumber, new ColumnRange(column, column), textModel);
     return captures;
   }
   _captureAtRange(lineNumber, columnRange, textModel) {
@@ -185,16 +129,7 @@ let TreeSitterTokenizationSupport = class extends Disposable {
     if (!tree?.tree || !query) {
       return [];
     }
-    return query.captures(tree.tree.rootNode, {
-      startPosition: {
-        row: lineNumber - 1,
-        column: columnRange.startColumn - 1
-      },
-      endPosition: {
-        row: lineNumber - 1,
-        column: columnRange.endColumnExclusive
-      }
-    });
+    return query.captures(tree.tree.rootNode, { startPosition: { row: lineNumber - 1, column: columnRange.startColumn - 1 }, endPosition: { row: lineNumber - 1, column: columnRange.endColumnExclusive } });
   }
   /**
    * Gets the tokens for a given line.
@@ -205,20 +140,13 @@ let TreeSitterTokenizationSupport = class extends Disposable {
    */
   tokenizeEncoded(lineNumber, textModel) {
     const lineLength = textModel.getLineMaxColumn(lineNumber);
-    const captures = this._captureAtRange(
-      lineNumber,
-      new ColumnRange(1, lineLength),
-      textModel
-    );
+    const captures = this._captureAtRange(lineNumber, new ColumnRange(1, lineLength), textModel);
     if (captures.length === 0) {
       return void 0;
     }
     let tokens = new Uint32Array(captures.length * 2);
     let tokenIndex = 0;
-    const lineStartOffset = textModel.getOffsetAt({
-      lineNumber,
-      column: 1
-    });
+    const lineStartOffset = textModel.getOffsetAt({ lineNumber, column: 1 });
     const increaseSizeOfTokensByOneToken = /* @__PURE__ */ __name(() => {
       const newTokens = new Uint32Array(tokens.length + 2);
       newTokens.set(tokens);
@@ -309,11 +237,7 @@ TreeSitterTokenizationSupport = __decorateClass([
   __decorateParam(2, ITreeSitterParserService),
   __decorateParam(3, IThemeService)
 ], TreeSitterTokenizationSupport);
-registerSingleton(
-  ITreeSitterTokenizationFeature,
-  TreeSitterTokenizationFeature,
-  InstantiationType.Eager
-);
+registerSingleton(ITreeSitterTokenizationFeature, TreeSitterTokenizationFeature, InstantiationType.Eager);
 export {
   ITreeSitterTokenizationFeature
 };

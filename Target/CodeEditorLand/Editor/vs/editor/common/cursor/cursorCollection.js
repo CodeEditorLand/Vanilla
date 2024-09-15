@@ -1,12 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { compareBy } from "../../../base/common/arrays.js";
-import { findFirstMin, findLastMax } from "../../../base/common/arraysFind.js";
+import { findLastMax, findFirstMin } from "../../../base/common/arraysFind.js";
+import { CursorState, PartialCursorState } from "../cursorCommon.js";
+import { CursorContext } from "./cursorContext.js";
+import { Cursor } from "./oneCursor.js";
 import { Position } from "../core/position.js";
 import { Range } from "../core/range.js";
-import { Selection } from "../core/selection.js";
-import { CursorState } from "../cursorCommon.js";
-import { Cursor } from "./oneCursor.js";
+import { ISelection, Selection } from "../core/selection.js";
 class CursorCollection {
   static {
     __name(this, "CursorCollection");
@@ -15,7 +16,7 @@ class CursorCollection {
   /**
    * `cursors[0]` is the primary cursor, thus `cursors.length >= 1` is always true.
    * `cursors.slice(1)` are secondary cursors.
-   */
+  */
   cursors;
   // An index which identifies the last cursor that was added / moved (think Ctrl+drag)
   // This index refers to `cursors.slice(1)`, i.e. after removing the primary cursor.
@@ -49,9 +50,7 @@ class CursorCollection {
     }
   }
   readSelectionFromMarkers() {
-    return this.cursors.map(
-      (c) => c.readSelectionFromMarkers(this.context)
-    );
+    return this.cursors.map((c) => c.readSelectionFromMarkers(this.context));
   }
   getAll() {
     return this.cursors.map((c) => c.asCursorState());
@@ -87,11 +86,7 @@ class CursorCollection {
     if (states === null) {
       return;
     }
-    this.cursors[0].setState(
-      this.context,
-      states[0].modelState,
-      states[0].viewState
-    );
+    this.cursors[0].setState(this.context, states[0].modelState, states[0].viewState);
     this._setSecondaryStates(states.slice(1));
   }
   /**
@@ -112,11 +107,7 @@ class CursorCollection {
       }
     }
     for (let i = 0; i < secondaryStatesLength; i++) {
-      this.cursors[i + 1].setState(
-        this.context,
-        secondaryStates[i].modelState,
-        secondaryStates[i].viewState
-      );
+      this.cursors[i + 1].setState(this.context, secondaryStates[i].modelState, secondaryStates[i].viewState);
     }
   }
   killSecondaryCursors() {
@@ -151,9 +142,7 @@ class CursorCollection {
         selection: cursors[i].modelState.selection
       });
     }
-    sortedCursors.sort(
-      compareBy((s) => s.selection, Range.compareRangesUsingStarts)
-    );
+    sortedCursors.sort(compareBy((s) => s.selection, Range.compareRangesUsingStarts));
     for (let sortedCursorIndex = 0; sortedCursorIndex < sortedCursors.length - 1; sortedCursorIndex++) {
       const current = sortedCursors[sortedCursorIndex];
       const next = sortedCursors[sortedCursorIndex + 1];
@@ -188,27 +177,13 @@ class CursorCollection {
           }
           let resultingSelection;
           if (resultingSelectionIsLTR) {
-            resultingSelection = new Selection(
-              resultingRange.startLineNumber,
-              resultingRange.startColumn,
-              resultingRange.endLineNumber,
-              resultingRange.endColumn
-            );
+            resultingSelection = new Selection(resultingRange.startLineNumber, resultingRange.startColumn, resultingRange.endLineNumber, resultingRange.endColumn);
           } else {
-            resultingSelection = new Selection(
-              resultingRange.endLineNumber,
-              resultingRange.endColumn,
-              resultingRange.startLineNumber,
-              resultingRange.startColumn
-            );
+            resultingSelection = new Selection(resultingRange.endLineNumber, resultingRange.endColumn, resultingRange.startLineNumber, resultingRange.startColumn);
           }
           sortedCursors[winnerSortedCursorIndex].selection = resultingSelection;
           const resultingState = CursorState.fromModelSelection(resultingSelection);
-          cursors[winnerIndex].setState(
-            this.context,
-            resultingState.modelState,
-            resultingState.viewState
-          );
+          cursors[winnerIndex].setState(this.context, resultingState.modelState, resultingState.viewState);
         }
         for (const sortedCursor of sortedCursors) {
           if (sortedCursor.index > looserIndex) {

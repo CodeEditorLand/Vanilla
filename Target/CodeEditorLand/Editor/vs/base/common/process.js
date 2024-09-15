@@ -1,4 +1,4 @@
-import { isMacintosh, isWindows } from "./platform.js";
+import { INodeProcess, isMacintosh, isWindows } from "./platform.js";
 let safeProcess;
 const vscodeGlobal = globalThis.vscode;
 if (typeof vscodeGlobal !== "undefined" && typeof vscodeGlobal.process !== "undefined") {

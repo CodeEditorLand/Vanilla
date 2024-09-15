@@ -17,32 +17,16 @@ import { hash } from "../../../base/common/hash.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import {
-  ILifecycleMainService
-} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILifecycleMainService, IRelaunchHandler, IRelaunchOptions } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IRequestService } from "../../request/common/request.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import {
-  State,
-  StateType,
-  UpdateType
-} from "../common/update.js";
-import {
-  AbstractUpdateService,
-  createUpdateURL
-} from "./abstractUpdateService.js";
+import { IUpdate, State, StateType, UpdateType } from "../common/update.js";
+import { AbstractUpdateService, createUpdateURL, UpdateErrorClassification, UpdateNotAvailableClassification } from "./abstractUpdateService.js";
 let DarwinUpdateService = class extends AbstractUpdateService {
   constructor(lifecycleMainService, configurationService, telemetryService, environmentMainService, requestService, logService, productService) {
-    super(
-      lifecycleMainService,
-      configurationService,
-      environmentMainService,
-      requestService,
-      logService,
-      productService
-    );
+    super(lifecycleMainService, configurationService, environmentMainService, requestService, logService, productService);
     this.telemetryService = telemetryService;
     lifecycleMainService.setRelaunchHandler(this);
   }
@@ -51,34 +35,16 @@ let DarwinUpdateService = class extends AbstractUpdateService {
   }
   disposables = new DisposableStore();
   get onRawError() {
-    return Event.fromNodeEventEmitter(
-      electron.autoUpdater,
-      "error",
-      (_, message) => message
-    );
+    return Event.fromNodeEventEmitter(electron.autoUpdater, "error", (_, message) => message);
   }
   get onRawUpdateNotAvailable() {
-    return Event.fromNodeEventEmitter(
-      electron.autoUpdater,
-      "update-not-available"
-    );
+    return Event.fromNodeEventEmitter(electron.autoUpdater, "update-not-available");
   }
   get onRawUpdateAvailable() {
-    return Event.fromNodeEventEmitter(
-      electron.autoUpdater,
-      "update-available"
-    );
+    return Event.fromNodeEventEmitter(electron.autoUpdater, "update-available");
   }
   get onRawUpdateDownloaded() {
-    return Event.fromNodeEventEmitter(
-      electron.autoUpdater,
-      "update-downloaded",
-      (_, releaseNotes, version, timestamp) => ({
-        version,
-        productVersion: version,
-        timestamp
-      })
-    );
+    return Event.fromNodeEventEmitter(electron.autoUpdater, "update-downloaded", (_, releaseNotes, version, timestamp) => ({ version, productVersion: version, timestamp }));
   }
   handleRelaunch(options) {
     if (options?.addArgs || options?.removeArgs) {
@@ -87,30 +53,16 @@ let DarwinUpdateService = class extends AbstractUpdateService {
     if (this.state.type !== StateType.Ready) {
       return false;
     }
-    this.logService.trace(
-      "update#handleRelaunch(): running raw#quitAndInstall()"
-    );
+    this.logService.trace("update#handleRelaunch(): running raw#quitAndInstall()");
     this.doQuitAndInstall();
     return true;
   }
   async initialize() {
     await super.initialize();
     this.onRawError(this.onError, this, this.disposables);
-    this.onRawUpdateAvailable(
-      this.onUpdateAvailable,
-      this,
-      this.disposables
-    );
-    this.onRawUpdateDownloaded(
-      this.onUpdateDownloaded,
-      this,
-      this.disposables
-    );
-    this.onRawUpdateNotAvailable(
-      this.onUpdateNotAvailable,
-      this,
-      this.disposables
-    );
+    this.onRawUpdateAvailable(this.onUpdateAvailable, this, this.disposables);
+    this.onRawUpdateDownloaded(this.onUpdateDownloaded, this, this.disposables);
+    this.onRawUpdateNotAvailable(this.onUpdateNotAvailable, this, this.disposables);
   }
   onError(err) {
     this.telemetryService.publicLog2("update:error", { messageHash: String(hash(String(err))) });
@@ -120,10 +72,10 @@ let DarwinUpdateService = class extends AbstractUpdateService {
   }
   buildUpdateFeedUrl(quality) {
     let assetID;
-    if (this.productService.darwinUniversalAssetId) {
-      assetID = this.productService.darwinUniversalAssetId;
-    } else {
+    if (!this.productService.darwinUniversalAssetId) {
       assetID = process.arch === "x64" ? "darwin" : "darwin-arm64";
+    } else {
+      assetID = this.productService.darwinUniversalAssetId;
     }
     const url = createUpdateURL(assetID, quality, this.productService);
     try {
@@ -160,9 +112,7 @@ let DarwinUpdateService = class extends AbstractUpdateService {
     this.setState(State.Idle(UpdateType.Archive));
   }
   doQuitAndInstall() {
-    this.logService.trace(
-      "update#quitAndInstall(): running raw#quitAndInstall()"
-    );
+    this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()");
     electron.autoUpdater.quitAndInstall();
   }
   dispose() {

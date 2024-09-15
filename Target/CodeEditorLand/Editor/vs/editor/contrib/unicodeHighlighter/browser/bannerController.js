@@ -14,23 +14,21 @@ import "./bannerController.css";
 import { $, append, clearNode } from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { Action } from "../../../../base/common/actions.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  Link
-} from "../../../../platform/opener/browser/link.js";
-import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
 import { MarkdownRenderer } from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILinkDescriptor, Link } from "../../../../platform/opener/browser/link.js";
+import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 const BANNER_ELEMENT_HEIGHT = 26;
 let BannerController = class extends Disposable {
   constructor(_editor, instantiationService) {
     super();
     this._editor = _editor;
     this.instantiationService = instantiationService;
-    this.banner = this._register(
-      this.instantiationService.createInstance(Banner)
-    );
+    this.banner = this._register(this.instantiationService.createInstance(Banner));
   }
   static {
     __name(this, "BannerController");
@@ -58,10 +56,7 @@ let Banner = class extends Disposable {
   constructor(instantiationService) {
     super();
     this.instantiationService = instantiationService;
-    this.markdownRenderer = this.instantiationService.createInstance(
-      MarkdownRenderer,
-      {}
-    );
+    this.markdownRenderer = this.instantiationService.createInstance(MarkdownRenderer, {});
     this.element = $("div.editor-banner");
     this.element.tabIndex = 0;
   }
@@ -101,53 +96,32 @@ let Banner = class extends Disposable {
     const iconContainer = append(this.element, $("div.icon-container"));
     iconContainer.setAttribute("aria-hidden", "true");
     if (item.icon) {
-      iconContainer.appendChild(
-        $(`div${ThemeIcon.asCSSSelector(item.icon)}`)
-      );
+      iconContainer.appendChild($(`div${ThemeIcon.asCSSSelector(item.icon)}`));
     }
-    const messageContainer = append(
-      this.element,
-      $("div.message-container")
-    );
+    const messageContainer = append(this.element, $("div.message-container"));
     messageContainer.setAttribute("aria-hidden", "true");
     messageContainer.appendChild(this.getBannerMessage(item.message));
-    this.messageActionsContainer = append(
-      this.element,
-      $("div.message-actions-container")
-    );
+    this.messageActionsContainer = append(this.element, $("div.message-actions-container"));
     if (item.actions) {
       for (const action of item.actions) {
-        this._register(
-          this.instantiationService.createInstance(
-            Link,
-            this.messageActionsContainer,
-            { ...action, tabIndex: -1 },
-            {}
-          )
-        );
+        this._register(this.instantiationService.createInstance(Link, this.messageActionsContainer, { ...action, tabIndex: -1 }, {}));
       }
     }
-    const actionBarContainer = append(
-      this.element,
-      $("div.action-container")
-    );
+    const actionBarContainer = append(this.element, $("div.action-container"));
     this.actionBar = this._register(new ActionBar(actionBarContainer));
-    this.actionBar.push(
-      this._register(
-        new Action(
-          "banner.close",
-          "Close Banner",
-          ThemeIcon.asClassName(widgetClose),
-          true,
-          () => {
-            if (typeof item.onClose === "function") {
-              item.onClose();
-            }
+    this.actionBar.push(this._register(
+      new Action(
+        "banner.close",
+        "Close Banner",
+        ThemeIcon.asClassName(widgetClose),
+        true,
+        () => {
+          if (typeof item.onClose === "function") {
+            item.onClose();
           }
-        )
-      ),
-      { icon: true, label: false }
-    );
+        }
+      )
+    ), { icon: true, label: false });
     this.actionBar.setFocusable(false);
   }
 };

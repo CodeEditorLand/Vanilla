@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
 import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Position } from "../../../common/core/position.js";
+import * as languages from "../../../common/languages.js";
+import { ActionSet } from "../../../../platform/actionWidget/common/actionWidget.js";
 const CodeActionKind = new class {
   QuickFix = new HierarchicalKind("quickfix");
   Refactor = new HierarchicalKind("refactor");
@@ -41,9 +45,7 @@ function mayIncludeActionsOfKind(filter, providedKind) {
     return false;
   }
   if (filter.excludes) {
-    if (filter.excludes.some(
-      (exclude) => excludesAction(providedKind, exclude, filter.include)
-    )) {
+    if (filter.excludes.some((exclude) => excludesAction(providedKind, exclude, filter.include))) {
       return false;
     }
   }
@@ -61,9 +63,7 @@ function filtersAction(filter, action) {
     }
   }
   if (filter.excludes) {
-    if (actionKind && filter.excludes.some(
-      (exclude) => excludesAction(actionKind, exclude, filter.include)
-    )) {
+    if (actionKind && filter.excludes.some((exclude) => excludesAction(actionKind, exclude, filter.include))) {
       return false;
     }
   }
@@ -101,11 +101,7 @@ class CodeActionCommandArgs {
   }
   static fromUser(arg, defaults) {
     if (!arg || typeof arg !== "object") {
-      return new CodeActionCommandArgs(
-        defaults.kind,
-        defaults.apply,
-        false
-      );
+      return new CodeActionCommandArgs(defaults.kind, defaults.apply, false);
     }
     return new CodeActionCommandArgs(
       CodeActionCommandArgs.getKindFromUser(arg, defaults.kind),
@@ -145,10 +141,7 @@ class CodeActionItem {
     if (this.provider?.resolveCodeAction && !this.action.edit) {
       let action;
       try {
-        action = await this.provider.resolveCodeAction(
-          this.action,
-          token
-        );
+        action = await this.provider.resolveCodeAction(this.action, token);
       } catch (err) {
         onUnexpectedExternalError(err);
       }

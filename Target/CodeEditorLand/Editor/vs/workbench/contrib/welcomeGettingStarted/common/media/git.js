@@ -1,4 +1,4 @@
-var git_default = "../../../../../../Asset/git-D36Z43ZG.svg";
+var git_default = "../../../../../../Asset/git-QW7RE4SW.svg";
 export {
   git_default as default
 };

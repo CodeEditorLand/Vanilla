@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  parse
-} from "../../../../base/common/console.js";
+import { IRemoteConsoleLog, parse } from "../../../../base/common/console.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 function logRemoteEntry(logService, entry, label = null) {
   const args = parse(entry).args;
   let firstArg = args.shift();

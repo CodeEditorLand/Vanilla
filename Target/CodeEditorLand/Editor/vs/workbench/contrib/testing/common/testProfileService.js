@@ -10,25 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { deepClone } from "../../../../base/common/objects.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { StoredValue } from "./storedValue.js";
 import { TestId } from "./testId.js";
-import {
-  TestRunProfileBitset,
-  testRunProfileBitsetList
-} from "./testTypes.js";
+import { IMainThreadTestController } from "./testService.js";
+import { ITestItem, ITestRunProfile, InternalTestItem, TestRunProfileBitset, testRunProfileBitsetList } from "./testTypes.js";
 import { TestingContextKeys } from "./testingContextKeys.js";
 const ITestProfileService = createDecorator("testProfileService");
 const canUseProfileWithTest = /* @__PURE__ */ __name((profile, test) => profile.controllerId === test.controllerId && (TestId.isRoot(test.item.extId) || !profile.tag || test.item.tags.includes(profile.tag)), "canUseProfileWithTest");
@@ -39,18 +31,9 @@ const sorter = /* @__PURE__ */ __name((a, b) => {
   return a.label.localeCompare(b.label);
 }, "sorter");
 const capabilityContextKeys = /* @__PURE__ */ __name((capabilities) => [
-  [
-    TestingContextKeys.hasRunnableTests.key,
-    (capabilities & TestRunProfileBitset.Run) !== 0
-  ],
-  [
-    TestingContextKeys.hasDebuggableTests.key,
-    (capabilities & TestRunProfileBitset.Debug) !== 0
-  ],
-  [
-    TestingContextKeys.hasCoverableTests.key,
-    (capabilities & TestRunProfileBitset.Coverage) !== 0
-  ]
+  [TestingContextKeys.hasRunnableTests.key, (capabilities & TestRunProfileBitset.Run) !== 0],
+  [TestingContextKeys.hasDebuggableTests.key, (capabilities & TestRunProfileBitset.Debug) !== 0],
+  [TestingContextKeys.hasCoverableTests.key, (capabilities & TestRunProfileBitset.Coverage) !== 0]
 ], "capabilityContextKeys");
 let TestProfileService = class extends Disposable {
   static {
@@ -64,33 +47,19 @@ let TestProfileService = class extends Disposable {
   onDidChange = this.changeEmitter.event;
   constructor(contextKeyService, storageService) {
     super();
-    storageService.remove(
-      "testingPreferredProfiles",
-      StorageScope.WORKSPACE
-    );
-    this.userDefaults = this._register(
-      new StoredValue(
-        {
-          key: "testingPreferredProfiles2",
-          scope: StorageScope.WORKSPACE,
-          target: StorageTarget.MACHINE
-        },
-        storageService
-      )
-    );
+    storageService.remove("testingPreferredProfiles", StorageScope.WORKSPACE);
+    this.userDefaults = this._register(new StoredValue({
+      key: "testingPreferredProfiles2",
+      scope: StorageScope.WORKSPACE,
+      target: StorageTarget.MACHINE
+    }, storageService));
     this.capabilitiesContexts = {
       [TestRunProfileBitset.Run]: TestingContextKeys.hasRunnableTests.bindTo(contextKeyService),
       [TestRunProfileBitset.Debug]: TestingContextKeys.hasDebuggableTests.bindTo(contextKeyService),
       [TestRunProfileBitset.Coverage]: TestingContextKeys.hasCoverableTests.bindTo(contextKeyService),
-      [TestRunProfileBitset.HasNonDefaultProfile]: TestingContextKeys.hasNonDefaultProfile.bindTo(
-        contextKeyService
-      ),
-      [TestRunProfileBitset.HasConfigurable]: TestingContextKeys.hasConfigurableProfile.bindTo(
-        contextKeyService
-      ),
-      [TestRunProfileBitset.SupportsContinuousRun]: TestingContextKeys.supportsContinuousRun.bindTo(
-        contextKeyService
-      )
+      [TestRunProfileBitset.HasNonDefaultProfile]: TestingContextKeys.hasNonDefaultProfile.bindTo(contextKeyService),
+      [TestRunProfileBitset.HasConfigurable]: TestingContextKeys.hasConfigurableProfile.bindTo(contextKeyService),
+      [TestRunProfileBitset.SupportsContinuousRun]: TestingContextKeys.supportsContinuousRun.bindTo(contextKeyService)
     };
     this.refreshContextKeys();
   }
@@ -122,9 +91,7 @@ let TestProfileService = class extends Disposable {
     if (!ctrl) {
       return;
     }
-    const profile = ctrl.profiles.find(
-      (c) => c.controllerId === controllerId && c.profileId === profileId
-    );
+    const profile = ctrl.profiles.find((c) => c.controllerId === controllerId && c.profileId === profileId);
     if (!profile) {
       return;
     }
@@ -184,15 +151,8 @@ let TestProfileService = class extends Disposable {
   }
   /** @inheritdoc */
   getGroupDefaultProfiles(group, controllerId) {
-    const allProfiles = controllerId ? this.controllerProfiles.get(controllerId)?.profiles || [] : [
-      ...Iterable.flatMap(
-        this.controllerProfiles.values(),
-        (c) => c.profiles
-      )
-    ];
-    const defaults = allProfiles.filter(
-      (c) => c.group === group && c.isDefault
-    );
+    const allProfiles = controllerId ? this.controllerProfiles.get(controllerId)?.profiles || [] : [...Iterable.flatMap(this.controllerProfiles.values(), (c) => c.profiles)];
+    const defaults = allProfiles.filter((c) => c.group === group && c.isDefault);
     if (defaults.length === 0) {
       const first = allProfiles.find((p) => p.group === group);
       if (first) {
@@ -210,19 +170,13 @@ let TestProfileService = class extends Disposable {
         if (profile.group !== group) {
           continue;
         }
-        setIsDefault(
-          next,
-          profile,
-          profiles.some((p) => p.profileId === profile.profileId)
-        );
+        setIsDefault(next, profile, profiles.some((p) => p.profileId === profile.profileId));
       }
       for (const profile of ctrl.profiles) {
         if (profile.group === group) {
           continue;
         }
-        const matching = ctrl.profiles.find(
-          (p) => p.group === group && p.label === profile.label
-        );
+        const matching = ctrl.profiles.find((p) => p.group === group && p.label === profile.label);
         if (matching) {
           setIsDefault(next, profile, matching.isDefault);
         }
@@ -241,9 +195,7 @@ let TestProfileService = class extends Disposable {
       }
     }
     for (const group of testRunProfileBitsetList) {
-      this.capabilitiesContexts[group].set(
-        (allCapabilities & group) !== 0
-      );
+      this.capabilitiesContexts[group].set((allCapabilities & group) !== 0);
     }
   }
 };

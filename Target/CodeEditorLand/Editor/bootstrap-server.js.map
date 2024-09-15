@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Dependency/CodeEditorLand/Editor/Source/bootstrap-server.js"],
-  "sourcesContent": ["// Keep bootstrap-amd.js from redefining 'fs'.\ndelete process.env[\"ELECTRON_RUN_AS_NODE\"];\n"],
-  "mappings": "AACA,OAAO,QAAQ,IAAI,sBAAsB;",
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n//@ts-check\n'use strict';\n\n// Keep bootstrap-amd.js from redefining 'fs'.\ndelete process.env['ELECTRON_RUN_AS_NODE'];\n"],
+  "mappings": "AASA,OAAO,QAAQ,IAAI,sBAAsB;",
   "names": []
 }

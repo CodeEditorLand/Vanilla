@@ -10,33 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { matchesFuzzy } from "../../../../base/common/filters.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { localize } from "../../../../nls.js";
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalInstance, ITerminalService } from "./terminal.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  PickerQuickAccessProvider,
-  TriggerAction
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
-import { TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { TerminalCommandId } from "../common/terminal.js";
-import { terminalStrings } from "../common/terminalStrings.js";
-import {
-  ITerminalEditorService,
-  ITerminalGroupService,
-  ITerminalService
-} from "./terminal.js";
-import { getColorClass, getIconId, getUriClasses } from "./terminalIcon.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { killTerminalIcon, renameTerminalIcon } from "./terminalIcons.js";
+import { getColorClass, getIconId, getUriClasses } from "./terminalIcon.js";
+import { terminalStrings } from "../common/terminalStrings.js";
+import { TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 let terminalPicks = [];
 let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(_editorService, _terminalService, _terminalEditorService, _terminalGroupService, _commandService, _themeService, _instantiationService) {
-    super(TerminalQuickAccessProvider.PREFIX, {
-      canAcceptInBackground: true
-    });
+    super(TerminalQuickAccessProvider.PREFIX, { canAcceptInBackground: true });
     this._editorService = _editorService;
     this._terminalService = _terminalService;
     this._terminalEditorService = _terminalEditorService;
@@ -57,10 +49,7 @@ let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
       const terminalGroup = terminalGroups[groupIndex];
       for (let terminalIndex = 0; terminalIndex < terminalGroup.terminalInstances.length; terminalIndex++) {
         const terminal = terminalGroup.terminalInstances[terminalIndex];
-        const pick = this._createPick(terminal, terminalIndex, filter, {
-          groupIndex,
-          groupSize: terminalGroup.terminalInstances.length
-        });
+        const pick = this._createPick(terminal, terminalIndex, filter, { groupIndex, groupSize: terminalGroup.terminalInstances.length });
         if (pick) {
           terminalPicks.push(pick);
         }
@@ -81,33 +70,22 @@ let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
     if (terminalPicks.length > 0) {
       terminalPicks.push({ type: "separator" });
     }
-    const createTerminalLabel = localize(
-      "workbench.action.terminal.newplus",
-      "Create New Terminal"
-    );
+    const createTerminalLabel = localize("workbench.action.terminal.newplus", "Create New Terminal");
     terminalPicks.push({
       label: `$(plus) ${createTerminalLabel}`,
       ariaLabel: createTerminalLabel,
       accept: /* @__PURE__ */ __name(() => this._commandService.executeCommand(TerminalCommandId.New), "accept")
     });
-    const createWithProfileLabel = localize(
-      "workbench.action.terminal.newWithProfilePlus",
-      "Create New Terminal With Profile..."
-    );
+    const createWithProfileLabel = localize("workbench.action.terminal.newWithProfilePlus", "Create New Terminal With Profile...");
     terminalPicks.push({
       label: `$(plus) ${createWithProfileLabel}`,
       ariaLabel: createWithProfileLabel,
-      accept: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
-        TerminalCommandId.NewWithProfile
-      ), "accept")
+      accept: /* @__PURE__ */ __name(() => this._commandService.executeCommand(TerminalCommandId.NewWithProfile), "accept")
     });
     return terminalPicks;
   }
   _createPick(terminal, terminalIndex, filter, groupInfo) {
-    const iconId = this._instantiationService.invokeFunction(
-      getIconId,
-      terminal
-    );
+    const iconId = this._instantiationService.invokeFunction(getIconId, terminal);
     const index = groupInfo ? groupInfo.groupSize > 1 ? `${groupInfo.groupIndex + 1}.${terminalIndex + 1}` : `${groupInfo.groupIndex + 1}` : `${terminalIndex + 1}`;
     const label = `$(${iconId}) ${index}: ${terminal.title}`;
     const iconClasses = [];
@@ -115,10 +93,7 @@ let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
     if (colorClass) {
       iconClasses.push(colorClass);
     }
-    const uriClasses = getUriClasses(
-      terminal,
-      this._themeService.getColorTheme().type
-    );
+    const uriClasses = getUriClasses(terminal, this._themeService.getColorTheme().type);
     if (uriClasses) {
       iconClasses.push(...uriClasses);
     }
@@ -142,10 +117,7 @@ let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
         trigger: /* @__PURE__ */ __name((buttonIndex) => {
           switch (buttonIndex) {
             case 0:
-              this._commandService.executeCommand(
-                TerminalCommandId.Rename,
-                terminal
-              );
+              this._commandService.executeCommand(TerminalCommandId.Rename, terminal);
               return TriggerAction.NO_ACTION;
             case 1:
               this._terminalService.safeDisposeTerminal(terminal);
@@ -155,17 +127,11 @@ let TerminalQuickAccessProvider = class extends PickerQuickAccessProvider {
         }, "trigger"),
         accept: /* @__PURE__ */ __name((keyMod, event) => {
           if (terminal.target === TerminalLocation.Editor) {
-            const existingEditors = this._editorService.findEditors(
-              terminal.resource
-            );
-            this._terminalEditorService.openEditor(terminal, {
-              viewColumn: existingEditors?.[0].groupId
-            });
+            const existingEditors = this._editorService.findEditors(terminal.resource);
+            this._terminalEditorService.openEditor(terminal, { viewColumn: existingEditors?.[0].groupId });
             this._terminalEditorService.setActiveInstance(terminal);
           } else {
-            this._terminalGroupService.showPanel(
-              !event.inBackground
-            );
+            this._terminalGroupService.showPanel(!event.inBackground);
             this._terminalGroupService.setActiveInstance(terminal);
           }
         }, "accept")

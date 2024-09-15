@@ -10,19 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  ITunnelService,
-  TunnelPrivacyId,
-  TunnelProtocol
-} from "../../../../platform/tunnel/common/tunnel.js";
+import { ITunnelService, TunnelOptions, RemoteTunnel, TunnelCreationOptions, ITunnel, TunnelProtocol, TunnelPrivacyId } from "../../../../platform/tunnel/common/tunnel.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IRemoteExplorerService } from "../../../services/remote/common/remoteExplorerService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { forwardedPortsViewEnabled } from "../../../services/remote/common/tunnelModel.js";
 let TunnelFactoryContribution = class extends Disposable {
   constructor(tunnelService, environmentService, openerService, remoteExplorerService, logService, contextKeyService) {
@@ -46,54 +43,43 @@ let TunnelFactoryContribution = class extends Disposable {
           }
         ];
       }
-      this._register(
-        tunnelService.setTunnelProvider({
-          forwardPort: /* @__PURE__ */ __name(async (tunnelOptions, tunnelCreationOptions) => {
-            let tunnelPromise;
-            try {
-              tunnelPromise = tunnelFactory(
-                tunnelOptions,
-                tunnelCreationOptions
-              );
-            } catch (e) {
-              logService.trace(
-                "tunnelFactory: tunnel provider error"
-              );
+      this._register(tunnelService.setTunnelProvider({
+        forwardPort: /* @__PURE__ */ __name(async (tunnelOptions, tunnelCreationOptions) => {
+          let tunnelPromise;
+          try {
+            tunnelPromise = tunnelFactory(tunnelOptions, tunnelCreationOptions);
+          } catch (e) {
+            logService.trace("tunnelFactory: tunnel provider error");
+          }
+          if (!tunnelPromise) {
+            return void 0;
+          }
+          let tunnel;
+          try {
+            tunnel = await tunnelPromise;
+          } catch (e) {
+            logService.trace("tunnelFactory: tunnel provider promise error");
+            if (e instanceof Error) {
+              return e.message;
             }
-            if (!tunnelPromise) {
-              return void 0;
-            }
-            let tunnel;
-            try {
-              tunnel = await tunnelPromise;
-            } catch (e) {
-              logService.trace(
-                "tunnelFactory: tunnel provider promise error"
-              );
-              if (e instanceof Error) {
-                return e.message;
-              }
-              return void 0;
-            }
-            const localAddress = tunnel.localAddress.startsWith(
-              "http"
-            ) ? tunnel.localAddress : `http://${tunnel.localAddress}`;
-            const remoteTunnel = {
-              tunnelRemotePort: tunnel.remoteAddress.port,
-              tunnelRemoteHost: tunnel.remoteAddress.host,
-              // The tunnel factory may give us an inaccessible local address.
-              // To make sure this doesn't happen, resolve the uri immediately.
-              localAddress: await this.resolveExternalUri(localAddress),
-              privacy: tunnel.privacy ?? (tunnel.public ? TunnelPrivacyId.Public : TunnelPrivacyId.Private),
-              protocol: tunnel.protocol ?? TunnelProtocol.Http,
-              dispose: /* @__PURE__ */ __name(async () => {
-                await tunnel.dispose();
-              }, "dispose")
-            };
-            return remoteTunnel;
-          }, "forwardPort")
-        })
-      );
+            return void 0;
+          }
+          const localAddress = tunnel.localAddress.startsWith("http") ? tunnel.localAddress : `http://${tunnel.localAddress}`;
+          const remoteTunnel = {
+            tunnelRemotePort: tunnel.remoteAddress.port,
+            tunnelRemoteHost: tunnel.remoteAddress.host,
+            // The tunnel factory may give us an inaccessible local address.
+            // To make sure this doesn't happen, resolve the uri immediately.
+            localAddress: await this.resolveExternalUri(localAddress),
+            privacy: tunnel.privacy ?? (tunnel.public ? TunnelPrivacyId.Public : TunnelPrivacyId.Private),
+            protocol: tunnel.protocol ?? TunnelProtocol.Http,
+            dispose: /* @__PURE__ */ __name(async () => {
+              await tunnel.dispose();
+            }, "dispose")
+          };
+          return remoteTunnel;
+        }, "forwardPort")
+      }));
       const tunnelInformation = environmentService.options?.tunnelProvider?.features ? {
         features: {
           elevation: !!environmentService.options?.tunnelProvider?.features?.elevation,

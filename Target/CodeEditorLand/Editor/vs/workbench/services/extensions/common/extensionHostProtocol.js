@@ -1,6 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../../base/common/buffer.js";
+import { URI, UriComponents, UriDto } from "../../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { ILoggerResource, LogLevel } from "../../../../platform/log/common/log.js";
+import { IRemoteConnectionData } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 var UIKind = /* @__PURE__ */ ((UIKind2) => {
   UIKind2[UIKind2["Desktop"] = 1] = "Desktop";
   UIKind2[UIKind2["Web"] = 2] = "Web";

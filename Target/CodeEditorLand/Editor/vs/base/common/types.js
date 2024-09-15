@@ -43,9 +43,7 @@ function isUndefinedOrNull(obj) {
 __name(isUndefinedOrNull, "isUndefinedOrNull");
 function assertType(condition, type) {
   if (!condition) {
-    throw new Error(
-      type ? `Unexpected type, expected '${type}'` : "Unexpected type"
-    );
+    throw new Error(type ? `Unexpected type, expected '${type}'` : "Unexpected type");
   }
 }
 __name(assertType, "assertType");
@@ -61,9 +59,7 @@ function assertAllDefined(...args) {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (isUndefinedOrNull(arg)) {
-      throw new Error(
-        `Assertion Failed: argument at index ${i} is undefined or null`
-      );
+      throw new Error(`Assertion Failed: argument at index ${i} is undefined or null`);
     }
     result.push(arg);
   }
@@ -101,9 +97,7 @@ __name(validateConstraints, "validateConstraints");
 function validateConstraint(arg, constraint) {
   if (isString(constraint)) {
     if (typeof arg !== constraint) {
-      throw new Error(
-        `argument does not match constraint: typeof ${constraint}`
-      );
+      throw new Error(`argument does not match constraint: typeof ${constraint}`);
     }
   } else if (isFunction(constraint)) {
     try {
@@ -118,9 +112,7 @@ function validateConstraint(arg, constraint) {
     if (constraint.length === 1 && constraint.call(void 0, arg) === true) {
       return;
     }
-    throw new Error(
-      `argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true`
-    );
+    throw new Error(`argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true`);
   }
 }
 __name(validateConstraint, "validateConstraint");

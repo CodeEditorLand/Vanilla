@@ -3,16 +3,14 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { assertNever } from "../../../../base/common/assert.js";
 import { clamp } from "../../../../base/common/numbers.js";
 import { localize } from "../../../../nls.js";
-import {
-  chartsGreen,
-  chartsRed,
-  chartsYellow
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { chartsGreen, chartsRed, chartsYellow } from "../../../../platform/theme/common/colorRegistry.js";
 import { asCssVariableName } from "../../../../platform/theme/common/colorUtils.js";
-import {
-  TestingDisplayedCoveragePercent
-} from "../common/configuration.js";
+import { CoverageBarSource } from "./testCoverageBars.js";
+import { ITestingCoverageBarThresholds, TestingDisplayedCoveragePercent } from "../common/configuration.js";
 import { getTotalCoveragePercent } from "../common/testCoverage.js";
+import { TestId } from "../common/testId.js";
+import { LiveTestResult } from "../common/testResult.js";
+import { ICoverageCount } from "../common/testTypes.js";
 const percent = /* @__PURE__ */ __name((cc) => clamp(cc.total === 0 ? 1 : cc.covered / cc.total, 0, 1), "percent");
 const colorThresholds = [
   { color: `var(${asCssVariableName(chartsRed)})`, key: "red" },
@@ -54,11 +52,7 @@ const calculateDisplayedStat = /* @__PURE__ */ __name((coverage, method) => {
       return value;
     }
     case TestingDisplayedCoveragePercent.TotalCoverage:
-      return getTotalCoveragePercent(
-        coverage.statement,
-        coverage.branch,
-        coverage.declaration
-      );
+      return getTotalCoveragePercent(coverage.statement, coverage.branch, coverage.declaration);
     default:
       assertNever(method);
   }
@@ -78,20 +72,10 @@ __name(getLabelForItem, "getLabelForItem");
 var labels;
 ((labels2) => {
   labels2.showingFilterFor = /* @__PURE__ */ __name((label) => localize("testing.coverageForTest", 'Showing "{0}"', label), "showingFilterFor");
-  labels2.clickToChangeFiltering = localize(
-    "changePerTestFilter",
-    "Click to view coverage for a single test"
-  );
-  labels2.percentCoverage = /* @__PURE__ */ __name((percent2, precision) => localize(
-    "testing.percentCoverage",
-    "{0} Coverage",
-    displayPercent(percent2, precision)
-  ), "percentCoverage");
+  labels2.clickToChangeFiltering = localize("changePerTestFilter", "Click to view coverage for a single test");
+  labels2.percentCoverage = /* @__PURE__ */ __name((percent2, precision) => localize("testing.percentCoverage", "{0} Coverage", displayPercent(percent2, precision)), "percentCoverage");
   labels2.allTests = localize("testing.allTests", "All tests");
-  labels2.pickShowCoverage = localize(
-    "testing.pickTest",
-    "Pick a test to show coverage for"
-  );
+  labels2.pickShowCoverage = localize("testing.pickTest", "Pick a test to show coverage for");
 })(labels || (labels = {}));
 export {
   calculateDisplayedStat,

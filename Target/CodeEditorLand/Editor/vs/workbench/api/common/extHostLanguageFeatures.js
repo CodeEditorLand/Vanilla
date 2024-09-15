@@ -1,61 +1,38 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  asArray,
-  coalesce,
-  isFalsyOrEmpty,
-  isNonEmptyArray
-} from "../../../base/common/arrays.js";
+import { asArray, coalesce, isFalsyOrEmpty, isNonEmptyArray } from "../../../base/common/arrays.js";
 import { raceCancellationError } from "../../../base/common/async.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import {
-  NotImplementedError,
-  isCancellationError
-} from "../../../base/common/errors.js";
+import { NotImplementedError, isCancellationError } from "../../../base/common/errors.js";
 import { IdGenerator } from "../../../base/common/idGenerator.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { equals, mixin } from "../../../base/common/objects.js";
 import { StopWatch } from "../../../base/common/stopwatch.js";
 import { regExpLeadsToEndlessLoop } from "../../../base/common/strings.js";
 import { assertType, isObject } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  Range as EditorRange
-} from "../../../editor/common/core/range.js";
-import {
-  Selection
-} from "../../../editor/common/core/selection.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import { Range as EditorRange, IRange } from "../../../editor/common/core/range.js";
+import { ISelection, Selection } from "../../../editor/common/core/selection.js";
 import * as languages from "../../../editor/common/languages.js";
+import { IAutoClosingPairConditional } from "../../../editor/common/languages/languageConfiguration.js";
 import { encodeSemanticTokensDto } from "../../../editor/common/services/semanticTokensDto.js";
 import { localize } from "../../../nls.js";
-import {
-  ExtensionIdentifier
-} from "../../../platform/extensions/common/extensions.js";
-import {
-  checkProposedApiEnabled,
-  isProposedApiEnabled
-} from "../../services/extensions/common/extensions.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
+import { CommandsConverter, ExtHostCommands } from "./extHostCommands.js";
+import { ExtHostDiagnostics } from "./extHostDiagnostics.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
+import { ExtHostTelemetry, IExtHostTelemetry } from "./extHostTelemetry.js";
+import * as typeConvert from "./extHostTypeConverters.js";
+import { CodeActionKind, CompletionList, Disposable, DocumentDropOrPasteEditKind, DocumentSymbol, InlineCompletionTriggerKind, InlineEditTriggerKind, InternalDataTransferItem, Location, NewSymbolNameTriggerKind, Range, SemanticTokens, SemanticTokensEdit, SemanticTokensEdits, SnippetString, SymbolInformation, SyntaxTokenType } from "./extHostTypes.js";
+import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 import { Cache } from "./cache.js";
 import * as extHostProtocol from "./extHost.protocol.js";
-import * as typeConvert from "./extHostTypeConverters.js";
-import {
-  CodeActionKind,
-  CompletionList,
-  Disposable,
-  DocumentDropOrPasteEditKind,
-  DocumentSymbol,
-  InlineCompletionTriggerKind,
-  InlineEditTriggerKind,
-  InternalDataTransferItem,
-  Location,
-  NewSymbolNameTriggerKind,
-  Range,
-  SemanticTokens,
-  SemanticTokensEdit,
-  SemanticTokensEdits,
-  SnippetString,
-  SyntaxTokenType
-} from "./extHostTypes.js";
 class DocumentSymbolAdapter {
   constructor(_documents, _provider) {
     this._documents = _documents;
@@ -70,13 +47,9 @@ class DocumentSymbolAdapter {
     if (isFalsyOrEmpty(value)) {
       return void 0;
     } else if (value[0] instanceof DocumentSymbol) {
-      return value.map(
-        typeConvert.DocumentSymbol.from
-      );
+      return value.map(typeConvert.DocumentSymbol.from);
     } else {
-      return DocumentSymbolAdapter._asDocumentSymbolTree(
-        value
-      );
+      return DocumentSymbolAdapter._asDocumentSymbolTree(value);
     }
   }
   static _asDocumentSymbolTree(infos) {
@@ -149,10 +122,7 @@ class CodeLensAdapter {
       result.lenses.push({
         cacheId: [cacheId, i],
         range: typeConvert.Range.from(lenses[i].range),
-        command: this._commands.toInternal(
-          lenses[i].command,
-          disposables
-        )
+        command: this._commands.toInternal(lenses[i].command, disposables)
       });
     }
     return result;
@@ -179,20 +149,12 @@ class CodeLensAdapter {
       return void 0;
     }
     if (!resolvedLens.command) {
-      const error = new Error(
-        "INVALID code lens resolved, lacks command: " + this._extension.identifier.value
-      );
-      this._extTelemetry.onExtensionError(
-        this._extension.identifier,
-        error
-      );
+      const error = new Error("INVALID code lens resolved, lacks command: " + this._extension.identifier.value);
+      this._extTelemetry.onExtensionError(this._extension.identifier, error);
       this._logService.error(error);
       return void 0;
     }
-    symbol.command = this._commands.toInternal(
-      resolvedLens.command,
-      disposables
-    );
+    symbol.command = this._commands.toInternal(resolvedLens.command, disposables);
     return symbol;
   }
   releaseCodeLenses(cachedId) {
@@ -251,11 +213,7 @@ class ImplementationAdapter {
   async provideImplementation(resource, position, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideImplementation(
-      doc,
-      pos,
-      token
-    );
+    const value = await this._provider.provideImplementation(doc, pos, token);
     return convertToLocationLinks(value);
   }
 }
@@ -270,11 +228,7 @@ class TypeDefinitionAdapter {
   async provideTypeDefinition(resource, position, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideTypeDefinition(
-      doc,
-      pos,
-      token
-    );
+    const value = await this._provider.provideTypeDefinition(doc, pos, token);
     return convertToLocationLinks(value);
   }
 }
@@ -299,16 +253,8 @@ class HoverAdapter {
       if (!previousHover) {
         throw new Error(`Hover with id ${previousHoverId} not found`);
       }
-      const hoverContext = {
-        verbosityDelta: context.verbosityRequest.verbosityDelta,
-        previousHover
-      };
-      value = await this._provider.provideHover(
-        doc,
-        pos,
-        token,
-        hoverContext
-      );
+      const hoverContext = { verbosityDelta: context.verbosityRequest.verbosityDelta, previousHover };
+      value = await this._provider.provideHover(doc, pos, token, hoverContext);
     } else {
       value = await this._provider.provideHover(doc, pos, token);
     }
@@ -350,11 +296,7 @@ class EvaluatableExpressionAdapter {
   async provideEvaluatableExpression(resource, position, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideEvaluatableExpression(
-      doc,
-      pos,
-      token
-    );
+    const value = await this._provider.provideEvaluatableExpression(doc, pos, token);
     if (value) {
       return typeConvert.EvaluatableExpression.from(value);
     }
@@ -371,12 +313,7 @@ class InlineValuesAdapter {
   }
   async provideInlineValues(resource, viewPort, context, token) {
     const doc = this._documents.getDocument(resource);
-    const value = await this._provider.provideInlineValues(
-      doc,
-      typeConvert.Range.to(viewPort),
-      typeConvert.InlineValueContext.to(context),
-      token
-    );
+    const value = await this._provider.provideInlineValues(doc, typeConvert.Range.to(viewPort), typeConvert.InlineValueContext.to(context), token);
     if (Array.isArray(value)) {
       return value.map((iv) => typeConvert.InlineValue.from(iv));
     }
@@ -394,11 +331,7 @@ class DocumentHighlightAdapter {
   async provideDocumentHighlights(resource, position, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideDocumentHighlights(
-      doc,
-      pos,
-      token
-    );
+    const value = await this._provider.provideDocumentHighlights(doc, pos, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.DocumentHighlight.from);
     }
@@ -415,16 +348,9 @@ class MultiDocumentHighlightAdapter {
   }
   async provideMultiDocumentHighlights(resource, position, otherResources, token) {
     const doc = this._documents.getDocument(resource);
-    const otherDocuments = otherResources.map(
-      (r) => this._documents.getDocument(r)
-    );
+    const otherDocuments = otherResources.map((r) => this._documents.getDocument(r));
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideMultiDocumentHighlights(
-      doc,
-      pos,
-      otherDocuments,
-      token
-    );
+    const value = await this._provider.provideMultiDocumentHighlights(doc, pos, otherDocuments, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.MultiDocumentHighlight.from);
     }
@@ -442,11 +368,7 @@ class LinkedEditingRangeAdapter {
   async provideLinkedEditingRanges(resource, position, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideLinkedEditingRanges(
-      doc,
-      pos,
-      token
-    );
+    const value = await this._provider.provideLinkedEditingRanges(doc, pos, token);
     if (value && Array.isArray(value.ranges)) {
       return {
         ranges: coalesce(value.ranges.map(typeConvert.Range.from)),
@@ -467,12 +389,7 @@ class ReferenceAdapter {
   async provideReferences(resource, position, context, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideReferences(
-      doc,
-      pos,
-      context,
-      token
-    );
+    const value = await this._provider.provideReferences(doc, pos, context, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.location.from);
     }
@@ -493,9 +410,7 @@ class CodeActionAdapter {
     __name(this, "CodeActionAdapter");
   }
   static _maxCodeActionsPerFile = 1e3;
-  _cache = new Cache(
-    "CodeAction"
-  );
+  _cache = new Cache("CodeAction");
   _disposables = /* @__PURE__ */ new Map();
   async provideCodeActions(resource, rangeOrSelection, context, token) {
     const doc = this._documents.getDocument(resource);
@@ -514,12 +429,7 @@ class CodeActionAdapter {
       only: context.only ? new CodeActionKind(context.only) : void 0,
       triggerKind: typeConvert.CodeActionTriggerKind.to(context.trigger)
     };
-    const commandsOrActions = await this._provider.provideCodeActions(
-      doc,
-      ran,
-      codeActionContext,
-      token
-    );
+    const commandsOrActions = await this._provider.provideCodeActions(doc, ran, codeActionContext, token);
     if (!isNonEmptyArray(commandsOrActions) || token.isCancellationRequested) {
       return void 0;
     }
@@ -546,35 +456,22 @@ class CodeActionAdapter {
       } else {
         if (codeActionContext.only) {
           if (!candidate.kind) {
-            this._logService.warn(
-              `${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action does not have a 'kind'. Code action will be dropped. Please set 'CodeAction.kind'.`
-            );
+            this._logService.warn(`${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action does not have a 'kind'. Code action will be dropped. Please set 'CodeAction.kind'.`);
           } else if (!codeActionContext.only.contains(candidate.kind)) {
-            this._logService.warn(
-              `${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action is of kind '${candidate.kind.value}'. Code action will be dropped. Please check 'CodeActionContext.only' to only return requested code actions.`
-            );
+            this._logService.warn(`${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action is of kind '${candidate.kind.value}'. Code action will be dropped. Please check 'CodeActionContext.only' to only return requested code actions.`);
           }
         }
         const range = candidate.ranges ?? [];
         actions.push({
           cacheId: [cacheId, i],
           title: candidate.title,
-          command: candidate.command && this._commands.toInternal(
-            candidate.command,
-            disposables
-          ),
+          command: candidate.command && this._commands.toInternal(candidate.command, disposables),
           diagnostics: candidate.diagnostics && candidate.diagnostics.map(typeConvert.Diagnostic.from),
-          edit: candidate.edit && typeConvert.WorkspaceEdit.from(
-            candidate.edit,
-            void 0
-          ),
+          edit: candidate.edit && typeConvert.WorkspaceEdit.from(candidate.edit, void 0),
           kind: candidate.kind && candidate.kind.value,
           isPreferred: candidate.isPreferred,
           isAI: isProposedApiEnabled(this._extension, "codeActionAI") ? candidate.isAI : false,
-          ranges: isProposedApiEnabled(
-            this._extension,
-            "codeActionRanges"
-          ) ? coalesce(range.map(typeConvert.Range.from)) : void 0,
+          ranges: isProposedApiEnabled(this._extension, "codeActionRanges") ? coalesce(range.map(typeConvert.Range.from)) : void 0,
           disabled: candidate.disabled?.reason
         });
       }
@@ -593,19 +490,13 @@ class CodeActionAdapter {
     const resolvedItem = await this._provider.resolveCodeAction(item, token) ?? item;
     let resolvedEdit;
     if (resolvedItem.edit) {
-      resolvedEdit = typeConvert.WorkspaceEdit.from(
-        resolvedItem.edit,
-        void 0
-      );
+      resolvedEdit = typeConvert.WorkspaceEdit.from(resolvedItem.edit, void 0);
     }
     let resolvedCommand;
     if (resolvedItem.command) {
       const disposables = this._disposables.get(sessionId);
       if (disposables) {
-        resolvedCommand = this._commands.toInternal(
-          resolvedItem.command,
-          disposables
-        );
+        resolvedCommand = this._commands.toInternal(resolvedItem.command, disposables);
       }
     }
     return { edit: resolvedEdit, command: resolvedCommand };
@@ -630,33 +521,21 @@ class DocumentPasteEditProvider {
   static {
     __name(this, "DocumentPasteEditProvider");
   }
-  _cache = new Cache(
-    "DocumentPasteEdit"
-  );
+  _cache = new Cache("DocumentPasteEdit");
   async prepareDocumentPaste(resource, ranges, dataTransferDto, token) {
     if (!this._provider.prepareDocumentPaste) {
       return;
     }
     const doc = this._documents.getDocument(resource);
     const vscodeRanges = ranges.map((range) => typeConvert.Range.to(range));
-    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(
-      dataTransferDto,
-      () => {
-        throw new NotImplementedError();
-      }
-    );
-    await this._provider.prepareDocumentPaste(
-      doc,
-      vscodeRanges,
-      dataTransfer,
-      token
-    );
+    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(dataTransferDto, () => {
+      throw new NotImplementedError();
+    });
+    await this._provider.prepareDocumentPaste(doc, vscodeRanges, dataTransfer, token);
     if (token.isCancellationRequested) {
       return;
     }
-    const entries = Array.from(dataTransfer).filter(
-      ([, value]) => !(value instanceof InternalDataTransferItem)
-    );
+    const entries = Array.from(dataTransfer).filter(([, value]) => !(value instanceof InternalDataTransferItem));
     return typeConvert.DataTransfer.from(entries);
   }
   async providePasteEdits(requestId, resource, ranges, dataTransferDto, context, token) {
@@ -665,47 +544,25 @@ class DocumentPasteEditProvider {
     }
     const doc = this._documents.getDocument(resource);
     const vscodeRanges = ranges.map((range) => typeConvert.Range.to(range));
-    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(
-      dataTransferDto,
-      async (id) => {
-        return (await this._proxy.$resolvePasteFileData(
-          this._handle,
-          requestId,
-          id
-        )).buffer;
-      }
-    );
-    const edits = await this._provider.provideDocumentPasteEdits(
-      doc,
-      vscodeRanges,
-      dataTransfer,
-      {
-        only: context.only ? new DocumentDropOrPasteEditKind(context.only) : void 0,
-        triggerKind: context.triggerKind
-      },
-      token
-    );
+    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(dataTransferDto, async (id) => {
+      return (await this._proxy.$resolvePasteFileData(this._handle, requestId, id)).buffer;
+    });
+    const edits = await this._provider.provideDocumentPasteEdits(doc, vscodeRanges, dataTransfer, {
+      only: context.only ? new DocumentDropOrPasteEditKind(context.only) : void 0,
+      triggerKind: context.triggerKind
+    }, token);
     if (!edits || token.isCancellationRequested) {
       return [];
     }
     const cacheId = this._cache.add(edits);
-    return edits.map(
-      (edit, i) => ({
-        _cacheId: [cacheId, i],
-        title: edit.title ?? localize(
-          "defaultPasteLabel",
-          "Paste using '{0}' extension",
-          this._extension.displayName || this._extension.name
-        ),
-        kind: edit.kind,
-        yieldTo: edit.yieldTo?.map((x) => x.value),
-        insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
-        additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(
-          edit.additionalEdit,
-          void 0
-        ) : void 0
-      })
-    );
+    return edits.map((edit, i) => ({
+      _cacheId: [cacheId, i],
+      title: edit.title ?? localize("defaultPasteLabel", "Paste using '{0}' extension", this._extension.displayName || this._extension.name),
+      kind: edit.kind,
+      yieldTo: edit.yieldTo?.map((x) => x.value),
+      insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
+      additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(edit.additionalEdit, void 0) : void 0
+    }));
   }
   async resolvePasteEdit(id, token) {
     const [sessionId, itemId] = id;
@@ -714,10 +571,7 @@ class DocumentPasteEditProvider {
       return {};
     }
     const resolvedItem = await this._provider.resolveDocumentPasteEdit(item, token) ?? item;
-    const additionalEdit = resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(
-      resolvedItem.additionalEdit,
-      void 0
-    ) : void 0;
+    const additionalEdit = resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(resolvedItem.additionalEdit, void 0) : void 0;
     return { additionalEdit };
   }
   releasePasteEdits(id) {
@@ -734,11 +588,7 @@ class DocumentFormattingAdapter {
   }
   async provideDocumentFormattingEdits(resource, options, token) {
     const document = this._documents.getDocument(resource);
-    const value = await this._provider.provideDocumentFormattingEdits(
-      document,
-      options,
-      token
-    );
+    const value = await this._provider.provideDocumentFormattingEdits(document, options, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.TextEdit.from);
     }
@@ -756,30 +606,17 @@ class RangeFormattingAdapter {
   async provideDocumentRangeFormattingEdits(resource, range, options, token) {
     const document = this._documents.getDocument(resource);
     const ran = typeConvert.Range.to(range);
-    const value = await this._provider.provideDocumentRangeFormattingEdits(
-      document,
-      ran,
-      options,
-      token
-    );
+    const value = await this._provider.provideDocumentRangeFormattingEdits(document, ran, options, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.TextEdit.from);
     }
     return void 0;
   }
   async provideDocumentRangesFormattingEdits(resource, ranges, options, token) {
-    assertType(
-      typeof this._provider.provideDocumentRangesFormattingEdits === "function",
-      "INVALID invocation of `provideDocumentRangesFormattingEdits`"
-    );
+    assertType(typeof this._provider.provideDocumentRangesFormattingEdits === "function", "INVALID invocation of `provideDocumentRangesFormattingEdits`");
     const document = this._documents.getDocument(resource);
     const _ranges = ranges.map(typeConvert.Range.to);
-    const value = await this._provider.provideDocumentRangesFormattingEdits(
-      document,
-      _ranges,
-      options,
-      token
-    );
+    const value = await this._provider.provideDocumentRangesFormattingEdits(document, _ranges, options, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.TextEdit.from);
     }
@@ -799,13 +636,7 @@ class OnTypeFormattingAdapter {
   async provideOnTypeFormattingEdits(resource, position, ch, options, token) {
     const document = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const value = await this._provider.provideOnTypeFormattingEdits(
-      document,
-      pos,
-      ch,
-      options,
-      token
-    );
+    const value = await this._provider.provideOnTypeFormattingEdits(document, pos, ch, options, token);
     if (Array.isArray(value)) {
       return value.map(typeConvert.TextEdit.from);
     }
@@ -820,14 +651,9 @@ class NavigateTypeAdapter {
   static {
     __name(this, "NavigateTypeAdapter");
   }
-  _cache = new Cache(
-    "WorkspaceSymbols"
-  );
+  _cache = new Cache("WorkspaceSymbols");
   async provideWorkspaceSymbols(search, token) {
-    const value = await this._provider.provideWorkspaceSymbols(
-      search,
-      token
-    );
+    const value = await this._provider.provideWorkspaceSymbols(search, token);
     if (!isNonEmptyArray(value)) {
       return { symbols: [] };
     }
@@ -858,10 +684,7 @@ class NavigateTypeAdapter {
     }
     const item = this._cache.get(...symbol.cacheId);
     if (item) {
-      const value = await this._provider.resolveWorkspaceSymbol(
-        item,
-        token
-      );
+      const value = await this._provider.resolveWorkspaceSymbol(item, token);
       return value && mixin(symbol, typeConvert.WorkspaceSymbol.from(value), true);
     }
     return void 0;
@@ -886,12 +709,7 @@ class RenameAdapter {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
     try {
-      const value = await this._provider.provideRenameEdits(
-        doc,
-        pos,
-        newName,
-        token
-      );
+      const value = await this._provider.provideRenameEdits(doc, pos, newName, token);
       if (!value) {
         return void 0;
       }
@@ -912,11 +730,7 @@ class RenameAdapter {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
     try {
-      const rangeOrLocation = await this._provider.prepareRename(
-        doc,
-        pos,
-        token
-      );
+      const rangeOrLocation = await this._provider.prepareRename(doc, pos, token);
       let range;
       let text;
       if (Range.isRange(rangeOrLocation)) {
@@ -930,9 +744,7 @@ class RenameAdapter {
         return void 0;
       }
       if (range.start.line > pos.line || range.end.line < pos.line) {
-        this._logService.warn(
-          "INVALID rename location: position line must be within range start/end lines"
-        );
+        this._logService.warn("INVALID rename location: position line must be within range start/end lines");
         return void 0;
       }
       return { range: typeConvert.Range.from(range), text };
@@ -976,12 +788,7 @@ class NewSymbolNamesAdapter {
     const pos = typeConvert.Range.to(range);
     try {
       const kind = NewSymbolNamesAdapter.languageTriggerKindToVSCodeTriggerKind[triggerKind];
-      const value = await this._provider.provideNewSymbolNames(
-        doc,
-        pos,
-        kind,
-        token
-      );
+      const value = await this._provider.provideNewSymbolNames(doc, pos, kind, token);
       if (!value) {
         return void 0;
       }
@@ -990,11 +797,8 @@ class NewSymbolNamesAdapter {
       );
     } catch (err) {
       this._logService.error(
-        NewSymbolNamesAdapter._asMessage(err) ?? JSON.stringify(
-          err,
-          null,
-          "	"
-        )
+        NewSymbolNamesAdapter._asMessage(err) ?? JSON.stringify(err, null, "	")
+        /* @ulugbekna: assuming `err` doesn't have circular references that could result in an exception when converting to JSON */
       );
       return void 0;
     }
@@ -1033,14 +837,7 @@ class DocumentSemanticTokensAdapter {
   async provideDocumentSemanticTokens(resource, previousResultId, token) {
     const doc = this._documents.getDocument(resource);
     const previousResult = previousResultId !== 0 ? this._previousResults.get(previousResultId) : null;
-    let value = typeof previousResult?.resultId === "string" && typeof this._provider.provideDocumentSemanticTokensEdits === "function" ? await this._provider.provideDocumentSemanticTokensEdits(
-      doc,
-      previousResult.resultId,
-      token
-    ) : await this._provider.provideDocumentSemanticTokens(
-      doc,
-      token
-    );
+    let value = typeof previousResult?.resultId === "string" && typeof this._provider.provideDocumentSemanticTokensEdits === "function" ? await this._provider.provideDocumentSemanticTokensEdits(doc, previousResult.resultId, token) : await this._provider.provideDocumentSemanticTokens(doc, token);
     if (previousResult) {
       this._previousResults.delete(previousResultId);
     }
@@ -1048,13 +845,7 @@ class DocumentSemanticTokensAdapter {
       return null;
     }
     value = DocumentSemanticTokensAdapter._fixProvidedSemanticTokens(value);
-    return this._send(
-      DocumentSemanticTokensAdapter._convertToEdits(
-        previousResult,
-        value
-      ),
-      value
-    );
+    return this._send(DocumentSemanticTokensAdapter._convertToEdits(previousResult, value), value);
   }
   async releaseDocumentSemanticColoring(semanticColoringResultId) {
     this._previousResults.delete(semanticColoringResultId);
@@ -1069,16 +860,7 @@ class DocumentSemanticTokensAdapter {
       if (DocumentSemanticTokensAdapter._isCorrectSemanticTokensEdits(v)) {
         return v;
       }
-      return new SemanticTokensEdits(
-        v.edits.map(
-          (edit) => new SemanticTokensEdit(
-            edit.start,
-            edit.deleteCount,
-            edit.data ? new Uint32Array(edit.data) : edit.data
-          )
-        ),
-        v.resultId
-      );
+      return new SemanticTokensEdits(v.edits.map((edit) => new SemanticTokensEdit(edit.start, edit.deleteCount, edit.data ? new Uint32Array(edit.data) : edit.data)), v.resultId);
     }
     return v;
   }
@@ -1123,27 +905,16 @@ class DocumentSemanticTokensAdapter {
     while (commonSuffixLength < maxCommonSuffixLength && oldData[oldLength - commonSuffixLength - 1] === newData[newLength - commonSuffixLength - 1]) {
       commonSuffixLength++;
     }
-    return new SemanticTokensEdits(
-      [
-        {
-          start: commonPrefixLength,
-          deleteCount: oldLength - commonPrefixLength - commonSuffixLength,
-          data: newData.subarray(
-            commonPrefixLength,
-            newLength - commonSuffixLength
-          )
-        }
-      ],
-      newResult.resultId
-    );
+    return new SemanticTokensEdits([{
+      start: commonPrefixLength,
+      deleteCount: oldLength - commonPrefixLength - commonSuffixLength,
+      data: newData.subarray(commonPrefixLength, newLength - commonSuffixLength)
+    }], newResult.resultId);
   }
   _send(value, original) {
     if (DocumentSemanticTokensAdapter._isSemanticTokens(value)) {
       const myId = this._nextResultId++;
-      this._previousResults.set(
-        myId,
-        new SemanticTokensPreviousResult(value.resultId, value.data)
-      );
+      this._previousResults.set(myId, new SemanticTokensPreviousResult(value.resultId, value.data));
       return encodeSemanticTokensDto({
         id: myId,
         type: "full",
@@ -1153,27 +924,14 @@ class DocumentSemanticTokensAdapter {
     if (DocumentSemanticTokensAdapter._isSemanticTokensEdits(value)) {
       const myId = this._nextResultId++;
       if (DocumentSemanticTokensAdapter._isSemanticTokens(original)) {
-        this._previousResults.set(
-          myId,
-          new SemanticTokensPreviousResult(
-            original.resultId,
-            original.data
-          )
-        );
+        this._previousResults.set(myId, new SemanticTokensPreviousResult(original.resultId, original.data));
       } else {
-        this._previousResults.set(
-          myId,
-          new SemanticTokensPreviousResult(value.resultId)
-        );
+        this._previousResults.set(myId, new SemanticTokensPreviousResult(value.resultId));
       }
       return encodeSemanticTokensDto({
         id: myId,
         type: "delta",
-        deltas: (value.edits || []).map((edit) => ({
-          start: edit.start,
-          deleteCount: edit.deleteCount,
-          data: edit.data
-        }))
+        deltas: (value.edits || []).map((edit) => ({ start: edit.start, deleteCount: edit.deleteCount, data: edit.data }))
       });
     }
     return null;
@@ -1189,11 +947,7 @@ class DocumentRangeSemanticTokensAdapter {
   }
   async provideDocumentRangeSemanticTokens(resource, range, token) {
     const doc = this._documents.getDocument(resource);
-    const value = await this._provider.provideDocumentRangeSemanticTokens(
-      doc,
-      typeConvert.Range.to(range),
-      token
-    );
+    const value = await this._provider.provideDocumentRangeSemanticTokens(doc, typeConvert.Range.to(range), token);
     if (!value) {
       return null;
     }
@@ -1229,12 +983,7 @@ class CompletionsAdapter {
     const replaceRange = doc.getWordRangeAtPosition(pos) || new Range(pos, pos);
     const insertRange = replaceRange.with({ end: pos });
     const sw = new StopWatch();
-    const itemsOrList = await this._provider.provideCompletionItems(
-      doc,
-      pos,
-      token,
-      typeConvert.CompletionContext.to(context)
-    );
+    const itemsOrList = await this._provider.provideCompletionItems(doc, pos, token, typeConvert.CompletionContext.to(context));
     if (!itemsOrList) {
       return void 0;
     }
@@ -1249,21 +998,13 @@ class CompletionsAdapter {
     const result = {
       x: pid,
       [extHostProtocol.ISuggestResultDtoField.completions]: completions,
-      [extHostProtocol.ISuggestResultDtoField.defaultRanges]: {
-        replace: typeConvert.Range.from(replaceRange),
-        insert: typeConvert.Range.from(insertRange)
-      },
+      [extHostProtocol.ISuggestResultDtoField.defaultRanges]: { replace: typeConvert.Range.from(replaceRange), insert: typeConvert.Range.from(insertRange) },
       [extHostProtocol.ISuggestResultDtoField.isIncomplete]: list.isIncomplete || void 0,
       [extHostProtocol.ISuggestResultDtoField.duration]: sw.elapsed()
     };
     for (let i = 0; i < list.items.length; i++) {
       const item = list.items[i];
-      const dto = this._convertCompletionItem(
-        item,
-        [pid, i],
-        insertRange,
-        replaceRange
-      );
+      const dto = this._convertCompletionItem(item, [pid, i], insertRange, replaceRange);
       completions.push(dto);
     }
     return result;
@@ -1277,30 +1018,16 @@ class CompletionsAdapter {
       return void 0;
     }
     const dto1 = this._convertCompletionItem(item, id);
-    const resolvedItem = await this._provider.resolveCompletionItem(
-      item,
-      token
-    );
+    const resolvedItem = await this._provider.resolveCompletionItem(item, token);
     if (!resolvedItem) {
       return void 0;
     }
     const dto2 = this._convertCompletionItem(resolvedItem, id);
     if (dto1[extHostProtocol.ISuggestDataDtoField.insertText] !== dto2[extHostProtocol.ISuggestDataDtoField.insertText] || dto1[extHostProtocol.ISuggestDataDtoField.insertTextRules] !== dto2[extHostProtocol.ISuggestDataDtoField.insertTextRules]) {
-      this._apiDeprecation.report(
-        "CompletionItem.insertText",
-        this._extension,
-        "extension MAY NOT change 'insertText' of a CompletionItem during resolve"
-      );
+      this._apiDeprecation.report("CompletionItem.insertText", this._extension, "extension MAY NOT change 'insertText' of a CompletionItem during resolve");
     }
-    if (dto1[extHostProtocol.ISuggestDataDtoField.commandIdent] !== dto2[extHostProtocol.ISuggestDataDtoField.commandIdent] || dto1[extHostProtocol.ISuggestDataDtoField.commandId] !== dto2[extHostProtocol.ISuggestDataDtoField.commandId] || !equals(
-      dto1[extHostProtocol.ISuggestDataDtoField.commandArguments],
-      dto2[extHostProtocol.ISuggestDataDtoField.commandArguments]
-    )) {
-      this._apiDeprecation.report(
-        "CompletionItem.command",
-        this._extension,
-        "extension MAY NOT change 'command' of a CompletionItem during resolve"
-      );
+    if (dto1[extHostProtocol.ISuggestDataDtoField.commandIdent] !== dto2[extHostProtocol.ISuggestDataDtoField.commandIdent] || dto1[extHostProtocol.ISuggestDataDtoField.commandId] !== dto2[extHostProtocol.ISuggestDataDtoField.commandId] || !equals(dto1[extHostProtocol.ISuggestDataDtoField.commandArguments], dto2[extHostProtocol.ISuggestDataDtoField.commandArguments])) {
+      this._apiDeprecation.report("CompletionItem.command", this._extension, "extension MAY NOT change 'command' of a CompletionItem during resolve");
     }
     return {
       ...dto1,
@@ -1348,11 +1075,7 @@ class CompletionsAdapter {
       // filled in on main side from $ident
     };
     if (item.textEdit) {
-      this._apiDeprecation.report(
-        "CompletionItem.textEdit",
-        this._extension,
-        `Use 'CompletionItem.insertText' and 'CompletionItem.range' instead.`
-      );
+      this._apiDeprecation.report("CompletionItem.textEdit", this._extension, `Use 'CompletionItem.insertText' and 'CompletionItem.range' instead.`);
       result[extHostProtocol.ISuggestDataDtoField.insertText] = item.textEdit.newText;
     } else if (typeof item.insertText === "string") {
       result[extHostProtocol.ISuggestDataDtoField.insertText] = item.insertText;
@@ -1406,15 +1129,9 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     __name(this, "InlineCompletionAdapter");
   }
   _references = new ReferenceMap();
-  _isAdditionsProposedApiEnabled = isProposedApiEnabled(
-    this._extension,
-    "inlineCompletionsAdditions"
-  );
+  _isAdditionsProposedApiEnabled = isProposedApiEnabled(this._extension, "inlineCompletionsAdditions");
   get supportsHandleEvents() {
-    return isProposedApiEnabled(
-      this._extension,
-      "inlineCompletionsAdditions"
-    ) && (typeof this._provider.handleDidShowCompletionItem === "function" || typeof this._provider.handleDidPartiallyAcceptCompletionItem === "function");
+    return isProposedApiEnabled(this._extension, "inlineCompletionsAdditions") && (typeof this._provider.handleDidShowCompletionItem === "function" || typeof this._provider.handleDidPartiallyAcceptCompletionItem === "function");
   }
   languageTriggerKindToVSCodeTriggerKind = {
     [languages.InlineCompletionTriggerKind.Automatic]: InlineCompletionTriggerKind.Automatic,
@@ -1423,20 +1140,13 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
   async provideInlineCompletions(resource, position, context, token) {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
-    const result = await this._provider.provideInlineCompletionItems(
-      doc,
-      pos,
-      {
-        selectedCompletionInfo: context.selectedSuggestionInfo ? {
-          range: typeConvert.Range.to(
-            context.selectedSuggestionInfo.range
-          ),
-          text: context.selectedSuggestionInfo.text
-        } : void 0,
-        triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind]
-      },
-      token
-    );
+    const result = await this._provider.provideInlineCompletionItems(doc, pos, {
+      selectedCompletionInfo: context.selectedSuggestionInfo ? {
+        range: typeConvert.Range.to(context.selectedSuggestionInfo.range),
+        text: context.selectedSuggestionInfo.text
+      } : void 0,
+      triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind]
+    }, token);
     if (!result) {
       return void 0;
     }
@@ -1446,7 +1156,7 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     const normalizedResult = Array.isArray(result) ? result : result.items;
     const commands = this._isAdditionsProposedApiEnabled ? Array.isArray(result) ? [] : result.commands || [] : [];
     const enableForwardStability = this._isAdditionsProposedApiEnabled && !Array.isArray(result) ? result.enableForwardStability : void 0;
-    let disposableStore;
+    let disposableStore = void 0;
     const pid = this._references.createReferenceId({
       dispose() {
         disposableStore?.dispose();
@@ -1455,29 +1165,24 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     });
     return {
       pid,
-      items: normalizedResult.map(
-        (item, idx) => {
-          let command;
-          if (item.command) {
-            if (!disposableStore) {
-              disposableStore = new DisposableStore();
-            }
-            command = this._commands.toInternal(
-              item.command,
-              disposableStore
-            );
+      items: normalizedResult.map((item, idx) => {
+        let command = void 0;
+        if (item.command) {
+          if (!disposableStore) {
+            disposableStore = new DisposableStore();
           }
-          const insertText = item.insertText;
-          return {
-            insertText: typeof insertText === "string" ? insertText : { snippet: insertText.value },
-            filterText: item.filterText,
-            range: item.range ? typeConvert.Range.from(item.range) : void 0,
-            command,
-            idx,
-            completeBracketPairs: this._isAdditionsProposedApiEnabled ? item.completeBracketPairs : false
-          };
+          command = this._commands.toInternal(item.command, disposableStore);
         }
-      ),
+        const insertText = item.insertText;
+        return {
+          insertText: typeof insertText === "string" ? insertText : { snippet: insertText.value },
+          filterText: item.filterText,
+          range: item.range ? typeConvert.Range.from(item.range) : void 0,
+          command,
+          idx,
+          completeBracketPairs: this._isAdditionsProposedApiEnabled ? item.completeBracketPairs : false
+        };
+      }),
       commands: commands.map((c) => {
         if (!disposableStore) {
           disposableStore = new DisposableStore();
@@ -1495,21 +1200,14 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     checkProposedApiEnabled(this._extension, "inlineCompletionsAdditions");
     const doc = this._documents.getDocument(resource);
     const r = typeConvert.Range.to(range);
-    const result = await this._provider.provideInlineEditsForRange(
-      doc,
-      r,
-      {
-        selectedCompletionInfo: context.selectedSuggestionInfo ? {
-          range: typeConvert.Range.to(
-            context.selectedSuggestionInfo.range
-          ),
-          text: context.selectedSuggestionInfo.text
-        } : void 0,
-        triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind],
-        userPrompt: context.userPrompt
-      },
-      token
-    );
+    const result = await this._provider.provideInlineEditsForRange(doc, r, {
+      selectedCompletionInfo: context.selectedSuggestionInfo ? {
+        range: typeConvert.Range.to(context.selectedSuggestionInfo.range),
+        text: context.selectedSuggestionInfo.text
+      } : void 0,
+      triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind],
+      userPrompt: context.userPrompt
+    }, token);
     if (!result) {
       return void 0;
     }
@@ -1519,7 +1217,7 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     const normalizedResult = Array.isArray(result) ? result : result.items;
     const commands = this._isAdditionsProposedApiEnabled ? Array.isArray(result) ? [] : result.commands || [] : [];
     const enableForwardStability = this._isAdditionsProposedApiEnabled && !Array.isArray(result) ? result.enableForwardStability : void 0;
-    let disposableStore;
+    let disposableStore = void 0;
     const pid = this._references.createReferenceId({
       dispose() {
         disposableStore?.dispose();
@@ -1528,29 +1226,24 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     });
     return {
       pid,
-      items: normalizedResult.map(
-        (item, idx) => {
-          let command;
-          if (item.command) {
-            if (!disposableStore) {
-              disposableStore = new DisposableStore();
-            }
-            command = this._commands.toInternal(
-              item.command,
-              disposableStore
-            );
+      items: normalizedResult.map((item, idx) => {
+        let command = void 0;
+        if (item.command) {
+          if (!disposableStore) {
+            disposableStore = new DisposableStore();
           }
-          const insertText = item.insertText;
-          return {
-            insertText: typeof insertText === "string" ? insertText : { snippet: insertText.value },
-            filterText: item.filterText,
-            range: item.range ? typeConvert.Range.from(item.range) : void 0,
-            command,
-            idx,
-            completeBracketPairs: this._isAdditionsProposedApiEnabled ? item.completeBracketPairs : false
-          };
+          command = this._commands.toInternal(item.command, disposableStore);
         }
-      ),
+        const insertText = item.insertText;
+        return {
+          insertText: typeof insertText === "string" ? insertText : { snippet: insertText.value },
+          filterText: item.filterText,
+          range: item.range ? typeConvert.Range.from(item.range) : void 0,
+          command,
+          idx,
+          completeBracketPairs: this._isAdditionsProposedApiEnabled ? item.completeBracketPairs : false
+        };
+      }),
       commands: commands.map((c) => {
         if (!disposableStore) {
           disposableStore = new DisposableStore();
@@ -1569,10 +1262,7 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     const completionItem = this._references.get(pid)?.items[idx];
     if (completionItem) {
       if (this._provider.handleDidShowCompletionItem && this._isAdditionsProposedApiEnabled) {
-        this._provider.handleDidShowCompletionItem(
-          completionItem,
-          updatedInsertText
-        );
+        this._provider.handleDidShowCompletionItem(completionItem, updatedInsertText);
       }
     }
   }
@@ -1580,14 +1270,8 @@ class InlineCompletionAdapter extends InlineCompletionAdapterBase {
     const completionItem = this._references.get(pid)?.items[idx];
     if (completionItem) {
       if (this._provider.handleDidPartiallyAcceptCompletionItem && this._isAdditionsProposedApiEnabled) {
-        this._provider.handleDidPartiallyAcceptCompletionItem(
-          completionItem,
-          acceptedCharacters
-        );
-        this._provider.handleDidPartiallyAcceptCompletionItem(
-          completionItem,
-          typeConvert.PartialAcceptInfo.to(info)
-        );
+        this._provider.handleDidPartiallyAcceptCompletionItem(completionItem, acceptedCharacters);
+        this._provider.handleDidPartiallyAcceptCompletionItem(completionItem, typeConvert.PartialAcceptInfo.to(info));
       }
     }
   }
@@ -1608,45 +1292,35 @@ class InlineEditAdapter {
   };
   async provideInlineEdits(uri, context, token) {
     const doc = this._documents.getDocument(uri);
-    const result = await this._provider.provideInlineEdit(
-      doc,
-      {
-        triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind]
-      },
-      token
-    );
+    const result = await this._provider.provideInlineEdit(doc, {
+      triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind]
+    }, token);
     if (!result) {
       return void 0;
     }
     if (token.isCancellationRequested) {
       return void 0;
     }
-    let disposableStore;
+    let disposableStore = void 0;
     const pid = this._references.createReferenceId({
       dispose() {
         disposableStore?.dispose();
       },
       item: result
     });
-    let acceptCommand;
+    let acceptCommand = void 0;
     if (result.accepted) {
       if (!disposableStore) {
         disposableStore = new DisposableStore();
       }
-      acceptCommand = this._commands.toInternal(
-        result.accepted,
-        disposableStore
-      );
+      acceptCommand = this._commands.toInternal(result.accepted, disposableStore);
     }
-    let rejectCommand;
+    let rejectCommand = void 0;
     if (result.rejected) {
       if (!disposableStore) {
         disposableStore = new DisposableStore();
       }
-      rejectCommand = this._commands.toInternal(
-        result.rejected,
-        disposableStore
-      );
+      rejectCommand = this._commands.toInternal(result.rejected, disposableStore);
     }
     const langResult = {
       pid,
@@ -1695,12 +1369,7 @@ class SignatureHelpAdapter {
     const doc = this._documents.getDocument(resource);
     const pos = typeConvert.Position.to(position);
     const vscodeContext = this.reviveContext(context);
-    const value = await this._provider.provideSignatureHelp(
-      doc,
-      pos,
-      token,
-      vscodeContext
-    );
+    const value = await this._provider.provideSignatureHelp(doc, pos, token, vscodeContext);
     if (value) {
       const id = this._cache.add([value]);
       return { ...typeConvert.SignatureHelp.from(value), id };
@@ -1708,11 +1377,9 @@ class SignatureHelpAdapter {
     return void 0;
   }
   reviveContext(context) {
-    let activeSignatureHelp;
+    let activeSignatureHelp = void 0;
     if (context.activeSignatureHelp) {
-      const revivedSignatureHelp = typeConvert.SignatureHelp.to(
-        context.activeSignatureHelp
-      );
+      const revivedSignatureHelp = typeConvert.SignatureHelp.to(context.activeSignatureHelp);
       const saved = this._cache.get(context.activeSignatureHelp.id, 0);
       if (saved) {
         activeSignatureHelp = saved;
@@ -1746,9 +1413,7 @@ class InlayHintsAdapter {
     const range = typeConvert.Range.to(ran);
     const hints = await this._provider.provideInlayHints(doc, range, token);
     if (!Array.isArray(hints) || hints.length === 0) {
-      this._logService.trace(
-        `[InlayHints] NO inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`
-      );
+      this._logService.trace(`[InlayHints] NO inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`);
       return void 0;
     }
     if (token.isCancellationRequested) {
@@ -1756,18 +1421,13 @@ class InlayHintsAdapter {
     }
     const pid = this._cache.add(hints);
     this._disposables.set(pid, new DisposableStore());
-    const result = {
-      hints: [],
-      cacheId: pid
-    };
+    const result = { hints: [], cacheId: pid };
     for (let i = 0; i < hints.length; i++) {
       if (this._isValidInlayHint(hints[i], range)) {
         result.hints.push(this._convertInlayHint(hints[i], [pid, i]));
       }
     }
-    this._logService.trace(
-      `[InlayHints] ${result.hints.length} inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`
-    );
+    this._logService.trace(`[InlayHints] ${result.hints.length} inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`);
     return result;
   }
   async resolveInlayHint(id, token) {
@@ -1825,26 +1485,18 @@ class InlayHintsAdapter {
       result.label = parts;
       for (const part of hint.label) {
         if (!part.value) {
-          console.warn(
-            "INVALID inlay hint, empty label part",
-            this._extension.identifier.value
-          );
+          console.warn("INVALID inlay hint, empty label part", this._extension.identifier.value);
           continue;
         }
         const part2 = {
           label: part.value,
-          tooltip: typeConvert.MarkdownString.fromStrict(
-            part.tooltip
-          )
+          tooltip: typeConvert.MarkdownString.fromStrict(part.tooltip)
         };
         if (Location.isLocation(part.location)) {
           part2.location = typeConvert.location.from(part.location);
         }
         if (part.command) {
-          part2.command = this._commands.toInternal(
-            part.command,
-            disposables
-          );
+          part2.command = this._commands.toInternal(part.command, disposables);
         }
         parts.push(part2);
       }
@@ -1871,15 +1523,10 @@ class LinkProviderAdapter {
       return void 0;
     }
     if (typeof this._provider.resolveDocumentLink !== "function") {
-      return {
-        links: links.filter(LinkProviderAdapter._validateLink).map(typeConvert.DocumentLink.from)
-      };
+      return { links: links.filter(LinkProviderAdapter._validateLink).map(typeConvert.DocumentLink.from) };
     } else {
       const pid = this._cache.add(links);
-      const result = {
-        links: [],
-        cacheId: pid
-      };
+      const result = { links: [], cacheId: pid };
       for (let i = 0; i < links.length; i++) {
         if (!LinkProviderAdapter._validateLink(links[i])) {
           continue;
@@ -1942,11 +1589,7 @@ class ColorProviderAdapter {
     const document = this._documents.getDocument(resource);
     const range = typeConvert.Range.to(raw.range);
     const color = typeConvert.Color.to(raw.color);
-    const value = await this._provider.provideColorPresentations(
-      color,
-      { document, range },
-      token
-    );
+    const value = await this._provider.provideColorPresentations(color, { document, range }, token);
     if (!Array.isArray(value)) {
       return void 0;
     }
@@ -1963,11 +1606,7 @@ class FoldingProviderAdapter {
   }
   async provideFoldingRanges(resource, context, token) {
     const doc = this._documents.getDocument(resource);
-    const ranges = await this._provider.provideFoldingRanges(
-      doc,
-      context,
-      token
-    );
+    const ranges = await this._provider.provideFoldingRanges(doc, context, token);
     if (!Array.isArray(ranges)) {
       return void 0;
     }
@@ -1986,18 +1625,12 @@ class SelectionRangeAdapter {
   async provideSelectionRanges(resource, pos, token) {
     const document = this._documents.getDocument(resource);
     const positions = pos.map(typeConvert.Position.to);
-    const allProviderRanges = await this._provider.provideSelectionRanges(
-      document,
-      positions,
-      token
-    );
+    const allProviderRanges = await this._provider.provideSelectionRanges(document, positions, token);
     if (!isNonEmptyArray(allProviderRanges)) {
       return [];
     }
     if (allProviderRanges.length !== positions.length) {
-      this._logService.warn(
-        "BAD selection ranges, provider must return ranges for each position"
-      );
+      this._logService.warn("BAD selection ranges, provider must return ranges for each position");
       return [];
     }
     const allResults = [];
@@ -2008,9 +1641,7 @@ class SelectionRangeAdapter {
       let selectionRange = allProviderRanges[i];
       while (true) {
         if (!selectionRange.range.contains(last)) {
-          throw new Error(
-            "INVALID selection range, must contain the previous range"
-          );
+          throw new Error("INVALID selection range, must contain the previous range");
         }
         oneResult.push(typeConvert.SelectionRange.from(selectionRange));
         if (!selectionRange.parent) {
@@ -2036,20 +1667,14 @@ class CallHierarchyAdapter {
   async prepareSession(uri, position, token) {
     const doc = this._documents.getDocument(uri);
     const pos = typeConvert.Position.to(position);
-    const items = await this._provider.prepareCallHierarchy(
-      doc,
-      pos,
-      token
-    );
+    const items = await this._provider.prepareCallHierarchy(doc, pos, token);
     if (!items) {
       return void 0;
     }
     const sessionId = this._idPool.nextId();
     this._cache.set(sessionId, /* @__PURE__ */ new Map());
     if (Array.isArray(items)) {
-      return items.map(
-        (item) => this._cacheAndConvertItem(sessionId, item)
-      );
+      return items.map((item) => this._cacheAndConvertItem(sessionId, item));
     } else {
       return [this._cacheAndConvertItem(sessionId, items)];
     }
@@ -2059,19 +1684,14 @@ class CallHierarchyAdapter {
     if (!item) {
       throw new Error("missing call hierarchy item");
     }
-    const calls = await this._provider.provideCallHierarchyIncomingCalls(
-      item,
-      token
-    );
+    const calls = await this._provider.provideCallHierarchyIncomingCalls(item, token);
     if (!calls) {
       return void 0;
     }
     return calls.map((call) => {
       return {
         from: this._cacheAndConvertItem(sessionId, call.from),
-        fromRanges: call.fromRanges.map(
-          (r) => typeConvert.Range.from(r)
-        )
+        fromRanges: call.fromRanges.map((r) => typeConvert.Range.from(r))
       };
     });
   }
@@ -2080,19 +1700,14 @@ class CallHierarchyAdapter {
     if (!item) {
       throw new Error("missing call hierarchy item");
     }
-    const calls = await this._provider.provideCallHierarchyOutgoingCalls(
-      item,
-      token
-    );
+    const calls = await this._provider.provideCallHierarchyOutgoingCalls(item, token);
     if (!calls) {
       return void 0;
     }
     return calls.map((call) => {
       return {
         to: this._cacheAndConvertItem(sessionId, call.to),
-        fromRanges: call.fromRanges.map(
-          (r) => typeConvert.Range.from(r)
-        )
+        fromRanges: call.fromRanges.map((r) => typeConvert.Range.from(r))
       };
     });
   }
@@ -2101,11 +1716,7 @@ class CallHierarchyAdapter {
   }
   _cacheAndConvertItem(sessionId, item) {
     const map = this._cache.get(sessionId);
-    const dto = typeConvert.CallHierarchyItem.from(
-      item,
-      sessionId,
-      map.size.toString(36)
-    );
+    const dto = typeConvert.CallHierarchyItem.from(item, sessionId, map.size.toString(36));
     map.set(dto._itemId, item);
     return dto;
   }
@@ -2127,20 +1738,14 @@ class TypeHierarchyAdapter {
   async prepareSession(uri, position, token) {
     const doc = this._documents.getDocument(uri);
     const pos = typeConvert.Position.to(position);
-    const items = await this._provider.prepareTypeHierarchy(
-      doc,
-      pos,
-      token
-    );
+    const items = await this._provider.prepareTypeHierarchy(doc, pos, token);
     if (!items) {
       return void 0;
     }
     const sessionId = this._idPool.nextId();
     this._cache.set(sessionId, /* @__PURE__ */ new Map());
     if (Array.isArray(items)) {
-      return items.map(
-        (item) => this._cacheAndConvertItem(sessionId, item)
-      );
+      return items.map((item) => this._cacheAndConvertItem(sessionId, item));
     } else {
       return [this._cacheAndConvertItem(sessionId, items)];
     }
@@ -2150,10 +1755,7 @@ class TypeHierarchyAdapter {
     if (!item) {
       throw new Error("missing type hierarchy item");
     }
-    const supertypes = await this._provider.provideTypeHierarchySupertypes(
-      item,
-      token
-    );
+    const supertypes = await this._provider.provideTypeHierarchySupertypes(item, token);
     if (!supertypes) {
       return void 0;
     }
@@ -2166,10 +1768,7 @@ class TypeHierarchyAdapter {
     if (!item) {
       throw new Error("missing type hierarchy item");
     }
-    const subtypes = await this._provider.provideTypeHierarchySubtypes(
-      item,
-      token
-    );
+    const subtypes = await this._provider.provideTypeHierarchySubtypes(item, token);
     if (!subtypes) {
       return void 0;
     }
@@ -2182,11 +1781,7 @@ class TypeHierarchyAdapter {
   }
   _cacheAndConvertItem(sessionId, item) {
     const map = this._cache.get(sessionId);
-    const dto = typeConvert.TypeHierarchyItem.from(
-      item,
-      sessionId,
-      map.size.toString(36)
-    );
+    const dto = typeConvert.TypeHierarchyItem.from(item, sessionId, map.size.toString(36));
     map.set(dto._itemId, item);
     return dto;
   }
@@ -2206,50 +1801,27 @@ class DocumentDropEditAdapter {
   static {
     __name(this, "DocumentDropEditAdapter");
   }
-  _cache = new Cache(
-    "DocumentDropEdit"
-  );
+  _cache = new Cache("DocumentDropEdit");
   async provideDocumentOnDropEdits(requestId, uri, position, dataTransferDto, token) {
     const doc = this._documents.getDocument(uri);
     const pos = typeConvert.Position.to(position);
-    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(
-      dataTransferDto,
-      async (id) => {
-        return (await this._proxy.$resolveDocumentOnDropFileData(
-          this._handle,
-          requestId,
-          id
-        )).buffer;
-      }
-    );
-    const edits = await this._provider.provideDocumentDropEdits(
-      doc,
-      pos,
-      dataTransfer,
-      token
-    );
+    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(dataTransferDto, async (id) => {
+      return (await this._proxy.$resolveDocumentOnDropFileData(this._handle, requestId, id)).buffer;
+    });
+    const edits = await this._provider.provideDocumentDropEdits(doc, pos, dataTransfer, token);
     if (!edits) {
       return void 0;
     }
     const editsArray = asArray(edits);
     const cacheId = this._cache.add(editsArray);
-    return editsArray.map(
-      (edit, i) => ({
-        _cacheId: [cacheId, i],
-        title: edit.title ?? localize(
-          "defaultDropLabel",
-          "Drop using '{0}' extension",
-          this._extension.displayName || this._extension.name
-        ),
-        kind: edit.kind?.value,
-        yieldTo: edit.yieldTo?.map((x) => x.value),
-        insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
-        additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(
-          edit.additionalEdit,
-          void 0
-        ) : void 0
-      })
-    );
+    return editsArray.map((edit, i) => ({
+      _cacheId: [cacheId, i],
+      title: edit.title ?? localize("defaultDropLabel", "Drop using '{0}' extension", this._extension.displayName || this._extension.name),
+      kind: edit.kind?.value,
+      yieldTo: edit.yieldTo?.map((x) => x.value),
+      insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
+      additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(edit.additionalEdit, void 0) : void 0
+    }));
   }
   async resolveDropEdit(id, token) {
     const [sessionId, itemId] = id;
@@ -2258,10 +1830,7 @@ class DocumentDropEditAdapter {
       return {};
     }
     const resolvedItem = await this._provider.resolveDocumentDropEdit(item, token) ?? item;
-    const additionalEdit = resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(
-      resolvedItem.additionalEdit,
-      void 0
-    ) : void 0;
+    const additionalEdit = resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(resolvedItem.additionalEdit, void 0) : void 0;
     return { additionalEdit };
   }
   releaseDropEdits(id) {
@@ -2284,9 +1853,7 @@ class MappedEditsAdapter {
       version: item.version,
       ranges: item.ranges.map((r) => typeConvert.Range.to(r))
     }), "reviveContextItem");
-    const usedContext = context.documents.map(
-      (docSubArray) => docSubArray.map(reviveContextItem)
-    );
+    const usedContext = context.documents.map((docSubArray) => docSubArray.map(reviveContextItem));
     const ctx = {
       documents: usedContext,
       selections: usedContext[0]?.[0]?.ranges ?? [],
@@ -2306,12 +1873,7 @@ class MappedEditsAdapter {
         }
       })
     };
-    const mappedEdits = await this._provider.provideMappedEdits(
-      doc,
-      codeBlocks,
-      ctx,
-      token
-    );
+    const mappedEdits = await this._provider.provideMappedEdits(doc, codeBlocks, ctx, token);
     return mappedEdits ? typeConvert.WorkspaceEdit.from(mappedEdits) : null;
   }
 }
@@ -2333,9 +1895,7 @@ class ExtHostLanguageFeatures {
     this._logService = _logService;
     this._apiDeprecation = _apiDeprecation;
     this._extensionTelemetry = _extensionTelemetry;
-    this._proxy = mainContext.getProxy(
-      extHostProtocol.MainContext.MainThreadLanguageFeatures
-    );
+    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadLanguageFeatures);
   }
   static {
     __name(this, "ExtHostLanguageFeatures");
@@ -2344,11 +1904,7 @@ class ExtHostLanguageFeatures {
   _proxy;
   _adapter = /* @__PURE__ */ new Map();
   _transformDocumentSelector(selector, extension) {
-    return typeConvert.DocumentSelector.from(
-      selector,
-      this._uriTransformer,
-      extension
-    );
+    return typeConvert.DocumentSelector.from(selector, this._uriTransformer, extension);
   }
   _createDisposable(handle) {
     return new Disposable(() => {
@@ -2366,27 +1922,18 @@ class ExtHostLanguageFeatures {
     }
     const t1 = Date.now();
     if (!doNotLog) {
-      this._logService.trace(
-        `[${data.extension.identifier.value}] INVOKE provider '${callback.toString().replace(/[\r\n]/g, "")}'`
-      );
+      this._logService.trace(`[${data.extension.identifier.value}] INVOKE provider '${callback.toString().replace(/[\r\n]/g, "")}'`);
     }
     const result = callback(data.adapter, data.extension);
     Promise.resolve(result).catch((err) => {
       if (!isCancellationError(err)) {
-        this._logService.error(
-          `[${data.extension.identifier.value}] provider FAILED`
-        );
+        this._logService.error(`[${data.extension.identifier.value}] provider FAILED`);
         this._logService.error(err);
-        this._extensionTelemetry.onExtensionError(
-          data.extension.identifier,
-          err
-        );
+        this._extensionTelemetry.onExtensionError(data.extension.identifier, err);
       }
     }).finally(() => {
       if (!doNotLog) {
-        this._logService.trace(
-          `[${data.extension.identifier.value}] provider DONE after ${Date.now() - t1}ms`
-        );
+        this._logService.trace(`[${data.extension.identifier.value}] provider DONE after ${Date.now() - t1}ms`);
       }
     });
     if (CancellationToken.isCancellationToken(tokenToRaceAgainst)) {
@@ -2407,652 +1954,231 @@ class ExtHostLanguageFeatures {
   }
   // --- outline
   registerDocumentSymbolProvider(extension, selector, provider, metadata) {
-    const handle = this._addNewAdapter(
-      new DocumentSymbolAdapter(this._documents, provider),
-      extension
-    );
+    const handle = this._addNewAdapter(new DocumentSymbolAdapter(this._documents, provider), extension);
     const displayName = metadata && metadata.label || ExtHostLanguageFeatures._extLabel(extension);
-    this._proxy.$registerDocumentSymbolProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      displayName
-    );
+    this._proxy.$registerDocumentSymbolProvider(handle, this._transformDocumentSelector(selector, extension), displayName);
     return this._createDisposable(handle);
   }
   $provideDocumentSymbols(handle, resource, token) {
-    return this._withAdapter(
-      handle,
-      DocumentSymbolAdapter,
-      (adapter) => adapter.provideDocumentSymbols(URI.revive(resource), token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, DocumentSymbolAdapter, (adapter) => adapter.provideDocumentSymbols(URI.revive(resource), token), void 0, token);
   }
   // --- code lens
   registerCodeLensProvider(extension, selector, provider) {
     const handle = this._nextHandle();
     const eventHandle = typeof provider.onDidChangeCodeLenses === "function" ? this._nextHandle() : void 0;
-    this._adapter.set(
-      handle,
-      new AdapterData(
-        new CodeLensAdapter(
-          this._documents,
-          this._commands.converter,
-          provider,
-          extension,
-          this._extensionTelemetry,
-          this._logService
-        ),
-        extension
-      )
-    );
-    this._proxy.$registerCodeLensSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      eventHandle
-    );
+    this._adapter.set(handle, new AdapterData(new CodeLensAdapter(this._documents, this._commands.converter, provider, extension, this._extensionTelemetry, this._logService), extension));
+    this._proxy.$registerCodeLensSupport(handle, this._transformDocumentSelector(selector, extension), eventHandle);
     let result = this._createDisposable(handle);
     if (eventHandle !== void 0) {
-      const subscription = provider.onDidChangeCodeLenses(
-        (_) => this._proxy.$emitCodeLensEvent(eventHandle)
-      );
+      const subscription = provider.onDidChangeCodeLenses((_) => this._proxy.$emitCodeLensEvent(eventHandle));
       result = Disposable.from(result, subscription);
     }
     return result;
   }
   $provideCodeLenses(handle, resource, token) {
-    return this._withAdapter(
-      handle,
-      CodeLensAdapter,
-      (adapter) => adapter.provideCodeLenses(URI.revive(resource), token),
-      void 0,
-      token,
-      resource.scheme === "output"
-    );
+    return this._withAdapter(handle, CodeLensAdapter, (adapter) => adapter.provideCodeLenses(URI.revive(resource), token), void 0, token, resource.scheme === "output");
   }
   $resolveCodeLens(handle, symbol, token) {
-    return this._withAdapter(
-      handle,
-      CodeLensAdapter,
-      (adapter) => adapter.resolveCodeLens(symbol, token),
-      void 0,
-      void 0,
-      true
-    );
+    return this._withAdapter(handle, CodeLensAdapter, (adapter) => adapter.resolveCodeLens(symbol, token), void 0, void 0, true);
   }
   $releaseCodeLenses(handle, cacheId) {
-    this._withAdapter(
-      handle,
-      CodeLensAdapter,
-      (adapter) => Promise.resolve(adapter.releaseCodeLenses(cacheId)),
-      void 0,
-      void 0,
-      true
-    );
+    this._withAdapter(handle, CodeLensAdapter, (adapter) => Promise.resolve(adapter.releaseCodeLenses(cacheId)), void 0, void 0, true);
   }
   // --- declaration
   registerDefinitionProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new DefinitionAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDefinitionSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new DefinitionAdapter(this._documents, provider), extension);
+    this._proxy.$registerDefinitionSupport(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideDefinition(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      DefinitionAdapter,
-      (adapter) => adapter.provideDefinition(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      [],
-      token
-    );
+    return this._withAdapter(handle, DefinitionAdapter, (adapter) => adapter.provideDefinition(URI.revive(resource), position, token), [], token);
   }
   registerDeclarationProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new DeclarationAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDeclarationSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new DeclarationAdapter(this._documents, provider), extension);
+    this._proxy.$registerDeclarationSupport(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideDeclaration(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      DeclarationAdapter,
-      (adapter) => adapter.provideDeclaration(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      [],
-      token
-    );
+    return this._withAdapter(handle, DeclarationAdapter, (adapter) => adapter.provideDeclaration(URI.revive(resource), position, token), [], token);
   }
   registerImplementationProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new ImplementationAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerImplementationSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new ImplementationAdapter(this._documents, provider), extension);
+    this._proxy.$registerImplementationSupport(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideImplementation(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      ImplementationAdapter,
-      (adapter) => adapter.provideImplementation(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      [],
-      token
-    );
+    return this._withAdapter(handle, ImplementationAdapter, (adapter) => adapter.provideImplementation(URI.revive(resource), position, token), [], token);
   }
   registerTypeDefinitionProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new TypeDefinitionAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerTypeDefinitionSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new TypeDefinitionAdapter(this._documents, provider), extension);
+    this._proxy.$registerTypeDefinitionSupport(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideTypeDefinition(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      TypeDefinitionAdapter,
-      (adapter) => adapter.provideTypeDefinition(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      [],
-      token
-    );
+    return this._withAdapter(handle, TypeDefinitionAdapter, (adapter) => adapter.provideTypeDefinition(URI.revive(resource), position, token), [], token);
   }
   // --- extra info
   registerHoverProvider(extension, selector, provider, extensionId) {
-    const handle = this._addNewAdapter(
-      new HoverAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerHoverProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new HoverAdapter(this._documents, provider), extension);
+    this._proxy.$registerHoverProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideHover(handle, resource, position, context, token) {
-    return this._withAdapter(
-      handle,
-      HoverAdapter,
-      (adapter) => adapter.provideHover(
-        URI.revive(resource),
-        position,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, HoverAdapter, (adapter) => adapter.provideHover(URI.revive(resource), position, context, token), void 0, token);
   }
   $releaseHover(handle, id) {
-    this._withAdapter(
-      handle,
-      HoverAdapter,
-      (adapter) => Promise.resolve(adapter.releaseHover(id)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, HoverAdapter, (adapter) => Promise.resolve(adapter.releaseHover(id)), void 0, void 0);
   }
   // --- debug hover
   registerEvaluatableExpressionProvider(extension, selector, provider, extensionId) {
-    const handle = this._addNewAdapter(
-      new EvaluatableExpressionAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerEvaluatableExpressionProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new EvaluatableExpressionAdapter(this._documents, provider), extension);
+    this._proxy.$registerEvaluatableExpressionProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideEvaluatableExpression(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      EvaluatableExpressionAdapter,
-      (adapter) => adapter.provideEvaluatableExpression(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, EvaluatableExpressionAdapter, (adapter) => adapter.provideEvaluatableExpression(URI.revive(resource), position, token), void 0, token);
   }
   // --- debug inline values
   registerInlineValuesProvider(extension, selector, provider, extensionId) {
     const eventHandle = typeof provider.onDidChangeInlineValues === "function" ? this._nextHandle() : void 0;
-    const handle = this._addNewAdapter(
-      new InlineValuesAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerInlineValuesProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      eventHandle
-    );
+    const handle = this._addNewAdapter(new InlineValuesAdapter(this._documents, provider), extension);
+    this._proxy.$registerInlineValuesProvider(handle, this._transformDocumentSelector(selector, extension), eventHandle);
     let result = this._createDisposable(handle);
     if (eventHandle !== void 0) {
-      const subscription = provider.onDidChangeInlineValues(
-        (_) => this._proxy.$emitInlineValuesEvent(eventHandle)
-      );
+      const subscription = provider.onDidChangeInlineValues((_) => this._proxy.$emitInlineValuesEvent(eventHandle));
       result = Disposable.from(result, subscription);
     }
     return result;
   }
   $provideInlineValues(handle, resource, range, context, token) {
-    return this._withAdapter(
-      handle,
-      InlineValuesAdapter,
-      (adapter) => adapter.provideInlineValues(
-        URI.revive(resource),
-        range,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlineValuesAdapter, (adapter) => adapter.provideInlineValues(URI.revive(resource), range, context, token), void 0, token);
   }
   // --- occurrences
   registerDocumentHighlightProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new DocumentHighlightAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDocumentHighlightProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new DocumentHighlightAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentHighlightProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   registerMultiDocumentHighlightProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new MultiDocumentHighlightAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerMultiDocumentHighlightProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new MultiDocumentHighlightAdapter(this._documents, provider), extension);
+    this._proxy.$registerMultiDocumentHighlightProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideDocumentHighlights(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      DocumentHighlightAdapter,
-      (adapter) => adapter.provideDocumentHighlights(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, DocumentHighlightAdapter, (adapter) => adapter.provideDocumentHighlights(URI.revive(resource), position, token), void 0, token);
   }
   $provideMultiDocumentHighlights(handle, resource, position, otherModels, token) {
-    return this._withAdapter(
-      handle,
-      MultiDocumentHighlightAdapter,
-      (adapter) => adapter.provideMultiDocumentHighlights(
-        URI.revive(resource),
-        position,
-        otherModels.map((model) => URI.revive(model)),
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, MultiDocumentHighlightAdapter, (adapter) => adapter.provideMultiDocumentHighlights(URI.revive(resource), position, otherModels.map((model) => URI.revive(model)), token), void 0, token);
   }
   // --- linked editing
   registerLinkedEditingRangeProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new LinkedEditingRangeAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerLinkedEditingRangeProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new LinkedEditingRangeAdapter(this._documents, provider), extension);
+    this._proxy.$registerLinkedEditingRangeProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideLinkedEditingRanges(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      LinkedEditingRangeAdapter,
-      async (adapter) => {
-        const res = await adapter.provideLinkedEditingRanges(
-          URI.revive(resource),
-          position,
-          token
-        );
-        if (res) {
-          return {
-            ranges: res.ranges,
-            wordPattern: res.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(
-              res.wordPattern
-            ) : void 0
-          };
-        }
-        return void 0;
-      },
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, LinkedEditingRangeAdapter, async (adapter) => {
+      const res = await adapter.provideLinkedEditingRanges(URI.revive(resource), position, token);
+      if (res) {
+        return {
+          ranges: res.ranges,
+          wordPattern: res.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(res.wordPattern) : void 0
+        };
+      }
+      return void 0;
+    }, void 0, token);
   }
   // --- references
   registerReferenceProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new ReferenceAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerReferenceSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new ReferenceAdapter(this._documents, provider), extension);
+    this._proxy.$registerReferenceSupport(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideReferences(handle, resource, position, context, token) {
-    return this._withAdapter(
-      handle,
-      ReferenceAdapter,
-      (adapter) => adapter.provideReferences(
-        URI.revive(resource),
-        position,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, ReferenceAdapter, (adapter) => adapter.provideReferences(URI.revive(resource), position, context, token), void 0, token);
   }
   // --- code actions
   registerCodeActionProvider(extension, selector, provider, metadata) {
     const store = new DisposableStore();
-    const handle = this._addNewAdapter(
-      new CodeActionAdapter(
-        this._documents,
-        this._commands.converter,
-        this._diagnostics,
-        provider,
-        this._logService,
-        extension,
-        this._apiDeprecation
-      ),
-      extension
-    );
-    this._proxy.$registerCodeActionSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      {
-        providedKinds: metadata?.providedCodeActionKinds?.map(
-          (kind) => kind.value
-        ),
-        documentation: metadata?.documentation?.map((x) => ({
-          kind: x.kind.value,
-          command: this._commands.converter.toInternal(
-            x.command,
-            store
-          )
-        }))
-      },
-      ExtHostLanguageFeatures._extLabel(extension),
-      ExtHostLanguageFeatures._extId(extension),
-      Boolean(provider.resolveCodeAction)
-    );
+    const handle = this._addNewAdapter(new CodeActionAdapter(this._documents, this._commands.converter, this._diagnostics, provider, this._logService, extension, this._apiDeprecation), extension);
+    this._proxy.$registerCodeActionSupport(handle, this._transformDocumentSelector(selector, extension), {
+      providedKinds: metadata?.providedCodeActionKinds?.map((kind) => kind.value),
+      documentation: metadata?.documentation?.map((x) => ({
+        kind: x.kind.value,
+        command: this._commands.converter.toInternal(x.command, store)
+      }))
+    }, ExtHostLanguageFeatures._extLabel(extension), ExtHostLanguageFeatures._extId(extension), Boolean(provider.resolveCodeAction));
     store.add(this._createDisposable(handle));
     return store;
   }
   $provideCodeActions(handle, resource, rangeOrSelection, context, token) {
-    return this._withAdapter(
-      handle,
-      CodeActionAdapter,
-      (adapter) => adapter.provideCodeActions(
-        URI.revive(resource),
-        rangeOrSelection,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CodeActionAdapter, (adapter) => adapter.provideCodeActions(URI.revive(resource), rangeOrSelection, context, token), void 0, token);
   }
   $resolveCodeAction(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      CodeActionAdapter,
-      (adapter) => adapter.resolveCodeAction(id, token),
-      {},
-      void 0
-    );
+    return this._withAdapter(handle, CodeActionAdapter, (adapter) => adapter.resolveCodeAction(id, token), {}, void 0);
   }
   $releaseCodeActions(handle, cacheId) {
-    this._withAdapter(
-      handle,
-      CodeActionAdapter,
-      (adapter) => Promise.resolve(adapter.releaseCodeActions(cacheId)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, CodeActionAdapter, (adapter) => Promise.resolve(adapter.releaseCodeActions(cacheId)), void 0, void 0);
   }
   // --- formatting
   registerDocumentFormattingEditProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new DocumentFormattingAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDocumentFormattingSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      extension.identifier,
-      extension.displayName || extension.name
-    );
+    const handle = this._addNewAdapter(new DocumentFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentFormattingSupport(handle, this._transformDocumentSelector(selector, extension), extension.identifier, extension.displayName || extension.name);
     return this._createDisposable(handle);
   }
   $provideDocumentFormattingEdits(handle, resource, options, token) {
-    return this._withAdapter(
-      handle,
-      DocumentFormattingAdapter,
-      (adapter) => adapter.provideDocumentFormattingEdits(
-        URI.revive(resource),
-        options,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, DocumentFormattingAdapter, (adapter) => adapter.provideDocumentFormattingEdits(URI.revive(resource), options, token), void 0, token);
   }
   registerDocumentRangeFormattingEditProvider(extension, selector, provider) {
     const canFormatMultipleRanges = typeof provider.provideDocumentRangesFormattingEdits === "function";
-    const handle = this._addNewAdapter(
-      new RangeFormattingAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerRangeFormattingSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      extension.identifier,
-      extension.displayName || extension.name,
-      canFormatMultipleRanges
-    );
+    const handle = this._addNewAdapter(new RangeFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerRangeFormattingSupport(handle, this._transformDocumentSelector(selector, extension), extension.identifier, extension.displayName || extension.name, canFormatMultipleRanges);
     return this._createDisposable(handle);
   }
   $provideDocumentRangeFormattingEdits(handle, resource, range, options, token) {
-    return this._withAdapter(
-      handle,
-      RangeFormattingAdapter,
-      (adapter) => adapter.provideDocumentRangeFormattingEdits(
-        URI.revive(resource),
-        range,
-        options,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, RangeFormattingAdapter, (adapter) => adapter.provideDocumentRangeFormattingEdits(URI.revive(resource), range, options, token), void 0, token);
   }
   $provideDocumentRangesFormattingEdits(handle, resource, ranges, options, token) {
-    return this._withAdapter(
-      handle,
-      RangeFormattingAdapter,
-      (adapter) => adapter.provideDocumentRangesFormattingEdits(
-        URI.revive(resource),
-        ranges,
-        options,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, RangeFormattingAdapter, (adapter) => adapter.provideDocumentRangesFormattingEdits(URI.revive(resource), ranges, options, token), void 0, token);
   }
   registerOnTypeFormattingEditProvider(extension, selector, provider, triggerCharacters) {
-    const handle = this._addNewAdapter(
-      new OnTypeFormattingAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerOnTypeFormattingSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      triggerCharacters,
-      extension.identifier
-    );
+    const handle = this._addNewAdapter(new OnTypeFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerOnTypeFormattingSupport(handle, this._transformDocumentSelector(selector, extension), triggerCharacters, extension.identifier);
     return this._createDisposable(handle);
   }
   $provideOnTypeFormattingEdits(handle, resource, position, ch, options, token) {
-    return this._withAdapter(
-      handle,
-      OnTypeFormattingAdapter,
-      (adapter) => adapter.provideOnTypeFormattingEdits(
-        URI.revive(resource),
-        position,
-        ch,
-        options,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, OnTypeFormattingAdapter, (adapter) => adapter.provideOnTypeFormattingEdits(URI.revive(resource), position, ch, options, token), void 0, token);
   }
   // --- navigate types
   registerWorkspaceSymbolProvider(extension, provider) {
-    const handle = this._addNewAdapter(
-      new NavigateTypeAdapter(provider, this._logService),
-      extension
-    );
-    this._proxy.$registerNavigateTypeSupport(
-      handle,
-      typeof provider.resolveWorkspaceSymbol === "function"
-    );
+    const handle = this._addNewAdapter(new NavigateTypeAdapter(provider, this._logService), extension);
+    this._proxy.$registerNavigateTypeSupport(handle, typeof provider.resolveWorkspaceSymbol === "function");
     return this._createDisposable(handle);
   }
   $provideWorkspaceSymbols(handle, search, token) {
-    return this._withAdapter(
-      handle,
-      NavigateTypeAdapter,
-      (adapter) => adapter.provideWorkspaceSymbols(search, token),
-      { symbols: [] },
-      token
-    );
+    return this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.provideWorkspaceSymbols(search, token), { symbols: [] }, token);
   }
   $resolveWorkspaceSymbol(handle, symbol, token) {
-    return this._withAdapter(
-      handle,
-      NavigateTypeAdapter,
-      (adapter) => adapter.resolveWorkspaceSymbol(symbol, token),
-      void 0,
-      void 0
-    );
+    return this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.resolveWorkspaceSymbol(symbol, token), void 0, void 0);
   }
   $releaseWorkspaceSymbols(handle, id) {
-    this._withAdapter(
-      handle,
-      NavigateTypeAdapter,
-      (adapter) => adapter.releaseWorkspaceSymbols(id),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.releaseWorkspaceSymbols(id), void 0, void 0);
   }
   // --- rename
   registerRenameProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new RenameAdapter(this._documents, provider, this._logService),
-      extension
-    );
-    this._proxy.$registerRenameSupport(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      RenameAdapter.supportsResolving(provider)
-    );
+    const handle = this._addNewAdapter(new RenameAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerRenameSupport(handle, this._transformDocumentSelector(selector, extension), RenameAdapter.supportsResolving(provider));
     return this._createDisposable(handle);
   }
   $provideRenameEdits(handle, resource, position, newName, token) {
-    return this._withAdapter(
-      handle,
-      RenameAdapter,
-      (adapter) => adapter.provideRenameEdits(
-        URI.revive(resource),
-        position,
-        newName,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, RenameAdapter, (adapter) => adapter.provideRenameEdits(URI.revive(resource), position, newName, token), void 0, token);
   }
   $resolveRenameLocation(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      RenameAdapter,
-      (adapter) => adapter.resolveRenameLocation(
-        URI.revive(resource),
-        position,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, RenameAdapter, (adapter) => adapter.resolveRenameLocation(URI.revive(resource), position, token), void 0, token);
   }
   registerNewSymbolNamesProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new NewSymbolNamesAdapter(
-        this._documents,
-        provider,
-        this._logService
-      ),
-      extension
-    );
-    this._proxy.$registerNewSymbolNamesProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new NewSymbolNamesAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerNewSymbolNamesProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $supportsAutomaticNewSymbolNamesTriggerKind(handle) {
@@ -3065,462 +2191,167 @@ class ExtHostLanguageFeatures {
     );
   }
   $provideNewSymbolNames(handle, resource, range, triggerKind, token) {
-    return this._withAdapter(
-      handle,
-      NewSymbolNamesAdapter,
-      (adapter) => adapter.provideNewSymbolNames(
-        URI.revive(resource),
-        range,
-        triggerKind,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, NewSymbolNamesAdapter, (adapter) => adapter.provideNewSymbolNames(URI.revive(resource), range, triggerKind, token), void 0, token);
   }
   //#region semantic coloring
   registerDocumentSemanticTokensProvider(extension, selector, provider, legend) {
-    const handle = this._addNewAdapter(
-      new DocumentSemanticTokensAdapter(this._documents, provider),
-      extension
-    );
+    const handle = this._addNewAdapter(new DocumentSemanticTokensAdapter(this._documents, provider), extension);
     const eventHandle = typeof provider.onDidChangeSemanticTokens === "function" ? this._nextHandle() : void 0;
-    this._proxy.$registerDocumentSemanticTokensProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      legend,
-      eventHandle
-    );
+    this._proxy.$registerDocumentSemanticTokensProvider(handle, this._transformDocumentSelector(selector, extension), legend, eventHandle);
     let result = this._createDisposable(handle);
     if (eventHandle) {
-      const subscription = provider.onDidChangeSemanticTokens(
-        (_) => this._proxy.$emitDocumentSemanticTokensEvent(eventHandle)
-      );
+      const subscription = provider.onDidChangeSemanticTokens((_) => this._proxy.$emitDocumentSemanticTokensEvent(eventHandle));
       result = Disposable.from(result, subscription);
     }
     return result;
   }
   $provideDocumentSemanticTokens(handle, resource, previousResultId, token) {
-    return this._withAdapter(
-      handle,
-      DocumentSemanticTokensAdapter,
-      (adapter) => adapter.provideDocumentSemanticTokens(
-        URI.revive(resource),
-        previousResultId,
-        token
-      ),
-      null,
-      token
-    );
+    return this._withAdapter(handle, DocumentSemanticTokensAdapter, (adapter) => adapter.provideDocumentSemanticTokens(URI.revive(resource), previousResultId, token), null, token);
   }
   $releaseDocumentSemanticTokens(handle, semanticColoringResultId) {
-    this._withAdapter(
-      handle,
-      DocumentSemanticTokensAdapter,
-      (adapter) => adapter.releaseDocumentSemanticColoring(
-        semanticColoringResultId
-      ),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, DocumentSemanticTokensAdapter, (adapter) => adapter.releaseDocumentSemanticColoring(semanticColoringResultId), void 0, void 0);
   }
   registerDocumentRangeSemanticTokensProvider(extension, selector, provider, legend) {
-    const handle = this._addNewAdapter(
-      new DocumentRangeSemanticTokensAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDocumentRangeSemanticTokensProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      legend
-    );
+    const handle = this._addNewAdapter(new DocumentRangeSemanticTokensAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentRangeSemanticTokensProvider(handle, this._transformDocumentSelector(selector, extension), legend);
     return this._createDisposable(handle);
   }
   $provideDocumentRangeSemanticTokens(handle, resource, range, token) {
-    return this._withAdapter(
-      handle,
-      DocumentRangeSemanticTokensAdapter,
-      (adapter) => adapter.provideDocumentRangeSemanticTokens(
-        URI.revive(resource),
-        range,
-        token
-      ),
-      null,
-      token
-    );
+    return this._withAdapter(handle, DocumentRangeSemanticTokensAdapter, (adapter) => adapter.provideDocumentRangeSemanticTokens(URI.revive(resource), range, token), null, token);
   }
   //#endregion
   // --- suggestion
   registerCompletionItemProvider(extension, selector, provider, triggerCharacters) {
-    const handle = this._addNewAdapter(
-      new CompletionsAdapter(
-        this._documents,
-        this._commands.converter,
-        provider,
-        this._apiDeprecation,
-        extension
-      ),
-      extension
-    );
-    this._proxy.$registerCompletionsProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      triggerCharacters,
-      CompletionsAdapter.supportsResolving(provider),
-      extension.identifier
-    );
+    const handle = this._addNewAdapter(new CompletionsAdapter(this._documents, this._commands.converter, provider, this._apiDeprecation, extension), extension);
+    this._proxy.$registerCompletionsProvider(handle, this._transformDocumentSelector(selector, extension), triggerCharacters, CompletionsAdapter.supportsResolving(provider), extension.identifier);
     return this._createDisposable(handle);
   }
   $provideCompletionItems(handle, resource, position, context, token) {
-    return this._withAdapter(
-      handle,
-      CompletionsAdapter,
-      (adapter) => adapter.provideCompletionItems(
-        URI.revive(resource),
-        position,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.provideCompletionItems(URI.revive(resource), position, context, token), void 0, token);
   }
   $resolveCompletionItem(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      CompletionsAdapter,
-      (adapter) => adapter.resolveCompletionItem(id, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.resolveCompletionItem(id, token), void 0, token);
   }
   $releaseCompletionItems(handle, id) {
-    this._withAdapter(
-      handle,
-      CompletionsAdapter,
-      (adapter) => adapter.releaseCompletionItems(id),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.releaseCompletionItems(id), void 0, void 0);
   }
   // --- ghost test
   registerInlineCompletionsProvider(extension, selector, provider, metadata) {
-    const adapter = new InlineCompletionAdapter(
-      extension,
-      this._documents,
-      provider,
-      this._commands.converter
-    );
+    const adapter = new InlineCompletionAdapter(extension, this._documents, provider, this._commands.converter);
     const handle = this._addNewAdapter(adapter, extension);
     this._proxy.$registerInlineCompletionsSupport(
       handle,
       this._transformDocumentSelector(selector, extension),
       adapter.supportsHandleEvents,
       ExtensionIdentifier.toKey(extension.identifier.value),
-      metadata?.yieldTo?.map(
-        (extId) => ExtensionIdentifier.toKey(extId)
-      ) || []
+      metadata?.yieldTo?.map((extId) => ExtensionIdentifier.toKey(extId)) || []
     );
     return this._createDisposable(handle);
   }
   $provideInlineCompletions(handle, resource, position, context, token) {
-    return this._withAdapter(
-      handle,
-      InlineCompletionAdapterBase,
-      (adapter) => adapter.provideInlineCompletions(
-        URI.revive(resource),
-        position,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlineCompletionAdapterBase, (adapter) => adapter.provideInlineCompletions(URI.revive(resource), position, context, token), void 0, token);
   }
   $provideInlineEditsForRange(handle, resource, range, context, token) {
-    return this._withAdapter(
-      handle,
-      InlineCompletionAdapterBase,
-      (adapter) => adapter.provideInlineEditsForRange(
-        URI.revive(resource),
-        range,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlineCompletionAdapterBase, (adapter) => adapter.provideInlineEditsForRange(URI.revive(resource), range, context, token), void 0, token);
   }
   $handleInlineCompletionDidShow(handle, pid, idx, updatedInsertText) {
-    this._withAdapter(
-      handle,
-      InlineCompletionAdapterBase,
-      async (adapter) => {
-        adapter.handleDidShowCompletionItem(
-          pid,
-          idx,
-          updatedInsertText
-        );
-      },
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, InlineCompletionAdapterBase, async (adapter) => {
+      adapter.handleDidShowCompletionItem(pid, idx, updatedInsertText);
+    }, void 0, void 0);
   }
   $handleInlineCompletionPartialAccept(handle, pid, idx, acceptedCharacters, info) {
-    this._withAdapter(
-      handle,
-      InlineCompletionAdapterBase,
-      async (adapter) => {
-        adapter.handlePartialAccept(pid, idx, acceptedCharacters, info);
-      },
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, InlineCompletionAdapterBase, async (adapter) => {
+      adapter.handlePartialAccept(pid, idx, acceptedCharacters, info);
+    }, void 0, void 0);
   }
   $freeInlineCompletionsList(handle, pid) {
-    this._withAdapter(
-      handle,
-      InlineCompletionAdapterBase,
-      async (adapter) => {
-        adapter.disposeCompletions(pid);
-      },
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, InlineCompletionAdapterBase, async (adapter) => {
+      adapter.disposeCompletions(pid);
+    }, void 0, void 0);
   }
   // --- inline edit
   registerInlineEditProvider(extension, selector, provider) {
-    const adapter = new InlineEditAdapter(
-      extension,
-      this._documents,
-      provider,
-      this._commands.converter
-    );
+    const adapter = new InlineEditAdapter(extension, this._documents, provider, this._commands.converter);
     const handle = this._addNewAdapter(adapter, extension);
-    this._proxy.$registerInlineEditProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      extension.identifier
-    );
+    this._proxy.$registerInlineEditProvider(handle, this._transformDocumentSelector(selector, extension), extension.identifier);
     return this._createDisposable(handle);
   }
   $provideInlineEdit(handle, resource, context, token) {
-    return this._withAdapter(
-      handle,
-      InlineEditAdapter,
-      (adapter) => adapter.provideInlineEdits(
-        URI.revive(resource),
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlineEditAdapter, (adapter) => adapter.provideInlineEdits(URI.revive(resource), context, token), void 0, token);
   }
   $freeInlineEdit(handle, pid) {
-    this._withAdapter(
-      handle,
-      InlineEditAdapter,
-      async (adapter) => {
-        adapter.disposeEdit(pid);
-      },
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, InlineEditAdapter, async (adapter) => {
+      adapter.disposeEdit(pid);
+    }, void 0, void 0);
   }
   // --- parameter hints
   registerSignatureHelpProvider(extension, selector, provider, metadataOrTriggerChars) {
-    const metadata = Array.isArray(metadataOrTriggerChars) ? {
-      triggerCharacters: metadataOrTriggerChars,
-      retriggerCharacters: []
-    } : metadataOrTriggerChars;
-    const handle = this._addNewAdapter(
-      new SignatureHelpAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerSignatureHelpProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      metadata
-    );
+    const metadata = Array.isArray(metadataOrTriggerChars) ? { triggerCharacters: metadataOrTriggerChars, retriggerCharacters: [] } : metadataOrTriggerChars;
+    const handle = this._addNewAdapter(new SignatureHelpAdapter(this._documents, provider), extension);
+    this._proxy.$registerSignatureHelpProvider(handle, this._transformDocumentSelector(selector, extension), metadata);
     return this._createDisposable(handle);
   }
   $provideSignatureHelp(handle, resource, position, context, token) {
-    return this._withAdapter(
-      handle,
-      SignatureHelpAdapter,
-      (adapter) => adapter.provideSignatureHelp(
-        URI.revive(resource),
-        position,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, SignatureHelpAdapter, (adapter) => adapter.provideSignatureHelp(URI.revive(resource), position, context, token), void 0, token);
   }
   $releaseSignatureHelp(handle, id) {
-    this._withAdapter(
-      handle,
-      SignatureHelpAdapter,
-      (adapter) => adapter.releaseSignatureHelp(id),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, SignatureHelpAdapter, (adapter) => adapter.releaseSignatureHelp(id), void 0, void 0);
   }
   // --- inline hints
   registerInlayHintsProvider(extension, selector, provider) {
     const eventHandle = typeof provider.onDidChangeInlayHints === "function" ? this._nextHandle() : void 0;
-    const handle = this._addNewAdapter(
-      new InlayHintsAdapter(
-        this._documents,
-        this._commands.converter,
-        provider,
-        this._logService,
-        extension
-      ),
-      extension
-    );
-    this._proxy.$registerInlayHintsProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      typeof provider.resolveInlayHint === "function",
-      eventHandle,
-      ExtHostLanguageFeatures._extLabel(extension)
-    );
+    const handle = this._addNewAdapter(new InlayHintsAdapter(this._documents, this._commands.converter, provider, this._logService, extension), extension);
+    this._proxy.$registerInlayHintsProvider(handle, this._transformDocumentSelector(selector, extension), typeof provider.resolveInlayHint === "function", eventHandle, ExtHostLanguageFeatures._extLabel(extension));
     let result = this._createDisposable(handle);
     if (eventHandle !== void 0) {
-      const subscription = provider.onDidChangeInlayHints(
-        (uri) => this._proxy.$emitInlayHintsEvent(eventHandle)
-      );
+      const subscription = provider.onDidChangeInlayHints((uri) => this._proxy.$emitInlayHintsEvent(eventHandle));
       result = Disposable.from(result, subscription);
     }
     return result;
   }
   $provideInlayHints(handle, resource, range, token) {
-    return this._withAdapter(
-      handle,
-      InlayHintsAdapter,
-      (adapter) => adapter.provideInlayHints(URI.revive(resource), range, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.provideInlayHints(URI.revive(resource), range, token), void 0, token);
   }
   $resolveInlayHint(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      InlayHintsAdapter,
-      (adapter) => adapter.resolveInlayHint(id, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.resolveInlayHint(id, token), void 0, token);
   }
   $releaseInlayHints(handle, id) {
-    this._withAdapter(
-      handle,
-      InlayHintsAdapter,
-      (adapter) => adapter.releaseHints(id),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.releaseHints(id), void 0, void 0);
   }
   // --- links
   registerDocumentLinkProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new LinkProviderAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDocumentLinkProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      typeof provider.resolveDocumentLink === "function"
-    );
+    const handle = this._addNewAdapter(new LinkProviderAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentLinkProvider(handle, this._transformDocumentSelector(selector, extension), typeof provider.resolveDocumentLink === "function");
     return this._createDisposable(handle);
   }
   $provideDocumentLinks(handle, resource, token) {
-    return this._withAdapter(
-      handle,
-      LinkProviderAdapter,
-      (adapter) => adapter.provideLinks(URI.revive(resource), token),
-      void 0,
-      token,
-      resource.scheme === "output"
-    );
+    return this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.provideLinks(URI.revive(resource), token), void 0, token, resource.scheme === "output");
   }
   $resolveDocumentLink(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      LinkProviderAdapter,
-      (adapter) => adapter.resolveLink(id, token),
-      void 0,
-      void 0,
-      true
-    );
+    return this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.resolveLink(id, token), void 0, void 0, true);
   }
   $releaseDocumentLinks(handle, id) {
-    this._withAdapter(
-      handle,
-      LinkProviderAdapter,
-      (adapter) => adapter.releaseLinks(id),
-      void 0,
-      void 0,
-      true
-    );
+    this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.releaseLinks(id), void 0, void 0, true);
   }
   registerColorProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new ColorProviderAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerDocumentColorProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new ColorProviderAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentColorProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideDocumentColors(handle, resource, token) {
-    return this._withAdapter(
-      handle,
-      ColorProviderAdapter,
-      (adapter) => adapter.provideColors(URI.revive(resource), token),
-      [],
-      token
-    );
+    return this._withAdapter(handle, ColorProviderAdapter, (adapter) => adapter.provideColors(URI.revive(resource), token), [], token);
   }
   $provideColorPresentations(handle, resource, colorInfo, token) {
-    return this._withAdapter(
-      handle,
-      ColorProviderAdapter,
-      (adapter) => adapter.provideColorPresentations(
-        URI.revive(resource),
-        colorInfo,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, ColorProviderAdapter, (adapter) => adapter.provideColorPresentations(URI.revive(resource), colorInfo, token), void 0, token);
   }
   registerFoldingRangeProvider(extension, selector, provider) {
     const handle = this._nextHandle();
     const eventHandle = typeof provider.onDidChangeFoldingRanges === "function" ? this._nextHandle() : void 0;
-    this._adapter.set(
-      handle,
-      new AdapterData(
-        new FoldingProviderAdapter(this._documents, provider),
-        extension
-      )
-    );
-    this._proxy.$registerFoldingRangeProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      extension.identifier,
-      eventHandle
-    );
+    this._adapter.set(handle, new AdapterData(new FoldingProviderAdapter(this._documents, provider), extension));
+    this._proxy.$registerFoldingRangeProvider(handle, this._transformDocumentSelector(selector, extension), extension.identifier, eventHandle);
     let result = this._createDisposable(handle);
     if (eventHandle !== void 0) {
-      const subscription = provider.onDidChangeFoldingRanges(
-        () => this._proxy.$emitFoldingRangeEvent(eventHandle)
-      );
+      const subscription = provider.onDidChangeFoldingRanges(() => this._proxy.$emitFoldingRangeEvent(eventHandle));
       result = Disposable.from(result, subscription);
     }
     return result;
@@ -3529,321 +2360,109 @@ class ExtHostLanguageFeatures {
     return this._withAdapter(
       handle,
       FoldingProviderAdapter,
-      (adapter) => adapter.provideFoldingRanges(
-        URI.revive(resource),
-        context,
-        token
-      ),
+      (adapter) => adapter.provideFoldingRanges(URI.revive(resource), context, token),
       void 0,
       token
     );
   }
   // --- smart select
   registerSelectionRangeProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new SelectionRangeAdapter(
-        this._documents,
-        provider,
-        this._logService
-      ),
-      extension
-    );
-    this._proxy.$registerSelectionRangeProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new SelectionRangeAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerSelectionRangeProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $provideSelectionRanges(handle, resource, positions, token) {
-    return this._withAdapter(
-      handle,
-      SelectionRangeAdapter,
-      (adapter) => adapter.provideSelectionRanges(
-        URI.revive(resource),
-        positions,
-        token
-      ),
-      [],
-      token
-    );
+    return this._withAdapter(handle, SelectionRangeAdapter, (adapter) => adapter.provideSelectionRanges(URI.revive(resource), positions, token), [], token);
   }
   // --- call hierarchy
   registerCallHierarchyProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new CallHierarchyAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerCallHierarchyProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new CallHierarchyAdapter(this._documents, provider), extension);
+    this._proxy.$registerCallHierarchyProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $prepareCallHierarchy(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      CallHierarchyAdapter,
-      (adapter) => Promise.resolve(
-        adapter.prepareSession(
-          URI.revive(resource),
-          position,
-          token
-        )
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => Promise.resolve(adapter.prepareSession(URI.revive(resource), position, token)), void 0, token);
   }
   $provideCallHierarchyIncomingCalls(handle, sessionId, itemId, token) {
-    return this._withAdapter(
-      handle,
-      CallHierarchyAdapter,
-      (adapter) => adapter.provideCallsTo(sessionId, itemId, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => adapter.provideCallsTo(sessionId, itemId, token), void 0, token);
   }
   $provideCallHierarchyOutgoingCalls(handle, sessionId, itemId, token) {
-    return this._withAdapter(
-      handle,
-      CallHierarchyAdapter,
-      (adapter) => adapter.provideCallsFrom(sessionId, itemId, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => adapter.provideCallsFrom(sessionId, itemId, token), void 0, token);
   }
   $releaseCallHierarchy(handle, sessionId) {
-    this._withAdapter(
-      handle,
-      CallHierarchyAdapter,
-      (adapter) => Promise.resolve(adapter.releaseSession(sessionId)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, CallHierarchyAdapter, (adapter) => Promise.resolve(adapter.releaseSession(sessionId)), void 0, void 0);
   }
   // --- type hierarchy
   registerTypeHierarchyProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new TypeHierarchyAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerTypeHierarchyProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension)
-    );
+    const handle = this._addNewAdapter(new TypeHierarchyAdapter(this._documents, provider), extension);
+    this._proxy.$registerTypeHierarchyProvider(handle, this._transformDocumentSelector(selector, extension));
     return this._createDisposable(handle);
   }
   $prepareTypeHierarchy(handle, resource, position, token) {
-    return this._withAdapter(
-      handle,
-      TypeHierarchyAdapter,
-      (adapter) => Promise.resolve(
-        adapter.prepareSession(
-          URI.revive(resource),
-          position,
-          token
-        )
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => Promise.resolve(adapter.prepareSession(URI.revive(resource), position, token)), void 0, token);
   }
   $provideTypeHierarchySupertypes(handle, sessionId, itemId, token) {
-    return this._withAdapter(
-      handle,
-      TypeHierarchyAdapter,
-      (adapter) => adapter.provideSupertypes(sessionId, itemId, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => adapter.provideSupertypes(sessionId, itemId, token), void 0, token);
   }
   $provideTypeHierarchySubtypes(handle, sessionId, itemId, token) {
-    return this._withAdapter(
-      handle,
-      TypeHierarchyAdapter,
-      (adapter) => adapter.provideSubtypes(sessionId, itemId, token),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => adapter.provideSubtypes(sessionId, itemId, token), void 0, token);
   }
   $releaseTypeHierarchy(handle, sessionId) {
-    this._withAdapter(
-      handle,
-      TypeHierarchyAdapter,
-      (adapter) => Promise.resolve(adapter.releaseSession(sessionId)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => Promise.resolve(adapter.releaseSession(sessionId)), void 0, void 0);
   }
   // --- Document on drop
   registerDocumentOnDropEditProvider(extension, selector, provider, metadata) {
     const handle = this._nextHandle();
-    this._adapter.set(
-      handle,
-      new AdapterData(
-        new DocumentDropEditAdapter(
-          this._proxy,
-          this._documents,
-          provider,
-          handle,
-          extension
-        ),
-        extension
-      )
-    );
-    this._proxy.$registerDocumentOnDropEditProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      isProposedApiEnabled(extension, "documentPaste") && metadata ? {
-        supportsResolve: !!provider.resolveDocumentDropEdit,
-        dropMimeTypes: metadata.dropMimeTypes
-      } : void 0
-    );
+    this._adapter.set(handle, new AdapterData(new DocumentDropEditAdapter(this._proxy, this._documents, provider, handle, extension), extension));
+    this._proxy.$registerDocumentOnDropEditProvider(handle, this._transformDocumentSelector(selector, extension), isProposedApiEnabled(extension, "documentPaste") && metadata ? {
+      supportsResolve: !!provider.resolveDocumentDropEdit,
+      dropMimeTypes: metadata.dropMimeTypes
+    } : void 0);
     return this._createDisposable(handle);
   }
   $provideDocumentOnDropEdits(handle, requestId, resource, position, dataTransferDto, token) {
-    return this._withAdapter(
-      handle,
-      DocumentDropEditAdapter,
-      (adapter) => Promise.resolve(
-        adapter.provideDocumentOnDropEdits(
-          requestId,
-          URI.revive(resource),
-          position,
-          dataTransferDto,
-          token
-        )
-      ),
-      void 0,
-      void 0
-    );
+    return this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => Promise.resolve(adapter.provideDocumentOnDropEdits(requestId, URI.revive(resource), position, dataTransferDto, token)), void 0, void 0);
   }
   $resolveDropEdit(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      DocumentDropEditAdapter,
-      (adapter) => adapter.resolveDropEdit(id, token),
-      {},
-      void 0
-    );
+    return this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => adapter.resolveDropEdit(id, token), {}, void 0);
   }
   $releaseDocumentOnDropEdits(handle, cacheId) {
-    this._withAdapter(
-      handle,
-      DocumentDropEditAdapter,
-      (adapter) => Promise.resolve(adapter.releaseDropEdits(cacheId)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => Promise.resolve(adapter.releaseDropEdits(cacheId)), void 0, void 0);
   }
   // --- mapped edits
   registerMappedEditsProvider(extension, selector, provider) {
-    const handle = this._addNewAdapter(
-      new MappedEditsAdapter(this._documents, provider),
-      extension
-    );
-    this._proxy.$registerMappedEditsProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      extension.displayName ?? extension.name
-    );
+    const handle = this._addNewAdapter(new MappedEditsAdapter(this._documents, provider), extension);
+    this._proxy.$registerMappedEditsProvider(handle, this._transformDocumentSelector(selector, extension), extension.displayName ?? extension.name);
     return this._createDisposable(handle);
   }
   $provideMappedEdits(handle, document, codeBlocks, context, token) {
-    return this._withAdapter(
-      handle,
-      MappedEditsAdapter,
-      (adapter) => Promise.resolve(
-        adapter.provideMappedEdits(
-          document,
-          codeBlocks,
-          context,
-          token
-        )
-      ),
-      null,
-      token
-    );
+    return this._withAdapter(handle, MappedEditsAdapter, (adapter) => Promise.resolve(adapter.provideMappedEdits(document, codeBlocks, context, token)), null, token);
   }
   // --- copy/paste actions
   registerDocumentPasteEditProvider(extension, selector, provider, metadata) {
     const handle = this._nextHandle();
-    this._adapter.set(
-      handle,
-      new AdapterData(
-        new DocumentPasteEditProvider(
-          this._proxy,
-          this._documents,
-          provider,
-          handle,
-          extension
-        ),
-        extension
-      )
-    );
-    this._proxy.$registerPasteEditProvider(
-      handle,
-      this._transformDocumentSelector(selector, extension),
-      {
-        supportsCopy: !!provider.prepareDocumentPaste,
-        supportsPaste: !!provider.provideDocumentPasteEdits,
-        supportsResolve: !!provider.resolveDocumentPasteEdit,
-        providedPasteEditKinds: metadata.providedPasteEditKinds?.map(
-          (x) => x.value
-        ),
-        copyMimeTypes: metadata.copyMimeTypes,
-        pasteMimeTypes: metadata.pasteMimeTypes
-      }
-    );
+    this._adapter.set(handle, new AdapterData(new DocumentPasteEditProvider(this._proxy, this._documents, provider, handle, extension), extension));
+    this._proxy.$registerPasteEditProvider(handle, this._transformDocumentSelector(selector, extension), {
+      supportsCopy: !!provider.prepareDocumentPaste,
+      supportsPaste: !!provider.provideDocumentPasteEdits,
+      supportsResolve: !!provider.resolveDocumentPasteEdit,
+      providedPasteEditKinds: metadata.providedPasteEditKinds?.map((x) => x.value),
+      copyMimeTypes: metadata.copyMimeTypes,
+      pasteMimeTypes: metadata.pasteMimeTypes
+    });
     return this._createDisposable(handle);
   }
   $prepareDocumentPaste(handle, resource, ranges, dataTransfer, token) {
-    return this._withAdapter(
-      handle,
-      DocumentPasteEditProvider,
-      (adapter) => adapter.prepareDocumentPaste(
-        URI.revive(resource),
-        ranges,
-        dataTransfer,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.prepareDocumentPaste(URI.revive(resource), ranges, dataTransfer, token), void 0, token);
   }
   $providePasteEdits(handle, requestId, resource, ranges, dataTransferDto, context, token) {
-    return this._withAdapter(
-      handle,
-      DocumentPasteEditProvider,
-      (adapter) => adapter.providePasteEdits(
-        requestId,
-        URI.revive(resource),
-        ranges,
-        dataTransferDto,
-        context,
-        token
-      ),
-      void 0,
-      token
-    );
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.providePasteEdits(requestId, URI.revive(resource), ranges, dataTransferDto, context, token), void 0, token);
   }
   $resolvePasteEdit(handle, id, token) {
-    return this._withAdapter(
-      handle,
-      DocumentPasteEditProvider,
-      (adapter) => adapter.resolvePasteEdit(id, token),
-      {},
-      void 0
-    );
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.resolvePasteEdit(id, token), {}, void 0);
   }
   $releasePasteEdits(handle, cacheId) {
-    this._withAdapter(
-      handle,
-      DocumentPasteEditProvider,
-      (adapter) => Promise.resolve(adapter.releasePasteEdits(cacheId)),
-      void 0,
-      void 0
-    );
+    this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => Promise.resolve(adapter.releasePasteEdits(cacheId)), void 0, void 0);
   }
   // --- configuration
   static _serializeRegExp(regExp) {
@@ -3854,31 +2473,17 @@ class ExtHostLanguageFeatures {
   }
   static _serializeIndentationRule(indentationRule) {
     return {
-      decreaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(
-        indentationRule.decreaseIndentPattern
-      ),
-      increaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(
-        indentationRule.increaseIndentPattern
-      ),
-      indentNextLinePattern: indentationRule.indentNextLinePattern ? ExtHostLanguageFeatures._serializeRegExp(
-        indentationRule.indentNextLinePattern
-      ) : void 0,
-      unIndentedLinePattern: indentationRule.unIndentedLinePattern ? ExtHostLanguageFeatures._serializeRegExp(
-        indentationRule.unIndentedLinePattern
-      ) : void 0
+      decreaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(indentationRule.decreaseIndentPattern),
+      increaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(indentationRule.increaseIndentPattern),
+      indentNextLinePattern: indentationRule.indentNextLinePattern ? ExtHostLanguageFeatures._serializeRegExp(indentationRule.indentNextLinePattern) : void 0,
+      unIndentedLinePattern: indentationRule.unIndentedLinePattern ? ExtHostLanguageFeatures._serializeRegExp(indentationRule.unIndentedLinePattern) : void 0
     };
   }
   static _serializeOnEnterRule(onEnterRule) {
     return {
-      beforeText: ExtHostLanguageFeatures._serializeRegExp(
-        onEnterRule.beforeText
-      ),
-      afterText: onEnterRule.afterText ? ExtHostLanguageFeatures._serializeRegExp(
-        onEnterRule.afterText
-      ) : void 0,
-      previousLineText: onEnterRule.previousLineText ? ExtHostLanguageFeatures._serializeRegExp(
-        onEnterRule.previousLineText
-      ) : void 0,
+      beforeText: ExtHostLanguageFeatures._serializeRegExp(onEnterRule.beforeText),
+      afterText: onEnterRule.afterText ? ExtHostLanguageFeatures._serializeRegExp(onEnterRule.afterText) : void 0,
+      previousLineText: onEnterRule.previousLineText ? ExtHostLanguageFeatures._serializeRegExp(onEnterRule.previousLineText) : void 0,
       action: onEnterRule.action
     };
   }
@@ -3893,16 +2498,12 @@ class ExtHostLanguageFeatures {
     };
   }
   static _serializeAutoClosingPairs(autoClosingPairs) {
-    return autoClosingPairs.map(
-      ExtHostLanguageFeatures._serializeAutoClosingPair
-    );
+    return autoClosingPairs.map(ExtHostLanguageFeatures._serializeAutoClosingPair);
   }
   setLanguageConfiguration(extension, languageId, configuration) {
     const { wordPattern } = configuration;
     if (wordPattern && regExpLeadsToEndlessLoop(wordPattern)) {
-      throw new Error(
-        `Invalid language configuration: wordPattern '${wordPattern}' is not allowed to match the empty string.`
-      );
+      throw new Error(`Invalid language configuration: wordPattern '${wordPattern}' is not allowed to match the empty string.`);
     }
     if (wordPattern) {
       this._documents.setWordDefinitionFor(languageId, wordPattern);
@@ -3927,37 +2528,19 @@ class ExtHostLanguageFeatures {
     const serializedConfiguration = {
       comments: configuration.comments,
       brackets: configuration.brackets,
-      wordPattern: configuration.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(
-        configuration.wordPattern
-      ) : void 0,
-      indentationRules: configuration.indentationRules ? ExtHostLanguageFeatures._serializeIndentationRule(
-        configuration.indentationRules
-      ) : void 0,
-      onEnterRules: configuration.onEnterRules ? ExtHostLanguageFeatures._serializeOnEnterRules(
-        configuration.onEnterRules
-      ) : void 0,
+      wordPattern: configuration.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(configuration.wordPattern) : void 0,
+      indentationRules: configuration.indentationRules ? ExtHostLanguageFeatures._serializeIndentationRule(configuration.indentationRules) : void 0,
+      onEnterRules: configuration.onEnterRules ? ExtHostLanguageFeatures._serializeOnEnterRules(configuration.onEnterRules) : void 0,
       __electricCharacterSupport: configuration.__electricCharacterSupport,
       __characterPairSupport: configuration.__characterPairSupport,
-      autoClosingPairs: configuration.autoClosingPairs ? ExtHostLanguageFeatures._serializeAutoClosingPairs(
-        configuration.autoClosingPairs
-      ) : void 0
+      autoClosingPairs: configuration.autoClosingPairs ? ExtHostLanguageFeatures._serializeAutoClosingPairs(configuration.autoClosingPairs) : void 0
     };
-    this._proxy.$setLanguageConfiguration(
-      handle,
-      languageId,
-      serializedConfiguration
-    );
+    this._proxy.$setLanguageConfiguration(handle, languageId, serializedConfiguration);
     return this._createDisposable(handle);
   }
   $setWordDefinitions(wordDefinitions) {
     for (const wordDefinition of wordDefinitions) {
-      this._documents.setWordDefinitionFor(
-        wordDefinition.languageId,
-        new RegExp(
-          wordDefinition.regexSource,
-          wordDefinition.regexFlags
-        )
-      );
+      this._documents.setWordDefinitionFor(wordDefinition.languageId, new RegExp(wordDefinition.regexSource, wordDefinition.regexFlags));
     }
   }
 }

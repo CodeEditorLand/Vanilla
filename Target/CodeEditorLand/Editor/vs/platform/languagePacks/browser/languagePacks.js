@@ -14,10 +14,8 @@ import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { URI } from "../../../base/common/uri.js";
 import { IExtensionGalleryService } from "../../extensionManagement/common/extensionManagement.js";
 import { IExtensionResourceLoaderService } from "../../extensionResourceLoader/common/extensionResourceLoader.js";
+import { ILanguagePackItem, LanguagePackBaseService } from "../common/languagePacks.js";
 import { ILogService } from "../../log/common/log.js";
-import {
-  LanguagePackBaseService
-} from "../common/languagePacks.js";
 let WebLanguagePacksService = class extends LanguagePackBaseService {
   constructor(extensionResourceLoaderService, extensionGalleryService, logService) {
     super(extensionGalleryService);
@@ -32,40 +30,26 @@ let WebLanguagePacksService = class extends LanguagePackBaseService {
     setTimeout(() => queryTimeout.cancel(), 1e3);
     let result;
     try {
-      result = await this.extensionGalleryService.query(
-        {
-          text: `tag:"lp-${language}"`,
-          pageSize: 5
-        },
-        queryTimeout.token
-      );
+      result = await this.extensionGalleryService.query({
+        text: `tag:"lp-${language}"`,
+        pageSize: 5
+      }, queryTimeout.token);
     } catch (err) {
       this.logService.error(err);
       return void 0;
     }
-    const languagePackExtensions = result.firstPage.find(
-      (e) => e.properties.localizedLanguages?.length
-    );
+    const languagePackExtensions = result.firstPage.find((e) => e.properties.localizedLanguages?.length);
     if (!languagePackExtensions) {
-      this.logService.trace(
-        `No language pack found for language ${language}`
-      );
+      this.logService.trace(`No language pack found for language ${language}`);
       return void 0;
     }
     const manifestTimeout = new CancellationTokenSource();
     setTimeout(() => queryTimeout.cancel(), 1e3);
-    const manifest = await this.extensionGalleryService.getManifest(
-      languagePackExtensions,
-      manifestTimeout.token
-    );
-    const localization = manifest?.contributes?.localizations?.find(
-      (l) => l.languageId === language
-    );
+    const manifest = await this.extensionGalleryService.getManifest(languagePackExtensions, manifestTimeout.token);
+    const localization = manifest?.contributes?.localizations?.find((l) => l.languageId === language);
     const translation = localization?.translations.find((t) => t.id === id);
     if (!translation) {
-      this.logService.trace(
-        `No translation found for id '${id}, in ${manifest?.name}`
-      );
+      this.logService.trace(`No translation found for id '${id}, in ${manifest?.name}`);
       return void 0;
     }
     const uri = this.extensionResourceLoaderService.getExtensionGalleryResourceURL({
@@ -75,9 +59,7 @@ let WebLanguagePacksService = class extends LanguagePackBaseService {
       version: manifest.version
     });
     if (!uri) {
-      this.logService.trace(
-        "Gallery does not provide extension resources."
-      );
+      this.logService.trace("Gallery does not provide extension resources.");
       return void 0;
     }
     return URI.joinPath(uri, translation.path);

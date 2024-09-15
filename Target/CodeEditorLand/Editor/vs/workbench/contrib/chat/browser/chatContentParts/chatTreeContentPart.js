@@ -11,26 +11,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
+import { IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
+import { ITreeCompressionDelegate } from "../../../../../base/browser/ui/tree/asyncDataTree.js";
+import { ICompressedTreeNode } from "../../../../../base/browser/ui/tree/compressedObjectTreeModel.js";
+import { ICompressibleTreeRenderer } from "../../../../../base/browser/ui/tree/objectTree.js";
+import { IAsyncDataSource, ITreeNode } from "../../../../../base/browser/ui/tree/tree.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import {
-  FileKind,
-  FileType
-} from "../../../../../platform/files/common/files.js";
+import { FileKind, FileType } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { WorkbenchCompressibleAsyncDataTree } from "../../../../../platform/list/browser/listService.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import {
-  ResourceLabels
-} from "../../../../browser/labels.js";
+import { IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
+import { ChatTreeItem } from "../chat.js";
+import { IDisposableReference, ResourcePool } from "./chatCollections.js";
+import { IChatContentPart } from "./chatContentParts.js";
+import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
+import { IChatResponseProgressFileTreeData } from "../../common/chatService.js";
 import { createFileIconThemableTreeContainerScope } from "../../../files/browser/views/explorerView.js";
-import { ResourcePool } from "./chatCollections.js";
+import { IFilesConfiguration } from "../../../files/common/files.js";
 const $ = dom.$;
 let ChatTreeContentPart = class extends Disposable {
   constructor(data, element, treePool, treeDataIndex, openerService) {
@@ -39,24 +41,18 @@ let ChatTreeContentPart = class extends Disposable {
     const ref = this._register(treePool.get());
     this.tree = ref.object;
     this.onDidFocus = this.tree.onDidFocus;
-    this._register(
-      this.tree.onDidOpen((e) => {
-        if (e.element && !("children" in e.element)) {
-          this.openerService.open(e.element.uri);
-        }
-      })
-    );
-    this._register(
-      this.tree.onDidChangeCollapseState(() => {
-        this._onDidChangeHeight.fire();
-      })
-    );
-    this._register(
-      this.tree.onContextMenu((e) => {
-        e.browserEvent.preventDefault();
-        e.browserEvent.stopPropagation();
-      })
-    );
+    this._register(this.tree.onDidOpen((e) => {
+      if (e.element && !("children" in e.element)) {
+        this.openerService.open(e.element.uri);
+      }
+    }));
+    this._register(this.tree.onDidChangeCollapseState(() => {
+      this._onDidChangeHeight.fire();
+    }));
+    this._register(this.tree.onContextMenu((e) => {
+      e.browserEvent.preventDefault();
+      e.browserEvent.stopPropagation();
+    }));
     this.tree.setInput(data).then(() => {
       if (!ref.isStale()) {
         this.tree.layout();
@@ -103,30 +99,16 @@ let TreePool = class extends Disposable {
     return this._pool.inUse;
   }
   treeFactory() {
-    const resourceLabels = this._register(
-      this.instantiationService.createInstance(ResourceLabels, {
-        onDidChangeVisibility: this._onDidChangeVisibility
-      })
-    );
+    const resourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
     const container = $(".interactive-response-progress-tree");
-    this._register(
-      createFileIconThemableTreeContainerScope(
-        container,
-        this.themeService
-      )
-    );
+    this._register(createFileIconThemableTreeContainerScope(container, this.themeService));
     const tree = this.instantiationService.createInstance(
       WorkbenchCompressibleAsyncDataTree,
       "ChatListRenderer",
       container,
       new ChatListTreeDelegate(),
       new ChatListTreeCompressionDelegate(),
-      [
-        new ChatListTreeRenderer(
-          resourceLabels,
-          this.configService.getValue("explorer.decorations")
-        )
-      ],
+      [new ChatListTreeRenderer(resourceLabels, this.configService.getValue("explorer.decorations"))],
       new ChatListTreeDataSource(),
       {
         collapseByDefault: /* @__PURE__ */ __name(() => false, "collapseByDefault"),
@@ -193,21 +175,16 @@ class ChatListTreeRenderer {
   renderCompressedElements(element, index, templateData, height) {
     templateData.label.element.style.display = "flex";
     const label = element.element.elements.map((e) => e.label);
-    templateData.label.setResource(
-      { resource: element.element.elements[0].uri, name: label },
-      {
-        title: element.element.elements[0].label,
-        fileKind: element.children ? FileKind.FOLDER : FileKind.FILE,
-        extraClasses: ["explorer-item"],
-        fileDecorations: this.decorations
-      }
-    );
+    templateData.label.setResource({ resource: element.element.elements[0].uri, name: label }, {
+      title: element.element.elements[0].label,
+      fileKind: element.children ? FileKind.FOLDER : FileKind.FILE,
+      extraClasses: ["explorer-item"],
+      fileDecorations: this.decorations
+    });
   }
   renderTemplate(container) {
     const templateDisposables = new DisposableStore();
-    const label = templateDisposables.add(
-      this.labels.create(container, { supportHighlights: true })
-    );
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true }));
     return { templateDisposables, label };
   }
   renderElement(element, index, templateData, height) {
@@ -219,14 +196,11 @@ class ChatListTreeRenderer {
         fileDecorations: this.decorations
       });
     } else {
-      templateData.label.setResource(
-        { resource: element.element.uri, name: element.element.label },
-        {
-          title: element.element.label,
-          fileKind: FileKind.FOLDER,
-          fileDecorations: this.decorations
-        }
-      );
+      templateData.label.setResource({ resource: element.element.uri, name: element.element.label }, {
+        title: element.element.label,
+        fileKind: FileKind.FOLDER,
+        fileDecorations: this.decorations
+      });
     }
   }
   disposeTemplate(templateData) {

@@ -10,36 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../base/common/event.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { IUserDataAutoSyncService, UserDataSyncError } from "../../../../platform/userDataSync/common/userDataSync.js";
 import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import {
-  IUserDataAutoSyncService,
-  UserDataSyncError
-} from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { Event } from "../../../../base/common/event.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 let UserDataAutoSyncService = class {
   static {
     __name(this, "UserDataAutoSyncService");
   }
   channel;
   get onError() {
-    return Event.map(
-      this.channel.listen("onError"),
-      (e) => UserDataSyncError.toUserDataSyncError(e)
-    );
+    return Event.map(this.channel.listen("onError"), (e) => UserDataSyncError.toUserDataSyncError(e));
   }
   constructor(sharedProcessService) {
     this.channel = sharedProcessService.getChannel("userDataAutoSync");
   }
   triggerSync(sources, hasToLimitSync, disableCache) {
-    return this.channel.call("triggerSync", [
-      sources,
-      hasToLimitSync,
-      disableCache
-    ]);
+    return this.channel.call("triggerSync", [sources, hasToLimitSync, disableCache]);
   }
   turnOn() {
     return this.channel.call("turnOn");
@@ -51,9 +39,5 @@ let UserDataAutoSyncService = class {
 UserDataAutoSyncService = __decorateClass([
   __decorateParam(0, ISharedProcessService)
 ], UserDataAutoSyncService);
-registerSingleton(
-  IUserDataAutoSyncService,
-  UserDataAutoSyncService,
-  InstantiationType.Delayed
-);
+registerSingleton(IUserDataAutoSyncService, UserDataAutoSyncService, InstantiationType.Delayed);
 //# sourceMappingURL=userDataAutoSyncService.js.map

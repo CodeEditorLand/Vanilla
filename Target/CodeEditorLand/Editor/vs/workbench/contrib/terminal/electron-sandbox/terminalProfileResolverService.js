@@ -14,12 +14,12 @@ import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ITerminalLogService } from "../../../../platform/terminal/common/terminal.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { IHistoryService } from "../../../services/history/common/history.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import { ITerminalInstanceService } from "../browser/terminal.js";
 import { BaseTerminalProfileResolverService } from "../browser/terminalProfileResolverService.js";
 import { ITerminalProfileService } from "../common/terminal.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 let ElectronTerminalProfileResolverService = class extends BaseTerminalProfileResolverService {
   static {
     __name(this, "ElectronTerminalProfileResolverService");
@@ -28,24 +28,16 @@ let ElectronTerminalProfileResolverService = class extends BaseTerminalProfileRe
     super(
       {
         getDefaultSystemShell: /* @__PURE__ */ __name(async (remoteAuthority, platform) => {
-          const backend = await terminalInstanceService.getBackend(
-            remoteAuthority
-          );
+          const backend = await terminalInstanceService.getBackend(remoteAuthority);
           if (!backend) {
-            throw new ErrorNoTelemetry(
-              `Cannot get default system shell when there is no backend for remote authority '${remoteAuthority}'`
-            );
+            throw new ErrorNoTelemetry(`Cannot get default system shell when there is no backend for remote authority '${remoteAuthority}'`);
           }
           return backend.getDefaultSystemShell(platform);
         }, "getDefaultSystemShell"),
         getEnvironment: /* @__PURE__ */ __name(async (remoteAuthority) => {
-          const backend = await terminalInstanceService.getBackend(
-            remoteAuthority
-          );
+          const backend = await terminalInstanceService.getBackend(remoteAuthority);
           if (!backend) {
-            throw new ErrorNoTelemetry(
-              `Cannot get environment when there is no backend for remote authority '${remoteAuthority}'`
-            );
+            throw new ErrorNoTelemetry(`Cannot get environment when there is no backend for remote authority '${remoteAuthority}'`);
           }
           return backend.getEnvironment();
         }, "getEnvironment")

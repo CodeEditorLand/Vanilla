@@ -1,3 +1,6 @@
+import { UriComponents } from "../../../base/common/uri.js";
+import { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
+import { PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 var OldIssueType = /* @__PURE__ */ ((OldIssueType2) => {
   OldIssueType2[OldIssueType2["Bug"] = 0] = "Bug";

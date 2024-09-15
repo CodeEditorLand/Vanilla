@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/webviewView/browser/webviewView.contribution.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport {\n\tInstantiationType,\n\tregisterSingleton,\n} from \"../../../../platform/instantiation/common/extensions.js\";\nimport {\n\tIWebviewViewService,\n\tWebviewViewService,\n} from \"./webviewViewService.js\";\n\nregisterSingleton(\n\tIWebviewViewService,\n\tWebviewViewService,\n\tInstantiationType.Delayed,\n);\n"],
-  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP;AAAA,EACC;AAAA,EACA;AAAA,OACM;AAEP;AAAA,EACC;AAAA,EACA;AAAA,EACA,kBAAkB;AACnB;",
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { InstantiationType, registerSingleton } from '../../../../platform/instantiation/common/extensions.js';\nimport { IWebviewViewService, WebviewViewService } from './webviewViewService.js';\n\nregisterSingleton(IWebviewViewService, WebviewViewService, InstantiationType.Delayed);\n"],
+  "mappings": "AAKA,SAAS,mBAAmB,yBAAyB;AACrD,SAAS,qBAAqB,0BAA0B;AAExD,kBAAkB,qBAAqB,oBAAoB,kBAAkB,OAAO;",
   "names": []
 }

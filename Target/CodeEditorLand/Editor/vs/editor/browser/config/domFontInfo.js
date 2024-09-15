@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { FastDomNode } from "../../../base/browser/fastDomNode.js";
+import { BareFontInfo } from "../../common/config/fontInfo.js";
 function applyFontInfo(domNode, fontInfo) {
   if (domNode instanceof FastDomNode) {
     domNode.setFontFamily(fontInfo.getMassagedFontFamily());

@@ -12,11 +12,7 @@ let codeBufferLength = 0;
 const codeBuffer = new Uint32Array(10);
 function disassembleKorean(code) {
   codeBufferLength = 0;
-  getCodesFromArray(
-    code,
-    modernConsonants,
-    4352 /* InitialConsonant */
-  );
+  getCodesFromArray(code, modernConsonants, 4352 /* InitialConsonant */);
   if (codeBufferLength > 0) {
     return codeBuffer.subarray(0, codeBufferLength);
   }
@@ -24,19 +20,11 @@ function disassembleKorean(code) {
   if (codeBufferLength > 0) {
     return codeBuffer.subarray(0, codeBufferLength);
   }
-  getCodesFromArray(
-    code,
-    modernFinalConsonants,
-    4520 /* FinalConsonant */
-  );
+  getCodesFromArray(code, modernFinalConsonants, 4520 /* FinalConsonant */);
   if (codeBufferLength > 0) {
     return codeBuffer.subarray(0, codeBufferLength);
   }
-  getCodesFromArray(
-    code,
-    compatibilityJamo,
-    12593 /* CompatibilityJamo */
-  );
+  getCodesFromArray(code, compatibilityJamo, 12593 /* CompatibilityJamo */);
   if (codeBufferLength) {
     return codeBuffer.subarray(0, codeBufferLength);
   }
@@ -49,34 +37,18 @@ function disassembleKorean(code) {
     if (initialConsonantIndex < modernConsonants.length) {
       getCodesFromArray(initialConsonantIndex, modernConsonants, 0);
     } else if (4352 /* InitialConsonant */ + initialConsonantIndex - 12593 /* CompatibilityJamo */ < compatibilityJamo.length) {
-      getCodesFromArray(
-        4352 /* InitialConsonant */ + initialConsonantIndex,
-        compatibilityJamo,
-        12593 /* CompatibilityJamo */
-      );
+      getCodesFromArray(4352 /* InitialConsonant */ + initialConsonantIndex, compatibilityJamo, 12593 /* CompatibilityJamo */);
     }
     if (vowelIndex < modernVowels.length) {
       getCodesFromArray(vowelIndex, modernVowels, 0);
     } else if (4449 /* Vowel */ + vowelIndex - 12593 /* CompatibilityJamo */ < compatibilityJamo.length) {
-      getCodesFromArray(
-        4449 /* Vowel */ + vowelIndex - 12593 /* CompatibilityJamo */,
-        compatibilityJamo,
-        12593 /* CompatibilityJamo */
-      );
+      getCodesFromArray(4449 /* Vowel */ + vowelIndex - 12593 /* CompatibilityJamo */, compatibilityJamo, 12593 /* CompatibilityJamo */);
     }
     if (finalConsonantIndex >= 0) {
       if (finalConsonantIndex < modernFinalConsonants.length) {
-        getCodesFromArray(
-          finalConsonantIndex,
-          modernFinalConsonants,
-          0
-        );
+        getCodesFromArray(finalConsonantIndex, modernFinalConsonants, 0);
       } else if (4520 /* FinalConsonant */ + finalConsonantIndex - 12593 /* CompatibilityJamo */ < compatibilityJamo.length) {
-        getCodesFromArray(
-          4520 /* FinalConsonant */ + finalConsonantIndex - 12593 /* CompatibilityJamo */,
-          compatibilityJamo,
-          12593 /* CompatibilityJamo */
-        );
+        getCodesFromArray(4520 /* FinalConsonant */ + finalConsonantIndex - 12593 /* CompatibilityJamo */, compatibilityJamo, 12593 /* CompatibilityJamo */);
       }
     }
     if (codeBufferLength > 0) {

@@ -10,31 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { parse, stringify } from "../../../../base/common/marshalling.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageEntry, IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  AbstractSynchroniser
-} from "../../../../platform/userDataSync/common/abstractSynchronizer.js";
-import {
-  SyncResource
-} from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { AbstractSynchroniser, IAcceptResult, IMergeResult, IResourcePreview, ISyncResourcePreview } from "../../../../platform/userDataSync/common/abstractSynchronizer.js";
+import { IRemoteUserData, IResourceRefHandle, IUserDataSyncLocalStoreService, IUserDataSyncConfiguration, IUserDataSyncEnablementService, IUserDataSyncLogService, IUserDataSyncStoreService, IUserDataSynchroniser, IWorkspaceState, SyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { EditSession, IEditSessionsStorageService } from "./editSessions.js";
 import { IWorkspaceIdentityService } from "../../../services/workspaces/common/workspaceIdentityService.js";
-import {
-  IEditSessionsStorageService
-} from "./editSessions.js";
 class NullBackupStoreService {
   static {
     __name(this, "NullBackupStoreService");
@@ -80,20 +71,7 @@ let WorkspaceStateSynchroniser = class extends AbstractSynchroniser {
   constructor(profile, collection, userDataSyncStoreService, logService, fileService, environmentService, telemetryService, configurationService, storageService, uriIdentityService, workspaceIdentityService, editSessionsStorageService) {
     const userDataSyncLocalStoreService = new NullBackupStoreService();
     const userDataSyncEnablementService = new NullEnablementService();
-    super(
-      { syncResource: SyncResource.WorkspaceState, profile },
-      collection,
-      fileService,
-      environmentService,
-      storageService,
-      userDataSyncStoreService,
-      userDataSyncLocalStoreService,
-      userDataSyncEnablementService,
-      telemetryService,
-      logService,
-      configurationService,
-      uriIdentityService
-    );
+    super({ syncResource: SyncResource.WorkspaceState, profile }, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
     this.workspaceIdentityService = workspaceIdentityService;
     this.editSessionsStorageService = editSessionsStorageService;
   }
@@ -103,17 +81,12 @@ let WorkspaceStateSynchroniser = class extends AbstractSynchroniser {
   version = 1;
   async sync() {
     const cancellationTokenSource = new CancellationTokenSource();
-    const folders = await this.workspaceIdentityService.getWorkspaceStateFolders(
-      cancellationTokenSource.token
-    );
+    const folders = await this.workspaceIdentityService.getWorkspaceStateFolders(cancellationTokenSource.token);
     if (!folders.length) {
       return;
     }
     await this.storageService.flush();
-    const keys = this.storageService.keys(
-      StorageScope.WORKSPACE,
-      StorageTarget.USER
-    );
+    const keys = this.storageService.keys(StorageScope.WORKSPACE, StorageTarget.USER);
     if (!keys.length) {
       return;
     }
@@ -124,44 +97,25 @@ let WorkspaceStateSynchroniser = class extends AbstractSynchroniser {
         contributedData[key] = data;
       }
     });
-    const content = {
-      folders,
-      storage: contributedData,
-      version: this.version
-    };
-    await this.editSessionsStorageService.write(
-      "workspaceState",
-      stringify(content)
-    );
+    const content = { folders, storage: contributedData, version: this.version };
+    await this.editSessionsStorageService.write("workspaceState", stringify(content));
   }
   async apply() {
-    const payload = this.editSessionsStorageService.lastReadResources.get(
-      "editSessions"
-    )?.content;
+    const payload = this.editSessionsStorageService.lastReadResources.get("editSessions")?.content;
     const workspaceStateId = payload ? JSON.parse(payload).workspaceStateId : void 0;
-    const resource = await this.editSessionsStorageService.read(
-      "workspaceState",
-      workspaceStateId
-    );
+    const resource = await this.editSessionsStorageService.read("workspaceState", workspaceStateId);
     if (!resource) {
       return null;
     }
     const remoteWorkspaceState = parse(resource.content);
     if (!remoteWorkspaceState) {
-      this.logService.info(
-        "Skipping initializing workspace state because remote workspace state does not exist."
-      );
+      this.logService.info("Skipping initializing workspace state because remote workspace state does not exist.");
       return null;
     }
     const cancellationTokenSource = new CancellationTokenSource();
-    const replaceUris = await this.workspaceIdentityService.matches(
-      remoteWorkspaceState.folders,
-      cancellationTokenSource.token
-    );
+    const replaceUris = await this.workspaceIdentityService.matches(remoteWorkspaceState.folders, cancellationTokenSource.token);
     if (!replaceUris) {
-      this.logService.info(
-        "Skipping initializing workspace state because remote workspace state does not match current workspace."
-      );
+      this.logService.info("Skipping initializing workspace state because remote workspace state does not match current workspace.");
       return null;
     }
     const storage = {};
@@ -174,19 +128,9 @@ let WorkspaceStateSynchroniser = class extends AbstractSynchroniser {
         try {
           const value = parse(storage[key]);
           replaceUris(value);
-          storageEntries.push({
-            key,
-            value,
-            scope: StorageScope.WORKSPACE,
-            target: StorageTarget.USER
-          });
+          storageEntries.push({ key, value, scope: StorageScope.WORKSPACE, target: StorageTarget.USER });
         } catch {
-          storageEntries.push({
-            key,
-            value: storage[key],
-            scope: StorageScope.WORKSPACE,
-            target: StorageTarget.USER
-          });
+          storageEntries.push({ key, value: storage[key], scope: StorageScope.WORKSPACE, target: StorageTarget.USER });
         }
       }
       this.storageService.storeAll(storageEntries, true);

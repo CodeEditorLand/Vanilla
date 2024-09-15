@@ -1,10 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import { ScanCode, ScanCodeUtils } from "../../../base/common/keyCodes.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IKeyboardLayoutService = createDecorator(
-  "keyboardLayoutService"
-);
+import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
+import { IKeyboardMapper } from "./keyboardMapper.js";
+const IKeyboardLayoutService = createDecorator("keyboardLayoutService");
 function areKeyboardLayoutsEqual(a, b) {
   if (!a || !b) {
     return false;
@@ -48,7 +49,7 @@ function parseKeyboardLayoutDescription(layout) {
     }
     if (/^.*inputmethod\./.test(macLayout.id)) {
       return {
-        label: macLayout.id.replace(/^.*inputmethod\./, "").replace(/[-.]/, " "),
+        label: macLayout.id.replace(/^.*inputmethod\./, "").replace(/[-\.]/, " "),
         description: `Input Method (${macLayout.lang})`
       };
     }

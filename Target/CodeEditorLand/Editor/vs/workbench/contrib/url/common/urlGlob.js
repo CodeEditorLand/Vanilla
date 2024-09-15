@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
 const testUrlMatchesGlob = /* @__PURE__ */ __name((uri, globUrl) => {
   let url = uri.with({ query: null, fragment: null }).toString(true);
   const normalize = /* @__PURE__ */ __name((url2) => url2.replace(/\/+$/, ""), "normalize");
@@ -30,39 +31,21 @@ const doUrlMatch = /* @__PURE__ */ __name((memo, url, globUrl, urlOffset, globUr
     return remaining[0] === "/";
   }
   if (url[urlOffset] === globUrl[globUrlOffset]) {
-    options.push(
-      doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset + 1)
-    );
+    options.push(doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset + 1));
   }
   if (globUrl[globUrlOffset] + globUrl[globUrlOffset + 1] === "*.") {
     if (!["/", ":"].includes(url[urlOffset])) {
-      options.push(
-        doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset)
-      );
+      options.push(doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset));
     }
-    options.push(
-      doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 2)
-    );
+    options.push(doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 2));
   }
   if (globUrl[globUrlOffset] === "*") {
     if (urlOffset + 1 === url.length) {
-      options.push(
-        doUrlMatch(
-          memo,
-          url,
-          globUrl,
-          urlOffset + 1,
-          globUrlOffset + 1
-        )
-      );
+      options.push(doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset + 1));
     } else {
-      options.push(
-        doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset)
-      );
+      options.push(doUrlMatch(memo, url, globUrl, urlOffset + 1, globUrlOffset));
     }
-    options.push(
-      doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 1)
-    );
+    options.push(doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 1));
   }
   if (globUrl[globUrlOffset] + globUrl[globUrlOffset + 1] === ":*") {
     if (url[urlOffset] === ":") {
@@ -70,13 +53,9 @@ const doUrlMatch = /* @__PURE__ */ __name((memo, url, globUrl, urlOffset, globUr
       do {
         endPortIndex++;
       } while (/[0-9]/.test(url[endPortIndex]));
-      options.push(
-        doUrlMatch(memo, url, globUrl, endPortIndex, globUrlOffset + 2)
-      );
+      options.push(doUrlMatch(memo, url, globUrl, endPortIndex, globUrlOffset + 2));
     } else {
-      options.push(
-        doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 2)
-      );
+      options.push(doUrlMatch(memo, url, globUrl, urlOffset, globUrlOffset + 2));
     }
   }
   return memo[urlOffset][globUrlOffset] = options.some((a) => a === true);

@@ -11,17 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../base/browser/dom.js";
-import {
-  ActionViewItem
-} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { Action } from "../../../../base/common/actions.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Action, IAction } from "../../../../base/common/actions.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { MarkersContextKeys } from "../common/markers.js";
 import Messages from "./messages.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Marker } from "./markersModel.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ActionViewItem, IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { MarkersContextKeys } from "../common/markers.js";
 import "./markersViewActions.css";
 class MarkersFilters extends Disposable {
   constructor(options, contextKeyService) {
@@ -40,9 +40,7 @@ class MarkersFilters extends Disposable {
   _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
   filterHistory;
-  _excludedFiles = MarkersContextKeys.ShowExcludedFilesFilterContextKey.bindTo(
-    this.contextKeyService
-  );
+  _excludedFiles = MarkersContextKeys.ShowExcludedFilesFilterContextKey.bindTo(this.contextKeyService);
   get excludedFiles() {
     return !!this._excludedFiles.get();
   }
@@ -52,9 +50,7 @@ class MarkersFilters extends Disposable {
       this._onDidChange.fire({ excludedFiles: true });
     }
   }
-  _activeFile = MarkersContextKeys.ShowActiveFileFilterContextKey.bindTo(
-    this.contextKeyService
-  );
+  _activeFile = MarkersContextKeys.ShowActiveFileFilterContextKey.bindTo(this.contextKeyService);
   get activeFile() {
     return !!this._activeFile.get();
   }
@@ -64,9 +60,7 @@ class MarkersFilters extends Disposable {
       this._onDidChange.fire({ activeFile: true });
     }
   }
-  _showWarnings = MarkersContextKeys.ShowWarningsFilterContextKey.bindTo(
-    this.contextKeyService
-  );
+  _showWarnings = MarkersContextKeys.ShowWarningsFilterContextKey.bindTo(this.contextKeyService);
   get showWarnings() {
     return !!this._showWarnings.get();
   }
@@ -76,9 +70,7 @@ class MarkersFilters extends Disposable {
       this._onDidChange.fire({ showWarnings: true });
     }
   }
-  _showErrors = MarkersContextKeys.ShowErrorsFilterContextKey.bindTo(
-    this.contextKeyService
-  );
+  _showErrors = MarkersContextKeys.ShowErrorsFilterContextKey.bindTo(this.contextKeyService);
   get showErrors() {
     return !!this._showErrors.get();
   }
@@ -88,9 +80,7 @@ class MarkersFilters extends Disposable {
       this._onDidChange.fire({ showErrors: true });
     }
   }
-  _showInfos = MarkersContextKeys.ShowInfoFilterContextKey.bindTo(
-    this.contextKeyService
-  );
+  _showInfos = MarkersContextKeys.ShowInfoFilterContextKey.bindTo(this.contextKeyService);
   get showInfos() {
     return !!this._showInfos.get();
   }
@@ -103,12 +93,7 @@ class MarkersFilters extends Disposable {
 }
 class QuickFixAction extends Action {
   constructor(marker) {
-    super(
-      QuickFixAction.ID,
-      Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX,
-      QuickFixAction.CLASS,
-      false
-    );
+    super(QuickFixAction.ID, Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX, QuickFixAction.CLASS, false);
     this.marker = marker;
   }
   static {
@@ -158,10 +143,7 @@ let QuickFixActionViewItem = class extends ActionViewItem {
     const quickFixes = this.action.quickFixes;
     if (quickFixes.length) {
       this.contextMenuService.showContextMenu({
-        getAnchor: /* @__PURE__ */ __name(() => ({
-          x: elementPosition.left + 10,
-          y: elementPosition.top + elementPosition.height + 4
-        }), "getAnchor"),
+        getAnchor: /* @__PURE__ */ __name(() => ({ x: elementPosition.left + 10, y: elementPosition.top + elementPosition.height + 4 }), "getAnchor"),
         getActions: /* @__PURE__ */ __name(() => quickFixes, "getActions")
       });
     }

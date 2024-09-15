@@ -10,61 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toAction } from "../../../../base/common/actions.js";
-import {
-  TaskSequentializer,
-  raceCancellation,
-  timeout
-} from "../../../../base/common/async.js";
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
-import {
-  isErrorWithActions,
-  toErrorMessage
-} from "../../../../base/common/errorMessage.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { hash } from "../../../../base/common/hash.js";
-import { isWindows } from "../../../../base/common/platform.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
-import {
-  ETAG_DISABLED,
-  FileOperationResult,
-  IFileService,
-  NotModifiedSinceFileOperationError
-} from "../../../../platform/files/common/files.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { ETAG_DISABLED, FileOperationError, FileOperationResult, IFileReadLimits, IFileService, IFileStatWithMetadata, IFileStreamContent, IWriteFileOptions, NotModifiedSinceFileOperationError } from "../../../../platform/files/common/files.js";
+import { ISaveOptions, IRevertOptions, SaveReason } from "../../../common/editor.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
+import { IWorkingCopyBackup, IWorkingCopyBackupMeta, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "./workingCopy.js";
+import { raceCancellation, TaskSequentializer, timeout } from "../../../../base/common/async.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
-import {
-  SaveReason
-} from "../../../common/editor.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { IWorkingCopyFileService } from "./workingCopyFileService.js";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { IWorkingCopyBackupService, IResolvedWorkingCopyBackup } from "./workingCopyBackup.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { hash } from "../../../../base/common/hash.js";
+import { isErrorWithActions, toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { IAction, toAction } from "../../../../base/common/actions.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { IWorkingCopyEditorService } from "./workingCopyEditorService.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import {
-  SnapshotContext
-} from "./fileWorkingCopy.js";
-import {
-  ResourceWorkingCopy
-} from "./resourceWorkingCopy.js";
-import {
-  WorkingCopyCapabilities
-} from "./workingCopy.js";
-import {
-  IWorkingCopyBackupService
-} from "./workingCopyBackup.js";
-import { IWorkingCopyEditorService } from "./workingCopyEditorService.js";
-import { IWorkingCopyFileService } from "./workingCopyFileService.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { IResourceWorkingCopy, ResourceWorkingCopy } from "./resourceWorkingCopy.js";
+import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory, SnapshotContext } from "./fileWorkingCopy.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IProgress, IProgressService, IProgressStep, ProgressLocation } from "../../../../platform/progress/common/progress.js";
 var StoredFileWorkingCopyState = /* @__PURE__ */ ((StoredFileWorkingCopyState2) => {
   StoredFileWorkingCopyState2[StoredFileWorkingCopyState2["SAVED"] = 0] = "SAVED";
   StoredFileWorkingCopyState2[StoredFileWorkingCopyState2["DIRTY"] = 1] = "DIRTY";
@@ -116,20 +88,14 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
   onDidChangeDirty = this._onDidChangeDirty.event;
   _onDidSaveError = this._register(new Emitter());
   onDidSaveError = this._onDidSaveError.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
   _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
   _onDidChangeReadonly = this._register(new Emitter());
   onDidChangeReadonly = this._onDidChangeReadonly.event;
   registerListeners() {
-    this._register(
-      this.filesConfigurationService.onDidChangeReadonly(
-        () => this._onDidChangeReadonly.fire()
-      )
-    );
+    this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeReadonly.fire()));
   }
   //#region Dirty
   dirty = false;
@@ -155,15 +121,15 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     const wasInConflictMode = this.inConflictMode;
     const wasInErrorMode = this.inErrorMode;
     const oldSavedVersionId = this.savedVersionId;
-    if (dirty) {
-      this.dirty = true;
-    } else {
+    if (!dirty) {
       this.dirty = false;
       this.inConflictMode = false;
       this.inErrorMode = false;
       if (this.isResolved()) {
         this.savedVersionId = this.model.versionId;
       }
+    } else {
+      this.dirty = true;
     }
     return () => {
       this.dirty = wasDirty;
@@ -182,15 +148,11 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
   async resolve(options) {
     this.trace("resolve() - enter");
     if (this.isDisposed()) {
-      this.trace(
-        "resolve() - exit - without resolving because file working copy is disposed"
-      );
+      this.trace("resolve() - exit - without resolving because file working copy is disposed");
       return;
     }
     if (!options?.contents && (this.dirty || this.saveSequentializer.isRunning())) {
-      this.trace(
-        "resolve() - exit - without resolving because file working copy is dirty or being saved"
-      );
+      this.trace("resolve() - exit - without resolving because file working copy is dirty or being saved");
       return;
     }
     return this.doResolve(options);
@@ -226,9 +188,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
       ctime = Date.now();
       size = 0;
       etag = ETAG_DISABLED;
-      this.setOrphaned(
-        error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND
-      );
+      this.setOrphaned(error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND);
     }
     return this.resolveFromContent(
       {
@@ -243,17 +203,14 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
         locked: false
       },
       true
+      /* dirty (resolved from buffer) */
     );
   }
   async resolveFromBackup() {
-    const backup = await this.workingCopyBackupService.resolve(
-      this
-    );
+    const backup = await this.workingCopyBackupService.resolve(this);
     const isNew = !this.isResolved();
     if (!isNew) {
-      this.trace(
-        "resolveFromBackup() - exit - withoutresolving because previously new file working copy got created meanwhile"
-      );
+      this.trace("resolveFromBackup() - exit - withoutresolving because previously new file working copy got created meanwhile");
       return true;
     }
     if (backup) {
@@ -278,6 +235,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
         locked: false
       },
       true
+      /* dirty (resolved from backup) */
     );
     if (backup.meta && backup.meta.orphaned) {
       this.setOrphaned(true);
@@ -294,23 +252,19 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     }
     const currentVersionId = this.versionId;
     try {
-      const content = await this.fileService.readFileStream(
-        this.resource,
-        {
-          etag,
-          limits: options?.limits
-        }
-      );
+      const content = await this.fileService.readFileStream(this.resource, {
+        etag,
+        limits: options?.limits
+      });
       this.setOrphaned(false);
       if (currentVersionId !== this.versionId) {
-        this.trace(
-          "resolveFromFile() - exit - without resolving because file working copy content changed"
-        );
+        this.trace("resolveFromFile() - exit - without resolving because file working copy content changed");
         return;
       }
       await this.resolveFromContent(
         content,
         false
+        /* not dirty (resolved from file) */
       );
     } catch (error) {
       const result = error.fileOperationResult;
@@ -330,9 +284,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
   async resolveFromContent(content, dirty) {
     this.trace("resolveFromContent() - enter");
     if (this.isDisposed()) {
-      this.trace(
-        "resolveFromContent() - exit - because working copy is disposed"
-      );
+      this.trace("resolveFromContent() - exit - because working copy is disposed");
       return;
     }
     this.updateLastResolvedFileStat({
@@ -359,13 +311,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
   }
   async doCreateModel(contents) {
     this.trace("doCreateModel()");
-    this._model = this._register(
-      await this.modelFactory.createModel(
-        this.resource,
-        contents,
-        CancellationToken.None
-      )
-    );
+    this._model = this._register(await this.modelFactory.createModel(this.resource, contents, CancellationToken.None));
     this.installModelListeners(this._model);
   }
   ignoreDirtyOnModelContentChange = false;
@@ -379,11 +325,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     }
   }
   installModelListeners(model) {
-    this._register(
-      model.onDidChangeContent(
-        (e) => this.onModelContentChanged(model, e.isUndoing || e.isRedoing)
-      )
-    );
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(model, e.isUndoing || e.isRedoing)));
     this._register(model.onWillDispose(() => this.dispose()));
   }
   onModelContentChanged(model, isUndoingOrRedoing) {
@@ -395,18 +337,14 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     }
     if (!this.ignoreDirtyOnModelContentChange && !this.isReadonly()) {
       if (model.versionId === this.savedVersionId) {
-        this.trace(
-          "onModelContentChanged() - model content changed back to last saved version"
-        );
+        this.trace("onModelContentChanged() - model content changed back to last saved version");
         const wasDirty = this.dirty;
         this.setDirty(false);
         if (wasDirty) {
           this._onDidRevert.fire();
         }
       } else {
-        this.trace(
-          "onModelContentChanged() - model content changed and marked as dirty"
-        );
+        this.trace("onModelContentChanged() - model content changed and marked as dirty");
         this.setDirty(true);
       }
     }
@@ -426,7 +364,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     return this.model?.configuration?.backupDelay;
   }
   async backup(token) {
-    let meta;
+    let meta = void 0;
     if (this.lastResolvedFileStat) {
       meta = {
         mtime: this.lastResolvedFileStat.mtime,
@@ -436,12 +374,9 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
         orphaned: this.isOrphaned()
       };
     }
-    let content;
+    let content = void 0;
     if (this.isResolved()) {
-      content = await raceCancellation(
-        this.model.snapshot(SnapshotContext.Backup, token),
-        token
-      );
+      content = await raceCancellation(this.model.snapshot(SnapshotContext.Backup, token), token);
     }
     return { meta, content };
   }
@@ -461,9 +396,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
       return false;
     }
     if ((this.hasState(3 /* CONFLICT */) || this.hasState(5 /* ERROR */)) && (options.reason === SaveReason.AUTO || options.reason === SaveReason.FOCUS_CHANGE || options.reason === SaveReason.WINDOW_CHANGE)) {
-      this.trace(
-        "save() - ignoring auto save request for file working copy that is in conflict or error"
-      );
+      this.trace("save() - ignoring auto save request for file working copy that is in conflict or error");
       return false;
     }
     this.trace("save() - enter");
@@ -478,21 +411,15 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     const versionId = this.versionId;
     this.trace(`doSave(${versionId}) - enter with versionId ${versionId}`);
     if (this.ignoreSaveFromSaveParticipants) {
-      this.trace(
-        `doSave(${versionId}) - exit - refusing to save() recursively from save participant`
-      );
+      this.trace(`doSave(${versionId}) - exit - refusing to save() recursively from save participant`);
       return;
     }
     if (this.saveSequentializer.isRunning(versionId)) {
-      this.trace(
-        `doSave(${versionId}) - exit - found a running save for versionId ${versionId}`
-      );
+      this.trace(`doSave(${versionId}) - exit - found a running save for versionId ${versionId}`);
       return this.saveSequentializer.running;
     }
     if (!options.force && !this.dirty) {
-      this.trace(
-        `doSave(${versionId}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.dirty}, this.versionId: ${this.versionId})`
-      );
+      this.trace(`doSave(${versionId}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.dirty}, this.versionId: ${this.versionId})`);
       return;
     }
     if (this.saveSequentializer.isRunning()) {
@@ -504,178 +431,106 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
       this.model.pushStackElement();
     }
     const saveCancellation = new CancellationTokenSource();
-    return this.progressService.withProgress(
-      {
-        title: localize(
-          "saveParticipants",
-          "Saving '{0}'",
-          this.name
-        ),
-        location: ProgressLocation.Window,
-        cancellable: true,
-        delay: this.isDirty() ? 3e3 : 5e3
-      },
-      (progress) => {
-        return this.doSaveSequential(
-          versionId,
-          options,
-          progress,
-          saveCancellation
-        );
-      },
-      () => {
-        saveCancellation.cancel();
-      }
-    ).finally(() => {
+    return this.progressService.withProgress({
+      title: localize("saveParticipants", "Saving '{0}'", this.name),
+      location: ProgressLocation.Window,
+      cancellable: true,
+      delay: this.isDirty() ? 3e3 : 5e3
+    }, (progress) => {
+      return this.doSaveSequential(versionId, options, progress, saveCancellation);
+    }, () => {
+      saveCancellation.cancel();
+    }).finally(() => {
       saveCancellation.dispose();
     });
   }
   doSaveSequential(versionId, options, progress, saveCancellation) {
-    return this.saveSequentializer.run(
-      versionId,
-      (async () => {
-        if (this.isResolved() && !options.skipSaveParticipants && this.workingCopyFileService.hasSaveParticipants) {
-          try {
-            if (options.reason === SaveReason.AUTO && typeof this.lastContentChangeFromUndoRedo === "number") {
-              const timeFromUndoRedoToSave = Date.now() - this.lastContentChangeFromUndoRedo;
-              if (timeFromUndoRedoToSave < StoredFileWorkingCopy.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD) {
-                await timeout(
-                  StoredFileWorkingCopy.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD - timeFromUndoRedoToSave
-                );
-              }
+    return this.saveSequentializer.run(versionId, (async () => {
+      if (this.isResolved() && !options.skipSaveParticipants && this.workingCopyFileService.hasSaveParticipants) {
+        try {
+          if (options.reason === SaveReason.AUTO && typeof this.lastContentChangeFromUndoRedo === "number") {
+            const timeFromUndoRedoToSave = Date.now() - this.lastContentChangeFromUndoRedo;
+            if (timeFromUndoRedoToSave < StoredFileWorkingCopy.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD) {
+              await timeout(StoredFileWorkingCopy.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD - timeFromUndoRedoToSave);
             }
-            if (!saveCancellation.token.isCancellationRequested) {
-              this.ignoreSaveFromSaveParticipants = true;
-              try {
-                await this.workingCopyFileService.runSaveParticipants(
-                  this,
-                  {
-                    reason: options.reason ?? SaveReason.EXPLICIT,
-                    savedFrom: options.from
-                  },
-                  progress,
-                  saveCancellation.token
-                );
-              } finally {
-                this.ignoreSaveFromSaveParticipants = false;
-              }
-            }
-          } catch (error) {
-            this.logService.error(
-              `[stored file working copy] runSaveParticipants(${versionId}) - resulted in an error: ${error.toString()}`,
-              this.resource.toString(),
-              this.typeId
-            );
           }
-        }
-        if (saveCancellation.token.isCancellationRequested) {
-          return;
-        }
-        if (this.isDisposed()) {
-          return;
-        }
-        if (!this.isResolved()) {
-          return;
-        }
-        versionId = this.versionId;
-        this.inErrorMode = false;
-        progress.report({
-          message: localize("saveTextFile", "Writing into file...")
-        });
-        this.trace(`doSave(${versionId}) - before write()`);
-        const lastResolvedFileStat = assertIsDefined(
-          this.lastResolvedFileStat
-        );
-        const resolvedFileWorkingCopy = this;
-        return this.saveSequentializer.run(
-          versionId,
-          (async () => {
+          if (!saveCancellation.token.isCancellationRequested) {
+            this.ignoreSaveFromSaveParticipants = true;
             try {
-              const writeFileOptions = {
-                mtime: lastResolvedFileStat.mtime,
-                etag: options.ignoreModifiedSince || !this.filesConfigurationService.preventSaveConflicts(
-                  lastResolvedFileStat.resource
-                ) ? ETAG_DISABLED : lastResolvedFileStat.etag,
-                unlock: options.writeUnlock
-              };
-              let stat;
-              if (typeof resolvedFileWorkingCopy.model.save === "function") {
-                try {
-                  stat = await resolvedFileWorkingCopy.model.save(
-                    writeFileOptions,
-                    saveCancellation.token
-                  );
-                } catch (error) {
-                  if (saveCancellation.token.isCancellationRequested) {
-                    return void 0;
-                  }
-                  throw error;
-                }
-              } else {
-                const snapshot = await raceCancellation(
-                  resolvedFileWorkingCopy.model.snapshot(
-                    SnapshotContext.Save,
-                    saveCancellation.token
-                  ),
-                  saveCancellation.token
-                );
-                if (saveCancellation.token.isCancellationRequested) {
-                  return;
-                } else {
-                  saveCancellation.dispose();
-                }
-                if (options?.writeElevated && this.elevatedFileService.isSupported(
-                  lastResolvedFileStat.resource
-                )) {
-                  stat = await this.elevatedFileService.writeFileElevated(
-                    lastResolvedFileStat.resource,
-                    assertIsDefined(snapshot),
-                    writeFileOptions
-                  );
-                } else {
-                  stat = await this.fileService.writeFile(
-                    lastResolvedFileStat.resource,
-                    assertIsDefined(snapshot),
-                    writeFileOptions
-                  );
-                }
-              }
-              this.handleSaveSuccess(stat, versionId, options);
-            } catch (error) {
-              this.handleSaveError(error, versionId, options);
+              await this.workingCopyFileService.runSaveParticipants(this, { reason: options.reason ?? SaveReason.EXPLICIT, savedFrom: options.from }, progress, saveCancellation.token);
+            } finally {
+              this.ignoreSaveFromSaveParticipants = false;
             }
-          })(),
-          () => saveCancellation.cancel()
-        );
-      })(),
-      () => saveCancellation.cancel()
-    );
+          }
+        } catch (error) {
+          this.logService.error(`[stored file working copy] runSaveParticipants(${versionId}) - resulted in an error: ${error.toString()}`, this.resource.toString(), this.typeId);
+        }
+      }
+      if (saveCancellation.token.isCancellationRequested) {
+        return;
+      }
+      if (this.isDisposed()) {
+        return;
+      }
+      if (!this.isResolved()) {
+        return;
+      }
+      versionId = this.versionId;
+      this.inErrorMode = false;
+      progress.report({ message: localize("saveTextFile", "Writing into file...") });
+      this.trace(`doSave(${versionId}) - before write()`);
+      const lastResolvedFileStat = assertIsDefined(this.lastResolvedFileStat);
+      const resolvedFileWorkingCopy = this;
+      return this.saveSequentializer.run(versionId, (async () => {
+        try {
+          const writeFileOptions = {
+            mtime: lastResolvedFileStat.mtime,
+            etag: options.ignoreModifiedSince || !this.filesConfigurationService.preventSaveConflicts(lastResolvedFileStat.resource) ? ETAG_DISABLED : lastResolvedFileStat.etag,
+            unlock: options.writeUnlock
+          };
+          let stat;
+          if (typeof resolvedFileWorkingCopy.model.save === "function") {
+            try {
+              stat = await resolvedFileWorkingCopy.model.save(writeFileOptions, saveCancellation.token);
+            } catch (error) {
+              if (saveCancellation.token.isCancellationRequested) {
+                return void 0;
+              }
+              throw error;
+            }
+          } else {
+            const snapshot = await raceCancellation(resolvedFileWorkingCopy.model.snapshot(SnapshotContext.Save, saveCancellation.token), saveCancellation.token);
+            if (saveCancellation.token.isCancellationRequested) {
+              return;
+            } else {
+              saveCancellation.dispose();
+            }
+            if (options?.writeElevated && this.elevatedFileService.isSupported(lastResolvedFileStat.resource)) {
+              stat = await this.elevatedFileService.writeFileElevated(lastResolvedFileStat.resource, assertIsDefined(snapshot), writeFileOptions);
+            } else {
+              stat = await this.fileService.writeFile(lastResolvedFileStat.resource, assertIsDefined(snapshot), writeFileOptions);
+            }
+          }
+          this.handleSaveSuccess(stat, versionId, options);
+        } catch (error) {
+          this.handleSaveError(error, versionId, options);
+        }
+      })(), () => saveCancellation.cancel());
+    })(), () => saveCancellation.cancel());
   }
   handleSaveSuccess(stat, versionId, options) {
     this.updateLastResolvedFileStat(stat);
     if (versionId === this.versionId) {
-      this.trace(
-        `handleSaveSuccess(${versionId}) - setting dirty to false because versionId did not change`
-      );
+      this.trace(`handleSaveSuccess(${versionId}) - setting dirty to false because versionId did not change`);
       this.setDirty(false);
     } else {
-      this.trace(
-        `handleSaveSuccess(${versionId}) - not setting dirty to false because versionId did change meanwhile`
-      );
+      this.trace(`handleSaveSuccess(${versionId}) - not setting dirty to false because versionId did change meanwhile`);
     }
     this.setOrphaned(false);
-    this._onDidSave.fire({
-      reason: options.reason,
-      stat,
-      source: options.source
-    });
+    this._onDidSave.fire({ reason: options.reason, stat, source: options.source });
   }
   handleSaveError(error, versionId, options) {
-    (options.ignoreErrorHandler ? this.logService.trace : this.logService.error).apply(this.logService, [
-      `[stored file working copy] handleSaveError(${versionId}) - exit - resulted in a save error: ${error.toString()}`,
-      this.resource.toString(),
-      this.typeId
-    ]);
+    (options.ignoreErrorHandler ? this.logService.trace : this.logService.error).apply(this.logService, [`[stored file working copy] handleSaveError(${versionId}) - exit - resulted in a save error: ${error.toString()}`, this.resource.toString(), this.typeId]);
     if (options.ignoreErrorHandler) {
       throw error;
     }
@@ -692,165 +547,58 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     const primaryActions = [];
     let message;
     if (fileOperationError.fileOperationResult === FileOperationResult.FILE_MODIFIED_SINCE) {
-      message = localize(
-        "staleSaveError",
-        "Failed to save '{0}': The content of the file is newer. Do you want to overwrite the file with your changes?",
-        this.name
-      );
-      primaryActions.push(
-        toAction({
-          id: "fileWorkingCopy.overwrite",
-          label: localize("overwrite", "Overwrite"),
-          run: /* @__PURE__ */ __name(() => this.save({
-            ...options,
-            ignoreModifiedSince: true,
-            reason: SaveReason.EXPLICIT
-          }), "run")
-        })
-      );
-      primaryActions.push(
-        toAction({
-          id: "fileWorkingCopy.revert",
-          label: localize("revert", "Revert"),
-          run: /* @__PURE__ */ __name(() => this.revert(), "run")
-        })
-      );
+      message = localize("staleSaveError", "Failed to save '{0}': The content of the file is newer. Do you want to overwrite the file with your changes?", this.name);
+      primaryActions.push(toAction({ id: "fileWorkingCopy.overwrite", label: localize("overwrite", "Overwrite"), run: /* @__PURE__ */ __name(() => this.save({ ...options, ignoreModifiedSince: true, reason: SaveReason.EXPLICIT }), "run") }));
+      primaryActions.push(toAction({ id: "fileWorkingCopy.revert", label: localize("revert", "Revert"), run: /* @__PURE__ */ __name(() => this.revert(), "run") }));
     } else {
       const isWriteLocked = fileOperationError.fileOperationResult === FileOperationResult.FILE_WRITE_LOCKED;
       const triedToUnlock = isWriteLocked && fileOperationError.options?.unlock;
       const isPermissionDenied = fileOperationError.fileOperationResult === FileOperationResult.FILE_PERMISSION_DENIED;
-      const canSaveElevated = this.elevatedFileService.isSupported(
-        this.resource
-      );
+      const canSaveElevated = this.elevatedFileService.isSupported(this.resource);
       if (isErrorWithActions(error)) {
         primaryActions.push(...error.actions);
       }
       if (canSaveElevated && (isPermissionDenied || triedToUnlock)) {
-        primaryActions.push(
-          toAction({
-            id: "fileWorkingCopy.saveElevated",
-            label: triedToUnlock ? isWindows ? localize(
-              "overwriteElevated",
-              "Overwrite as Admin..."
-            ) : localize(
-              "overwriteElevatedSudo",
-              "Overwrite as Sudo..."
-            ) : isWindows ? localize("saveElevated", "Retry as Admin...") : localize(
-              "saveElevatedSudo",
-              "Retry as Sudo..."
-            ),
-            run: /* @__PURE__ */ __name(() => {
-              this.save({
-                ...options,
-                writeElevated: true,
-                writeUnlock: triedToUnlock,
-                reason: SaveReason.EXPLICIT
-              });
-            }, "run")
-          })
-        );
-      } else if (isWriteLocked) {
-        primaryActions.push(
-          toAction({
-            id: "fileWorkingCopy.unlock",
-            label: localize("overwrite", "Overwrite"),
-            run: /* @__PURE__ */ __name(() => this.save({
-              ...options,
-              writeUnlock: true,
-              reason: SaveReason.EXPLICIT
-            }), "run")
-          })
-        );
-      } else {
-        primaryActions.push(
-          toAction({
-            id: "fileWorkingCopy.retry",
-            label: localize("retry", "Retry"),
-            run: /* @__PURE__ */ __name(() => this.save({
-              ...options,
-              reason: SaveReason.EXPLICIT
-            }), "run")
-          })
-        );
-      }
-      primaryActions.push(
-        toAction({
-          id: "fileWorkingCopy.saveAs",
-          label: localize("saveAs", "Save As..."),
-          run: /* @__PURE__ */ __name(async () => {
-            const editor = this.workingCopyEditorService.findEditor(this);
-            if (editor) {
-              const result = await this.editorService.save(
-                editor,
-                { saveAs: true, reason: SaveReason.EXPLICIT }
-              );
-              if (!result.success) {
-                this.doHandleSaveError(error, options);
-              }
-            }
+        primaryActions.push(toAction({
+          id: "fileWorkingCopy.saveElevated",
+          label: triedToUnlock ? isWindows ? localize("overwriteElevated", "Overwrite as Admin...") : localize("overwriteElevatedSudo", "Overwrite as Sudo...") : isWindows ? localize("saveElevated", "Retry as Admin...") : localize("saveElevatedSudo", "Retry as Sudo..."),
+          run: /* @__PURE__ */ __name(() => {
+            this.save({ ...options, writeElevated: true, writeUnlock: triedToUnlock, reason: SaveReason.EXPLICIT });
           }, "run")
-        })
-      );
-      primaryActions.push(
-        toAction({
-          id: "fileWorkingCopy.revert",
-          label: localize("revert", "Revert"),
-          run: /* @__PURE__ */ __name(() => this.revert(), "run")
-        })
-      );
+        }));
+      } else if (isWriteLocked) {
+        primaryActions.push(toAction({ id: "fileWorkingCopy.unlock", label: localize("overwrite", "Overwrite"), run: /* @__PURE__ */ __name(() => this.save({ ...options, writeUnlock: true, reason: SaveReason.EXPLICIT }), "run") }));
+      } else {
+        primaryActions.push(toAction({ id: "fileWorkingCopy.retry", label: localize("retry", "Retry"), run: /* @__PURE__ */ __name(() => this.save({ ...options, reason: SaveReason.EXPLICIT }), "run") }));
+      }
+      primaryActions.push(toAction({
+        id: "fileWorkingCopy.saveAs",
+        label: localize("saveAs", "Save As..."),
+        run: /* @__PURE__ */ __name(async () => {
+          const editor = this.workingCopyEditorService.findEditor(this);
+          if (editor) {
+            const result = await this.editorService.save(editor, { saveAs: true, reason: SaveReason.EXPLICIT });
+            if (!result.success) {
+              this.doHandleSaveError(error, options);
+            }
+          }
+        }, "run")
+      }));
+      primaryActions.push(toAction({ id: "fileWorkingCopy.revert", label: localize("revert", "Revert"), run: /* @__PURE__ */ __name(() => this.revert(), "run") }));
       if (isWriteLocked) {
         if (triedToUnlock && canSaveElevated) {
-          message = isWindows ? localize(
-            "readonlySaveErrorAdmin",
-            "Failed to save '{0}': File is read-only. Select 'Overwrite as Admin' to retry as administrator.",
-            this.name
-          ) : localize(
-            "readonlySaveErrorSudo",
-            "Failed to save '{0}': File is read-only. Select 'Overwrite as Sudo' to retry as superuser.",
-            this.name
-          );
+          message = isWindows ? localize("readonlySaveErrorAdmin", "Failed to save '{0}': File is read-only. Select 'Overwrite as Admin' to retry as administrator.", this.name) : localize("readonlySaveErrorSudo", "Failed to save '{0}': File is read-only. Select 'Overwrite as Sudo' to retry as superuser.", this.name);
         } else {
-          message = localize(
-            "readonlySaveError",
-            "Failed to save '{0}': File is read-only. Select 'Overwrite' to attempt to make it writeable.",
-            this.name
-          );
+          message = localize("readonlySaveError", "Failed to save '{0}': File is read-only. Select 'Overwrite' to attempt to make it writeable.", this.name);
         }
       } else if (canSaveElevated && isPermissionDenied) {
-        message = isWindows ? localize(
-          "permissionDeniedSaveError",
-          "Failed to save '{0}': Insufficient permissions. Select 'Retry as Admin' to retry as administrator.",
-          this.name
-        ) : localize(
-          "permissionDeniedSaveErrorSudo",
-          "Failed to save '{0}': Insufficient permissions. Select 'Retry as Sudo' to retry as superuser.",
-          this.name
-        );
+        message = isWindows ? localize("permissionDeniedSaveError", "Failed to save '{0}': Insufficient permissions. Select 'Retry as Admin' to retry as administrator.", this.name) : localize("permissionDeniedSaveErrorSudo", "Failed to save '{0}': Insufficient permissions. Select 'Retry as Sudo' to retry as superuser.", this.name);
       } else {
-        message = localize(
-          {
-            key: "genericSaveError",
-            comment: [
-              "{0} is the resource that failed to save and {1} the error message"
-            ]
-          },
-          "Failed to save '{0}': {1}",
-          this.name,
-          toErrorMessage(error, false)
-        );
+        message = localize({ key: "genericSaveError", comment: ["{0} is the resource that failed to save and {1} the error message"] }, "Failed to save '{0}': {1}", this.name, toErrorMessage(error, false));
       }
     }
-    const handle = this.notificationService.notify({
-      id: `${hash(this.resource.toString())}`,
-      severity: Severity.Error,
-      message,
-      actions: { primary: primaryActions }
-    });
-    const listener = this._register(
-      Event.once(Event.any(this.onDidSave, this.onDidRevert))(
-        () => handle.close()
-      )
-    );
+    const handle = this.notificationService.notify({ id: `${hash(this.resource.toString())}`, severity: Severity.Error, message, actions: { primary: primaryActions } });
+    const listener = this._register(Event.once(Event.any(this.onDidSave, this.onDidRevert))(() => handle.close()));
     this._register(Event.once(handle.onDidClose)(() => listener.dispose()));
   }
   updateLastResolvedFileStat(newFileStat) {
@@ -860,11 +608,7 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
     } else if (this.lastResolvedFileStat.mtime <= newFileStat.mtime) {
       this.lastResolvedFileStat = newFileStat;
     } else {
-      this.lastResolvedFileStat = {
-        ...this.lastResolvedFileStat,
-        readonly: newFileStat.readonly,
-        locked: newFileStat.locked
-      };
+      this.lastResolvedFileStat = { ...this.lastResolvedFileStat, readonly: newFileStat.readonly, locked: newFileStat.locked };
     }
     if (this.isReadonly() !== oldReadonly) {
       this._onDidChangeReadonly.fire();
@@ -921,17 +665,10 @@ let StoredFileWorkingCopy = class extends ResourceWorkingCopy {
   //#endregion
   //#region Utilities
   isReadonly() {
-    return this.filesConfigurationService.isReadonly(
-      this.resource,
-      this.lastResolvedFileStat
-    );
+    return this.filesConfigurationService.isReadonly(this.resource, this.lastResolvedFileStat);
   }
   trace(msg) {
-    this.logService.trace(
-      `[stored file working copy] ${msg}`,
-      this.resource.toString(),
-      this.typeId
-    );
+    this.logService.trace(`[stored file working copy] ${msg}`, this.resource.toString(), this.typeId);
   }
   //#endregion
   //#region Dispose

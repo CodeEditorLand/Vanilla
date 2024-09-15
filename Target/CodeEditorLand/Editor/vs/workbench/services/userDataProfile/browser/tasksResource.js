@@ -12,24 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import { localize } from "../../../../nls.js";
-import {
-  FileOperationError,
-  FileOperationResult,
-  IFileService
-} from "../../../../platform/files/common/files.js";
+import { FileOperationError, FileOperationResult, IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  ProfileResourceType
-} from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import {
-  TreeItemCollapsibleState
-} from "../../../common/views.js";
-import {
-  IUserDataProfileService
-} from "../common/userDataProfile.js";
+import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
+import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
 let TasksResourceInitializer = class {
   constructor(userDataProfileService, fileService, logService) {
     this.userDataProfileService = userDataProfileService;
@@ -45,10 +35,7 @@ let TasksResourceInitializer = class {
       this.logService.info(`Initializing Profile: No tasks to apply...`);
       return;
     }
-    await this.fileService.writeFile(
-      this.userDataProfileService.currentProfile.tasksResource,
-      VSBuffer.fromString(tasksContent.tasks)
-    );
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.tasksResource, VSBuffer.fromString(tasksContent.tasks));
   }
 };
 TasksResourceInitializer = __decorateClass([
@@ -75,21 +62,14 @@ let TasksResource = class {
   async apply(content, profile) {
     const tasksContent = JSON.parse(content);
     if (!tasksContent.tasks) {
-      this.logService.info(
-        `Importing Profile (${profile.name}): No tasks to apply...`
-      );
+      this.logService.info(`Importing Profile (${profile.name}): No tasks to apply...`);
       return;
     }
-    await this.fileService.writeFile(
-      profile.tasksResource,
-      VSBuffer.fromString(tasksContent.tasks)
-    );
+    await this.fileService.writeFile(profile.tasksResource, VSBuffer.fromString(tasksContent.tasks));
   }
   async getTasksContent(profile) {
     try {
-      const content = await this.fileService.readFile(
-        profile.tasksResource
-      );
+      const content = await this.fileService.readFile(profile.tasksResource);
       return content.value.toString();
     } catch (error) {
       if (error instanceof FileOperationError && error.fileOperationResult === FileOperationResult.FILE_NOT_FOUND) {
@@ -119,28 +99,20 @@ let TasksResourceTreeItem = class {
   collapsibleState = TreeItemCollapsibleState.Expanded;
   checkbox;
   async getChildren() {
-    return [
-      {
-        handle: this.profile.tasksResource.toString(),
-        resourceUri: this.profile.tasksResource,
-        collapsibleState: TreeItemCollapsibleState.None,
-        parent: this,
-        accessibilityInformation: {
-          label: this.uriIdentityService.extUri.basename(
-            this.profile.settingsResource
-          )
-        },
-        command: {
-          id: API_OPEN_EDITOR_COMMAND_ID,
-          title: "",
-          arguments: [
-            this.profile.tasksResource,
-            void 0,
-            void 0
-          ]
-        }
+    return [{
+      handle: this.profile.tasksResource.toString(),
+      resourceUri: this.profile.tasksResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.settingsResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.tasksResource, void 0, void 0]
       }
-    ];
+    }];
   }
   async hasContent() {
     const tasksContent = await this.instantiationService.createInstance(TasksResource).getTasksResourceContent(this.profile);

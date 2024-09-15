@@ -10,13 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { LinkedList } from "../../../../base/common/linkedList.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDisposable, Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IWorkingCopyFileOperationParticipant, SourceTargetPair, IFileOperationUndoRedoInfo } from "./workingCopyFileService.js";
+import { FileOperation } from "../../../../platform/files/common/files.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
 let WorkingCopyFileOperationParticipant = class extends Disposable {
   constructor(logService, configurationService) {
     super();
@@ -32,21 +32,13 @@ let WorkingCopyFileOperationParticipant = class extends Disposable {
     return toDisposable(() => remove());
   }
   async participate(files, operation, undoInfo, token) {
-    const timeout = this.configurationService.getValue(
-      "files.participants.timeout"
-    );
+    const timeout = this.configurationService.getValue("files.participants.timeout");
     if (typeof timeout !== "number" || timeout <= 0) {
       return;
     }
     for (const participant of this.participants) {
       try {
-        await participant.participate(
-          files,
-          operation,
-          undoInfo,
-          timeout,
-          token
-        );
+        await participant.participate(files, operation, undoInfo, timeout, token);
       } catch (err) {
         this.logService.warn(err);
       }

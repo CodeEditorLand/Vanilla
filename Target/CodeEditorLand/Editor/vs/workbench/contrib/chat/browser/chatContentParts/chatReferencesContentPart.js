@@ -12,22 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import {
-  Schemas,
-  matchesSomeScheme
-} from "../../../../../base/common/network.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { matchesSomeScheme, Schemas } from "../../../../../base/common/network.js";
 import { basename } from "../../../../../base/common/path.js";
-import {
-  basenameOrAuthority,
-  isEqualAuthority
-} from "../../../../../base/common/resources.js";
+import { basenameOrAuthority, isEqualAuthority } from "../../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
@@ -41,17 +33,16 @@ import { IOpenerService } from "../../../../../platform/opener/common/opener.js"
 import { IProductService } from "../../../../../platform/product/common/productService.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import { fillEditorsDragData } from "../../../../browser/dnd.js";
-import {
-  ResourceLabels
-} from "../../../../browser/labels.js";
+import { IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
 import { ColorScheme } from "../../../../browser/web.api.js";
 import { SETTINGS_AUTHORITY } from "../../../../services/preferences/common/preferences.js";
 import { createFileIconThemableTreeContainerScope } from "../../../files/browser/views/explorerView.js";
-import {
-  ChatResponseReferencePartStatusKind
-} from "../../common/chatService.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference, IChatWarningMessage } from "../../common/chatService.js";
 import { IChatVariablesService } from "../../common/chatVariables.js";
-import { ResourcePool } from "./chatCollections.js";
+import { IChatRendererContent, IChatResponseViewModel } from "../../common/chatViewModel.js";
+import { ChatTreeItem } from "../chat.js";
+import { IDisposableReference, ResourcePool } from "./chatCollections.js";
+import { IChatContentPart } from "./chatContentParts.js";
 const $ = dom.$;
 let ChatCollapsibleListContentPart = class extends Disposable {
   constructor(data, labelOverride, element, contentReferencesListPool, openerService, contextMenuService, clipboardService) {
@@ -59,70 +50,45 @@ let ChatCollapsibleListContentPart = class extends Disposable {
     this.data = data;
     this.contextMenuService = contextMenuService;
     this.clipboardService = clipboardService;
-    const referencesLabel = labelOverride ?? (data.length > 1 ? localize(
-      "usedReferencesPlural",
-      "Used {0} references",
-      data.length
-    ) : localize("usedReferencesSingular", "Used {0} reference", 1));
+    const referencesLabel = labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1));
     const iconElement = $(".chat-used-context-icon");
     const icon = /* @__PURE__ */ __name((element2) => element2.usedReferencesExpanded ? Codicon.chevronDown : Codicon.chevronRight, "icon");
     iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
     const buttonElement = $(".chat-used-context-label", void 0);
-    const collapseButton = this._register(
-      new Button(buttonElement, {
-        buttonBackground: void 0,
-        buttonBorder: void 0,
-        buttonForeground: void 0,
-        buttonHoverBackground: void 0,
-        buttonSecondaryBackground: void 0,
-        buttonSecondaryForeground: void 0,
-        buttonSecondaryHoverBackground: void 0,
-        buttonSeparator: void 0
-      })
-    );
+    const collapseButton = this._register(new Button(buttonElement, {
+      buttonBackground: void 0,
+      buttonBorder: void 0,
+      buttonForeground: void 0,
+      buttonHoverBackground: void 0,
+      buttonSecondaryBackground: void 0,
+      buttonSecondaryForeground: void 0,
+      buttonSecondaryHoverBackground: void 0,
+      buttonSeparator: void 0
+    }));
     this.domNode = $(".chat-used-context", void 0, buttonElement);
     collapseButton.label = referencesLabel;
     collapseButton.element.prepend(iconElement);
-    this.updateAriaLabel(
-      collapseButton.element,
-      referencesLabel,
-      element.usedReferencesExpanded
-    );
-    this.domNode.classList.toggle(
-      "chat-used-context-collapsed",
-      !element.usedReferencesExpanded
-    );
-    this._register(
-      collapseButton.onDidClick(() => {
-        iconElement.classList.remove(
-          ...ThemeIcon.asClassNameArray(icon(element))
-        );
-        element.usedReferencesExpanded = !element.usedReferencesExpanded;
-        iconElement.classList.add(
-          ...ThemeIcon.asClassNameArray(icon(element))
-        );
-        this.domNode.classList.toggle(
-          "chat-used-context-collapsed",
-          !element.usedReferencesExpanded
-        );
-        this._onDidChangeHeight.fire();
-        this.updateAriaLabel(
-          collapseButton.element,
-          referencesLabel,
-          element.usedReferencesExpanded
-        );
-      })
-    );
+    this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+    this._register(collapseButton.onDidClick(() => {
+      iconElement.classList.remove(...ThemeIcon.asClassNameArray(icon(element)));
+      element.usedReferencesExpanded = !element.usedReferencesExpanded;
+      iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
+      this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+      this._onDidChangeHeight.fire();
+      this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    }));
     const ref = this._register(contentReferencesListPool.get());
     const list = ref.object;
     this.domNode.appendChild(list.getHTMLElement().parentElement);
-    this._register(
-      list.onDidOpen((e) => {
-        if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
-          const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
-          const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
-          if (uri) {
-            openerService.open(uri, {
+    this._register(list.onDidOpen((e) => {
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          openerService.open(
+            uri,
+            {
               fromUserGesture: true,
               editorOptions: {
                 ...e.editorOptions,
@@ -130,52 +96,37 @@ let ChatCollapsibleListContentPart = class extends Disposable {
                   selection: uriOrLocation && "range" in uriOrLocation ? uriOrLocation.range : void 0
                 }
               }
-            });
-          }
+            }
+          );
         }
-      })
-    );
-    this._register(
-      list.onContextMenu((e) => {
-        e.browserEvent.preventDefault();
-        e.browserEvent.stopPropagation();
-        if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
-          const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
-          const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
-          if (uri) {
-            this.contextMenuService.showContextMenu({
-              getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
-              getActions: /* @__PURE__ */ __name(() => {
-                return [
-                  {
-                    id: "workbench.action.chat.copyReference",
-                    title: localize(
-                      "copyReference",
-                      "Copy"
-                    ),
-                    label: localize(
-                      "copyReference",
-                      "Copy"
-                    ),
-                    tooltip: localize(
-                      "copyReference",
-                      "Copy"
-                    ),
-                    enabled: e.element?.kind === "reference",
-                    class: void 0,
-                    run: /* @__PURE__ */ __name(() => {
-                      void this.clipboardService.writeResources(
-                        [uri]
-                      );
-                    }, "run")
-                  }
-                ];
-              }, "getActions")
-            });
-          }
+      }
+    }));
+    this._register(list.onContextMenu((e) => {
+      e.browserEvent.preventDefault();
+      e.browserEvent.stopPropagation();
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          this.contextMenuService.showContextMenu({
+            getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+            getActions: /* @__PURE__ */ __name(() => {
+              return [{
+                id: "workbench.action.chat.copyReference",
+                title: localize("copyReference", "Copy"),
+                label: localize("copyReference", "Copy"),
+                tooltip: localize("copyReference", "Copy"),
+                enabled: e.element?.kind === "reference",
+                class: void 0,
+                run: /* @__PURE__ */ __name(() => {
+                  void this.clipboardService.writeResources([uri]);
+                }, "run")
+              }];
+            }, "getActions")
+          });
         }
-      })
-    );
+      }
+    }));
     const maxItemsShown = 6;
     const itemsShown = Math.min(data.length, maxItemsShown);
     const height = itemsShown * 22;
@@ -221,18 +172,9 @@ let CollapsibleListPool = class extends Disposable {
     return this._pool.inUse;
   }
   listFactory() {
-    const resourceLabels = this._register(
-      this.instantiationService.createInstance(ResourceLabels, {
-        onDidChangeVisibility: this._onDidChangeVisibility
-      })
-    );
+    const resourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
     const container = $(".chat-used-context-list");
-    this._register(
-      createFileIconThemableTreeContainerScope(
-        container,
-        this.themeService
-      )
-    );
+    this._register(createFileIconThemableTreeContainerScope(container, this.themeService));
     const getDragURI = /* @__PURE__ */ __name((element) => {
       if (element.kind === "warning") {
         return null;
@@ -251,12 +193,7 @@ let CollapsibleListPool = class extends Disposable {
       "ChatListRenderer",
       container,
       new CollapsibleListDelegate(),
-      [
-        this.instantiationService.createInstance(
-          CollapsibleListRenderer,
-          resourceLabels
-        )
-      ],
+      [this.instantiationService.createInstance(CollapsibleListRenderer, resourceLabels)],
       {
         alwaysConsumeMouseWheel: false,
         accessibilityProvider: {
@@ -275,10 +212,7 @@ let CollapsibleListPool = class extends Disposable {
               return basename(reference.uri.path);
             }
           }, "getAriaLabel"),
-          getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize(
-            "chatCollapsibleList",
-            "Collapsible Chat List"
-          ), "getWidgetAriaLabel")
+          getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatCollapsibleList", "Collapsible Chat List"), "getWidgetAriaLabel")
         },
         dnd: {
           getDragURI: /* @__PURE__ */ __name((element) => getDragURI(element)?.toString() ?? null, "getDragURI"),
@@ -287,9 +221,7 @@ let CollapsibleListPool = class extends Disposable {
             if (!uris.length) {
               return void 0;
             } else if (uris.length === 1) {
-              return this.labelService.getUriLabel(uris[0], {
-                relative: true
-              });
+              return this.labelService.getUriLabel(uris[0], { relative: true });
             } else {
               return `${uris.length}`;
             }
@@ -302,16 +234,8 @@ let CollapsibleListPool = class extends Disposable {
           onDragStart: /* @__PURE__ */ __name((data, originalEvent) => {
             try {
               const elements = data.getData();
-              const uris = coalesce(
-                elements.map(getDragURI)
-              );
-              this.instantiationService.invokeFunction(
-                (accessor) => fillEditorsDragData(
-                  accessor,
-                  uris,
-                  originalEvent
-                )
-              );
+              const uris = coalesce(elements.map(getDragURI));
+              this.instantiationService.invokeFunction((accessor) => fillEditorsDragData(accessor, uris, originalEvent));
             } catch {
             }
           }, "onDragStart")
@@ -363,12 +287,7 @@ let CollapsibleListRenderer = class {
   templateId = CollapsibleListRenderer.TEMPLATE_ID;
   renderTemplate(container) {
     const templateDisposables = new DisposableStore();
-    const label = templateDisposables.add(
-      this.labels.create(container, {
-        supportHighlights: true,
-        supportIcons: true
-      })
-    );
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true, supportIcons: true }));
     return { templateDisposables, label };
   }
   getReferenceIcon(data) {
@@ -380,10 +299,7 @@ let CollapsibleListRenderer = class {
   }
   renderElement(data, index, templateData, height) {
     if (data.kind === "warning") {
-      templateData.label.setResource(
-        { name: data.content.value },
-        { icon: Codicon.warning }
-      );
+      templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
       return;
     }
     const reference = data.reference;
@@ -399,62 +315,28 @@ let CollapsibleListRenderer = class {
             description: `#${reference.variableName}`,
             range: "range" in reference.value ? reference.value.range : void 0
           },
-          {
-            icon,
-            title: data.options?.status?.description ?? data.title
-          }
+          { icon, title: data.options?.status?.description ?? data.title }
         );
       } else {
-        const variable = this.chatVariablesService.getVariable(
-          reference.variableName
-        );
+        const variable = this.chatVariablesService.getVariable(reference.variableName);
         const asThemeIcon = variable?.icon ? `$(${variable.icon.id}) ` : "";
         const asVariableName = `#${reference.variableName}`;
         const label = `${asThemeIcon}${variable?.fullName ?? asVariableName}`;
-        templateData.label.setLabel(label, asVariableName, {
-          title: data.options?.status?.description ?? variable?.description
-        });
+        templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description ?? variable?.description });
       }
     } else if (typeof reference === "string") {
-      templateData.label.setLabel(reference, void 0, {
-        iconPath: URI.isUri(icon) ? icon : void 0,
-        title: data.options?.status?.description ?? data.title
-      });
+      templateData.label.setLabel(reference, void 0, { iconPath: URI.isUri(icon) ? icon : void 0, title: data.options?.status?.description ?? data.title });
     } else {
       const uri = "uri" in reference ? reference.uri : reference;
       if (uri.scheme === "https" && isEqualAuthority(uri.authority, "github.com") && uri.path.includes("/tree/")) {
         const label = uri.path.split("/").slice(1, 3).join("/");
         const description = uri.path.split("/").slice(5).join("/");
-        templateData.label.setResource(
-          { resource: uri, name: label, description },
-          { icon: Codicon.github, title: data.title }
-        );
+        templateData.label.setResource({ resource: uri, name: label, description }, { icon: Codicon.github, title: data.title });
       } else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
         const settingId = uri.path.substring(1);
-        templateData.label.setResource(
-          { resource: uri, name: settingId },
-          {
-            icon: Codicon.settingsGear,
-            title: localize(
-              "setting.hover",
-              "Open setting '{0}'",
-              settingId
-            )
-          }
-        );
-      } else if (matchesSomeScheme(
-        uri,
-        Schemas.mailto,
-        Schemas.http,
-        Schemas.https
-      )) {
-        templateData.label.setResource(
-          { resource: uri, name: uri.toString() },
-          {
-            icon: icon ?? Codicon.globe,
-            title: data.options?.status?.description ?? data.title ?? uri.toString()
-          }
-        );
+        templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize("setting.hover", "Open setting '{0}'", settingId) });
+      } else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
+        templateData.label.setResource({ resource: uri, name: uri.toString() }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString() });
       } else {
         templateData.label.setFile(uri, {
           fileKind: FileKind.FILE,
@@ -465,10 +347,7 @@ let CollapsibleListRenderer = class {
         });
       }
     }
-    for (const selector of [
-      ".monaco-icon-suffix-container",
-      ".monaco-icon-name-container"
-    ]) {
+    for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
       const element = templateData.label.element.querySelector(selector);
       if (element) {
         if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {

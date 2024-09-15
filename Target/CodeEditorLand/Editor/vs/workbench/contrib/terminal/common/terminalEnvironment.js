@@ -1,22 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as path from "../../../../base/common/path.js";
-import {
-  OperatingSystem,
-  isMacintosh,
-  isWindows,
-  language
-} from "../../../../base/common/platform.js";
-import { sanitizeProcessEnvironment } from "../../../../base/common/processes.js";
-import { isString } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  WindowsShellType
-} from "../../../../platform/terminal/common/terminal.js";
-import {
-  escapeNonWindowsPath,
-  sanitizeCwd
-} from "../../../../platform/terminal/common/terminalEnvironment.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { sanitizeProcessEnvironment } from "../../../../base/common/processes.js";
+import { IShellLaunchConfig, ITerminalBackend, ITerminalEnvironment, TerminalShellType, WindowsShellType } from "../../../../platform/terminal/common/terminal.js";
+import { IProcessEnvironment, isWindows, isMacintosh, language, OperatingSystem } from "../../../../base/common/platform.js";
+import { escapeNonWindowsPath, sanitizeCwd } from "../../../../platform/terminal/common/terminalEnvironment.js";
+import { isString } from "../../../../base/common/types.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 function mergeEnvironments(parent, other) {
   if (!other) {
     return;
@@ -77,17 +71,15 @@ function mergeNonNullKeys(env, other) {
 }
 __name(mergeNonNullKeys, "mergeNonNullKeys");
 async function resolveConfigurationVariables(variableResolver, env) {
-  await Promise.all(
-    Object.entries(env).map(async ([key, value]) => {
-      if (typeof value === "string") {
-        try {
-          env[key] = await variableResolver(value);
-        } catch (e) {
-          env[key] = value;
-        }
+  await Promise.all(Object.entries(env).map(async ([key, value]) => {
+    if (typeof value === "string") {
+      try {
+        env[key] = await variableResolver(value);
+      } catch (e) {
+        env[key] = value;
       }
-    })
-  );
+    }
+  }));
   return env;
 }
 __name(resolveConfigurationVariables, "resolveConfigurationVariables");
@@ -97,7 +89,7 @@ function shouldSetLangEnvVariable(env, detectLocale) {
   }
   if (detectLocale === "auto") {
     const lang = env["LANG"];
-    return !lang || lang.search(/\.UTF-8$/) === -1 && lang.search(/\.utf8$/) === -1 && lang.search(/\.euc.+/) === -1;
+    return !lang || lang.search(/\.UTF\-8$/) === -1 && lang.search(/\.utf8$/) === -1 && lang.search(/\.euc.+/) === -1;
   }
   return false;
 }
@@ -180,11 +172,7 @@ async function getCwd(shell, userHome, variableResolver, root, customCwd, logSer
   let cwd;
   if (!shell.ignoreConfigurationCwd && customCwd) {
     if (variableResolver) {
-      customCwd = await _resolveCwd(
-        customCwd,
-        variableResolver,
-        logService
-      );
+      customCwd = await _resolveCwd(customCwd, variableResolver, logService);
     }
     if (customCwd) {
       if (path.isAbsolute(customCwd)) {
@@ -216,11 +204,7 @@ function createVariableResolver(lastActiveWorkspace, env, configurationResolverS
   if (!configurationResolverService) {
     return void 0;
   }
-  return (str) => configurationResolverService.resolveWithEnvironment(
-    env,
-    lastActiveWorkspace,
-    str
-  );
+  return (str) => configurationResolverService.resolveWithEnvironment(env, lastActiveWorkspace, str);
 }
 __name(createVariableResolver, "createVariableResolver");
 async function createTerminalEnvironment(shellLaunchConfig, envFromConfig, variableResolver, version, detectLocale, baseEnv) {
@@ -232,16 +216,10 @@ async function createTerminalEnvironment(shellLaunchConfig, envFromConfig, varia
     const allowedEnvFromConfig = { ...envFromConfig };
     if (variableResolver) {
       if (allowedEnvFromConfig) {
-        await resolveConfigurationVariables(
-          variableResolver,
-          allowedEnvFromConfig
-        );
+        await resolveConfigurationVariables(variableResolver, allowedEnvFromConfig);
       }
       if (shellLaunchConfig.env) {
-        await resolveConfigurationVariables(
-          variableResolver,
-          shellLaunchConfig.env
-        );
+        await resolveConfigurationVariables(variableResolver, shellLaunchConfig.env);
       }
     }
     if (isMacintosh) {
@@ -314,9 +292,7 @@ function getWorkspaceForTerminal(cwd, workspaceContextService, historyService) {
   let workspaceFolder = cwdUri ? workspaceContextService.getWorkspaceFolder(cwdUri) ?? void 0 : void 0;
   if (!workspaceFolder) {
     const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot();
-    workspaceFolder = activeWorkspaceRootUri ? workspaceContextService.getWorkspaceFolder(
-      activeWorkspaceRootUri
-    ) ?? void 0 : void 0;
+    workspaceFolder = activeWorkspaceRootUri ? workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
   }
   return workspaceFolder;
 }

@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Constants } from "../../../../base/common/uint.js";
 import { FloatHorizontalRange } from "../../view/renderingContext.js";
+import { DomReadingContext } from "./domReadingContext.js";
 class RangeUtil {
   static {
     __name(this, "RangeUtil");
@@ -44,10 +45,7 @@ class RangeUtil {
     for (let i = 1, len = ranges.length; i < len; i++) {
       const range = ranges[i];
       if (prev.left + prev.width + 0.9 >= range.left) {
-        prev.width = Math.max(
-          prev.width,
-          range.left + range.width - prev.left
-        );
+        prev.width = Math.max(prev.width, range.left + range.width - prev.left);
       } else {
         result[resultLen++] = prev;
         prev = range;
@@ -63,13 +61,7 @@ class RangeUtil {
     const result = [];
     for (let i = 0, len = clientRects.length; i < len; i++) {
       const clientRect = clientRects[i];
-      result[i] = new FloatHorizontalRange(
-        Math.max(
-          0,
-          (clientRect.left - clientRectDeltaLeft) / clientRectScale
-        ),
-        clientRect.width / clientRectScale
-      );
+      result[i] = new FloatHorizontalRange(Math.max(0, (clientRect.left - clientRectDeltaLeft) / clientRectScale), clientRect.width / clientRectScale);
     }
     return this._mergeAdjacentRanges(result);
   }
@@ -84,11 +76,7 @@ class RangeUtil {
     if (startChildIndex === endChildIndex && startOffset === endOffset && startOffset === 0 && !domNode.children[startChildIndex].firstChild) {
       const clientRects2 = domNode.children[startChildIndex].getClientRects();
       context.markDidDomLayout();
-      return this._createHorizontalRangesFromClientRects(
-        clientRects2,
-        context.clientRectDeltaLeft,
-        context.clientRectScale
-      );
+      return this._createHorizontalRangesFromClientRects(clientRects2, context.clientRectDeltaLeft, context.clientRectScale);
     }
     if (startChildIndex !== endChildIndex) {
       if (endChildIndex > 0 && endOffset === 0) {
@@ -111,27 +99,11 @@ class RangeUtil {
     if (!startElement || !endElement) {
       return null;
     }
-    startOffset = Math.min(
-      startElement.textContent.length,
-      Math.max(0, startOffset)
-    );
-    endOffset = Math.min(
-      endElement.textContent.length,
-      Math.max(0, endOffset)
-    );
-    const clientRects = this._readClientRects(
-      startElement,
-      startOffset,
-      endElement,
-      endOffset,
-      context.endNode
-    );
+    startOffset = Math.min(startElement.textContent.length, Math.max(0, startOffset));
+    endOffset = Math.min(endElement.textContent.length, Math.max(0, endOffset));
+    const clientRects = this._readClientRects(startElement, startOffset, endElement, endOffset, context.endNode);
     context.markDidDomLayout();
-    return this._createHorizontalRangesFromClientRects(
-      clientRects,
-      context.clientRectDeltaLeft,
-      context.clientRectScale
-    );
+    return this._createHorizontalRangesFromClientRects(clientRects, context.clientRectDeltaLeft, context.clientRectScale);
   }
 }
 export {

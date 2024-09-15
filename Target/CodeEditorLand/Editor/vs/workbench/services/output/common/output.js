@@ -1,32 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
 const OUTPUT_MIME = "text/x-code-output";
 const OUTPUT_MODE_ID = "Log";
 const LOG_MIME = "text/x-code-log-output";
 const LOG_MODE_ID = "log";
 const OUTPUT_VIEW_ID = "workbench.panel.output";
 const CONTEXT_IN_OUTPUT = new RawContextKey("inOutput", false);
-const CONTEXT_ACTIVE_FILE_OUTPUT = new RawContextKey(
-  "activeLogOutput",
-  false
-);
-const CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE = new RawContextKey(
-  "activeLogOutput.levelSettable",
-  false
-);
-const CONTEXT_ACTIVE_OUTPUT_LEVEL = new RawContextKey(
-  "activeLogOutput.level",
-  ""
-);
+const CONTEXT_ACTIVE_FILE_OUTPUT = new RawContextKey("activeLogOutput", false);
+const CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE = new RawContextKey("activeLogOutput.levelSettable", false);
+const CONTEXT_ACTIVE_OUTPUT_LEVEL = new RawContextKey("activeLogOutput.level", "");
 const CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT = new RawContextKey("activeLogOutput.levelIsDefault", false);
-const CONTEXT_OUTPUT_SCROLL_LOCK = new RawContextKey(
-  `outputView.scrollLock`,
-  false
-);
+const CONTEXT_OUTPUT_SCROLL_LOCK = new RawContextKey(`outputView.scrollLock`, false);
 const IOutputService = createDecorator("outputService");
 var OutputChannelUpdateMode = /* @__PURE__ */ ((OutputChannelUpdateMode2) => {
   OutputChannelUpdateMode2[OutputChannelUpdateMode2["Append"] = 1] = "Append";
@@ -66,10 +55,7 @@ class OutputChannelRegistry {
   }
 }
 Registry.add(Extensions.OutputChannels, new OutputChannelRegistry());
-const ACTIVE_OUTPUT_CHANNEL_CONTEXT = new RawContextKey(
-  "activeOutputChannel",
-  ""
-);
+const ACTIVE_OUTPUT_CHANNEL_CONTEXT = new RawContextKey("activeOutputChannel", "");
 export {
   ACTIVE_OUTPUT_CHANNEL_CONTEXT,
   CONTEXT_ACTIVE_FILE_OUTPUT,

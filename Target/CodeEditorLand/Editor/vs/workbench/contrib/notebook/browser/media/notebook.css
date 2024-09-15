@@ -203,7 +203,7 @@
   font-family: var(--monaco-monospace-font);
   white-space: pre;
   box-sizing: border-box;
-  opacity: 0.7;
+  opacity: .7;
   width: 35px;
   right: 0px;
   text-align: center;
@@ -321,7 +321,7 @@
 .notebookOverlay .cell .monaco-editor-background,
 .notebookOverlay .cell .margin-view-overlays,
 .notebookOverlay .cell .cell-statusbar-container {
-  background: var( --vscode-notebook-cellEditorBackground, var(--vscode-editor-background) );
+  background: var(--vscode-notebook-cellEditorBackground, var(--vscode-editor-background));
 }
 .notebookOverlay .monaco-list-row .cell-title-toolbar,
 .notebookOverlay .cell-bottom-toolbar-container .action-item,

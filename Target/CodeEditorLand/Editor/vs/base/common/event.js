@@ -1,17 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "./cancellation.js";
 import { diffSets } from "./collections.js";
 import { onUnexpectedError } from "./errors.js";
 import { createSingleCallFunction } from "./functional.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore,
-  combinedDisposable,
-  toDisposable
-} from "./lifecycle.js";
+import { combinedDisposable, Disposable, DisposableMap, DisposableStore, IDisposable, toDisposable } from "./lifecycle.js";
 import { LinkedList } from "./linkedList.js";
+import { IObservable, IObserver } from "./observable.js";
 import { StopWatch } from "./stopwatch.js";
+import { MicrotaskDelay } from "./symbols.js";
 const _enableListenerGCedWarning = false;
 const _enableDisposeWithListenerWarning = false;
 const _enableSnapshotPotentialLeakWarning = false;
@@ -25,9 +22,7 @@ var Event;
       let count = 0;
       options.onDidAddListener = () => {
         if (++count === 2) {
-          console.warn(
-            "snapshotted emitter LIKELY used public and SHOULD HAVE BEEN created with DisposableStore. snapshotted here"
-          );
+          console.warn("snapshotted emitter LIKELY used public and SHOULD HAVE BEEN created with DisposableStore. snapshotted here");
           stack.print();
         }
         origListenerDidAdd?.();
@@ -36,36 +31,24 @@ var Event;
   }
   __name(_addLeakageTraceLogic, "_addLeakageTraceLogic");
   function defer(event, disposable) {
-    return debounce(
-      event,
-      () => void 0,
-      0,
-      void 0,
-      true,
-      void 0,
-      disposable
-    );
+    return debounce(event, () => void 0, 0, void 0, true, void 0, disposable);
   }
   Event2.defer = defer;
   __name(defer, "defer");
   function once(event) {
     return (listener, thisArgs = null, disposables) => {
       let didFire = false;
-      let result;
-      result = event(
-        (e) => {
-          if (didFire) {
-            return;
-          } else if (result) {
-            result.dispose();
-          } else {
-            didFire = true;
-          }
-          return listener.call(thisArgs, e);
-        },
-        null,
-        disposables
-      );
+      let result = void 0;
+      result = event((e) => {
+        if (didFire) {
+          return;
+        } else if (result) {
+          result.dispose();
+        } else {
+          didFire = true;
+        }
+        return listener.call(thisArgs, e);
+      }, null, disposables);
       if (didFire) {
         result.dispose();
       }
@@ -80,41 +63,20 @@ var Event;
   Event2.onceIf = onceIf;
   __name(onceIf, "onceIf");
   function map(event, map2, disposable) {
-    return snapshot(
-      (listener, thisArgs = null, disposables) => event(
-        (i) => listener.call(thisArgs, map2(i)),
-        null,
-        disposables
-      ),
-      disposable
-    );
+    return snapshot((listener, thisArgs = null, disposables) => event((i) => listener.call(thisArgs, map2(i)), null, disposables), disposable);
   }
   Event2.map = map;
   __name(map, "map");
   function forEach(event, each, disposable) {
-    return snapshot(
-      (listener, thisArgs = null, disposables) => event(
-        (i) => {
-          each(i);
-          listener.call(thisArgs, i);
-        },
-        null,
-        disposables
-      ),
-      disposable
-    );
+    return snapshot((listener, thisArgs = null, disposables) => event((i) => {
+      each(i);
+      listener.call(thisArgs, i);
+    }, null, disposables), disposable);
   }
   Event2.forEach = forEach;
   __name(forEach, "forEach");
   function filter(event, filter2, disposable) {
-    return snapshot(
-      (listener, thisArgs = null, disposables) => event(
-        (e) => filter2(e) && listener.call(thisArgs, e),
-        null,
-        disposables
-      ),
-      disposable
-    );
+    return snapshot((listener, thisArgs = null, disposables) => event((e) => filter2(e) && listener.call(thisArgs, e), null, disposables), disposable);
   }
   Event2.filter = filter;
   __name(filter, "filter");
@@ -125,11 +87,7 @@ var Event;
   __name(signal, "signal");
   function any(...events) {
     return (listener, thisArgs = null, disposables) => {
-      const disposable = combinedDisposable(
-        ...events.map(
-          (event) => event((e) => listener.call(thisArgs, e))
-        )
-      );
+      const disposable = combinedDisposable(...events.map((event) => event((e) => listener.call(thisArgs, e))));
       return addAndReturnDisposable(disposable, disposables);
     };
   }
@@ -137,14 +95,10 @@ var Event;
   __name(any, "any");
   function reduce(event, merge, initial, disposable) {
     let output = initial;
-    return map(
-      event,
-      (e) => {
-        output = merge(output, e);
-        return output;
-      },
-      disposable
-    );
+    return map(event, (e) => {
+      output = merge(output, e);
+      return output;
+    }, disposable);
   }
   Event2.reduce = reduce;
   __name(reduce, "reduce");
@@ -177,8 +131,8 @@ var Event;
   __name(addAndReturnDisposable, "addAndReturnDisposable");
   function debounce(event, merge, delay = 100, leading = false, flushOnListenerRemove = false, leakWarningThreshold, disposable) {
     let subscription;
-    let output;
-    let handle;
+    let output = void 0;
+    let handle = void 0;
     let numDebouncedCalls = 0;
     let doFire;
     const options = {
@@ -203,9 +157,11 @@ var Event;
           if (typeof delay === "number") {
             clearTimeout(handle);
             handle = setTimeout(doFire, delay);
-          } else if (handle === void 0) {
-            handle = 0;
-            queueMicrotask(doFire);
+          } else {
+            if (handle === void 0) {
+              handle = 0;
+              queueMicrotask(doFire);
+            }
           }
         });
       },
@@ -229,37 +185,25 @@ var Event;
   Event2.debounce = debounce;
   __name(debounce, "debounce");
   function accumulate(event, delay = 0, disposable) {
-    return Event2.debounce(
-      event,
-      (last, e) => {
-        if (!last) {
-          return [e];
-        }
-        last.push(e);
-        return last;
-      },
-      delay,
-      void 0,
-      true,
-      void 0,
-      disposable
-    );
+    return Event2.debounce(event, (last, e) => {
+      if (!last) {
+        return [e];
+      }
+      last.push(e);
+      return last;
+    }, delay, void 0, true, void 0, disposable);
   }
   Event2.accumulate = accumulate;
   __name(accumulate, "accumulate");
   function latch(event, equals = (a, b) => a === b, disposable) {
     let firstCall = true;
     let cache;
-    return filter(
-      event,
-      (value) => {
-        const shouldEmit = firstCall || !equals(value, cache);
-        firstCall = false;
-        cache = value;
-        return shouldEmit;
-      },
-      disposable
-    );
+    return filter(event, (value) => {
+      const shouldEmit = firstCall || !equals(value, cache);
+      firstCall = false;
+      cache = value;
+      return shouldEmit;
+    }, disposable);
   }
   Event2.latch = latch;
   __name(latch, "latch");
@@ -321,19 +265,13 @@ var Event;
   __name(buffer, "buffer");
   function chain(event, sythensize) {
     const fn = /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-      const cs = sythensize(
-        new ChainableSynthesis()
-      );
-      return event(
-        (value) => {
-          const result = cs.evaluate(value);
-          if (result !== HaltChainable) {
-            listener.call(thisArgs, result);
-          }
-        },
-        void 0,
-        disposables
-      );
+      const cs = sythensize(new ChainableSynthesis());
+      return event(function(value) {
+        const result = cs.evaluate(value);
+        if (result !== HaltChainable) {
+          listener.call(thisArgs, result);
+        }
+      }, void 0, disposables);
     }, "fn");
     return fn;
   }
@@ -393,10 +331,7 @@ var Event;
     const fn = /* @__PURE__ */ __name((...args) => result.fire(map2(...args)), "fn");
     const onFirstListenerAdd = /* @__PURE__ */ __name(() => emitter.on(eventName, fn), "onFirstListenerAdd");
     const onLastListenerRemove = /* @__PURE__ */ __name(() => emitter.removeListener(eventName, fn), "onLastListenerRemove");
-    const result = new Emitter({
-      onWillAddFirstListener: onFirstListenerAdd,
-      onDidRemoveLastListener: onLastListenerRemove
-    });
+    const result = new Emitter({ onWillAddFirstListener: onFirstListenerAdd, onDidRemoveLastListener: onLastListenerRemove });
     return result.event;
   }
   Event2.fromNodeEventEmitter = fromNodeEventEmitter;
@@ -405,10 +340,7 @@ var Event;
     const fn = /* @__PURE__ */ __name((...args) => result.fire(map2(...args)), "fn");
     const onFirstListenerAdd = /* @__PURE__ */ __name(() => emitter.addEventListener(eventName, fn), "onFirstListenerAdd");
     const onLastListenerRemove = /* @__PURE__ */ __name(() => emitter.removeEventListener(eventName, fn), "onLastListenerRemove");
-    const result = new Emitter({
-      onWillAddFirstListener: onFirstListenerAdd,
-      onDidRemoveLastListener: onLastListenerRemove
-    });
+    const result = new Emitter({ onWillAddFirstListener: onFirstListenerAdd, onDidRemoveLastListener: onLastListenerRemove });
     return result.event;
   }
   Event2.fromDOMEventEmitter = fromDOMEventEmitter;
@@ -420,14 +352,11 @@ var Event;
   __name(toPromise, "toPromise");
   function fromPromise(promise) {
     const result = new Emitter();
-    promise.then(
-      (res) => {
-        result.fire(res);
-      },
-      () => {
-        result.fire(void 0);
-      }
-    ).finally(() => {
+    promise.then((res) => {
+      result.fire(res);
+    }, () => {
+      result.fire(void 0);
+    }).finally(() => {
       result.dispose();
     });
     return result.event;
@@ -700,9 +629,7 @@ if (_enableListenerGCedWarning) {
     if (leaks.length === 0) {
       return;
     }
-    console.warn(
-      "[LEAKING LISTENERS] GC'ed these listeners that were NOT yet disposed:"
-    );
+    console.warn("[LEAKING LISTENERS] GC'ed these listeners that were NOT yet disposed:");
     console.warn(leaks.join("\n"));
     leaks.length = 0;
   }, 3e3);
@@ -748,10 +675,7 @@ class Emitter {
   _size = 0;
   constructor(options) {
     this._options = options;
-    this._leakageMon = _globalLeakWarningThreshold > 0 || this._options?.leakWarningThreshold ? new LeakageMonitor(
-      options?.onListenerError ?? onUnexpectedError,
-      this._options?.leakWarningThreshold ?? _globalLeakWarningThreshold
-    ) : void 0;
+    this._leakageMon = _globalLeakWarningThreshold > 0 || this._options?.leakWarningThreshold ? new LeakageMonitor(options?.onListenerError ?? onUnexpectedError, this._options?.leakWarningThreshold ?? _globalLeakWarningThreshold) : void 0;
     this._perfMon = this._options?._profName ? new EventProfiling(this._options._profName) : void 0;
     this._deliveryQueue = this._options?.deliveryQueue;
   }
@@ -784,14 +708,8 @@ class Emitter {
       if (this._leakageMon && this._size > this._leakageMon.threshold ** 2) {
         const message = `[${this._leakageMon.name}] REFUSES to accept new listeners because it exceeded its threshold by far (${this._size} vs ${this._leakageMon.threshold})`;
         console.warn(message);
-        const tuple = this._leakageMon.getMostFrequentStack() ?? [
-          "UNKNOWN stack",
-          -1
-        ];
-        const error = new ListenerRefusalError(
-          `${message}. HINT: Stack shows most frequent listener (${tuple[1]}-times)`,
-          tuple[0]
-        );
+        const tuple = this._leakageMon.getMostFrequentStack() ?? ["UNKNOWN stack", -1];
+        const error = new ListenerRefusalError(`${message}. HINT: Stack shows most frequent listener (${tuple[1]}-times)`, tuple[0]);
         const errorHandler = this._options?.onListenerError || onUnexpectedError;
         errorHandler(error);
         return Disposable.None;
@@ -807,10 +725,7 @@ class Emitter {
       let stack;
       if (this._leakageMon && this._size >= Math.ceil(this._leakageMon.threshold * 0.2)) {
         contained.stack = Stacktrace.create();
-        removeMonitor = this._leakageMon.check(
-          contained.stack,
-          this._size + 1
-        );
+        removeMonitor = this._leakageMon.check(contained.stack, this._size + 1);
       }
       if (_enableDisposeWithListenerWarning) {
         contained.stack = stack ?? Stacktrace.create();
@@ -838,14 +753,8 @@ class Emitter {
       }
       if (_listenerFinalizers) {
         const stack2 = new Error().stack.split("\n").slice(2, 3).join("\n").trim();
-        const match = /(file:|vscode-file:\/\/vscode-app)?(\/[^:]*:\d+:\d+)/.exec(
-          stack2
-        );
-        _listenerFinalizers.register(
-          result,
-          match?.[2] ?? stack2,
-          result
-        );
+        const match = /(file:|vscode-file:\/\/vscode-app)?(\/[^:]*:\d+:\d+)/.exec(stack2);
+        _listenerFinalizers.register(result, match?.[2] ?? stack2, result);
       }
       return result;
     };
@@ -980,10 +889,7 @@ class AsyncEmitter extends Emitter {
     if (!this._asyncDeliveryQueue) {
       this._asyncDeliveryQueue = new LinkedList();
     }
-    forEachListener(
-      this._listeners,
-      (listener) => this._asyncDeliveryQueue.push([listener.value, data])
-    );
+    forEachListener(this._listeners, (listener) => this._asyncDeliveryQueue.push([listener.value, data]));
     while (this._asyncDeliveryQueue.size > 0 && !token.isCancellationRequested) {
       const [listener, data2] = this._asyncDeliveryQueue.shift();
       const thenables = [];
@@ -992,9 +898,7 @@ class AsyncEmitter extends Emitter {
         token,
         waitUntil: /* @__PURE__ */ __name((p) => {
           if (Object.isFrozen(thenables)) {
-            throw new Error(
-              "waitUntil can NOT be called asynchronous"
-            );
+            throw new Error("waitUntil can NOT be called asynchronous");
           }
           if (promiseJoin) {
             p = promiseJoin(p, listener);
@@ -1171,9 +1075,7 @@ class DynamicListEventMultiplexer {
   event;
   constructor(items, onAddItem, onRemoveItem, getEvent) {
     const multiplexer = this._store.add(new EventMultiplexer());
-    const itemListeners = this._store.add(
-      new DisposableMap()
-    );
+    const itemListeners = this._store.add(new DisposableMap());
     function addItem(instance) {
       itemListeners.set(instance, multiplexer.add(getEvent(instance)));
     }
@@ -1181,16 +1083,12 @@ class DynamicListEventMultiplexer {
     for (const instance of items) {
       addItem(instance);
     }
-    this._store.add(
-      onAddItem((instance) => {
-        addItem(instance);
-      })
-    );
-    this._store.add(
-      onRemoveItem((instance) => {
-        itemListeners.deleteAndDispose(instance);
-      })
-    );
+    this._store.add(onAddItem((instance) => {
+      addItem(instance);
+    }));
+    this._store.add(onRemoveItem((instance) => {
+      itemListeners.deleteAndDispose(instance);
+    }));
     this.event = multiplexer.event;
   }
   dispose() {
@@ -1204,39 +1102,30 @@ class EventBufferer {
   data = [];
   wrapEvent(event, reduce, initial) {
     return (listener, thisArgs, disposables) => {
-      return event(
-        (i) => {
-          const data = this.data[this.data.length - 1];
-          if (!reduce) {
-            if (data) {
-              data.buffers.push(() => listener.call(thisArgs, i));
-            } else {
-              listener.call(thisArgs, i);
-            }
-            return;
+      return event((i) => {
+        const data = this.data[this.data.length - 1];
+        if (!reduce) {
+          if (data) {
+            data.buffers.push(() => listener.call(thisArgs, i));
+          } else {
+            listener.call(thisArgs, i);
           }
-          const reduceData = data;
-          if (!reduceData) {
-            listener.call(thisArgs, reduce(initial, i));
-            return;
-          }
-          reduceData.items ??= [];
-          reduceData.items.push(i);
-          if (reduceData.buffers.length === 0) {
-            data.buffers.push(() => {
-              reduceData.reducedResult ??= initial ? reduceData.items.reduce(
-                reduce,
-                initial
-              ) : reduceData.items.reduce(
-                reduce
-              );
-              listener.call(thisArgs, reduceData.reducedResult);
-            });
-          }
-        },
-        void 0,
-        disposables
-      );
+          return;
+        }
+        const reduceData = data;
+        if (!reduceData) {
+          listener.call(thisArgs, reduce(initial, i));
+          return;
+        }
+        reduceData.items ??= [];
+        reduceData.items.push(i);
+        if (reduceData.buffers.length === 0) {
+          data.buffers.push(() => {
+            reduceData.reducedResult ??= initial ? reduceData.items.reduce(reduce, initial) : reduceData.items.reduce(reduce);
+            listener.call(thisArgs, reduceData.reducedResult);
+          });
+        }
+      }, void 0, disposables);
     };
   }
   bufferEvents(fn) {
@@ -1258,10 +1147,7 @@ class Relay {
   emitter = new Emitter({
     onDidAddFirstListener: /* @__PURE__ */ __name(() => {
       this.listening = true;
-      this.inputEventListener = this.inputEvent(
-        this.emitter.fire,
-        this.emitter
-      );
+      this.inputEventListener = this.inputEvent(this.emitter.fire, this.emitter);
     }, "onDidAddFirstListener"),
     onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
       this.listening = false;
@@ -1319,19 +1205,17 @@ function trackSetChanges(getData, onDidChangeData, handleItem) {
     map.set(d, handleItem(d));
   }
   const store = new DisposableStore();
-  store.add(
-    onDidChangeData(() => {
-      const newData = getData();
-      const diff = diffSets(oldData, newData);
-      for (const r of diff.removed) {
-        map.deleteAndDispose(r);
-      }
-      for (const a of diff.added) {
-        map.set(a, handleItem(a));
-      }
-      oldData = new Set(newData);
-    })
-  );
+  store.add(onDidChangeData(() => {
+    const newData = getData();
+    const diff = diffSets(oldData, newData);
+    for (const r of diff.removed) {
+      map.deleteAndDispose(r);
+    }
+    for (const a of diff.added) {
+      map.set(a, handleItem(a));
+    }
+    oldData = new Set(newData);
+  }));
   store.add(map);
   return store;
 }

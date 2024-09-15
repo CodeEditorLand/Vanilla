@@ -9,16 +9,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
-import { throttle } from "../../../base/common/decorators.js";
-import { onUnexpectedExternalError } from "../../../base/common/errors.js";
-import {
-  Progress
-} from "../../../platform/progress/common/progress.js";
+import { ProgressOptions } from "vscode";
+import { MainThreadProgressShape, ExtHostProgressShape } from "./extHost.protocol.js";
 import { ProgressLocation } from "./extHostTypeConverters.js";
+import { Progress, IProgressStep } from "../../../platform/progress/common/progress.js";
+import { CancellationTokenSource, CancellationToken } from "../../../base/common/cancellation.js";
+import { throttle } from "../../../base/common/decorators.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { onUnexpectedExternalError } from "../../../base/common/errors.js";
 class ExtHostProgress {
   static {
     __name(this, "ExtHostProgress");
@@ -32,20 +30,8 @@ class ExtHostProgress {
   async withProgress(extension, options, task) {
     const handle = this._handles++;
     const { title, location, cancellable } = options;
-    const source = {
-      label: extension.displayName || extension.name,
-      id: extension.identifier.value
-    };
-    this._proxy.$startProgress(
-      handle,
-      {
-        location: ProgressLocation.from(location),
-        title,
-        source,
-        cancellable
-      },
-      extension.isUnderDevelopment ? void 0 : extension.identifier.value
-    ).catch(onUnexpectedExternalError);
+    const source = { label: extension.displayName || extension.name, id: extension.identifier.value };
+    this._proxy.$startProgress(handle, { location: ProgressLocation.from(location), title, source, cancellable }, !extension.isUnderDevelopment ? extension.identifier.value : void 0).catch(onUnexpectedExternalError);
     return this._withProgress(handle, task, !!cancellable);
   }
   _withProgress(handle, task, cancellable) {
@@ -61,18 +47,12 @@ class ExtHostProgress {
     }, "progressEnd");
     let p;
     try {
-      p = task(
-        new ProgressCallback(this._proxy, handle),
-        cancellable && source ? source.token : CancellationToken.None
-      );
+      p = task(new ProgressCallback(this._proxy, handle), cancellable && source ? source.token : CancellationToken.None);
     } catch (err) {
       progressEnd(handle);
       throw err;
     }
-    p.then(
-      (result) => progressEnd(handle),
-      (err) => progressEnd(handle)
-    );
+    p.then((result) => progressEnd(handle), (err) => progressEnd(handle));
     return p;
   }
   $acceptProgressCanceled(handle) {
@@ -109,11 +89,7 @@ class ProgressCallback extends Progress {
   }
 }
 __decorateClass([
-  throttle(
-    100,
-    (result, currentValue) => mergeProgress(result, currentValue),
-    () => /* @__PURE__ */ Object.create(null)
-  )
+  throttle(100, (result, currentValue) => mergeProgress(result, currentValue), () => /* @__PURE__ */ Object.create(null))
 ], ProgressCallback.prototype, "throttledReport", 1);
 export {
   ExtHostProgress

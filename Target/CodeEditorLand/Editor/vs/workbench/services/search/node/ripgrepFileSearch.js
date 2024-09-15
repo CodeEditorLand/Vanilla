@@ -1,25 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as cp from "child_process";
-import { rgPath } from "@vscode/ripgrep";
-import * as extpath from "../../../../base/common/extpath.js";
-import { normalizeNFD } from "../../../../base/common/normalization.js";
 import * as path from "../../../../base/common/path.js";
+import * as glob from "../../../../base/common/glob.js";
+import { normalizeNFD } from "../../../../base/common/normalization.js";
+import * as extpath from "../../../../base/common/extpath.js";
 import { isMacintosh as isMac } from "../../../../base/common/platform.js";
 import * as strings from "../../../../base/common/strings.js";
+import { IFileQuery, IFolderQuery } from "../common/search.js";
 import { anchorGlob } from "./ripgrepSearchUtils.js";
-const rgDiskPath = rgPath.replace(
-  /\bnode_modules\.asar\b/,
-  "node_modules.asar.unpacked"
-);
+import { rgPath } from "@vscode/ripgrep";
+const rgDiskPath = rgPath.replace(/\bnode_modules\.asar\b/, "node_modules.asar.unpacked");
 function spawnRipgrepCmd(config, folderQuery, includePattern, excludePattern, numThreads) {
-  const rgArgs = getRgArgs(
-    config,
-    folderQuery,
-    includePattern,
-    excludePattern,
-    numThreads
-  );
+  const rgArgs = getRgArgs(config, folderQuery, includePattern, excludePattern, numThreads);
   const cwd = folderQuery.folder.fsPath;
   return {
     cmd: cp.spawn(rgDiskPath, rgArgs.args, { cwd }),
@@ -31,30 +24,18 @@ function spawnRipgrepCmd(config, folderQuery, includePattern, excludePattern, nu
 }
 __name(spawnRipgrepCmd, "spawnRipgrepCmd");
 function getRgArgs(config, folderQuery, includePattern, excludePattern, numThreads) {
-  const args = [
-    "--files",
-    "--hidden",
-    "--case-sensitive",
-    "--no-require-git"
-  ];
-  foldersToIncludeGlobs([folderQuery], includePattern, false).forEach(
-    (globArg) => {
-      const inclusion = anchorGlob(globArg);
-      args.push("-g", inclusion);
-      if (isMac) {
-        const normalized = normalizeNFD(inclusion);
-        if (normalized !== inclusion) {
-          args.push("-g", normalized);
-        }
+  const args = ["--files", "--hidden", "--case-sensitive", "--no-require-git"];
+  foldersToIncludeGlobs([folderQuery], includePattern, false).forEach((globArg) => {
+    const inclusion = anchorGlob(globArg);
+    args.push("-g", inclusion);
+    if (isMac) {
+      const normalized = normalizeNFD(inclusion);
+      if (normalized !== inclusion) {
+        args.push("-g", normalized);
       }
     }
-  );
-  const rgGlobs = foldersToRgExcludeGlobs(
-    [folderQuery],
-    excludePattern,
-    void 0,
-    false
-  );
+  });
+  const rgGlobs = foldersToRgExcludeGlobs([folderQuery], excludePattern, void 0, false);
   rgGlobs.globArgs.forEach((globArg) => {
     const exclusion = `!${anchorGlob(globArg)}`;
     args.push("-g", exclusion);
@@ -93,22 +74,11 @@ function foldersToRgExcludeGlobs(folderQueries, globalExclude, excludesToSkip, a
   const globArgs = [];
   let siblingClauses = {};
   folderQueries.forEach((folderQuery) => {
-    const totalExcludePattern = Object.assign(
-      {},
-      folderQuery.excludePattern || {},
-      globalExclude || {}
-    );
-    const result = globExprsToRgGlobs(
-      totalExcludePattern,
-      absoluteGlobs ? folderQuery.folder.fsPath : void 0,
-      excludesToSkip
-    );
+    const totalExcludePattern = Object.assign({}, folderQuery.excludePattern || {}, globalExclude || {});
+    const result = globExprsToRgGlobs(totalExcludePattern, absoluteGlobs ? folderQuery.folder.fsPath : void 0, excludesToSkip);
     globArgs.push(...result.globArgs);
     if (result.siblingClauses) {
-      siblingClauses = Object.assign(
-        siblingClauses,
-        result.siblingClauses
-      );
+      siblingClauses = Object.assign(siblingClauses, result.siblingClauses);
     }
   });
   return { globArgs, siblingClauses };
@@ -117,15 +87,8 @@ __name(foldersToRgExcludeGlobs, "foldersToRgExcludeGlobs");
 function foldersToIncludeGlobs(folderQueries, globalInclude, absoluteGlobs = true) {
   const globArgs = [];
   folderQueries.forEach((folderQuery) => {
-    const totalIncludePattern = Object.assign(
-      {},
-      globalInclude || {},
-      folderQuery.includePattern || {}
-    );
-    const result = globExprsToRgGlobs(
-      totalIncludePattern,
-      absoluteGlobs ? folderQuery.folder.fsPath : void 0
-    );
+    const totalIncludePattern = Object.assign({}, globalInclude || {}, folderQuery.includePattern || {});
+    const result = globExprsToRgGlobs(totalIncludePattern, absoluteGlobs ? folderQuery.folder.fsPath : void 0);
     globArgs.push(...result.globArgs);
   });
   return globArgs;

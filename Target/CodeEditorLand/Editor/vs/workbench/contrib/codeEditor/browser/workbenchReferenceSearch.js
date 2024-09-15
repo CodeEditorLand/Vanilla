@@ -10,10 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { ReferencesController } from "../../../../editor/contrib/gotoSymbol/browser/peek/referencesController.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
@@ -46,11 +44,7 @@ WorkbenchReferencesController = __decorateClass([
   __decorateParam(5, IStorageService),
   __decorateParam(6, IConfigurationService)
 ], WorkbenchReferencesController);
-registerEditorContribution(
-  ReferencesController.ID,
-  WorkbenchReferencesController,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(ReferencesController.ID, WorkbenchReferencesController, EditorContributionInstantiation.Lazy);
 export {
   WorkbenchReferencesController
 };

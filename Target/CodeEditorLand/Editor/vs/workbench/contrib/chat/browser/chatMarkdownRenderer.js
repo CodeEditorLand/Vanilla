@@ -10,12 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { MarkdownRenderOptions, MarkedOptions } from "../../../../base/browser/markdownRenderer.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  MarkdownRenderer
-} from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { IMarkdownRendererOptions, IMarkdownRenderResult, MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
@@ -95,13 +95,7 @@ ${markdown.value}</body>`
       if (element.title) {
         const title = element.title;
         element.title = "";
-        store.add(
-          this.hoverService.setupManagedHover(
-            getDefaultHoverDelegate("element"),
-            element,
-            title
-          )
-        );
+        store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), element, title));
       }
     });
     return {
@@ -116,10 +110,7 @@ ${markdown.value}</body>`
     try {
       const uri = URI.parse(link);
       if ((await this.fileService.stat(uri)).isDirectory) {
-        return this.commandService.executeCommand(
-          REVEAL_IN_EXPLORER_COMMAND_ID,
-          uri
-        );
+        return this.commandService.executeCommand(REVEAL_IN_EXPLORER_COMMAND_ID, uri);
       }
     } catch {
     }

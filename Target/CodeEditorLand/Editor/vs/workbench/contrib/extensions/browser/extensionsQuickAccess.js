@@ -10,16 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPickerQuickAccessItem, PickerQuickAccessProvider } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { localize } from "../../../../nls.js";
-import {
-  IExtensionGalleryService,
-  IExtensionManagementService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionGalleryService, IExtensionManagementService, IGalleryExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import {
-  PickerQuickAccessProvider
-} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { IExtensionsWorkbenchService } from "../common/extensions.js";
 let InstallExtensionQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(extensionsWorkbenchService, galleryService, extensionsService, notificationService, logService) {
@@ -36,54 +34,32 @@ let InstallExtensionQuickAccessProvider = class extends PickerQuickAccessProvide
   static PREFIX = "ext install ";
   _getPicks(filter, disposables, token) {
     if (!filter) {
-      return [
-        {
-          label: localize(
-            "type",
-            "Type an extension name to install or search."
-          )
-        }
-      ];
+      return [{
+        label: localize("type", "Type an extension name to install or search.")
+      }];
     }
     const genericSearchPickItem = {
-      label: localize(
-        "searchFor",
-        "Press Enter to search for extension '{0}'.",
-        filter
-      ),
+      label: localize("searchFor", "Press Enter to search for extension '{0}'.", filter),
       accept: /* @__PURE__ */ __name(() => this.extensionsWorkbenchService.openSearch(filter), "accept")
     };
     if (/\./.test(filter)) {
-      return this.getPicksForExtensionId(
-        filter,
-        genericSearchPickItem,
-        token
-      );
+      return this.getPicksForExtensionId(filter, genericSearchPickItem, token);
     }
     return [genericSearchPickItem];
   }
   async getPicksForExtensionId(filter, fallback, token) {
     try {
-      const [galleryExtension] = await this.galleryService.getExtensions(
-        [{ id: filter }],
-        token
-      );
+      const [galleryExtension] = await this.galleryService.getExtensions([{ id: filter }], token);
       if (token.isCancellationRequested) {
         return [];
       }
       if (!galleryExtension) {
         return [fallback];
       }
-      return [
-        {
-          label: localize(
-            "install",
-            "Press Enter to install extension '{0}'.",
-            filter
-          ),
-          accept: /* @__PURE__ */ __name(() => this.installExtension(galleryExtension, filter), "accept")
-        }
-      ];
+      return [{
+        label: localize("install", "Press Enter to install extension '{0}'.", filter),
+        accept: /* @__PURE__ */ __name(() => this.installExtension(galleryExtension, filter), "accept")
+      }];
     } catch (error) {
       if (token.isCancellationRequested) {
         return [];
@@ -118,15 +94,10 @@ let ManageExtensionsQuickAccessProvider = class extends PickerQuickAccessProvide
   }
   static PREFIX = "ext ";
   _getPicks() {
-    return [
-      {
-        label: localize(
-          "manage",
-          "Press Enter to manage your extensions."
-        ),
-        accept: /* @__PURE__ */ __name(() => this.extensionsWorkbenchService.openSearch(""), "accept")
-      }
-    ];
+    return [{
+      label: localize("manage", "Press Enter to manage your extensions."),
+      accept: /* @__PURE__ */ __name(() => this.extensionsWorkbenchService.openSearch(""), "accept")
+    }];
   }
 };
 ManageExtensionsQuickAccessProvider = __decorateClass([

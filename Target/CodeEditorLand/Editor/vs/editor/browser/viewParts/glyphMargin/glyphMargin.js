@@ -1,16 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
 import { ArrayQueue } from "../../../../base/common/arrays.js";
 import "./glyphMargin.css";
+import { IGlyphMarginWidget, IGlyphMarginWidgetPosition } from "../../editorBrowser.js";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { GlyphMarginLane } from "../../../common/model.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import { ViewPart } from "../../view/viewPart.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
 class DecorationToRender {
   constructor(startLineNumber, endLineNumber, className, tooltip, zIndex) {
     this.startLineNumber = startLineNumber;
@@ -88,9 +90,7 @@ class DedupOverlay extends DynamicViewOverlay {
         prevEndLineIndex = endLineIndex;
       }
       for (let i2 = startLineIndex; i2 <= prevEndLineIndex; i2++) {
-        output[i2].add(
-          new LineDecorationToRender(className, zIndex, d.tooltip)
-        );
+        output[i2].add(new LineDecorationToRender(className, zIndex, d.tooltip));
       }
     }
     return output;
@@ -212,29 +212,14 @@ class GlyphMarginWidgets extends ViewPart {
       if (!glyphMarginClassName) {
         continue;
       }
-      const startLineNumber = Math.max(
-        d.range.startLineNumber,
-        visibleStartLineNumber
-      );
-      const endLineNumber = Math.min(
-        d.range.endLineNumber,
-        visibleEndLineNumber
-      );
+      const startLineNumber = Math.max(d.range.startLineNumber, visibleStartLineNumber);
+      const endLineNumber = Math.min(d.range.endLineNumber, visibleEndLineNumber);
       const lane = d.options.glyphMargin?.position ?? GlyphMarginLane.Center;
       const zIndex = d.options.zIndex ?? 0;
       for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
-        const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
-          new Position(lineNumber, 0)
-        );
+        const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(lineNumber, 0));
         const laneIndex = this._context.viewModel.glyphLanes.getLanesAtLine(modelPosition.lineNumber).indexOf(lane);
-        requests.push(
-          new DecorationBasedGlyphRenderRequest(
-            lineNumber,
-            laneIndex,
-            zIndex,
-            glyphMarginClassName
-          )
-        );
+        requests.push(new DecorationBasedGlyphRenderRequest(lineNumber, laneIndex, zIndex, glyphMarginClassName));
       }
     }
   }
@@ -243,28 +228,14 @@ class GlyphMarginWidgets extends ViewPart {
     const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
     for (const widget of Object.values(this._widgets)) {
       const range = widget.preference.range;
-      const { startLineNumber, endLineNumber } = this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(
-        Range.lift(range)
-      );
+      const { startLineNumber, endLineNumber } = this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(Range.lift(range));
       if (!startLineNumber || !endLineNumber || endLineNumber < visibleStartLineNumber || startLineNumber > visibleEndLineNumber) {
         continue;
       }
-      const widgetLineNumber = Math.max(
-        startLineNumber,
-        visibleStartLineNumber
-      );
-      const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
-        new Position(widgetLineNumber, 0)
-      );
+      const widgetLineNumber = Math.max(startLineNumber, visibleStartLineNumber);
+      const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(widgetLineNumber, 0));
       const laneIndex = this._context.viewModel.glyphLanes.getLanesAtLine(modelPosition.lineNumber).indexOf(widget.preference.lane);
-      requests.push(
-        new WidgetBasedGlyphRenderRequest(
-          widgetLineNumber,
-          laneIndex,
-          widget.preference.zIndex,
-          widget
-        )
-      );
+      requests.push(new WidgetBasedGlyphRenderRequest(widgetLineNumber, laneIndex, widget.preference.zIndex, widget));
     }
   }
   _collectSortedGlyphRenderRequests(ctx) {
@@ -302,18 +273,14 @@ class GlyphMarginWidgets extends ViewPart {
     for (const widget of Object.values(this._widgets)) {
       widget.renderInfo = null;
     }
-    const requests = new ArrayQueue(
-      this._collectSortedGlyphRenderRequests(ctx)
-    );
+    const requests = new ArrayQueue(this._collectSortedGlyphRenderRequests(ctx));
     const decorationGlyphsToRender = [];
     while (requests.length > 0) {
       const first = requests.peek();
       if (!first) {
         break;
       }
-      const requestsAtLocation = requests.takeWhile(
-        (el) => el.lineNumber === first.lineNumber && el.laneIndex === first.laneIndex
-      );
+      const requestsAtLocation = requests.takeWhile((el) => el.lineNumber === first.lineNumber && el.laneIndex === first.laneIndex);
       if (!requestsAtLocation || requestsAtLocation.length === 0) {
         break;
       }
@@ -328,9 +295,7 @@ class GlyphMarginWidgets extends ViewPart {
             classNames.push(request.className);
           }
         }
-        decorationGlyphsToRender.push(
-          winner.accept(classNames.join(" "))
-        );
+        decorationGlyphsToRender.push(winner.accept(classNames.join(" ")));
       } else {
         winner.widget.renderInfo = {
           lineNumber: winner.lineNumber,
@@ -351,11 +316,11 @@ class GlyphMarginWidgets extends ViewPart {
       }
       return;
     }
-    const width = Math.round(
-      this._glyphMarginWidth / this._glyphMarginDecorationLaneCount
-    );
+    const width = Math.round(this._glyphMarginWidth / this._glyphMarginDecorationLaneCount);
     for (const widget of Object.values(this._widgets)) {
-      if (widget.renderInfo) {
+      if (!widget.renderInfo) {
+        widget.domNode.setDisplay("none");
+      } else {
         const top = ctx.viewportData.relativeVerticalOffset[widget.renderInfo.lineNumber - ctx.viewportData.startLineNumber];
         const left = this._glyphMarginLeft + widget.renderInfo.laneIndex * this._lineHeight;
         widget.domNode.setDisplay("block");
@@ -363,8 +328,6 @@ class GlyphMarginWidgets extends ViewPart {
         widget.domNode.setLeft(left);
         widget.domNode.setWidth(width);
         widget.domNode.setHeight(this._lineHeight);
-      } else {
-        widget.domNode.setDisplay("none");
       }
     }
     for (let i = 0; i < this._decorationGlyphsToRender.length; i++) {
@@ -409,11 +372,7 @@ class DecorationBasedGlyphRenderRequest {
   }
   type = 0 /* Decoration */;
   accept(combinedClassName) {
-    return new DecorationBasedGlyph(
-      this.lineNumber,
-      this.laneIndex,
-      combinedClassName
-    );
+    return new DecorationBasedGlyph(this.lineNumber, this.laneIndex, combinedClassName);
   }
 }
 class WidgetBasedGlyphRenderRequest {

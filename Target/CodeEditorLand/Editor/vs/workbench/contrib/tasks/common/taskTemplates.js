@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as nls from "../../../../nls.js";
+import { IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
 const dotnetBuild = {
   id: "dotnetCore",
   label: ".NET Core",
@@ -72,10 +73,7 @@ const command = {
   id: "externalCommand",
   label: "Others",
   autoDetect: false,
-  description: nls.localize(
-    "externalCommand",
-    "Example to run an arbitrary external command"
-  ),
+  description: nls.localize("externalCommand", "Example to run an arbitrary external command"),
   content: [
     "{",
     "	// See https://go.microsoft.com/fwlink/?LinkId=733558",

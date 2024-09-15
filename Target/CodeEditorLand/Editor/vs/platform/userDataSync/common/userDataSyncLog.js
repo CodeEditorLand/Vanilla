@@ -13,13 +13,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { joinPath } from "../../../base/common/resources.js";
 import { localize } from "../../../nls.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  AbstractLogger,
-  ILoggerService
-} from "../../log/common/log.js";
-import {
-  USER_DATA_SYNC_LOG_ID
-} from "./userDataSync.js";
+import { AbstractLogger, ILogger, ILoggerService } from "../../log/common/log.js";
+import { IUserDataSyncLogService, USER_DATA_SYNC_LOG_ID } from "./userDataSync.js";
 let UserDataSyncLogService = class extends AbstractLogger {
   static {
     __name(this, "UserDataSyncLogService");
@@ -27,18 +22,7 @@ let UserDataSyncLogService = class extends AbstractLogger {
   logger;
   constructor(loggerService, environmentService) {
     super();
-    this.logger = this._register(
-      loggerService.createLogger(
-        joinPath(
-          environmentService.logsHome,
-          `${USER_DATA_SYNC_LOG_ID}.log`
-        ),
-        {
-          id: USER_DATA_SYNC_LOG_ID,
-          name: localize("userDataSyncLog", "Settings Sync")
-        }
-      )
-    );
+    this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${USER_DATA_SYNC_LOG_ID}.log`), { id: USER_DATA_SYNC_LOG_ID, name: localize("userDataSyncLog", "Settings Sync") }));
   }
   trace(message, ...args) {
     this.logger.trace(message, ...args);

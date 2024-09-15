@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  assert,
-  assertFn,
-  checkAdjacentItems
-} from "../../../base/common/assert.js";
+import { assert, assertFn, checkAdjacentItems } from "../../../base/common/assert.js";
 import { BugIndicatingError } from "../../../base/common/errors.js";
+import { ISingleEditOperation } from "./editOperation.js";
 import { Position } from "./position.js";
 import { PositionOffsetTransformer } from "./positionToOffset.js";
 import { Range } from "./range.js";
@@ -13,12 +10,7 @@ import { TextLength } from "./textLength.js";
 class TextEdit {
   constructor(edits) {
     this.edits = edits;
-    assertFn(
-      () => checkAdjacentItems(
-        edits,
-        (a, b) => a.range.getEndPosition().isBeforeOrEqual(b.range.getStartPosition())
-      )
-    );
+    assertFn(() => checkAdjacentItems(edits, (a, b) => a.range.getEndPosition().isBeforeOrEqual(b.range.getStartPosition())));
   }
   static {
     __name(this, "TextEdit");
@@ -34,10 +26,7 @@ class TextEdit {
     for (const edit of this.edits) {
       if (edits.length > 0 && edits[edits.length - 1].range.getEndPosition().equals(edit.range.getStartPosition())) {
         const last = edits[edits.length - 1];
-        edits[edits.length - 1] = new SingleTextEdit(
-          last.range.plusRange(edit.range),
-          last.text + edit.text
-        );
+        edits[edits.length - 1] = new SingleTextEdit(last.range.plusRange(edit.range), last.text + edit.text);
       } else if (!edit.isEmpty) {
         edits.push(edit);
       }
@@ -56,10 +45,7 @@ class TextEdit {
       }
       const len = TextLength.ofText(edit.text);
       if (position.isBefore(end)) {
-        const startPos = new Position(
-          start.lineNumber + lineDelta,
-          start.column + (start.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0)
-        );
+        const startPos = new Position(start.lineNumber + lineDelta, start.column + (start.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0));
         const endPos = len.addToPosition(startPos);
         return rangeFromPositions(startPos, endPos);
       }
@@ -75,10 +61,7 @@ class TextEdit {
       }
       curLine = end.lineNumber + lineDelta;
     }
-    return new Position(
-      position.lineNumber + lineDelta,
-      position.column + (position.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0)
-    );
+    return new Position(position.lineNumber + lineDelta, position.column + (position.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0));
   }
   mapRange(range) {
     function getStart(p) {
@@ -128,14 +111,7 @@ class TextEdit {
   }
   inverse(doc) {
     const ranges = this.getNewRanges();
-    return new TextEdit(
-      this.edits.map(
-        (e, idx) => new SingleTextEdit(
-          ranges[idx],
-          doc.getValueOfRange(e.range)
-        )
-      )
-    );
+    return new TextEdit(this.edits.map((e, idx) => new SingleTextEdit(ranges[idx], doc.getValueOfRange(e.range))));
   }
   getNewRanges() {
     const newRanges = [];
@@ -184,12 +160,7 @@ function rangeFromPositions(start, end) {
   } else if (!start.isBeforeOrEqual(end)) {
     throw new BugIndicatingError("start must be before end");
   }
-  return new Range(
-    start.lineNumber,
-    start.column,
-    end.lineNumber,
-    end.column
-  );
+  return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
 }
 __name(rangeFromPositions, "rangeFromPositions");
 class AbstractText {
@@ -215,21 +186,13 @@ class LineBasedText extends AbstractText {
   }
   getValueOfRange(range) {
     if (range.startLineNumber === range.endLineNumber) {
-      return this._getLineContent(range.startLineNumber).substring(
-        range.startColumn - 1,
-        range.endColumn - 1
-      );
+      return this._getLineContent(range.startLineNumber).substring(range.startColumn - 1, range.endColumn - 1);
     }
-    let result = this._getLineContent(range.startLineNumber).substring(
-      range.startColumn - 1
-    );
+    let result = this._getLineContent(range.startLineNumber).substring(range.startColumn - 1);
     for (let i = range.startLineNumber + 1; i < range.endLineNumber; i++) {
       result += "\n" + this._getLineContent(i);
     }
-    result += "\n" + this._getLineContent(range.endLineNumber).substring(
-      0,
-      range.endColumn - 1
-    );
+    result += "\n" + this._getLineContent(range.endLineNumber).substring(0, range.endColumn - 1);
     return result;
   }
   get length() {
@@ -242,7 +205,10 @@ class ArrayText extends LineBasedText {
     __name(this, "ArrayText");
   }
   constructor(lines) {
-    super((lineNumber) => lines[lineNumber - 1], lines.length);
+    super(
+      (lineNumber) => lines[lineNumber - 1],
+      lines.length
+    );
   }
 }
 class StringText extends AbstractText {

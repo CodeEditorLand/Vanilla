@@ -1,10 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { assertNever } from "../../../base/common/assert.js";
-import * as strings from "../../../base/common/strings.js";
-import { Range } from "../core/range.js";
-import { DEFAULT_WORD_REGEXP, getWordAtText } from "../core/wordHelper.js";
+import { IRange, Range } from "../core/range.js";
 import { Searcher } from "../model/textModelSearch.js";
+import * as strings from "../../../base/common/strings.js";
+import { IUnicodeHighlightsResult } from "./editorWorker.js";
+import { assertNever } from "../../../base/common/assert.js";
+import { DEFAULT_WORD_REGEXP, getWordAtText } from "../core/wordHelper.js";
 class UnicodeTextModelHighlighter {
   static {
     __name(this, "UnicodeTextModelHighlighter");
@@ -16,12 +17,9 @@ class UnicodeTextModelHighlighter {
     const candidates = codePointHighlighter.getCandidateCodePoints();
     let regex;
     if (candidates === "allNonBasicAscii") {
-      regex = /[^\t\n\r\x20-\x7E]/g;
+      regex = new RegExp("[^\\t\\n\\r\\x20-\\x7E]", "g");
     } else {
-      regex = new RegExp(
-        `${buildRegExpCharClassExpr(Array.from(candidates))}`,
-        "g"
-      );
+      regex = new RegExp(`${buildRegExpCharClassExpr(Array.from(candidates))}`, "g");
     }
     const searcher = new Searcher(null, regex);
     const ranges = [];
@@ -30,72 +28,54 @@ class UnicodeTextModelHighlighter {
     let ambiguousCharacterCount = 0;
     let invisibleCharacterCount = 0;
     let nonBasicAsciiCharacterCount = 0;
-    forLoop: for (let lineNumber = startLine, lineCount = endLine; lineNumber <= lineCount; lineNumber++) {
-      const lineContent = model.getLineContent(lineNumber);
-      const lineLength = lineContent.length;
-      searcher.reset(0);
-      do {
-        m = searcher.next(lineContent);
-        if (m) {
-          let startIndex = m.index;
-          let endIndex = m.index + m[0].length;
-          if (startIndex > 0) {
-            const charCodeBefore = lineContent.charCodeAt(
-              startIndex - 1
-            );
-            if (strings.isHighSurrogate(charCodeBefore)) {
-              startIndex--;
+    forLoop:
+      for (let lineNumber = startLine, lineCount = endLine; lineNumber <= lineCount; lineNumber++) {
+        const lineContent = model.getLineContent(lineNumber);
+        const lineLength = lineContent.length;
+        searcher.reset(0);
+        do {
+          m = searcher.next(lineContent);
+          if (m) {
+            let startIndex = m.index;
+            let endIndex = m.index + m[0].length;
+            if (startIndex > 0) {
+              const charCodeBefore = lineContent.charCodeAt(startIndex - 1);
+              if (strings.isHighSurrogate(charCodeBefore)) {
+                startIndex--;
+              }
+            }
+            if (endIndex + 1 < lineLength) {
+              const charCodeBefore = lineContent.charCodeAt(endIndex - 1);
+              if (strings.isHighSurrogate(charCodeBefore)) {
+                endIndex++;
+              }
+            }
+            const str = lineContent.substring(startIndex, endIndex);
+            let word = getWordAtText(startIndex + 1, DEFAULT_WORD_REGEXP, lineContent, 0);
+            if (word && word.endColumn <= startIndex + 1) {
+              word = null;
+            }
+            const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(str, word ? word.word : null);
+            if (highlightReason !== 0 /* None */) {
+              if (highlightReason === 3 /* Ambiguous */) {
+                ambiguousCharacterCount++;
+              } else if (highlightReason === 2 /* Invisible */) {
+                invisibleCharacterCount++;
+              } else if (highlightReason === 1 /* NonBasicASCII */) {
+                nonBasicAsciiCharacterCount++;
+              } else {
+                assertNever(highlightReason);
+              }
+              const MAX_RESULT_LENGTH = 1e3;
+              if (ranges.length >= MAX_RESULT_LENGTH) {
+                hasMore = true;
+                break forLoop;
+              }
+              ranges.push(new Range(lineNumber, startIndex + 1, lineNumber, endIndex + 1));
             }
           }
-          if (endIndex + 1 < lineLength) {
-            const charCodeBefore = lineContent.charCodeAt(
-              endIndex - 1
-            );
-            if (strings.isHighSurrogate(charCodeBefore)) {
-              endIndex++;
-            }
-          }
-          const str = lineContent.substring(startIndex, endIndex);
-          let word = getWordAtText(
-            startIndex + 1,
-            DEFAULT_WORD_REGEXP,
-            lineContent,
-            0
-          );
-          if (word && word.endColumn <= startIndex + 1) {
-            word = null;
-          }
-          const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(
-            str,
-            word ? word.word : null
-          );
-          if (highlightReason !== 0 /* None */) {
-            if (highlightReason === 3 /* Ambiguous */) {
-              ambiguousCharacterCount++;
-            } else if (highlightReason === 2 /* Invisible */) {
-              invisibleCharacterCount++;
-            } else if (highlightReason === 1 /* NonBasicASCII */) {
-              nonBasicAsciiCharacterCount++;
-            } else {
-              assertNever(highlightReason);
-            }
-            const MAX_RESULT_LENGTH = 1e3;
-            if (ranges.length >= MAX_RESULT_LENGTH) {
-              hasMore = true;
-              break forLoop;
-            }
-            ranges.push(
-              new Range(
-                lineNumber,
-                startIndex + 1,
-                lineNumber,
-                endIndex + 1
-              )
-            );
-          }
-        }
-      } while (m);
-    }
+        } while (m);
+      }
     return {
       ranges,
       hasMore,
@@ -106,10 +86,7 @@ class UnicodeTextModelHighlighter {
   }
   static computeUnicodeHighlightReason(char, options) {
     const codePointHighlighter = new CodePointHighlighter(options);
-    const reason = codePointHighlighter.shouldHighlightNonBasicASCII(
-      char,
-      null
-    );
+    const reason = codePointHighlighter.shouldHighlightNonBasicASCII(char, null);
     switch (reason) {
       case 0 /* None */:
         return null;
@@ -117,19 +94,13 @@ class UnicodeTextModelHighlighter {
         return { kind: 1 /* Invisible */ };
       case 3 /* Ambiguous */: {
         const codePoint = char.codePointAt(0);
-        const primaryConfusable = codePointHighlighter.ambiguousCharacters.getPrimaryConfusable(
-          codePoint
-        );
+        const primaryConfusable = codePointHighlighter.ambiguousCharacters.getPrimaryConfusable(codePoint);
         const notAmbiguousInLocales = strings.AmbiguousCharacters.getLocales().filter(
           (l) => !strings.AmbiguousCharacters.getInstance(
             /* @__PURE__ */ new Set([...options.allowedLocales, l])
           ).isAmbiguous(codePoint)
         );
-        return {
-          kind: 0 /* Ambiguous */,
-          confusableWith: String.fromCodePoint(primaryConfusable),
-          notAmbiguousInLocales
-        };
+        return { kind: 0 /* Ambiguous */, confusableWith: String.fromCodePoint(primaryConfusable), notAmbiguousInLocales };
       }
       case 1 /* NonBasicASCII */:
         return { kind: 2 /* NonBasicAscii */ };
@@ -153,9 +124,7 @@ class CodePointHighlighter {
   constructor(options) {
     this.options = options;
     this.allowedCodePoints = new Set(options.allowedCodePoints);
-    this.ambiguousCharacters = strings.AmbiguousCharacters.getInstance(
-      new Set(options.allowedLocales)
-    );
+    this.ambiguousCharacters = strings.AmbiguousCharacters.getInstance(new Set(options.allowedLocales));
   }
   static {
     __name(this, "CodePointHighlighter");

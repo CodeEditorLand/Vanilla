@@ -12,10 +12,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  ChatAgentVoteDirection,
-  ChatCopyKind
-} from "./chatService.js";
+import { IChatUserActionEvent, ChatAgentVoteDirection, ChatCopyKind } from "./chatService.js";
 let ChatServiceTelemetry = class {
   constructor(telemetryService) {
     this.telemetryService = telemetryService;
@@ -52,9 +49,7 @@ let ChatServiceTelemetry = class {
         editsProposed: !!action.action.editsProposed
       });
     } else if (action.action.kind === "command") {
-      const command = CommandsRegistry.getCommand(
-        action.action.commandButton.command.id
-      );
+      const command = CommandsRegistry.getCommand(action.action.commandButton.command.id);
       const commandId = command ? action.action.commandButton.command.id : "INVALID";
       this.telemetryService.publicLog2("interactiveSessionCommand", {
         commandId,

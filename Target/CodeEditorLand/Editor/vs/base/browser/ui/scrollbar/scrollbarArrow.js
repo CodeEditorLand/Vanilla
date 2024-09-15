@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { GlobalPointerMoveMonitor } from "../../globalPointerMoveMonitor.js";
+import { Widget } from "../widget.js";
 import { TimeoutTimer } from "../../../common/async.js";
 import { ThemeIcon } from "../../../common/themables.js";
 import * as dom from "../../dom.js";
-import { GlobalPointerMoveMonitor } from "../../globalPointerMoveMonitor.js";
-import { Widget } from "../widget.js";
 const ARROW_IMG_SIZE = 11;
 class ScrollbarArrow extends Widget {
   static {
@@ -54,47 +54,22 @@ class ScrollbarArrow extends Widget {
     if (typeof opts.right !== "undefined") {
       this.domNode.style.right = opts.right + "px";
     }
-    this._pointerMoveMonitor = this._register(
-      new GlobalPointerMoveMonitor()
-    );
-    this._register(
-      dom.addStandardDisposableListener(
-        this.bgDomNode,
-        dom.EventType.POINTER_DOWN,
-        (e) => this._arrowPointerDown(e)
-      )
-    );
-    this._register(
-      dom.addStandardDisposableListener(
-        this.domNode,
-        dom.EventType.POINTER_DOWN,
-        (e) => this._arrowPointerDown(e)
-      )
-    );
-    this._pointerdownRepeatTimer = this._register(
-      new dom.WindowIntervalTimer()
-    );
-    this._pointerdownScheduleRepeatTimer = this._register(
-      new TimeoutTimer()
-    );
+    this._pointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
+    this._register(dom.addStandardDisposableListener(this.bgDomNode, dom.EventType.POINTER_DOWN, (e) => this._arrowPointerDown(e)));
+    this._register(dom.addStandardDisposableListener(this.domNode, dom.EventType.POINTER_DOWN, (e) => this._arrowPointerDown(e)));
+    this._pointerdownRepeatTimer = this._register(new dom.WindowIntervalTimer());
+    this._pointerdownScheduleRepeatTimer = this._register(new TimeoutTimer());
   }
   _arrowPointerDown(e) {
     if (!e.target || !(e.target instanceof Element)) {
       return;
     }
     const scheduleRepeater = /* @__PURE__ */ __name(() => {
-      this._pointerdownRepeatTimer.cancelAndSet(
-        () => this._onActivate(),
-        1e3 / 24,
-        dom.getWindow(e)
-      );
+      this._pointerdownRepeatTimer.cancelAndSet(() => this._onActivate(), 1e3 / 24, dom.getWindow(e));
     }, "scheduleRepeater");
     this._onActivate();
     this._pointerdownRepeatTimer.cancel();
-    this._pointerdownScheduleRepeatTimer.cancelAndSet(
-      scheduleRepeater,
-      200
-    );
+    this._pointerdownScheduleRepeatTimer.cancelAndSet(scheduleRepeater, 200);
     this._pointerMoveMonitor.startMonitoring(
       e.target,
       e.pointerId,

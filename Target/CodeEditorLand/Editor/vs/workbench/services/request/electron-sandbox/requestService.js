@@ -10,18 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { request } from "../../../../base/parts/request/browser/request.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import {
-  AbstractRequestService,
-  IRequestService
-} from "../../../../platform/request/common/request.js";
+import { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { request } from "../../../../base/parts/request/browser/request.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 let NativeRequestService = class extends AbstractRequestService {
   constructor(nativeHostService, configurationService, logService) {
     super(logService);
@@ -33,9 +29,7 @@ let NativeRequestService = class extends AbstractRequestService {
   }
   async request(options, token) {
     if (!options.proxyAuthorization) {
-      options.proxyAuthorization = this.configurationService.getValue(
-        "http.proxyAuthorization"
-      );
+      options.proxyAuthorization = this.configurationService.getValue("http.proxyAuthorization");
     }
     return this.logAndRequest(options, () => request(options, token));
   }
@@ -57,11 +51,7 @@ NativeRequestService = __decorateClass([
   __decorateParam(1, IConfigurationService),
   __decorateParam(2, ILogService)
 ], NativeRequestService);
-registerSingleton(
-  IRequestService,
-  NativeRequestService,
-  InstantiationType.Delayed
-);
+registerSingleton(IRequestService, NativeRequestService, InstantiationType.Delayed);
 export {
   NativeRequestService
 };

@@ -10,40 +10,30 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IContextKeyService, IScopedContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  editorBackground,
-  editorForeground,
-  inputBackground
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { editorBackground, editorForeground, inputBackground } from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { IEditorOpenContext } from "../../../common/editor.js";
 import { Memento } from "../../../common/memento.js";
-import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../../common/theme.js";
-import { ChatAgentLocation } from "../common/chatAgents.js";
-import { CHAT_PROVIDER_ID } from "../common/chatParticipantContribTypes.js";
 import { clearChatEditor } from "./actions/chatClear.js";
 import { ChatEditorInput } from "./chatEditorInput.js";
-import { ChatWidget } from "./chatWidget.js";
+import { ChatWidget, IChatViewState } from "./chatWidget.js";
+import { ChatAgentLocation } from "../common/chatAgents.js";
+import { IChatModel, IExportableChatData, ISerializableChatData } from "../common/chatModel.js";
+import { CHAT_PROVIDER_ID } from "../common/chatParticipantContribTypes.js";
+import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../../common/theme.js";
 let ChatEditor = class extends EditorPane {
   constructor(group, telemetryService, themeService, instantiationService, storageService, contextKeyService) {
-    super(
-      ChatEditorInput.EditorID,
-      group,
-      telemetryService,
-      themeService,
-      storageService
-    );
+    super(ChatEditorInput.EditorID, group, telemetryService, themeService, storageService);
     this.instantiationService = instantiationService;
     this.storageService = storageService;
     this.contextKeyService = contextKeyService;
@@ -60,24 +50,12 @@ let ChatEditor = class extends EditorPane {
   _viewState;
   async clear() {
     if (this.input) {
-      return this.instantiationService.invokeFunction(
-        clearChatEditor,
-        this.input
-      );
+      return this.instantiationService.invokeFunction(clearChatEditor, this.input);
     }
   }
   createEditor(parent) {
-    this._scopedContextKeyService = this._register(
-      this.contextKeyService.createScoped(parent)
-    );
-    const scopedInstantiationService = this._register(
-      this.instantiationService.createChild(
-        new ServiceCollection([
-          IContextKeyService,
-          this.scopedContextKeyService
-        ])
-      )
-    );
+    this._scopedContextKeyService = this._register(this.contextKeyService.createScoped(parent));
+    const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
     this.widget = this._register(
       scopedInstantiationService.createInstance(
         ChatWidget,
@@ -113,27 +91,16 @@ let ChatEditor = class extends EditorPane {
     super.setInput(input, options, context, token);
     const editorModel = await input.resolve();
     if (!editorModel) {
-      throw new Error(
-        `Failed to get model for chat editor. id: ${input.sessionId}`
-      );
+      throw new Error(`Failed to get model for chat editor. id: ${input.sessionId}`);
     }
     if (!this.widget) {
       throw new Error("ChatEditor lifecycle issue: no editor widget");
     }
-    this.updateModel(
-      editorModel.model,
-      options?.viewState ?? input.options.viewState
-    );
+    this.updateModel(editorModel.model, options?.viewState ?? input.options.viewState);
   }
   updateModel(model, viewState) {
-    this._memento = new Memento(
-      "interactive-session-editor-" + CHAT_PROVIDER_ID,
-      this.storageService
-    );
-    this._viewState = viewState ?? this._memento.getMemento(
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this._memento = new Memento("interactive-session-editor-" + CHAT_PROVIDER_ID, this.storageService);
+    this._viewState = viewState ?? this._memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
     this.widget.setModel(model, { ...this._viewState });
   }
   saveState() {

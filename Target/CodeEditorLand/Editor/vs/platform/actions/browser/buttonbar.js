@@ -10,29 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  ButtonBar
-} from "../../../base/browser/ui/button/button.js";
+import { ButtonBar, IButton } from "../../../base/browser/ui/button/button.js";
 import { createInstantHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import {
-  ActionRunner,
-  SubmenuAction
-} from "../../../base/common/actions.js";
+import { ActionRunner, IAction, IActionRunner, SubmenuAction, WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from "../../../base/common/actions.js";
 import { Codicon } from "../../../base/common/codicons.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
 import { localize } from "../../../nls.js";
+import { createAndFillInActionBarActions } from "./menuEntryActionViewItem.js";
+import { IToolBarRenderOptions } from "./toolbar.js";
+import { MenuId, IMenuService, MenuItemAction, IMenuActionOptions } from "../common/actions.js";
 import { IContextKeyService } from "../../contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../contextview/browser/contextView.js";
 import { IHoverService } from "../../hover/browser/hover.js";
 import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import {
-  IMenuService,
-  MenuItemAction
-} from "../common/actions.js";
-import { createAndFillInActionBarActions } from "./menuEntryActionViewItem.js";
 let WorkbenchButtonBar = class extends ButtonBar {
   constructor(container, _options, _contextMenuService, _keybindingService, telemetryService, _hoverService) {
     super(container);
@@ -42,16 +35,12 @@ let WorkbenchButtonBar = class extends ButtonBar {
     this._hoverService = _hoverService;
     this._actionRunner = this._store.add(new ActionRunner());
     if (_options?.telemetrySource) {
-      this._actionRunner.onDidRun(
-        (e) => {
-          telemetryService.publicLog2("workbenchActionExecuted", {
-            id: e.action.id,
-            from: _options.telemetrySource
-          });
-        },
-        void 0,
-        this._store
-      );
+      this._actionRunner.onDidRun((e) => {
+        telemetryService.publicLog2(
+          "workbenchActionExecuted",
+          { id: e.action.id, from: _options.telemetrySource }
+        );
+      }, void 0, this._store);
     }
   }
   static {
@@ -72,9 +61,7 @@ let WorkbenchButtonBar = class extends ButtonBar {
     const conifgProvider = this._options?.buttonConfigProvider ?? (() => ({ showLabel: true }));
     this._updateStore.clear();
     this.clear();
-    const hoverDelegate = this._updateStore.add(
-      createInstantHoverDelegate()
-    );
+    const hoverDelegate = this._updateStore.add(createInstantHoverDelegate());
     for (let i = 0; i < actions.length; i++) {
       const secondary2 = i > 0;
       const actionOrSubmenu = actions[i];
@@ -115,27 +102,14 @@ let WorkbenchButtonBar = class extends ButtonBar {
       const kb = this._keybindingService.lookupKeybinding(action.id);
       let tooltip;
       if (kb) {
-        tooltip = localize(
-          "labelWithKeybinding",
-          "{0} ({1})",
-          action.label,
-          kb.getLabel()
-        );
+        tooltip = localize("labelWithKeybinding", "{0} ({1})", action.label, kb.getLabel());
       } else {
         tooltip = action.label;
       }
-      this._updateStore.add(
-        this._hoverService.setupManagedHover(
-          hoverDelegate,
-          btn.element,
-          tooltip
-        )
-      );
-      this._updateStore.add(
-        btn.onDidClick(async () => {
-          this._actionRunner.run(action);
-        })
-      );
+      this._updateStore.add(this._hoverService.setupManagedHover(hoverDelegate, btn.element, tooltip));
+      this._updateStore.add(btn.onDidClick(async () => {
+        this._actionRunner.run(action);
+      }));
     }
     if (secondary.length > 0) {
       const btn = this.addButton({
@@ -145,24 +119,16 @@ let WorkbenchButtonBar = class extends ButtonBar {
       btn.icon = Codicon.dropDownButton;
       btn.element.classList.add("default-colors", "monaco-text-button");
       btn.enabled = true;
-      this._updateStore.add(
-        this._hoverService.setupManagedHover(
-          hoverDelegate,
-          btn.element,
-          localize("moreActions", "More Actions")
-        )
-      );
-      this._updateStore.add(
-        btn.onDidClick(async () => {
-          this._contextMenuService.showContextMenu({
-            getAnchor: /* @__PURE__ */ __name(() => btn.element, "getAnchor"),
-            getActions: /* @__PURE__ */ __name(() => secondary, "getActions"),
-            actionRunner: this._actionRunner,
-            onHide: /* @__PURE__ */ __name(() => btn.element.setAttribute("aria-expanded", "false"), "onHide")
-          });
-          btn.element.setAttribute("aria-expanded", "true");
-        })
-      );
+      this._updateStore.add(this._hoverService.setupManagedHover(hoverDelegate, btn.element, localize("moreActions", "More Actions")));
+      this._updateStore.add(btn.onDidClick(async () => {
+        this._contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => btn.element, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => secondary, "getActions"),
+          actionRunner: this._actionRunner,
+          onHide: /* @__PURE__ */ __name(() => btn.element.setAttribute("aria-expanded", "false"), "onHide")
+        });
+        btn.element.setAttribute("aria-expanded", "true");
+      }));
     }
     this._onDidChange.fire(this);
   }
@@ -178,14 +144,7 @@ let MenuWorkbenchButtonBar = class extends WorkbenchButtonBar {
     __name(this, "MenuWorkbenchButtonBar");
   }
   constructor(container, menuId, options, menuService, contextKeyService, contextMenuService, keybindingService, telemetryService, hoverService) {
-    super(
-      container,
-      options,
-      contextMenuService,
-      keybindingService,
-      telemetryService,
-      hoverService
-    );
+    super(container, options, contextMenuService, keybindingService, telemetryService, hoverService);
     const menu = menuService.createMenu(menuId, contextKeyService);
     this._store.add(menu);
     const update = /* @__PURE__ */ __name(() => {

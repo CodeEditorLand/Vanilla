@@ -14,9 +14,7 @@ import { joinPath } from "../../base/common/resources.js";
 import { URI } from "../../base/common/uri.js";
 import { INativeEnvironmentService } from "../../platform/environment/common/environment.js";
 import { IExtensionsProfileScannerService } from "../../platform/extensionManagement/common/extensionsProfileScannerService.js";
-import {
-  AbstractExtensionsScannerService
-} from "../../platform/extensionManagement/common/extensionsScannerService.js";
+import { AbstractExtensionsScannerService, IExtensionsScannerService, Translations } from "../../platform/extensionManagement/common/extensionsScannerService.js";
 import { IFileService } from "../../platform/files/common/files.js";
 import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../platform/log/common/log.js";
@@ -29,12 +27,7 @@ let ExtensionsScannerService = class extends AbstractExtensionsScannerService {
     super(
       URI.file(nativeEnvironmentService.builtinExtensionsPath),
       URI.file(nativeEnvironmentService.extensionsPath),
-      joinPath(
-        nativeEnvironmentService.userHome,
-        ".vscode-oss-dev",
-        "extensions",
-        "control.json"
-      ),
+      joinPath(nativeEnvironmentService.userHome, ".vscode-oss-dev", "extensions", "control.json"),
       userDataProfilesService.defaultProfile,
       userDataProfilesService,
       extensionsProfileScannerService,
@@ -51,15 +44,10 @@ let ExtensionsScannerService = class extends AbstractExtensionsScannerService {
     __name(this, "ExtensionsScannerService");
   }
   async getTranslations(language) {
-    const config = await getNLSConfiguration(
-      language,
-      this.nativeEnvironmentService.userDataPath
-    );
+    const config = await getNLSConfiguration(language, this.nativeEnvironmentService.userDataPath);
     if (config.languagePack) {
       try {
-        const content = await this.fileService.readFile(
-          URI.file(config.languagePack.translationsConfigFile)
-        );
+        const content = await this.fileService.readFile(URI.file(config.languagePack.translationsConfigFile));
         return JSON.parse(content.value.toString());
       } catch (err) {
       }

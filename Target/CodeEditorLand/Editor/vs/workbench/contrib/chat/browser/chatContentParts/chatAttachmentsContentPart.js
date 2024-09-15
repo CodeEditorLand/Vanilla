@@ -11,22 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
 import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import { basename, dirname } from "../../../../../base/common/path.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { localize } from "../../../../../nls.js";
-import { FileKind } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 import { ResourceLabels } from "../../../../browser/labels.js";
-import {
-  ChatResponseReferencePartStatusKind
-} from "../../common/chatService.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { basename, dirname } from "../../../../../base/common/path.js";
+import { localize } from "../../../../../nls.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference } from "../../common/chatService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 let ChatAttachmentsContentPart = class extends Disposable {
   constructor(variables, contentReferences = [], domNode = dom.$(".chat-attached-context"), instantiationService, openerService) {
     super();
@@ -40,32 +36,19 @@ let ChatAttachmentsContentPart = class extends Disposable {
   static {
     __name(this, "ChatAttachmentsContentPart");
   }
-  attachedContextDisposables = this._register(
-    new DisposableStore()
-  );
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
-  _contextResourceLabels = this.instantiationService.createInstance(ResourceLabels, {
-    onDidChangeVisibility: this._onDidChangeVisibility.event
-  });
+  attachedContextDisposables = this._register(new DisposableStore());
+  _onDidChangeVisibility = this._register(new Emitter());
+  _contextResourceLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event });
   initAttachedContext(container) {
     dom.clearNode(container);
     this.attachedContextDisposables.clear();
     dom.setVisibility(Boolean(this.variables.length), this.domNode);
     this.variables.forEach((attachment) => {
-      const widget = dom.append(
-        container,
-        dom.$(".chat-attached-context-attachment.show-file-icons")
-      );
-      const label = this._contextResourceLabels.create(widget, {
-        supportIcons: true
-      });
+      const widget = dom.append(container, dom.$(".chat-attached-context-attachment.show-file-icons"));
+      const label = this._contextResourceLabels.create(widget, { supportIcons: true });
       const file = URI.isUri(attachment.value) ? attachment.value : attachment.value && typeof attachment.value === "object" && "uri" in attachment.value && URI.isUri(attachment.value.uri) ? attachment.value.uri : void 0;
       const range = attachment.value && typeof attachment.value === "object" && "range" in attachment.value && Range.isIRange(attachment.value.range) ? attachment.value.range : void 0;
-      const correspondingContentReference = this.contentReferences.find(
-        (ref) => typeof ref.reference === "object" && "variableName" in ref.reference && ref.reference.variableName === attachment.name
-      );
+      const correspondingContentReference = this.contentReferences.find((ref) => typeof ref.reference === "object" && "variableName" in ref.reference && ref.reference.variableName === attachment.name);
       const isAttachmentOmitted = correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted;
       const isAttachmentPartialOrOmitted = isAttachmentOmitted || correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial;
       if (file) {
@@ -74,41 +57,11 @@ let ChatAttachmentsContentPart = class extends Disposable {
         const friendlyName = `${fileBasename} ${fileDirname}`;
         let ariaLabel;
         if (isAttachmentOmitted) {
-          ariaLabel = range ? localize(
-            "chat.omittedFileAttachmentWithRange",
-            "Omitted: {0}, line {1} to line {2}.",
-            friendlyName,
-            range.startLineNumber,
-            range.endLineNumber
-          ) : localize(
-            "chat.omittedFileAttachment",
-            "Omitted: {0}.",
-            friendlyName
-          );
+          ariaLabel = range ? localize("chat.omittedFileAttachmentWithRange", "Omitted: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.omittedFileAttachment", "Omitted: {0}.", friendlyName);
         } else if (isAttachmentPartialOrOmitted) {
-          ariaLabel = range ? localize(
-            "chat.partialFileAttachmentWithRange",
-            "Partially attached: {0}, line {1} to line {2}.",
-            friendlyName,
-            range.startLineNumber,
-            range.endLineNumber
-          ) : localize(
-            "chat.partialFileAttachment",
-            "Partially attached: {0}.",
-            friendlyName
-          );
+          ariaLabel = range ? localize("chat.partialFileAttachmentWithRange", "Partially attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.partialFileAttachment", "Partially attached: {0}.", friendlyName);
         } else {
-          ariaLabel = range ? localize(
-            "chat.fileAttachmentWithRange3",
-            "Attached: {0}, line {1} to line {2}.",
-            friendlyName,
-            range.startLineNumber,
-            range.endLineNumber
-          ) : localize(
-            "chat.fileAttachment3",
-            "Attached: {0}.",
-            friendlyName
-          );
+          ariaLabel = range ? localize("chat.fileAttachmentWithRange3", "Attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment3", "Attached: {0}.", friendlyName);
         }
         label.setFile(file, {
           fileKind: FileKind.FILE,
@@ -119,35 +72,25 @@ let ChatAttachmentsContentPart = class extends Disposable {
         widget.ariaLabel = ariaLabel;
         widget.tabIndex = 0;
         widget.style.cursor = "pointer";
-        this.attachedContextDisposables.add(
-          dom.addDisposableListener(
-            widget,
-            dom.EventType.CLICK,
-            async (e) => {
-              dom.EventHelper.stop(e, true);
-              if (file) {
-                this.openerService.open(file, {
-                  fromUserGesture: true,
-                  editorOptions: {
-                    selection: range
-                  }
-                });
+        this.attachedContextDisposables.add(dom.addDisposableListener(widget, dom.EventType.CLICK, async (e) => {
+          dom.EventHelper.stop(e, true);
+          if (file) {
+            this.openerService.open(
+              file,
+              {
+                fromUserGesture: true,
+                editorOptions: {
+                  selection: range
+                }
               }
-            }
-          )
-        );
+            );
+          }
+        }));
       } else {
         const attachmentLabel = attachment.fullName ?? attachment.name;
         const withIcon = attachment.icon?.id ? `$(${attachment.icon.id}) ${attachmentLabel}` : attachmentLabel;
-        label.setLabel(
-          withIcon,
-          correspondingContentReference?.options?.status?.description
-        );
-        widget.ariaLabel = localize(
-          "chat.attachment3",
-          "Attached context: {0}.",
-          attachment.name
-        );
+        label.setLabel(withIcon, correspondingContentReference?.options?.status?.description);
+        widget.ariaLabel = localize("chat.attachment3", "Attached context: {0}.", attachment.name);
         widget.tabIndex = 0;
       }
       if (isAttachmentPartialOrOmitted) {
@@ -156,10 +99,7 @@ let ChatAttachmentsContentPart = class extends Disposable {
       const description = correspondingContentReference?.options?.status?.description;
       if (isAttachmentPartialOrOmitted) {
         widget.ariaLabel = `${widget.ariaLabel}${description ? ` ${description}` : ""}`;
-        for (const selector of [
-          ".monaco-icon-suffix-container",
-          ".monaco-icon-name-container"
-        ]) {
+        for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
           const element = label.element.querySelector(selector);
           if (element) {
             element.classList.add("warning");

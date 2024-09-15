@@ -10,29 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution, IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IMarkerService, IMarker, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IDecorationsService, IDecorationsProvider, IDecorationData } from "../../../services/decorations/common/decorations.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Event } from "../../../../base/common/event.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  Extensions as ConfigurationExtensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
-import {
-  IMarkerService,
-  MarkerSeverity
-} from "../../../../platform/markers/common/markers.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  listErrorForeground,
-  listWarningForeground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import {
-  IDecorationsService
-} from "../../../services/decorations/common/decorations.js";
+import { listErrorForeground, listWarningForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 class MarkersDecorationsProvider {
   constructor(_markerService) {
@@ -61,11 +49,7 @@ class MarkersDecorationsProvider {
     return {
       weight: 100 * first.severity,
       bubble: true,
-      tooltip: markers.length === 1 ? localize("tooltip.1", "1 problem in this file") : localize(
-        "tooltip.N",
-        "{0} problems in this file",
-        markers.length
-      ),
+      tooltip: markers.length === 1 ? localize("tooltip.1", "1 problem in this file") : localize("tooltip.N", "{0} problems in this file", markers.length),
       letter: markers.length < 10 ? markers.length.toString() : "9+",
       color: first.severity === MarkerSeverity.Error ? listErrorForeground : listWarningForeground
     };
@@ -96,9 +80,7 @@ let MarkersFileDecorations = class {
     dispose(this._disposables);
   }
   _updateEnablement() {
-    const problem = this._configurationService.getValue(
-      "problems.visibility"
-    );
+    const problem = this._configurationService.getValue("problems.visibility");
     if (problem === void 0) {
       return;
     }
@@ -113,9 +95,7 @@ let MarkersFileDecorations = class {
     }
     this._enabled = shouldEnable;
     if (this._enabled) {
-      const provider = new MarkersDecorationsProvider(
-        this._markerService
-      );
+      const provider = new MarkersDecorationsProvider(this._markerService);
       this._provider = this._decorationsService.registerDecorationsProvider(provider);
     } else if (this._provider) {
       this._provider.dispose();
@@ -127,28 +107,17 @@ MarkersFileDecorations = __decorateClass([
   __decorateParam(1, IDecorationsService),
   __decorateParam(2, IConfigurationService)
 ], MarkersFileDecorations);
-Registry.as(
-  ConfigurationExtensions.Configuration
-).registerConfiguration({
-  id: "problems",
-  order: 101,
-  type: "object",
-  properties: {
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  "id": "problems",
+  "order": 101,
+  "type": "object",
+  "properties": {
     "problems.decorations.enabled": {
-      markdownDescription: localize(
-        "markers.showOnFile",
-        "Show Errors & Warnings on files and folder. Overwritten by {0} when it is off.",
-        "`#problems.visibility#`"
-      ),
-      type: "boolean",
-      default: true
+      "markdownDescription": localize("markers.showOnFile", "Show Errors & Warnings on files and folder. Overwritten by {0} when it is off.", "`#problems.visibility#`"),
+      "type": "boolean",
+      "default": true
     }
   }
 });
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  MarkersFileDecorations,
-  LifecyclePhase.Restored
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(MarkersFileDecorations, LifecyclePhase.Restored);
 //# sourceMappingURL=markersFileDecorations.js.map

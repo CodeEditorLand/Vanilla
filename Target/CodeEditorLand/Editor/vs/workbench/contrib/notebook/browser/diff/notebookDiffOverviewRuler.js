@@ -11,26 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../base/browser/dom.js";
-import {
-  createFastDomNode
-} from "../../../../../base/browser/fastDomNode.js";
+import { createFastDomNode, FastDomNode } from "../../../../../base/browser/fastDomNode.js";
 import { PixelRatio } from "../../../../../base/browser/pixelRatio.js";
 import { Color } from "../../../../../base/common/color.js";
-import {
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import {
-  defaultInsertColor,
-  defaultRemoveColor,
-  diffInserted,
-  diffOverviewRulerInserted,
-  diffOverviewRulerRemoved,
-  diffRemoved
-} from "../../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService,
-  Themable
-} from "../../../../../platform/theme/common/themeService.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { defaultInsertColor, defaultRemoveColor, diffInserted, diffOverviewRulerInserted, diffOverviewRulerRemoved, diffRemoved } from "../../../../../platform/theme/common/colorRegistry.js";
+import { IColorTheme, IThemeService, Themable } from "../../../../../platform/theme/common/themeService.js";
+import { IDiffElementViewModelBase } from "./diffElementViewModel.js";
+import { NotebookDiffEditorEventDispatcher } from "./eventDispatcher.js";
+import { INotebookTextDiffEditor } from "./notebookDiffEditorBrowser.js";
 const MINIMUM_SLIDER_SIZE = 20;
 let NotebookDiffOverviewRuler = class extends Themable {
   constructor(notebookEditor, width, container, themeService) {
@@ -48,43 +37,27 @@ let NotebookDiffOverviewRuler = class extends Themable {
     this._domNode.setLayerHinting(true);
     this._domNode.setContain("strict");
     container.appendChild(this._domNode.domNode);
-    this._overviewViewportDomElement = createFastDomNode(
-      document.createElement("div")
-    );
+    this._overviewViewportDomElement = createFastDomNode(document.createElement("div"));
     this._overviewViewportDomElement.setClassName("diffViewport");
     this._overviewViewportDomElement.setPosition("absolute");
     this._overviewViewportDomElement.setWidth(width);
     container.appendChild(this._overviewViewportDomElement.domNode);
-    this._register(
-      PixelRatio.getInstance(
-        DOM.getWindow(this._domNode.domNode)
-      ).onDidChange(() => {
+    this._register(PixelRatio.getInstance(DOM.getWindow(this._domNode.domNode)).onDidChange(() => {
+      this._scheduleRender();
+    }));
+    this._register(this.themeService.onDidColorThemeChange((e) => {
+      const colorChanged = this.applyColors(e);
+      if (colorChanged) {
         this._scheduleRender();
-      })
-    );
-    this._register(
-      this.themeService.onDidColorThemeChange((e) => {
-        const colorChanged = this.applyColors(e);
-        if (colorChanged) {
-          this._scheduleRender();
-        }
-      })
-    );
+      }
+    }));
     this.applyColors(this.themeService.getColorTheme());
-    this._register(
-      this.notebookEditor.onDidScroll(() => {
-        this._renderOverviewViewport();
-      })
-    );
-    this._register(
-      DOM.addStandardDisposableListener(
-        container,
-        DOM.EventType.POINTER_DOWN,
-        (e) => {
-          this.notebookEditor.delegateVerticalScrollbarPointerDown(e);
-        }
-      )
-    );
+    this._register(this.notebookEditor.onDidScroll(() => {
+      this._renderOverviewViewport();
+    }));
+    this._register(DOM.addStandardDisposableListener(container, DOM.EventType.POINTER_DOWN, (e) => {
+      this.notebookEditor.delegateVerticalScrollbarPointerDown(e);
+    }));
   }
   static {
     __name(this, "NotebookDiffOverviewRuler");
@@ -106,14 +79,10 @@ let NotebookDiffOverviewRuler = class extends Themable {
     this._insertColor = newInsertColor;
     this._removeColor = newRemoveColor;
     if (this._insertColor) {
-      this._insertColorHex = Color.Format.CSS.formatHexA(
-        this._insertColor
-      );
+      this._insertColorHex = Color.Format.CSS.formatHexA(this._insertColor);
     }
     if (this._removeColor) {
-      this._removeColorHex = Color.Format.CSS.formatHexA(
-        this._removeColor
-      );
+      this._removeColorHex = Color.Format.CSS.formatHexA(this._removeColor);
     }
     return hasChanges;
   }
@@ -124,26 +93,18 @@ let NotebookDiffOverviewRuler = class extends Themable {
     this._disposables.clear();
     this._diffElementViewModels = elements;
     if (eventDispatcher) {
-      this._disposables.add(
-        eventDispatcher.onDidChangeLayout(() => {
-          this._scheduleRender();
-        })
-      );
-      this._disposables.add(
-        eventDispatcher.onDidChangeCellLayout(() => {
-          this._scheduleRender();
-        })
-      );
+      this._disposables.add(eventDispatcher.onDidChangeLayout(() => {
+        this._scheduleRender();
+      }));
+      this._disposables.add(eventDispatcher.onDidChangeCellLayout(() => {
+        this._scheduleRender();
+      }));
     }
     this._scheduleRender();
   }
   _scheduleRender() {
     if (this._renderAnimationFrame === null) {
-      this._renderAnimationFrame = DOM.runAtThisOrScheduleAtNextAnimationFrame(
-        DOM.getWindow(this._domNode.domNode),
-        this._onRenderScheduled.bind(this),
-        16
-      );
+      this._renderAnimationFrame = DOM.runAtThisOrScheduleAtNextAnimationFrame(DOM.getWindow(this._domNode.domNode), this._onRenderScheduled.bind(this), 16);
     }
   }
   _onRenderScheduled() {
@@ -154,32 +115,24 @@ let NotebookDiffOverviewRuler = class extends Themable {
     const layoutInfo = this.notebookEditor.getLayoutInfo();
     const height = layoutInfo.height;
     const contentHeight = this._diffElementViewModels.map((view) => view.totalHeight).reduce((a, b) => a + b, 0);
-    const ratio = PixelRatio.getInstance(
-      DOM.getWindow(this._domNode.domNode)
-    ).value;
+    const ratio = PixelRatio.getInstance(DOM.getWindow(this._domNode.domNode)).value;
     this._domNode.setWidth(this.width);
     this._domNode.setHeight(height);
     this._domNode.domNode.width = this.width * ratio;
     this._domNode.domNode.height = height * ratio;
     const ctx = this._domNode.domNode.getContext("2d");
     ctx.clearRect(0, 0, this.width * ratio, height * ratio);
-    this._renderCanvas(
-      ctx,
-      this.width * ratio,
-      height * ratio,
-      contentHeight * ratio,
-      ratio
-    );
+    this._renderCanvas(ctx, this.width * ratio, height * ratio, contentHeight * ratio, ratio);
     this._renderOverviewViewport();
   }
   _renderOverviewViewport() {
     const layout = this._computeOverviewViewport();
-    if (layout) {
-      this._overviewViewportDomElement.setTop(layout.top);
-      this._overviewViewportDomElement.setHeight(layout.height);
-    } else {
+    if (!layout) {
       this._overviewViewportDomElement.setTop(0);
       this._overviewViewportDomElement.setHeight(0);
+    } else {
+      this._overviewViewportDomElement.setTop(layout.top);
+      this._overviewViewportDomElement.setHeight(layout.height);
     }
   }
   _computeOverviewViewport() {
@@ -190,23 +143,11 @@ let NotebookDiffOverviewRuler = class extends Themable {
     const scrollTop = this.notebookEditor.getScrollTop();
     const scrollHeight = this.notebookEditor.getScrollHeight();
     const computedAvailableSize = Math.max(0, layoutInfo.height);
-    const computedRepresentableSize = Math.max(
-      0,
-      computedAvailableSize - 2 * 0
-    );
+    const computedRepresentableSize = Math.max(0, computedAvailableSize - 2 * 0);
     const visibleSize = layoutInfo.height;
-    const computedSliderSize = Math.round(
-      Math.max(
-        MINIMUM_SLIDER_SIZE,
-        Math.floor(
-          visibleSize * computedRepresentableSize / scrollHeight
-        )
-      )
-    );
+    const computedSliderSize = Math.round(Math.max(MINIMUM_SLIDER_SIZE, Math.floor(visibleSize * computedRepresentableSize / scrollHeight)));
     const computedSliderRatio = (computedRepresentableSize - computedSliderSize) / (scrollHeight - visibleSize);
-    const computedSliderPosition = Math.round(
-      scrollTop * computedSliderRatio
-    );
+    const computedSliderPosition = Math.round(scrollTop * computedSliderRatio);
     return {
       height: computedSliderSize,
       top: computedSliderPosition
@@ -220,9 +161,7 @@ let NotebookDiffOverviewRuler = class extends Themable {
     let currentFrom = 0;
     for (let i = 0; i < this._diffElementViewModels.length; i++) {
       const element = this._diffElementViewModels[i];
-      const cellHeight = Math.round(
-        element.totalHeight / scrollHeight * ratio * height
-      );
+      const cellHeight = Math.round(element.totalHeight / scrollHeight * ratio * height);
       switch (element.type) {
         case "insert":
           ctx.fillStyle = this._insertColorHex;

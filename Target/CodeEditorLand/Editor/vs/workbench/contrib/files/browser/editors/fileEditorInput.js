@@ -10,42 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../../base/common/event.js";
-import {
-  DisposableStore,
-  dispose
-} from "../../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../../base/common/network.js";
-import { isEqual } from "../../../../../base/common/resources.js";
-import { createTextBufferFactory } from "../../../../../editor/common/model/textModel.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import {
-  DEFAULT_EDITOR_ASSOCIATION,
-  EditorInputCapabilities,
-  findViewStateForEditor,
-  isResourceEditorInput
-} from "../../../../common/editor.js";
-import { BinaryEditorModel } from "../../../../common/editor/binaryEditorModel.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IFileEditorInput, Verbosity, GroupIdentifier, IMoveResult, EditorInputCapabilities, IEditorDescriptor, IEditorPane, IUntypedEditorInput, DEFAULT_EDITOR_ASSOCIATION, IUntypedFileEditorInput, findViewStateForEditor, isResourceEditorInput, IFileEditorInputOptions } from "../../../../common/editor.js";
+import { EditorInput, IUntypedEditorOptions } from "../../../../common/editor/editorInput.js";
 import { AbstractTextResourceEditorInput } from "../../../../common/editor/textResourceEditorInput.js";
-import { ICustomEditorLabelService } from "../../../../services/editor/common/customEditorLabelService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ITextResourceEditorInput } from "../../../../../platform/editor/common/editor.js";
+import { BinaryEditorModel } from "../../../../common/editor/binaryEditorModel.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { ITextFileService, TextFileEditorModelState, TextFileResolveReason, TextFileOperationError, TextFileOperationResult, ITextFileEditorModel, EncodingMode } from "../../../../services/textfile/common/textfiles.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IReference, dispose, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { FILE_EDITOR_INPUT_ID, TEXT_FILE_EDITOR_ID, BINARY_FILE_EDITOR_ID } from "../../common/files.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { createTextBufferFactory } from "../../../../../editor/common/model/textModel.js";
 import { IPathService } from "../../../../services/path/common/pathService.js";
-import {
-  ITextFileService,
-  TextFileEditorModelState,
-  TextFileOperationResult,
-  TextFileResolveReason
-} from "../../../../services/textfile/common/textfiles.js";
-import {
-  BINARY_FILE_EDITOR_ID,
-  FILE_EDITOR_INPUT_ID,
-  TEXT_FILE_EDITOR_ID
-} from "../../common/files.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
+import { ICustomEditorLabelService } from "../../../../services/editor/common/customEditorLabelService.js";
 var ForceOpenAs = /* @__PURE__ */ ((ForceOpenAs2) => {
   ForceOpenAs2[ForceOpenAs2["None"] = 0] = "None";
   ForceOpenAs2[ForceOpenAs2["Text"] = 1] = "Text";
@@ -54,17 +41,7 @@ var ForceOpenAs = /* @__PURE__ */ ((ForceOpenAs2) => {
 })(ForceOpenAs || {});
 let FileEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(resource, preferredResource, preferredName, preferredDescription, preferredEncoding, preferredLanguageId, preferredContents, instantiationService, textFileService, textModelService, labelService, fileService, filesConfigurationService, editorService, pathService, textResourceConfigurationService, customEditorLabelService) {
-    super(
-      resource,
-      preferredResource,
-      editorService,
-      textFileService,
-      labelService,
-      fileService,
-      filesConfigurationService,
-      textResourceConfigurationService,
-      customEditorLabelService
-    );
+    super(resource, preferredResource, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
     this.instantiationService = instantiationService;
     this.textModelService = textModelService;
     this.pathService = pathService;
@@ -84,11 +61,7 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
     if (typeof preferredContents === "string") {
       this.setPreferredContents(preferredContents);
     }
-    this._register(
-      this.textFileService.files.onDidCreate(
-        (model) => this.onDidCreateTextFileModel(model)
-      )
-    );
+    this._register(this.textFileService.files.onDidCreate((model) => this.onDidCreateTextFileModel(model)));
     if (this.model) {
       this.registerModelListeners(this.model);
     }
@@ -108,12 +81,14 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
       if (this.model.isReadonly()) {
         capabilities |= EditorInputCapabilities.Readonly;
       }
-    } else if (this.fileService.hasProvider(this.resource)) {
-      if (this.filesConfigurationService.isReadonly(this.resource)) {
-        capabilities |= EditorInputCapabilities.Readonly;
-      }
     } else {
-      capabilities |= EditorInputCapabilities.Untitled;
+      if (this.fileService.hasProvider(this.resource)) {
+        if (this.filesConfigurationService.isReadonly(this.resource)) {
+          capabilities |= EditorInputCapabilities.Readonly;
+        }
+      } else {
+        capabilities |= EditorInputCapabilities.Untitled;
+      }
     }
     if (!(capabilities & EditorInputCapabilities.Readonly)) {
       capabilities |= EditorInputCapabilities.CanDropIntoEditor;
@@ -137,23 +112,13 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
   }
   registerModelListeners(model) {
     this.modelListeners.clear();
-    this.modelListeners.add(
-      model.onDidChangeDirty(() => this._onDidChangeDirty.fire())
-    );
-    this.modelListeners.add(
-      model.onDidChangeReadonly(
-        () => this._onDidChangeCapabilities.fire()
-      )
-    );
-    this.modelListeners.add(
-      model.onDidSaveError(() => this._onDidChangeDirty.fire())
-    );
-    this.modelListeners.add(
-      Event.once(model.onWillDispose)(() => {
-        this.modelListeners.clear();
-        this.model = void 0;
-      })
-    );
+    this.modelListeners.add(model.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
+    this.modelListeners.add(model.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
+    this.modelListeners.add(model.onDidSaveError(() => this._onDidChangeDirty.fire()));
+    this.modelListeners.add(Event.once(model.onWillDispose)(() => {
+      this.modelListeners.clear();
+      this.model = void 0;
+    }));
   }
   getName() {
     return this.preferredName || super.getName();
@@ -266,13 +231,9 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
   }
   prefersEditorPane(editorPanes) {
     if (this.forceOpenAs === 2 /* Binary */) {
-      return editorPanes.find(
-        (editorPane) => editorPane.typeId === BINARY_FILE_EDITOR_ID
-      );
+      return editorPanes.find((editorPane) => editorPane.typeId === BINARY_FILE_EDITOR_ID);
     }
-    return editorPanes.find(
-      (editorPane) => editorPane.typeId === TEXT_FILE_EDITOR_ID
-    );
+    return editorPanes.find((editorPane) => editorPane.typeId === TEXT_FILE_EDITOR_ID);
   }
   resolve(options) {
     if (this.forceOpenAs === 2 /* Binary */) {
@@ -295,9 +256,7 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
         limits: this.ensureLimits(options)
       });
       if (!this.cachedTextFileModelReference) {
-        this.cachedTextFileModelReference = await this.textModelService.createModelReference(
-          this.resource
-        );
+        this.cachedTextFileModelReference = await this.textModelService.createModelReference(this.resource);
       }
       const model = this.cachedTextFileModelReference.object;
       if (this.isDisposed()) {
@@ -312,11 +271,7 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
     }
   }
   async doResolveAsBinary() {
-    const model = this.instantiationService.createInstance(
-      BinaryEditorModel,
-      this.preferredResource,
-      this.getName()
-    );
+    const model = this.instantiationService.createInstance(BinaryEditorModel, this.preferredResource, this.getName());
     await model.resolve();
     return model;
   }
@@ -329,11 +284,7 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
         resource: target,
         encoding: this.getEncoding(),
         options: {
-          viewState: findViewStateForEditor(
-            this,
-            group,
-            this.editorService
-          )
+          viewState: findViewStateForEditor(this, group, this.editorService)
         }
       }
     };
@@ -358,11 +309,7 @@ let FileEditorInput = class extends AbstractTextResourceEditorInput {
       })();
       untypedInput.options = {
         ...untypedInput.options,
-        viewState: findViewStateForEditor(
-          this,
-          options.preserveViewState,
-          this.editorService
-        )
+        viewState: findViewStateForEditor(this, options.preserveViewState, this.editorService)
       };
     }
     return untypedInput;

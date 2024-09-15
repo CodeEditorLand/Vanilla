@@ -10,31 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  BrowserWindow
-} from "electron";
+import { BrowserWindow, BrowserWindowConstructorOptions, WebContents } from "electron";
 import { isLinux, isWindows } from "../../../base/common/platform.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
 import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
 import { IStateService } from "../../state/node/state.js";
-import {
-  TitlebarStyle,
-  hasNativeTitlebar
-} from "../../window/common/window.js";
-import {
-  WindowMode
-} from "../../window/electron-main/window.js";
+import { hasNativeTitlebar, TitlebarStyle } from "../../window/common/window.js";
+import { IBaseWindow, WindowMode } from "../../window/electron-main/window.js";
 import { BaseWindow } from "../../windows/electron-main/windowImpl.js";
 let AuxiliaryWindow = class extends BaseWindow {
   constructor(webContents, environmentMainService, logService, configurationService, stateService, lifecycleMainService) {
-    super(
-      configurationService,
-      stateService,
-      environmentMainService,
-      logService
-    );
+    super(configurationService, stateService, environmentMainService, logService);
     this.webContents = webContents;
     this.lifecycleMainService = lifecycleMainService;
     this.tryClaimWindow();
@@ -78,14 +66,13 @@ let AuxiliaryWindow = class extends BaseWindow {
     }
     const window = BrowserWindow.fromWebContents(this.webContents);
     if (window) {
-      this.logService.trace(
-        "[aux window] Claimed browser window instance"
-      );
+      this.logService.trace("[aux window] Claimed browser window instance");
       this.setWin(window, options);
       window.setMenu(null);
       if ((isWindows || isLinux) && hasNativeTitlebar(
         this.configurationService,
         options?.titleBarStyle === "hidden" ? TitlebarStyle.CUSTOM : void 0
+        /* unknown */
       )) {
         window.setAutoHideMenuBar(true);
       }

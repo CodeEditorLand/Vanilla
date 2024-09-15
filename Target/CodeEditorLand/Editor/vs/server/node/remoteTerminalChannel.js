@@ -1,81 +1,78 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as os from "os";
-import { promiseWithResolvers } from "../../base/common/async.js";
 import { Emitter, Event } from "../../base/common/event.js";
-import { Disposable } from "../../base/common/lifecycle.js";
 import { cloneAndChange } from "../../base/common/objects.js";
+import { Disposable } from "../../base/common/lifecycle.js";
 import * as path from "../../base/common/path.js";
 import * as platform from "../../base/common/platform.js";
 import { URI } from "../../base/common/uri.js";
+import { IURITransformer } from "../../base/common/uriIpc.js";
+import { IServerChannel } from "../../base/parts/ipc/common/ipc.js";
 import { createRandomIPCHandle } from "../../base/parts/ipc/node/ipc.net.js";
-import { MergedEnvironmentVariableCollection } from "../../platform/terminal/common/environmentVariableCollection.js";
-import {
-  deserializeEnvironmentDescriptionMap,
-  deserializeEnvironmentVariableCollection
-} from "../../platform/terminal/common/environmentVariableShared.js";
-import { shouldUseEnvironmentVariableCollection } from "../../platform/terminal/common/terminalEnvironment.js";
-import {
-  CLIServerBase
-} from "../../workbench/api/node/extHostCLIServer.js";
+import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
+import { IPtyHostService, IShellLaunchConfig, ITerminalProfile } from "../../platform/terminal/common/terminal.js";
+import { IGetTerminalLayoutInfoArgs, ISetTerminalLayoutInfoArgs } from "../../platform/terminal/common/terminalProcess.js";
+import { IWorkspaceFolder } from "../../platform/workspace/common/workspace.js";
 import { createURITransformer } from "../../workbench/api/node/uriTransformer.js";
-import {
-  RemoteTerminalChannelEvent,
-  RemoteTerminalChannelRequest
-} from "../../workbench/contrib/terminal/common/remote/terminal.js";
+import { CLIServerBase, ICommandsExecuter } from "../../workbench/api/node/extHostCLIServer.js";
+import { IEnvironmentVariableCollection } from "../../platform/terminal/common/environmentVariable.js";
+import { MergedEnvironmentVariableCollection } from "../../platform/terminal/common/environmentVariableCollection.js";
+import { deserializeEnvironmentDescriptionMap, deserializeEnvironmentVariableCollection } from "../../platform/terminal/common/environmentVariableShared.js";
+import { ICreateTerminalProcessArguments, ICreateTerminalProcessResult, IWorkspaceFolderData, RemoteTerminalChannelEvent, RemoteTerminalChannelRequest } from "../../workbench/contrib/terminal/common/remote/terminal.js";
 import * as terminalEnvironment from "../../workbench/contrib/terminal/common/terminalEnvironment.js";
 import { AbstractVariableResolverService } from "../../workbench/services/configurationResolver/common/variableResolver.js";
 import { buildUserEnvironment } from "./extensionHostConnection.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { IExtensionManagementService } from "../../platform/extensionManagement/common/extensionManagement.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { promiseWithResolvers } from "../../base/common/async.js";
+import { shouldUseEnvironmentVariableCollection } from "../../platform/terminal/common/terminalEnvironment.js";
 class CustomVariableResolver extends AbstractVariableResolverService {
   static {
     __name(this, "CustomVariableResolver");
   }
   constructor(env, workspaceFolders, activeFileResource, resolvedVariables, extensionService) {
-    super(
-      {
-        getFolderUri: /* @__PURE__ */ __name((folderName) => {
-          const found = workspaceFolders.filter(
-            (f) => f.name === folderName
-          );
-          if (found && found.length > 0) {
-            return found[0].uri;
-          }
-          return void 0;
-        }, "getFolderUri"),
-        getWorkspaceFolderCount: /* @__PURE__ */ __name(() => {
-          return workspaceFolders.length;
-        }, "getWorkspaceFolderCount"),
-        getConfigurationValue: /* @__PURE__ */ __name((folderUri, section) => {
-          return resolvedVariables[`config:${section}`];
-        }, "getConfigurationValue"),
-        getExecPath: /* @__PURE__ */ __name(() => {
-          return env["VSCODE_EXEC_PATH"];
-        }, "getExecPath"),
-        getAppRoot: /* @__PURE__ */ __name(() => {
-          return env["VSCODE_CWD"];
-        }, "getAppRoot"),
-        getFilePath: /* @__PURE__ */ __name(() => {
-          if (activeFileResource) {
-            return path.normalize(activeFileResource.fsPath);
-          }
-          return void 0;
-        }, "getFilePath"),
-        getSelectedText: /* @__PURE__ */ __name(() => {
-          return resolvedVariables["selectedText"];
-        }, "getSelectedText"),
-        getLineNumber: /* @__PURE__ */ __name(() => {
-          return resolvedVariables["lineNumber"];
-        }, "getLineNumber"),
-        getExtension: /* @__PURE__ */ __name(async (id) => {
-          const installed = await extensionService.getInstalled();
-          const found = installed.find((e) => e.identifier.id === id);
-          return found && { extensionLocation: found.location };
-        }, "getExtension")
-      },
-      void 0,
-      Promise.resolve(os.homedir()),
-      Promise.resolve(env)
-    );
+    super({
+      getFolderUri: /* @__PURE__ */ __name((folderName) => {
+        const found = workspaceFolders.filter((f) => f.name === folderName);
+        if (found && found.length > 0) {
+          return found[0].uri;
+        }
+        return void 0;
+      }, "getFolderUri"),
+      getWorkspaceFolderCount: /* @__PURE__ */ __name(() => {
+        return workspaceFolders.length;
+      }, "getWorkspaceFolderCount"),
+      getConfigurationValue: /* @__PURE__ */ __name((folderUri, section) => {
+        return resolvedVariables[`config:${section}`];
+      }, "getConfigurationValue"),
+      getExecPath: /* @__PURE__ */ __name(() => {
+        return env["VSCODE_EXEC_PATH"];
+      }, "getExecPath"),
+      getAppRoot: /* @__PURE__ */ __name(() => {
+        return env["VSCODE_CWD"];
+      }, "getAppRoot"),
+      getFilePath: /* @__PURE__ */ __name(() => {
+        if (activeFileResource) {
+          return path.normalize(activeFileResource.fsPath);
+        }
+        return void 0;
+      }, "getFilePath"),
+      getSelectedText: /* @__PURE__ */ __name(() => {
+        return resolvedVariables["selectedText"];
+      }, "getSelectedText"),
+      getLineNumber: /* @__PURE__ */ __name(() => {
+        return resolvedVariables["lineNumber"];
+      }, "getLineNumber"),
+      getExtension: /* @__PURE__ */ __name(async (id) => {
+        const installed = await extensionService.getInstalled();
+        const found = installed.find((e) => e.identifier.id === id);
+        return found && { extensionLocation: found.location };
+      }, "getExtension")
+    }, void 0, Promise.resolve(os.homedir()), Promise.resolve(env));
   }
 }
 class RemoteTerminalChannel extends Disposable {
@@ -93,118 +90,54 @@ class RemoteTerminalChannel extends Disposable {
   }
   _lastReqId = 0;
   _pendingCommands = /* @__PURE__ */ new Map();
-  _onExecuteCommand = this._register(
-    new Emitter()
-  );
+  _onExecuteCommand = this._register(new Emitter());
   onExecuteCommand = this._onExecuteCommand.event;
   async call(ctx, command, args) {
     switch (command) {
       case RemoteTerminalChannelRequest.RestartPtyHost:
-        return this._ptyHostService.restartPtyHost.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.restartPtyHost.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.CreateProcess: {
-        const uriTransformer = createURITransformer(
-          ctx.remoteAuthority
-        );
-        return this._createProcess(
-          uriTransformer,
-          args
-        );
+        const uriTransformer = createURITransformer(ctx.remoteAuthority);
+        return this._createProcess(uriTransformer, args);
       }
       case RemoteTerminalChannelRequest.AttachToProcess:
-        return this._ptyHostService.attachToProcess.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.attachToProcess.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.DetachFromProcess:
-        return this._ptyHostService.detachFromProcess.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.detachFromProcess.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.ListProcesses:
-        return this._ptyHostService.listProcesses.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.listProcesses.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetLatency:
-        return this._ptyHostService.getLatency.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.getLatency.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetPerformanceMarks:
-        return this._ptyHostService.getPerformanceMarks.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.getPerformanceMarks.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.OrphanQuestionReply:
-        return this._ptyHostService.orphanQuestionReply.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.orphanQuestionReply.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.AcceptPtyHostResolvedVariables:
-        return this._ptyHostService.acceptPtyHostResolvedVariables.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.acceptPtyHostResolvedVariables.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.Start:
-        return this._ptyHostService.start.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.start.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.Input:
-        return this._ptyHostService.input.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.input.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.AcknowledgeDataEvent:
-        return this._ptyHostService.acknowledgeDataEvent.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.acknowledgeDataEvent.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.Shutdown:
-        return this._ptyHostService.shutdown.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.shutdown.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.Resize:
-        return this._ptyHostService.resize.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.resize.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.ClearBuffer:
-        return this._ptyHostService.clearBuffer.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.clearBuffer.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetInitialCwd:
-        return this._ptyHostService.getInitialCwd.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.getInitialCwd.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetCwd:
-        return this._ptyHostService.getCwd.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.getCwd.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.ProcessBinary:
-        return this._ptyHostService.processBinary.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.processBinary.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.SendCommandResult:
         return this._sendCommandResult(args[0], args[1], args[2]);
       case RemoteTerminalChannelRequest.InstallAutoReply:
-        return this._ptyHostService.installAutoReply.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.installAutoReply.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.UninstallAllAutoReplies:
-        return this._ptyHostService.uninstallAllAutoReplies.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.uninstallAllAutoReplies.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetDefaultSystemShell:
         return this._getDefaultSystemShell.apply(this, args);
       case RemoteTerminalChannelRequest.GetProfiles:
@@ -214,75 +147,35 @@ class RemoteTerminalChannel extends Disposable {
       case RemoteTerminalChannelRequest.GetWslPath:
         return this._getWslPath(args[0], args[1]);
       case RemoteTerminalChannelRequest.GetTerminalLayoutInfo:
-        return this._ptyHostService.getTerminalLayoutInfo(
-          args
-        );
+        return this._ptyHostService.getTerminalLayoutInfo(args);
       case RemoteTerminalChannelRequest.SetTerminalLayoutInfo:
-        return this._ptyHostService.setTerminalLayoutInfo(
-          args
-        );
+        return this._ptyHostService.setTerminalLayoutInfo(args);
       case RemoteTerminalChannelRequest.SerializeTerminalState:
-        return this._ptyHostService.serializeTerminalState.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.serializeTerminalState.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.ReviveTerminalProcesses:
-        return this._ptyHostService.reviveTerminalProcesses.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.reviveTerminalProcesses.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.GetRevivedPtyNewId:
-        return this._ptyHostService.getRevivedPtyNewId.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.getRevivedPtyNewId.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.SetUnicodeVersion:
-        return this._ptyHostService.setUnicodeVersion.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.setUnicodeVersion.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.ReduceConnectionGraceTime:
         return this._reduceConnectionGraceTime();
       case RemoteTerminalChannelRequest.UpdateIcon:
-        return this._ptyHostService.updateIcon.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.updateIcon.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.UpdateTitle:
-        return this._ptyHostService.updateTitle.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.updateTitle.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.UpdateProperty:
-        return this._ptyHostService.updateProperty.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.updateProperty.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.RefreshProperty:
-        return this._ptyHostService.refreshProperty.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.refreshProperty.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.RequestDetachInstance:
-        return this._ptyHostService.requestDetachInstance(
-          args[0],
-          args[1]
-        );
+        return this._ptyHostService.requestDetachInstance(args[0], args[1]);
       case RemoteTerminalChannelRequest.AcceptDetachedInstance:
-        return this._ptyHostService.acceptDetachInstanceReply(
-          args[0],
-          args[1]
-        );
+        return this._ptyHostService.acceptDetachInstanceReply(args[0], args[1]);
       case RemoteTerminalChannelRequest.FreePortKillProcess:
-        return this._ptyHostService.freePortKillProcess.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.freePortKillProcess.apply(this._ptyHostService, args);
       case RemoteTerminalChannelRequest.AcceptDetachInstanceReply:
-        return this._ptyHostService.acceptDetachInstanceReply.apply(
-          this._ptyHostService,
-          args
-        );
+        return this._ptyHostService.acceptDetachInstanceReply.apply(this._ptyHostService, args);
     }
     throw new Error(`IPC Command ${command} not found`);
   }
@@ -322,31 +215,18 @@ class RemoteTerminalChannel extends Disposable {
       name: args.shellLaunchConfig.name,
       executable: args.shellLaunchConfig.executable,
       args: args.shellLaunchConfig.args,
-      cwd: typeof args.shellLaunchConfig.cwd === "string" || typeof args.shellLaunchConfig.cwd === "undefined" ? args.shellLaunchConfig.cwd : URI.revive(
-        uriTransformer.transformIncoming(
-          args.shellLaunchConfig.cwd
-        )
-      ),
+      cwd: typeof args.shellLaunchConfig.cwd === "string" || typeof args.shellLaunchConfig.cwd === "undefined" ? args.shellLaunchConfig.cwd : URI.revive(uriTransformer.transformIncoming(args.shellLaunchConfig.cwd)),
       env: args.shellLaunchConfig.env,
       useShellEnvironment: args.shellLaunchConfig.useShellEnvironment,
       reconnectionProperties: args.shellLaunchConfig.reconnectionProperties,
       type: args.shellLaunchConfig.type,
       isFeatureTerminal: args.shellLaunchConfig.isFeatureTerminal
     };
-    const baseEnv = await buildUserEnvironment(
-      args.resolverEnv,
-      !!args.shellLaunchConfig.useShellEnvironment,
-      platform.language,
-      this._environmentService,
-      this._logService,
-      this._configurationService
-    );
+    const baseEnv = await buildUserEnvironment(args.resolverEnv, !!args.shellLaunchConfig.useShellEnvironment, platform.language, this._environmentService, this._logService, this._configurationService);
     this._logService.trace("baseEnv", baseEnv);
     const reviveWorkspaceFolder = /* @__PURE__ */ __name((workspaceData) => {
       return {
-        uri: URI.revive(
-          uriTransformer.transformIncoming(workspaceData.uri)
-        ),
+        uri: URI.revive(uriTransformer.transformIncoming(workspaceData.uri)),
         name: workspaceData.name,
         index: workspaceData.index,
         toResource: /* @__PURE__ */ __name(() => {
@@ -354,33 +234,12 @@ class RemoteTerminalChannel extends Disposable {
         }, "toResource")
       };
     }, "reviveWorkspaceFolder");
-    const workspaceFolders = args.workspaceFolders.map(
-      reviveWorkspaceFolder
-    );
+    const workspaceFolders = args.workspaceFolders.map(reviveWorkspaceFolder);
     const activeWorkspaceFolder = args.activeWorkspaceFolder ? reviveWorkspaceFolder(args.activeWorkspaceFolder) : void 0;
-    const activeFileResource = args.activeFileResource ? URI.revive(
-      uriTransformer.transformIncoming(args.activeFileResource)
-    ) : void 0;
-    const customVariableResolver = new CustomVariableResolver(
-      baseEnv,
-      workspaceFolders,
-      activeFileResource,
-      args.resolvedVariables,
-      this._extensionManagementService
-    );
-    const variableResolver = terminalEnvironment.createVariableResolver(
-      activeWorkspaceFolder,
-      process.env,
-      customVariableResolver
-    );
-    const initialCwd = await terminalEnvironment.getCwd(
-      shellLaunchConfig,
-      os.homedir(),
-      variableResolver,
-      activeWorkspaceFolder?.uri,
-      args.configuration["terminal.integrated.cwd"],
-      this._logService
-    );
+    const activeFileResource = args.activeFileResource ? URI.revive(uriTransformer.transformIncoming(args.activeFileResource)) : void 0;
+    const customVariableResolver = new CustomVariableResolver(baseEnv, workspaceFolders, activeFileResource, args.resolvedVariables, this._extensionManagementService);
+    const variableResolver = terminalEnvironment.createVariableResolver(activeWorkspaceFolder, process.env, customVariableResolver);
+    const initialCwd = await terminalEnvironment.getCwd(shellLaunchConfig, os.homedir(), variableResolver, activeWorkspaceFolder?.uri, args.configuration["terminal.integrated.cwd"], this._logService);
     shellLaunchConfig.cwd = initialCwd;
     const envPlatformKey = platform.isWindows ? "terminal.integrated.env.windows" : platform.isMacintosh ? "terminal.integrated.env.osx" : "terminal.integrated.env.linux";
     const envFromConfig = args.configuration[envPlatformKey];
@@ -395,63 +254,22 @@ class RemoteTerminalChannel extends Disposable {
     if (shouldUseEnvironmentVariableCollection(shellLaunchConfig)) {
       const entries = [];
       for (const [k, v, d] of args.envVariableCollections) {
-        entries.push([
-          k,
-          {
-            map: deserializeEnvironmentVariableCollection(v),
-            descriptionMap: deserializeEnvironmentDescriptionMap(d)
-          }
-        ]);
+        entries.push([k, { map: deserializeEnvironmentVariableCollection(v), descriptionMap: deserializeEnvironmentDescriptionMap(d) }]);
       }
       const envVariableCollections = new Map(entries);
-      const mergedCollection = new MergedEnvironmentVariableCollection(
-        envVariableCollections
-      );
+      const mergedCollection = new MergedEnvironmentVariableCollection(envVariableCollections);
       const workspaceFolder = activeWorkspaceFolder ? activeWorkspaceFolder ?? void 0 : void 0;
-      await mergedCollection.applyToProcessEnvironment(
-        env,
-        { workspaceFolder },
-        variableResolver
-      );
+      await mergedCollection.applyToProcessEnvironment(env, { workspaceFolder }, variableResolver);
     }
-    this._logService.debug(`Terminal process launching on remote agent`, {
-      shellLaunchConfig,
-      initialCwd,
-      cols: args.cols,
-      rows: args.rows,
-      env
-    });
+    this._logService.debug(`Terminal process launching on remote agent`, { shellLaunchConfig, initialCwd, cols: args.cols, rows: args.rows, env });
     const ipcHandlePath = createRandomIPCHandle();
     env.VSCODE_IPC_HOOK_CLI = ipcHandlePath;
-    const persistentProcessId = await this._ptyHostService.createProcess(
-      shellLaunchConfig,
-      initialCwd,
-      args.cols,
-      args.rows,
-      args.unicodeVersion,
-      env,
-      baseEnv,
-      args.options,
-      args.shouldPersistTerminal,
-      args.workspaceId,
-      args.workspaceName
-    );
+    const persistentProcessId = await this._ptyHostService.createProcess(shellLaunchConfig, initialCwd, args.cols, args.rows, args.unicodeVersion, env, baseEnv, args.options, args.shouldPersistTerminal, args.workspaceId, args.workspaceName);
     const commandsExecuter = {
-      executeCommand: /* @__PURE__ */ __name((id, ...args2) => this._executeCommand(
-        persistentProcessId,
-        id,
-        args2,
-        uriTransformer
-      ), "executeCommand")
+      executeCommand: /* @__PURE__ */ __name((id, ...args2) => this._executeCommand(persistentProcessId, id, args2, uriTransformer), "executeCommand")
     };
-    const cliServer = new CLIServerBase(
-      commandsExecuter,
-      this._logService,
-      ipcHandlePath
-    );
-    this._ptyHostService.onProcessExit(
-      (e) => e.id === persistentProcessId && cliServer.dispose()
-    );
+    const cliServer = new CLIServerBase(commandsExecuter, this._logService, ipcHandlePath);
+    this._ptyHostService.onProcessExit((e) => e.id === persistentProcessId && cliServer.dispose());
     return {
       persistentTerminalId: persistentProcessId,
       resolvedShellLaunchConfig: shellLaunchConfig
@@ -500,12 +318,7 @@ class RemoteTerminalChannel extends Disposable {
     return this._ptyHostService.getDefaultSystemShell(osOverride);
   }
   async _getProfiles(workspaceId, profiles, defaultProfile, includeDetectedProfiles) {
-    return this._ptyHostService.getProfiles(
-      workspaceId,
-      profiles,
-      defaultProfile,
-      includeDetectedProfiles
-    ) || [];
+    return this._ptyHostService.getProfiles(workspaceId, profiles, defaultProfile, includeDetectedProfiles) || [];
   }
   _getEnvironment() {
     return { ...process.env };

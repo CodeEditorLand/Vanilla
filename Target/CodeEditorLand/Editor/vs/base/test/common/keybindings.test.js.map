@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/test/common/keybindings.test.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport assert from 'assert';\nimport { KeyCode, ScanCode } from '../../common/keyCodes.js';\nimport { KeyCodeChord, ScanCodeChord } from '../../common/keybindings.js';\nimport { ensureNoDisposablesAreLeakedInTestSuite } from './utils.js';\n\nsuite('keyCodes', () => {\n\n\tensureNoDisposablesAreLeakedInTestSuite();\n\n\ttest('issue #173325: wrong interpretations of special keys (e.g. [Equal] is mistaken for V)', () => {\n\t\tconst a = new KeyCodeChord(true, false, false, false, KeyCode.KeyV);\n\t\tconst b = new ScanCodeChord(true, false, false, false, ScanCode.Equal);\n\t\tassert.strictEqual(a.getHashCode() === b.getHashCode(), false);\n\t});\n\n});\n"],
+  "mappings": "AAKA,OAAO,YAAY;AACnB,SAAS,SAAS,gBAAgB;AAClC,SAAS,cAAc,qBAAqB;AAC5C,SAAS,+CAA+C;AAExD,MAAM,YAAY,MAAM;AAEvB,0CAAwC;AAExC,OAAK,yFAAyF,MAAM;AACnG,UAAM,IAAI,IAAI,aAAa,MAAM,OAAO,OAAO,OAAO,QAAQ,IAAI;AAClE,UAAM,IAAI,IAAI,cAAc,MAAM,OAAO,OAAO,OAAO,SAAS,KAAK;AACrE,WAAO,YAAY,EAAE,YAAY,MAAM,EAAE,YAAY,GAAG,KAAK;AAAA,EAC9D,CAAC;AAEF,CAAC;",
+  "names": []
+}

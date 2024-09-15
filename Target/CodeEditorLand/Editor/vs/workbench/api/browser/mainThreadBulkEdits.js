@@ -10,23 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { decodeBase64 } from "../../../base/common/buffer.js";
+import { VSBuffer, decodeBase64 } from "../../../base/common/buffer.js";
 import { revive } from "../../../base/common/marshalling.js";
-import {
-  IBulkEditService,
-  ResourceFileEdit,
-  ResourceTextEdit
-} from "../../../editor/browser/services/bulkEditService.js";
+import { IBulkEditService, ResourceFileEdit, ResourceTextEdit } from "../../../editor/browser/services/bulkEditService.js";
+import { WorkspaceEdit } from "../../../editor/common/languages.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceCellEditDto, IWorkspaceEditDto, IWorkspaceFileEditDto, MainContext, MainThreadBulkEditsShape } from "../common/extHost.protocol.js";
 import { ResourceNotebookCellEdit } from "../../contrib/bulkEdit/browser/bulkCellEdits.js";
 import { CellEditType } from "../../contrib/notebook/common/notebookCommon.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
 let MainThreadBulkEdits = class {
   constructor(_extHostContext, _bulkEditService, _logService, _uriIdentService) {
     this._bulkEditService = _bulkEditService;
@@ -37,16 +31,10 @@ let MainThreadBulkEdits = class {
   }
   $tryApplyWorkspaceEdit(dto, undoRedoGroupId, isRefactoring) {
     const edits = reviveWorkspaceEditDto(dto.value, this._uriIdentService);
-    return this._bulkEditService.apply(edits, {
-      undoRedoGroupId,
-      respectAutoSaveConfig: isRefactoring
-    }).then(
-      (res) => res.isApplied,
-      (err) => {
-        this._logService.warn(`IGNORING workspace edit: ${err}`);
-        return false;
-      }
-    );
+    return this._bulkEditService.apply(edits, { undoRedoGroupId, respectAutoSaveConfig: isRefactoring }).then((res) => res.isApplied, (err) => {
+      this._logService.warn(`IGNORING workspace edit: ${err}`);
+      return false;
+    });
   }
 };
 __name(MainThreadBulkEdits, "MainThreadBulkEdits");
@@ -70,15 +58,13 @@ function reviveWorkspaceEditDto(data, uriIdentityService, resolveDataTransferFil
         const inContents = edit.options?.contents;
         if (inContents) {
           if (inContents.type === "base64") {
-            edit.options.contents = Promise.resolve(
-              decodeBase64(inContents.value)
-            );
-          } else if (resolveDataTransferFile) {
-            edit.options.contents = resolveDataTransferFile(
-              inContents.id
-            );
+            edit.options.contents = Promise.resolve(decodeBase64(inContents.value));
           } else {
-            throw new Error("Could not revive data transfer file");
+            if (resolveDataTransferFile) {
+              edit.options.contents = resolveDataTransferFile(inContents.id);
+            } else {
+              throw new Error("Could not revive data transfer file");
+            }
           }
         }
       }

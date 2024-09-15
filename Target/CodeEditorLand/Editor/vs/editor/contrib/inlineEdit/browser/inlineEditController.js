@@ -11,43 +11,24 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { createStyleSheet2 } from "../../../../base/browser/dom.js";
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  constObservable,
-  derivedDisposable,
-  observableFromEvent,
-  observableSignalFromEvent,
-  observableValue,
-  transaction
-} from "../../../../base/common/observable.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { ISettableObservable, autorun, constObservable, derivedDisposable, observableFromEvent, observableSignalFromEvent, observableValue, transaction } from "../../../../base/common/observable.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { IDiffProviderFactoryService } from "../../../browser/widget/diffEditor/diffProviderFactoryService.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { EditOperation } from "../../../common/core/editOperation.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import {
-  InlineEditTriggerKind
-} from "../../../common/languages.js";
+import { IInlineEdit, InlineEditTriggerKind } from "../../../common/languages.js";
 import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 import { IModelService } from "../../../common/services/model.js";
-import {
-  GhostText,
-  GhostTextPart
-} from "../../inlineCompletions/browser/model/ghostText.js";
+import { GhostText, GhostTextPart } from "../../inlineCompletions/browser/model/ghostText.js";
 import { GhostTextWidget } from "./ghostTextWidget.js";
 import { InlineEditHintsWidget } from "./inlineEditHintsWidget.js";
 import { InlineEditSideBySideWidget } from "./inlineEditSideBySideWidget.js";
@@ -62,116 +43,73 @@ let InlineEditController = class extends Disposable {
     this._configurationService = _configurationService;
     this._diffProviderFactoryService = _diffProviderFactoryService;
     this._modelService = _modelService;
-    const modelChangedSignal = observableSignalFromEvent(
-      "InlineEditController.modelContentChangedSignal",
-      editor.onDidChangeModelContent
-    );
-    this._register(
-      autorun((reader) => {
-        if (!this._enabled.read(reader)) {
-          return;
-        }
-        modelChangedSignal.read(reader);
-        if (this._isAccepting.read(reader)) {
-          return;
-        }
-        this.getInlineEdit(editor, true);
-      })
-    );
-    const cursorPosition = observableFromEvent(
-      this,
-      editor.onDidChangeCursorPosition,
-      () => editor.getPosition()
-    );
-    this._register(
-      autorun((reader) => {
-        if (!this._enabled.read(reader)) {
-          return;
-        }
-        const pos = cursorPosition.read(reader);
-        if (pos) {
-          this.checkCursorPosition(pos);
-        }
-      })
-    );
-    this._register(
-      autorun((reader) => {
-        const currentEdit = this._currentEdit.read(reader);
-        this._isCursorAtInlineEditContext.set(false);
-        if (!currentEdit) {
-          this._isVisibleContext.set(false);
-          return;
-        }
-        this._isVisibleContext.set(true);
-        const pos = editor.getPosition();
-        if (pos) {
-          this.checkCursorPosition(pos);
-        }
-      })
-    );
-    const editorBlurSingal = observableSignalFromEvent(
-      "InlineEditController.editorBlurSignal",
-      editor.onDidBlurEditorWidget
-    );
-    this._register(
-      autorun(async (reader) => {
-        if (!this._enabled.read(reader)) {
-          return;
-        }
-        editorBlurSingal.read(reader);
-        if (this._configurationService.getValue(
-          "editor.experimentalInlineEdit.keepOnBlur"
-        ) || editor.getOption(EditorOption.inlineEdit).keepOnBlur) {
-          return;
-        }
-        this._currentRequestCts?.dispose(true);
-        this._currentRequestCts = void 0;
-        await this.clear(false);
-      })
-    );
-    const editorFocusSignal = observableSignalFromEvent(
-      "InlineEditController.editorFocusSignal",
-      editor.onDidFocusEditorText
-    );
-    this._register(
-      autorun((reader) => {
-        if (!this._enabled.read(reader)) {
-          return;
-        }
-        editorFocusSignal.read(reader);
-        this.getInlineEdit(editor, true);
-      })
-    );
+    const modelChangedSignal = observableSignalFromEvent("InlineEditController.modelContentChangedSignal", editor.onDidChangeModelContent);
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      modelChangedSignal.read(reader);
+      if (this._isAccepting.read(reader)) {
+        return;
+      }
+      this.getInlineEdit(editor, true);
+    }));
+    const cursorPosition = observableFromEvent(this, editor.onDidChangeCursorPosition, () => editor.getPosition());
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      const pos = cursorPosition.read(reader);
+      if (pos) {
+        this.checkCursorPosition(pos);
+      }
+    }));
+    this._register(autorun((reader) => {
+      const currentEdit = this._currentEdit.read(reader);
+      this._isCursorAtInlineEditContext.set(false);
+      if (!currentEdit) {
+        this._isVisibleContext.set(false);
+        return;
+      }
+      this._isVisibleContext.set(true);
+      const pos = editor.getPosition();
+      if (pos) {
+        this.checkCursorPosition(pos);
+      }
+    }));
+    const editorBlurSingal = observableSignalFromEvent("InlineEditController.editorBlurSignal", editor.onDidBlurEditorWidget);
+    this._register(autorun(async (reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      editorBlurSingal.read(reader);
+      if (this._configurationService.getValue("editor.experimentalInlineEdit.keepOnBlur") || editor.getOption(EditorOption.inlineEdit).keepOnBlur) {
+        return;
+      }
+      this._currentRequestCts?.dispose(true);
+      this._currentRequestCts = void 0;
+      await this.clear(false);
+    }));
+    const editorFocusSignal = observableSignalFromEvent("InlineEditController.editorFocusSignal", editor.onDidFocusEditorText);
+    this._register(autorun((reader) => {
+      if (!this._enabled.read(reader)) {
+        return;
+      }
+      editorFocusSignal.read(reader);
+      this.getInlineEdit(editor, true);
+    }));
     const styleElement = this._register(createStyleSheet2());
-    this._register(
-      autorun((reader) => {
-        const fontFamily = this._fontFamily.read(reader);
-        styleElement.setStyle(
-          fontFamily === "" || fontFamily === "default" ? `` : `
+    this._register(autorun((reader) => {
+      const fontFamily = this._fontFamily.read(reader);
+      styleElement.setStyle(fontFamily === "" || fontFamily === "default" ? `` : `
 .monaco-editor .inline-edit-decoration,
 .monaco-editor .inline-edit-decoration-preview,
 .monaco-editor .inline-edit {
 	font-family: ${fontFamily};
-}`
-        );
-      })
-    );
-    this._register(
-      new InlineEditHintsWidget(
-        this.editor,
-        this._currentWidget,
-        this.instantiationService
-      )
-    );
-    this._register(
-      new InlineEditSideBySideWidget(
-        this.editor,
-        this._currentEdit,
-        this.instantiationService,
-        this._diffProviderFactoryService,
-        this._modelService
-      )
-    );
+}`);
+    }));
+    this._register(new InlineEditHintsWidget(this.editor, this._currentWidget, this.instantiationService));
+    this._register(new InlineEditSideBySideWidget(this.editor, this._currentEdit, this.instantiationService, this._diffProviderFactoryService, this._modelService));
   }
   static {
     __name(this, "InlineEditController");
@@ -179,18 +117,12 @@ let InlineEditController = class extends Disposable {
   static ID = "editor.contrib.inlineEditController";
   static inlineEditVisibleKey = "inlineEditVisible";
   static inlineEditVisibleContext = new RawContextKey(this.inlineEditVisibleKey, false);
-  _isVisibleContext = InlineEditController.inlineEditVisibleContext.bindTo(
-    this.contextKeyService
-  );
+  _isVisibleContext = InlineEditController.inlineEditVisibleContext.bindTo(this.contextKeyService);
   static cursorAtInlineEditKey = "cursorAtInlineEdit";
   static cursorAtInlineEditContext = new RawContextKey(this.cursorAtInlineEditKey, false);
-  _isCursorAtInlineEditContext = InlineEditController.cursorAtInlineEditContext.bindTo(
-    this.contextKeyService
-  );
+  _isCursorAtInlineEditContext = InlineEditController.cursorAtInlineEditContext.bindTo(this.contextKeyService);
   static get(editor) {
-    return editor.getContribution(
-      InlineEditController.ID
-    );
+    return editor.getContribution(InlineEditController.ID);
   }
   _currentEdit = observableValue(this, void 0);
   _currentWidget = derivedDisposable(this._currentEdit, (reader) => {
@@ -201,44 +133,25 @@ let InlineEditController = class extends Disposable {
     const line = edit.range.endLineNumber;
     const column = edit.range.endColumn;
     const textToDisplay = edit.text.endsWith("\n") && !(edit.range.startLineNumber === edit.range.endLineNumber && edit.range.startColumn === edit.range.endColumn) ? edit.text.slice(0, -1) : edit.text;
-    const ghostText = new GhostText(line, [
-      new GhostTextPart(column, textToDisplay, false)
-    ]);
+    const ghostText = new GhostText(line, [new GhostTextPart(column, textToDisplay, false)]);
     const isSingleLine = edit.range.startLineNumber === edit.range.endLineNumber && ghostText.parts.length === 1 && ghostText.parts[0].lines.length === 1;
     const isPureRemoval = edit.text === "";
     if (!isSingleLine && !isPureRemoval) {
       return void 0;
     }
-    const instance = this.instantiationService.createInstance(
-      GhostTextWidget,
-      this.editor,
-      {
-        ghostText: constObservable(ghostText),
-        minReservedLineCount: constObservable(0),
-        targetTextModel: constObservable(
-          this.editor.getModel() ?? void 0
-        ),
-        range: constObservable(edit.range)
-      }
-    );
+    const instance = this.instantiationService.createInstance(GhostTextWidget, this.editor, {
+      ghostText: constObservable(ghostText),
+      minReservedLineCount: constObservable(0),
+      targetTextModel: constObservable(this.editor.getModel() ?? void 0),
+      range: constObservable(edit.range)
+    });
     return instance;
   });
   _currentRequestCts;
   _jumpBackPosition;
-  _isAccepting = observableValue(
-    this,
-    false
-  );
-  _enabled = observableFromEvent(
-    this,
-    this.editor.onDidChangeConfiguration,
-    () => this.editor.getOption(EditorOption.inlineEdit).enabled
-  );
-  _fontFamily = observableFromEvent(
-    this,
-    this.editor.onDidChangeConfiguration,
-    () => this.editor.getOption(EditorOption.inlineEdit).fontFamily
-  );
+  _isAccepting = observableValue(this, false);
+  _enabled = observableFromEvent(this, this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineEdit).enabled);
+  _fontFamily = observableFromEvent(this, this.editor.onDidChangeConfiguration, () => this.editor.getOption(EditorOption.inlineEdit).fontFamily);
   checkCursorPosition(position) {
     if (!this._currentEdit) {
       this._isCursorAtInlineEditContext.set(false);
@@ -249,9 +162,7 @@ let InlineEditController = class extends Disposable {
       this._isCursorAtInlineEditContext.set(false);
       return;
     }
-    this._isCursorAtInlineEditContext.set(
-      Range.containsPosition(gt.range, position)
-    );
+    this._isCursorAtInlineEditContext.set(Range.containsPosition(gt.range, position));
   }
   validateInlineEdit(editor, edit) {
     if (edit.text.includes("\n") && edit.range.startLineNumber !== edit.range.endLineNumber && edit.range.startColumn !== edit.range.endColumn) {
@@ -292,11 +203,7 @@ let InlineEditController = class extends Disposable {
     if (token.isCancellationRequested || model.isDisposed() || model.getVersionId() !== modelVersion) {
       return;
     }
-    const edit = await provider.provideInlineEdit(
-      model,
-      { triggerKind },
-      token
-    );
+    const edit = await provider.provideInlineEdit(model, { triggerKind }, token);
     if (!edit) {
       return;
     }
@@ -325,9 +232,7 @@ let InlineEditController = class extends Disposable {
       return;
     }
     this.editor.setPosition(this._jumpBackPosition);
-    this.editor.revealPositionInCenterIfOutsideViewport(
-      this._jumpBackPosition
-    );
+    this.editor.revealPositionInCenterIfOutsideViewport(this._jumpBackPosition);
   }
   async accept() {
     this._isAccepting.set(true, void 0);
@@ -340,14 +245,9 @@ let InlineEditController = class extends Disposable {
       text = data.text.substring(1);
     }
     this.editor.pushUndoStop();
-    this.editor.executeEdits("acceptCurrent", [
-      EditOperation.replace(Range.lift(data.range), text)
-    ]);
+    this.editor.executeEdits("acceptCurrent", [EditOperation.replace(Range.lift(data.range), text)]);
     if (data.accepted) {
-      await this._commandService.executeCommand(
-        data.accepted.id,
-        ...data.accepted.arguments || []
-      ).then(void 0, onUnexpectedExternalError);
+      await this._commandService.executeCommand(data.accepted.id, ...data.accepted.arguments || []).then(void 0, onUnexpectedExternalError);
     }
     this.freeEdit(data);
     transaction((tx) => {
@@ -361,20 +261,14 @@ let InlineEditController = class extends Disposable {
     if (!data) {
       return;
     }
-    const position = Position.lift({
-      lineNumber: data.range.startLineNumber,
-      column: data.range.startColumn
-    });
+    const position = Position.lift({ lineNumber: data.range.startLineNumber, column: data.range.startColumn });
     this.editor.setPosition(position);
     this.editor.revealPositionInCenterIfOutsideViewport(position);
   }
   async clear(sendRejection = true) {
     const edit = this._currentEdit.get();
     if (edit && edit?.rejected && sendRejection) {
-      await this._commandService.executeCommand(
-        edit.rejected.id,
-        ...edit.rejected.arguments || []
-      ).then(void 0, onUnexpectedExternalError);
+      await this._commandService.executeCommand(edit.rejected.id, ...edit.rejected.arguments || []).then(void 0, onUnexpectedExternalError);
     }
     if (edit) {
       this.freeEdit(edit);
@@ -409,11 +303,7 @@ let InlineEditController = class extends Disposable {
     }
     const ghostText = model.ghostText.get();
     if (ghostText) {
-      return ghostText.parts.some(
-        (p) => range.containsPosition(
-          new Position(ghostText.lineNumber, p.column)
-        )
-      );
+      return ghostText.parts.some((p) => range.containsPosition(new Position(ghostText.lineNumber, p.column)));
     }
     return false;
   }
@@ -432,7 +322,7 @@ InlineEditController = __decorateClass([
 ], InlineEditController);
 function wait(ms, cancellationToken) {
   return new Promise((resolve) => {
-    let d;
+    let d = void 0;
     const handle = setTimeout(() => {
       if (d) {
         d.dispose();

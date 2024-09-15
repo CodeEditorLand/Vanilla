@@ -10,9 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { Event } from "../../../../base/common/event.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
@@ -20,32 +19,20 @@ import { SimpleFindWidget } from "../../codeEditor/browser/find/simpleFindWidget
 import { KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED } from "./webview.js";
 let WebviewFindWidget = class extends SimpleFindWidget {
   constructor(_delegate, contextViewService, contextKeyService, hoverService, keybindingService) {
-    super(
-      {
-        showCommonFindToggles: false,
-        checkImeCompletionState: _delegate.checkImeCompletionState,
-        enableSash: true
-      },
-      contextViewService,
-      contextKeyService,
-      hoverService,
-      keybindingService
-    );
+    super({
+      showCommonFindToggles: false,
+      checkImeCompletionState: _delegate.checkImeCompletionState,
+      enableSash: true
+    }, contextViewService, contextKeyService, hoverService, keybindingService);
     this._delegate = _delegate;
-    this._findWidgetFocused = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED.bindTo(
-      contextKeyService
-    );
-    this._register(
-      _delegate.hasFindResult((hasResult) => {
-        this.updateButtons(hasResult);
-        this.focusFindBox();
-      })
-    );
-    this._register(
-      _delegate.onDidStopFind(() => {
-        this.updateButtons(false);
-      })
-    );
+    this._findWidgetFocused = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED.bindTo(contextKeyService);
+    this._register(_delegate.hasFindResult((hasResult) => {
+      this.updateButtons(hasResult);
+      this.focusFindBox();
+    }));
+    this._register(_delegate.onDidStopFind(() => {
+      this.updateButtons(false);
+    }));
   }
   static {
     __name(this, "WebviewFindWidget");

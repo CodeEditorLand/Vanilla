@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IDebugAdapter } from "./debug.js";
 import { timeout } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
 import { localize } from "../../../../nls.js";
 class AbstractDebugAdapter {
   static {
@@ -26,35 +27,25 @@ class AbstractDebugAdapter {
   }
   onMessage(callback) {
     if (this.messageCallback) {
-      this._onError.fire(
-        new Error(`attempt to set more than one 'Message' callback`)
-      );
+      this._onError.fire(new Error(`attempt to set more than one 'Message' callback`));
     }
     this.messageCallback = callback;
   }
   onEvent(callback) {
     if (this.eventCallback) {
-      this._onError.fire(
-        new Error(`attempt to set more than one 'Event' callback`)
-      );
+      this._onError.fire(new Error(`attempt to set more than one 'Event' callback`));
     }
     this.eventCallback = callback;
   }
   onRequest(callback) {
     if (this.requestCallback) {
-      this._onError.fire(
-        new Error(`attempt to set more than one 'Request' callback`)
-      );
+      this._onError.fire(new Error(`attempt to set more than one 'Request' callback`));
     }
     this.requestCallback = callback;
   }
   sendResponse(response) {
     if (response.seq > 0) {
-      this._onError.fire(
-        new Error(
-          `attempt to send more than one response for command ${response.command}`
-        )
-      );
+      this._onError.fire(new Error(`attempt to send more than one response for command ${response.command}`));
     } else {
       this.internalSend("response", response);
     }
@@ -79,12 +70,7 @@ class AbstractDebugAdapter {
             request_seq: request.seq,
             success: false,
             command,
-            message: localize(
-              "timeout",
-              "Timeout after {0} ms for '{1}'",
-              timeout2,
-              command
-            )
+            message: localize("timeout", "Timeout after {0} ms for '{1}'", timeout2, command)
           };
           clb2(err);
         }

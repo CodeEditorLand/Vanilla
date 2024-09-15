@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
-import { createRequire } from "node:module";
 import * as path from "path";
+import * as fs from "fs";
 import { fileURLToPath } from "url";
+import { createRequire } from "node:module";
 const require2 = createRequire(import.meta.url);
 const module = { exports: {} };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,7 +31,7 @@ function setupCurrentWorkingDirectory() {
 }
 __name(setupCurrentWorkingDirectory, "setupCurrentWorkingDirectory");
 setupCurrentWorkingDirectory();
-module.exports.devInjectNodeModuleLookupPath = (injectPath) => {
+module.exports.devInjectNodeModuleLookupPath = function(injectPath) {
   if (!process.env["VSCODE_DEV"]) {
     return;
   }
@@ -39,19 +39,16 @@ module.exports.devInjectNodeModuleLookupPath = (injectPath) => {
     throw new Error("Missing injectPath");
   }
   const Module = require2("node:module");
-  Module.register("./bootstrap-import.js", {
-    parentURL: import.meta.url,
-    data: injectPath
-  });
+  Module.register("./bootstrap-import.js", { parentURL: import.meta.url, data: injectPath });
 };
-module.exports.removeGlobalNodeJsModuleLookupPaths = () => {
+module.exports.removeGlobalNodeJsModuleLookupPaths = function() {
   if (typeof process?.versions?.electron === "string") {
     return;
   }
   const Module = require2("module");
   const globalPaths = Module.globalPaths;
   const originalResolveLookupPaths = Module._resolveLookupPaths;
-  Module._resolveLookupPaths = (moduleName, parent) => {
+  Module._resolveLookupPaths = function(moduleName, parent) {
     const paths = originalResolveLookupPaths(moduleName, parent);
     if (Array.isArray(paths)) {
       let commonSuffixLength = 0;
@@ -63,7 +60,7 @@ module.exports.removeGlobalNodeJsModuleLookupPaths = () => {
     return paths;
   };
 };
-module.exports.configurePortable = (product) => {
+module.exports.configurePortable = function(product) {
   const appRoot = path.dirname(__dirname);
   function getApplicationPath(path2) {
     if (process.env["VSCODE_DEV"]) {
@@ -83,10 +80,7 @@ module.exports.configurePortable = (product) => {
       return path2.join(getApplicationPath(path2), "data");
     }
     const portableDataName = product.portable || `${product.applicationName}-portable-data`;
-    return path2.join(
-      path2.dirname(getApplicationPath(path2)),
-      portableDataName
-    );
+    return path2.join(path2.dirname(getApplicationPath(path2)), portableDataName);
   }
   __name(getPortableDataPath, "getPortableDataPath");
   const portableDataPath = getPortableDataPath(path);
@@ -111,9 +105,9 @@ module.exports.configurePortable = (product) => {
     isPortable
   };
 };
-module.exports.enableASARSupport = () => {
+module.exports.enableASARSupport = function() {
 };
-module.exports.fileUriFromPath = (path2, config) => {
+module.exports.fileUriFromPath = function(path2, config) {
   let pathName = path2.replace(/\\/g, "/");
   if (pathName.length > 0 && pathName.charAt(0) !== "/") {
     pathName = `/${pathName}`;
@@ -122,9 +116,7 @@ module.exports.fileUriFromPath = (path2, config) => {
   if (config.isWindows && pathName.startsWith("//")) {
     uri = encodeURI(`${config.scheme || "file"}:${pathName}`);
   } else {
-    uri = encodeURI(
-      `${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`
-    );
+    uri = encodeURI(`${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`);
   }
   return uri.replace(/#/g, "%23");
 };

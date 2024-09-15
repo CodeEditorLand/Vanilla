@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { createDecorator } from "../../platform/instantiation/common/instantiation.js";
+import { IExtensionHostExitInfo } from "../../workbench/services/remote/common/remoteAgentService.js";
 const IExtensionHostStatusService = createDecorator("extensionHostStatusService");
 class ExtensionHostStatusService {
   static {

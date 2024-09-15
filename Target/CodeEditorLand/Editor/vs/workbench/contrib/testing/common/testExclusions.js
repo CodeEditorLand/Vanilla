@@ -10,15 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { MutableObservableValue } from "./observableValue.js";
 import { StoredValue } from "./storedValue.js";
+import { InternalTestItem } from "./testTypes.js";
 let TestExclusions = class extends Disposable {
   constructor(storageService) {
     super();
@@ -28,21 +26,15 @@ let TestExclusions = class extends Disposable {
     __name(this, "TestExclusions");
   }
   excluded = this._register(
-    MutableObservableValue.stored(
-      new StoredValue(
-        {
-          key: "excludedTestItems",
-          scope: StorageScope.WORKSPACE,
-          target: StorageTarget.MACHINE,
-          serialization: {
-            deserialize: /* @__PURE__ */ __name((v) => new Set(JSON.parse(v)), "deserialize"),
-            serialize: /* @__PURE__ */ __name((v) => JSON.stringify([...v]), "serialize")
-          }
-        },
-        this.storageService
-      ),
-      /* @__PURE__ */ new Set()
-    )
+    MutableObservableValue.stored(new StoredValue({
+      key: "excludedTestItems",
+      scope: StorageScope.WORKSPACE,
+      target: StorageTarget.MACHINE,
+      serialization: {
+        deserialize: /* @__PURE__ */ __name((v) => new Set(JSON.parse(v)), "deserialize"),
+        serialize: /* @__PURE__ */ __name((v) => JSON.stringify([...v]), "serialize")
+      }
+    }, this.storageService), /* @__PURE__ */ new Set())
   );
   /**
    * Event that fires when the excluded tests change.
@@ -65,17 +57,9 @@ let TestExclusions = class extends Disposable {
    */
   toggle(test, exclude) {
     if (exclude !== true && this.excluded.value.has(test.item.extId)) {
-      this.excluded.value = new Set(
-        Iterable.filter(
-          this.excluded.value,
-          (e) => e !== test.item.extId
-        )
-      );
+      this.excluded.value = new Set(Iterable.filter(this.excluded.value, (e) => e !== test.item.extId));
     } else if (exclude !== false && !this.excluded.value.has(test.item.extId)) {
-      this.excluded.value = /* @__PURE__ */ new Set([
-        ...this.excluded.value,
-        test.item.extId
-      ]);
+      this.excluded.value = /* @__PURE__ */ new Set([...this.excluded.value, test.item.extId]);
     }
   }
   /**

@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ObservableValue } from "./base.js";
-import { strictEquals } from "./commonFacade/deps.js";
-import { DebugNameData } from "./debugName.js";
+import { ISettableObservable, ObservableValue } from "./base.js";
+import { DebugNameData, IDebugNameData } from "./debugName.js";
+import { EqualityComparer, strictEquals } from "./commonFacade/deps.js";
 import { LazyObservableValue } from "./lazyObservableValue.js";
 function observableValueOpts(options, initialValue) {
   if (options.lazy) {

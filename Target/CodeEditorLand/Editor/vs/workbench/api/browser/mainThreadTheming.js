@@ -10,14 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { MainContext, ExtHostThemingShape, ExtHostContext, MainThreadThemingShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadTheming = class {
   _themeService;
   _proxy;
@@ -25,16 +21,10 @@ let MainThreadTheming = class {
   constructor(extHostContext, themeService) {
     this._themeService = themeService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTheming);
-    this._themeChangeListener = this._themeService.onDidColorThemeChange(
-      (e) => {
-        this._proxy.$onColorThemeChange(
-          this._themeService.getColorTheme().type
-        );
-      }
-    );
-    this._proxy.$onColorThemeChange(
-      this._themeService.getColorTheme().type
-    );
+    this._themeChangeListener = this._themeService.onDidColorThemeChange((e) => {
+      this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
+    });
+    this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
   }
   dispose() {
     this._themeChangeListener.dispose();

@@ -1,21 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../nls.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { hash } from "../../../base/common/hash.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../base/common/map.js";
 import { isWindows } from "../../../base/common/platform.js";
 import { joinPath } from "../../../base/common/resources.js";
-import {
-  isNumber,
-  isString
-} from "../../../base/common/types.js";
+import { Mutable, isNumber, isString } from "../../../base/common/types.js";
 import { URI } from "../../../base/common/uri.js";
-import * as nls from "../../../nls.js";
+import { ILocalizedString } from "../../action/common/action.js";
 import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 const ILogService = createDecorator("logService");
 const ILoggerService = createDecorator("loggerService");
@@ -84,9 +81,7 @@ class AbstractLogger extends Disposable {
     __name(this, "AbstractLogger");
   }
   level = DEFAULT_LOG_LEVEL;
-  _onDidChangeLogLevel = this._register(
-    new Emitter()
-  );
+  _onDidChangeLogLevel = this._register(new Emitter());
   onDidChangeLogLevel = this._onDidChangeLogLevel.event;
   setLevel(level) {
     if (this.level !== level) {
@@ -186,11 +181,7 @@ class ConsoleMainLogger extends AbstractLogger {
   warn(message, ...args) {
     if (this.checkLogLevel(4 /* Warning */)) {
       if (this.useColors) {
-        console.warn(
-          `\x1B[93m[main ${now()}]\x1B[0m`,
-          message,
-          ...args
-        );
+        console.warn(`\x1B[93m[main ${now()}]\x1B[0m`, message, ...args);
       } else {
         console.warn(`[main ${now()}]`, message, ...args);
       }
@@ -199,11 +190,7 @@ class ConsoleMainLogger extends AbstractLogger {
   error(message, ...args) {
     if (this.checkLogLevel(5 /* Error */)) {
       if (this.useColors) {
-        console.error(
-          `\x1B[91m[main ${now()}]\x1B[0m`,
-          message,
-          ...args
-        );
+        console.error(`\x1B[91m[main ${now()}]\x1B[0m`, message, ...args);
       } else {
         console.error(`[main ${now()}]`, message, ...args);
       }
@@ -233,12 +220,7 @@ class ConsoleLogger extends AbstractLogger {
   debug(message, ...args) {
     if (this.checkLogLevel(2 /* Debug */)) {
       if (this.useColors) {
-        console.log(
-          "%cDEBUG",
-          "background: #eee; color: #888",
-          message,
-          ...args
-        );
+        console.log("%cDEBUG", "background: #eee; color: #888", message, ...args);
       } else {
         console.log(message, ...args);
       }
@@ -285,42 +267,27 @@ class AdapterLogger extends AbstractLogger {
   }
   trace(message, ...args) {
     if (this.checkLogLevel(1 /* Trace */)) {
-      this.adapter.log(1 /* Trace */, [
-        this.extractMessage(message),
-        ...args
-      ]);
+      this.adapter.log(1 /* Trace */, [this.extractMessage(message), ...args]);
     }
   }
   debug(message, ...args) {
     if (this.checkLogLevel(2 /* Debug */)) {
-      this.adapter.log(2 /* Debug */, [
-        this.extractMessage(message),
-        ...args
-      ]);
+      this.adapter.log(2 /* Debug */, [this.extractMessage(message), ...args]);
     }
   }
   info(message, ...args) {
     if (this.checkLogLevel(3 /* Info */)) {
-      this.adapter.log(3 /* Info */, [
-        this.extractMessage(message),
-        ...args
-      ]);
+      this.adapter.log(3 /* Info */, [this.extractMessage(message), ...args]);
     }
   }
   warn(message, ...args) {
     if (this.checkLogLevel(4 /* Warning */)) {
-      this.adapter.log(4 /* Warning */, [
-        this.extractMessage(message),
-        ...args
-      ]);
+      this.adapter.log(4 /* Warning */, [this.extractMessage(message), ...args]);
     }
   }
   error(message, ...args) {
     if (this.checkLogLevel(5 /* Error */)) {
-      this.adapter.log(5 /* Error */, [
-        this.extractMessage(message),
-        ...args
-      ]);
+      this.adapter.log(5 /* Error */, [this.extractMessage(message), ...args]);
     }
   }
   extractMessage(msg) {
@@ -393,10 +360,7 @@ class AbstractLoggerService extends Disposable {
     this.logsHome = logsHome;
     if (loggerResources) {
       for (const loggerResource of loggerResources) {
-        this._loggers.set(loggerResource.resource, {
-          logger: void 0,
-          info: loggerResource
-        });
+        this._loggers.set(loggerResource.resource, { logger: void 0, info: loggerResource });
       }
     }
   }
@@ -404,23 +368,15 @@ class AbstractLoggerService extends Disposable {
     __name(this, "AbstractLoggerService");
   }
   _loggers = new ResourceMap();
-  _onDidChangeLoggers = this._register(
-    new Emitter()
-  );
+  _onDidChangeLoggers = this._register(new Emitter());
   onDidChangeLoggers = this._onDidChangeLoggers.event;
-  _onDidChangeLogLevel = this._register(
-    new Emitter()
-  );
+  _onDidChangeLogLevel = this._register(new Emitter());
   onDidChangeLogLevel = this._onDidChangeLogLevel.event;
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
   getLoggerEntry(resourceOrId) {
     if (isString(resourceOrId)) {
-      return [...this._loggers.values()].find(
-        (logger) => logger.info.id === resourceOrId
-      );
+      return [...this._loggers.values()].find((logger) => logger.info.id === resourceOrId);
     }
     return this._loggers.get(resourceOrId);
   }
@@ -433,23 +389,11 @@ class AbstractLoggerService extends Disposable {
     let logger = this._loggers.get(resource)?.logger;
     const logLevel = options?.logLevel === "always" ? 1 /* Trace */ : options?.logLevel;
     if (!logger) {
-      logger = this.doCreateLogger(
-        resource,
-        logLevel ?? this.getLogLevel(resource) ?? this.logLevel,
-        { ...options, id }
-      );
+      logger = this.doCreateLogger(resource, logLevel ?? this.getLogLevel(resource) ?? this.logLevel, { ...options, id });
     }
     const loggerEntry = {
       logger,
-      info: {
-        resource,
-        id,
-        logLevel,
-        name: options?.name,
-        hidden: options?.hidden,
-        extensionId: options?.extensionId,
-        when: options?.when
-      }
+      info: { resource, id, logLevel, name: options?.name, hidden: options?.hidden, extensionId: options?.extensionId, when: options?.when }
     };
     this.registerLogger(loggerEntry.info);
     this._loggers.set(resource, loggerEntry);
@@ -484,10 +428,7 @@ class AbstractLoggerService extends Disposable {
     if (logger && visibility !== !logger.info.hidden) {
       logger.info.hidden = !visibility;
       this._loggers.set(logger.info.resource, logger);
-      this._onDidChangeVisibility.fire([
-        logger.info.resource,
-        visibility
-      ]);
+      this._onDidChangeVisibility.fire([logger.info.resource, visibility]);
     }
   }
   getLogLevel(resource) {
@@ -504,10 +445,7 @@ class AbstractLoggerService extends Disposable {
         this.setVisibility(resource.resource, !resource.hidden);
       }
     } else {
-      this._loggers.set(resource.resource, {
-        info: resource,
-        logger: void 0
-      });
+      this._loggers.set(resource.resource, { info: resource, logger: void 0 });
       this._onDidChangeLoggers.fire({ added: [resource], removed: [] });
     }
   }
@@ -518,10 +456,7 @@ class AbstractLoggerService extends Disposable {
         existing.logger.dispose();
       }
       this._loggers.delete(resource);
-      this._onDidChangeLoggers.fire({
-        added: [],
-        removed: [existing.info]
-      });
+      this._onDidChangeLoggers.fire({ added: [], removed: [existing.info] });
     }
   }
   *getRegisteredLoggers() {
@@ -575,9 +510,7 @@ function getLogLevel(environmentService) {
     return 1 /* Trace */;
   }
   if (typeof environmentService.logLevel === "string") {
-    const logLevel = parseLogLevel(
-      environmentService.logLevel.toLowerCase()
-    );
+    const logLevel = parseLogLevel(environmentService.logLevel.toLowerCase());
     if (logLevel !== void 0) {
       return logLevel;
     }
@@ -611,10 +544,7 @@ function LogLevelToLocalizedString(logLevel) {
     case 3 /* Info */:
       return { original: "Info", value: nls.localize("info", "Info") };
     case 4 /* Warning */:
-      return {
-        original: "Warning",
-        value: nls.localize("warn", "Warning")
-      };
+      return { original: "Warning", value: nls.localize("warn", "Warning") };
     case 5 /* Error */:
       return { original: "Error", value: nls.localize("error", "Error") };
     case 0 /* Off */:
@@ -642,10 +572,7 @@ function parseLogLevel(logLevel) {
   return void 0;
 }
 __name(parseLogLevel, "parseLogLevel");
-const CONTEXT_LOG_LEVEL = new RawContextKey(
-  "logLevel",
-  LogLevelToString(3 /* Info */)
-);
+const CONTEXT_LOG_LEVEL = new RawContextKey("logLevel", LogLevelToString(3 /* Info */));
 export {
   AbstractLogger,
   AbstractLoggerService,

@@ -1,16 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(() => {
+(function() {
   const bootstrapWindow = bootstrapWindowLib();
-  bootstrapWindow.load(
-    ["vs/code/electron-sandbox/processExplorer/processExplorerMain"],
-    (processExplorer, configuration) => processExplorer.startup(configuration),
-    {
-      configureDeveloperSettings: /* @__PURE__ */ __name(() => ({
+  bootstrapWindow.load(["vs/code/electron-sandbox/processExplorer/processExplorerMain"], function(processExplorer, configuration) {
+    return processExplorer.startup(configuration);
+  }, {
+    configureDeveloperSettings: /* @__PURE__ */ __name(function() {
+      return {
         forceEnableDeveloperKeybindings: true
-      }), "configureDeveloperSettings")
-    }
-  );
+      };
+    }, "configureDeveloperSettings")
+  });
   function bootstrapWindowLib() {
     return window.MonacoBootstrapWindow;
   }

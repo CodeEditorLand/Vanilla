@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IAction } from "../../../base/common/actions.js";
 import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import BaseSeverity from "../../../base/common/severity.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 const Severity = BaseSeverity;
-const INotificationService = createDecorator(
-  "notificationService"
-);
+const INotificationService = createDecorator("notificationService");
 var NotificationPriority = /* @__PURE__ */ ((NotificationPriority2) => {
   NotificationPriority2[NotificationPriority2["DEFAULT"] = 0] = "DEFAULT";
   NotificationPriority2[NotificationPriority2["SILENT"] = 1] = "SILENT";

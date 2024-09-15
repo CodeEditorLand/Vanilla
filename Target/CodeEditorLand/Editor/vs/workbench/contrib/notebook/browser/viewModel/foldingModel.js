@@ -1,22 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { renderMarkdownAsPlaintext } from "../../../../../base/browser/markdownRenderer.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
 import { marked } from "../../../../../base/common/marked/marked.js";
 import { TrackedRangeStickiness } from "../../../../../editor/common/model.js";
-import {
-  FoldingRegions
-} from "../../../../../editor/contrib/folding/browser/foldingRanges.js";
-import {
-  sanitizeRanges
-} from "../../../../../editor/contrib/folding/browser/syntaxRangeProvider.js";
+import { FoldingLimitReporter } from "../../../../../editor/contrib/folding/browser/folding.js";
+import { FoldingRegion, FoldingRegions } from "../../../../../editor/contrib/folding/browser/foldingRanges.js";
+import { IFoldingRangeData, sanitizeRanges } from "../../../../../editor/contrib/folding/browser/syntaxRangeProvider.js";
+import { INotebookViewModel } from "../notebookBrowser.js";
 import { CellKind } from "../../common/notebookCommon.js";
-import {
-  cellRangesToIndexes
-} from "../../common/notebookRange.js";
+import { cellRangesToIndexes, ICellRange } from "../../common/notebookRange.js";
 const foldingRangeLimit = {
   limit: 5e3,
   update: /* @__PURE__ */ __name(() => {
@@ -36,10 +30,7 @@ class FoldingModel {
   onDidFoldingRegionChanged = this._onDidFoldingRegionChanges.event;
   _foldingRangeDecorationIds = [];
   constructor() {
-    this._regions = new FoldingRegions(
-      new Uint32Array(0),
-      new Uint32Array(0)
-    );
+    this._regions = new FoldingRegions(new Uint32Array(0), new Uint32Array(0));
   }
   dispose() {
     this._onDidFoldingRegionChanges.dispose();
@@ -51,35 +42,29 @@ class FoldingModel {
   }
   attachViewModel(model) {
     this._viewModel = model;
-    this._viewModelStore.add(
-      this._viewModel.onDidChangeViewCells(() => {
-        this.recompute();
-      })
-    );
-    this._viewModelStore.add(
-      this._viewModel.onDidChangeSelection(() => {
-        if (!this._viewModel) {
-          return;
-        }
-        const indexes = cellRangesToIndexes(
-          this._viewModel.getSelections()
-        );
-        let changed = false;
-        indexes.forEach((index) => {
-          let regionIndex = this.regions.findRange(index + 1);
-          while (regionIndex !== -1) {
-            if (this._regions.isCollapsed(regionIndex) && index > this._regions.getStartLineNumber(regionIndex) - 1) {
-              this._regions.setCollapsed(regionIndex, false);
-              changed = true;
-            }
-            regionIndex = this._regions.getParentIndex(regionIndex);
+    this._viewModelStore.add(this._viewModel.onDidChangeViewCells(() => {
+      this.recompute();
+    }));
+    this._viewModelStore.add(this._viewModel.onDidChangeSelection(() => {
+      if (!this._viewModel) {
+        return;
+      }
+      const indexes = cellRangesToIndexes(this._viewModel.getSelections());
+      let changed = false;
+      indexes.forEach((index) => {
+        let regionIndex = this.regions.findRange(index + 1);
+        while (regionIndex !== -1) {
+          if (this._regions.isCollapsed(regionIndex) && index > this._regions.getStartLineNumber(regionIndex) - 1) {
+            this._regions.setCollapsed(regionIndex, false);
+            changed = true;
           }
-        });
-        if (changed) {
-          this._onDidFoldingRegionChanges.fire();
+          regionIndex = this._regions.getParentIndex(regionIndex);
         }
-      })
-    );
+      });
+      if (changed) {
+        this._onDidFoldingRegionChanges.fire();
+      }
+    }));
     this.recompute();
   }
   getRegionAtLine(lineNumber) {
@@ -156,19 +141,13 @@ class FoldingModel {
       if (cell.cellKind !== CellKind.Markup || cell.language !== "markdown") {
         continue;
       }
-      const minDepth = Math.min(
-        7,
-        ...Array.from(
-          getMarkdownHeadersInCell(cell.getText()),
-          (header) => header.depth
-        )
-      );
+      const minDepth = Math.min(7, ...Array.from(getMarkdownHeadersInCell(cell.getText()), (header) => header.depth));
       if (minDepth < 7) {
         stack.push({ index: i2, level: minDepth, endIndex: 0 });
       }
     }
     const rawFoldingRanges = stack.map((entry, startIndex) => {
-      let end;
+      let end = void 0;
       for (let i2 = startIndex + 1; i2 < stack.length; ++i2) {
         if (stack[i2].level <= entry.level) {
           end = stack[i2].index - 1;
@@ -197,18 +176,13 @@ class FoldingModel {
     let k = 0;
     let collapsedIndex = nextCollapsed();
     while (collapsedIndex !== -1 && k < newRegions.length) {
-      const decRange = viewModel.getTrackedRange(
-        this._foldingRangeDecorationIds[collapsedIndex]
-      );
+      const decRange = viewModel.getTrackedRange(this._foldingRangeDecorationIds[collapsedIndex]);
       if (decRange) {
         const collasedStartIndex = decRange.start;
         while (k < newRegions.length) {
           const startIndex = newRegions.getStartLineNumber(k) - 1;
           if (collasedStartIndex >= startIndex) {
-            newRegions.setCollapsed(
-              k,
-              collasedStartIndex === startIndex
-            );
+            newRegions.setCollapsed(k, collasedStartIndex === startIndex);
             k++;
           } else {
             break;
@@ -224,25 +198,10 @@ class FoldingModel {
     const cellRanges = [];
     for (let i2 = 0; i2 < newRegions.length; i2++) {
       const region = newRegions.toRegion(i2);
-      cellRanges.push({
-        start: region.startLineNumber - 1,
-        end: region.endLineNumber - 1
-      });
+      cellRanges.push({ start: region.startLineNumber - 1, end: region.endLineNumber - 1 });
     }
-    this._foldingRangeDecorationIds.forEach(
-      (id) => viewModel.setTrackedRange(
-        id,
-        null,
-        TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
-      )
-    );
-    this._foldingRangeDecorationIds = cellRanges.map(
-      (region) => viewModel.setTrackedRange(
-        null,
-        region,
-        TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
-      )
-    ).filter((str) => str !== null);
+    this._foldingRangeDecorationIds.forEach((id) => viewModel.setTrackedRange(id, null, TrackedRangeStickiness.GrowsOnlyWhenTypingAfter));
+    this._foldingRangeDecorationIds = cellRanges.map((region) => viewModel.setTrackedRange(null, region, TrackedRangeStickiness.GrowsOnlyWhenTypingAfter)).filter((str) => str !== null);
     this._regions = newRegions;
     this._onDidFoldingRegionChanges.fire();
   }
@@ -253,10 +212,7 @@ class FoldingModel {
       const isCollapsed = this._regions.isCollapsed(i);
       if (isCollapsed) {
         const region = this._regions.toRegion(i);
-        collapsedRanges.push({
-          start: region.startLineNumber - 1,
-          end: region.endLineNumber - 1
-        });
+        collapsedRanges.push({ start: region.startLineNumber - 1, end: region.endLineNumber - 1 });
       }
       i++;
     }
@@ -269,18 +225,13 @@ class FoldingModel {
     let i = 0;
     let k = 0;
     while (k < state.length && i < this._regions.length) {
-      const decRange = this._viewModel.getTrackedRange(
-        this._foldingRangeDecorationIds[i]
-      );
+      const decRange = this._viewModel.getTrackedRange(this._foldingRangeDecorationIds[i]);
       if (decRange) {
         const collasedStartIndex = state[k].start;
         while (i < this._regions.length) {
           const startIndex = this._regions.getStartLineNumber(i) - 1;
           if (collasedStartIndex >= startIndex) {
-            this._regions.setCollapsed(
-              i,
-              collasedStartIndex === startIndex
-            );
+            this._regions.setCollapsed(i, collasedStartIndex === startIndex);
             i++;
           } else {
             break;

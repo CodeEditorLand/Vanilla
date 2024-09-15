@@ -10,18 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { asArray, groupBy } from "../../../base/common/arrays.js";
-import { dirname } from "../../../base/common/path.js";
-import { compare, count } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
+import { MainContext, ExtHostDecorationsShape, MainThreadDecorationsShape, DecorationData, DecorationRequest, DecorationReply } from "./extHost.protocol.js";
 import { Disposable, FileDecoration } from "./extHostTypes.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { asArray, groupBy } from "../../../base/common/arrays.js";
+import { compare, count } from "../../../base/common/strings.js";
+import { dirname } from "../../../base/common/path.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 let ExtHostDecorations = class {
   constructor(extHostRpc, _logService) {
     this._logService = _logService;
@@ -38,10 +38,7 @@ let ExtHostDecorations = class {
   registerFileDecorationProvider(provider, extensionDescription) {
     const handle = ExtHostDecorations._handlePool++;
     this._provider.set(handle, { provider, extensionDescription });
-    this._proxy.$registerDecorationProvider(
-      handle,
-      extensionDescription.identifier.value
-    );
+    this._proxy.$registerDecorationProvider(handle, extensionDescription.identifier.value);
     const listener = provider.onDidChangeFileDecorations && provider.onDidChangeFileDecorations((e) => {
       if (!e) {
         this._proxy.$onDidChange(handle, null);
@@ -52,19 +49,9 @@ let ExtHostDecorations = class {
         this._proxy.$onDidChange(handle, array);
         return;
       }
-      this._logService.warn(
-        "[Decorations] CAPPING events from decorations provider",
-        extensionDescription.identifier.value,
-        array.length
-      );
-      const mapped = array.map((uri) => ({
-        uri,
-        rank: count(uri.path, "/")
-      }));
-      const groups = groupBy(
-        mapped,
-        (a, b) => a.rank - b.rank || compare(a.uri.path, b.uri.path)
-      );
+      this._logService.warn("[Decorations] CAPPING events from decorations provider", extensionDescription.identifier.value, array.length);
+      const mapped = array.map((uri) => ({ uri, rank: count(uri.path, "/") }));
+      const groups = groupBy(mapped, (a, b) => a.rank - b.rank || compare(a.uri.path, b.uri.path));
       const picked = [];
       outer: for (const uris of groups) {
         let lastDirname;
@@ -92,40 +79,26 @@ let ExtHostDecorations = class {
     }
     const result = /* @__PURE__ */ Object.create(null);
     const { provider, extensionDescription: extensionId } = this._provider.get(handle);
-    await Promise.all(
-      requests.map(async (request) => {
-        try {
-          const { uri, id } = request;
-          const data = await Promise.resolve(
-            provider.provideFileDecoration(URI.revive(uri), token)
-          );
-          if (!data) {
-            return;
-          }
-          try {
-            FileDecoration.validate(data);
-            if (data.badge && typeof data.badge !== "string") {
-              checkProposedApiEnabled(
-                extensionId,
-                "codiconDecoration"
-              );
-            }
-            result[id] = [
-              data.propagate,
-              data.tooltip,
-              data.badge,
-              data.color
-            ];
-          } catch (e) {
-            this._logService.warn(
-              `INVALID decoration from extension '${extensionId.identifier.value}': ${e}`
-            );
-          }
-        } catch (err) {
-          this._logService.error(err);
+    await Promise.all(requests.map(async (request) => {
+      try {
+        const { uri, id } = request;
+        const data = await Promise.resolve(provider.provideFileDecoration(URI.revive(uri), token));
+        if (!data) {
+          return;
         }
-      })
-    );
+        try {
+          FileDecoration.validate(data);
+          if (data.badge && typeof data.badge !== "string") {
+            checkProposedApiEnabled(extensionId, "codiconDecoration");
+          }
+          result[id] = [data.propagate, data.tooltip, data.badge, data.color];
+        } catch (e) {
+          this._logService.warn(`INVALID decoration from extension '${extensionId.identifier.value}': ${e}`);
+        }
+      } catch (err) {
+        this._logService.error(err);
+      }
+    }));
     return result;
   }
 };
@@ -133,9 +106,7 @@ ExtHostDecorations = __decorateClass([
   __decorateParam(0, IExtHostRpcService),
   __decorateParam(1, ILogService)
 ], ExtHostDecorations);
-const IExtHostDecorations = createDecorator(
-  "IExtHostDecorations"
-);
+const IExtHostDecorations = createDecorator("IExtHostDecorations");
 export {
   ExtHostDecorations,
   IExtHostDecorations

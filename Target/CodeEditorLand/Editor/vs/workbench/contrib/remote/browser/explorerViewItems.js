@@ -10,39 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  DisposableMap
-} from "../../../../base/common/lifecycle.js";
-import { isStringArray } from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  MenuRegistry,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  IStorageService,
-  StorageScope
-} from "../../../../platform/storage/common/storage.js";
+import { IRemoteExplorerService, REMOTE_EXPLORER_TYPE_KEY } from "../../../services/remote/common/remoteExplorerService.js";
+import { ISelectOptionItem } from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { IViewDescriptor } from "../../../common/views.js";
+import { isStringArray } from "../../../../base/common/types.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
+import { ContextKeyExpr, IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { VIEWLET_ID } from "./remoteExplorer.js";
 import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import {
-  IRemoteExplorerService,
-  REMOTE_EXPLORER_TYPE_KEY
-} from "../../../services/remote/common/remoteExplorerService.js";
-import { VIEWLET_ID } from "./remoteExplorer.js";
-const SELECTED_REMOTE_IN_EXPLORER = new RawContextKey(
-  "selectedRemoteInExplorer",
-  ""
-);
+import { Disposable, DisposableMap } from "../../../../base/common/lifecycle.js";
+const SELECTED_REMOTE_IN_EXPLORER = new RawContextKey("selectedRemoteInExplorer", "");
 let SwitchRemoteViewItem = class extends Disposable {
   constructor(contextKeyService, remoteExplorerService, environmentService, storageService, workspaceContextService) {
     super();
@@ -52,24 +33,18 @@ let SwitchRemoteViewItem = class extends Disposable {
     this.storageService = storageService;
     this.workspaceContextService = workspaceContextService;
     this.selectedRemoteContext = SELECTED_REMOTE_IN_EXPLORER.bindTo(contextKeyService);
-    this.switchRemoteMenu = MenuId.for(
-      "workbench.remote.menu.switchRemoteMenu"
-    );
-    this._register(
-      MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
-        submenu: this.switchRemoteMenu,
-        title: nls.localize("switchRemote.label", "Switch Remote"),
-        group: "navigation",
-        when: ContextKeyExpr.equals("viewContainer", VIEWLET_ID),
-        order: 1,
-        isSelection: true
-      })
-    );
-    this._register(
-      remoteExplorerService.onDidChangeTargetType((e) => {
-        this.select(e);
-      })
-    );
+    this.switchRemoteMenu = MenuId.for("workbench.remote.menu.switchRemoteMenu");
+    this._register(MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+      submenu: this.switchRemoteMenu,
+      title: nls.localize("switchRemote.label", "Switch Remote"),
+      group: "navigation",
+      when: ContextKeyExpr.equals("viewContainer", VIEWLET_ID),
+      order: 1,
+      isSelection: true
+    }));
+    this._register(remoteExplorerService.onDidChangeTargetType((e) => {
+      this.select(e);
+    }));
   }
   static {
     __name(this, "SwitchRemoteViewItem");
@@ -84,15 +59,10 @@ let SwitchRemoteViewItem = class extends Disposable {
       const remoteAuthority = this.environmentService.remoteAuthority;
       let virtualWorkspace;
       if (!remoteAuthority) {
-        virtualWorkspace = getVirtualWorkspaceLocation(
-          this.workspaceContextService.getWorkspace()
-        )?.scheme;
+        virtualWorkspace = getVirtualWorkspaceLocation(this.workspaceContextService.getWorkspace())?.scheme;
       }
       isSetForConnection = true;
-      const explorerType = remoteAuthority ? [remoteAuthority.split("+")[0]] : virtualWorkspace ? [virtualWorkspace] : this.storageService.get(
-        REMOTE_EXPLORER_TYPE_KEY,
-        StorageScope.WORKSPACE
-      )?.split(",") ?? this.storageService.get(REMOTE_EXPLORER_TYPE_KEY, StorageScope.PROFILE)?.split(",");
+      const explorerType = remoteAuthority ? [remoteAuthority.split("+")[0]] : virtualWorkspace ? [virtualWorkspace] : this.storageService.get(REMOTE_EXPLORER_TYPE_KEY, StorageScope.WORKSPACE)?.split(",") ?? this.storageService.get(REMOTE_EXPLORER_TYPE_KEY, StorageScope.PROFILE)?.split(",");
       if (explorerType !== void 0) {
         authority = this.getAuthorityForExplorerType(explorerType);
       }
@@ -141,31 +111,22 @@ let SwitchRemoteViewItem = class extends Disposable {
           continue;
         }
         const thisCapture = this;
-        const action = registerAction2(
-          class extends Action2 {
-            constructor() {
-              super({
-                id: `workbench.action.remoteExplorer.show.${authority[0]}`,
-                title: text,
-                toggled: SELECTED_REMOTE_IN_EXPLORER.isEqualTo(
-                  authority[0]
-                ),
-                menu: {
-                  id: thisCapture.switchRemoteMenu
-                }
-              });
-            }
-            async run() {
-              thisCapture.select(authority);
-            }
+        const action = registerAction2(class extends Action2 {
+          constructor() {
+            super({
+              id: `workbench.action.remoteExplorer.show.${authority[0]}`,
+              title: text,
+              toggled: SELECTED_REMOTE_IN_EXPLORER.isEqualTo(authority[0]),
+              menu: {
+                id: thisCapture.switchRemoteMenu
+              }
+            });
           }
-        );
-        this.completedRemotes.set(authority[0], {
-          text: text.value,
-          authority,
-          virtualWorkspace: view.virtualWorkspace,
-          dispose: /* @__PURE__ */ __name(() => action.dispose(), "dispose")
+          async run() {
+            thisCapture.select(authority);
+          }
         });
+        this.completedRemotes.set(authority[0], { text: text.value, authority, virtualWorkspace: view.virtualWorkspace, dispose: /* @__PURE__ */ __name(() => action.dispose(), "dispose") });
       }
     }
     if (this.completedRemotes.size > startingCount) {

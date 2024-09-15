@@ -1,19 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  ObjectTreeElementCollapseState
-} from "../../../../../base/browser/ui/tree/tree.js";
-import { Emitter } from "../../../../../base/common/event.js";
+import { IIdentityProvider } from "../../../../../base/browser/ui/list/list.js";
+import { ObjectTree } from "../../../../../base/browser/ui/tree/objectTree.js";
+import { IObjectTreeElement, ObjectTreeElementCollapseState } from "../../../../../base/browser/ui/tree/tree.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { FuzzyScore } from "../../../../../base/common/filters.js";
+import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../../base/common/marshallingIds.js";
-import {
-  InternalTestItem,
-  TestItemExpandState,
-  TestResultState
-} from "../../common/testTypes.js";
-import {
-  isCollapsedInSerializedTestTree
-} from "./testingViewState.js";
+import { ISerializedTestTreeCollapseState, isCollapsedInSerializedTestTree } from "./testingViewState.js";
+import { ITestItemContext, InternalTestItem, TestItemExpandState, TestResultState } from "../../common/testTypes.js";
 let idCounter = 0;
 const getId = /* @__PURE__ */ __name(() => String(idCounter++), "getId");
 class TestItemTreeElement {
@@ -93,32 +90,18 @@ const getChildrenForParent = /* @__PURE__ */ __name((serialized, rootsWithChildr
   if (node === null) {
     const rootsWithChildrenArr = [...rootsWithChildren];
     if (rootsWithChildrenArr.length === 1) {
-      return getChildrenForParent(
-        serialized,
-        rootsWithChildrenArr,
-        rootsWithChildrenArr[0]
-      );
+      return getChildrenForParent(serialized, rootsWithChildrenArr, rootsWithChildrenArr[0]);
     }
     it = rootsWithChildrenArr;
   } else {
     it = node.children;
   }
-  return Iterable.map(
-    it,
-    (element) => element instanceof TestTreeErrorMessage ? { element } : {
-      element,
-      collapsible: element.test.expand !== TestItemExpandState.NotExpandable,
-      collapsed: element.test.item.error ? ObjectTreeElementCollapseState.PreserveOrExpanded : isCollapsedInSerializedTestTree(
-        serialized,
-        element.test.item.extId
-      ) ?? element.depth > 0 ? ObjectTreeElementCollapseState.PreserveOrCollapsed : ObjectTreeElementCollapseState.PreserveOrExpanded,
-      children: getChildrenForParent(
-        serialized,
-        rootsWithChildren,
-        element
-      )
-    }
-  );
+  return Iterable.map(it, (element) => element instanceof TestTreeErrorMessage ? { element } : {
+    element,
+    collapsible: element.test.expand !== TestItemExpandState.NotExpandable,
+    collapsed: element.test.item.error ? ObjectTreeElementCollapseState.PreserveOrExpanded : isCollapsedInSerializedTestTree(serialized, element.test.item.extId) ?? element.depth > 0 ? ObjectTreeElementCollapseState.PreserveOrCollapsed : ObjectTreeElementCollapseState.PreserveOrExpanded,
+    children: getChildrenForParent(serialized, rootsWithChildren, element)
+  });
 }, "getChildrenForParent");
 export {
   TestItemTreeElement,

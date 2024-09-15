@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { findFirstIdxMonotonousOrArrLen } from "../../../../base/common/arraysFind.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { IModelContentChangedEvent } from "../../../common/textModelEvents.js";
 import { countEOL } from "../../../common/core/eolCounter.js";
-import { Range } from "../../../common/core/range.js";
+import { FoldingModel } from "./foldingModel.js";
 class HiddenRangeModel {
   static {
     __name(this, "HiddenRangeModel");
@@ -21,9 +25,7 @@ class HiddenRangeModel {
   }
   constructor(model) {
     this._foldingModel = model;
-    this._foldingModelListener = model.onDidChange(
-      (_) => this.updateHiddenRanges()
-    );
+    this._foldingModelListener = model.onDidChange((_) => this.updateHiddenRanges());
     this._hiddenRanges = [];
     if (model.regions.length) {
       this.updateHiddenRanges();
@@ -58,9 +60,7 @@ class HiddenRangeModel {
         k++;
       } else {
         updateHiddenAreas = true;
-        newHiddenAreas.push(
-          new Range(startLineNumber, 1, endLineNumber, 1)
-        );
+        newHiddenAreas.push(new Range(startLineNumber, 1, endLineNumber, 1));
       }
       lastCollapsedStart = startLineNumber;
       lastCollapsedEnd = endLineNumber;
@@ -97,18 +97,12 @@ class HiddenRangeModel {
       let selection = selections[i];
       const adjustedStartLine = adjustLine(selection.startLineNumber);
       if (adjustedStartLine) {
-        selection = selection.setStartPosition(
-          adjustedStartLine,
-          editorModel.getLineMaxColumn(adjustedStartLine)
-        );
+        selection = selection.setStartPosition(adjustedStartLine, editorModel.getLineMaxColumn(adjustedStartLine));
         hasChanges = true;
       }
       const adjustedEndLine = adjustLine(selection.endLineNumber);
       if (adjustedEndLine) {
-        selection = selection.setEndPosition(
-          adjustedEndLine,
-          editorModel.getLineMaxColumn(adjustedEndLine)
-        );
+        selection = selection.setEndPosition(adjustedEndLine, editorModel.getLineMaxColumn(adjustedEndLine));
         hasChanges = true;
       }
       selections[i] = selection;
@@ -131,10 +125,7 @@ function isInside(line, range) {
 }
 __name(isInside, "isInside");
 function findRange(ranges, line) {
-  const i = findFirstIdxMonotonousOrArrLen(
-    ranges,
-    (r) => line < r.startLineNumber
-  ) - 1;
+  const i = findFirstIdxMonotonousOrArrLen(ranges, (r) => line < r.startLineNumber) - 1;
   if (i >= 0 && ranges[i].endLineNumber >= line) {
     return ranges[i];
   }

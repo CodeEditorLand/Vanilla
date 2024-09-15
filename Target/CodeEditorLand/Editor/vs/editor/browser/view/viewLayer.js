@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createFastDomNode
-} from "../../../base/browser/fastDomNode.js";
+import { FastDomNode, createFastDomNode } from "../../../base/browser/fastDomNode.js";
 import { createTrustedTypesPolicy } from "../../../base/browser/trustedTypes.js";
 import { BugIndicatingError } from "../../../base/common/errors.js";
 import { EditorOption } from "../../common/config/editorOptions.js";
 import { StringBuilder } from "../../common/core/stringBuilder.js";
+import * as viewEvents from "../../common/viewEvents.js";
+import { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
 class RenderedLinesCollection {
   constructor(_lineFactory) {
     this._lineFactory = _lineFactory;
@@ -125,10 +125,7 @@ class RenderedLinesCollection {
       return null;
     }
     if (insertCnt + insertFromLineNumber > endLineNumber) {
-      const deleted = this._lines.splice(
-        insertFromLineNumber - this._rendLineNumberStart,
-        endLineNumber - insertFromLineNumber + 1
-      );
+      const deleted = this._lines.splice(insertFromLineNumber - this._rendLineNumberStart, endLineNumber - insertFromLineNumber + 1);
       return deleted;
     }
     const newLines = [];
@@ -137,14 +134,8 @@ class RenderedLinesCollection {
     }
     const insertIndex = insertFromLineNumber - this._rendLineNumberStart;
     const beforeLines = this._lines.slice(0, insertIndex);
-    const afterLines = this._lines.slice(
-      insertIndex,
-      this._lines.length - insertCnt
-    );
-    const deletedLines = this._lines.slice(
-      this._lines.length - insertCnt,
-      this._lines.length
-    );
+    const afterLines = this._lines.slice(insertIndex, this._lines.length - insertCnt);
+    const deletedLines = this._lines.slice(this._lines.length - insertCnt, this._lines.length);
     this._lines = beforeLines.concat(newLines).concat(afterLines);
     return deletedLines;
   }
@@ -203,10 +194,7 @@ class VisibleLinesCollection {
     return this._linesCollection.onLinesChanged(e.fromLineNumber, e.count);
   }
   onLinesDeleted(e) {
-    const deleted = this._linesCollection.onLinesDeleted(
-      e.fromLineNumber,
-      e.toLineNumber
-    );
+    const deleted = this._linesCollection.onLinesDeleted(e.fromLineNumber, e.toLineNumber);
     if (deleted) {
       for (let i = 0, len = deleted.length; i < len; i++) {
         const lineDomNode = deleted[i].getDomNode();
@@ -216,10 +204,7 @@ class VisibleLinesCollection {
     return true;
   }
   onLinesInserted(e) {
-    const deleted = this._linesCollection.onLinesInserted(
-      e.fromLineNumber,
-      e.toLineNumber
-    );
+    const deleted = this._linesCollection.onLinesInserted(e.fromLineNumber, e.toLineNumber);
     if (deleted) {
       for (let i = 0, len = deleted.length; i < len; i++) {
         const lineDomNode = deleted[i].getDomNode();
@@ -249,22 +234,13 @@ class VisibleLinesCollection {
   }
   renderLines(viewportData) {
     const inp = this._linesCollection._get();
-    const renderer = new ViewLayerRenderer(
-      this.domNode.domNode,
-      this._lineFactory,
-      viewportData
-    );
+    const renderer = new ViewLayerRenderer(this.domNode.domNode, this._lineFactory, viewportData);
     const ctx = {
       rendLineNumberStart: inp.rendLineNumberStart,
       lines: inp.lines,
       linesLength: inp.lines.length
     };
-    const resCtx = renderer.render(
-      ctx,
-      viewportData.startLineNumber,
-      viewportData.endLineNumber,
-      viewportData.relativeVerticalOffset
-    );
+    const resCtx = renderer.render(ctx, viewportData.startLineNumber, viewportData.endLineNumber, viewportData.relativeVerticalOffset);
     this._linesCollection._set(resCtx.rendLineNumberStart, resCtx.lines);
   }
 }
@@ -277,9 +253,7 @@ class ViewLayerRenderer {
   static {
     __name(this, "ViewLayerRenderer");
   }
-  static _ttPolicy = createTrustedTypesPolicy("editorViewLayer", {
-    createHTML: /* @__PURE__ */ __name((value) => value, "createHTML")
-  });
+  static _ttPolicy = createTrustedTypesPolicy("editorViewLayer", { createHTML: /* @__PURE__ */ __name((value) => value, "createHTML") });
   render(inContext, startLineNumber, stopLineNumber, deltaTop) {
     const ctx = {
       rendLineNumberStart: inContext.rendLineNumberStart,
@@ -299,34 +273,19 @@ class ViewLayerRenderer {
     this._renderUntouchedLines(
       ctx,
       Math.max(startLineNumber - ctx.rendLineNumberStart, 0),
-      Math.min(
-        stopLineNumber - ctx.rendLineNumberStart,
-        ctx.linesLength - 1
-      ),
+      Math.min(stopLineNumber - ctx.rendLineNumberStart, ctx.linesLength - 1),
       deltaTop,
       startLineNumber
     );
     if (ctx.rendLineNumberStart > startLineNumber) {
       const fromLineNumber = startLineNumber;
-      const toLineNumber = Math.min(
-        stopLineNumber,
-        ctx.rendLineNumberStart - 1
-      );
+      const toLineNumber = Math.min(stopLineNumber, ctx.rendLineNumberStart - 1);
       if (fromLineNumber <= toLineNumber) {
-        this._insertLinesBefore(
-          ctx,
-          fromLineNumber,
-          toLineNumber,
-          deltaTop,
-          startLineNumber
-        );
+        this._insertLinesBefore(ctx, fromLineNumber, toLineNumber, deltaTop, startLineNumber);
         ctx.linesLength += toLineNumber - fromLineNumber + 1;
       }
     } else if (ctx.rendLineNumberStart < startLineNumber) {
-      const removeCnt = Math.min(
-        ctx.linesLength,
-        startLineNumber - ctx.rendLineNumberStart
-      );
+      const removeCnt = Math.min(ctx.linesLength, startLineNumber - ctx.rendLineNumberStart);
       if (removeCnt > 0) {
         this._removeLinesBefore(ctx, removeCnt);
         ctx.linesLength -= removeCnt;
@@ -337,20 +296,11 @@ class ViewLayerRenderer {
       const fromLineNumber = ctx.rendLineNumberStart + ctx.linesLength;
       const toLineNumber = stopLineNumber;
       if (fromLineNumber <= toLineNumber) {
-        this._insertLinesAfter(
-          ctx,
-          fromLineNumber,
-          toLineNumber,
-          deltaTop,
-          startLineNumber
-        );
+        this._insertLinesAfter(ctx, fromLineNumber, toLineNumber, deltaTop, startLineNumber);
         ctx.linesLength += toLineNumber - fromLineNumber + 1;
       }
     } else if (ctx.rendLineNumberStart + ctx.linesLength - 1 > stopLineNumber) {
-      const fromLineNumber = Math.max(
-        0,
-        stopLineNumber - ctx.rendLineNumberStart + 1
-      );
+      const fromLineNumber = Math.max(0, stopLineNumber - ctx.rendLineNumberStart + 1);
       const toLineNumber = ctx.linesLength - 1;
       const removeCnt = toLineNumber - fromLineNumber + 1;
       if (removeCnt > 0) {
@@ -366,11 +316,7 @@ class ViewLayerRenderer {
     const lines = ctx.lines;
     for (let i = startIndex; i <= endIndex; i++) {
       const lineNumber = rendLineNumberStart + i;
-      lines[i].layoutLine(
-        lineNumber,
-        deltaTop[lineNumber - deltaLN],
-        this._viewportData.lineHeight
-      );
+      lines[i].layoutLine(lineNumber, deltaTop[lineNumber - deltaLN], this._viewportData.lineHeight);
     }
   }
   _insertLinesBefore(ctx, fromLineNumber, toLineNumber, deltaTop, deltaLN) {
@@ -406,9 +352,7 @@ class ViewLayerRenderer {
   }
   _finishRenderingNewLines(ctx, domNodeIsEmpty, newLinesHTML, wasNew) {
     if (ViewLayerRenderer._ttPolicy) {
-      newLinesHTML = ViewLayerRenderer._ttPolicy.createHTML(
-        newLinesHTML
-      );
+      newLinesHTML = ViewLayerRenderer._ttPolicy.createHTML(newLinesHTML);
     }
     const lastChild = this._domNode.lastChild;
     if (domNodeIsEmpty || !lastChild) {
@@ -428,9 +372,7 @@ class ViewLayerRenderer {
   _finishRenderingInvalidLines(ctx, invalidLinesHTML, wasInvalid) {
     const hugeDomNode = document.createElement("div");
     if (ViewLayerRenderer._ttPolicy) {
-      invalidLinesHTML = ViewLayerRenderer._ttPolicy.createHTML(
-        invalidLinesHTML
-      );
+      invalidLinesHTML = ViewLayerRenderer._ttPolicy.createHTML(invalidLinesHTML);
     }
     hugeDomNode.innerHTML = invalidLinesHTML;
     for (let i = 0; i < ctx.linesLength; i++) {
@@ -460,13 +402,7 @@ class ViewLayerRenderer {
         if (lineDomNode) {
           continue;
         }
-        const renderResult = line.renderLine(
-          i + rendLineNumberStart,
-          deltaTop[i],
-          this._viewportData.lineHeight,
-          this._viewportData,
-          sb
-        );
+        const renderResult = line.renderLine(i + rendLineNumberStart, deltaTop[i], this._viewportData.lineHeight, this._viewportData, sb);
         if (!renderResult) {
           continue;
         }
@@ -474,12 +410,7 @@ class ViewLayerRenderer {
         hadNewLine = true;
       }
       if (hadNewLine) {
-        this._finishRenderingNewLines(
-          ctx,
-          domNodeIsEmpty,
-          sb.build(),
-          wasNew
-        );
+        this._finishRenderingNewLines(ctx, domNodeIsEmpty, sb.build(), wasNew);
       }
     }
     {
@@ -492,13 +423,7 @@ class ViewLayerRenderer {
         if (wasNew[i]) {
           continue;
         }
-        const renderResult = line.renderLine(
-          i + rendLineNumberStart,
-          deltaTop[i],
-          this._viewportData.lineHeight,
-          this._viewportData,
-          sb
-        );
+        const renderResult = line.renderLine(i + rendLineNumberStart, deltaTop[i], this._viewportData.lineHeight, this._viewportData, sb);
         if (!renderResult) {
           continue;
         }

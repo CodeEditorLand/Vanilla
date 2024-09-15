@@ -35,7 +35,7 @@
 .monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark > .letterpress {
   width: 100%;
   max-height: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
   background-image: url(./letterpress-light.svg);
   background-size: contain;
   background-position-x: center;
@@ -62,7 +62,7 @@
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark > .shortcuts dl {
   display: table-row;
-  opacity: 0.8;
+  opacity: .8;
   cursor: default;
   color: var(--vscode-editorWatermark-foreground);
 }

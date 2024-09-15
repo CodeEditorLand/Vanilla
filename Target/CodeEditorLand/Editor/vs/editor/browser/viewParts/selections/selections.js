@@ -1,10 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./selections.css";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
+import { Range } from "../../../common/core/range.js";
+import { HorizontalRange, LineVisibleRanges, RenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
 import { editorSelectionForeground } from "../../../../platform/theme/common/colorRegistry.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
 var CornerStyle = /* @__PURE__ */ ((CornerStyle2) => {
   CornerStyle2[CornerStyle2["EXTERN"] = 0] = "EXTERN";
   CornerStyle2[CornerStyle2["INTERN"] = 1] = "INTERN";
@@ -42,10 +46,7 @@ function toStyledRange(item) {
 }
 __name(toStyledRange, "toStyledRange");
 function toStyled(item) {
-  return new LineVisibleRangesWithStyle(
-    item.lineNumber,
-    item.ranges.map(toStyledRange)
-  );
+  return new LineVisibleRangesWithStyle(item.lineNumber, item.ranges.map(toStyledRange));
 }
 __name(toStyled, "toStyled");
 class SelectionsOverlay extends DynamicViewOverlay {
@@ -69,9 +70,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
     this._context = context;
     const options = this._context.configuration.options;
     this._roundedSelection = options.get(EditorOption.roundedSelection);
-    this._typicalHalfwidthCharacterWidth = options.get(
-      EditorOption.fontInfo
-    ).typicalHalfwidthCharacterWidth;
+    this._typicalHalfwidthCharacterWidth = options.get(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
     this._selections = [];
     this._renderResult = null;
     this._context.addEventHandler(this);
@@ -85,9 +84,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
   onConfigurationChanged(e) {
     const options = this._context.configuration.options;
     this._roundedSelection = options.get(EditorOption.roundedSelection);
-    this._typicalHalfwidthCharacterWidth = options.get(
-      EditorOption.fontInfo
-    ).typicalHalfwidthCharacterWidth;
+    this._typicalHalfwidthCharacterWidth = options.get(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
     return true;
   }
   onCursorStateChanged(e) {
@@ -208,11 +205,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
     const linesVisibleRanges = _linesVisibleRanges.map(toStyled);
     const visibleRangesHaveGaps = this._visibleRangesHaveGaps(linesVisibleRanges);
     if (!visibleRangesHaveGaps && this._roundedSelection) {
-      this._enrichVisibleRangesWithStyle(
-        ctx.visibleRange,
-        linesVisibleRanges,
-        previousFrame
-      );
+      this._enrichVisibleRangesWithStyle(ctx.visibleRange, linesVisibleRanges, previousFrame);
     }
     return linesVisibleRanges;
   }
@@ -240,13 +233,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
           const startStyle = visibleRange.startStyle;
           const endStyle = visibleRange.endStyle;
           if (startStyle.top === 1 /* INTERN */ || startStyle.bottom === 1 /* INTERN */) {
-            innerCornerOutput += this._createSelectionPiece(
-              top,
-              bottom,
-              SelectionsOverlay.SELECTION_CLASS_NAME,
-              visibleRange.left - SelectionsOverlay.ROUNDED_PIECE_WIDTH,
-              SelectionsOverlay.ROUNDED_PIECE_WIDTH
-            );
+            innerCornerOutput += this._createSelectionPiece(top, bottom, SelectionsOverlay.SELECTION_CLASS_NAME, visibleRange.left - SelectionsOverlay.ROUNDED_PIECE_WIDTH, SelectionsOverlay.ROUNDED_PIECE_WIDTH);
             let className2 = SelectionsOverlay.EDITOR_BACKGROUND_CLASS_NAME;
             if (startStyle.top === 1 /* INTERN */) {
               className2 += " " + SelectionsOverlay.SELECTION_TOP_RIGHT;
@@ -254,22 +241,10 @@ class SelectionsOverlay extends DynamicViewOverlay {
             if (startStyle.bottom === 1 /* INTERN */) {
               className2 += " " + SelectionsOverlay.SELECTION_BOTTOM_RIGHT;
             }
-            innerCornerOutput += this._createSelectionPiece(
-              top,
-              bottom,
-              className2,
-              visibleRange.left - SelectionsOverlay.ROUNDED_PIECE_WIDTH,
-              SelectionsOverlay.ROUNDED_PIECE_WIDTH
-            );
+            innerCornerOutput += this._createSelectionPiece(top, bottom, className2, visibleRange.left - SelectionsOverlay.ROUNDED_PIECE_WIDTH, SelectionsOverlay.ROUNDED_PIECE_WIDTH);
           }
           if (endStyle.top === 1 /* INTERN */ || endStyle.bottom === 1 /* INTERN */) {
-            innerCornerOutput += this._createSelectionPiece(
-              top,
-              bottom,
-              SelectionsOverlay.SELECTION_CLASS_NAME,
-              visibleRange.left + visibleRange.width,
-              SelectionsOverlay.ROUNDED_PIECE_WIDTH
-            );
+            innerCornerOutput += this._createSelectionPiece(top, bottom, SelectionsOverlay.SELECTION_CLASS_NAME, visibleRange.left + visibleRange.width, SelectionsOverlay.ROUNDED_PIECE_WIDTH);
             let className2 = SelectionsOverlay.EDITOR_BACKGROUND_CLASS_NAME;
             if (endStyle.top === 1 /* INTERN */) {
               className2 += " " + SelectionsOverlay.SELECTION_TOP_LEFT;
@@ -277,13 +252,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
             if (endStyle.bottom === 1 /* INTERN */) {
               className2 += " " + SelectionsOverlay.SELECTION_BOTTOM_LEFT;
             }
-            innerCornerOutput += this._createSelectionPiece(
-              top,
-              bottom,
-              className2,
-              visibleRange.left + visibleRange.width,
-              SelectionsOverlay.ROUNDED_PIECE_WIDTH
-            );
+            innerCornerOutput += this._createSelectionPiece(top, bottom, className2, visibleRange.left + visibleRange.width, SelectionsOverlay.ROUNDED_PIECE_WIDTH);
           }
         }
         let className = SelectionsOverlay.SELECTION_CLASS_NAME;
@@ -303,13 +272,7 @@ class SelectionsOverlay extends DynamicViewOverlay {
             className += " " + SelectionsOverlay.SELECTION_BOTTOM_RIGHT;
           }
         }
-        restOfSelectionOutput += this._createSelectionPiece(
-          top,
-          bottom,
-          className,
-          visibleRange.left,
-          visibleRange.width
-        );
+        restOfSelectionOutput += this._createSelectionPiece(top, bottom, className, visibleRange.left, visibleRange.width);
       }
       output2[lineIndex][0] += innerCornerOutput;
       output2[lineIndex][1] += restOfSelectionOutput;
@@ -331,23 +294,12 @@ class SelectionsOverlay extends DynamicViewOverlay {
         thisFrameVisibleRangesWithStyle[i] = null;
         continue;
       }
-      const visibleRangesWithStyle = this._getVisibleRangesWithStyle(
-        selection,
-        ctx,
-        this._previousFrameVisibleRangesWithStyle[i]
-      );
+      const visibleRangesWithStyle = this._getVisibleRangesWithStyle(selection, ctx, this._previousFrameVisibleRangesWithStyle[i]);
       thisFrameVisibleRangesWithStyle[i] = visibleRangesWithStyle;
-      this._actualRenderOneSelection(
-        output,
-        visibleStartLineNumber,
-        this._selections.length > 1,
-        visibleRangesWithStyle
-      );
+      this._actualRenderOneSelection(output, visibleStartLineNumber, this._selections.length > 1, visibleRangesWithStyle);
     }
     this._previousFrameVisibleRangesWithStyle = thisFrameVisibleRangesWithStyle;
-    this._renderResult = output.map(
-      ([internalCorners, restOfSelection]) => internalCorners + restOfSelection
-    );
+    this._renderResult = output.map(([internalCorners, restOfSelection]) => internalCorners + restOfSelection);
   }
   render(startLineNumber, lineNumber) {
     if (!this._renderResult) {
@@ -361,13 +313,9 @@ class SelectionsOverlay extends DynamicViewOverlay {
   }
 }
 registerThemingParticipant((theme, collector) => {
-  const editorSelectionForegroundColor = theme.getColor(
-    editorSelectionForeground
-  );
+  const editorSelectionForegroundColor = theme.getColor(editorSelectionForeground);
   if (editorSelectionForegroundColor && !editorSelectionForegroundColor.isTransparent()) {
-    collector.addRule(
-      `.monaco-editor .view-line span.inline-selected-text { color: ${editorSelectionForegroundColor}; }`
-    );
+    collector.addRule(`.monaco-editor .view-line span.inline-selected-text { color: ${editorSelectionForegroundColor}; }`);
   }
 });
 function abs(n) {

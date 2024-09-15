@@ -12,22 +12,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { timeout } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  FileChangeType,
-  IFileService
-} from "../../../../platform/files/common/files.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileChangesEvent, FileChangeType, IFileService } from "../../../../platform/files/common/files.js";
+import { ISaveOptions, IRevertOptions } from "../../../common/editor.js";
+import { IWorkingCopy, IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "./workingCopy.js";
 let ResourceWorkingCopy = class extends Disposable {
   constructor(resource, fileService) {
     super();
     this.resource = resource;
     this.fileService = fileService;
-    this._register(
-      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
-    );
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
   }
   static {
     __name(this, "ResourceWorkingCopy");
@@ -43,19 +39,13 @@ let ResourceWorkingCopy = class extends Disposable {
     let fileEventImpactsUs = false;
     let newInOrphanModeGuess;
     if (this.orphaned) {
-      const fileWorkingCopyResourceAdded = e.contains(
-        this.resource,
-        FileChangeType.ADDED
-      );
+      const fileWorkingCopyResourceAdded = e.contains(this.resource, FileChangeType.ADDED);
       if (fileWorkingCopyResourceAdded) {
         newInOrphanModeGuess = false;
         fileEventImpactsUs = true;
       }
     } else {
-      const fileWorkingCopyResourceDeleted = e.contains(
-        this.resource,
-        FileChangeType.DELETED
-      );
+      const fileWorkingCopyResourceDeleted = e.contains(this.resource, FileChangeType.DELETED);
       if (fileWorkingCopyResourceDeleted) {
         newInOrphanModeGuess = true;
         fileEventImpactsUs = true;

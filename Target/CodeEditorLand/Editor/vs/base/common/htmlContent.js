@@ -4,7 +4,7 @@ import { illegalArgument } from "./errors.js";
 import { escapeIcons } from "./iconLabels.js";
 import { isEqual } from "./resources.js";
 import { escapeRegExpCharacters } from "./strings.js";
-import { URI } from "./uri.js";
+import { URI, UriComponents } from "./uri.js";
 var MarkdownStringTextNewlineStyle = /* @__PURE__ */ ((MarkdownStringTextNewlineStyle2) => {
   MarkdownStringTextNewlineStyle2[MarkdownStringTextNewlineStyle2["Paragraph"] = 0] = "Paragraph";
   MarkdownStringTextNewlineStyle2[MarkdownStringTextNewlineStyle2["Break"] = 1] = "Break";
@@ -35,12 +35,7 @@ class MarkdownString {
     }
   }
   appendText(value, newlineStyle = 0 /* Paragraph */) {
-    this.value += escapeMarkdownSyntaxTokens(
-      this.supportThemeIcons ? escapeIcons(value) : value
-    ).replace(/([ \t]+)/g, (_match, g1) => "&nbsp;".repeat(g1.length)).replace(/>/gm, "\\>").replace(
-      /\n/g,
-      newlineStyle === 1 /* Break */ ? "\\\n" : "\n\n"
-    );
+    this.value += escapeMarkdownSyntaxTokens(this.supportThemeIcons ? escapeIcons(value) : value).replace(/([ \t]+)/g, (_match, g1) => "&nbsp;".repeat(g1.length)).replace(/\>/gm, "\\>").replace(/\n/g, newlineStyle === 1 /* Break */ ? "\\\n" : "\n\n");
     return this;
   }
   appendMarkdown(value) {
@@ -139,8 +134,8 @@ function parseHrefAndDimensions(href) {
     const widthFromParams = /width=(\d+)/.exec(parameters);
     const height = heightFromParams ? heightFromParams[1] : "";
     const width = widthFromParams ? widthFromParams[1] : "";
-    const widthIsFinite = isFinite(Number.parseInt(width));
-    const heightIsFinite = isFinite(Number.parseInt(height));
+    const widthIsFinite = isFinite(parseInt(width));
+    const heightIsFinite = isFinite(parseInt(height));
     if (widthIsFinite) {
       dimensions.push(`width="${width}"`);
     }

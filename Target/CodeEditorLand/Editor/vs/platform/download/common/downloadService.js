@@ -12,11 +12,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { IDownloadService } from "./download.js";
 import { IFileService } from "../../files/common/files.js";
-import {
-  IRequestService,
-  asTextOrError
-} from "../../request/common/request.js";
+import { asTextOrError, IRequestService } from "../../request/common/request.js";
 let DownloadService = class {
   constructor(requestService, fileService) {
     this.requestService = requestService;
@@ -31,19 +30,14 @@ let DownloadService = class {
       return;
     }
     const options = { type: "GET", url: resource.toString(true) };
-    const context = await this.requestService.request(
-      options,
-      cancellationToken
-    );
+    const context = await this.requestService.request(options, cancellationToken);
     if (context.res.statusCode === 200) {
       await this.fileService.writeFile(target, context.stream);
     } else {
       const message = await asTextOrError(context);
-      throw new Error(
-        `Expected 200, got back ${context.res.statusCode} instead.
+      throw new Error(`Expected 200, got back ${context.res.statusCode} instead.
 
-${message}`
-      );
+${message}`);
     }
   }
 };

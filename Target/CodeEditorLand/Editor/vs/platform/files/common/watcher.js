@@ -1,22 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  GLOBSTAR,
-  parse
-} from "../../../base/common/glob.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../base/common/lifecycle.js";
+import { Event } from "../../../base/common/event.js";
+import { GLOBSTAR, IRelativePattern, parse, ParsedPattern } from "../../../base/common/glob.js";
+import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../base/common/lifecycle.js";
 import { isAbsolute } from "../../../base/common/path.js";
 import { isLinux } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  FileChangeFilter,
-  FileChangeType,
-  isParent
-} from "./files.js";
+import { FileChangeFilter, FileChangeType, IFileChange, isParent } from "./files.js";
 function isWatchRequestWithCorrelation(request) {
   return typeof request.correlationId === "number";
 }
@@ -38,9 +28,7 @@ class AbstractWatcherClient extends Disposable {
   }
   static MAX_RESTARTS = 5;
   watcher;
-  watcherDisposables = this._register(
-    new MutableDisposable()
-  );
+  watcherDisposables = this._register(new MutableDisposable());
   requests = void 0;
   restartCounter = 0;
   init() {
@@ -48,29 +36,17 @@ class AbstractWatcherClient extends Disposable {
     this.watcherDisposables.value = disposables;
     this.watcher = this.createWatcher(disposables);
     this.watcher.setVerboseLogging(this.verboseLogging);
-    disposables.add(
-      this.watcher.onDidChangeFile(
-        (changes) => this.onFileChanges(changes)
-      )
-    );
-    disposables.add(
-      this.watcher.onDidLogMessage((msg) => this.onLogMessage(msg))
-    );
-    disposables.add(
-      this.watcher.onDidError((e) => this.onError(e.error, e.request))
-    );
+    disposables.add(this.watcher.onDidChangeFile((changes) => this.onFileChanges(changes)));
+    disposables.add(this.watcher.onDidLogMessage((msg) => this.onLogMessage(msg)));
+    disposables.add(this.watcher.onDidError((e) => this.onError(e.error, e.request)));
   }
   onError(error, failedRequest) {
     if (this.canRestart(error, failedRequest)) {
       if (this.restartCounter < AbstractWatcherClient.MAX_RESTARTS && this.requests) {
-        this.error(
-          `restarting watcher after unexpected error: ${error}`
-        );
+        this.error(`restarting watcher after unexpected error: ${error}`);
         this.restart(this.requests);
       } else {
-        this.error(
-          `gave up attempting to restart watcher after unexpected error: ${error}`
-        );
+        this.error(`gave up attempting to restart watcher after unexpected error: ${error}`);
       }
     } else {
       this.error(error);
@@ -102,16 +78,10 @@ class AbstractWatcherClient extends Disposable {
     await this.watcher?.setVerboseLogging(verboseLogging);
   }
   error(message) {
-    this.onLogMessage({
-      type: "error",
-      message: `[File Watcher (${this.options.type})] ${message}`
-    });
+    this.onLogMessage({ type: "error", message: `[File Watcher (${this.options.type})] ${message}` });
   }
   trace(message) {
-    this.onLogMessage({
-      type: "trace",
-      message: `[File Watcher (${this.options.type})] ${message}`
-    });
+    this.onLogMessage({ type: "trace", message: `[File Watcher (${this.options.type})] ${message}` });
   }
   dispose() {
     this.watcher = void 0;
@@ -123,10 +93,7 @@ class AbstractNonRecursiveWatcherClient extends AbstractWatcherClient {
     __name(this, "AbstractNonRecursiveWatcherClient");
   }
   constructor(onFileChanges, onLogMessage, verboseLogging) {
-    super(onFileChanges, onLogMessage, verboseLogging, {
-      type: "node.js",
-      restartOnError: false
-    });
+    super(onFileChanges, onLogMessage, verboseLogging, { type: "node.js", restartOnError: false });
   }
 }
 class AbstractUniversalWatcherClient extends AbstractWatcherClient {
@@ -134,10 +101,7 @@ class AbstractUniversalWatcherClient extends AbstractWatcherClient {
     __name(this, "AbstractUniversalWatcherClient");
   }
   constructor(onFileChanges, onLogMessage, verboseLogging) {
-    super(onFileChanges, onLogMessage, verboseLogging, {
-      type: "universal",
-      restartOnError: true
-    });
+    super(onFileChanges, onLogMessage, verboseLogging, { type: "universal", restartOnError: true });
   }
 }
 function reviveFileChanges(changes) {
@@ -220,13 +184,12 @@ class EventCoalescer {
     }).sort((e1, e2) => {
       return e1.resource.fsPath.length - e2.resource.fsPath.length;
     }).filter((e) => {
-      if (deletedPaths.some(
-        (deletedPath) => isParent(
-          e.resource.fsPath,
-          deletedPath,
-          !isLinux
-        )
-      )) {
+      if (deletedPaths.some((deletedPath) => isParent(
+        e.resource.fsPath,
+        deletedPath,
+        !isLinux
+        /* ignorecase */
+      ))) {
         return false;
       }
       deletedPaths.push(e.resource.fsPath);

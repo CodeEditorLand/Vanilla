@@ -10,15 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  assertFn,
-  checkAdjacentItems
-} from "../../../../../base/common/assert.js";
+import { assertFn, checkAdjacentItems } from "../../../../../base/common/assert.js";
+import { IReader } from "../../../../../base/common/observable.js";
+import { RangeMapping as DiffRangeMapping } from "../../../../../editor/common/diff/rangeMapping.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
 import { LineRange } from "./lineRange.js";
 import { DetailedLineRangeMapping, RangeMapping } from "./mapping.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { LineRange as DiffLineRange } from "../../../../../editor/common/core/lineRange.js";
 let MergeDiffComputer = class {
   constructor(editorWorkerService, configurationService) {
     this.editorWorkerService = editorWorkerService;
@@ -27,9 +28,11 @@ let MergeDiffComputer = class {
   static {
     __name(this, "MergeDiffComputer");
   }
-  mergeAlgorithm = observableConfigValue("mergeEditor.diffAlgorithm", "advanced", this.configurationService).map(
-    (v) => v === "smart" ? "legacy" : v === "experimental" ? "advanced" : v
-  );
+  mergeAlgorithm = observableConfigValue(
+    "mergeEditor.diffAlgorithm",
+    "advanced",
+    this.configurationService
+  ).map((v) => v === "smart" ? "legacy" : v === "experimental" ? "advanced" : v);
   async computeDiff(textModel1, textModel2, reader) {
     const diffAlgorithm = this.mergeAlgorithm.read(reader);
     const inputVersion = textModel1.getVersionId();
@@ -73,18 +76,14 @@ let MergeDiffComputer = class {
         for (const map of c.rangeMappings) {
           let inputRangesValid = inputRange.startLineNumber - 1 <= map.inputRange.startLineNumber && map.inputRange.endLineNumber <= inputRange.endLineNumberExclusive;
           if (inputRangesValid && map.inputRange.startLineNumber === inputRange.startLineNumber - 1) {
-            inputRangesValid = map.inputRange.endColumn >= inputTextModel.getLineMaxColumn(
-              map.inputRange.startLineNumber
-            );
+            inputRangesValid = map.inputRange.endColumn >= inputTextModel.getLineMaxColumn(map.inputRange.startLineNumber);
           }
           if (inputRangesValid && map.inputRange.endLineNumber === inputRange.endLineNumberExclusive) {
             inputRangesValid = map.inputRange.endColumn === 1;
           }
           let outputRangesValid = outputRange.startLineNumber - 1 <= map.outputRange.startLineNumber && map.outputRange.endLineNumber <= outputRange.endLineNumberExclusive;
           if (outputRangesValid && map.outputRange.startLineNumber === outputRange.startLineNumber - 1) {
-            outputRangesValid = map.outputRange.endColumn >= outputTextModel.getLineMaxColumn(
-              map.outputRange.endLineNumber
-            );
+            outputRangesValid = map.outputRange.endColumn >= outputTextModel.getLineMaxColumn(map.outputRange.endLineNumber);
           }
           if (outputRangesValid && map.outputRange.endLineNumber === outputRange.endLineNumberExclusive) {
             outputRangesValid = map.outputRange.endColumn === 1;

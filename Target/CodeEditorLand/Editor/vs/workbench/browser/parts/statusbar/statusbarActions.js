@@ -1,25 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getActiveWindow } from "../../../../base/browser/dom.js";
-import { Action } from "../../../../base/common/actions.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
 import { localize, localize2 } from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import {
-  KeybindingWeight,
-  KeybindingsRegistry
-} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { StatusBarFocused } from "../../../common/contextkeys.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  IWorkbenchLayoutService,
-  Parts
-} from "../../../services/layout/browser/layoutService.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { Action } from "../../../../base/common/actions.js";
+import { Parts, IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { StatusbarViewModel } from "./statusbarModel.js";
+import { StatusBarFocused } from "../../../common/contextkeys.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
 class ToggleStatusbarEntryVisibilityAction extends Action {
   constructor(id, label, model) {
     super(id, label, void 0, true);

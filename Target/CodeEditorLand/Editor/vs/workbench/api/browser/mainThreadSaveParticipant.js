@@ -10,28 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { raceCancellationError } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { shouldSynchronizeModel } from "../../../editor/common/model.js";
 import { localize } from "../../../nls.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  extHostCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ITextFileService
-} from "../../services/textfile/common/textfiles.js";
-import {
-  ExtHostContext
-} from "../common/extHost.protocol.js";
+import { IProgressStep, IProgress } from "../../../platform/progress/common/progress.js";
+import { extHostCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ITextFileSaveParticipant, ITextFileService, ITextFileEditorModel, ITextFileSaveParticipantContext } from "../../services/textfile/common/textfiles.js";
+import { ExtHostContext, ExtHostDocumentSaveParticipantShape } from "../common/extHost.protocol.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { raceCancellationError } from "../../../base/common/async.js";
 class ExtHostSaveParticipant {
   static {
     __name(this, "ExtHostSaveParticipant");
   }
   _proxy;
   constructor(extHostContext) {
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostDocumentSaveParticipant
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentSaveParticipant);
   }
   async participate(editorModel, context, _progress, token) {
     if (!editorModel.textEditorModel || !shouldSynchronizeModel(editorModel.textEditorModel)) {
@@ -39,14 +34,7 @@ class ExtHostSaveParticipant {
     }
     const p = new Promise((resolve, reject) => {
       setTimeout(
-        () => reject(
-          new Error(
-            localize(
-              "timeout.onWillSave",
-              "Aborted onWillSaveTextDocument-event after 1750ms"
-            )
-          )
-        ),
+        () => reject(new Error(localize("timeout.onWillSave", "Aborted onWillSaveTextDocument-event after 1750ms"))),
         1750
       );
       this._proxy.$participateInSave(editorModel.resource, context.reason).then((values) => {
@@ -62,12 +50,7 @@ class ExtHostSaveParticipant {
 let SaveParticipant = class {
   constructor(extHostContext, instantiationService, _textFileService) {
     this._textFileService = _textFileService;
-    this._saveParticipantDisposable = this._textFileService.files.addSaveParticipant(
-      instantiationService.createInstance(
-        ExtHostSaveParticipant,
-        extHostContext
-      )
-    );
+    this._saveParticipantDisposable = this._textFileService.files.addSaveParticipant(instantiationService.createInstance(ExtHostSaveParticipant, extHostContext));
   }
   _saveParticipantDisposable;
   dispose() {

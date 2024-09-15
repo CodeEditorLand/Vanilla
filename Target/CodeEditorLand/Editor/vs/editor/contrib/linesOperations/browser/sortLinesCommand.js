@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  EditOperation
-} from "../../../common/core/editOperation.js";
+import { EditOperation, ISingleEditOperation } from "../../../common/core/editOperation.js";
 import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
 class SortLinesCommand {
   static {
     __name(this, "SortLinesCommand");
@@ -81,12 +82,7 @@ function sortLines(model, selection, descending) {
     return null;
   }
   return EditOperation.replace(
-    new Range(
-      data.startLineNumber,
-      1,
-      data.endLineNumber,
-      model.getLineMaxColumn(data.endLineNumber)
-    ),
+    new Range(data.startLineNumber, 1, data.endLineNumber, model.getLineMaxColumn(data.endLineNumber)),
     data.after.join("\n")
   );
 }

@@ -10,23 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { coalesce, distinct } from "../../../../../base/common/arrays.js";
-import { RunOnceWorker } from "../../../../../base/common/async.js";
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../../base/common/network.js";
-import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
-import { DEFAULT_EDITOR_ASSOCIATION } from "../../../../common/editor.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { IHostService } from "../../../../services/host/browser/host.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextFileService, TextFileEditorModelState } from "../../../../services/textfile/common/textfiles.js";
 import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
-import {
-  ITextFileService,
-  TextFileEditorModelState
-} from "../../../../services/textfile/common/textfiles.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { distinct, coalesce } from "../../../../../base/common/arrays.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { RunOnceWorker } from "../../../../../base/common/async.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { FILE_EDITOR_INPUT_ID } from "../../common/files.js";
+import { Schemas } from "../../../../../base/common/network.js";
 import { UntitledTextEditorInput } from "../../../../services/untitled/common/untitledTextEditorInput.js";
 import { IWorkingCopyEditorService } from "../../../../services/workingCopy/common/workingCopyEditorService.js";
-import { FILE_EDITOR_INPUT_ID } from "../../common/files.js";
+import { DEFAULT_EDITOR_ASSOCIATION } from "../../../../common/editor.js";
 let TextFileEditorTracker = class extends Disposable {
   constructor(editorService, textFileService, lifecycleService, hostService, codeEditorService, filesConfigurationService, workingCopyEditorService) {
     super();
@@ -44,109 +43,65 @@ let TextFileEditorTracker = class extends Disposable {
   }
   static ID = "workbench.contrib.textFileEditorTracker";
   registerListeners() {
-    this._register(
-      this.textFileService.files.onDidChangeDirty(
-        (model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)
-      )
-    );
-    this._register(
-      this.textFileService.files.onDidSaveError(
-        (model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)
-      )
-    );
-    this._register(
-      this.textFileService.untitled.onDidChangeDirty(
-        (model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)
-      )
-    );
-    this._register(
-      this.hostService.onDidChangeFocus(
-        (hasFocus) => hasFocus ? this.reloadVisibleTextFileEditors() : void 0
-      )
-    );
-    this._register(
-      this.lifecycleService.onDidShutdown(() => this.dispose())
-    );
+    this._register(this.textFileService.files.onDidChangeDirty((model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)));
+    this._register(this.textFileService.files.onDidSaveError((model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)));
+    this._register(this.textFileService.untitled.onDidChangeDirty((model) => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)));
+    this._register(this.hostService.onDidChangeFocus((hasFocus) => hasFocus ? this.reloadVisibleTextFileEditors() : void 0));
+    this._register(this.lifecycleService.onDidShutdown(() => this.dispose()));
   }
   //#region Text File: Ensure every dirty text and untitled file is opened in an editor
-  ensureDirtyFilesAreOpenedWorker = this._register(
-    new RunOnceWorker(
-      (units) => this.ensureDirtyTextFilesAreOpened(units),
-      this.getDirtyTextFileTrackerDelay()
-    )
-  );
+  ensureDirtyFilesAreOpenedWorker = this._register(new RunOnceWorker((units) => this.ensureDirtyTextFilesAreOpened(units), this.getDirtyTextFileTrackerDelay()));
   getDirtyTextFileTrackerDelay() {
     return 800;
   }
   ensureDirtyTextFilesAreOpened(resources) {
-    this.doEnsureDirtyTextFilesAreOpened(
-      distinct(
-        resources.filter((resource) => {
-          if (!this.textFileService.isDirty(resource)) {
-            return false;
-          }
-          const fileModel = this.textFileService.files.get(resource);
-          if (fileModel?.hasState(
-            TextFileEditorModelState.PENDING_SAVE
-          )) {
-            return false;
-          }
-          if (resource.scheme !== Schemas.untitled && !fileModel?.hasState(TextFileEditorModelState.ERROR) && this.filesConfigurationService.hasShortAutoSaveDelay(
-            resource
-          )) {
-            return false;
-          }
-          if (this.editorService.isOpened({
-            resource,
-            typeId: resource.scheme === Schemas.untitled ? UntitledTextEditorInput.ID : FILE_EDITOR_INPUT_ID,
-            editorId: DEFAULT_EDITOR_ASSOCIATION.id
-          })) {
-            return false;
-          }
-          const model = fileModel ?? this.textFileService.untitled.get(resource);
-          if (model && this.workingCopyEditorService.findEditor(model)) {
-            return false;
-          }
-          return true;
-        }),
-        (resource) => resource.toString()
-      )
-    );
+    this.doEnsureDirtyTextFilesAreOpened(distinct(resources.filter((resource) => {
+      if (!this.textFileService.isDirty(resource)) {
+        return false;
+      }
+      const fileModel = this.textFileService.files.get(resource);
+      if (fileModel?.hasState(TextFileEditorModelState.PENDING_SAVE)) {
+        return false;
+      }
+      if (resource.scheme !== Schemas.untitled && !fileModel?.hasState(TextFileEditorModelState.ERROR) && this.filesConfigurationService.hasShortAutoSaveDelay(resource)) {
+        return false;
+      }
+      if (this.editorService.isOpened({ resource, typeId: resource.scheme === Schemas.untitled ? UntitledTextEditorInput.ID : FILE_EDITOR_INPUT_ID, editorId: DEFAULT_EDITOR_ASSOCIATION.id })) {
+        return false;
+      }
+      const model = fileModel ?? this.textFileService.untitled.get(resource);
+      if (model && this.workingCopyEditorService.findEditor(model)) {
+        return false;
+      }
+      return true;
+    }), (resource) => resource.toString()));
   }
   doEnsureDirtyTextFilesAreOpened(resources) {
     if (!resources.length) {
       return;
     }
-    this.editorService.openEditors(
-      resources.map((resource) => ({
-        resource,
-        options: { inactive: true, pinned: true, preserveFocus: true }
-      }))
-    );
+    this.editorService.openEditors(resources.map((resource) => ({
+      resource,
+      options: { inactive: true, pinned: true, preserveFocus: true }
+    })));
   }
   //#endregion
   //#region Window Focus Change: Update visible code editors when focus is gained that have a known text file model
   reloadVisibleTextFileEditors() {
     distinct(
-      coalesce(
-        this.codeEditorService.listCodeEditors().map((codeEditor) => {
-          const resource = codeEditor.getModel()?.uri;
-          if (!resource) {
-            return void 0;
-          }
-          const model = this.textFileService.files.get(resource);
-          if (!model || model.isDirty() || !model.isResolved()) {
-            return void 0;
-          }
-          return model;
-        })
-      ),
+      coalesce(this.codeEditorService.listCodeEditors().map((codeEditor) => {
+        const resource = codeEditor.getModel()?.uri;
+        if (!resource) {
+          return void 0;
+        }
+        const model = this.textFileService.files.get(resource);
+        if (!model || model.isDirty() || !model.isResolved()) {
+          return void 0;
+        }
+        return model;
+      })),
       (model) => model.resource.toString()
-    ).forEach(
-      (model) => this.textFileService.files.resolve(model.resource, {
-        reload: { async: true }
-      })
-    );
+    ).forEach((model) => this.textFileService.files.resolve(model.resource, { reload: { async: true } }));
   }
   //#endregion
 };

@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  CancellationTokenSource
-} from "./cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "./cancellation.js";
+import { IDisposable } from "./lifecycle.js";
 class Cache {
   constructor(task) {
     this.task = task;

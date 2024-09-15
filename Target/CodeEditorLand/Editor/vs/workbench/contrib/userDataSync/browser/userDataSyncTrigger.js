@@ -16,56 +16,36 @@ import { isWeb } from "../../../../base/common/platform.js";
 import { isEqual } from "../../../../base/common/resources.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IUserDataAutoSyncService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { VIEWLET_ID } from "../../extensions/common/extensions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { KeybindingsEditorInput } from "../../../services/preferences/browser/keybindingsEditorInput.js";
 import { SettingsEditor2Input } from "../../../services/preferences/common/preferencesEditorInput.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { VIEWLET_ID } from "../../extensions/common/extensions.js";
 let UserDataSyncTrigger = class extends Disposable {
   constructor(editorService, userDataProfilesService, viewsService, userDataAutoSyncService, hostService) {
     super();
     this.userDataProfilesService = userDataProfilesService;
     const event = Event.filter(
       Event.any(
-        Event.map(
-          editorService.onDidActiveEditorChange,
-          () => this.getUserDataEditorInputSource(
-            editorService.activeEditor
-          )
-        ),
-        Event.map(
-          Event.filter(
-            viewsService.onDidChangeViewContainerVisibility,
-            (e) => e.id === VIEWLET_ID && e.visible
-          ),
-          (e) => e.id
-        )
+        Event.map(editorService.onDidActiveEditorChange, () => this.getUserDataEditorInputSource(editorService.activeEditor)),
+        Event.map(Event.filter(viewsService.onDidChangeViewContainerVisibility, (e) => e.id === VIEWLET_ID && e.visible), (e) => e.id)
       ),
       (source) => source !== void 0
     );
     if (isWeb) {
-      this._register(
-        Event.debounce(
-          Event.any(
-            Event.map(
-              hostService.onDidChangeFocus,
-              () => "windowFocus"
-            ),
-            Event.map(event, (source) => source)
-          ),
-          (last, source) => last ? [...last, source] : [source],
-          1e3
-        )(
-          (sources) => userDataAutoSyncService.triggerSync(sources, true, false)
-        )
-      );
+      this._register(Event.debounce(
+        Event.any(
+          Event.map(hostService.onDidChangeFocus, () => "windowFocus"),
+          Event.map(event, (source) => source)
+        ),
+        (last, source) => last ? [...last, source] : [source],
+        1e3
+      )((sources) => userDataAutoSyncService.triggerSync(sources, true, false)));
     } else {
-      this._register(
-        event(
-          (source) => userDataAutoSyncService.triggerSync([source], true, false)
-        )
-      );
+      this._register(event((source) => userDataAutoSyncService.triggerSync([source], true, false)));
     }
   }
   static {
@@ -82,16 +62,10 @@ let UserDataSyncTrigger = class extends Disposable {
       return "keybindingsEditor";
     }
     const resource = editorInput.resource;
-    if (isEqual(
-      resource,
-      this.userDataProfilesService.defaultProfile.settingsResource
-    )) {
+    if (isEqual(resource, this.userDataProfilesService.defaultProfile.settingsResource)) {
       return "settingsEditor";
     }
-    if (isEqual(
-      resource,
-      this.userDataProfilesService.defaultProfile.keybindingsResource
-    )) {
+    if (isEqual(resource, this.userDataProfilesService.defaultProfile.keybindingsResource)) {
       return "keybindingsEditor";
     }
     return void 0;

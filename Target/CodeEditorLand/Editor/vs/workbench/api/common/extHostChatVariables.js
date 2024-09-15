@@ -1,16 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../base/common/errors.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostChatVariablesShape, IChatVariableResolverProgressDto, IMainContext, MainContext, MainThreadChatVariablesShape } from "./extHost.protocol.js";
 import * as typeConvert from "./extHostTypeConverters.js";
 import * as extHostTypes from "./extHostTypes.js";
+import { IChatRequestVariableValue, IChatVariableData } from "../../contrib/chat/common/chatVariables.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 class ExtHostChatVariables {
   static {
     __name(this, "ExtHostChatVariables");
@@ -28,29 +27,14 @@ class ExtHostChatVariables {
     }
     try {
       if (item.resolver.resolve2) {
-        checkProposedApiEnabled(
-          item.extension,
-          "chatParticipantAdditions"
-        );
-        const stream = new ChatVariableResolverResponseStream(
-          requestId,
-          this._proxy
-        );
-        const value = await item.resolver.resolve2(
-          item.data.name,
-          { prompt: messageText },
-          stream.apiObject,
-          token
-        );
+        checkProposedApiEnabled(item.extension, "chatParticipantAdditions");
+        const stream = new ChatVariableResolverResponseStream(requestId, this._proxy);
+        const value = await item.resolver.resolve2(item.data.name, { prompt: messageText }, stream.apiObject, token);
         if (value && value[0]) {
           return value[0].value;
         }
       } else {
-        const value = await item.resolver.resolve(
-          item.data.name,
-          { prompt: messageText },
-          token
-        );
+        const value = await item.resolver.resolve(item.data.name, { prompt: messageText }, token);
         if (value && value[0]) {
           return value[0].value;
         }
@@ -63,26 +47,8 @@ class ExtHostChatVariables {
   registerVariableResolver(extension, id, name, userDescription, modelDescription, isSlow, resolver, fullName, themeIconId) {
     const handle = ExtHostChatVariables._idPool++;
     const icon = themeIconId ? ThemeIcon.fromId(themeIconId) : void 0;
-    this._resolver.set(handle, {
-      extension,
-      data: {
-        id,
-        name,
-        description: userDescription,
-        modelDescription,
-        icon
-      },
-      resolver
-    });
-    this._proxy.$registerVariable(handle, {
-      id,
-      name,
-      description: userDescription,
-      modelDescription,
-      isSlow,
-      fullName,
-      icon
-    });
+    this._resolver.set(handle, { extension, data: { id, name, description: userDescription, modelDescription, icon }, resolver });
+    this._proxy.$registerVariable(handle, { id, name, description: userDescription, modelDescription, isSlow, fullName, icon });
     return toDisposable(() => {
       this._resolver.delete(handle);
       this._proxy.$unregisterVariable(handle);
@@ -120,18 +86,14 @@ class ChatVariableResolverResponseStream {
       this._apiObject = {
         progress(value) {
           throwIfDone2(this.progress);
-          const part = new extHostTypes.ChatResponseProgressPart(
-            value
-          );
+          const part = new extHostTypes.ChatResponseProgressPart(value);
           const dto = typeConvert.ChatResponseProgressPart.from(part);
           _report(dto);
           return this;
         },
         reference(value) {
           throwIfDone2(this.reference);
-          const part = new extHostTypes.ChatResponseReferencePart(
-            value
-          );
+          const part = new extHostTypes.ChatResponseReferencePart(value);
           const dto = typeConvert.ChatResponseReferencePart.from(part);
           _report(dto);
           return this;
@@ -139,13 +101,9 @@ class ChatVariableResolverResponseStream {
         push(part) {
           throwIfDone2(this.push);
           if (part instanceof extHostTypes.ChatResponseReferencePart) {
-            _report(
-              typeConvert.ChatResponseReferencePart.from(part)
-            );
+            _report(typeConvert.ChatResponseReferencePart.from(part));
           } else if (part instanceof extHostTypes.ChatResponseProgressPart) {
-            _report(
-              typeConvert.ChatResponseProgressPart.from(part)
-            );
+            _report(typeConvert.ChatResponseProgressPart.from(part));
           }
           return this;
         }

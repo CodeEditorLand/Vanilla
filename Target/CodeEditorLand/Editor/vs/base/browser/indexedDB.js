@@ -39,17 +39,11 @@ class IndexedDB {
       return await IndexedDB.doOpenDatabase(name, version, stores);
     } catch (err) {
       if (err instanceof MissingStoresError) {
-        console.info(
-          `Attempting to recreate the IndexedDB once.`,
-          name
-        );
+        console.info(`Attempting to recreate the IndexedDB once.`, name);
         try {
           await IndexedDB.deleteDatabase(err.db);
         } catch (error) {
-          console.error(
-            `Error while deleting the IndexedDB`,
-            getErrorMessage(error)
-          );
+          console.error(`Error while deleting the IndexedDB`, getErrorMessage(error));
           throw error;
         }
         return await IndexedDB.doOpenDatabase(name, version, stores);
@@ -67,9 +61,7 @@ class IndexedDB {
         const db = request.result;
         for (const store of stores) {
           if (!db.objectStoreNames.contains(store)) {
-            console.error(
-              `Error while opening IndexedDB. Could not find '${store}'' object store`
-            );
+            console.error(`Error while opening IndexedDB. Could not find '${store}'' object store`);
             e(new MissingStoresError(db));
             return;
           }
@@ -120,19 +112,10 @@ class IndexedDB {
           c(request.result);
         }
       };
-      transaction.onerror = () => e(
-        transaction.error ? ErrorNoTelemetry.fromError(transaction.error) : new ErrorNoTelemetry("unknown error")
-      );
-      transaction.onabort = () => e(
-        transaction.error ? ErrorNoTelemetry.fromError(transaction.error) : new ErrorNoTelemetry("unknown error")
-      );
+      transaction.onerror = () => e(transaction.error ? ErrorNoTelemetry.fromError(transaction.error) : new ErrorNoTelemetry("unknown error"));
+      transaction.onabort = () => e(transaction.error ? ErrorNoTelemetry.fromError(transaction.error) : new ErrorNoTelemetry("unknown error"));
       const request = dbRequestFn(transaction.objectStore(store));
-    }).finally(
-      () => this.pendingTransactions.splice(
-        this.pendingTransactions.indexOf(transaction),
-        1
-      )
-    );
+    }).finally(() => this.pendingTransactions.splice(this.pendingTransactions.indexOf(transaction), 1));
   }
   async getKeyValues(store, isValid) {
     if (!this.database) {
@@ -150,10 +133,7 @@ class IndexedDB {
       cursor.onsuccess = () => {
         if (cursor.result) {
           if (isValid(cursor.result.value)) {
-            items.set(
-              cursor.result.key.toString(),
-              cursor.result.value
-            );
+            items.set(cursor.result.key.toString(), cursor.result.value);
           }
           cursor.result.continue();
         } else {
@@ -161,19 +141,12 @@ class IndexedDB {
         }
       };
       const onError = /* @__PURE__ */ __name((error) => {
-        console.error(
-          `IndexedDB getKeyValues(): ${toErrorMessage(error, true)}`
-        );
+        console.error(`IndexedDB getKeyValues(): ${toErrorMessage(error, true)}`);
         resolve(items);
       }, "onError");
       cursor.onerror = () => onError(cursor.error);
       transaction.onerror = () => onError(transaction.error);
-    }).finally(
-      () => this.pendingTransactions.splice(
-        this.pendingTransactions.indexOf(transaction),
-        1
-      )
-    );
+    }).finally(() => this.pendingTransactions.splice(this.pendingTransactions.indexOf(transaction), 1));
   }
 }
 export {

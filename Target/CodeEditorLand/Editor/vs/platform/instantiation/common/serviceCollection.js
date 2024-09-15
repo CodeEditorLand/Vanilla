@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ServiceIdentifier } from "./instantiation.js";
+import { SyncDescriptor } from "./descriptors.js";
 class ServiceCollection {
   static {
     __name(this, "ServiceCollection");

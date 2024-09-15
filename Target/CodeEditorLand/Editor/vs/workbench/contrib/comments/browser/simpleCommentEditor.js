@@ -10,49 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  EditorContributionInstantiation,
-  EditorExtensionsRegistry
-} from "../../../../editor/browser/editorExtensions.js";
+import { EditorOption, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { EditorAction, EditorContributionInstantiation, EditorExtensionsRegistry, IEditorContributionDescription } from "../../../../editor/browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import {
-  CodeEditorWidget
-} from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import {
-  EditorOption
-} from "../../../../editor/common/config/editorOptions.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import {
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { IContextKeyService, RawContextKey, IContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { clamp } from "../../../../base/common/numbers.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { MenuPreventer } from "../../codeEditor/browser/menuPreventer.js";
+import { EditorDictation } from "../../codeEditor/browser/dictation/editorDictation.js";
+import { ContextMenuController } from "../../../../editor/contrib/contextmenu/browser/contextmenu.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { TabCompletionController } from "../../snippets/browser/tabCompletion.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommentThreadWidget } from "../common/commentThreadWidget.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
 import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
-import { ContextMenuController } from "../../../../editor/contrib/contextmenu/browser/contextmenu.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { clamp } from "../../../../base/common/numbers.js";
 import { CopyPasteController } from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
+import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
 import { DropIntoEditorController } from "../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";
-import { ContentHoverController } from "../../../../editor/contrib/hover/browser/contentHoverController.js";
-import { GlyphHoverController } from "../../../../editor/contrib/hover/browser/glyphHoverController.js";
 import { InlineCompletionsController } from "../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";
 import { LinkDetector } from "../../../../editor/contrib/links/browser/links.js";
 import { MessageController } from "../../../../editor/contrib/message/browser/messageController.js";
-import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
-import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { EditorDictation } from "../../codeEditor/browser/dictation/editorDictation.js";
-import { MenuPreventer } from "../../codeEditor/browser/menuPreventer.js";
 import { SelectionClipboardContributionID } from "../../codeEditor/browser/selectionClipboard.js";
-import { TabCompletionController } from "../../snippets/browser/tabCompletion.js";
-import { CommentContextKeys } from "../common/commentContextKeys.js";
-const ctxCommentEditorFocused = new RawContextKey(
-  "commentEditorFocused",
-  false
-);
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { ContentHoverController } from "../../../../editor/contrib/hover/browser/contentHoverController.js";
+import { GlyphHoverController } from "../../../../editor/contrib/hover/browser/glyphHoverController.js";
+const ctxCommentEditorFocused = new RawContextKey("commentEditorFocused", false);
 const MIN_EDITOR_HEIGHT = 5 * 18;
 const MAX_EDITOR_HEIGHT = 25 * 18;
 let SimpleCommentEditor = class extends CodeEditorWidget {
@@ -65,37 +56,13 @@ let SimpleCommentEditor = class extends CodeEditorWidget {
   constructor(domElement, options, scopedContextKeyService, parentThread, instantiationService, codeEditorService, commandService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
     const codeEditorWidgetOptions = {
       contributions: [
-        {
-          id: MenuPreventer.ID,
-          ctor: MenuPreventer,
-          instantiation: EditorContributionInstantiation.BeforeFirstInteraction
-        },
-        {
-          id: ContextMenuController.ID,
-          ctor: ContextMenuController,
-          instantiation: EditorContributionInstantiation.BeforeFirstInteraction
-        },
-        {
-          id: SuggestController.ID,
-          ctor: SuggestController,
-          instantiation: EditorContributionInstantiation.Eager
-        },
-        {
-          id: SnippetController2.ID,
-          ctor: SnippetController2,
-          instantiation: EditorContributionInstantiation.Lazy
-        },
-        {
-          id: TabCompletionController.ID,
-          ctor: TabCompletionController,
-          instantiation: EditorContributionInstantiation.Eager
-        },
+        { id: MenuPreventer.ID, ctor: MenuPreventer, instantiation: EditorContributionInstantiation.BeforeFirstInteraction },
+        { id: ContextMenuController.ID, ctor: ContextMenuController, instantiation: EditorContributionInstantiation.BeforeFirstInteraction },
+        { id: SuggestController.ID, ctor: SuggestController, instantiation: EditorContributionInstantiation.Eager },
+        { id: SnippetController2.ID, ctor: SnippetController2, instantiation: EditorContributionInstantiation.Lazy },
+        { id: TabCompletionController.ID, ctor: TabCompletionController, instantiation: EditorContributionInstantiation.Eager },
         // eager because it needs to define a context key
-        {
-          id: EditorDictation.ID,
-          ctor: EditorDictation,
-          instantiation: EditorContributionInstantiation.Lazy
-        },
+        { id: EditorDictation.ID, ctor: EditorDictation, instantiation: EditorContributionInstantiation.Lazy },
         ...EditorExtensionsRegistry.getSomeEditorContributions([
           CopyPasteController.ID,
           DropIntoEditorController.ID,
@@ -110,45 +77,14 @@ let SimpleCommentEditor = class extends CodeEditorWidget {
       ],
       contextMenuId: MenuId.SimpleEditorContext
     };
-    super(
-      domElement,
-      options,
-      codeEditorWidgetOptions,
-      instantiationService,
-      codeEditorService,
-      commandService,
-      scopedContextKeyService,
-      themeService,
-      notificationService,
-      accessibilityService,
-      languageConfigurationService,
-      languageFeaturesService
-    );
-    this._commentEditorFocused = ctxCommentEditorFocused.bindTo(
-      scopedContextKeyService
-    );
-    this._commentEditorEmpty = CommentContextKeys.commentIsEmpty.bindTo(
-      scopedContextKeyService
-    );
+    super(domElement, options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, scopedContextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
+    this._commentEditorFocused = ctxCommentEditorFocused.bindTo(scopedContextKeyService);
+    this._commentEditorEmpty = CommentContextKeys.commentIsEmpty.bindTo(scopedContextKeyService);
     this._commentEditorEmpty.set(!this.getModel()?.getValueLength());
     this._parentThread = parentThread;
-    this._register(
-      this.onDidFocusEditorWidget(
-        (_) => this._commentEditorFocused.set(true)
-      )
-    );
-    this._register(
-      this.onDidChangeModelContent(
-        (e) => this._commentEditorEmpty.set(
-          !this.getModel()?.getValueLength()
-        )
-      )
-    );
-    this._register(
-      this.onDidBlurEditorWidget(
-        (_) => this._commentEditorFocused.reset()
-      )
-    );
+    this._register(this.onDidFocusEditorWidget((_) => this._commentEditorFocused.set(true)));
+    this._register(this.onDidChangeModelContent((e) => this._commentEditorEmpty.set(!this.getModel()?.getValueLength())));
+    this._register(this.onDidBlurEditorWidget((_) => this._commentEditorFocused.reset()));
   }
   getParentThread() {
     return this._parentThread;
@@ -182,9 +118,7 @@ let SimpleCommentEditor = class extends CodeEditorWidget {
         enabled: false
       },
       dropIntoEditor: { enabled: true },
-      autoClosingBrackets: configurationService.getValue(
-        "editor.autoClosingBrackets"
-      ),
+      autoClosingBrackets: configurationService.getValue("editor.autoClosingBrackets"),
       quickSuggestions: false,
       accessibilitySupport: configurationService.getValue("editor.accessibilitySupport"),
       fontFamily: configurationService.getValue("editor.fontFamily")
@@ -206,19 +140,9 @@ function calculateEditorHeight(parentEditor, editor, currentHeight) {
   const lineHeight = editor.getOption(EditorOption.lineHeight);
   const contentHeight = editor._getViewModel()?.getLineCount() * lineHeight;
   if (contentHeight > layoutInfo.height || contentHeight < layoutInfo.height && currentHeight > MIN_EDITOR_HEIGHT) {
-    const linesToAdd = Math.ceil(
-      (contentHeight - layoutInfo.height) / lineHeight
-    );
+    const linesToAdd = Math.ceil((contentHeight - layoutInfo.height) / lineHeight);
     const proposedHeight = layoutInfo.height + lineHeight * linesToAdd;
-    return clamp(
-      proposedHeight,
-      MIN_EDITOR_HEIGHT,
-      clamp(
-        parentEditor.getLayoutInfo().height - 90,
-        MIN_EDITOR_HEIGHT,
-        MAX_EDITOR_HEIGHT
-      )
-    );
+    return clamp(proposedHeight, MIN_EDITOR_HEIGHT, clamp(parentEditor.getLayoutInfo().height - 90, MIN_EDITOR_HEIGHT, MAX_EDITOR_HEIGHT));
   }
   return currentHeight;
 }

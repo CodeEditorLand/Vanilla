@@ -13,19 +13,14 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { getActiveWindow } from "../../../../base/browser/dom.js";
 import { CharCode } from "../../../../base/common/charCode.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable,
-  dispose,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, dispose, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { ThreeKeyMap } from "../../../../base/common/map.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { MetadataConsts } from "../../../common/encodedTokenAttributes.js";
 import { GlyphRasterizer } from "../raster/glyphRasterizer.js";
 import { IdleTaskQueue } from "../taskQueue.js";
-import { TextureAtlasPage } from "./textureAtlasPage.js";
+import { AllocatorType, TextureAtlasPage } from "./textureAtlasPage.js";
 let TextureAtlas = class extends Disposable {
   constructor(_maxTextureSize, options, _themeService, _instantiationService) {
     super();
@@ -33,18 +28,10 @@ let TextureAtlas = class extends Disposable {
     this._themeService = _themeService;
     this._instantiationService = _instantiationService;
     this._allocatorType = options?.allocatorType ?? "slab";
-    this._register(
-      Event.runAndSubscribe(
-        this._themeService.onDidColorThemeChange,
-        () => {
-          this._colorMap = this._themeService.getColorTheme().tokenColorMap;
-        }
-      )
-    );
-    const dprFactor = Math.max(
-      1,
-      Math.floor(getActiveWindow().devicePixelRatio)
-    );
+    this._register(Event.runAndSubscribe(this._themeService.onDidColorThemeChange, () => {
+      this._colorMap = this._themeService.getColorTheme().tokenColorMap;
+    }));
+    const dprFactor = Math.max(1, Math.floor(getActiveWindow().devicePixelRatio));
     this.pageSize = Math.min(1024 * dprFactor, this._maxTextureSize);
     this._initFirstPage();
     this._register(toDisposable(() => dispose(this._pages)));
@@ -76,12 +63,7 @@ let TextureAtlas = class extends Disposable {
   _onDidDeleteGlyphs = this._register(new Emitter());
   onDidDeleteGlyphs = this._onDidDeleteGlyphs.event;
   _initFirstPage() {
-    const firstPage = this._instantiationService.createInstance(
-      TextureAtlasPage,
-      0,
-      this.pageSize,
-      this._allocatorType
-    );
+    const firstPage = this._instantiationService.createInstance(TextureAtlasPage, 0, this.pageSize, this._allocatorType);
     this._pages.push(firstPage);
     const nullRasterizer = new GlyphRasterizer(1, "");
     firstPage.getGlyph(nullRasterizer, "", 0);
@@ -104,42 +86,16 @@ let TextureAtlas = class extends Disposable {
       this._warmUpAtlas(rasterizer);
       this._warmedUpRasterizers.add(rasterizer.id);
     }
-    return this._tryGetGlyph(
-      this._glyphPageIndex.get(chars, metadata, rasterizer.cacheKey) ?? 0,
-      rasterizer,
-      chars,
-      metadata
-    );
+    return this._tryGetGlyph(this._glyphPageIndex.get(chars, metadata, rasterizer.cacheKey) ?? 0, rasterizer, chars, metadata);
   }
   _tryGetGlyph(pageIndex, rasterizer, chars, metadata) {
-    this._glyphPageIndex.set(
-      chars,
-      metadata,
-      rasterizer.cacheKey,
-      pageIndex
-    );
+    this._glyphPageIndex.set(chars, metadata, rasterizer.cacheKey, pageIndex);
     return this._pages[pageIndex].getGlyph(rasterizer, chars, metadata) ?? (pageIndex + 1 < this._pages.length ? this._tryGetGlyph(pageIndex + 1, rasterizer, chars, metadata) : void 0) ?? this._getGlyphFromNewPage(rasterizer, chars, metadata);
   }
   _getGlyphFromNewPage(rasterizer, chars, metadata) {
-    this._pages.push(
-      this._instantiationService.createInstance(
-        TextureAtlasPage,
-        this._pages.length,
-        this.pageSize,
-        this._allocatorType
-      )
-    );
-    this._glyphPageIndex.set(
-      chars,
-      metadata,
-      rasterizer.cacheKey,
-      this._pages.length - 1
-    );
-    return this._pages[this._pages.length - 1].getGlyph(
-      rasterizer,
-      chars,
-      metadata
-    );
+    this._pages.push(this._instantiationService.createInstance(TextureAtlasPage, this._pages.length, this.pageSize, this._allocatorType));
+    this._glyphPageIndex.set(chars, metadata, rasterizer.cacheKey, this._pages.length - 1);
+    return this._pages[this._pages.length - 1].getGlyph(rasterizer, chars, metadata);
   }
   getUsagePreview() {
     return Promise.all(this._pages.map((e) => e.getUsagePreview()));
@@ -157,33 +113,21 @@ let TextureAtlas = class extends Disposable {
     for (let code = CharCode.A; code <= CharCode.Z; code++) {
       taskQueue.enqueue(() => {
         for (const fgColor of this._colorMap.keys()) {
-          this.getGlyph(
-            rasterizer,
-            String.fromCharCode(code),
-            fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK
-          );
+          this.getGlyph(rasterizer, String.fromCharCode(code), fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK);
         }
       });
     }
     for (let code = CharCode.a; code <= CharCode.z; code++) {
       taskQueue.enqueue(() => {
         for (const fgColor of this._colorMap.keys()) {
-          this.getGlyph(
-            rasterizer,
-            String.fromCharCode(code),
-            fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK
-          );
+          this.getGlyph(rasterizer, String.fromCharCode(code), fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK);
         }
       });
     }
     for (let code = CharCode.ExclamationMark; code <= CharCode.Tilde; code++) {
       taskQueue.enqueue(() => {
         for (const fgColor of this._colorMap.keys()) {
-          this.getGlyph(
-            rasterizer,
-            String.fromCharCode(code),
-            fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK
-          );
+          this.getGlyph(rasterizer, String.fromCharCode(code), fgColor << MetadataConsts.FOREGROUND_OFFSET & MetadataConsts.FOREGROUND_MASK);
         }
       });
     }

@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { applyFontInfo } from "./domFontInfo.js";
+import { BareFontInfo } from "../../common/config/fontInfo.js";
 var CharWidthRequestType = /* @__PURE__ */ ((CharWidthRequestType2) => {
   CharWidthRequestType2[CharWidthRequestType2["Regular"] = 0] = "Regular";
   CharWidthRequestType2[CharWidthRequestType2["Italic"] = 1] = "Italic";

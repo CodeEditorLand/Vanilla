@@ -1,10 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isBoolean, isString } from "../../../../base/common/types.js";
 import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IThemeService
-} from "../../../../platform/theme/common/themeService.js";
+import { Event } from "../../../../base/common/event.js";
+import { Color } from "../../../../base/common/color.js";
+import { IColorTheme, IThemeService, IFileIconTheme, IProductIconTheme } from "../../../../platform/theme/common/themeService.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { isBoolean, isString } from "../../../../base/common/types.js";
+import { IconContribution, IconDefinition } from "../../../../platform/theme/common/iconRegistry.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
 const IWorkbenchThemeService = refineServiceDecorator(IThemeService);
 const VS_LIGHT_THEME = "vs";
 const VS_DARK_THEME = "vs-dark";
@@ -96,35 +99,20 @@ const COLOR_THEME_LIGHT_INITIAL_COLORS = {
 var ExtensionData;
 ((ExtensionData2) => {
   function toJSONObject(d) {
-    return d && {
-      _extensionId: d.extensionId,
-      _extensionIsBuiltin: d.extensionIsBuiltin,
-      _extensionName: d.extensionName,
-      _extensionPublisher: d.extensionPublisher
-    };
+    return d && { _extensionId: d.extensionId, _extensionIsBuiltin: d.extensionIsBuiltin, _extensionName: d.extensionName, _extensionPublisher: d.extensionPublisher };
   }
   ExtensionData2.toJSONObject = toJSONObject;
   __name(toJSONObject, "toJSONObject");
   function fromJSONObject(o) {
     if (o && isString(o._extensionId) && isBoolean(o._extensionIsBuiltin) && isString(o._extensionName) && isString(o._extensionPublisher)) {
-      return {
-        extensionId: o._extensionId,
-        extensionIsBuiltin: o._extensionIsBuiltin,
-        extensionName: o._extensionName,
-        extensionPublisher: o._extensionPublisher
-      };
+      return { extensionId: o._extensionId, extensionIsBuiltin: o._extensionIsBuiltin, extensionName: o._extensionName, extensionPublisher: o._extensionPublisher };
     }
     return void 0;
   }
   ExtensionData2.fromJSONObject = fromJSONObject;
   __name(fromJSONObject, "fromJSONObject");
   function fromName(publisher, name, isBuiltin = false) {
-    return {
-      extensionPublisher: publisher,
-      extensionId: `${publisher}.${name}`,
-      extensionName: name,
-      extensionIsBuiltin: isBuiltin
-    };
+    return { extensionPublisher: publisher, extensionId: `${publisher}.${name}`, extensionName: name, extensionIsBuiltin: isBuiltin };
   }
   ExtensionData2.fromName = fromName;
   __name(fromName, "fromName");

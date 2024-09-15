@@ -314,7 +314,7 @@
 }
 .notebook-text-diff-editor .cell-body .cell-diff-editor-container .source-container .monaco-editor .margin,
 .notebook-text-diff-editor .cell-body .cell-diff-editor-container .source-container .monaco-editor .monaco-editor-background {
-  background: var( --vscode-notebook-cellEditorBackground, var(--vscode-editor-background) );
+  background: var(--vscode-notebook-cellEditorBackground, var(--vscode-editor-background));
 }
 .notebook-text-diff-editor .cell-body.full div.diff-hidden-cells {
   position: absolute;

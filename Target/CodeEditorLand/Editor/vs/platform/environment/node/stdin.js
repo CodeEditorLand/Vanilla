@@ -38,18 +38,14 @@ async function readFromStdin(targetPath, verbose, onEnd) {
     // make sure file exists right away (https://github.com/microsoft/vscode/issues/155341)
   ]);
   if (!iconv.encodingExists(encoding)) {
-    console.log(
-      `Unsupported terminal encoding: ${encoding}, falling back to UTF-8.`
-    );
+    console.log(`Unsupported terminal encoding: ${encoding}, falling back to UTF-8.`);
     encoding = "utf8";
   }
   const appendFileQueue = new Queue();
   const decoder = iconv.getDecoder(encoding);
   process.stdin.on("data", (chunk) => {
     const chunkStr = decoder.write(chunk);
-    appendFileQueue.queue(
-      () => fs.promises.appendFile(targetPath, chunkStr)
-    );
+    appendFileQueue.queue(() => fs.promises.appendFile(targetPath, chunkStr));
   });
   process.stdin.on("end", () => {
     const end = decoder.end();

@@ -46,7 +46,7 @@
 }
 .monaco-workbench .merge-editor .code-view.input > .header > span.detail::before {
   content: "\2022";
-  opacity: 0.5;
+  opacity: .5;
   padding-right: 3px;
 }
 .monaco-workbench .merge-editor .code-view.input > .header > span.detail {

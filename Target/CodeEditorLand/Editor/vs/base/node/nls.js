@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
 import * as path from "path";
+import * as fs from "fs";
 import * as perf from "../common/performance.js";
 const module = { exports: {} };
-(() => {
+(function() {
   const isESM = true;
   function factory(path2, fs2, perf2) {
     async function exists(path3) {
@@ -24,9 +24,7 @@ const module = { exports: {} };
     async function getLanguagePackConfigurations(userDataPath) {
       const configFile = path2.join(userDataPath, "languagepacks.json");
       try {
-        return JSON.parse(
-          await fs2.promises.readFile(configFile, "utf-8")
-        );
+        return JSON.parse(await fs2.promises.readFile(configFile, "utf-8"));
       } catch (err) {
         return void 0;
       }
@@ -46,10 +44,7 @@ const module = { exports: {} };
           }
         }
       } catch (error) {
-        console.error(
-          "Resolving language pack configuration failed.",
-          error
-        );
+        console.error("Resolving language pack configuration failed.", error);
       }
       return void 0;
     }
@@ -60,97 +55,46 @@ const module = { exports: {} };
         userLocale,
         osLocale,
         resolvedLanguage: "en",
-        defaultMessagesFile: path2.join(
-          nlsMetadataPath,
-          "nls.messages.json"
-        ),
+        defaultMessagesFile: path2.join(nlsMetadataPath, "nls.messages.json"),
         // NLS: below 2 are a relic from old times only used by vscode-nls and deprecated
         locale: userLocale,
         availableLanguages: {}
       };
     }
     __name(defaultNLSConfiguration, "defaultNLSConfiguration");
-    async function resolveNLSConfiguration2({
-      userLocale,
-      osLocale,
-      userDataPath,
-      commit,
-      nlsMetadataPath
-    }) {
+    async function resolveNLSConfiguration2({ userLocale, osLocale, userDataPath, commit, nlsMetadataPath }) {
       perf2.mark("code/willGenerateNls");
       if (process.env["VSCODE_DEV"] || userLocale === "pseudo" || userLocale.startsWith("en") || !commit || !userDataPath) {
-        return defaultNLSConfiguration(
-          userLocale,
-          osLocale,
-          nlsMetadataPath
-        );
+        return defaultNLSConfiguration(userLocale, osLocale, nlsMetadataPath);
       }
       try {
         const languagePacks = await getLanguagePackConfigurations(userDataPath);
         if (!languagePacks) {
-          return defaultNLSConfiguration(
-            userLocale,
-            osLocale,
-            nlsMetadataPath
-          );
+          return defaultNLSConfiguration(userLocale, osLocale, nlsMetadataPath);
         }
-        const resolvedLanguage = resolveLanguagePackLanguage(
-          languagePacks,
-          userLocale
-        );
+        const resolvedLanguage = resolveLanguagePackLanguage(languagePacks, userLocale);
         if (!resolvedLanguage) {
-          return defaultNLSConfiguration(
-            userLocale,
-            osLocale,
-            nlsMetadataPath
-          );
+          return defaultNLSConfiguration(userLocale, osLocale, nlsMetadataPath);
         }
         const languagePack = languagePacks[resolvedLanguage];
         const mainLanguagePackPath = languagePack?.translations?.["vscode"];
         if (!languagePack || typeof languagePack.hash !== "string" || !languagePack.translations || typeof mainLanguagePackPath !== "string" || !await exists(mainLanguagePackPath)) {
-          return defaultNLSConfiguration(
-            userLocale,
-            osLocale,
-            nlsMetadataPath
-          );
+          return defaultNLSConfiguration(userLocale, osLocale, nlsMetadataPath);
         }
         const languagePackId = `${languagePack.hash}.${resolvedLanguage}`;
-        const globalLanguagePackCachePath = path2.join(
-          userDataPath,
-          "clp",
-          languagePackId
-        );
-        const commitLanguagePackCachePath = path2.join(
-          globalLanguagePackCachePath,
-          commit
-        );
-        const languagePackMessagesFile = path2.join(
-          commitLanguagePackCachePath,
-          "nls.messages.json"
-        );
-        const translationsConfigFile = path2.join(
-          globalLanguagePackCachePath,
-          "tcf.json"
-        );
-        const languagePackCorruptMarkerFile = path2.join(
-          globalLanguagePackCachePath,
-          "corrupted.info"
-        );
+        const globalLanguagePackCachePath = path2.join(userDataPath, "clp", languagePackId);
+        const commitLanguagePackCachePath = path2.join(globalLanguagePackCachePath, commit);
+        const languagePackMessagesFile = path2.join(commitLanguagePackCachePath, "nls.messages.json");
+        const translationsConfigFile = path2.join(globalLanguagePackCachePath, "tcf.json");
+        const languagePackCorruptMarkerFile = path2.join(globalLanguagePackCachePath, "corrupted.info");
         if (await exists(languagePackCorruptMarkerFile)) {
-          await fs2.promises.rm(globalLanguagePackCachePath, {
-            recursive: true,
-            force: true,
-            maxRetries: 3
-          });
+          await fs2.promises.rm(globalLanguagePackCachePath, { recursive: true, force: true, maxRetries: 3 });
         }
         const result = {
           userLocale,
           osLocale,
           resolvedLanguage,
-          defaultMessagesFile: path2.join(
-            nlsMetadataPath,
-            "nls.messages.json"
-          ),
+          defaultMessagesFile: path2.join(nlsMetadataPath, "nls.messages.json"),
           languagePack: {
             translationsConfigFile,
             messagesFile: languagePackMessagesFile,
@@ -172,62 +116,36 @@ const module = { exports: {} };
           perf2.mark("code/didGenerateNls");
           return result;
         }
-        const [, nlsDefaultKeys, nlsDefaultMessages, nlsPackdata] = await Promise.all([
-          fs2.promises.mkdir(commitLanguagePackCachePath, {
-            recursive: true
-          }),
-          JSON.parse(
-            await fs2.promises.readFile(
-              path2.join(nlsMetadataPath, "nls.keys.json"),
-              "utf-8"
-            )
-          ),
-          JSON.parse(
-            await fs2.promises.readFile(
-              path2.join(nlsMetadataPath, "nls.messages.json"),
-              "utf-8"
-            )
-          ),
-          JSON.parse(
-            await fs2.promises.readFile(
-              mainLanguagePackPath,
-              "utf-8"
-            )
-          )
+        const [
+          ,
+          nlsDefaultKeys,
+          nlsDefaultMessages,
+          nlsPackdata
+        ] = await Promise.all([
+          fs2.promises.mkdir(commitLanguagePackCachePath, { recursive: true }),
+          JSON.parse(await fs2.promises.readFile(path2.join(nlsMetadataPath, "nls.keys.json"), "utf-8")),
+          JSON.parse(await fs2.promises.readFile(path2.join(nlsMetadataPath, "nls.messages.json"), "utf-8")),
+          JSON.parse(await fs2.promises.readFile(mainLanguagePackPath, "utf-8"))
         ]);
         const nlsResult = [];
         let nlsIndex = 0;
         for (const [moduleId, nlsKeys] of nlsDefaultKeys) {
           const moduleTranslations = nlsPackdata.contents[moduleId];
           for (const nlsKey of nlsKeys) {
-            nlsResult.push(
-              moduleTranslations?.[nlsKey] || nlsDefaultMessages[nlsIndex]
-            );
+            nlsResult.push(moduleTranslations?.[nlsKey] || nlsDefaultMessages[nlsIndex]);
             nlsIndex++;
           }
         }
         await Promise.all([
-          fs2.promises.writeFile(
-            languagePackMessagesFile,
-            JSON.stringify(nlsResult),
-            "utf-8"
-          ),
-          fs2.promises.writeFile(
-            translationsConfigFile,
-            JSON.stringify(languagePack.translations),
-            "utf-8"
-          )
+          fs2.promises.writeFile(languagePackMessagesFile, JSON.stringify(nlsResult), "utf-8"),
+          fs2.promises.writeFile(translationsConfigFile, JSON.stringify(languagePack.translations), "utf-8")
         ]);
         perf2.mark("code/didGenerateNls");
         return result;
       } catch (error) {
         console.error("Generating translation files failed.", error);
       }
-      return defaultNLSConfiguration(
-        userLocale,
-        osLocale,
-        nlsMetadataPath
-      );
+      return defaultNLSConfiguration(userLocale, osLocale, nlsMetadataPath);
     }
     __name(resolveNLSConfiguration2, "resolveNLSConfiguration");
     return {
@@ -236,13 +154,13 @@ const module = { exports: {} };
   }
   __name(factory, "factory");
   if (!isESM && typeof define === "function") {
-    define(["path", "fs", "vs/base/common/performance"], (path2, fs2, perf2) => factory(path2, fs2, perf2));
+    define(["path", "fs", "vs/base/common/performance"], function(path2, fs2, perf2) {
+      return factory(path2, fs2, perf2);
+    });
   } else if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory(path, fs, perf);
   } else {
-    throw new Error(
-      "vs/base/node/nls defined in UNKNOWN context (neither requirejs or commonjs)"
-    );
+    throw new Error("vs/base/node/nls defined in UNKNOWN context (neither requirejs or commonjs)");
   }
 })();
 const resolveNLSConfiguration = module.exports.resolveNLSConfiguration;

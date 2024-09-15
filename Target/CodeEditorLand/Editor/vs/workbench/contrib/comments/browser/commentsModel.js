@@ -1,17 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { groupBy } from "../../../../base/common/arrays.js";
-import { isMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { URI } from "../../../../base/common/uri.js";
+import { CommentThread } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
-import {
-  ResourceWithCommentThreads
-} from "../common/commentModel.js";
+import { ResourceWithCommentThreads, ICommentThreadChangedEvent } from "../common/commentModel.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isMarkdownString } from "../../../../base/common/htmlContent.js";
 function threadHasMeaningfulComments(thread) {
-  return !!thread.comments && !!thread.comments.length && thread.comments.some(
-    (comment) => isMarkdownString(comment.body) ? comment.body.value.length > 0 : comment.body.length > 0
-  );
+  return !!thread.comments && !!thread.comments.length && thread.comments.some((comment) => isMarkdownString(comment.body) ? comment.body.value.length > 0 : comment.body.length > 0);
 }
 __name(threadHasMeaningfulComments, "threadHasMeaningfulComments");
 class CommentsModel extends Disposable {
@@ -31,33 +28,21 @@ class CommentsModel extends Disposable {
   }
   updateResourceCommentThreads() {
     const includeLabel = this.commentThreadsMap.size > 1;
-    this._resourceCommentThreads = [
-      ...this.commentThreadsMap.values()
-    ].flatMap((value) => {
-      return value.resourceWithCommentThreads.flatMap((resource) => {
+    this._resourceCommentThreads = [...this.commentThreadsMap.values()].map((value) => {
+      return value.resourceWithCommentThreads.map((resource) => {
         resource.ownerLabel = includeLabel ? value.ownerLabel : void 0;
         return resource;
-      });
-    });
+      }).flat();
+    }).flat();
   }
   setCommentThreads(uniqueOwner, owner, ownerLabel, commentThreads) {
-    this.commentThreadsMap.set(uniqueOwner, {
-      ownerLabel,
-      resourceWithCommentThreads: this.groupByResource(
-        uniqueOwner,
-        owner,
-        commentThreads
-      )
-    });
+    this.commentThreadsMap.set(uniqueOwner, { ownerLabel, resourceWithCommentThreads: this.groupByResource(uniqueOwner, owner, commentThreads) });
     this.updateResourceCommentThreads();
   }
   deleteCommentsByOwner(uniqueOwner) {
     if (uniqueOwner) {
       const existingOwner = this.commentThreadsMap.get(uniqueOwner);
-      this.commentThreadsMap.set(uniqueOwner, {
-        ownerLabel: existingOwner?.ownerLabel,
-        resourceWithCommentThreads: []
-      });
+      this.commentThreadsMap.set(uniqueOwner, { ownerLabel: existingOwner?.ownerLabel, resourceWithCommentThreads: [] });
     } else {
       this.commentThreadsMap.clear();
     }
@@ -67,13 +52,9 @@ class CommentsModel extends Disposable {
     const { uniqueOwner, owner, ownerLabel, removed, changed, added } = event;
     const threadsForOwner = this.commentThreadsMap.get(uniqueOwner)?.resourceWithCommentThreads || [];
     removed.forEach((thread) => {
-      const matchingResourceIndex = threadsForOwner.findIndex(
-        (resourceData) => resourceData.id === thread.resource
-      );
+      const matchingResourceIndex = threadsForOwner.findIndex((resourceData) => resourceData.id === thread.resource);
       const matchingResourceData = matchingResourceIndex >= 0 ? threadsForOwner[matchingResourceIndex] : void 0;
-      const index = matchingResourceData?.commentThreads.findIndex(
-        (commentThread) => commentThread.threadId === thread.threadId
-      ) ?? 0;
+      const index = matchingResourceData?.commentThreads.findIndex((commentThread) => commentThread.threadId === thread.threadId) ?? 0;
       if (index >= 0) {
         matchingResourceData?.commentThreads.splice(index, 1);
       }
@@ -82,65 +63,30 @@ class CommentsModel extends Disposable {
       }
     });
     changed.forEach((thread) => {
-      const matchingResourceIndex = threadsForOwner.findIndex(
-        (resourceData) => resourceData.id === thread.resource
-      );
+      const matchingResourceIndex = threadsForOwner.findIndex((resourceData) => resourceData.id === thread.resource);
       const matchingResourceData = matchingResourceIndex >= 0 ? threadsForOwner[matchingResourceIndex] : void 0;
       if (!matchingResourceData) {
         return;
       }
-      const index = matchingResourceData.commentThreads.findIndex(
-        (commentThread) => commentThread.threadId === thread.threadId
-      );
+      const index = matchingResourceData.commentThreads.findIndex((commentThread) => commentThread.threadId === thread.threadId);
       if (index >= 0) {
-        matchingResourceData.commentThreads[index] = ResourceWithCommentThreads.createCommentNode(
-          uniqueOwner,
-          owner,
-          URI.parse(matchingResourceData.id),
-          thread
-        );
+        matchingResourceData.commentThreads[index] = ResourceWithCommentThreads.createCommentNode(uniqueOwner, owner, URI.parse(matchingResourceData.id), thread);
       } else if (thread.comments && thread.comments.length) {
-        matchingResourceData.commentThreads.push(
-          ResourceWithCommentThreads.createCommentNode(
-            uniqueOwner,
-            owner,
-            URI.parse(matchingResourceData.id),
-            thread
-          )
-        );
+        matchingResourceData.commentThreads.push(ResourceWithCommentThreads.createCommentNode(uniqueOwner, owner, URI.parse(matchingResourceData.id), thread));
       }
     });
     added.forEach((thread) => {
-      const existingResource = threadsForOwner.filter(
-        (resourceWithThreads) => resourceWithThreads.resource.toString() === thread.resource
-      );
+      const existingResource = threadsForOwner.filter((resourceWithThreads) => resourceWithThreads.resource.toString() === thread.resource);
       if (existingResource.length) {
         const resource = existingResource[0];
         if (thread.comments && thread.comments.length) {
-          resource.commentThreads.push(
-            ResourceWithCommentThreads.createCommentNode(
-              uniqueOwner,
-              owner,
-              resource.resource,
-              thread
-            )
-          );
+          resource.commentThreads.push(ResourceWithCommentThreads.createCommentNode(uniqueOwner, owner, resource.resource, thread));
         }
       } else {
-        threadsForOwner.push(
-          new ResourceWithCommentThreads(
-            uniqueOwner,
-            owner,
-            URI.parse(thread.resource),
-            [thread]
-          )
-        );
+        threadsForOwner.push(new ResourceWithCommentThreads(uniqueOwner, owner, URI.parse(thread.resource), [thread]));
       }
     });
-    this.commentThreadsMap.set(uniqueOwner, {
-      ownerLabel,
-      resourceWithCommentThreads: threadsForOwner
-    });
+    this.commentThreadsMap.set(uniqueOwner, { ownerLabel, resourceWithCommentThreads: threadsForOwner });
     this.updateResourceCommentThreads();
     return removed.length > 0 || changed.length > 0 || added.length > 0;
   }
@@ -152,31 +98,17 @@ class CommentsModel extends Disposable {
     });
   }
   getMessage() {
-    if (this._resourceCommentThreads.length) {
-      return "";
+    if (!this._resourceCommentThreads.length) {
+      return localize("noComments", "There are no comments in this workspace yet.");
     } else {
-      return localize(
-        "noComments",
-        "There are no comments in this workspace yet."
-      );
+      return "";
     }
   }
   groupByResource(uniqueOwner, owner, commentThreads) {
     const resourceCommentThreads = [];
     const commentThreadsByResource = /* @__PURE__ */ new Map();
-    for (const group of groupBy(
-      commentThreads,
-      CommentsModel._compareURIs
-    )) {
-      commentThreadsByResource.set(
-        group[0].resource,
-        new ResourceWithCommentThreads(
-          uniqueOwner,
-          owner,
-          URI.parse(group[0].resource),
-          group
-        )
-      );
+    for (const group of groupBy(commentThreads, CommentsModel._compareURIs)) {
+      commentThreadsByResource.set(group[0].resource, new ResourceWithCommentThreads(uniqueOwner, owner, URI.parse(group[0].resource), group));
     }
     commentThreadsByResource.forEach((v, i, m) => {
       resourceCommentThreads.push(v);

@@ -1,21 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AsyncEmitter,
-  Emitter
-} from "../../../base/common/event.js";
+import { Emitter, Event, AsyncEmitter, IWaitUntil, IWaitUntilData } from "../../../base/common/event.js";
 import { GLOBSTAR, GLOB_SPLIT, parse } from "../../../base/common/glob.js";
-import { Lazy } from "../../../base/common/lazy.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  FileChangeFilter,
-  FileOperation
-} from "../../../platform/files/common/files.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { ExtHostFileSystemEventServiceShape, FileSystemEvents, IMainContext, SourceTargetPair, IWorkspaceEditDto, IWillRunFileOperationParticipation, MainContext, IRelativePatternDto } from "./extHost.protocol.js";
 import * as typeConverter from "./extHostTypeConverters.js";
 import { Disposable, WorkspaceEdit } from "./extHostTypes.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { FileChangeFilter, FileOperation } from "../../../platform/files/common/files.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { Lazy } from "../../../base/common/lazy.js";
 class FileSystemWatcher {
   static {
     __name(this, "FileSystemWatcher");
@@ -81,19 +78,7 @@ class FileSystemWatcher {
         }
       }
     });
-    this._disposable = Disposable.from(
-      this.ensureWatching(
-        mainContext,
-        extension,
-        globPattern,
-        options,
-        options?.correlate
-      ),
-      this._onDidCreate,
-      this._onDidChange,
-      this._onDidDelete,
-      subscription
-    );
+    this._disposable = Disposable.from(this.ensureWatching(mainContext, extension, globPattern, options, options?.correlate), this._onDidCreate, this._onDidChange, this._onDidDelete, subscription);
   }
   ensureWatching(mainContext, extension, globPattern, options, correlate) {
     const disposable = Disposable.from();
@@ -103,9 +88,7 @@ class FileSystemWatcher {
     if (options?.ignoreChangeEvents && options?.ignoreCreateEvents && options?.ignoreDeleteEvents) {
       return disposable;
     }
-    const proxy = mainContext.getProxy(
-      MainContext.MainThreadFileSystemEventService
-    );
+    const proxy = mainContext.getProxy(MainContext.MainThreadFileSystemEventService);
     let recursive = false;
     if (globPattern.pattern.includes(GLOBSTAR) || globPattern.pattern.includes(GLOB_SPLIT)) {
       recursive = true;
@@ -125,13 +108,7 @@ class FileSystemWatcher {
         }
       }
     }
-    proxy.$watch(
-      extension.identifier.value,
-      this.session,
-      globPattern.baseUri,
-      { recursive, excludes: options?.excludes ?? [], filter },
-      Boolean(correlate)
-    );
+    proxy.$watch(extension.identifier.value, this.session, globPattern.baseUri, { recursive, excludes: options?.excludes ?? [], filter }, Boolean(correlate));
     return Disposable.from({ dispose: /* @__PURE__ */ __name(() => proxy.$unwatch(this.session), "dispose") });
   }
   dispose() {
@@ -155,21 +132,15 @@ class LazyRevivedFileSystemEvents {
     __name(this, "LazyRevivedFileSystemEvents");
   }
   session = this._events.session;
-  _created = new Lazy(
-    () => this._events.created.map(URI.revive)
-  );
+  _created = new Lazy(() => this._events.created.map(URI.revive));
   get created() {
     return this._created.value;
   }
-  _changed = new Lazy(
-    () => this._events.changed.map(URI.revive)
-  );
+  _changed = new Lazy(() => this._events.changed.map(URI.revive));
   get changed() {
     return this._changed.value;
   }
-  _deleted = new Lazy(
-    () => this._events.deleted.map(URI.revive)
-  );
+  _deleted = new Lazy(() => this._events.deleted.map(URI.revive));
   get deleted() {
     return this._deleted.value;
   }
@@ -195,14 +166,7 @@ class ExtHostFileSystemEventService {
   onDidDeleteFile = this._onDidDeleteFile.event;
   //--- file events
   createFileSystemWatcher(workspace, extension, globPattern, options) {
-    return new FileSystemWatcher(
-      this._mainContext,
-      workspace,
-      extension,
-      this._onFileSystemEvent.event,
-      typeConverter.GlobPattern.from(globPattern),
-      options
-    );
+    return new FileSystemWatcher(this._mainContext, workspace, extension, this._onFileSystemEvent.event, typeConverter.GlobPattern.from(globPattern), options);
   }
   $onFileEvent(events) {
     this._onFileSystemEvent.fire(new LazyRevivedFileSystemEvents(events));
@@ -211,29 +175,14 @@ class ExtHostFileSystemEventService {
   $onDidRunFileOperation(operation, files) {
     switch (operation) {
       case FileOperation.MOVE:
-        this._onDidRenameFile.fire(
-          Object.freeze({
-            files: files.map((f) => ({
-              oldUri: URI.revive(f.source),
-              newUri: URI.revive(f.target)
-            }))
-          })
-        );
+        this._onDidRenameFile.fire(Object.freeze({ files: files.map((f) => ({ oldUri: URI.revive(f.source), newUri: URI.revive(f.target) })) }));
         break;
       case FileOperation.DELETE:
-        this._onDidDeleteFile.fire(
-          Object.freeze({
-            files: files.map((f) => URI.revive(f.target))
-          })
-        );
+        this._onDidDeleteFile.fire(Object.freeze({ files: files.map((f) => URI.revive(f.target)) }));
         break;
       case FileOperation.CREATE:
       case FileOperation.COPY:
-        this._onDidCreateFile.fire(
-          Object.freeze({
-            files: files.map((f) => URI.revive(f.target))
-          })
-        );
+        this._onDidCreateFile.fire(Object.freeze({ files: files.map((f) => URI.revive(f.target)) }));
         break;
       default:
     }
@@ -259,61 +208,29 @@ class ExtHostFileSystemEventService {
   async $onWillRunFileOperation(operation, files, timeout, token) {
     switch (operation) {
       case FileOperation.MOVE:
-        return await this._fireWillEvent(
-          this._onWillRenameFile,
-          {
-            files: files.map((f) => ({
-              oldUri: URI.revive(f.source),
-              newUri: URI.revive(f.target)
-            }))
-          },
-          timeout,
-          token
-        );
+        return await this._fireWillEvent(this._onWillRenameFile, { files: files.map((f) => ({ oldUri: URI.revive(f.source), newUri: URI.revive(f.target) })) }, timeout, token);
       case FileOperation.DELETE:
-        return await this._fireWillEvent(
-          this._onWillDeleteFile,
-          { files: files.map((f) => URI.revive(f.target)) },
-          timeout,
-          token
-        );
+        return await this._fireWillEvent(this._onWillDeleteFile, { files: files.map((f) => URI.revive(f.target)) }, timeout, token);
       case FileOperation.CREATE:
       case FileOperation.COPY:
-        return await this._fireWillEvent(
-          this._onWillCreateFile,
-          { files: files.map((f) => URI.revive(f.target)) },
-          timeout,
-          token
-        );
+        return await this._fireWillEvent(this._onWillCreateFile, { files: files.map((f) => URI.revive(f.target)) }, timeout, token);
     }
     return void 0;
   }
   async _fireWillEvent(emitter, data, timeout, token) {
     const extensionNames = /* @__PURE__ */ new Set();
     const edits = [];
-    await emitter.fireAsync(
-      data,
-      token,
-      async (thenable, listener) => {
-        const now = Date.now();
-        const result = await Promise.resolve(thenable);
-        if (result instanceof WorkspaceEdit) {
-          edits.push([
-            listener.extension,
-            result
-          ]);
-          extensionNames.add(
-            listener.extension.displayName ?? listener.extension.identifier.value
-          );
-        }
-        if (Date.now() - now > timeout) {
-          this._logService.warn(
-            "SLOW file-participant",
-            listener.extension.identifier
-          );
-        }
+    await emitter.fireAsync(data, token, async (thenable, listener) => {
+      const now = Date.now();
+      const result = await Promise.resolve(thenable);
+      if (result instanceof WorkspaceEdit) {
+        edits.push([listener.extension, result]);
+        extensionNames.add(listener.extension.displayName ?? listener.extension.identifier.value);
       }
-    );
+      if (Date.now() - now > timeout) {
+        this._logService.warn("SLOW file-participant", listener.extension.identifier);
+      }
+    });
     if (token.isCancellationRequested) {
       return void 0;
     }

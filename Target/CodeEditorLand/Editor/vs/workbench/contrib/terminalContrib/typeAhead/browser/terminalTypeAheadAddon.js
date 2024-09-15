@@ -14,19 +14,13 @@ import { disposableTimeout } from "../../../../../base/common/async.js";
 import { Color, RGBA } from "../../../../../base/common/color.js";
 import { debounce } from "../../../../../base/common/decorators.js";
 import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { escapeRegExpCharacters } from "../../../../../base/common/strings.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import {
-  TERMINAL_CONFIG_SECTION
-} from "../../../terminal/common/terminal.js";
-import {
-  DEFAULT_LOCAL_ECHO_EXCLUDE
-} from "../common/terminalTypeAheadConfiguration.js";
+import { XtermAttributes, IXtermCore } from "../../../terminal/browser/xterm-private.js";
+import { IBeforeProcessDataEvent, ITerminalProcessManager, TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
+import { DEFAULT_LOCAL_ECHO_EXCLUDE } from "../common/terminalTypeAheadConfiguration.js";
 var VT = /* @__PURE__ */ ((VT2) => {
   VT2["Esc"] = "\x1B";
   VT2["Csi"] = `\x1B[`;
@@ -287,11 +281,7 @@ class CharacterPrediction {
   appliedAt;
   apply(_, cursor) {
     const cell = cursor.getCell();
-    this.appliedAt = cell ? {
-      pos: cursor.coordinate,
-      oldAttributes: attributesToSeq(cell),
-      oldChar: cell.getChars()
-    } : { pos: cursor.coordinate, oldAttributes: "", oldChar: "" };
+    this.appliedAt = cell ? { pos: cursor.coordinate, oldAttributes: attributesToSeq(cell), oldChar: cell.getChars() } : { pos: cursor.coordinate, oldAttributes: "", oldChar: "" };
     cursor.shift(1);
     return this._style.apply + this._char + this._style.undo;
   }
@@ -320,9 +310,7 @@ class CharacterPrediction {
       return 0 /* Success */;
     }
     if (lookBehind instanceof CharacterPrediction) {
-      const sillyZshOutcome = input.eatGradually(
-        `\b${lookBehind._char}${this._char}`
-      );
+      const sillyZshOutcome = input.eatGradually(`\b${lookBehind._char}${this._char}`);
       if (sillyZshOutcome !== 1 /* Failure */) {
         return sillyZshOutcome;
       }
@@ -344,12 +332,7 @@ class BackspacePrediction {
     const pos = cursor.coordinate;
     const move = cursor.shift(-1);
     const cell = cursor.getCell();
-    this._appliedAt = cell ? {
-      isLastChar,
-      pos,
-      oldAttributes: attributesToSeq(cell),
-      oldChar: cell.getChars()
-    } : { isLastChar, pos, oldAttributes: "", oldChar: "" };
+    this._appliedAt = cell ? { isLastChar, pos, oldAttributes: attributesToSeq(cell), oldChar: cell.getChars() } : { isLastChar, pos, oldAttributes: "", oldChar: "" };
     return move + "\x1B[X" /* DeleteChar */;
   }
   rollback(cursor) {
@@ -431,11 +414,7 @@ class CursorMovePrediction {
     const prevPosition = cursor.x;
     const currentCell = cursor.getCell();
     const prevAttrs = currentCell ? attributesToSeq(currentCell) : "";
-    const {
-      _amount: amount,
-      _direction: direction,
-      _moveByWords: moveByWords
-    } = this;
+    const { _amount: amount, _direction: direction, _moveByWords: moveByWords } = this;
     const delta = direction === "D" /* Back */ ? -1 : 1;
     const target = cursor.clone();
     if (moveByWords) {
@@ -528,7 +507,7 @@ class PredictionStats extends Disposable {
    * Gets the maximum observed latency.
    */
   get maxLatency() {
-    let max = Number.NEGATIVE_INFINITY;
+    let max = -Infinity;
     for (const [latency, correct] of this._stats) {
       if (correct) {
         max = Math.max(latency, max);
@@ -538,17 +517,9 @@ class PredictionStats extends Disposable {
   }
   constructor(timeline) {
     super();
-    this._register(
-      timeline.onPredictionAdded(
-        (p) => this._addedAtTime.set(p, Date.now())
-      )
-    );
-    this._register(
-      timeline.onPredictionSucceeded(this._pushStat.bind(this, true))
-    );
-    this._register(
-      timeline.onPredictionFailed(this._pushStat.bind(this, false))
-    );
+    this._register(timeline.onPredictionAdded((p) => this._addedAtTime.set(p, Date.now())));
+    this._register(timeline.onPredictionSucceeded(this._pushStat.bind(this, true)));
+    this._register(timeline.onPredictionFailed(this._pushStat.bind(this, false)));
   }
   _pushStat(correct, prediction) {
     const started = this._addedAtTime.get(prediction);
@@ -629,19 +600,10 @@ class PredictionTimeline {
     const toApply = this._currentGenerationPredictions;
     if (show) {
       this.clearCursor();
-      this._style.expectIncomingStyle(
-        toApply.reduce(
-          (count, p) => p.affectsStyle ? count + 1 : count,
-          0
-        )
-      );
-      this.terminal.write(
-        toApply.map((p) => p.apply(buffer, this.physicalCursor(buffer))).join("")
-      );
+      this._style.expectIncomingStyle(toApply.reduce((count, p) => p.affectsStyle ? count + 1 : count, 0));
+      this.terminal.write(toApply.map((p) => p.apply(buffer, this.physicalCursor(buffer))).join(""));
     } else {
-      this.terminal.write(
-        toApply.reverse().map((p) => p.rollback(this.physicalCursor(buffer))).join("")
-      );
+      this.terminal.write(toApply.reverse().map((p) => p.rollback(this.physicalCursor(buffer))).join(""));
     }
   }
   /**
@@ -650,9 +612,7 @@ class PredictionTimeline {
   undoAllPredictions() {
     const buffer = this._getActiveBuffer();
     if (this._showPredictions && buffer) {
-      this.terminal.write(
-        this._currentGenerationPredictions.reverse().map((p) => p.rollback(this.physicalCursor(buffer))).join("")
-      );
+      this.terminal.write(this._currentGenerationPredictions.reverse().map((p) => p.rollback(this.physicalCursor(buffer))).join(""));
     }
     this._expected = [];
   }
@@ -690,10 +650,7 @@ class PredictionTimeline {
       const beforeTestReaderIndex = reader.index;
       switch (prediction.matches(reader, this._lookBehind)) {
         case 0 /* Success */: {
-          const eaten = input.slice(
-            beforeTestReaderIndex,
-            reader.index
-          );
+          const eaten = input.slice(beforeTestReaderIndex, reader.index);
           if (gen === startingGen) {
             output += prediction.rollForwards?.(cursor, eaten);
           } else {
@@ -713,9 +670,7 @@ class PredictionTimeline {
           const rollback = this._expected.filter((p) => p.gen === startingGen).reverse();
           output += rollback.map(({ p }) => p.rollback(this.physicalCursor(buffer))).join("");
           if (rollback.some((r) => r.p.affectsStyle)) {
-            output += attributesToSeq(
-              core(this.terminal)._inputHandler._curAttrData
-            );
+            output += attributesToSeq(core(this.terminal)._inputHandler._curAttrData);
           }
           this._clearPredictionState();
           this._failedEmitter.fire(prediction);
@@ -783,10 +738,7 @@ class PredictionTimeline {
   addBoundary(buffer, prediction) {
     let applied = false;
     if (buffer && prediction) {
-      applied = this.addPrediction(
-        buffer,
-        new TentativeBoundary(prediction)
-      );
+      applied = this.addPrediction(buffer, new TentativeBoundary(prediction));
       prediction.apply(buffer, this.tentativeCursor(buffer));
     }
     this._currentGen++;
@@ -812,11 +764,7 @@ class PredictionTimeline {
       if (this._showPredictions) {
         flushOutput(this.terminal);
       }
-      this._physicalCursor = new Cursor(
-        this.terminal.rows,
-        this.terminal.cols,
-        buffer
-      );
+      this._physicalCursor = new Cursor(this.terminal.rows, this.terminal.cols, buffer);
     }
     return this._physicalCursor;
   }
@@ -866,13 +814,7 @@ const attributesToArgs = /* @__PURE__ */ __name((cell) => {
     args.push(8);
   }
   if (cell.isFgRGB()) {
-    args.push(
-      38,
-      2,
-      cell.getFgColor() >>> 24,
-      cell.getFgColor() >>> 16 & 255,
-      cell.getFgColor() & 255
-    );
+    args.push(38, 2, cell.getFgColor() >>> 24, cell.getFgColor() >>> 16 & 255, cell.getFgColor() & 255);
   }
   if (cell.isFgPalette()) {
     args.push(38, 5, cell.getFgColor());
@@ -881,13 +823,7 @@ const attributesToArgs = /* @__PURE__ */ __name((cell) => {
     args.push(39);
   }
   if (cell.isBgRGB()) {
-    args.push(
-      48,
-      2,
-      cell.getBgColor() >>> 24,
-      cell.getBgColor() >>> 16 & 255,
-      cell.getBgColor() & 255
-    );
+    args.push(48, 2, cell.getBgColor() >>> 24, cell.getBgColor() >>> 16 & 255, cell.getBgColor() & 255);
   }
   if (cell.isBgPalette()) {
     args.push(48, 5, cell.getBgColor());
@@ -969,16 +905,11 @@ const _TypeAheadStyle = class _TypeAheadStyle {
    */
   startTracking() {
     this._expectedIncomingStyles = 0;
-    this._onDidWriteSGR(
-      attributesToArgs(core(this._terminal)._inputHandler._curAttrData)
-    );
-    this._csiHandler = this._terminal.parser.registerCsiHandler(
-      { final: "m" },
-      (args) => {
-        this._onDidWriteSGR(args);
-        return false;
-      }
-    );
+    this._onDidWriteSGR(attributesToArgs(core(this._terminal)._inputHandler._curAttrData));
+    this._csiHandler = this._terminal.parser.registerCsiHandler({ final: "m" }, (args) => {
+      this._onDidWriteSGR(args);
+      return false;
+    });
   }
   debounceStopTracking() {
     this._stopTracking();
@@ -1085,10 +1016,7 @@ __decorateClass([
   debounce(2e3)
 ], _TypeAheadStyle.prototype, "debounceStopTracking", 1);
 let TypeAheadStyle = _TypeAheadStyle;
-const compileExcludeRegexp = /* @__PURE__ */ __name((programs = DEFAULT_LOCAL_ECHO_EXCLUDE) => new RegExp(
-  `\\b(${programs.map(escapeRegExpCharacters).join("|")})\\b`,
-  "i"
-), "compileExcludeRegexp");
+const compileExcludeRegexp = /* @__PURE__ */ __name((programs = DEFAULT_LOCAL_ECHO_EXCLUDE) => new RegExp(`\\b(${programs.map(escapeRegExpCharacters).join("|")})\\b`, "i"), "compileExcludeRegexp");
 var CharPredictState = /* @__PURE__ */ ((CharPredictState2) => {
   CharPredictState2[CharPredictState2["Unknown"] = 0] = "Unknown";
   CharPredictState2[CharPredictState2["HasPendingChar"] = 1] = "HasPendingChar";
@@ -1101,22 +1029,14 @@ let TypeAheadAddon = class extends Disposable {
     this._processManager = _processManager;
     this._configurationService = _configurationService;
     this._telemetryService = _telemetryService;
-    this._register(
-      toDisposable(() => this._clearPredictionDebounce?.dispose())
-    );
+    this._register(toDisposable(() => this._clearPredictionDebounce?.dispose()));
   }
   static {
     __name(this, "TypeAheadAddon");
   }
   _typeaheadStyle;
-  _typeaheadThreshold = this._configurationService.getValue(
-    TERMINAL_CONFIG_SECTION
-  ).localEchoLatencyThreshold;
-  _excludeProgramRe = compileExcludeRegexp(
-    this._configurationService.getValue(
-      TERMINAL_CONFIG_SECTION
-    ).localEchoExcludePrograms
-  );
+  _typeaheadThreshold = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoLatencyThreshold;
+  _excludeProgramRe = compileExcludeRegexp(this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoExcludePrograms);
   _lastRow;
   _timeline;
   _terminalTitle = "";
@@ -1126,85 +1046,49 @@ let TypeAheadAddon = class extends Disposable {
    */
   _clearPredictionDebounce;
   activate(terminal) {
-    const style = this._typeaheadStyle = this._register(
-      new TypeAheadStyle(
-        this._configurationService.getValue(
-          TERMINAL_CONFIG_SECTION
-        ).localEchoStyle,
-        terminal
-      )
-    );
-    const timeline = this._timeline = new PredictionTimeline(
-      terminal,
-      this._typeaheadStyle
-    );
-    const stats = this.stats = this._register(
-      new PredictionStats(this._timeline)
-    );
+    const style = this._typeaheadStyle = this._register(new TypeAheadStyle(this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoStyle, terminal));
+    const timeline = this._timeline = new PredictionTimeline(terminal, this._typeaheadStyle);
+    const stats = this.stats = this._register(new PredictionStats(this._timeline));
     timeline.setShowPredictions(this._typeaheadThreshold === 0);
     this._register(terminal.onData((e) => this._onUserData(e)));
-    this._register(
-      terminal.onTitleChange((title) => {
-        this._terminalTitle = title;
+    this._register(terminal.onTitleChange((title) => {
+      this._terminalTitle = title;
+      this._reevaluatePredictorState(stats, timeline);
+    }));
+    this._register(terminal.onResize(() => {
+      timeline.setShowPredictions(false);
+      timeline.clearCursor();
+      this._reevaluatePredictorState(stats, timeline);
+    }));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+        style.onUpdate(this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoStyle);
+        this._typeaheadThreshold = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoLatencyThreshold;
+        this._excludeProgramRe = compileExcludeRegexp(this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoExcludePrograms);
         this._reevaluatePredictorState(stats, timeline);
-      })
-    );
-    this._register(
-      terminal.onResize(() => {
-        timeline.setShowPredictions(false);
-        timeline.clearCursor();
-        this._reevaluatePredictorState(stats, timeline);
-      })
-    );
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
-          style.onUpdate(
-            this._configurationService.getValue(
-              TERMINAL_CONFIG_SECTION
-            ).localEchoStyle
-          );
-          this._typeaheadThreshold = this._configurationService.getValue(
-            TERMINAL_CONFIG_SECTION
-          ).localEchoLatencyThreshold;
-          this._excludeProgramRe = compileExcludeRegexp(
-            this._configurationService.getValue(
-              TERMINAL_CONFIG_SECTION
-            ).localEchoExcludePrograms
-          );
-          this._reevaluatePredictorState(stats, timeline);
+      }
+    }));
+    this._register(this._timeline.onPredictionSucceeded((p) => {
+      if (this._lastRow?.charState === 1 /* HasPendingChar */ && isTenativeCharacterPrediction(p) && p.inner.appliedAt) {
+        if (p.inner.appliedAt.pos.y + p.inner.appliedAt.pos.baseY === this._lastRow.y) {
+          this._lastRow.charState = 2 /* Validated */;
         }
-      })
-    );
-    this._register(
-      this._timeline.onPredictionSucceeded((p) => {
-        if (this._lastRow?.charState === 1 /* HasPendingChar */ && isTenativeCharacterPrediction(p) && p.inner.appliedAt) {
-          if (p.inner.appliedAt.pos.y + p.inner.appliedAt.pos.baseY === this._lastRow.y) {
-            this._lastRow.charState = 2 /* Validated */;
-          }
-        }
-      })
-    );
-    this._register(
-      this._processManager.onBeforeProcessData(
-        (e) => this._onBeforeProcessData(e)
-      )
-    );
+      }
+    }));
+    this._register(this._processManager.onBeforeProcessData((e) => this._onBeforeProcessData(e)));
     let nextStatsSend;
-    this._register(
-      stats.onChange(() => {
-        if (!nextStatsSend) {
-          nextStatsSend = setTimeout(() => {
-            this._sendLatencyStats(stats);
-            nextStatsSend = void 0;
-          }, 3e5 /* StatsSendTelemetryEvery */);
-        }
-        if (timeline.length === 0) {
-          style.debounceStopTracking();
-        }
-        this._reevaluatePredictorState(stats, timeline);
-      })
-    );
+    this._register(stats.onChange(() => {
+      if (!nextStatsSend) {
+        nextStatsSend = setTimeout(() => {
+          this._sendLatencyStats(stats);
+          nextStatsSend = void 0;
+        }, 3e5 /* StatsSendTelemetryEvery */);
+      }
+      if (timeline.length === 0) {
+        style.debounceStopTracking();
+      }
+      this._reevaluatePredictorState(stats, timeline);
+    }));
   }
   reset() {
     this._lastRow = void 0;
@@ -1267,21 +1151,10 @@ let TypeAheadAddon = class extends Disposable {
     }
     const actualY = buffer.baseY + buffer.cursorY;
     if (actualY !== this._lastRow?.y) {
-      this._lastRow = {
-        y: actualY,
-        startingX: buffer.cursorX,
-        endingX: buffer.cursorX,
-        charState: 0 /* Unknown */
-      };
+      this._lastRow = { y: actualY, startingX: buffer.cursorX, endingX: buffer.cursorX, charState: 0 /* Unknown */ };
     } else {
-      this._lastRow.startingX = Math.min(
-        this._lastRow.startingX,
-        buffer.cursorX
-      );
-      this._lastRow.endingX = Math.max(
-        this._lastRow.endingX,
-        this._timeline.physicalCursor(buffer).x
-      );
+      this._lastRow.startingX = Math.min(this._lastRow.startingX, buffer.cursorX);
+      this._lastRow.endingX = Math.max(this._lastRow.endingX, this._timeline.physicalCursor(buffer).x);
     }
     const addLeftNavigating = /* @__PURE__ */ __name((p) => this._timeline.tentativeCursor(buffer).x <= this._lastRow.startingX ? this._timeline.addBoundary(buffer, p) : this._timeline.addPrediction(buffer, p), "addLeftNavigating");
     const addRightNavigating = /* @__PURE__ */ __name((p) => this._timeline.tentativeCursor(buffer).x >= this._lastRow.endingX - 1 ? this._timeline.addBoundary(buffer, p) : this._timeline.addPrediction(buffer, p), "addRightNavigating");
@@ -1296,25 +1169,16 @@ let TypeAheadAddon = class extends Disposable {
           flushOutput(this._timeline.terminal);
         }
         if (this._timeline.tentativeCursor(buffer).x <= this._lastRow.startingX) {
-          this._timeline.addBoundary(
-            buffer,
-            new BackspacePrediction(this._timeline.terminal)
-          );
+          this._timeline.addBoundary(buffer, new BackspacePrediction(this._timeline.terminal));
         } else {
           this._lastRow.endingX--;
-          this._timeline.addPrediction(
-            buffer,
-            new BackspacePrediction(this._timeline.terminal)
-          );
+          this._timeline.addPrediction(buffer, new BackspacePrediction(this._timeline.terminal));
         }
         continue;
       }
       if (reader.eatCharCode(32, 126)) {
         const char = data[reader.index - 1];
-        const prediction = new CharacterPrediction(
-          this._typeaheadStyle,
-          char
-        );
+        const prediction = new CharacterPrediction(this._typeaheadStyle, char);
         if (this._lastRow.charState === 0 /* Unknown */) {
           this._timeline.addBoundary(buffer, prediction);
           this._lastRow.charState = 1 /* HasPendingChar */;
@@ -1322,21 +1186,14 @@ let TypeAheadAddon = class extends Disposable {
           this._timeline.addPrediction(buffer, prediction);
         }
         if (this._timeline.tentativeCursor(buffer).x >= terminal.cols) {
-          this._timeline.addBoundary(
-            buffer,
-            new LinewrapPrediction()
-          );
+          this._timeline.addBoundary(buffer, new LinewrapPrediction());
         }
         continue;
       }
       const cursorMv = reader.eatRe(CSI_MOVE_RE);
       if (cursorMv) {
         const direction = cursorMv[3];
-        const p = new CursorMovePrediction(
-          direction,
-          !!cursorMv[2],
-          Number(cursorMv[1]) || 1
-        );
+        const p = new CursorMovePrediction(direction, !!cursorMv[2], Number(cursorMv[1]) || 1);
         if (direction === "D" /* Back */) {
           addLeftNavigating(p);
         } else {
@@ -1345,19 +1202,11 @@ let TypeAheadAddon = class extends Disposable {
         continue;
       }
       if (reader.eatStr(`${"\x1B" /* Esc */}f`)) {
-        addRightNavigating(
-          new CursorMovePrediction(
-            "C" /* Forwards */,
-            true,
-            1
-          )
-        );
+        addRightNavigating(new CursorMovePrediction("C" /* Forwards */, true, 1));
         continue;
       }
       if (reader.eatStr(`${"\x1B" /* Esc */}b`)) {
-        addLeftNavigating(
-          new CursorMovePrediction("D" /* Back */, true, 1)
-        );
+        addLeftNavigating(new CursorMovePrediction("D" /* Back */, true, 1));
         continue;
       }
       if (reader.eatChar("\r") && buffer.cursorY < terminal.rows - 1) {

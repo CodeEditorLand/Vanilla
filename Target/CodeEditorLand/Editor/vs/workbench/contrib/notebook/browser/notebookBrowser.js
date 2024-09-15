@@ -1,13 +1,34 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  NOTEBOOK_EDITOR_ID
-} from "../common/notebookCommon.js";
+import { CodeWindow } from "../../../../base/browser/window.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorContributionDescription } from "../../../../editor/browser/editorExtensions.js";
+import * as editorCommon from "../../../../editor/common/editorCommon.js";
+import { FontInfo } from "../../../../editor/common/config/fontInfo.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { FindMatch, IModelDeltaDecoration, IReadonlyTextBuffer, ITextModel, TrackedRangeStickiness } from "../../../../editor/common/model.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { ITextEditorOptions, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorPane, IEditorPaneWithSelection } from "../../../common/editor.js";
+import { CellViewModelStateChangeEvent, NotebookCellStateChangedEvent, NotebookLayoutInfo } from "./notebookViewEvents.js";
+import { NotebookCellTextModel } from "../common/model/notebookCellTextModel.js";
+import { NotebookTextModel } from "../common/model/notebookTextModel.js";
+import { CellKind, ICellOutput, INotebookCellStatusBarItem, INotebookRendererInfo, INotebookFindOptions, IOrderedMimeType, NotebookCellInternalMetadata, NotebookCellMetadata, NOTEBOOK_EDITOR_ID } from "../common/notebookCommon.js";
 import { isCompositeNotebookEditorInput } from "../common/notebookEditorInput.js";
-import {
-  cellRangesToIndexes,
-  reduceCellRanges
-} from "../common/notebookRange.js";
+import { INotebookKernel } from "../common/notebookKernelService.js";
+import { NotebookOptions } from "./notebookOptions.js";
+import { cellRangesToIndexes, ICellRange, reduceCellRanges } from "../common/notebookRange.js";
+import { IWebviewElement } from "../../webview/browser/webview.js";
+import { IEditorCommentsOptions, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IObservable } from "../../../../base/common/observable.js";
 const EXPAND_CELL_INPUT_COMMAND_ID = "notebook.cell.expandCellInput";
 const EXECUTE_CELL_COMMAND_ID = "notebook.cell.execute";
 const DETECT_CELL_LANGUAGE = "notebook.cell.detectLanguage";
@@ -20,12 +41,12 @@ const KERNEL_EXTENSIONS = /* @__PURE__ */ new Map([
   [IPYNB_VIEW_TYPE, JUPYTER_EXTENSION_ID]
 ]);
 const KERNEL_RECOMMENDATIONS = /* @__PURE__ */ new Map();
-KERNEL_RECOMMENDATIONS.set(
-  IPYNB_VIEW_TYPE,
-  /* @__PURE__ */ new Map()
-);
+KERNEL_RECOMMENDATIONS.set(IPYNB_VIEW_TYPE, /* @__PURE__ */ new Map());
 KERNEL_RECOMMENDATIONS.get(IPYNB_VIEW_TYPE)?.set("python", {
-  extensionIds: ["ms-python.python", JUPYTER_EXTENSION_ID],
+  extensionIds: [
+    "ms-python.python",
+    JUPYTER_EXTENSION_ID
+  ],
   displayName: "Python + Jupyter"
 });
 var RenderOutputType = /* @__PURE__ */ ((RenderOutputType2) => {
@@ -125,10 +146,7 @@ function expandCellRangesWithHiddenCells(editor, ranges) {
       return;
     }
     const nextViewIndex = viewIndex + 1;
-    const range = editor.getCellRangeFromViewRange(
-      viewIndex,
-      nextViewIndex
-    );
+    const range = editor.getCellRangeFromViewRange(viewIndex, nextViewIndex);
     if (range) {
       modelRanges.push(range);
     }

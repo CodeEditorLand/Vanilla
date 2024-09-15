@@ -12,15 +12,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 import { toLocalISOString } from "../../../base/common/date.js";
 import { memoize } from "../../../base/common/decorators.js";
 import { FileAccess, Schemas } from "../../../base/common/network.js";
-import {
-  dirname,
-  join,
-  normalize,
-  resolve
-} from "../../../base/common/path.js";
+import { dirname, join, normalize, resolve } from "../../../base/common/path.js";
 import { env } from "../../../base/common/process.js";
 import { joinPath } from "../../../base/common/resources.js";
 import { URI } from "../../../base/common/uri.js";
+import { NativeParsedArgs } from "./argv.js";
+import { ExtensionKind, IExtensionHostDebugParams, INativeEnvironmentService } from "./environment.js";
+import { IProductService } from "../../product/common/productService.js";
 const EXTENSION_IDENTIFIER_WITH_LOG_REGEX = /^([^.]+\..+)[:=](.+)$/;
 class AbstractNativeEnvironmentService {
   constructor(_args, paths, productService) {
@@ -60,10 +58,7 @@ class AbstractNativeEnvironmentService {
   }
   get logsHome() {
     if (!this.args.logsPath) {
-      const key = toLocalISOString(/* @__PURE__ */ new Date()).replace(
-        /-|:|\.\d+Z$/g,
-        ""
-      );
+      const key = toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "");
       this.args.logsPath = join(this.userDataPath, "logs", key);
     }
     return URI.file(this.args.logsPath);
@@ -72,10 +67,7 @@ class AbstractNativeEnvironmentService {
     return this.args.sync;
   }
   get machineSettingsResource() {
-    return joinPath(
-      URI.file(join(this.userDataPath, "Machine")),
-      "settings.json"
-    );
+    return joinPath(URI.file(join(this.userDataPath, "Machine")), "settings.json");
   }
   get workspaceStorageHome() {
     return joinPath(this.appSettingsHome, "workspaceStorage");
@@ -91,11 +83,7 @@ class AbstractNativeEnvironmentService {
     if (vscodePortable) {
       return URI.file(join(vscodePortable, "argv.json"));
     }
-    return joinPath(
-      this.userHome,
-      this.productService.dataFolderName,
-      "argv.json"
-    );
+    return joinPath(this.userHome, this.productService.dataFolderName, "argv.json");
   }
   get isExtensionDevelopment() {
     return !!this.args.extensionDevelopmentPath;
@@ -108,9 +96,7 @@ class AbstractNativeEnvironmentService {
     if (cliBuiltinExtensionsDir) {
       return resolve(cliBuiltinExtensionsDir);
     }
-    return normalize(
-      join(FileAccess.asFileUri("").fsPath, "..", "extensions")
-    );
+    return normalize(join(FileAccess.asFileUri("").fsPath, "..", "extensions"));
   }
   get extensionsDownloadLocation() {
     const cliExtensionsDownloadDir = this.args["extensions-download-dir"];
@@ -132,11 +118,7 @@ class AbstractNativeEnvironmentService {
     if (vscodePortable) {
       return join(vscodePortable, "extensions");
     }
-    return joinPath(
-      this.userHome,
-      this.productService.dataFolderName,
-      "extensions"
-    ).fsPath;
+    return joinPath(this.userHome, this.productService.dataFolderName, "extensions").fsPath;
   }
   get extensionDevelopmentLocationURI() {
     const extensionDevelopmentPaths = this.args.extensionDevelopmentPath;
@@ -151,9 +133,7 @@ class AbstractNativeEnvironmentService {
     return void 0;
   }
   get extensionDevelopmentKind() {
-    return this.args.extensionDevelopmentKind?.map(
-      (kind) => kind === "ui" || kind === "workspace" || kind === "web" ? kind : "workspace"
-    );
+    return this.args.extensionDevelopmentKind?.map((kind) => kind === "ui" || kind === "workspace" || kind === "web" ? kind : "workspace");
   }
   get extensionTestsLocationURI() {
     const extensionTestsPath = this.args.extensionTestsPath;
@@ -193,9 +173,7 @@ class AbstractNativeEnvironmentService {
     return !!this.args.verbose;
   }
   get logLevel() {
-    return this.args.log?.find(
-      (entry) => !EXTENSION_IDENTIFIER_WITH_LOG_REGEX.test(entry)
-    );
+    return this.args.log?.find((entry) => !EXTENSION_IDENTIFIER_WITH_LOG_REGEX.test(entry));
   }
   get extensionLogLevel() {
     const result = [];
@@ -231,11 +209,7 @@ class AbstractNativeEnvironmentService {
       if (vscodePortable) {
         return URI.file(join(vscodePortable, "policy.json"));
       }
-      return joinPath(
-        this.userHome,
-        this.productService.dataFolderName,
-        "policy.json"
-      );
+      return joinPath(this.userHome, this.productService.dataFolderName, "policy.json");
     }
     return void 0;
   }
@@ -341,19 +315,12 @@ __decorateClass([
   memoize
 ], AbstractNativeEnvironmentService.prototype, "policyFile", 1);
 function parseExtensionHostDebugPort(args, isBuilt) {
-  return parseDebugParams(
-    args["inspect-extensions"],
-    args["inspect-brk-extensions"],
-    5870,
-    isBuilt,
-    args.debugId,
-    args.extensionEnvironment
-  );
+  return parseDebugParams(args["inspect-extensions"], args["inspect-brk-extensions"], 5870, isBuilt, args.debugId, args.extensionEnvironment);
 }
 __name(parseExtensionHostDebugPort, "parseExtensionHostDebugPort");
 function parseDebugParams(debugArg, debugBrkArg, defaultBuildPort, isBuilt, debugId, environmentString) {
   const portStr = debugBrkArg || debugArg;
-  const port = Number(portStr) || (isBuilt ? null : defaultBuildPort);
+  const port = Number(portStr) || (!isBuilt ? defaultBuildPort : null);
   const brk = port ? Boolean(!!debugBrkArg) : false;
   let env2;
   if (environmentString) {

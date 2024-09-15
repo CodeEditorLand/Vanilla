@@ -1,16 +1,32 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDimension } from "../../../../base/browser/dom.js";
+import { Orientation } from "../../../../base/browser/ui/splitview/splitview.js";
+import { Color } from "../../../../base/common/color.js";
+import { Event, IDynamicListEventMultiplexer } from "../../../../base/common/event.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { OperatingSystem } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeyMods } from "../../../../platform/quickinput/common/quickInput.js";
+import { IMarkProperties, ITerminalCapabilityImplMap, ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
+import { IExtensionTerminalProfile, IReconnectionProperties, IShellIntegration, IShellLaunchConfig, ITerminalBackend, ITerminalDimensions, ITerminalLaunchError, ITerminalProfile, ITerminalTabLayoutInfoById, TerminalExitReason, TerminalIcon, TerminalLocation, TerminalShellType, TerminalType, TitleEventSource, WaitOnExitValue } from "../../../../platform/terminal/common/terminal.js";
+import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditableData } from "../../../common/views.js";
+import { ITerminalStatusList } from "./terminalStatusList.js";
+import { XtermTerminal } from "./xterm/xtermTerminal.js";
+import { IRegisterContributedProfileArgs, IRemoteTerminalAttachTarget, IStartExtensionTerminalRequest, ITerminalConfiguration, ITerminalFont, ITerminalProcessExtHostProxy, ITerminalProcessInfo } from "../common/terminal.js";
+import { ScrollPosition } from "./xterm/markNavigationAddon.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { GroupIdentifier } from "../../../common/editor.js";
+import { ACTIVE_GROUP_TYPE, AUX_WINDOW_GROUP_TYPE, SIDE_GROUP_TYPE } from "../../../services/editor/common/editorService.js";
 const ITerminalService = createDecorator("terminalService");
-const ITerminalConfigurationService = createDecorator(
-  "terminalConfigurationService"
-);
-const ITerminalEditorService = createDecorator(
-  "terminalEditorService"
-);
-const ITerminalGroupService = createDecorator(
-  "terminalGroupService"
-);
+const ITerminalConfigurationService = createDecorator("terminalConfigurationService");
+const ITerminalEditorService = createDecorator("terminalEditorService");
+const ITerminalGroupService = createDecorator("terminalGroupService");
 const ITerminalInstanceService = createDecorator("terminalInstanceService");
 var Direction = /* @__PURE__ */ ((Direction2) => {
   Direction2[Direction2["Left"] = 0] = "Left";

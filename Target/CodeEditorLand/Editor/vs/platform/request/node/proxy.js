@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { parse as parseUrl } from "url";
+import { parse as parseUrl, Url } from "url";
 import { isBoolean } from "../../../base/common/types.js";
 function getSystemProxyURI(requestURL, env) {
   if (requestURL.protocol === "http:") {

@@ -13,16 +13,16 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
 import { join } from "../../../../base/common/path.js";
 import { Promises } from "../../../../base/node/pfs.js";
 import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { StorageClient } from "../../../../platform/storage/common/storageIpc.js";
 import { EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE } from "../../../../platform/workspace/common/workspace.js";
 import { NON_EMPTY_WORKSPACE_ID_LENGTH } from "../../../../platform/workspaces/node/workspaces.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { Schemas } from "../../../../base/common/network.js";
 let UnusedWorkspaceStorageDataCleaner = class extends Disposable {
   constructor(environmentService, logService, nativeHostService, mainProcessService) {
     super();
@@ -43,47 +43,30 @@ let UnusedWorkspaceStorageDataCleaner = class extends Disposable {
     __name(this, "UnusedWorkspaceStorageDataCleaner");
   }
   async cleanUpStorage() {
-    this.logService.trace(
-      "[storage cleanup]: Starting to clean up workspace storage folders for unused empty workspaces."
-    );
+    this.logService.trace("[storage cleanup]: Starting to clean up workspace storage folders for unused empty workspaces.");
     try {
-      const workspaceStorageHome = this.environmentService.workspaceStorageHome.with({
-        scheme: Schemas.file
-      }).fsPath;
+      const workspaceStorageHome = this.environmentService.workspaceStorageHome.with({ scheme: Schemas.file }).fsPath;
       const workspaceStorageFolders = await Promises.readdir(workspaceStorageHome);
-      const storageClient = new StorageClient(
-        this.mainProcessService.getChannel("storage")
-      );
-      await Promise.all(
-        workspaceStorageFolders.map(async (workspaceStorageFolder) => {
-          const workspaceStoragePath = join(
-            workspaceStorageHome,
-            workspaceStorageFolder
-          );
-          if (workspaceStorageFolder.length === NON_EMPTY_WORKSPACE_ID_LENGTH) {
-            return;
-          }
-          if (workspaceStorageFolder === EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE.id) {
-            return;
-          }
-          const windows = await this.nativeHostService.getWindows({
-            includeAuxiliaryWindows: false
-          });
-          if (windows.some(
-            (window) => window.workspace?.id === workspaceStorageFolder
-          )) {
-            return;
-          }
-          const isStorageUsed = await storageClient.isUsed(workspaceStoragePath);
-          if (isStorageUsed) {
-            return;
-          }
-          this.logService.trace(
-            `[storage cleanup]: Deleting workspace storage folder ${workspaceStorageFolder} as it seems to be an unused empty workspace.`
-          );
-          await Promises.rm(workspaceStoragePath);
-        })
-      );
+      const storageClient = new StorageClient(this.mainProcessService.getChannel("storage"));
+      await Promise.all(workspaceStorageFolders.map(async (workspaceStorageFolder) => {
+        const workspaceStoragePath = join(workspaceStorageHome, workspaceStorageFolder);
+        if (workspaceStorageFolder.length === NON_EMPTY_WORKSPACE_ID_LENGTH) {
+          return;
+        }
+        if (workspaceStorageFolder === EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE.id) {
+          return;
+        }
+        const windows = await this.nativeHostService.getWindows({ includeAuxiliaryWindows: false });
+        if (windows.some((window) => window.workspace?.id === workspaceStorageFolder)) {
+          return;
+        }
+        const isStorageUsed = await storageClient.isUsed(workspaceStoragePath);
+        if (isStorageUsed) {
+          return;
+        }
+        this.logService.trace(`[storage cleanup]: Deleting workspace storage folder ${workspaceStorageFolder} as it seems to be an unused empty workspace.`);
+        await Promises.rm(workspaceStoragePath);
+      }));
     } catch (error) {
       onUnexpectedError(error);
     }

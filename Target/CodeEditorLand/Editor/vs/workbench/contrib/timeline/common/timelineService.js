@@ -10,30 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { ITimelineService, TimelineChangeEvent, TimelineOptions, TimelineProvidersChangeEvent, TimelineProvider, TimelinePaneId } from "./timeline.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
-  TimelinePaneId
-} from "./timeline.js";
-const TimelineHasProviderContext = new RawContextKey(
-  "timelineHasProvider",
-  false
-);
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+const TimelineHasProviderContext = new RawContextKey("timelineHasProvider", false);
 let TimelineService = class {
   constructor(logService, viewsService, configurationService, contextKeyService) {
     this.logService = logService;
     this.viewsService = viewsService;
     this.configurationService = configurationService;
     this.contextKeyService = contextKeyService;
-    this.hasProviderContext = TimelineHasProviderContext.bindTo(
-      this.contextKeyService
-    );
+    this.hasProviderContext = TimelineHasProviderContext.bindTo(this.contextKeyService);
     this.updateHasProviderContext();
   }
   static {
@@ -49,15 +42,10 @@ let TimelineService = class {
   providers = /* @__PURE__ */ new Map();
   providerSubscriptions = /* @__PURE__ */ new Map();
   getSources() {
-    return [...this.providers.values()].map((p) => ({
-      id: p.id,
-      label: p.label
-    }));
+    return [...this.providers.values()].map((p) => ({ id: p.id, label: p.label }));
   }
   getTimeline(id, uri, options, tokenSource) {
-    this.logService.trace(
-      `TimelineService#getTimeline(${id}): uri=${uri.toString()}`
-    );
+    this.logService.trace(`TimelineService#getTimeline(${id}): uri=${uri.toString()}`);
     const provider = this.providers.get(id);
     if (provider === void 0) {
       return void 0;
@@ -74,16 +62,8 @@ let TimelineService = class {
         if (result === void 0) {
           return void 0;
         }
-        result.items = result.items.map((item) => ({
-          ...item,
-          source: provider.id
-        }));
-        result.items.sort(
-          (a, b) => b.timestamp - a.timestamp || b.source.localeCompare(a.source, void 0, {
-            numeric: true,
-            sensitivity: "base"
-          })
-        );
+        result.items = result.items.map((item) => ({ ...item, source: provider.id }));
+        result.items.sort((a, b) => b.timestamp - a.timestamp || b.source.localeCompare(a.source, void 0, { numeric: true, sensitivity: "base" }));
         return result;
       }),
       options,
@@ -93,9 +73,7 @@ let TimelineService = class {
     };
   }
   registerTimelineProvider(provider) {
-    this.logService.trace(
-      `TimelineService#registerTimelineProvider: id=${provider.id}`
-    );
+    this.logService.trace(`TimelineService#registerTimelineProvider: id=${provider.id}`);
     const id = provider.id;
     const existing = this.providers.get(id);
     if (existing) {
@@ -107,10 +85,7 @@ let TimelineService = class {
     this.providers.set(id, provider);
     this.updateHasProviderContext();
     if (provider.onDidChange) {
-      this.providerSubscriptions.set(
-        id,
-        provider.onDidChange((e) => this._onDidChangeTimeline.fire(e))
-      );
+      this.providerSubscriptions.set(id, provider.onDidChange((e) => this._onDidChangeTimeline.fire(e)));
     }
     this._onDidChangeProviders.fire({ added: [id] });
     return {
@@ -121,9 +96,7 @@ let TimelineService = class {
     };
   }
   unregisterTimelineProvider(id) {
-    this.logService.trace(
-      `TimelineService#unregisterTimelineProvider: id=${id}`
-    );
+    this.logService.trace(`TimelineService#unregisterTimelineProvider: id=${id}`);
     if (!this.providers.has(id)) {
       return;
     }

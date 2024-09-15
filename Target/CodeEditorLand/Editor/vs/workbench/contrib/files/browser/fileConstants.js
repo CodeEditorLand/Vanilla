@@ -15,45 +15,24 @@ const SAVE_FILE_AS_LABEL = nls.localize2("saveAs", "Save As...");
 const SAVE_FILE_COMMAND_ID = "workbench.action.files.save";
 const SAVE_FILE_LABEL = nls.localize2("save", "Save");
 const SAVE_FILE_WITHOUT_FORMATTING_COMMAND_ID = "workbench.action.files.saveWithoutFormatting";
-const SAVE_FILE_WITHOUT_FORMATTING_LABEL = nls.localize2(
-  "saveWithoutFormatting",
-  "Save without Formatting"
-);
+const SAVE_FILE_WITHOUT_FORMATTING_LABEL = nls.localize2("saveWithoutFormatting", "Save without Formatting");
 const SAVE_ALL_COMMAND_ID = "saveAll";
 const SAVE_ALL_LABEL = nls.localize2("saveAll", "Save All");
 const SAVE_ALL_IN_GROUP_COMMAND_ID = "workbench.files.action.saveAllInGroup";
 const SAVE_FILES_COMMAND_ID = "workbench.action.files.saveFiles";
-const OpenEditorsGroupContext = new RawContextKey(
-  "groupFocusedInOpenEditors",
-  false
-);
-const OpenEditorsDirtyEditorContext = new RawContextKey(
-  "dirtyEditorFocusedInOpenEditors",
-  false
-);
-const OpenEditorsReadonlyEditorContext = new RawContextKey(
-  "readonlyEditorFocusedInOpenEditors",
-  false
-);
+const OpenEditorsGroupContext = new RawContextKey("groupFocusedInOpenEditors", false);
+const OpenEditorsDirtyEditorContext = new RawContextKey("dirtyEditorFocusedInOpenEditors", false);
+const OpenEditorsReadonlyEditorContext = new RawContextKey("readonlyEditorFocusedInOpenEditors", false);
 const OpenEditorsSelectedFileOrUntitledContext = new RawContextKey("openEditorsSelectedFileOrUntitled", true);
-const ResourceSelectedForCompareContext = new RawContextKey(
-  "resourceSelectedForCompare",
-  false
-);
+const ResourceSelectedForCompareContext = new RawContextKey("resourceSelectedForCompare", false);
 const REMOVE_ROOT_FOLDER_COMMAND_ID = "removeRootFolder";
-const REMOVE_ROOT_FOLDER_LABEL = nls.localize(
-  "removeFolderFromWorkspace",
-  "Remove Folder from Workspace"
-);
+const REMOVE_ROOT_FOLDER_LABEL = nls.localize("removeFolderFromWorkspace", "Remove Folder from Workspace");
 const PREVIOUS_COMPRESSED_FOLDER = "previousCompressedFolder";
 const NEXT_COMPRESSED_FOLDER = "nextCompressedFolder";
 const FIRST_COMPRESSED_FOLDER = "firstCompressedFolder";
 const LAST_COMPRESSED_FOLDER = "lastCompressedFolder";
 const NEW_UNTITLED_FILE_COMMAND_ID = "workbench.action.files.newUntitledFile";
-const NEW_UNTITLED_FILE_LABEL = nls.localize2(
-  "newUntitledFile",
-  "New Untitled Text File"
-);
+const NEW_UNTITLED_FILE_LABEL = nls.localize2("newUntitledFile", "New Untitled Text File");
 const NEW_FILE_COMMAND_ID = "workbench.action.files.newFile";
 export {
   COMPARE_RESOURCE_COMMAND_ID,

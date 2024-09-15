@@ -14,9 +14,7 @@ import { Disposable } from "../../../../base/common/lifecycle.js";
 import { FontMeasurements } from "../../../../editor/browser/config/fontMeasurements.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 let DisplayChangeRemeasureFonts = class extends Disposable {
   static {
@@ -24,20 +22,13 @@ let DisplayChangeRemeasureFonts = class extends Disposable {
   }
   constructor(nativeHostService) {
     super();
-    this._register(
-      nativeHostService.onDidChangeDisplay(() => {
-        FontMeasurements.clearAllFontInfos();
-      })
-    );
+    this._register(nativeHostService.onDidChangeDisplay(() => {
+      FontMeasurements.clearAllFontInfos();
+    }));
   }
 };
 DisplayChangeRemeasureFonts = __decorateClass([
   __decorateParam(0, INativeHostService)
 ], DisplayChangeRemeasureFonts);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  DisplayChangeRemeasureFonts,
-  LifecyclePhase.Eventually
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(DisplayChangeRemeasureFonts, LifecyclePhase.Eventually);
 //# sourceMappingURL=displayChangeRemeasureFonts.js.map

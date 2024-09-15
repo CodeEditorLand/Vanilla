@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CodeWindow, mainWindow } from "./window.js";
 import { Emitter } from "../common/event.js";
-import { mainWindow } from "./window.js";
 class WindowManager {
   static {
     __name(this, "WindowManager");
@@ -28,10 +28,7 @@ class WindowManager {
     return this.mapWindowIdToZoomFactor.get(this.getWindowId(targetWindow)) ?? 1;
   }
   setZoomFactor(zoomFactor, targetWindow) {
-    this.mapWindowIdToZoomFactor.set(
-      this.getWindowId(targetWindow),
-      zoomFactor
-    );
+    this.mapWindowIdToZoomFactor.set(this.getWindowId(targetWindow), zoomFactor);
   }
   // --- Fullscreen
   _onDidChangeFullscreen = new Emitter();
@@ -46,9 +43,7 @@ class WindowManager {
     this._onDidChangeFullscreen.fire(windowId);
   }
   isFullscreen(targetWindow) {
-    return !!this.mapWindowIdToFullScreen.get(
-      this.getWindowId(targetWindow)
-    );
+    return !!this.mapWindowIdToFullScreen.get(this.getWindowId(targetWindow));
   }
   getWindowId(targetWindow) {
     return targetWindow.vscodeWindowId;
@@ -97,23 +92,15 @@ const isElectron = userAgent.indexOf("Electron/") >= 0;
 const isAndroid = userAgent.indexOf("Android") >= 0;
 let standalone = false;
 if (typeof mainWindow.matchMedia === "function") {
-  const standaloneMatchMedia = mainWindow.matchMedia(
-    "(display-mode: standalone) or (display-mode: window-controls-overlay)"
-  );
-  const fullScreenMatchMedia = mainWindow.matchMedia(
-    "(display-mode: fullscreen)"
-  );
+  const standaloneMatchMedia = mainWindow.matchMedia("(display-mode: standalone) or (display-mode: window-controls-overlay)");
+  const fullScreenMatchMedia = mainWindow.matchMedia("(display-mode: fullscreen)");
   standalone = standaloneMatchMedia.matches;
-  addMatchMediaChangeListener(
-    mainWindow,
-    standaloneMatchMedia,
-    ({ matches }) => {
-      if (standalone && fullScreenMatchMedia.matches) {
-        return;
-      }
-      standalone = matches;
+  addMatchMediaChangeListener(mainWindow, standaloneMatchMedia, ({ matches }) => {
+    if (standalone && fullScreenMatchMedia.matches) {
+      return;
     }
-  );
+    standalone = matches;
+  });
 }
 function isStandalone() {
   return standalone;

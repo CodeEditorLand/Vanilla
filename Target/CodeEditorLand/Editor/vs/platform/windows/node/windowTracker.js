@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createCancelablePromise
-} from "../../../base/common/async.js";
+import { CancelablePromise, createCancelablePromise } from "../../../base/common/async.js";
 import { Event } from "../../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 class ActiveWindowManager extends Disposable {
@@ -12,19 +10,11 @@ class ActiveWindowManager extends Disposable {
   disposables = this._register(new DisposableStore());
   firstActiveWindowIdPromise;
   activeWindowId;
-  constructor({
-    onDidOpenMainWindow,
-    onDidFocusMainWindow,
-    getActiveWindowId
-  }) {
+  constructor({ onDidOpenMainWindow, onDidFocusMainWindow, getActiveWindowId }) {
     super();
-    const onActiveWindowChange = Event.latch(
-      Event.any(onDidOpenMainWindow, onDidFocusMainWindow)
-    );
+    const onActiveWindowChange = Event.latch(Event.any(onDidOpenMainWindow, onDidFocusMainWindow));
     onActiveWindowChange(this.setActiveWindow, this, this.disposables);
-    this.firstActiveWindowIdPromise = createCancelablePromise(
-      () => getActiveWindowId()
-    );
+    this.firstActiveWindowIdPromise = createCancelablePromise(() => getActiveWindowId());
     (async () => {
       try {
         const windowId = await this.firstActiveWindowIdPromise;

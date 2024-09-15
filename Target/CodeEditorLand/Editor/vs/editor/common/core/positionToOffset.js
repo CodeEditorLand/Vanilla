@@ -30,10 +30,7 @@ class PositionOffsetTransformer {
     );
   }
   getPosition(offset) {
-    const idx = findLastIdxMonotonous(
-      this.lineStartOffsetByLineIdx,
-      (i) => i <= offset
-    );
+    const idx = findLastIdxMonotonous(this.lineStartOffsetByLineIdx, (i) => i <= offset);
     const lineNumber = idx + 1;
     const column = offset - this.lineStartOffsetByLineIdx[idx] + 1;
     return new Position(lineNumber, column);
@@ -49,10 +46,7 @@ class PositionOffsetTransformer {
   }
   get textLength() {
     const lineIdx = this.lineStartOffsetByLineIdx.length - 1;
-    return new TextLength(
-      lineIdx,
-      this.text.length - this.lineStartOffsetByLineIdx[lineIdx]
-    );
+    return new TextLength(lineIdx, this.text.length - this.lineStartOffsetByLineIdx[lineIdx]);
   }
 }
 export {

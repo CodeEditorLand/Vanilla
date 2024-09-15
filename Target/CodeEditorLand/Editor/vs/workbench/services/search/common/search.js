@@ -1,17 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { mapArrayOrNot } from "../../../../base/common/arrays.js";
-import { isThenable } from "../../../../base/common/async.js";
-import { isCancellationError } from "../../../../base/common/errors.js";
-import * as extpath from "../../../../base/common/extpath.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import * as glob from "../../../../base/common/glob.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import * as objects from "../../../../base/common/objects.js";
-import * as paths from "../../../../base/common/path.js";
+import * as extpath from "../../../../base/common/extpath.js";
 import { fuzzyContains, getNLines } from "../../../../base/common/strings.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IFilesConfiguration } from "../../../../platform/files/common/files.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  TextSearchCompleteMessageType
-} from "./searchExtTypes.js";
+import { ITelemetryData } from "../../../../platform/telemetry/common/telemetry.js";
+import { Event } from "../../../../base/common/event.js";
+import * as paths from "../../../../base/common/path.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { GlobPattern, TextSearchCompleteMessageType } from "./searchExtTypes.js";
+import { isThenable } from "../../../../base/common/async.js";
+import { ResourceSet } from "../../../../base/common/map.js";
 const VIEWLET_ID = "workbench.view.search";
 const PANEL_ID = "workbench.panel.search";
 const VIEW_ID = "workbench.view.search";
@@ -77,10 +82,7 @@ class TextSearchMatch {
       let lastEnd = 0;
       const leadingChars = Math.floor(previewOptions.charsPerLine / 5);
       for (const range of rangesArr) {
-        const previewStart = Math.max(
-          range.startColumn - leadingChars,
-          0
-        );
+        const previewStart = Math.max(range.startColumn - leadingChars, 0);
         const previewEnd = range.startColumn + previewOptions.charsPerLine;
         if (previewStart > lastEnd + leadingChars + SEARCH_ELIDED_MIN_LEN) {
           const elision = SEARCH_ELIDED_PREFIX + (previewStart - lastEnd) + SEARCH_ELIDED_SUFFIX;
@@ -92,23 +94,14 @@ class TextSearchMatch {
         lastEnd = previewEnd;
         this.rangeLocations.push({
           source: range,
-          preview: new OneLineRange(
-            0,
-            range.startColumn - shift,
-            range.endColumn - shift
-          )
+          preview: new OneLineRange(0, range.startColumn - shift, range.endColumn - shift)
         });
       }
       this.previewText = result;
     } else {
       const firstMatchLine = Array.isArray(ranges) ? ranges[0].startLineNumber : ranges.startLineNumber;
       const rangeLocs = mapArrayOrNot(ranges, (r) => ({
-        preview: new SearchRange(
-          r.startLineNumber - firstMatchLine,
-          r.startColumn,
-          r.endLineNumber - firstMatchLine,
-          r.endColumn
-        ),
+        preview: new SearchRange(r.startLineNumber - firstMatchLine, r.startColumn, r.endLineNumber - firstMatchLine, r.endColumn),
         source: r
       }));
       this.rangeLocations = Array.isArray(rangeLocs) ? rangeLocs : [rangeLocs];
@@ -174,11 +167,7 @@ function getExcludes(configuration, includeSearchExcludes = true) {
   }
   let allExcludes = /* @__PURE__ */ Object.create(null);
   allExcludes = objects.mixin(allExcludes, objects.deepClone(fileExcludes));
-  allExcludes = objects.mixin(
-    allExcludes,
-    objects.deepClone(searchExcludes),
-    true
-  );
+  allExcludes = objects.mixin(allExcludes, objects.deepClone(searchExcludes), true);
   return allExcludes;
 }
 __name(getExcludes, "getExcludes");
@@ -316,9 +305,7 @@ class QueryGlobTester {
     if (this._excludeExpression.length === 0) {
       this._excludeExpression = [config.excludePattern || {}];
     }
-    this._parsedExcludeExpression = this._excludeExpression.map(
-      (e) => glob.parse(e)
-    );
+    this._parsedExcludeExpression = this._excludeExpression.map((e) => glob.parse(e));
     let includeExpression = config.includePattern;
     if (folderQuery.includePattern) {
       if (includeExpression) {
@@ -369,32 +356,23 @@ class QueryGlobTester {
    */
   includedInQuery(testPath, basename, hasSibling) {
     const isIncluded = /* @__PURE__ */ __name(() => {
-      return this._parsedIncludeExpression ? !!this._parsedIncludeExpression(
-        testPath,
-        basename,
-        hasSibling
-      ) : true;
+      return this._parsedIncludeExpression ? !!this._parsedIncludeExpression(testPath, basename, hasSibling) : true;
     }, "isIncluded");
-    return Promise.all(
-      this._parsedExcludeExpression.map((e) => {
-        const excluded = e(testPath, basename, hasSibling);
-        if (isThenable(excluded)) {
-          return excluded.then((excluded2) => {
-            if (excluded2) {
-              return false;
-            }
-            return isIncluded();
-          });
-        }
-        return isIncluded();
-      })
-    ).then((e) => e.some((e2) => !!e2));
+    return Promise.all(this._parsedExcludeExpression.map((e) => {
+      const excluded = e(testPath, basename, hasSibling);
+      if (isThenable(excluded)) {
+        return excluded.then((excluded2) => {
+          if (excluded2) {
+            return false;
+          }
+          return isIncluded();
+        });
+      }
+      return isIncluded();
+    })).then((e) => e.some((e2) => !!e2));
   }
   hasSiblingExcludeClauses() {
-    return this._excludeExpression.reduce(
-      (prev, curr) => hasSiblingClauses(curr) || prev,
-      false
-    );
+    return this._excludeExpression.reduce((prev, curr) => hasSiblingClauses(curr) || prev, false);
   }
 }
 function hasSiblingClauses(pattern) {
@@ -413,9 +391,7 @@ function hasSiblingPromiseFn(siblingsFn) {
   let siblings;
   return (name) => {
     if (!siblings) {
-      siblings = (siblingsFn() || Promise.resolve([])).then(
-        (list) => list ? listToMap(list) : {}
-      );
+      siblings = (siblingsFn() || Promise.resolve([])).then((list) => list ? listToMap(list) : {});
     }
     return siblings.then((map) => !!map[name]);
   };
@@ -444,14 +420,12 @@ function listToMap(list) {
 }
 __name(listToMap, "listToMap");
 function excludeToGlobPattern(excludesForFolder) {
-  return excludesForFolder.flatMap(
-    (exclude) => exclude.patterns.map((pattern) => {
-      return exclude.baseUri ? {
-        baseUri: exclude.baseUri,
-        pattern
-      } : pattern;
-    })
-  );
+  return excludesForFolder.flatMap((exclude) => exclude.patterns.map((pattern) => {
+    return exclude.baseUri ? {
+      baseUri: exclude.baseUri,
+      pattern
+    } : pattern;
+  }));
 }
 __name(excludeToGlobPattern, "excludeToGlobPattern");
 const DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS = {

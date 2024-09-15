@@ -14,13 +14,12 @@ import { URI } from "../../../../../base/common/uri.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
 import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
-import {
-  IMultiDiffSourceResolverService
-} from "../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
+import { IMultiDiffSourceResolverService, IResolvedMultiDiffSource } from "../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
+import { NotebookDiffViewModel } from "./notebookDiffViewModel.js";
 import { NotebookDiffEditorInput } from "../../common/notebookDiffEditorInput.js";
 import { NotebookEditorInput } from "../../common/notebookEditorInput.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
 const NotebookMultiDiffEditorScheme = "multi-cell-notebook-diff-editor";
 class NotebookMultiDiffEditorInput extends NotebookDiffEditorInput {
   static {
@@ -28,41 +27,14 @@ class NotebookMultiDiffEditorInput extends NotebookDiffEditorInput {
   }
   static ID = "workbench.input.multiDiffNotebookInput";
   static create(instantiationService, resource, name, description, originalResource, viewType) {
-    const original = NotebookEditorInput.getOrCreate(
-      instantiationService,
-      originalResource,
-      void 0,
-      viewType
-    );
-    const modified = NotebookEditorInput.getOrCreate(
-      instantiationService,
-      resource,
-      void 0,
-      viewType
-    );
-    return instantiationService.createInstance(
-      NotebookMultiDiffEditorInput,
-      name,
-      description,
-      original,
-      modified,
-      viewType
-    );
+    const original = NotebookEditorInput.getOrCreate(instantiationService, originalResource, void 0, viewType);
+    const modified = NotebookEditorInput.getOrCreate(instantiationService, resource, void 0, viewType);
+    return instantiationService.createInstance(NotebookMultiDiffEditorInput, name, description, original, modified, viewType);
   }
 }
 let NotebookMultiDiffEditorWidgetInput = class extends MultiDiffEditorInput {
   constructor(multiDiffSource, notebookDiffViewModel, _textModelService, _textResourceConfigurationService, _instantiationService, _multiDiffSourceResolverService, _textFileService) {
-    super(
-      multiDiffSource,
-      void 0,
-      void 0,
-      true,
-      _textModelService,
-      _textResourceConfigurationService,
-      _instantiationService,
-      _multiDiffSourceResolverService,
-      _textFileService
-    );
+    super(multiDiffSource, void 0, void 0, true, _textModelService, _textResourceConfigurationService, _instantiationService, _multiDiffSourceResolverService, _textFileService);
     this.notebookDiffViewModel = notebookDiffViewModel;
     this._register(_multiDiffSourceResolverService.registerResolver(this));
   }
@@ -70,9 +42,7 @@ let NotebookMultiDiffEditorWidgetInput = class extends MultiDiffEditorInput {
     __name(this, "NotebookMultiDiffEditorWidgetInput");
   }
   static createInput(notebookDiffViewModel, instantiationService) {
-    const multiDiffSource = URI.parse(
-      `${NotebookMultiDiffEditorScheme}:${(/* @__PURE__ */ new Date()).getMilliseconds().toString() + Math.random().toString()}`
-    );
+    const multiDiffSource = URI.parse(`${NotebookMultiDiffEditorScheme}:${(/* @__PURE__ */ new Date()).getMilliseconds().toString() + Math.random().toString()}`);
     return instantiationService.createInstance(
       NotebookMultiDiffEditorWidgetInput,
       multiDiffSource,

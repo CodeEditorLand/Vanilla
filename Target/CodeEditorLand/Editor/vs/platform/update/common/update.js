@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 var StateType = /* @__PURE__ */ ((StateType2) => {
   StateType2["Uninitialized"] = "uninitialized";
@@ -32,23 +33,11 @@ const State = {
   Uninitialized: { type: "uninitialized" /* Uninitialized */ },
   Disabled: /* @__PURE__ */ __name((reason) => ({ type: "disabled" /* Disabled */, reason }), "Disabled"),
   Idle: /* @__PURE__ */ __name((updateType, error) => ({ type: "idle" /* Idle */, updateType, error }), "Idle"),
-  CheckingForUpdates: /* @__PURE__ */ __name((explicit) => ({
-    type: "checking for updates" /* CheckingForUpdates */,
-    explicit
-  }), "CheckingForUpdates"),
-  AvailableForDownload: /* @__PURE__ */ __name((update) => ({
-    type: "available for download" /* AvailableForDownload */,
-    update
-  }), "AvailableForDownload"),
+  CheckingForUpdates: /* @__PURE__ */ __name((explicit) => ({ type: "checking for updates" /* CheckingForUpdates */, explicit }), "CheckingForUpdates"),
+  AvailableForDownload: /* @__PURE__ */ __name((update) => ({ type: "available for download" /* AvailableForDownload */, update }), "AvailableForDownload"),
   Downloading: { type: "downloading" /* Downloading */ },
-  Downloaded: /* @__PURE__ */ __name((update) => ({
-    type: "downloaded" /* Downloaded */,
-    update
-  }), "Downloaded"),
-  Updating: /* @__PURE__ */ __name((update) => ({
-    type: "updating" /* Updating */,
-    update
-  }), "Updating"),
+  Downloaded: /* @__PURE__ */ __name((update) => ({ type: "downloaded" /* Downloaded */, update }), "Downloaded"),
+  Updating: /* @__PURE__ */ __name((update) => ({ type: "updating" /* Updating */, update }), "Updating"),
   Ready: /* @__PURE__ */ __name((update) => ({ type: "ready" /* Ready */, update }), "Ready")
 };
 const IUpdateService = createDecorator("updateService");

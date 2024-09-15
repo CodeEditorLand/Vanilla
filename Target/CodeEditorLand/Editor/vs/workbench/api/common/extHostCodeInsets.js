@@ -2,25 +2,24 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import {
-  asWebviewUri,
-  webviewGenericCspSource
-} from "../../contrib/webview/common/webview.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { ExtHostTextEditor } from "./extHostTextEditor.js";
+import { ExtHostEditors } from "./extHostTextEditors.js";
+import { asWebviewUri, webviewGenericCspSource, WebviewRemoteInfo } from "../../contrib/webview/common/webview.js";
+import { ExtHostEditorInsetsShape, MainThreadEditorInsetsShape } from "./extHost.protocol.js";
 class ExtHostEditorInsets {
   constructor(_proxy, _editors, _remoteInfo) {
     this._proxy = _proxy;
     this._editors = _editors;
     this._remoteInfo = _remoteInfo;
-    this._disposables.add(
-      _editors.onDidChangeVisibleTextEditors(() => {
-        const visibleEditor = _editors.getVisibleTextEditors();
-        for (const value of this._insets.values()) {
-          if (visibleEditor.indexOf(value.editor) < 0) {
-            value.inset.dispose();
-          }
+    this._disposables.add(_editors.onDidChangeVisibleTextEditors(() => {
+      const visibleEditor = _editors.getVisibleTextEditors();
+      for (const value of this._insets.values()) {
+        if (visibleEditor.indexOf(value.editor) < 0) {
+          value.inset.dispose();
         }
-      })
-    );
+      }
+    }));
   }
   static {
     __name(this, "ExtHostEditorInsets");
@@ -93,16 +92,7 @@ class ExtHostEditorInsets {
         }
       }
     }();
-    this._proxy.$createEditorInset(
-      handle,
-      apiEditor.id,
-      apiEditor.value.document.uri,
-      line + 1,
-      height,
-      options || {},
-      extension.identifier,
-      extension.extensionLocation
-    );
+    this._proxy.$createEditorInset(handle, apiEditor.id, apiEditor.value.document.uri, line + 1, height, options || {}, extension.identifier, extension.extensionLocation);
     this._insets.set(handle, { editor, inset, onDidReceiveMessage });
     return inset;
   }

@@ -10,14 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { IDebugService } from "./debug.js";
+import { Disposable, IDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IDebugService } from "./debug.js";
 import { Expression } from "./debugModel.js";
 let DebugWatchAccessibilityAnnouncer = class extends Disposable {
   constructor(_debugService, _logService, _accessibilityService, _configurationService) {
@@ -27,36 +25,26 @@ let DebugWatchAccessibilityAnnouncer = class extends Disposable {
     this._accessibilityService = _accessibilityService;
     this._configurationService = _configurationService;
     this._setListener();
-    this._register(
-      _configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          "accessibility.debugWatchVariableAnnouncements"
-        )) {
-          this._setListener();
-        }
-      })
-    );
+    this._register(_configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("accessibility.debugWatchVariableAnnouncements")) {
+        this._setListener();
+      }
+    }));
   }
   static {
     __name(this, "DebugWatchAccessibilityAnnouncer");
   }
   static ID = "workbench.contrib.debugWatchAccessibilityAnnouncer";
-  _listener = this._register(
-    new MutableDisposable()
-  );
+  _listener = this._register(new MutableDisposable());
   _setListener() {
-    const value = this._configurationService.getValue(
-      "accessibility.debugWatchVariableAnnouncements"
-    );
+    const value = this._configurationService.getValue("accessibility.debugWatchVariableAnnouncements");
     if (value && !this._listener.value) {
       this._listener.value = this._debugService.getModel().onDidChangeWatchExpressionValue((e) => {
         if (!e || e.value === Expression.DEFAULT_VALUE) {
           return;
         }
         this._accessibilityService.alert(`${e.name} = ${e.value}`);
-        this._logService.trace(
-          `debugAccessibilityAnnouncerValueChanged ${e.name} ${e.value}`
-        );
+        this._logService.trace(`debugAccessibilityAnnouncerValueChanged ${e.name} ${e.value}`);
       });
     } else {
       this._listener.clear();

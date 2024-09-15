@@ -12,32 +12,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import * as strings from "../../../../base/common/strings.js";
-import * as nls from "../../../../nls.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import {
-  EditorAction,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorContributionInstantiation, IActionOptions, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import { ShiftCommand } from "../../../common/commands/shiftCommand.js";
-import {
-  EditorAutoIndentStrategy,
-  EditorOption
-} from "../../../common/config/editorOptions.js";
-import { Range } from "../../../common/core/range.js";
+import { EditorAutoIndentStrategy, EditorOption } from "../../../common/config/editorOptions.js";
+import { ISingleEditOperation } from "../../../common/core/editOperation.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder, IEditorContribution } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { EndOfLineSequence, ITextModel } from "../../../common/model.js";
+import { TextEdit } from "../../../common/languages.js";
 import { StandardTokenType } from "../../../common/encodedTokenAttributes.js";
-import {
-  getGoodIndentForLine,
-  getIndentMetadata
-} from "../../../common/languages/autoIndent.js";
 import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
 import { IndentConsts } from "../../../common/languages/supports/indentRules.js";
 import { IModelService } from "../../../common/services/model.js";
-import { getStandardTokenTypeAtPosition } from "../../../common/tokens/lineTokens.js";
 import * as indentUtils from "../common/indentUtils.js";
+import * as nls from "../../../../nls.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { getGoodIndentForLine, getIndentMetadata } from "../../../common/languages/autoIndent.js";
 import { getReindentEditOperations } from "../common/indentation.js";
+import { getStandardTokenTypeAtPosition } from "../../../common/tokens/lineTokens.js";
+import { Position } from "../../../common/core/position.js";
 class IndentationToSpacesAction extends EditorAction {
   static {
     __name(this, "IndentationToSpacesAction");
@@ -46,17 +42,11 @@ class IndentationToSpacesAction extends EditorAction {
   constructor() {
     super({
       id: IndentationToSpacesAction.ID,
-      label: nls.localize(
-        "indentationToSpaces",
-        "Convert Indentation to Spaces"
-      ),
+      label: nls.localize("indentationToSpaces", "Convert Indentation to Spaces"),
       alias: "Convert Indentation to Spaces",
       precondition: EditorContextKeys.writable,
       metadata: {
-        description: nls.localize2(
-          "indentationToSpacesDescription",
-          "Convert the tab indentation to spaces."
-        )
+        description: nls.localize2("indentationToSpacesDescription", "Convert the tab indentation to spaces.")
       }
     });
   }
@@ -70,10 +60,7 @@ class IndentationToSpacesAction extends EditorAction {
     if (!selection) {
       return;
     }
-    const command = new IndentationToSpacesCommand(
-      selection,
-      modelOpts.tabSize
-    );
+    const command = new IndentationToSpacesCommand(selection, modelOpts.tabSize);
     editor.pushUndoStop();
     editor.executeCommands(this.id, [command]);
     editor.pushUndoStop();
@@ -90,17 +77,11 @@ class IndentationToTabsAction extends EditorAction {
   constructor() {
     super({
       id: IndentationToTabsAction.ID,
-      label: nls.localize(
-        "indentationToTabs",
-        "Convert Indentation to Tabs"
-      ),
+      label: nls.localize("indentationToTabs", "Convert Indentation to Tabs"),
       alias: "Convert Indentation to Tabs",
       precondition: EditorContextKeys.writable,
       metadata: {
-        description: nls.localize2(
-          "indentationToTabsDescription",
-          "Convert the spaces indentation to tabs."
-        )
+        description: nls.localize2("indentationToTabsDescription", "Convert the spaces indentation to tabs.")
       }
     });
   }
@@ -114,10 +95,7 @@ class IndentationToTabsAction extends EditorAction {
     if (!selection) {
       return;
     }
-    const command = new IndentationToTabsCommand(
-      selection,
-      modelOpts.tabSize
-    );
+    const command = new IndentationToTabsCommand(selection, modelOpts.tabSize);
     editor.pushUndoStop();
     editor.executeCommands(this.id, [command]);
     editor.pushUndoStop();
@@ -142,11 +120,7 @@ class ChangeIndentationSizeAction extends EditorAction {
     if (!model) {
       return;
     }
-    const creationOpts = modelService.getCreationOptions(
-      model.getLanguageId(),
-      model.uri,
-      model.isForSimpleWidget
-    );
+    const creationOpts = modelService.getCreationOptions(model.getLanguageId(), model.uri, model.isForSimpleWidget);
     const modelOpts = model.getOptions();
     const picks = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({
       id: n.toString(),
@@ -157,19 +131,10 @@ class ChangeIndentationSizeAction extends EditorAction {
     const autoFocusIndex = Math.min(model.getOptions().tabSize - 1, 7);
     setTimeout(
       () => {
-        quickInputService.pick(picks, {
-          placeHolder: nls.localize(
-            {
-              key: "selectTabWidth",
-              comment: ["Tab corresponds to the tab key"]
-            },
-            "Select Tab Size for Current File"
-          ),
-          activeItem: picks[autoFocusIndex]
-        }).then((pick) => {
+        quickInputService.pick(picks, { placeHolder: nls.localize({ key: "selectTabWidth", comment: ["Tab corresponds to the tab key"] }, "Select Tab Size for Current File"), activeItem: picks[autoFocusIndex] }).then((pick) => {
           if (pick) {
             if (model && !model.isDisposed()) {
-              const pickedVal = Number.parseInt(pick.label, 10);
+              const pickedVal = parseInt(pick.label, 10);
               if (this.displaySizeOnly) {
                 model.updateOptions({
                   tabSize: pickedVal
@@ -202,10 +167,7 @@ class IndentUsingTabs extends ChangeIndentationSizeAction {
       alias: "Indent Using Tabs",
       precondition: void 0,
       metadata: {
-        description: nls.localize2(
-          "indentUsingTabsDescription",
-          "Use indentation with tabs."
-        )
+        description: nls.localize2("indentUsingTabsDescription", "Use indentation with tabs.")
       }
     });
   }
@@ -222,10 +184,7 @@ class IndentUsingSpaces extends ChangeIndentationSizeAction {
       alias: "Indent Using Spaces",
       precondition: void 0,
       metadata: {
-        description: nls.localize2(
-          "indentUsingSpacesDescription",
-          "Use indentation with spaces."
-        )
+        description: nls.localize2("indentUsingSpacesDescription", "Use indentation with spaces.")
       }
     });
   }
@@ -238,17 +197,11 @@ class ChangeTabDisplaySize extends ChangeIndentationSizeAction {
   constructor() {
     super(true, true, {
       id: ChangeTabDisplaySize.ID,
-      label: nls.localize(
-        "changeTabDisplaySize",
-        "Change Tab Display Size"
-      ),
+      label: nls.localize("changeTabDisplaySize", "Change Tab Display Size"),
       alias: "Change Tab Display Size",
       precondition: void 0,
       metadata: {
-        description: nls.localize2(
-          "changeTabDisplaySizeDescription",
-          "Change the space size equivalent of the tab."
-        )
+        description: nls.localize2("changeTabDisplaySizeDescription", "Change the space size equivalent of the tab.")
       }
     });
   }
@@ -261,17 +214,11 @@ class DetectIndentation extends EditorAction {
   constructor() {
     super({
       id: DetectIndentation.ID,
-      label: nls.localize(
-        "detectIndentation",
-        "Detect Indentation from Content"
-      ),
+      label: nls.localize("detectIndentation", "Detect Indentation from Content"),
       alias: "Detect Indentation from Content",
       precondition: void 0,
       metadata: {
-        description: nls.localize2(
-          "detectIndentationDescription",
-          "Detect the indentation from content."
-        )
+        description: nls.localize2("detectIndentationDescription", "Detect the indentation from content.")
       }
     });
   }
@@ -281,15 +228,8 @@ class DetectIndentation extends EditorAction {
     if (!model) {
       return;
     }
-    const creationOpts = modelService.getCreationOptions(
-      model.getLanguageId(),
-      model.uri,
-      model.isForSimpleWidget
-    );
-    model.detectIndentation(
-      creationOpts.insertSpaces,
-      creationOpts.tabSize
-    );
+    const creationOpts = modelService.getCreationOptions(model.getLanguageId(), model.uri, model.isForSimpleWidget);
+    model.detectIndentation(creationOpts.insertSpaces, creationOpts.tabSize);
   }
 }
 class ReindentLinesAction extends EditorAction {
@@ -303,27 +243,17 @@ class ReindentLinesAction extends EditorAction {
       alias: "Reindent Lines",
       precondition: EditorContextKeys.writable,
       metadata: {
-        description: nls.localize2(
-          "editor.reindentlinesDescription",
-          "Reindent the lines of the editor."
-        )
+        description: nls.localize2("editor.reindentlinesDescription", "Reindent the lines of the editor.")
       }
     });
   }
   run(accessor, editor) {
-    const languageConfigurationService = accessor.get(
-      ILanguageConfigurationService
-    );
+    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
     const model = editor.getModel();
     if (!model) {
       return;
     }
-    const edits = getReindentEditOperations(
-      model,
-      languageConfigurationService,
-      1,
-      model.getLineCount()
-    );
+    const edits = getReindentEditOperations(model, languageConfigurationService, 1, model.getLineCount());
     if (edits.length > 0) {
       editor.pushUndoStop();
       editor.executeEdits(this.id, edits);
@@ -338,24 +268,16 @@ class ReindentSelectedLinesAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.reindentselectedlines",
-      label: nls.localize(
-        "editor.reindentselectedlines",
-        "Reindent Selected Lines"
-      ),
+      label: nls.localize("editor.reindentselectedlines", "Reindent Selected Lines"),
       alias: "Reindent Selected Lines",
       precondition: EditorContextKeys.writable,
       metadata: {
-        description: nls.localize2(
-          "editor.reindentselectedlinesDescription",
-          "Reindent the selected lines of the editor."
-        )
+        description: nls.localize2("editor.reindentselectedlinesDescription", "Reindent the selected lines of the editor.")
       }
     });
   }
   run(accessor, editor) {
-    const languageConfigurationService = accessor.get(
-      ILanguageConfigurationService
-    );
+    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
     const model = editor.getModel();
     if (!model) {
       return;
@@ -378,12 +300,7 @@ class ReindentSelectedLinesAction extends EditorAction {
       } else {
         startLineNumber--;
       }
-      const editOperations = getReindentEditOperations(
-        model,
-        languageConfigurationService,
-        startLineNumber,
-        endLineNumber
-      );
+      const editOperations = getReindentEditOperations(model, languageConfigurationService, startLineNumber, endLineNumber);
       edits.push(...editOperations);
     }
     if (edits.length > 0) {
@@ -406,9 +323,7 @@ class AutoIndentOnPasteCommand {
     this._selectionId = null;
     for (const edit of edits) {
       if (edit.range && typeof edit.text === "string") {
-        this._edits.push(
-          edit
-        );
+        this._edits.push(edit);
       }
     }
   }
@@ -420,16 +335,10 @@ class AutoIndentOnPasteCommand {
     if (Array.isArray(this._edits) && this._edits.length === 1 && this._initialSelection.isEmpty()) {
       if (this._edits[0].range.startColumn === this._initialSelection.endColumn && this._edits[0].range.startLineNumber === this._initialSelection.endLineNumber) {
         selectionIsSet = true;
-        this._selectionId = builder.trackSelection(
-          this._initialSelection,
-          true
-        );
+        this._selectionId = builder.trackSelection(this._initialSelection, true);
       } else if (this._edits[0].range.endColumn === this._initialSelection.startColumn && this._edits[0].range.endLineNumber === this._initialSelection.startLineNumber) {
         selectionIsSet = true;
-        this._selectionId = builder.trackSelection(
-          this._initialSelection,
-          false
-        );
+        this._selectionId = builder.trackSelection(this._initialSelection, false);
       }
     }
     if (!selectionIsSet) {
@@ -444,13 +353,9 @@ let AutoIndentOnPaste = class {
   constructor(editor, _languageConfigurationService) {
     this.editor = editor;
     this._languageConfigurationService = _languageConfigurationService;
-    this.callOnDispose.add(
-      editor.onDidChangeConfiguration(() => this.update())
-    );
+    this.callOnDispose.add(editor.onDidChangeConfiguration(() => this.update()));
     this.callOnDispose.add(editor.onDidChangeModel(() => this.update()));
-    this.callOnDispose.add(
-      editor.onDidChangeModelLanguage(() => this.update())
-    );
+    this.callOnDispose.add(editor.onDidChangeModelLanguage(() => this.update()));
   }
   static {
     __name(this, "AutoIndentOnPaste");
@@ -466,11 +371,9 @@ let AutoIndentOnPaste = class {
     if (!this.editor.hasModel()) {
       return;
     }
-    this.callOnModel.add(
-      this.editor.onDidPaste(({ range }) => {
-        this.trigger(range);
-      })
-    );
+    this.callOnModel.add(this.editor.onDidPaste(({ range }) => {
+      this.trigger(range);
+    }));
   }
   trigger(range) {
     const selections = this.editor.getSelections();
@@ -488,9 +391,7 @@ let AutoIndentOnPaste = class {
     if (isStartOrEndInString(model, range)) {
       return;
     }
-    if (!model.tokenization.isCheapToTokenize(
-      range.getStartPosition().lineNumber
-    )) {
+    if (!model.tokenization.isCheapToTokenize(range.getStartPosition().lineNumber)) {
       return;
     }
     const autoIndent = this.editor.getOption(EditorOption.autoIndent);
@@ -498,22 +399,10 @@ let AutoIndentOnPaste = class {
     const textEdits = [];
     const indentConverter = {
       shiftIndent: /* @__PURE__ */ __name((indentation) => {
-        return ShiftCommand.shiftIndent(
-          indentation,
-          indentation.length + 1,
-          tabSize,
-          indentSize,
-          insertSpaces
-        );
+        return ShiftCommand.shiftIndent(indentation, indentation.length + 1, tabSize, indentSize, insertSpaces);
       }, "shiftIndent"),
       unshiftIndent: /* @__PURE__ */ __name((indentation) => {
-        return ShiftCommand.unshiftIndent(
-          indentation,
-          indentation.length + 1,
-          tabSize,
-          indentSize,
-          insertSpaces
-        );
+        return ShiftCommand.unshiftIndent(indentation, indentation.length + 1, tabSize, indentSize, insertSpaces);
       }, "unshiftIndent")
     };
     let startLineNumber = range.startLineNumber;
@@ -529,46 +418,20 @@ let AutoIndentOnPaste = class {
     }
     let firstLineText = model.getLineContent(startLineNumber);
     if (!/\S/.test(firstLineText.substring(0, range.startColumn - 1))) {
-      const indentOfFirstLine = getGoodIndentForLine(
-        autoIndent,
-        model,
-        model.getLanguageId(),
-        startLineNumber,
-        indentConverter,
-        this._languageConfigurationService
-      );
+      const indentOfFirstLine = getGoodIndentForLine(autoIndent, model, model.getLanguageId(), startLineNumber, indentConverter, this._languageConfigurationService);
       if (indentOfFirstLine !== null) {
         const oldIndentation = strings.getLeadingWhitespace(firstLineText);
-        const newSpaceCnt = indentUtils.getSpaceCnt(
-          indentOfFirstLine,
-          tabSize
-        );
-        const oldSpaceCnt = indentUtils.getSpaceCnt(
-          oldIndentation,
-          tabSize
-        );
+        const newSpaceCnt = indentUtils.getSpaceCnt(indentOfFirstLine, tabSize);
+        const oldSpaceCnt = indentUtils.getSpaceCnt(oldIndentation, tabSize);
         if (newSpaceCnt !== oldSpaceCnt) {
-          const newIndent = indentUtils.generateIndent(
-            newSpaceCnt,
-            tabSize,
-            insertSpaces
-          );
+          const newIndent = indentUtils.generateIndent(newSpaceCnt, tabSize, insertSpaces);
           textEdits.push({
-            range: new Range(
-              startLineNumber,
-              1,
-              startLineNumber,
-              oldIndentation.length + 1
-            ),
+            range: new Range(startLineNumber, 1, startLineNumber, oldIndentation.length + 1),
             text: newIndent
           });
           firstLineText = newIndent + firstLineText.substring(oldIndentation.length);
         } else {
-          const indentMetadata = getIndentMetadata(
-            model,
-            startLineNumber,
-            this._languageConfigurationService
-          );
+          const indentMetadata = getIndentMetadata(model, startLineNumber, this._languageConfigurationService);
           if (indentMetadata === 0 || indentMetadata === IndentConsts.UNINDENT_MASK) {
             return;
           }
@@ -593,10 +456,7 @@ let AutoIndentOnPaste = class {
             return model.getLanguageId();
           }, "getLanguageId"),
           getLanguageIdAtPosition: /* @__PURE__ */ __name((lineNumber, column) => {
-            return model.getLanguageIdAtPosition(
-              lineNumber,
-              column
-            );
+            return model.getLanguageIdAtPosition(lineNumber, column);
           }, "getLanguageIdAtPosition")
         },
         getLineContent: /* @__PURE__ */ __name((lineNumber) => {
@@ -607,48 +467,21 @@ let AutoIndentOnPaste = class {
           }
         }, "getLineContent")
       };
-      const indentOfSecondLine = getGoodIndentForLine(
-        autoIndent,
-        virtualModel,
-        model.getLanguageId(),
-        startLineNumber + 1,
-        indentConverter,
-        this._languageConfigurationService
-      );
+      const indentOfSecondLine = getGoodIndentForLine(autoIndent, virtualModel, model.getLanguageId(), startLineNumber + 1, indentConverter, this._languageConfigurationService);
       if (indentOfSecondLine !== null) {
-        const newSpaceCntOfSecondLine = indentUtils.getSpaceCnt(
-          indentOfSecondLine,
-          tabSize
-        );
-        const oldSpaceCntOfSecondLine = indentUtils.getSpaceCnt(
-          strings.getLeadingWhitespace(
-            model.getLineContent(startLineNumber + 1)
-          ),
-          tabSize
-        );
+        const newSpaceCntOfSecondLine = indentUtils.getSpaceCnt(indentOfSecondLine, tabSize);
+        const oldSpaceCntOfSecondLine = indentUtils.getSpaceCnt(strings.getLeadingWhitespace(model.getLineContent(startLineNumber + 1)), tabSize);
         if (newSpaceCntOfSecondLine !== oldSpaceCntOfSecondLine) {
           const spaceCntOffset = newSpaceCntOfSecondLine - oldSpaceCntOfSecondLine;
           for (let i = startLineNumber + 1; i <= range.endLineNumber; i++) {
             const lineContent = model.getLineContent(i);
             const originalIndent = strings.getLeadingWhitespace(lineContent);
-            const originalSpacesCnt = indentUtils.getSpaceCnt(
-              originalIndent,
-              tabSize
-            );
+            const originalSpacesCnt = indentUtils.getSpaceCnt(originalIndent, tabSize);
             const newSpacesCnt = originalSpacesCnt + spaceCntOffset;
-            const newIndent = indentUtils.generateIndent(
-              newSpacesCnt,
-              tabSize,
-              insertSpaces
-            );
+            const newIndent = indentUtils.generateIndent(newSpacesCnt, tabSize, insertSpaces);
             if (newIndent !== originalIndent) {
               textEdits.push({
-                range: new Range(
-                  i,
-                  1,
-                  i,
-                  originalIndent.length + 1
-                ),
+                range: new Range(i, 1, i, originalIndent.length + 1),
                 text: newIndent
               });
             }
@@ -658,10 +491,7 @@ let AutoIndentOnPaste = class {
     }
     if (textEdits.length > 0) {
       this.editor.pushUndoStop();
-      const cmd = new AutoIndentOnPasteCommand(
-        textEdits,
-        this.editor.getSelection()
-      );
+      const cmd = new AutoIndentOnPasteCommand(textEdits, this.editor.getSelection());
       this.editor.executeCommand("autoIndentOnPaste", cmd);
       this.editor.pushUndoStop();
     }
@@ -673,24 +503,16 @@ let AutoIndentOnPaste = class {
     let containsOnlyWhitespace = true;
     if (range.startLineNumber === range.endLineNumber) {
       const lineContent = model.getLineContent(range.startLineNumber);
-      const linePart = lineContent.substring(
-        range.startColumn - 1,
-        range.endColumn - 1
-      );
+      const linePart = lineContent.substring(range.startColumn - 1, range.endColumn - 1);
       containsOnlyWhitespace = lineContainsOnlyWhitespace(linePart);
     } else {
       for (let i = range.startLineNumber; i <= range.endLineNumber; i++) {
         const lineContent = model.getLineContent(i);
         if (i === range.startLineNumber) {
-          const linePart = lineContent.substring(
-            range.startColumn - 1
-          );
+          const linePart = lineContent.substring(range.startColumn - 1);
           containsOnlyWhitespace = lineContainsOnlyWhitespace(linePart);
         } else if (i === range.endLineNumber) {
-          const linePart = lineContent.substring(
-            0,
-            range.endColumn - 1
-          );
+          const linePart = lineContent.substring(0, range.endColumn - 1);
           containsOnlyWhitespace = lineContainsOnlyWhitespace(linePart);
         } else {
           containsOnlyWhitespace = model.getLineFirstNonWhitespaceColumn(i) === 0;
@@ -750,16 +572,9 @@ function getIndentationEditOperations(model, builder, tabSize, tabsToSpaces) {
     if (lastIndentationColumn === 1) {
       continue;
     }
-    const originalIndentationRange = new Range(
-      lineNumber,
-      1,
-      lineNumber,
-      lastIndentationColumn
-    );
-    const originalIndentation = model.getValueInRange(
-      originalIndentationRange
-    );
-    const newIndentation = tabsToSpaces ? originalIndentation.replace(/\t/gi, spaces) : originalIndentation.replace(spacesRegExp, "	");
+    const originalIndentationRange = new Range(lineNumber, 1, lineNumber, lastIndentationColumn);
+    const originalIndentation = model.getValueInRange(originalIndentationRange);
+    const newIndentation = tabsToSpaces ? originalIndentation.replace(/\t/ig, spaces) : originalIndentation.replace(spacesRegExp, "	");
     builder.addEditOperation(originalIndentationRange, newIndentation);
   }
 }
@@ -798,11 +613,7 @@ class IndentationToTabsCommand {
     return helper.getTrackedSelection(this.selectionId);
   }
 }
-registerEditorContribution(
-  AutoIndentOnPaste.ID,
-  AutoIndentOnPaste,
-  EditorContributionInstantiation.BeforeFirstInteraction
-);
+registerEditorContribution(AutoIndentOnPaste.ID, AutoIndentOnPaste, EditorContributionInstantiation.BeforeFirstInteraction);
 registerEditorAction(IndentationToSpacesAction);
 registerEditorAction(IndentationToTabsAction);
 registerEditorAction(IndentUsingTabs);

@@ -12,63 +12,44 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
 import { Button } from "../../../../base/browser/ui/button/button.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
 import { assertNever } from "../../../../base/common/assert.js";
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived,
-  observableValue,
-  transaction
-} from "../../../../base/common/observable.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived, IObservable, ISettableObservable, observableValue, transaction } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { Constants } from "../../../../base/common/uint.js";
+import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import "./media/callStackWidget.css";
-import {
-  EditorContributionInstantiation
-} from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorContributionCtor, EditorContributionInstantiation, IEditorContributionDescription } from "../../../../editor/browser/editorExtensions.js";
 import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
 import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
 import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
+import { IWordAtPosition } from "../../../../editor/common/core/wordHelper.js";
+import { IEditorContribution, IEditorDecorationsCollection } from "../../../../editor/common/editorCommon.js";
+import { Location } from "../../../../editor/common/languages.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import {
-  ClickLinkGesture
-} from "../../../../editor/contrib/gotoSymbol/browser/link/clickLinkGesture.js";
+import { ClickLinkGesture, ClickLinkMouseEvent } from "../../../../editor/contrib/gotoSymbol/browser/link/clickLinkGesture.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { ResourceLabel } from "../../../browser/labels.js";
-import {
-  IEditorService,
-  SIDE_GROUP
-} from "../../../services/editor/common/editorService.js";
-import {
-  TOP_STACK_FRAME_DECORATION,
-  makeStackFrameColumnDecoration
-} from "./callStackEditorContribution.js";
+import { makeStackFrameColumnDecoration, TOP_STACK_FRAME_DECORATION } from "./callStackEditorContribution.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 class CallStackFrame {
   constructor(name, source, line = 1, column = 1) {
     this.name = name;
@@ -93,24 +74,15 @@ class CustomStackFrame {
   static {
     __name(this, "CustomStackFrame");
   }
-  showHeader = observableValue(
-    "CustomStackFrame.showHeader",
-    true
-  );
+  showHeader = observableValue("CustomStackFrame.showHeader", true);
   icon;
 }
 class WrappedCallStackFrame extends CallStackFrame {
   static {
     __name(this, "WrappedCallStackFrame");
   }
-  editorHeight = observableValue(
-    "WrappedCallStackFrame.height",
-    this.source ? 100 : 0
-  );
-  collapsed = observableValue(
-    "WrappedCallStackFrame.collapsed",
-    false
-  );
+  editorHeight = observableValue("WrappedCallStackFrame.height", this.source ? 100 : 0);
+  collapsed = observableValue("WrappedCallStackFrame.collapsed", false);
   height = derived((reader) => {
     return this.collapsed.read(reader) ? HEADER_HEIGHT : HEADER_HEIGHT + this.editorHeight.read(reader);
   });
@@ -125,10 +97,7 @@ class WrappedCustomStackFrame {
   static {
     __name(this, "WrappedCustomStackFrame");
   }
-  collapsed = observableValue(
-    "WrappedCallStackFrame.collapsed",
-    false
-  );
+  collapsed = observableValue("WrappedCallStackFrame.collapsed", false);
   height = derived((reader) => {
     const headerHeight = this.original.showHeader.read(reader) ? HEADER_HEIGHT : 0;
     return this.collapsed.read(reader) ? headerHeight : headerHeight + this.original.height.read(reader);
@@ -147,39 +116,26 @@ let CallStackWidget = class extends Disposable {
   constructor(container, containingEditor, instantiationService) {
     super();
     container.classList.add(WIDGET_CLASS_NAME);
-    this._register(
-      toDisposable(() => container.classList.remove(WIDGET_CLASS_NAME))
-    );
-    this.list = this._register(
-      instantiationService.createInstance(
-        WorkbenchList,
-        "TestResultStackWidget",
-        container,
-        new StackDelegate(),
-        [
-          instantiationService.createInstance(
-            FrameCodeRenderer,
-            containingEditor,
-            this.layoutEmitter.event
-          ),
-          instantiationService.createInstance(MissingCodeRenderer),
-          instantiationService.createInstance(CustomRenderer),
-          instantiationService.createInstance(
-            SkippedRenderer,
-            (i) => this.loadFrame(i)
-          )
-        ],
-        {
-          multipleSelectionSupport: false,
-          mouseSupport: false,
-          keyboardSupport: false,
-          setRowLineHeight: false,
-          accessibilityProvider: instantiationService.createInstance(
-            StackAccessibilityProvider
-          )
-        }
-      )
-    );
+    this._register(toDisposable(() => container.classList.remove(WIDGET_CLASS_NAME)));
+    this.list = this._register(instantiationService.createInstance(
+      WorkbenchList,
+      "TestResultStackWidget",
+      container,
+      new StackDelegate(),
+      [
+        instantiationService.createInstance(FrameCodeRenderer, containingEditor, this.layoutEmitter.event),
+        instantiationService.createInstance(MissingCodeRenderer),
+        instantiationService.createInstance(CustomRenderer),
+        instantiationService.createInstance(SkippedRenderer, (i) => this.loadFrame(i))
+      ],
+      {
+        multipleSelectionSupport: false,
+        mouseSupport: false,
+        keyboardSupport: false,
+        setRowLineHeight: false,
+        accessibilityProvider: instantiationService.createInstance(StackAccessibilityProvider)
+      }
+    ));
   }
   /** Replaces the call frames display in the view. */
   setFrames(frames) {
@@ -222,15 +178,13 @@ let CallStackWidget = class extends Disposable {
       }
       const wrapped = frame instanceof CustomStackFrame ? new WrappedCustomStackFrame(frame) : new WrappedCallStackFrame(frame);
       result.push(wrapped);
-      this.currentFramesDs.add(
-        autorun((reader) => {
-          const height = wrapped.height.read(reader);
-          const idx = this.list.indexOf(wrapped);
-          if (idx !== -1) {
-            this.list.updateElementHeight(idx, height);
-          }
-        })
-      );
+      this.currentFramesDs.add(autorun((reader) => {
+        const height = wrapped.height.read(reader);
+        const idx = this.list.indexOf(wrapped);
+        if (idx !== -1) {
+          this.list.updateElementHeight(idx, height);
+        }
+      }));
     }
     return result;
   }
@@ -254,18 +208,10 @@ let StackAccessibilityProvider = class {
     }
     if (e instanceof CallStackFrame) {
       if (e.source && e.line) {
-        return localize(
-          {
-            comment: [
-              "{0} is an extension-defined label, then line number and filename"
-            ],
-            key: "stackTraceLabel"
-          },
-          "{0}, line {1} in {2}",
-          e.name,
-          e.line,
-          this.labelService.getUriLabel(e.source, { relative: true })
-        );
+        return localize({
+          comment: ["{0} is an extension-defined label, then line number and filename"],
+          key: "stackTraceLabel"
+        }, "{0}, line {1} in {2}", e.name, e.line, this.labelService.getUriLabel(e.source, { relative: true }));
       }
       return e.name;
     }
@@ -326,7 +272,9 @@ const makeFrameElements = /* @__PURE__ */ __name(() => dom.h("div.multiCallStack
     dom.h("div.title.show-file-icons@title"),
     dom.h("div.actions@actions")
   ]),
-  dom.h("div.editorParent", [dom.h("div.editorContainer@editor")])
+  dom.h("div.editorParent", [
+    dom.h("div.editorContainer@editor")
+  ])
 ]), "makeFrameElements");
 const HEADER_HEIGHT = 24;
 let AbstractFrameRenderer = class {
@@ -341,22 +289,12 @@ let AbstractFrameRenderer = class {
     container.appendChild(elements.root);
     const templateStore = new DisposableStore();
     container.classList.add("multiCallStackFrameContainer");
-    templateStore.add(
-      toDisposable(() => {
-        container.classList.remove("multiCallStackFrameContainer");
-        elements.root.remove();
-      })
-    );
-    const label = templateStore.add(
-      this.instantiationService.createInstance(
-        ResourceLabel,
-        elements.title,
-        {}
-      )
-    );
-    const collapse = templateStore.add(
-      new Button(elements.collapseButton, {})
-    );
+    templateStore.add(toDisposable(() => {
+      container.classList.remove("multiCallStackFrameContainer");
+      elements.root.remove();
+    }));
+    const label = templateStore.add(this.instantiationService.createInstance(ResourceLabel, elements.title, {}));
+    const collapse = templateStore.add(new Button(elements.collapseButton, {}));
     const contentId = generateUuid();
     elements.editor.id = contentId;
     elements.editor.role = "region";
@@ -378,20 +316,16 @@ let AbstractFrameRenderer = class {
     this.setupCollapseButton(item, template);
   }
   setupCollapseButton(item, { elementStore, elements, collapse }) {
-    elementStore.add(
-      autorun((reader) => {
-        collapse.element.className = "";
-        const collapsed = item.collapsed.read(reader);
-        collapse.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
-        collapse.element.ariaExpanded = String(!collapsed);
-        elements.root.classList.toggle("collapsed", collapsed);
-      })
-    );
+    elementStore.add(autorun((reader) => {
+      collapse.element.className = "";
+      const collapsed = item.collapsed.read(reader);
+      collapse.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
+      collapse.element.ariaExpanded = String(!collapsed);
+      elements.root.classList.toggle("collapsed", collapsed);
+    }));
     const toggleCollapse = /* @__PURE__ */ __name(() => item.collapsed.set(!item.collapsed.get(), void 0), "toggleCollapse");
     elementStore.add(collapse.onDidClick(toggleCollapse));
-    elementStore.add(
-      dom.addDisposableListener(elements.title, "click", toggleCollapse)
-    );
+    elementStore.add(dom.addDisposableListener(elements.title, "click", toggleCollapse));
   }
   disposeElement(element, index, templateData, height) {
     templateData.elementStore.clear();
@@ -417,13 +351,11 @@ let FrameCodeRenderer = class extends AbstractFrameRenderer {
   static templateId = "f";
   templateId = FrameCodeRenderer.templateId;
   finishRenderTemplate(data) {
-    const contributions = [
-      {
-        id: ClickToLocationContribution.ID,
-        instantiation: EditorContributionInstantiation.BeforeFirstInteraction,
-        ctor: ClickToLocationContribution
-      }
-    ];
+    const contributions = [{
+      id: ClickToLocationContribution.ID,
+      instantiation: EditorContributionInstantiation.BeforeFirstInteraction,
+      ctor: ClickToLocationContribution
+    }];
     const editor = this.containingEditor ? this.instantiationService.createInstance(
       EmbeddedCodeEditorWidget,
       data.elements.editor,
@@ -437,21 +369,10 @@ let FrameCodeRenderer = class extends AbstractFrameRenderer {
       { isSimpleWidget: true, contributions }
     );
     data.templateStore.add(editor);
-    const toolbar = data.templateStore.add(
-      this.instantiationService.createInstance(
-        MenuWorkbenchToolBar,
-        data.elements.actions,
-        MenuId.DebugCallStackToolbar,
-        {
-          menuOptions: { shouldForwardArgs: true },
-          actionViewItemProvider: /* @__PURE__ */ __name((action, options) => createActionViewItem(
-            this.instantiationService,
-            action,
-            options
-          ), "actionViewItemProvider")
-        }
-      )
-    );
+    const toolbar = data.templateStore.add(this.instantiationService.createInstance(MenuWorkbenchToolBar, data.elements.actions, MenuId.DebugCallStackToolbar, {
+      menuOptions: { shouldForwardArgs: true },
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => createActionViewItem(this.instantiationService, action, options), "actionViewItemProvider")
+    }));
     return { ...data, editor, toolbar };
   }
   renderElement(element, index, template, height) {
@@ -497,10 +418,7 @@ let FrameCodeRenderer = class extends AbstractFrameRenderer {
     template.editor.setHiddenAreas([
       Range.fromPositions(
         { column: 1, lineNumber: 1 },
-        {
-          column: 1,
-          lineNumber: Math.max(1, item.line - CONTEXT_LINES - 1)
-        }
+        { column: 1, lineNumber: Math.max(1, item.line - CONTEXT_LINES - 1) }
       ),
       Range.fromPositions(
         { column: 1, lineNumber: item.line + CONTEXT_LINES + 1 },
@@ -512,24 +430,17 @@ let FrameCodeRenderer = class extends AbstractFrameRenderer {
         accessor.removeDecoration(d);
       }
       template.decorations.length = 0;
-      const beforeRange = range.setStartPosition(
-        range.startLineNumber,
-        1
-      );
+      const beforeRange = range.setStartPosition(range.startLineNumber, 1);
       const hasCharactersBefore = !!template.editor.getModel()?.getValueInRange(beforeRange).trim();
-      const decoRange = range.setEndPosition(
-        range.startLineNumber,
-        Constants.MAX_SAFE_SMALL_INTEGER
-      );
-      template.decorations.push(
-        accessor.addDecoration(
-          decoRange,
-          makeStackFrameColumnDecoration(!hasCharactersBefore)
-        )
-      );
-      template.decorations.push(
-        accessor.addDecoration(decoRange, TOP_STACK_FRAME_DECORATION)
-      );
+      const decoRange = range.setEndPosition(range.startLineNumber, Constants.MAX_SAFE_SMALL_INTEGER);
+      template.decorations.push(accessor.addDecoration(
+        decoRange,
+        makeStackFrameColumnDecoration(!hasCharactersBefore)
+      ));
+      template.decorations.push(accessor.addDecoration(
+        decoRange,
+        TOP_STACK_FRAME_DECORATION
+      ));
     });
     item.editorHeight.set(template.editor.getContentHeight(), void 0);
   }
@@ -551,35 +462,18 @@ let MissingCodeRenderer = class {
     const elements = makeFrameElements();
     elements.root.classList.add("missing");
     container.appendChild(elements.root);
-    const label = this.instantiationService.createInstance(
-      ResourceLabel,
-      elements.title,
-      {}
-    );
+    const label = this.instantiationService.createInstance(ResourceLabel, elements.title, {});
     return { elements, label };
   }
   renderElement(element, _index, templateData) {
     const cast = element;
-    templateData.label.element.setResource(
-      {
-        name: cast.name,
-        description: localize(
-          "stackFrameLocation",
-          "Line {0} column {1}",
-          cast.line,
-          cast.column
-        ),
-        range: {
-          startLineNumber: cast.line,
-          startColumn: cast.column,
-          endColumn: cast.column,
-          endLineNumber: cast.line
-        }
-      },
-      {
-        icon: Codicon.fileBinary
-      }
-    );
+    templateData.label.element.setResource({
+      name: cast.name,
+      description: localize("stackFrameLocation", "Line {0} column {1}", cast.line, cast.column),
+      range: { startLineNumber: cast.line, startColumn: cast.column, endColumn: cast.column, endLineNumber: cast.line }
+    }, {
+      icon: Codicon.fileBinary
+    });
   }
   disposeTemplate(templateData) {
     templateData.label.dispose();
@@ -602,25 +496,16 @@ class CustomRenderer extends AbstractFrameRenderer {
     super.renderElement(element, index, template, height);
     const item = element;
     const { elementStore, container, label } = template;
-    label.element.setResource(
-      { name: item.original.label },
-      { icon: item.original.icon }
-    );
-    elementStore.add(
-      autorun((reader) => {
-        template.elements.header.style.display = item.original.showHeader.read(reader) ? "" : "none";
-      })
-    );
-    elementStore.add(
-      autorunWithStore((reader, store) => {
-        if (!item.collapsed.read(reader)) {
-          store.add(item.original.render(container));
-        }
-      })
-    );
-    const actions = item.original.renderActions?.(
-      template.elements.actions
-    );
+    label.element.setResource({ name: item.original.label }, { icon: item.original.icon });
+    elementStore.add(autorun((reader) => {
+      template.elements.header.style.display = item.original.showHeader.read(reader) ? "" : "none";
+    }));
+    elementStore.add(autorunWithStore((reader, store) => {
+      if (!item.collapsed.read(reader)) {
+        store.add(item.original.render(container));
+      }
+    }));
+    const actions = item.original.renderActions?.(template.elements.actions);
     if (actions) {
       elementStore.add(actions);
     }
@@ -638,29 +523,18 @@ let SkippedRenderer = class {
   templateId = SkippedRenderer.templateId;
   renderTemplate(container) {
     const store = new DisposableStore();
-    const button = new Button(container, {
-      title: "",
-      ...defaultButtonStyles
-    });
+    const button = new Button(container, { title: "", ...defaultButtonStyles });
     const data = { button, store };
     store.add(button);
-    store.add(
-      button.onDidClick(() => {
-        if (!data.current || !button.enabled) {
-          return;
-        }
-        button.enabled = false;
-        this.loadFrames(data.current).catch((e) => {
-          this.notificationService.error(
-            localize(
-              "failedToLoadFrames",
-              "Failed to load stack frames: {0}",
-              e.message
-            )
-          );
-        });
-      })
-    );
+    store.add(button.onDidClick(() => {
+      if (!data.current || !button.enabled) {
+        return;
+      }
+      button.enabled = false;
+      this.loadFrames(data.current).catch((e) => {
+        this.notificationService.error(localize("failedToLoadFrames", "Failed to load stack frames: {0}", e.message));
+      });
+    }));
     return data;
   }
   renderElement(element, index, templateData, height) {
@@ -683,36 +557,22 @@ let ClickToLocationContribution = class extends Disposable {
     this.linkDecorations = editor.createDecorationsCollection();
     this._register(toDisposable(() => this.linkDecorations.clear()));
     const clickLinkGesture = this._register(new ClickLinkGesture(editor));
-    this._register(
-      clickLinkGesture.onMouseMoveOrRelevantKeyDown(
-        ([mouseEvent, keyboardEvent]) => {
-          this.onMove(mouseEvent);
+    this._register(clickLinkGesture.onMouseMoveOrRelevantKeyDown(([mouseEvent, keyboardEvent]) => {
+      this.onMove(mouseEvent);
+    }));
+    this._register(clickLinkGesture.onExecute((e) => {
+      const model = this.editor.getModel();
+      if (!this.current || !model) {
+        return;
+      }
+      editorService.openEditor({
+        resource: model.uri,
+        options: {
+          selection: Range.fromPositions(new Position(this.current.line, this.current.word.startColumn)),
+          selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport
         }
-      )
-    );
-    this._register(
-      clickLinkGesture.onExecute((e) => {
-        const model = this.editor.getModel();
-        if (!this.current || !model) {
-          return;
-        }
-        editorService.openEditor(
-          {
-            resource: model.uri,
-            options: {
-              selection: Range.fromPositions(
-                new Position(
-                  this.current.line,
-                  this.current.word.startColumn
-                )
-              ),
-              selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport
-            }
-          },
-          e.hasSideBySideModifier ? SIDE_GROUP : void 0
-        );
-      })
-    );
+      }, e.hasSideBySideModifier ? SIDE_GROUP : void 0);
+    }));
   }
   static {
     __name(this, "ClickToLocationContribution");
@@ -734,20 +594,13 @@ let ClickToLocationContribution = class extends Disposable {
       return;
     }
     this.current = { word, line: position.lineNumber };
-    this.linkDecorations.set([
-      {
-        range: new Range(
-          position.lineNumber,
-          word.startColumn,
-          position.lineNumber,
-          word.endColumn
-        ),
-        options: {
-          description: "call-stack-go-to-file-link",
-          inlineClassName: "call-stack-go-to-file-link"
-        }
+    this.linkDecorations.set([{
+      range: new Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn),
+      options: {
+        description: "call-stack-go-to-file-link",
+        inlineClassName: "call-stack-go-to-file-link"
       }
-    ]);
+    }]);
   }
   clear() {
     this.linkDecorations.clear();
@@ -757,32 +610,30 @@ let ClickToLocationContribution = class extends Disposable {
 ClickToLocationContribution = __decorateClass([
   __decorateParam(1, IEditorService)
 ], ClickToLocationContribution);
-registerAction2(
-  class extends Action2 {
-    constructor() {
-      super({
-        id: "callStackWidget.goToFile",
-        title: localize2("goToFile", "Open File"),
-        icon: Codicon.goToFile,
-        menu: {
-          id: MenuId.DebugCallStackToolbar,
-          order: 22,
-          group: "navigation"
-        }
-      });
-    }
-    async run(accessor, { uri, range }) {
-      const editorService = accessor.get(IEditorService);
-      await editorService.openEditor({
-        resource: uri,
-        options: {
-          selection: range,
-          selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport
-        }
-      });
-    }
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "callStackWidget.goToFile",
+      title: localize2("goToFile", "Open File"),
+      icon: Codicon.goToFile,
+      menu: {
+        id: MenuId.DebugCallStackToolbar,
+        order: 22,
+        group: "navigation"
+      }
+    });
   }
-);
+  async run(accessor, { uri, range }) {
+    const editorService = accessor.get(IEditorService);
+    await editorService.openEditor({
+      resource: uri,
+      options: {
+        selection: range,
+        selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport
+      }
+    });
+  }
+});
 export {
   CallStackFrame,
   CallStackWidget,

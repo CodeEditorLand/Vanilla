@@ -1,9 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as platform from "../../../../base/common/platform.js";
+import * as performance from "../../../../base/common/performance.js";
+import { URI, UriComponents, UriDto } from "../../../../base/common/uri.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
+import { IDiagnosticInfoOptions, IDiagnosticInfo } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { IExtensionHostExitInfo } from "./remoteAgentService.js";
 import { revive } from "../../../../base/common/marshalling.js";
-import {
-  URI
-} from "../../../../base/common/uri.js";
+import { IUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 class RemoteExtensionEnvironmentChannelClient {
   static {
     __name(this, "RemoteExtensionEnvironmentChannelClient");
@@ -13,10 +19,7 @@ class RemoteExtensionEnvironmentChannelClient {
       remoteAuthority,
       profile
     };
-    const data = await channel.call(
-      "getEnvironmentData",
-      args
-    );
+    const data = await channel.call("getEnvironmentData", args);
     return {
       pid: data.pid,
       connectionToken: data.connectionToken,
@@ -41,10 +44,7 @@ class RemoteExtensionEnvironmentChannelClient {
       remoteAuthority,
       reconnectionToken
     };
-    return channel.call(
-      "getExtensionHostExitInfo",
-      args
-    );
+    return channel.call("getExtensionHostExitInfo", args);
   }
   static getDiagnosticInfo(channel, options) {
     return channel.call("getDiagnosticInfo", options);

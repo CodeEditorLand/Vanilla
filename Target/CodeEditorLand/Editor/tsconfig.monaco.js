@@ -1,4 +1,4 @@
-var tsconfig_monaco_default = "./Asset/tsconfig.monaco-ODGRZC2G.json";
+var tsconfig_monaco_default = "./Asset/tsconfig.monaco-FQQDTNOG.json";
 export {
   tsconfig_monaco_default as default
 };

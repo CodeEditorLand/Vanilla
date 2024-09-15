@@ -8,6 +8,6 @@
 }
 .monaco-workbench .part.sidebar .output-view .sticky-widget,
 .monaco-workbench .part.panel > .content .pane-body.output-view .sticky-widget {
-  background-color: var( --vscode-outputViewStickyScroll-background, var(--vscode-panel-background) );
+  background-color: var(--vscode-outputViewStickyScroll-background, var(--vscode-panel-background));
 }
 /*# sourceMappingURL=output.css.map */

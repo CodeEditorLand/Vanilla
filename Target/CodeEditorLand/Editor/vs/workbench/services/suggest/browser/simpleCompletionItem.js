@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { FuzzyScore } from "../../../../base/common/filters.js";
 import { isWindows } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 class SimpleCompletionItem {
   constructor(completion) {
     this.completion = completion;
@@ -13,10 +14,7 @@ class SimpleCompletionItem {
       }
       const extIndex = this.labelLow.lastIndexOf(".");
       if (extIndex !== -1) {
-        this.labelLowExcludeFileExt = this.labelLow.substring(
-          0,
-          extIndex
-        );
+        this.labelLowExcludeFileExt = this.labelLow.substring(0, extIndex);
         this.fileExtLow = this.labelLow.substring(extIndex + 1);
       }
     }

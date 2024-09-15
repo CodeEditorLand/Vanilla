@@ -1,19 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../../base/common/errors.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { INotebookCellStatusBarService } from "../../common/notebookCellStatusBarService.js";
+import { INotebookCellStatusBarItemList, INotebookCellStatusBarItemProvider } from "../../common/notebookCommon.js";
 class NotebookCellStatusBarService extends Disposable {
   static {
     __name(this, "NotebookCellStatusBarService");
   }
   _serviceBrand;
-  _onDidChangeProviders = this._register(
-    new Emitter()
-  );
+  _onDidChangeProviders = this._register(new Emitter());
   onDidChangeProviders = this._onDidChangeProviders.event;
   _onDidChangeItems = this._register(new Emitter());
   onDidChangeItems = this._onDidChangeItems.event;
@@ -22,9 +21,7 @@ class NotebookCellStatusBarService extends Disposable {
     this._providers.push(provider);
     let changeListener;
     if (provider.onDidChangeStatusBarItems) {
-      changeListener = provider.onDidChangeStatusBarItems(
-        () => this._onDidChangeItems.fire()
-      );
+      changeListener = provider.onDidChangeStatusBarItems(() => this._onDidChangeItems.fire());
     }
     this._onDidChangeProviders.fire();
     return toDisposable(() => {
@@ -34,23 +31,15 @@ class NotebookCellStatusBarService extends Disposable {
     });
   }
   async getStatusBarItemsForCell(docUri, cellIndex, viewType, token) {
-    const providers = this._providers.filter(
-      (p) => p.viewType === viewType || p.viewType === "*"
-    );
-    return await Promise.all(
-      providers.map(async (p) => {
-        try {
-          return await p.provideCellStatusBarItems(
-            docUri,
-            cellIndex,
-            token
-          ) ?? { items: [] };
-        } catch (e) {
-          onUnexpectedExternalError(e);
-          return { items: [] };
-        }
-      })
-    );
+    const providers = this._providers.filter((p) => p.viewType === viewType || p.viewType === "*");
+    return await Promise.all(providers.map(async (p) => {
+      try {
+        return await p.provideCellStatusBarItems(docUri, cellIndex, token) ?? { items: [] };
+      } catch (e) {
+        onUnexpectedExternalError(e);
+        return { items: [] };
+      }
+    }));
   }
 }
 export {

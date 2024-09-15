@@ -1,20 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { coalesce } from "../../../../base/common/arrays.js";
+import { URI } from "../../../../base/common/uri.js";
 import "./media/searchEditor.css";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { localize } from "../../../../nls.js";
+import { FileMatch, Match, searchMatchComparer, SearchResult, FolderMatch, CellMatch } from "../../search/browser/searchModel.js";
+import { ITextQuery, SearchSortOrder } from "../../../services/search/common/search.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import {
-  searchMatchComparer
-} from "../../search/browser/searchModel.js";
 const lineDelimiter = "\n";
-const translateRangeLines = /* @__PURE__ */ __name((n) => (range) => new Range(
-  range.startLineNumber + n,
-  range.startColumn,
-  range.endLineNumber + n,
-  range.endColumn
-), "translateRangeLines");
+const translateRangeLines = /* @__PURE__ */ __name((n) => (range) => new Range(range.startLineNumber + n, range.startColumn, range.endLineNumber + n, range.endColumn), "translateRangeLines");
 const matchToSearchResultFormat = /* @__PURE__ */ __name((match, longestLineNumber) => {
   const getLinePrefix = /* @__PURE__ */ __name((i) => `${match.range().startLineNumber + i}`, "getLinePrefix");
   const fullMatchLines = match.fullPreviewLines();
@@ -25,23 +21,12 @@ const matchToSearchResultFormat = /* @__PURE__ */ __name((match, longestLineNumb
     const prefix = `  ${paddingStr}${lineNumber}: `;
     const prefixOffset = prefix.length;
     const line = prefix + (sourceLine.split(/\r?\n?$/, 1)[0] || "");
-    const rangeOnThisLine = /* @__PURE__ */ __name(({
-      start,
-      end
-    }) => new Range(
-      1,
-      (start ?? 1) + prefixOffset,
-      1,
-      (end ?? sourceLine.length + 1) + prefixOffset
-    ), "rangeOnThisLine");
+    const rangeOnThisLine = /* @__PURE__ */ __name(({ start, end }) => new Range(1, (start ?? 1) + prefixOffset, 1, (end ?? sourceLine.length + 1) + prefixOffset), "rangeOnThisLine");
     const matchRange = match.rangeInPreview();
     const matchIsSingleLine = matchRange.startLineNumber === matchRange.endLineNumber;
     let lineRange;
     if (matchIsSingleLine) {
-      lineRange = rangeOnThisLine({
-        start: matchRange.startColumn,
-        end: matchRange.endColumn
-      });
+      lineRange = rangeOnThisLine({ start: matchRange.startColumn, end: matchRange.endColumn });
     } else if (i === 0) {
       lineRange = rangeOnThisLine({ start: matchRange.startColumn });
     } else if (i === fullMatchLines.length - 1) {
@@ -54,22 +39,9 @@ const matchToSearchResultFormat = /* @__PURE__ */ __name((match, longestLineNumb
   return results;
 }, "matchToSearchResultFormat");
 function fileMatchToSearchResultFormat(fileMatch, labelFormatter) {
-  const textSerializations = fileMatch.textMatches().length > 0 ? matchesToSearchResultFormat(
-    fileMatch.resource,
-    fileMatch.textMatches().sort(searchMatchComparer),
-    fileMatch.context,
-    labelFormatter
-  ) : void 0;
-  const cellSerializations = fileMatch.cellMatches().sort((a, b) => a.cellIndex - b.cellIndex).sort().filter((cellMatch) => cellMatch.contentMatches.length > 0).map(
-    (cellMatch, index) => cellMatchToSearchResultFormat(
-      cellMatch,
-      labelFormatter,
-      index === 0
-    )
-  );
-  return [textSerializations, ...cellSerializations].filter(
-    (x) => !!x
-  );
+  const textSerializations = fileMatch.textMatches().length > 0 ? matchesToSearchResultFormat(fileMatch.resource, fileMatch.textMatches().sort(searchMatchComparer), fileMatch.context, labelFormatter) : void 0;
+  const cellSerializations = fileMatch.cellMatches().sort((a, b) => a.cellIndex - b.cellIndex).sort().filter((cellMatch) => cellMatch.contentMatches.length > 0).map((cellMatch, index) => cellMatchToSearchResultFormat(cellMatch, labelFormatter, index === 0));
+  return [textSerializations, ...cellSerializations].filter((x) => !!x);
 }
 __name(fileMatchToSearchResultFormat, "fileMatchToSearchResultFormat");
 function matchesToSearchResultFormat(resource, sortedMatches, matchContext, labelFormatter, shouldUseHeader = true) {
@@ -78,11 +50,9 @@ function matchesToSearchResultFormat(resource, sortedMatches, matchContext, labe
   const matchRanges = [];
   const targetLineNumberToOffset = {};
   const context = [];
-  matchContext.forEach(
-    (line, lineNumber) => context.push({ line, lineNumber })
-  );
+  matchContext.forEach((line, lineNumber) => context.push({ line, lineNumber }));
   context.sort((a, b) => a.lineNumber - b.lineNumber);
-  let lastLine;
+  let lastLine = void 0;
   const seenLines = /* @__PURE__ */ new Set();
   sortedMatches.forEach((match) => {
     matchToSearchResultFormat(match, longestLineNumber).forEach((match2) => {
@@ -92,9 +62,7 @@ function matchesToSearchResultFormat(resource, sortedMatches, matchContext, labe
           if (lastLine !== void 0 && lineNumber !== lastLine + 1) {
             text.push("");
           }
-          text.push(
-            `  ${" ".repeat(longestLineNumber - `${lineNumber}`.length)}${lineNumber}  ${line}`
-          );
+          text.push(`  ${" ".repeat(longestLineNumber - `${lineNumber}`.length)}${lineNumber}  ${line}`);
           lastLine = lineNumber;
         }
         targetLineNumberToOffset[match2.lineNumber] = text.length;
@@ -102,13 +70,7 @@ function matchesToSearchResultFormat(resource, sortedMatches, matchContext, labe
         text.push(match2.line);
         lastLine = +match2.lineNumber;
       }
-      matchRanges.push(
-        ...match2.ranges.map(
-          translateRangeLines(
-            targetLineNumberToOffset[match2.lineNumber]
-          )
-        )
-      );
+      matchRanges.push(...match2.ranges.map(translateRangeLines(targetLineNumberToOffset[match2.lineNumber])));
     });
   });
   while (context.length) {
@@ -119,13 +81,7 @@ function matchesToSearchResultFormat(resource, sortedMatches, matchContext, labe
 }
 __name(matchesToSearchResultFormat, "matchesToSearchResultFormat");
 function cellMatchToSearchResultFormat(cellMatch, labelFormatter, shouldUseHeader) {
-  return matchesToSearchResultFormat(
-    cellMatch.cell?.uri ?? cellMatch.parent.resource,
-    cellMatch.contentMatches.sort(searchMatchComparer),
-    cellMatch.context,
-    labelFormatter,
-    shouldUseHeader
-  );
+  return matchesToSearchResultFormat(cellMatch.cell?.uri ?? cellMatch.parent.resource, cellMatch.contentMatches.sort(searchMatchComparer), cellMatch.context, labelFormatter, shouldUseHeader);
 }
 __name(cellMatchToSearchResultFormat, "cellMatchToSearchResultFormat");
 const contentPatternToSearchConfiguration = /* @__PURE__ */ __name((pattern, includes, excludes, contextLines) => {
@@ -166,9 +122,7 @@ const serializeSearchConfiguration = /* @__PURE__ */ __name((config) => {
     ""
   ]).join(lineDelimiter);
 }, "serializeSearchConfiguration");
-const extractSearchQueryFromModel = /* @__PURE__ */ __name((model) => extractSearchQueryFromLines(
-  model.getValueInRange(new Range(1, 1, 6, 1)).split(lineDelimiter)
-), "extractSearchQueryFromModel");
+const extractSearchQueryFromModel = /* @__PURE__ */ __name((model) => extractSearchQueryFromLines(model.getValueInRange(new Range(1, 1, 6, 1)).split(lineDelimiter)), "extractSearchQueryFromModel");
 const defaultSearchConfig = /* @__PURE__ */ __name(() => ({
   query: "",
   filesToInclude: "",
@@ -200,12 +154,7 @@ const extractSearchQueryFromLines = /* @__PURE__ */ __name((lines) => {
         } else if (escaped === "\\") {
           out += "\\";
         } else {
-          throw Error(
-            localize(
-              "invalidQueryStringError",
-              "All backslashes in Query string must be escaped (\\\\)"
-            )
-          );
+          throw Error(localize("invalidQueryStringError", "All backslashes in Query string must be escaped (\\\\)"));
         }
       } else {
         out += str[i];
@@ -249,41 +198,22 @@ const serializeSearchResultForEditor = /* @__PURE__ */ __name((searchResult, raw
   if (!searchResult.query) {
     throw Error("Internal Error: Expected query, got null");
   }
-  const config = contentPatternToSearchConfiguration(
-    searchResult.query,
-    rawIncludePattern,
-    rawExcludePattern,
-    contextLines
-  );
+  const config = contentPatternToSearchConfiguration(searchResult.query, rawIncludePattern, rawExcludePattern, contextLines);
   const filecount = searchResult.fileCount() > 1 ? localize("numFiles", "{0} files", searchResult.fileCount()) : localize("oneFile", "1 file");
   const resultcount = searchResult.count() > 1 ? localize("numResults", "{0} results", searchResult.count()) : localize("oneResult", "1 result");
   const info = [
     searchResult.count() ? `${resultcount} - ${filecount}` : localize("noResults", "No Results")
   ];
   if (limitHit) {
-    info.push(
-      localize(
-        "searchMaxResultsWarning",
-        "The result set only contains a subset of all matches. Be more specific in your search to narrow down the results."
-      )
-    );
+    info.push(localize("searchMaxResultsWarning", "The result set only contains a subset of all matches. Be more specific in your search to narrow down the results."));
   }
   info.push("");
   const matchComparer = /* @__PURE__ */ __name((a, b) => searchMatchComparer(a, b, sortOrder), "matchComparer");
   const allResults = flattenSearchResultSerializations(
-    searchResult.folderMatches().sort(matchComparer).flatMap(
-      (folderMatch) => folderMatch.allDownstreamFileMatches().sort(matchComparer).flatMap(
-        (fileMatch) => fileMatchToSearchResultFormat(
-          fileMatch,
-          labelFormatter
-        )
-      )
-    )
+    searchResult.folderMatches().sort(matchComparer).map((folderMatch) => folderMatch.allDownstreamFileMatches().sort(matchComparer).flatMap((fileMatch) => fileMatchToSearchResultFormat(fileMatch, labelFormatter))).flat()
   );
   return {
-    matchRanges: allResults.matchRanges.map(
-      translateRangeLines(info.length)
-    ),
+    matchRanges: allResults.matchRanges.map(translateRangeLines(info.length)),
     text: info.concat(allResults.text).join(lineDelimiter),
     config
   };
@@ -317,10 +247,7 @@ const parseSerializedSearchEditor = /* @__PURE__ */ __name((text) => {
       bodylines.push(line);
     }
   }
-  return {
-    config: extractSearchQueryFromLines(headerlines),
-    text: bodylines.join("\n")
-  };
+  return { config: extractSearchQueryFromLines(headerlines), text: bodylines.join("\n") };
 }, "parseSerializedSearchEditor");
 export {
   defaultSearchConfig,

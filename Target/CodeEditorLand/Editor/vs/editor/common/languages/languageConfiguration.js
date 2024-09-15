@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
 import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ScopedLineTokens } from "./supports.js";
 var IndentAction = /* @__PURE__ */ ((IndentAction2) => {
   IndentAction2[IndentAction2["None"] = 0] = "None";
   IndentAction2[IndentAction2["Indent"] = 1] = "Indent";
@@ -79,22 +80,13 @@ class StandardAutoClosingPairConditional {
     if (!this._neutralCharacterSearched) {
       this._neutralCharacterSearched = true;
       if (!this._neutralCharacter) {
-        this._neutralCharacter = this._findNeutralCharacterInRange(
-          CharCode.Digit0,
-          CharCode.Digit9
-        );
+        this._neutralCharacter = this._findNeutralCharacterInRange(CharCode.Digit0, CharCode.Digit9);
       }
       if (!this._neutralCharacter) {
-        this._neutralCharacter = this._findNeutralCharacterInRange(
-          CharCode.a,
-          CharCode.z
-        );
+        this._neutralCharacter = this._findNeutralCharacterInRange(CharCode.a, CharCode.z);
       }
       if (!this._neutralCharacter) {
-        this._neutralCharacter = this._findNeutralCharacterInRange(
-          CharCode.A,
-          CharCode.Z
-        );
+        this._neutralCharacter = this._findNeutralCharacterInRange(CharCode.A, CharCode.Z);
       }
     }
     return this._neutralCharacter;
@@ -122,32 +114,12 @@ class AutoClosingPairs {
     this.autoClosingPairsCloseByEnd = /* @__PURE__ */ new Map();
     this.autoClosingPairsCloseSingleChar = /* @__PURE__ */ new Map();
     for (const pair of autoClosingPairs) {
-      appendEntry(
-        this.autoClosingPairsOpenByStart,
-        pair.open.charAt(0),
-        pair
-      );
-      appendEntry(
-        this.autoClosingPairsOpenByEnd,
-        pair.open.charAt(pair.open.length - 1),
-        pair
-      );
-      appendEntry(
-        this.autoClosingPairsCloseByStart,
-        pair.close.charAt(0),
-        pair
-      );
-      appendEntry(
-        this.autoClosingPairsCloseByEnd,
-        pair.close.charAt(pair.close.length - 1),
-        pair
-      );
+      appendEntry(this.autoClosingPairsOpenByStart, pair.open.charAt(0), pair);
+      appendEntry(this.autoClosingPairsOpenByEnd, pair.open.charAt(pair.open.length - 1), pair);
+      appendEntry(this.autoClosingPairsCloseByStart, pair.close.charAt(0), pair);
+      appendEntry(this.autoClosingPairsCloseByEnd, pair.close.charAt(pair.close.length - 1), pair);
       if (pair.close.length === 1 && pair.open.length === 1) {
-        appendEntry(
-          this.autoClosingPairsCloseSingleChar,
-          pair.close,
-          pair
-        );
+        appendEntry(this.autoClosingPairsCloseSingleChar, pair.close, pair);
       }
     }
   }

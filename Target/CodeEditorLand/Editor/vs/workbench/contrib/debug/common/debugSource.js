@@ -1,21 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Schemas } from "../../../../base/common/network.js";
-import { isAbsolute, normalize } from "../../../../base/common/path.js";
-import * as resources from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
-import {
-  ACTIVE_GROUP,
-  SIDE_GROUP
-} from "../../../services/editor/common/editorService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { normalize, isAbsolute } from "../../../../base/common/path.js";
+import * as resources from "../../../../base/common/resources.js";
 import { DEBUG_SCHEME } from "./debug.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IEditorService, SIDE_GROUP, ACTIVE_GROUP } from "../../../services/editor/common/editorService.js";
+import { Schemas } from "../../../../base/common/network.js";
 import { isUri } from "./debugUtils.js";
-const UNKNOWN_SOURCE_LABEL = nls.localize(
-  "unknownSource",
-  "Unknown Source"
-);
+import { IEditorPane } from "../../../common/editor.js";
+import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+const UNKNOWN_SOURCE_LABEL = nls.localize("unknownSource", "Unknown Source");
 class Source {
   static {
     __name(this, "Source");
@@ -34,13 +32,7 @@ class Source {
       this.available = false;
       path = `${DEBUG_SCHEME}:${UNKNOWN_SOURCE_LABEL}`;
     }
-    this.uri = getUriFromSource(
-      this.raw,
-      path,
-      sessionId,
-      uriIdentityService,
-      logService
-    );
+    this.uri = getUriFromSource(this.raw, path, sessionId, uriIdentityService, logService);
   }
   get name() {
     return this.raw.name || resources.basenameOrAuthority(this.uri);
@@ -58,20 +50,17 @@ class Source {
     return this.uri.scheme === DEBUG_SCHEME;
   }
   openInEditor(editorService, selection, preserveFocus, sideBySide, pinned) {
-    return this.available ? editorService.openEditor(
-      {
-        resource: this.uri,
-        description: this.origin,
-        options: {
-          preserveFocus,
-          selection,
-          revealIfOpened: true,
-          selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
-          pinned
-        }
-      },
-      sideBySide ? SIDE_GROUP : ACTIVE_GROUP
-    ) : Promise.resolve(void 0);
+    return !this.available ? Promise.resolve(void 0) : editorService.openEditor({
+      resource: this.uri,
+      description: this.origin,
+      options: {
+        preserveFocus,
+        selection,
+        revealIfOpened: true,
+        selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
+        pinned
+      }
+    }, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
   }
   static getEncodedDebugData(modelUri) {
     let path;
@@ -93,7 +82,7 @@ class Source {
                   sessionId = pair[1];
                   break;
                 case "ref":
-                  sourceReference = Number.parseInt(pair[1]);
+                  sourceReference = parseInt(pair[1]);
                   break;
               }
             }
@@ -128,13 +117,11 @@ function getUriFromSource(raw, path, sessionId, uriIdentityService, logService) 
     if (path2 && isAbsolute(path2)) {
       return uriIdentityService.asCanonicalUri(URI.file(path2));
     }
-    return uriIdentityService.asCanonicalUri(
-      URI.from({
-        scheme: DEBUG_SCHEME,
-        path: path2,
-        query: `session=${sessionId}`
-      })
-    );
+    return uriIdentityService.asCanonicalUri(URI.from({
+      scheme: DEBUG_SCHEME,
+      path: path2,
+      query: `session=${sessionId}`
+    }));
   }, "_getUriFromSource");
   try {
     return _getUriFromSource(path);

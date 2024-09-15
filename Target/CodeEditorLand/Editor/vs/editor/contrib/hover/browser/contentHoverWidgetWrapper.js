@@ -11,31 +11,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { Emitter } from "../../../../base/common/event.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, IEditorMouseEvent, MouseTargetType } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import { TokenizationRegistry } from "../../../common/languages.js";
+import { HoverOperation, HoverResult, HoverStartMode, HoverStartSource } from "./hoverOperation.js";
+import { HoverAnchor, HoverParticipantRegistry, HoverRangeAnchor, IEditorHoverContext, IEditorHoverParticipant, IHoverPart, IHoverWidget } from "./hoverTypes.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import {
-  MouseTargetType
-} from "../../../browser/editorBrowser.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { TokenizationRegistry } from "../../../common/languages.js";
-import {
-  ContentHoverComputer
-} from "./contentHoverComputer.js";
-import { RenderedContentHover } from "./contentHoverRendered.js";
-import { ContentHoverResult } from "./contentHoverTypes.js";
+import { HoverVerbosityAction } from "../../../common/standalone/standaloneEnums.js";
 import { ContentHoverWidget } from "./contentHoverWidget.js";
-import {
-  HoverOperation,
-  HoverStartMode,
-  HoverStartSource
-} from "./hoverOperation.js";
-import {
-  HoverParticipantRegistry,
-  HoverRangeAnchor
-} from "./hoverTypes.js";
+import { ContentHoverComputer, ContentHoverComputerOptions } from "./contentHoverComputer.js";
+import { ContentHoverResult } from "./contentHoverTypes.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { RenderedContentHover } from "./contentHoverRendered.js";
 import { isMousePositionWithinElement } from "./hoverUtils.js";
 let ContentHoverWidgetWrapper = class extends Disposable {
   constructor(_editor, _instantiationService, _keybindingService) {
@@ -43,19 +34,9 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     this._editor = _editor;
     this._instantiationService = _instantiationService;
     this._keybindingService = _keybindingService;
-    this._contentHoverWidget = this._register(
-      this._instantiationService.createInstance(
-        ContentHoverWidget,
-        this._editor
-      )
-    );
+    this._contentHoverWidget = this._register(this._instantiationService.createInstance(ContentHoverWidget, this._editor));
     this._participants = this._initializeHoverParticipants();
-    this._hoverOperation = this._register(
-      new HoverOperation(
-        this._editor,
-        new ContentHoverComputer(this._editor, this._participants)
-      )
-    );
+    this._hoverOperation = this._register(new HoverOperation(this._editor, new ContentHoverComputer(this._editor, this._participants)));
     this._registerListeners();
   }
   static {
@@ -71,63 +52,34 @@ let ContentHoverWidgetWrapper = class extends Disposable {
   _initializeHoverParticipants() {
     const participants = [];
     for (const participant of HoverParticipantRegistry.getAll()) {
-      const participantInstance = this._instantiationService.createInstance(
-        participant,
-        this._editor
-      );
+      const participantInstance = this._instantiationService.createInstance(participant, this._editor);
       participants.push(participantInstance);
     }
     participants.sort((p1, p2) => p1.hoverOrdinal - p2.hoverOrdinal);
-    this._register(
-      this._contentHoverWidget.onDidResize(() => {
-        this._participants.forEach(
-          (participant) => participant.handleResize?.()
-        );
-      })
-    );
+    this._register(this._contentHoverWidget.onDidResize(() => {
+      this._participants.forEach((participant) => participant.handleResize?.());
+    }));
     return participants;
   }
   _registerListeners() {
-    this._register(
-      this._hoverOperation.onResult((result) => {
-        const messages = result.hasLoadingMessage ? this._addLoadingMessage(result) : result.value;
-        this._withResult(
-          new ContentHoverResult(
-            messages,
-            result.isComplete,
-            result.options
-          )
-        );
-      })
-    );
+    this._register(this._hoverOperation.onResult((result) => {
+      const messages = result.hasLoadingMessage ? this._addLoadingMessage(result) : result.value;
+      this._withResult(new ContentHoverResult(messages, result.isComplete, result.options));
+    }));
     const contentHoverWidgetNode = this._contentHoverWidget.getDomNode();
-    this._register(
-      dom.addStandardDisposableListener(
-        contentHoverWidgetNode,
-        "keydown",
-        (e) => {
-          if (e.equals(KeyCode.Escape)) {
-            this.hide();
-          }
-        }
-      )
-    );
-    this._register(
-      dom.addStandardDisposableListener(
-        contentHoverWidgetNode,
-        "mouseleave",
-        (e) => {
-          this._onMouseLeave(e);
-        }
-      )
-    );
-    this._register(
-      TokenizationRegistry.onDidChange(() => {
-        if (this._contentHoverWidget.position && this._currentResult) {
-          this._setCurrentResult(this._currentResult);
-        }
-      })
-    );
+    this._register(dom.addStandardDisposableListener(contentHoverWidgetNode, "keydown", (e) => {
+      if (e.equals(KeyCode.Escape)) {
+        this.hide();
+      }
+    }));
+    this._register(dom.addStandardDisposableListener(contentHoverWidgetNode, "mouseleave", (e) => {
+      this._onMouseLeave(e);
+    }));
+    this._register(TokenizationRegistry.onDidChange(() => {
+      if (this._contentHoverWidget.position && this._currentResult) {
+        this._setCurrentResult(this._currentResult);
+      }
+    }));
   }
   /**
    * Returns true if the hover shows now or will show.
@@ -136,32 +88,17 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     const contentHoverIsVisible = this._contentHoverWidget.position && this._currentResult;
     if (!contentHoverIsVisible) {
       if (anchor) {
-        this._startHoverOperationIfNecessary(
-          anchor,
-          mode,
-          source,
-          focus,
-          false
-        );
+        this._startHoverOperationIfNecessary(anchor, mode, source, focus, false);
         return true;
       }
       return false;
     }
     const isHoverSticky = this._editor.getOption(EditorOption.hover).sticky;
-    const isMouseGettingCloser = mouseEvent && this._contentHoverWidget.isMouseGettingCloser(
-      mouseEvent.event.posx,
-      mouseEvent.event.posy
-    );
+    const isMouseGettingCloser = mouseEvent && this._contentHoverWidget.isMouseGettingCloser(mouseEvent.event.posx, mouseEvent.event.posy);
     const isHoverStickyAndIsMouseGettingCloser = isHoverSticky && isMouseGettingCloser;
     if (isHoverStickyAndIsMouseGettingCloser) {
       if (anchor) {
-        this._startHoverOperationIfNecessary(
-          anchor,
-          mode,
-          source,
-          focus,
-          true
-        );
+        this._startHoverOperationIfNecessary(anchor, mode, source, focus, true);
       }
       return true;
     }
@@ -173,31 +110,16 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     if (currentAnchorEqualsPreviousAnchor) {
       return true;
     }
-    const currentAnchorCompatibleWithPreviousAnchor = this._currentResult && anchor.canAdoptVisibleHover(
-      this._currentResult.options.anchor,
-      this._contentHoverWidget.position
-    );
+    const currentAnchorCompatibleWithPreviousAnchor = this._currentResult && anchor.canAdoptVisibleHover(this._currentResult.options.anchor, this._contentHoverWidget.position);
     if (!currentAnchorCompatibleWithPreviousAnchor) {
       this._setCurrentResult(null);
-      this._startHoverOperationIfNecessary(
-        anchor,
-        mode,
-        source,
-        focus,
-        false
-      );
+      this._startHoverOperationIfNecessary(anchor, mode, source, focus, false);
       return true;
     }
     if (this._currentResult) {
       this._setCurrentResult(this._currentResult.filter(anchor));
     }
-    this._startHoverOperationIfNecessary(
-      anchor,
-      mode,
-      source,
-      focus,
-      false
-    );
+    this._startHoverOperationIfNecessary(anchor, mode, source, focus, false);
     return true;
   }
   _startHoverOperationIfNecessary(anchor, mode, source, shouldFocus, insistOnKeepingHoverVisible) {
@@ -236,9 +158,7 @@ let ContentHoverWidgetWrapper = class extends Disposable {
       if (!participant.createLoadingMessage) {
         continue;
       }
-      const loadingMessage = participant.createLoadingMessage(
-        hoverResult.options.anchor
-      );
+      const loadingMessage = participant.createLoadingMessage(hoverResult.options.anchor);
       if (!loadingMessage) {
         continue;
       }
@@ -265,13 +185,7 @@ let ContentHoverWidgetWrapper = class extends Disposable {
   }
   _showHover(hoverResult) {
     const context = this._getHoverContext();
-    this._renderedContentHover = new RenderedContentHover(
-      this._editor,
-      hoverResult,
-      this._participants,
-      context,
-      this._keybindingService
-    );
+    this._renderedContentHover = new RenderedContentHover(this._editor, hoverResult, this._participants, context, this._keybindingService);
     if (this._renderedContentHover.domNodeHasChildren) {
       this._contentHoverWidget.show(this._renderedContentHover);
     } else {
@@ -302,22 +216,10 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     const anchorCandidates = this._findHoverAnchorCandidates(mouseEvent);
     const anchorCandidatesExist = anchorCandidates.length > 0;
     if (!anchorCandidatesExist) {
-      return this._startShowingOrUpdateHover(
-        null,
-        HoverStartMode.Delayed,
-        HoverStartSource.Mouse,
-        false,
-        mouseEvent
-      );
+      return this._startShowingOrUpdateHover(null, HoverStartMode.Delayed, HoverStartSource.Mouse, false, mouseEvent);
     }
     const anchor = anchorCandidates[0];
-    return this._startShowingOrUpdateHover(
-      anchor,
-      HoverStartMode.Delayed,
-      HoverStartSource.Mouse,
-      false,
-      mouseEvent
-    );
+    return this._startShowingOrUpdateHover(anchor, HoverStartMode.Delayed, HoverStartSource.Mouse, false, mouseEvent);
   }
   _findHoverAnchorCandidates(mouseEvent) {
     const anchorCandidates = [];
@@ -334,14 +236,7 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     const target = mouseEvent.target;
     switch (target.type) {
       case MouseTargetType.CONTENT_TEXT: {
-        anchorCandidates.push(
-          new HoverRangeAnchor(
-            0,
-            target.range,
-            mouseEvent.event.posx,
-            mouseEvent.event.posy
-          )
-        );
+        anchorCandidates.push(new HoverRangeAnchor(0, target.range, mouseEvent.event.posx, mouseEvent.event.posy));
         break;
       }
       case MouseTargetType.CONTENT_EMPTY: {
@@ -350,14 +245,7 @@ let ContentHoverWidgetWrapper = class extends Disposable {
         if (!mouseIsWithinLinesAndCloseToHover) {
           break;
         }
-        anchorCandidates.push(
-          new HoverRangeAnchor(
-            0,
-            target.range,
-            mouseEvent.event.posx,
-            mouseEvent.event.posy
-          )
-        );
+        anchorCandidates.push(new HoverRangeAnchor(0, target.range, mouseEvent.event.posx, mouseEvent.event.posy));
         break;
       }
     }
@@ -372,13 +260,7 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     }
   }
   startShowingAtRange(range, mode, source, focus) {
-    this._startShowingOrUpdateHover(
-      new HoverRangeAnchor(0, range, void 0, void 0),
-      mode,
-      source,
-      focus,
-      null
-    );
+    this._startShowingOrUpdateHover(new HoverRangeAnchor(0, range, void 0, void 0), mode, source, focus, null);
   }
   getWidgetContent() {
     const node = this._contentHoverWidget.getDomNode();
@@ -388,25 +270,16 @@ let ContentHoverWidgetWrapper = class extends Disposable {
     return node.textContent;
   }
   async updateHoverVerbosityLevel(action, index, focus) {
-    this._renderedContentHover?.updateHoverVerbosityLevel(
-      action,
-      index,
-      focus
-    );
+    this._renderedContentHover?.updateHoverVerbosityLevel(action, index, focus);
   }
   doesHoverAtIndexSupportVerbosityAction(index, action) {
-    return this._renderedContentHover?.doesHoverAtIndexSupportVerbosityAction(
-      index,
-      action
-    ) ?? false;
+    return this._renderedContentHover?.doesHoverAtIndexSupportVerbosityAction(index, action) ?? false;
   }
   getAccessibleWidgetContent() {
     return this._renderedContentHover?.getAccessibleWidgetContent();
   }
   getAccessibleWidgetContentAtIndex(index) {
-    return this._renderedContentHover?.getAccessibleWidgetContentAtIndex(
-      index
-    );
+    return this._renderedContentHover?.getAccessibleWidgetContentAtIndex(index);
   }
   focusedHoverPartIndex() {
     return this._renderedContentHover?.focusedHoverPartIndex ?? -1;

@@ -13,30 +13,17 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { h, reset } from "../../../../../../base/browser/dom.js";
 import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { BugIndicatingError } from "../../../../../../base/common/errors.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived
-} from "../../../../../../base/common/observable.js";
-import {
-  MinimapPosition,
-  OverviewRulerLane
-} from "../../../../../../editor/common/model.js";
+import { IObservable, autorun, autorunWithStore, derived } from "../../../../../../base/common/observable.js";
+import { IModelDeltaDecoration, MinimapPosition, OverviewRulerLane } from "../../../../../../editor/common/model.js";
 import { localize } from "../../../../../../nls.js";
 import { MenuId } from "../../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { applyObservableDecorations } from "../../utils.js";
-import {
-  handledConflictMinimapOverViewRulerColor,
-  unhandledConflictMinimapOverViewRulerColor
-} from "../colors.js";
+import { handledConflictMinimapOverViewRulerColor, unhandledConflictMinimapOverViewRulerColor } from "../colors.js";
 import { EditorGutter } from "../editorGutter.js";
-import {
-  CodeEditorView,
-  TitleMenu,
-  createSelectionsAutorun
-} from "./codeEditorView.js";
+import { MergeEditorViewModel } from "../viewModel.js";
+import { CodeEditorView, TitleMenu, createSelectionsAutorun } from "./codeEditorView.js";
 let BaseCodeEditorView = class extends CodeEditorView {
   static {
     __name(this, "BaseCodeEditorView");
@@ -47,27 +34,17 @@ let BaseCodeEditorView = class extends CodeEditorView {
       createSelectionsAutorun(this, (baseRange, viewModel2) => baseRange)
     );
     this._register(
-      instantiationService.createInstance(
-        TitleMenu,
-        MenuId.MergeBaseToolbar,
-        this.htmlElements.title
-      )
+      instantiationService.createInstance(TitleMenu, MenuId.MergeBaseToolbar, this.htmlElements.title)
     );
     this._register(
       autorunWithStore((reader, store) => {
         if (this.checkboxesVisible.read(reader)) {
-          store.add(
-            new EditorGutter(
-              this.editor,
-              this.htmlElements.gutterDiv,
-              {
-                getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader2) => [], "getIntersectingGutterItems"),
-                createView: /* @__PURE__ */ __name((item, target) => {
-                  throw new BugIndicatingError();
-                }, "createView")
-              }
-            )
-          );
+          store.add(new EditorGutter(this.editor, this.htmlElements.gutterDiv, {
+            getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader2) => [], "getIntersectingGutterItems"),
+            createView: /* @__PURE__ */ __name((item, target) => {
+              throw new BugIndicatingError();
+            }, "createView")
+          }));
         }
       })
     );
@@ -78,30 +55,18 @@ let BaseCodeEditorView = class extends CodeEditorView {
           return;
         }
         this.editor.setModel(vm.model.base);
-        reset(
-          this.htmlElements.title,
-          ...renderLabelWithIcons(localize("base", "Base"))
-        );
+        reset(this.htmlElements.title, ...renderLabelWithIcons(localize("base", "Base")));
         const baseShowDiffAgainst = vm.baseShowDiffAgainst.read(reader);
-        let node;
+        let node = void 0;
         if (baseShowDiffAgainst) {
-          const label = localize(
-            "compareWith",
-            "Comparing with {0}",
-            baseShowDiffAgainst === 1 ? vm.model.input1.title : vm.model.input2.title
-          );
-          const tooltip = localize(
-            "compareWithTooltip",
-            "Differences are highlighted with a background color."
-          );
+          const label = localize("compareWith", "Comparing with {0}", baseShowDiffAgainst === 1 ? vm.model.input1.title : vm.model.input2.title);
+          const tooltip = localize("compareWithTooltip", "Differences are highlighted with a background color.");
           node = h("span", { title: tooltip }, [label]).root;
         }
         reset(this.htmlElements.description, ...node ? [node] : []);
       })
     );
-    this._register(
-      applyObservableDecorations(this.editor, this.decorations)
-    );
+    this._register(applyObservableDecorations(this.editor, this.decorations));
   }
   decorations = derived(this, (reader) => {
     const viewModel = this.viewModel.read(reader);
@@ -135,9 +100,7 @@ let BaseCodeEditorView = class extends CodeEditorView {
       blockClassNames.push("base");
       const inputToDiffAgainst = viewModel.baseShowDiffAgainst.read(reader);
       if (inputToDiffAgainst) {
-        for (const diff of modifiedBaseRange.getInputDiffs(
-          inputToDiffAgainst
-        )) {
+        for (const diff of modifiedBaseRange.getInputDiffs(inputToDiffAgainst)) {
           const range2 = diff.inputRange.toInclusiveRange();
           if (range2) {
             result.push({
@@ -173,15 +136,11 @@ let BaseCodeEditorView = class extends CodeEditorView {
           description: "Merge Editor",
           minimap: {
             position: MinimapPosition.Gutter,
-            color: {
-              id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor
-            }
+            color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
           },
           overviewRuler: modifiedBaseRange.isConflicting ? {
             position: OverviewRulerLane.Center,
-            color: {
-              id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor
-            }
+            color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
           } : void 0
         }
       });

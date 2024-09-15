@@ -1,4 +1,4 @@
-var terminal_default = "../../../../../../Asset/terminal-Z6LGX3SD.svg";
+var terminal_default = "../../../../../../Asset/terminal-2SFDVVDH.svg";
 export {
   terminal_default as default
 };

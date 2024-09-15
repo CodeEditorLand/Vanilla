@@ -1,3 +1,5 @@
+import { Position } from "./core/position.js";
+import { Selection } from "./core/selection.js";
 var CursorChangeReason = /* @__PURE__ */ ((CursorChangeReason2) => {
   CursorChangeReason2[CursorChangeReason2["NotSet"] = 0] = "NotSet";
   CursorChangeReason2[CursorChangeReason2["ContentFlush"] = 1] = "ContentFlush";

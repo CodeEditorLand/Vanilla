@@ -13,21 +13,11 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { DeferredPromise } from "../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Event } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { DefaultQuickAccessFilterValue, Extensions, IQuickAccessController, IQuickAccessOptions, IQuickAccessProvider, IQuickAccessProviderDescriptor, IQuickAccessRegistry } from "../common/quickAccess.js";
+import { IQuickInputService, IQuickPick, IQuickPickItem, ItemActivation } from "../common/quickInput.js";
 import { Registry } from "../../registry/common/platform.js";
-import {
-  DefaultQuickAccessFilterValue,
-  Extensions
-} from "../common/quickAccess.js";
-import {
-  IQuickInputService,
-  ItemActivation
-} from "../common/quickInput.js";
 let QuickAccessController = class extends Disposable {
   constructor(quickInputService, instantiationService) {
     super();
@@ -37,9 +27,7 @@ let QuickAccessController = class extends Disposable {
   static {
     __name(this, "QuickAccessController");
   }
-  registry = Registry.as(
-    Extensions.Quickaccess
-  );
+  registry = Registry.as(Extensions.Quickaccess);
   mapProviderToDescriptor = /* @__PURE__ */ new Map();
   lastAcceptedPickerValues = /* @__PURE__ */ new Map();
   visibleQuickAccess = void 0;
@@ -50,29 +38,20 @@ let QuickAccessController = class extends Disposable {
     this.doShowOrPick(value, false, options);
   }
   doShowOrPick(value, pick, options) {
-    const [provider, descriptor] = this.getOrInstantiateProvider(
-      value,
-      options?.enabledProviderPrefixes
-    );
+    const [provider, descriptor] = this.getOrInstantiateProvider(value, options?.enabledProviderPrefixes);
     const visibleQuickAccess = this.visibleQuickAccess;
     const visibleDescriptor = visibleQuickAccess?.descriptor;
     if (visibleQuickAccess && descriptor && visibleDescriptor === descriptor) {
       if (value !== descriptor.prefix && !options?.preserveValue) {
         visibleQuickAccess.picker.value = value;
       }
-      this.adjustValueSelection(
-        visibleQuickAccess.picker,
-        descriptor,
-        options
-      );
+      this.adjustValueSelection(visibleQuickAccess.picker, descriptor, options);
       return;
     }
     if (descriptor && !options?.preserveValue) {
-      let newValue;
+      let newValue = void 0;
       if (visibleQuickAccess && visibleDescriptor && visibleDescriptor !== descriptor) {
-        const newValueCandidateWithoutPrefix = visibleQuickAccess.value.substr(
-          visibleDescriptor.prefix.length
-        );
+        const newValueCandidateWithoutPrefix = visibleQuickAccess.value.substr(visibleDescriptor.prefix.length);
         if (newValueCandidateWithoutPrefix) {
           newValue = `${descriptor.prefix}${newValueCandidateWithoutPrefix}`;
         }
@@ -92,9 +71,7 @@ let QuickAccessController = class extends Disposable {
     const visibleSelection = visibleQuickAccess?.picker?.valueSelection;
     const visibleValue = visibleQuickAccess?.picker?.value;
     const disposables = new DisposableStore();
-    const picker = disposables.add(
-      this.quickInputService.createQuickPick({ useSeparators: true })
-    );
+    const picker = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
     picker.value = value;
     this.adjustValueSelection(picker, descriptor, options);
     picker.placeholder = options?.placeholder ?? descriptor?.placeholder;
@@ -105,30 +82,18 @@ let QuickAccessController = class extends Disposable {
     }
     picker.contextKey = descriptor?.contextKey;
     picker.filterValue = (value2) => value2.substring(descriptor ? descriptor.prefix.length : 0);
-    let pickPromise;
+    let pickPromise = void 0;
     if (pick) {
       pickPromise = new DeferredPromise();
-      disposables.add(
-        Event.once(picker.onWillAccept)((e) => {
-          e.veto();
-          picker.hide();
-        })
-      );
+      disposables.add(Event.once(picker.onWillAccept)((e) => {
+        e.veto();
+        picker.hide();
+      }));
     }
-    disposables.add(
-      this.registerPickerListeners(
-        picker,
-        provider,
-        descriptor,
-        value,
-        options
-      )
-    );
+    disposables.add(this.registerPickerListeners(picker, provider, descriptor, value, options));
     const cts = disposables.add(new CancellationTokenSource());
     if (provider) {
-      disposables.add(
-        provider.provide(picker, cts.token, options?.providerOptions)
-      );
+      disposables.add(provider.provide(picker, cts.token, options?.providerOptions));
     }
     Event.once(picker.onDidHide)(() => {
       if (picker.selectedItems.length === 0) {
@@ -150,52 +115,36 @@ let QuickAccessController = class extends Disposable {
     if (options?.preserveValue) {
       valueSelection = [picker.value.length, picker.value.length];
     } else {
-      valueSelection = [
-        descriptor?.prefix.length ?? 0,
-        picker.value.length
-      ];
+      valueSelection = [descriptor?.prefix.length ?? 0, picker.value.length];
     }
     picker.valueSelection = valueSelection;
   }
   registerPickerListeners(picker, provider, descriptor, value, options) {
     const disposables = new DisposableStore();
-    const visibleQuickAccess = this.visibleQuickAccess = {
-      picker,
-      descriptor,
-      value
-    };
-    disposables.add(
-      toDisposable(() => {
-        if (visibleQuickAccess === this.visibleQuickAccess) {
-          this.visibleQuickAccess = void 0;
-        }
-      })
-    );
-    disposables.add(
-      picker.onDidChangeValue((value2) => {
-        const [providerForValue] = this.getOrInstantiateProvider(
-          value2,
-          options?.enabledProviderPrefixes
-        );
-        if (providerForValue !== provider) {
-          this.show(value2, {
-            enabledProviderPrefixes: options?.enabledProviderPrefixes,
-            // do not rewrite value from user typing!
-            preserveValue: true,
-            // persist the value of the providerOptions from the original showing
-            providerOptions: options?.providerOptions
-          });
-        } else {
-          visibleQuickAccess.value = value2;
-        }
-      })
-    );
+    const visibleQuickAccess = this.visibleQuickAccess = { picker, descriptor, value };
+    disposables.add(toDisposable(() => {
+      if (visibleQuickAccess === this.visibleQuickAccess) {
+        this.visibleQuickAccess = void 0;
+      }
+    }));
+    disposables.add(picker.onDidChangeValue((value2) => {
+      const [providerForValue] = this.getOrInstantiateProvider(value2, options?.enabledProviderPrefixes);
+      if (providerForValue !== provider) {
+        this.show(value2, {
+          enabledProviderPrefixes: options?.enabledProviderPrefixes,
+          // do not rewrite value from user typing!
+          preserveValue: true,
+          // persist the value of the providerOptions from the original showing
+          providerOptions: options?.providerOptions
+        });
+      } else {
+        visibleQuickAccess.value = value2;
+      }
+    }));
     if (descriptor) {
-      disposables.add(
-        picker.onDidAccept(() => {
-          this.lastAcceptedPickerValues.set(descriptor, picker.value);
-        })
-      );
+      disposables.add(picker.onDidAccept(() => {
+        this.lastAcceptedPickerValues.set(descriptor, picker.value);
+      }));
     }
     return disposables;
   }
@@ -206,9 +155,7 @@ let QuickAccessController = class extends Disposable {
     }
     let provider = this.mapProviderToDescriptor.get(providerDescriptor);
     if (!provider) {
-      provider = this.instantiationService.createInstance(
-        providerDescriptor.ctor
-      );
+      provider = this.instantiationService.createInstance(providerDescriptor.ctor);
       this.mapProviderToDescriptor.set(providerDescriptor, provider);
     }
     return [provider, providerDescriptor];

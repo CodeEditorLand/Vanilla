@@ -6,12 +6,12 @@ import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
 import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
 import { localize, localize2 } from "../../../../../nls.js";
-import {
-  IQuickInputService
-} from "../../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { ISnippetsService } from "../snippets.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../../platform/quickinput/common/quickInput.js";
 import { SnippetsAction } from "./abstractSnippetsActions.js";
+import { ISnippetsService } from "../snippets.js";
+import { Snippet } from "../snippetsFile.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 class ApplyFileSnippetAction extends SnippetsAction {
   static {
     __name(this, "ApplyFileSnippetAction");
@@ -33,33 +33,20 @@ class ApplyFileSnippetAction extends SnippetsAction {
     if (!editor || !editor.hasModel()) {
       return;
     }
-    const snippets = await snippetService.getSnippets(void 0, {
-      fileTemplateSnippets: true,
-      noRecencySort: true,
-      includeNoPrefixSnippets: true
-    });
+    const snippets = await snippetService.getSnippets(void 0, { fileTemplateSnippets: true, noRecencySort: true, includeNoPrefixSnippets: true });
     if (snippets.length === 0) {
       return;
     }
-    const selection = await this._pick(
-      quickInputService,
-      langService,
-      snippets
-    );
+    const selection = await this._pick(quickInputService, langService, snippets);
     if (!selection) {
       return;
     }
     if (editor.hasModel()) {
-      SnippetController2.get(editor)?.apply([
-        {
-          range: editor.getModel().getFullModelRange(),
-          template: selection.snippet.body
-        }
-      ]);
-      editor.getModel().setLanguage(
-        langService.createById(selection.langId),
-        ApplyFileSnippetAction.Id
-      );
+      SnippetController2.get(editor)?.apply([{
+        range: editor.getModel().getFullModelRange(),
+        template: selection.snippet.body
+      }]);
+      editor.getModel().setLanguage(langService.createById(selection.langId), ApplyFileSnippetAction.Id);
       editor.focus();
     }
   }

@@ -10,10 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { CompletionModel } from "./completionModel.js";
+import { ISelectedSuggestion } from "./suggestWidget.js";
 let SuggestAlternatives = class {
   constructor(_editor, contextKeyService) {
     this._editor = _editor;
@@ -22,10 +23,7 @@ let SuggestAlternatives = class {
   static {
     __name(this, "SuggestAlternatives");
   }
-  static OtherSuggestions = new RawContextKey(
-    "hasOtherSuggestions",
-    false
-  );
+  static OtherSuggestions = new RawContextKey("hasOtherSuggestions", false);
   _ckOtherSuggestions;
   _index = 0;
   _model;
@@ -87,16 +85,8 @@ let SuggestAlternatives = class {
     }
     try {
       this._ignore = true;
-      this._index = SuggestAlternatives._moveIndex(
-        fwd,
-        this._model,
-        this._index
-      );
-      this._acceptNext({
-        index: this._index,
-        item: this._model.items[this._index],
-        model: this._model
-      });
+      this._index = SuggestAlternatives._moveIndex(fwd, this._model, this._index);
+      this._acceptNext({ index: this._index, item: this._model.items[this._index], model: this._model });
     } finally {
       this._ignore = false;
     }

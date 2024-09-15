@@ -13,10 +13,7 @@ import { getActiveWindow } from "../../../../base/browser/dom.js";
 import { memoize } from "../../../../base/common/decorators.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { StringBuilder } from "../../../common/core/stringBuilder.js";
-import {
-  FontStyle,
-  TokenMetadata
-} from "../../../common/encodedTokenAttributes.js";
+import { FontStyle, TokenMetadata } from "../../../common/encodedTokenAttributes.js";
 import { ensureNonNullable } from "../gpuUtils.js";
 let nextId = 0;
 class GlyphRasterizer extends Disposable {
@@ -24,18 +21,11 @@ class GlyphRasterizer extends Disposable {
     super();
     this._fontSize = _fontSize;
     this._fontFamily = _fontFamily;
-    const devicePixelFontSize = Math.ceil(
-      this._fontSize * getActiveWindow().devicePixelRatio
-    );
-    this._canvas = new OffscreenCanvas(
-      devicePixelFontSize * 3,
-      devicePixelFontSize * 3
-    );
-    this._ctx = ensureNonNullable(
-      this._canvas.getContext("2d", {
-        willReadFrequently: true
-      })
-    );
+    const devicePixelFontSize = Math.ceil(this._fontSize * getActiveWindow().devicePixelRatio);
+    this._canvas = new OffscreenCanvas(devicePixelFontSize * 3, devicePixelFontSize * 3);
+    this._ctx = ensureNonNullable(this._canvas.getContext("2d", {
+      willReadFrequently: true
+    }));
     this._ctx.textBaseline = "top";
     this._ctx.fillStyle = "#FFFFFF";
   }
@@ -83,9 +73,7 @@ class GlyphRasterizer extends Disposable {
     return this._rasterizeGlyph(chars, metadata, colorMap);
   }
   _rasterizeGlyph(chars, metadata, colorMap) {
-    const devicePixelFontSize = Math.ceil(
-      this._fontSize * getActiveWindow().devicePixelRatio
-    );
+    const devicePixelFontSize = Math.ceil(this._fontSize * getActiveWindow().devicePixelRatio);
     const canvasDim = devicePixelFontSize * 3;
     if (this._canvas.width !== canvasDim) {
       this._canvas.width = canvasDim;
@@ -107,12 +95,7 @@ class GlyphRasterizer extends Disposable {
     this._ctx.fillStyle = colorMap[TokenMetadata.getForeground(metadata)];
     this._ctx.textBaseline = "top";
     this._ctx.fillText(chars, originX, originY);
-    const imageData = this._ctx.getImageData(
-      0,
-      0,
-      this._canvas.width,
-      this._canvas.height
-    );
+    const imageData = this._ctx.getImageData(0, 0, this._canvas.width, this._canvas.height);
     this._findGlyphBoundingBox(imageData, this._workGlyph.boundingBox);
     this._workGlyph.source = this._canvas;
     this._workGlyph.originOffset.x = this._workGlyph.boundingBox.left - originX;

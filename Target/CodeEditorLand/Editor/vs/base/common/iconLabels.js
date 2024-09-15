@@ -1,19 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { matchesFuzzy } from "./filters.js";
+import { IMatch, matchesFuzzy } from "./filters.js";
 import { ltrim } from "./strings.js";
 import { ThemeIcon } from "./themables.js";
 const iconStartMarker = "$(";
-const iconsRegex = new RegExp(
-  `\\$\\(${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?\\)`,
-  "g"
-);
+const iconsRegex = new RegExp(`\\$\\(${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?\\)`, "g");
 const escapeIconsRegex = new RegExp(`(\\\\)?${iconsRegex.source}`, "g");
 function escapeIcons(text) {
-  return text.replace(
-    escapeIconsRegex,
-    (match, escaped) => escaped ? match : `\\${match}`
-  );
+  return text.replace(escapeIconsRegex, (match, escaped) => escaped ? match : `\\${match}`);
 }
 __name(escapeIcons, "escapeIcons");
 const markdownEscapedIconsRegex = new RegExp(`\\\\${iconsRegex.source}`, "g");
@@ -21,18 +15,12 @@ function markdownEscapeEscapedIcons(text) {
   return text.replace(markdownEscapedIconsRegex, (match) => `\\${match}`);
 }
 __name(markdownEscapeEscapedIcons, "markdownEscapeEscapedIcons");
-const stripIconsRegex = new RegExp(
-  `(\\s)?(\\\\)?${iconsRegex.source}(\\s)?`,
-  "g"
-);
+const stripIconsRegex = new RegExp(`(\\s)?(\\\\)?${iconsRegex.source}(\\s)?`, "g");
 function stripIcons(text) {
   if (text.indexOf(iconStartMarker) === -1) {
     return text;
   }
-  return text.replace(
-    stripIconsRegex,
-    (match, preWhitespace, escaped, postWhitespace) => escaped ? match : preWhitespace || postWhitespace || ""
-  );
+  return text.replace(stripIconsRegex, (match, preWhitespace, escaped, postWhitespace) => escaped ? match : preWhitespace || postWhitespace || "");
 }
 __name(stripIcons, "stripIcons");
 function getCodiconAriaLabel(text) {
@@ -42,10 +30,7 @@ function getCodiconAriaLabel(text) {
   return text.replace(/\$\((.*?)\)/g, (_match, codiconName) => ` ${codiconName} `).trim();
 }
 __name(getCodiconAriaLabel, "getCodiconAriaLabel");
-const _parseIconsRegex = new RegExp(
-  `\\$\\(${ThemeIcon.iconNameCharacter}+\\)`,
-  "g"
-);
+const _parseIconsRegex = new RegExp(`\\$\\(${ThemeIcon.iconNameCharacter}+\\)`, "g");
 function parseLabelWithIcons(input) {
   _parseIconsRegex.lastIndex = 0;
   let text = "";
@@ -76,11 +61,7 @@ function matchesFuzzyIconAware(query, target, enableSeparateSubstringMatching = 
   }
   const wordToMatchAgainstWithoutIconsTrimmed = ltrim(text, " ");
   const leadingWhitespaceOffset = text.length - wordToMatchAgainstWithoutIconsTrimmed.length;
-  const matches = matchesFuzzy(
-    query,
-    wordToMatchAgainstWithoutIconsTrimmed,
-    enableSeparateSubstringMatching
-  );
+  const matches = matchesFuzzy(query, wordToMatchAgainstWithoutIconsTrimmed, enableSeparateSubstringMatching);
   if (matches) {
     for (const match of matches) {
       const iconOffset = iconOffsets[match.start + leadingWhitespaceOffset] + leadingWhitespaceOffset;

@@ -20,12 +20,8 @@ var TerminalChatCommandId = /* @__PURE__ */ ((TerminalChatCommandId2) => {
 })(TerminalChatCommandId || {});
 const MENU_TERMINAL_CHAT_INPUT = MenuId.for("terminalChatInput");
 const MENU_TERMINAL_CHAT_WIDGET = MenuId.for("terminalChatWidget");
-const MENU_TERMINAL_CHAT_WIDGET_STATUS = MenuId.for(
-  "terminalChatWidget.status"
-);
-const MENU_TERMINAL_CHAT_WIDGET_TOOLBAR = MenuId.for(
-  "terminalChatWidget.toolbar"
-);
+const MENU_TERMINAL_CHAT_WIDGET_STATUS = MenuId.for("terminalChatWidget.status");
+const MENU_TERMINAL_CHAT_WIDGET_TOOLBAR = MenuId.for("terminalChatWidget.toolbar");
 var TerminalChatContextKeyStrings = /* @__PURE__ */ ((TerminalChatContextKeyStrings2) => {
   TerminalChatContextKeyStrings2["ChatFocus"] = "terminalChatFocus";
   TerminalChatContextKeyStrings2["ChatVisible"] = "terminalChatVisible";
@@ -41,56 +37,13 @@ var TerminalChatContextKeyStrings = /* @__PURE__ */ ((TerminalChatContextKeyStri
 })(TerminalChatContextKeyStrings || {});
 var TerminalChatContextKeys;
 ((TerminalChatContextKeys2) => {
-  TerminalChatContextKeys2.focused = new RawContextKey(
-    "terminalChatFocus" /* ChatFocus */,
-    false,
-    localize("chatFocusedContextKey", "Whether the chat view is focused.")
-  );
-  TerminalChatContextKeys2.visible = new RawContextKey(
-    "terminalChatVisible" /* ChatVisible */,
-    false,
-    localize("chatVisibleContextKey", "Whether the chat view is visible.")
-  );
-  TerminalChatContextKeys2.requestActive = new RawContextKey(
-    "terminalChatActiveRequest" /* ChatActiveRequest */,
-    false,
-    localize(
-      "chatRequestActiveContextKey",
-      "Whether there is an active chat request."
-    )
-  );
-  TerminalChatContextKeys2.inputHasText = new RawContextKey(
-    "terminalChatInputHasText" /* ChatInputHasText */,
-    false,
-    localize(
-      "chatInputHasTextContextKey",
-      "Whether the chat input has text."
-    )
-  );
-  TerminalChatContextKeys2.responseContainsCodeBlock = new RawContextKey(
-    "terminalChatResponseContainsCodeBlock" /* ChatResponseContainsCodeBlock */,
-    false,
-    localize(
-      "chatResponseContainsCodeBlockContextKey",
-      "Whether the chat response contains a code block."
-    )
-  );
-  TerminalChatContextKeys2.responseContainsMultipleCodeBlocks = new RawContextKey(
-    "terminalChatResponseContainsMultipleCodeBlocks" /* ChatResponseContainsMultipleCodeBlocks */,
-    false,
-    localize(
-      "chatResponseContainsMultipleCodeBlocksContextKey",
-      "Whether the chat response contains multiple code blocks."
-    )
-  );
-  TerminalChatContextKeys2.hasChatAgent = new RawContextKey(
-    "terminalChatAgentRegistered" /* ChatAgentRegistered */,
-    false,
-    localize(
-      "chatAgentRegisteredContextKey",
-      "Whether a chat agent is registered for the terminal location."
-    )
-  );
+  TerminalChatContextKeys2.focused = new RawContextKey("terminalChatFocus" /* ChatFocus */, false, localize("chatFocusedContextKey", "Whether the chat view is focused."));
+  TerminalChatContextKeys2.visible = new RawContextKey("terminalChatVisible" /* ChatVisible */, false, localize("chatVisibleContextKey", "Whether the chat view is visible."));
+  TerminalChatContextKeys2.requestActive = new RawContextKey("terminalChatActiveRequest" /* ChatActiveRequest */, false, localize("chatRequestActiveContextKey", "Whether there is an active chat request."));
+  TerminalChatContextKeys2.inputHasText = new RawContextKey("terminalChatInputHasText" /* ChatInputHasText */, false, localize("chatInputHasTextContextKey", "Whether the chat input has text."));
+  TerminalChatContextKeys2.responseContainsCodeBlock = new RawContextKey("terminalChatResponseContainsCodeBlock" /* ChatResponseContainsCodeBlock */, false, localize("chatResponseContainsCodeBlockContextKey", "Whether the chat response contains a code block."));
+  TerminalChatContextKeys2.responseContainsMultipleCodeBlocks = new RawContextKey("terminalChatResponseContainsMultipleCodeBlocks" /* ChatResponseContainsMultipleCodeBlocks */, false, localize("chatResponseContainsMultipleCodeBlocksContextKey", "Whether the chat response contains multiple code blocks."));
+  TerminalChatContextKeys2.hasChatAgent = new RawContextKey("terminalChatAgentRegistered" /* ChatAgentRegistered */, false, localize("chatAgentRegisteredContextKey", "Whether a chat agent is registered for the terminal location."));
 })(TerminalChatContextKeys || (TerminalChatContextKeys = {}));
 export {
   MENU_TERMINAL_CHAT_INPUT,

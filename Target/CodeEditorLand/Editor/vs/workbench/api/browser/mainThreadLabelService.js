@@ -11,23 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
-import {
-  ILabelService
-} from "../../../platform/label/common/label.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ILabelService, ResourceLabelFormatter } from "../../../platform/label/common/label.js";
+import { MainContext, MainThreadLabelServiceShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadLabelService = class extends Disposable {
   constructor(_, _labelService) {
     super();
     this._labelService = _labelService;
   }
-  _resourceLabelFormatters = this._register(
-    new DisposableMap()
-  );
+  _resourceLabelFormatters = this._register(new DisposableMap());
   $registerResourceLabelFormatter(handle, formatter) {
     formatter.priority = true;
     const disposable = this._labelService.registerCachedFormatter(formatter);

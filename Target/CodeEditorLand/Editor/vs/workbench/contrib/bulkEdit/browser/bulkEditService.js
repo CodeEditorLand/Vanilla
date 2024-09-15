@@ -11,49 +11,30 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import {
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
 import { ResourceMap, ResourceSet } from "../../../../base/common/map.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../editor/browser/editorBrowser.js";
-import {
-  IBulkEditService,
-  ResourceFileEdit,
-  ResourceTextEdit
-} from "../../../../editor/browser/services/bulkEditService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IBulkEditOptions, IBulkEditPreviewHandler, IBulkEditResult, IBulkEditService, ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
 import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
+import { WorkspaceEdit } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  Extensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Extensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  Progress
-} from "../../../../platform/progress/common/progress.js";
+import { IProgress, IProgressStep, Progress } from "../../../../platform/progress/common/progress.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  UndoRedoGroup
-} from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  ILifecycleService,
-  ShutdownReason
-} from "../../../services/lifecycle/common/lifecycle.js";
-import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import { UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
 import { BulkCellEdits, ResourceNotebookCellEdit } from "./bulkCellEdits.js";
 import { BulkFileEdits } from "./bulkFileEdits.js";
 import { BulkTextEdits } from "./bulkTextEdits.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ILifecycleService, ShutdownReason } from "../../../services/lifecycle/common/lifecycle.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
 function liftEdits(edits) {
   return edits.map((edit) => {
     if (ResourceTextEdit.is(edit)) {
@@ -102,27 +83,12 @@ let BulkEdit = class {
       return localize("summary.0", "Made no edits");
     } else if (otherResources.size === 0) {
       if (textEditCount > 1 && textEditResources.size > 1) {
-        return localize(
-          "summary.nm",
-          "Made {0} text edits in {1} files",
-          textEditCount,
-          textEditResources.size
-        );
+        return localize("summary.nm", "Made {0} text edits in {1} files", textEditCount, textEditResources.size);
       } else {
-        return localize(
-          "summary.n0",
-          "Made {0} text edits in one file",
-          textEditCount
-        );
+        return localize("summary.n0", "Made {0} text edits in one file", textEditCount);
       }
     } else {
-      return localize(
-        "summary.textFiles",
-        "Made {0} text edits in {1} files, also created or deleted {2} files",
-        textEditCount,
-        textEditResources.size,
-        otherResources.size
-      );
+      return localize("summary.textFiles", "Made {0} text edits in {1} files, also created or deleted {2} files", textEditCount, textEditResources.size, otherResources.size);
     }
   }
   async perform() {
@@ -139,9 +105,7 @@ let BulkEdit = class {
     }
     const increment = this._edits.length > 1 ? 0 : void 0;
     this._progress.report({ increment, total: 100 });
-    const progress = {
-      report: /* @__PURE__ */ __name((_) => this._progress.report({ increment: 100 / this._edits.length }), "report")
-    };
+    const progress = { report: /* @__PURE__ */ __name((_) => this._progress.report({ increment: 100 / this._edits.length }), "report") };
     const resources = [];
     let index = 0;
     for (const range of ranges) {
@@ -150,33 +114,11 @@ let BulkEdit = class {
       }
       const group = this._edits.slice(index, index + range);
       if (group[0] instanceof ResourceFileEdit) {
-        resources.push(
-          await this._performFileEdits(
-            group,
-            this._undoRedoGroup,
-            this._undoRedoSource,
-            this._confirmBeforeUndo,
-            progress
-          )
-        );
+        resources.push(await this._performFileEdits(group, this._undoRedoGroup, this._undoRedoSource, this._confirmBeforeUndo, progress));
       } else if (group[0] instanceof ResourceTextEdit) {
-        resources.push(
-          await this._performTextEdits(
-            group,
-            this._undoRedoGroup,
-            this._undoRedoSource,
-            progress
-          )
-        );
+        resources.push(await this._performTextEdits(group, this._undoRedoGroup, this._undoRedoSource, progress));
       } else if (group[0] instanceof ResourceNotebookCellEdit) {
-        resources.push(
-          await this._performCellEdits(
-            group,
-            this._undoRedoGroup,
-            this._undoRedoSource,
-            progress
-          )
-        );
+        resources.push(await this._performCellEdits(group, this._undoRedoGroup, this._undoRedoSource, progress));
       } else {
         console.log("UNKNOWN EDIT");
       }
@@ -186,44 +128,17 @@ let BulkEdit = class {
   }
   async _performFileEdits(edits, undoRedoGroup, undoRedoSource, confirmBeforeUndo, progress) {
     this._logService.debug("_performFileEdits", JSON.stringify(edits));
-    const model = this._instaService.createInstance(
-      BulkFileEdits,
-      this._label || localize("workspaceEdit", "Workspace Edit"),
-      this._code || "undoredo.workspaceEdit",
-      undoRedoGroup,
-      undoRedoSource,
-      confirmBeforeUndo,
-      progress,
-      this._token,
-      edits
-    );
+    const model = this._instaService.createInstance(BulkFileEdits, this._label || localize("workspaceEdit", "Workspace Edit"), this._code || "undoredo.workspaceEdit", undoRedoGroup, undoRedoSource, confirmBeforeUndo, progress, this._token, edits);
     return await model.apply();
   }
   async _performTextEdits(edits, undoRedoGroup, undoRedoSource, progress) {
     this._logService.debug("_performTextEdits", JSON.stringify(edits));
-    const model = this._instaService.createInstance(
-      BulkTextEdits,
-      this._label || localize("workspaceEdit", "Workspace Edit"),
-      this._code || "undoredo.workspaceEdit",
-      this._editor,
-      undoRedoGroup,
-      undoRedoSource,
-      progress,
-      this._token,
-      edits
-    );
+    const model = this._instaService.createInstance(BulkTextEdits, this._label || localize("workspaceEdit", "Workspace Edit"), this._code || "undoredo.workspaceEdit", this._editor, undoRedoGroup, undoRedoSource, progress, this._token, edits);
     return await model.apply();
   }
   async _performCellEdits(edits, undoRedoGroup, undoRedoSource, progress) {
     this._logService.debug("_performCellEdits", JSON.stringify(edits));
-    const model = this._instaService.createInstance(
-      BulkCellEdits,
-      undoRedoGroup,
-      undoRedoSource,
-      progress,
-      this._token,
-      edits
-    );
+    const model = this._instaService.createInstance(BulkCellEdits, undoRedoGroup, undoRedoSource, progress, this._token, edits);
     return await model.apply();
   }
 };
@@ -260,10 +175,7 @@ let BulkEditService = class {
   async apply(editsIn, options) {
     let edits = liftEdits(Array.isArray(editsIn) ? editsIn : editsIn.edits);
     if (edits.length === 0) {
-      return {
-        ariaSummary: localize("nothing", "Made no edits"),
-        isApplied: false
-      };
+      return { ariaSummary: localize("nothing", "Made no edits"), isApplied: false };
     }
     if (this._previewHandler && (options?.showPreview || edits.some((value) => value.metadata?.needsConfirmation))) {
       edits = await this._previewHandler(edits, options);
@@ -310,20 +222,12 @@ let BulkEditService = class {
     );
     let listener;
     try {
-      listener = this._lifecycleService.onBeforeShutdown(
-        (e) => e.veto(
-          this._shouldVeto(label, e.reason),
-          "veto.blukEditService"
-        )
-      );
+      listener = this._lifecycleService.onBeforeShutdown((e) => e.veto(this._shouldVeto(label, e.reason), "veto.blukEditService"));
       const resources = await bulkEdit.perform();
       if (options?.respectAutoSaveConfig && this._configService.getValue(autoSaveSetting) === true && resources.length > 1) {
         await this._saveAll(resources);
       }
-      return {
-        ariaSummary: bulkEdit.ariaMessage(),
-        isApplied: edits.length > 0
-      };
+      return { ariaSummary: bulkEdit.ariaMessage(), isApplied: edits.length > 0 };
     } catch (err) {
       this._logService.error(err);
       throw err;
@@ -334,13 +238,11 @@ let BulkEditService = class {
   }
   async _saveAll(resources) {
     const set = new ResourceSet(resources);
-    const saves = this._workingCopyService.dirtyWorkingCopies.map(
-      async (copy) => {
-        if (set.has(copy.resource)) {
-          await copy.save();
-        }
+    const saves = this._workingCopyService.dirtyWorkingCopies.map(async (copy) => {
+      if (set.has(copy.resource)) {
+        await copy.save();
       }
-    );
+    });
     const result = await Promise.allSettled(saves);
     for (const item of result) {
       if (item.status === "rejected") {
@@ -353,62 +255,25 @@ let BulkEditService = class {
     let primaryButton;
     switch (reason) {
       case ShutdownReason.CLOSE:
-        message = localize(
-          "closeTheWindow.message",
-          "Are you sure you want to close the window?"
-        );
-        primaryButton = localize(
-          {
-            key: "closeTheWindow",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Close Window"
-        );
+        message = localize("closeTheWindow.message", "Are you sure you want to close the window?");
+        primaryButton = localize({ key: "closeTheWindow", comment: ["&& denotes a mnemonic"] }, "&&Close Window");
         break;
       case ShutdownReason.LOAD:
-        message = localize(
-          "changeWorkspace.message",
-          "Are you sure you want to change the workspace?"
-        );
-        primaryButton = localize(
-          {
-            key: "changeWorkspace",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "Change &&Workspace"
-        );
+        message = localize("changeWorkspace.message", "Are you sure you want to change the workspace?");
+        primaryButton = localize({ key: "changeWorkspace", comment: ["&& denotes a mnemonic"] }, "Change &&Workspace");
         break;
       case ShutdownReason.RELOAD:
-        message = localize(
-          "reloadTheWindow.message",
-          "Are you sure you want to reload the window?"
-        );
-        primaryButton = localize(
-          {
-            key: "reloadTheWindow",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Reload Window"
-        );
+        message = localize("reloadTheWindow.message", "Are you sure you want to reload the window?");
+        primaryButton = localize({ key: "reloadTheWindow", comment: ["&& denotes a mnemonic"] }, "&&Reload Window");
         break;
       default:
-        message = localize(
-          "quit.message",
-          "Are you sure you want to quit?"
-        );
-        primaryButton = localize(
-          { key: "quit", comment: ["&& denotes a mnemonic"] },
-          "&&Quit"
-        );
+        message = localize("quit.message", "Are you sure you want to quit?");
+        primaryButton = localize({ key: "quit", comment: ["&& denotes a mnemonic"] }, "&&Quit");
         break;
     }
     const result = await this._dialogService.confirm({
       message,
-      detail: localize(
-        "areYouSureQuiteBulkEdit.detail",
-        "'{0}' is in progress.",
-        label || localize("fileOperation", "File operation")
-      ),
+      detail: localize("areYouSureQuiteBulkEdit.detail", "'{0}' is in progress.", label || localize("fileOperation", "File operation")),
       primaryButton
     });
     return !result.confirmed;
@@ -425,16 +290,11 @@ BulkEditService = __decorateClass([
 ], BulkEditService);
 registerSingleton(IBulkEditService, BulkEditService, InstantiationType.Delayed);
 const autoSaveSetting = "files.refactoring.autoSave";
-Registry.as(
-  Extensions.Configuration
-).registerConfiguration({
+Registry.as(Extensions.Configuration).registerConfiguration({
   id: "files",
   properties: {
     [autoSaveSetting]: {
-      description: localize(
-        "refactoring.autoSave",
-        "Controls if files that were part of a refactoring are saved automatically"
-      ),
+      description: localize("refactoring.autoSave", "Controls if files that were part of a refactoring are saved automatically"),
       default: true,
       type: "boolean"
     }

@@ -10,93 +10,44 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DragAndDropObserver,
-  EventType,
-  addDisposableListener,
-  getWindow,
-  isAncestor
-} from "../../../../base/browser/dom.js";
+import { addDisposableListener, Dimension, DragAndDropObserver, EventType, getWindow, isAncestor } from "../../../../base/browser/dom.js";
 import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import {
-  Gesture,
-  EventType as TouchEventType
-} from "../../../../base/browser/touch.js";
-import {
-  Orientation
-} from "../../../../base/browser/ui/sash/sash.js";
-import {
-  PaneView
-} from "../../../../base/browser/ui/splitview/paneview.js";
+import { EventType as TouchEventType, Gesture } from "../../../../base/browser/touch.js";
+import { IActionViewItem } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IBoundarySashes, Orientation } from "../../../../base/browser/ui/sash/sash.js";
+import { IPaneViewOptions, PaneView } from "../../../../base/browser/ui/splitview/paneview.js";
+import { IAction } from "../../../../base/common/actions.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { KeyChord, KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import {
-  DisposableStore,
-  combinedDisposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { combinedDisposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { assertIsDefined } from "../../../../base/common/types.js";
 import "./media/paneviewlet.css";
 import * as nls from "../../../../nls.js";
 import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  Action2,
-  IMenuService,
-  MenuId,
-  MenuRegistry,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, IAction2Options, IMenuService, ISubmenuItem, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  activeContrastBorder,
-  asCssVariable
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService,
-  Themable
-} from "../../../../platform/theme/common/themeService.js";
+import { activeContrastBorder, asCssVariable } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { Component } from "../../../common/component.js";
-import { FocusedViewContext } from "../../../common/contextkeys.js";
-import {
-  PANEL_SECTION_BORDER,
-  PANEL_SECTION_DRAG_AND_DROP_BACKGROUND,
-  PANEL_SECTION_HEADER_BACKGROUND,
-  PANEL_SECTION_HEADER_BORDER,
-  PANEL_SECTION_HEADER_FOREGROUND,
-  SIDE_BAR_DRAG_AND_DROP_BACKGROUND,
-  SIDE_BAR_SECTION_HEADER_BACKGROUND,
-  SIDE_BAR_SECTION_HEADER_BORDER,
-  SIDE_BAR_SECTION_HEADER_FOREGROUND
-} from "../../../common/theme.js";
-import {
-  IViewDescriptorService,
-  ViewContainerLocation,
-  ViewContainerLocationToString,
-  ViewVisibilityState
-} from "../../../common/views.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import {
-  IWorkbenchLayoutService,
-  LayoutSettings,
-  isHorizontal
-} from "../../../services/layout/browser/layoutService.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
 import { CompositeMenuActions } from "../../actions.js";
 import { CompositeDragAndDropObserver, toggleDropEffect } from "../../dnd.js";
+import { ViewPane } from "./viewPane.js";
+import { IViewletViewOptions } from "./viewsViewlet.js";
+import { Component } from "../../../common/component.js";
+import { PANEL_SECTION_BORDER, PANEL_SECTION_DRAG_AND_DROP_BACKGROUND, PANEL_SECTION_HEADER_BACKGROUND, PANEL_SECTION_HEADER_BORDER, PANEL_SECTION_HEADER_FOREGROUND, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, SIDE_BAR_SECTION_HEADER_BACKGROUND, SIDE_BAR_SECTION_HEADER_BORDER, SIDE_BAR_SECTION_HEADER_FOREGROUND } from "../../../common/theme.js";
+import { IAddedViewDescriptorRef, ICustomViewDescriptor, IView, IViewContainerModel, IViewDescriptor, IViewDescriptorRef, IViewDescriptorService, IViewPaneContainer, ViewContainer, ViewContainerLocation, ViewContainerLocationToString, ViewVisibilityState } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { FocusedViewContext } from "../../../common/contextkeys.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { isHorizontal, IWorkbenchLayoutService, LayoutSettings } from "../../../services/layout/browser/layoutService.js";
+import { IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 const ViewsSubMenu = new MenuId("Views");
 MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
   submenu: ViewsSubMenu,
@@ -117,9 +68,7 @@ class ViewPaneDropOverlay extends Themable {
     this.orientation = orientation;
     this.bounds = bounds;
     this.location = location;
-    this.cleanupOverlayScheduler = this._register(
-      new RunOnceScheduler(() => this.dispose(), 300)
-    );
+    this.cleanupOverlayScheduler = this._register(new RunOnceScheduler(() => this.dispose(), 300));
     this.create();
   }
   static {
@@ -144,12 +93,10 @@ class ViewPaneDropOverlay extends Themable {
     this.container.style.top = "0px";
     this.paneElement.appendChild(this.container);
     this.paneElement.classList.add("dragged-over");
-    this._register(
-      toDisposable(() => {
-        this.container.remove();
-        this.paneElement.classList.remove("dragged-over");
-      })
-    );
+    this._register(toDisposable(() => {
+      this.container.remove();
+      this.paneElement.classList.remove("dragged-over");
+    }));
     this.overlay = document.createElement("div");
     this.overlay.classList.add("pane-overlay-indicator");
     this.container.appendChild(this.overlay);
@@ -157,9 +104,7 @@ class ViewPaneDropOverlay extends Themable {
     this.updateStyles();
   }
   updateStyles() {
-    this.overlay.style.backgroundColor = this.getColor(
-      this.location === ViewContainerLocation.Panel ? PANEL_SECTION_DRAG_AND_DROP_BACKGROUND : SIDE_BAR_DRAG_AND_DROP_BACKGROUND
-    ) || "";
+    this.overlay.style.backgroundColor = this.getColor(this.location === ViewContainerLocation.Panel ? PANEL_SECTION_DRAG_AND_DROP_BACKGROUND : SIDE_BAR_DRAG_AND_DROP_BACKGROUND) || "";
     const activeContrastBorderColor = this.getColor(activeContrastBorder);
     this.overlay.style.outlineColor = activeContrastBorderColor || "";
     this.overlay.style.outlineOffset = activeContrastBorderColor ? "-2px" : "";
@@ -170,28 +115,24 @@ class ViewPaneDropOverlay extends Themable {
     this.overlay.style.borderWidth = "0px";
   }
   registerListeners() {
-    this._register(
-      new DragAndDropObserver(this.container, {
-        onDragOver: /* @__PURE__ */ __name((e) => {
-          this.positionOverlay(e.offsetX, e.offsetY);
-          if (this.cleanupOverlayScheduler.isScheduled()) {
-            this.cleanupOverlayScheduler.cancel();
-          }
-        }, "onDragOver"),
-        onDragLeave: /* @__PURE__ */ __name((e) => this.dispose(), "onDragLeave"),
-        onDragEnd: /* @__PURE__ */ __name((e) => this.dispose(), "onDragEnd"),
-        onDrop: /* @__PURE__ */ __name((e) => {
-          this.dispose();
-        }, "onDrop")
-      })
-    );
-    this._register(
-      addDisposableListener(this.container, EventType.MOUSE_OVER, () => {
-        if (!this.cleanupOverlayScheduler.isScheduled()) {
-          this.cleanupOverlayScheduler.schedule();
+    this._register(new DragAndDropObserver(this.container, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        this.positionOverlay(e.offsetX, e.offsetY);
+        if (this.cleanupOverlayScheduler.isScheduled()) {
+          this.cleanupOverlayScheduler.cancel();
         }
-      })
-    );
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => this.dispose(), "onDragLeave"),
+      onDragEnd: /* @__PURE__ */ __name((e) => this.dispose(), "onDragEnd"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        this.dispose();
+      }, "onDrop")
+    }));
+    this._register(addDisposableListener(this.container, EventType.MOUSE_OVER, () => {
+      if (!this.cleanupOverlayScheduler.isScheduled()) {
+        this.cleanupOverlayScheduler.schedule();
+      }
+    }));
   }
   positionOverlay(mousePosX, mousePosY) {
     const paneWidth = this.paneElement.clientWidth;
@@ -214,36 +155,16 @@ class ViewPaneDropOverlay extends Themable {
     }
     switch (dropDirection) {
       case 0 /* UP */:
-        this.doPositionOverlay({
-          top: "0",
-          left: "0",
-          width: "100%",
-          height: "50%"
-        });
+        this.doPositionOverlay({ top: "0", left: "0", width: "100%", height: "50%" });
         break;
       case 1 /* DOWN */:
-        this.doPositionOverlay({
-          bottom: "0",
-          left: "0",
-          width: "100%",
-          height: "50%"
-        });
+        this.doPositionOverlay({ bottom: "0", left: "0", width: "100%", height: "50%" });
         break;
       case 2 /* LEFT */:
-        this.doPositionOverlay({
-          top: "0",
-          left: "0",
-          width: "50%",
-          height: "100%"
-        });
+        this.doPositionOverlay({ top: "0", left: "0", width: "50%", height: "100%" });
         break;
       case 3 /* RIGHT */:
-        this.doPositionOverlay({
-          top: "0",
-          right: "0",
-          width: "50%",
-          height: "100%"
-        });
+        this.doPositionOverlay({ top: "0", right: "0", width: "50%", height: "100%" });
         break;
       default: {
         let top = "0";
@@ -266,10 +187,7 @@ class ViewPaneDropOverlay extends Themable {
       this.doUpdateOverlayBorder(void 0);
     }
     this.overlay.style.opacity = "1";
-    setTimeout(
-      () => this.overlay.classList.add("overlay-move-transition"),
-      0
-    );
+    setTimeout(() => this.overlay.classList.add("overlay-move-transition"), 0);
     this._currentDropOperation = dropDirection;
   }
   doUpdateOverlayBorder(direction) {
@@ -302,34 +220,10 @@ let ViewContainerMenuActions = class extends CompositeMenuActions {
   constructor(element, viewContainer, viewDescriptorService, contextKeyService, menuService) {
     const scopedContextKeyService = contextKeyService.createScoped(element);
     scopedContextKeyService.createKey("viewContainer", viewContainer.id);
-    const viewContainerLocationKey = scopedContextKeyService.createKey(
-      "viewContainerLocation",
-      ViewContainerLocationToString(
-        viewDescriptorService.getViewContainerLocation(viewContainer)
-      )
-    );
-    super(
-      MenuId.ViewContainerTitle,
-      MenuId.ViewContainerTitleContext,
-      { shouldForwardArgs: true, renderShortTitle: true },
-      scopedContextKeyService,
-      menuService
-    );
+    const viewContainerLocationKey = scopedContextKeyService.createKey("viewContainerLocation", ViewContainerLocationToString(viewDescriptorService.getViewContainerLocation(viewContainer)));
+    super(MenuId.ViewContainerTitle, MenuId.ViewContainerTitleContext, { shouldForwardArgs: true, renderShortTitle: true }, scopedContextKeyService, menuService);
     this._register(scopedContextKeyService);
-    this._register(
-      Event.filter(
-        viewDescriptorService.onDidChangeContainerLocation,
-        (e) => e.viewContainer === viewContainer
-      )(
-        () => viewContainerLocationKey.set(
-          ViewContainerLocationToString(
-            viewDescriptorService.getViewContainerLocation(
-              viewContainer
-            )
-          )
-        )
-      )
-    );
+    this._register(Event.filter(viewDescriptorService.onDidChangeContainerLocation, (e) => e.viewContainer === viewContainer)(() => viewContainerLocationKey.set(ViewContainerLocationToString(viewDescriptorService.getViewContainerLocation(viewContainer)))));
   }
 };
 ViewContainerMenuActions = __decorateClass([
@@ -375,21 +269,15 @@ let ViewPaneContainer = class extends Component {
   visibleViewsCountFromCache;
   visibleViewsStorageId;
   viewContainerModel;
-  _onTitleAreaUpdate = this._register(
-    new Emitter()
-  );
+  _onTitleAreaUpdate = this._register(new Emitter());
   onTitleAreaUpdate = this._onTitleAreaUpdate.event;
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
   _onDidAddViews = this._register(new Emitter());
   onDidAddViews = this._onDidAddViews.event;
   _onDidRemoveViews = this._register(new Emitter());
   onDidRemoveViews = this._onDidRemoveViews.event;
-  _onDidChangeViewVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeViewVisibility = this._register(new Emitter());
   onDidChangeViewVisibility = this._onDidChangeViewVisibility.event;
   _onDidFocusView = this._register(new Emitter());
   onDidFocusView = this._onDidFocusView.event;
@@ -418,46 +306,14 @@ let ViewPaneContainer = class extends Component {
     if (this._boundarySashes) {
       this.paneview.setBoundarySashes(this._boundarySashes);
     }
-    this._register(
-      this.paneview.onDidDrop(
-        ({ from, to }) => this.movePane(from, to)
-      )
-    );
-    this._register(
-      this.paneview.onDidScroll((_) => this.onDidScrollPane())
-    );
-    this._register(
-      this.paneview.onDidSashReset((index) => this.onDidSashReset(index))
-    );
-    this._register(
-      addDisposableListener(
-        parent,
-        EventType.CONTEXT_MENU,
-        (e) => this.showContextMenu(
-          new StandardMouseEvent(getWindow(parent), e)
-        )
-      )
-    );
+    this._register(this.paneview.onDidDrop(({ from, to }) => this.movePane(from, to)));
+    this._register(this.paneview.onDidScroll((_) => this.onDidScrollPane()));
+    this._register(this.paneview.onDidSashReset((index) => this.onDidSashReset(index)));
+    this._register(addDisposableListener(parent, EventType.CONTEXT_MENU, (e) => this.showContextMenu(new StandardMouseEvent(getWindow(parent), e))));
     this._register(Gesture.addTarget(parent));
-    this._register(
-      addDisposableListener(
-        parent,
-        TouchEventType.Contextmenu,
-        (e) => this.showContextMenu(
-          new StandardMouseEvent(getWindow(parent), e)
-        )
-      )
-    );
-    this._menuActions = this._register(
-      this.instantiationService.createInstance(
-        ViewContainerMenuActions,
-        this.paneview.element,
-        this.viewContainer
-      )
-    );
-    this._register(
-      this._menuActions.onDidChange(() => this.updateTitleArea())
-    );
+    this._register(addDisposableListener(parent, TouchEventType.Contextmenu, (e) => this.showContextMenu(new StandardMouseEvent(getWindow(parent), e))));
+    this._menuActions = this._register(this.instantiationService.createInstance(ViewContainerMenuActions, this.paneview.element, this.viewContainer));
+    this._register(this._menuActions.onDidChange(() => this.updateTitleArea()));
     let overlay;
     const getOverlayBounds = /* @__PURE__ */ __name(() => {
       const fullSize = parent.getBoundingClientRect();
@@ -475,156 +331,89 @@ let ViewPaneContainer = class extends Component {
       return pos.x >= bounds2.left && pos.x <= bounds2.right && pos.y >= bounds2.top && pos.y <= bounds2.bottom;
     }, "inBounds");
     let bounds;
-    this._register(
-      CompositeDragAndDropObserver.INSTANCE.registerTarget(parent, {
-        onDragEnter: /* @__PURE__ */ __name((e) => {
-          bounds = getOverlayBounds();
-          if (overlay && overlay.disposed) {
-            overlay = void 0;
-          }
-          if (!overlay && inBounds(bounds, e.eventData)) {
-            const dropData = e.dragAndDropData.getData();
-            if (dropData.type === "view") {
-              const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(
-                dropData.id
-              );
-              const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(
-                dropData.id
-              );
-              if (oldViewContainer !== this.viewContainer && (!viewDescriptor || !viewDescriptor.canMoveView || this.viewContainer.rejectAddedViews)) {
-                return;
-              }
-              overlay = new ViewPaneDropOverlay(
-                parent,
-                void 0,
-                bounds,
-                this.viewDescriptorService.getViewContainerLocation(
-                  this.viewContainer
-                ),
-                this.themeService
-              );
-            }
-            if (dropData.type === "composite" && dropData.id !== this.viewContainer.id) {
-              const container = this.viewDescriptorService.getViewContainerById(
-                dropData.id
-              );
-              const viewsToMove = this.viewDescriptorService.getViewContainerModel(
-                container
-              ).allViewDescriptors;
-              if (!viewsToMove.some((v) => !v.canMoveView) && viewsToMove.length > 0) {
-                overlay = new ViewPaneDropOverlay(
-                  parent,
-                  void 0,
-                  bounds,
-                  this.viewDescriptorService.getViewContainerLocation(
-                    this.viewContainer
-                  ),
-                  this.themeService
-                );
-              }
-            }
-          }
-        }, "onDragEnter"),
-        onDragOver: /* @__PURE__ */ __name((e) => {
-          if (overlay && overlay.disposed) {
-            overlay = void 0;
-          }
-          if (overlay && !inBounds(bounds, e.eventData)) {
-            overlay.dispose();
-            overlay = void 0;
-          }
-          if (inBounds(bounds, e.eventData)) {
-            toggleDropEffect(
-              e.eventData.dataTransfer,
-              "move",
-              overlay !== void 0
-            );
-          }
-        }, "onDragOver"),
-        onDragLeave: /* @__PURE__ */ __name((e) => {
-          overlay?.dispose();
+    this._register(CompositeDragAndDropObserver.INSTANCE.registerTarget(parent, {
+      onDragEnter: /* @__PURE__ */ __name((e) => {
+        bounds = getOverlayBounds();
+        if (overlay && overlay.disposed) {
           overlay = void 0;
-        }, "onDragLeave"),
-        onDrop: /* @__PURE__ */ __name((e) => {
-          if (overlay) {
-            const dropData = e.dragAndDropData.getData();
-            const viewsToMove = [];
-            if (dropData.type === "composite" && dropData.id !== this.viewContainer.id) {
-              const container = this.viewDescriptorService.getViewContainerById(
-                dropData.id
-              );
-              const allViews = this.viewDescriptorService.getViewContainerModel(
-                container
-              ).allViewDescriptors;
-              if (!allViews.some((v) => !v.canMoveView)) {
-                viewsToMove.push(...allViews);
-              }
-            } else if (dropData.type === "view") {
-              const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(
-                dropData.id
-              );
-              const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(
-                dropData.id
-              );
-              if (oldViewContainer !== this.viewContainer && viewDescriptor && viewDescriptor.canMoveView) {
-                this.viewDescriptorService.moveViewsToContainer(
-                  [viewDescriptor],
-                  this.viewContainer,
-                  void 0,
-                  "dnd"
-                );
-              }
+        }
+        if (!overlay && inBounds(bounds, e.eventData)) {
+          const dropData = e.dragAndDropData.getData();
+          if (dropData.type === "view") {
+            const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(dropData.id);
+            const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(dropData.id);
+            if (oldViewContainer !== this.viewContainer && (!viewDescriptor || !viewDescriptor.canMoveView || this.viewContainer.rejectAddedViews)) {
+              return;
             }
-            const paneCount = this.panes.length;
-            if (viewsToMove.length > 0) {
-              this.viewDescriptorService.moveViewsToContainer(
-                viewsToMove,
-                this.viewContainer,
-                void 0,
-                "dnd"
-              );
+            overlay = new ViewPaneDropOverlay(parent, void 0, bounds, this.viewDescriptorService.getViewContainerLocation(this.viewContainer), this.themeService);
+          }
+          if (dropData.type === "composite" && dropData.id !== this.viewContainer.id) {
+            const container = this.viewDescriptorService.getViewContainerById(dropData.id);
+            const viewsToMove = this.viewDescriptorService.getViewContainerModel(container).allViewDescriptors;
+            if (!viewsToMove.some((v) => !v.canMoveView) && viewsToMove.length > 0) {
+              overlay = new ViewPaneDropOverlay(parent, void 0, bounds, this.viewDescriptorService.getViewContainerLocation(this.viewContainer), this.themeService);
             }
-            if (paneCount > 0) {
-              for (const view of viewsToMove) {
-                const paneToMove = this.panes.find(
-                  (p) => p.id === view.id
-                );
-                if (paneToMove) {
-                  this.movePane(
-                    paneToMove,
-                    this.panes[this.panes.length - 1]
-                  );
-                }
+          }
+        }
+      }, "onDragEnter"),
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        if (overlay && overlay.disposed) {
+          overlay = void 0;
+        }
+        if (overlay && !inBounds(bounds, e.eventData)) {
+          overlay.dispose();
+          overlay = void 0;
+        }
+        if (inBounds(bounds, e.eventData)) {
+          toggleDropEffect(e.eventData.dataTransfer, "move", overlay !== void 0);
+        }
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        overlay?.dispose();
+        overlay = void 0;
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        if (overlay) {
+          const dropData = e.dragAndDropData.getData();
+          const viewsToMove = [];
+          if (dropData.type === "composite" && dropData.id !== this.viewContainer.id) {
+            const container = this.viewDescriptorService.getViewContainerById(dropData.id);
+            const allViews = this.viewDescriptorService.getViewContainerModel(container).allViewDescriptors;
+            if (!allViews.some((v) => !v.canMoveView)) {
+              viewsToMove.push(...allViews);
+            }
+          } else if (dropData.type === "view") {
+            const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(dropData.id);
+            const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(dropData.id);
+            if (oldViewContainer !== this.viewContainer && viewDescriptor && viewDescriptor.canMoveView) {
+              this.viewDescriptorService.moveViewsToContainer([viewDescriptor], this.viewContainer, void 0, "dnd");
+            }
+          }
+          const paneCount = this.panes.length;
+          if (viewsToMove.length > 0) {
+            this.viewDescriptorService.moveViewsToContainer(viewsToMove, this.viewContainer, void 0, "dnd");
+          }
+          if (paneCount > 0) {
+            for (const view of viewsToMove) {
+              const paneToMove = this.panes.find((p) => p.id === view.id);
+              if (paneToMove) {
+                this.movePane(paneToMove, this.panes[this.panes.length - 1]);
               }
             }
           }
-          overlay?.dispose();
-          overlay = void 0;
-        }, "onDrop")
-      })
-    );
+        }
+        overlay?.dispose();
+        overlay = void 0;
+      }, "onDrop")
+    }));
     this._register(this.onDidSashChange(() => this.saveViewSizes()));
-    this._register(
-      this.viewContainerModel.onDidAddVisibleViewDescriptors(
-        (added) => this.onDidAddViewDescriptors(added)
-      )
-    );
-    this._register(
-      this.viewContainerModel.onDidRemoveVisibleViewDescriptors(
-        (removed) => this.onDidRemoveViewDescriptors(removed)
-      )
-    );
-    const addedViews = this.viewContainerModel.visibleViewDescriptors.map(
-      (viewDescriptor, index) => {
-        const size = this.viewContainerModel.getSize(
-          viewDescriptor.id
-        );
-        const collapsed = this.viewContainerModel.isCollapsed(
-          viewDescriptor.id
-        );
-        return { viewDescriptor, index, size, collapsed };
-      }
-    );
+    this._register(this.viewContainerModel.onDidAddVisibleViewDescriptors((added) => this.onDidAddViewDescriptors(added)));
+    this._register(this.viewContainerModel.onDidRemoveVisibleViewDescriptors((removed) => this.onDidRemoveViewDescriptors(removed)));
+    const addedViews = this.viewContainerModel.visibleViewDescriptors.map((viewDescriptor, index) => {
+      const size = this.viewContainerModel.getSize(viewDescriptor.id);
+      const collapsed = this.viewContainerModel.isCollapsed(viewDescriptor.id);
+      return { viewDescriptor, index, size, collapsed };
+    });
     if (addedViews.length) {
       this.onDidAddViewDescriptors(addedViews);
     }
@@ -634,21 +423,13 @@ let ViewPaneContainer = class extends Component {
         this.updateTitleArea();
         this.updateViewHeaders();
       }
-      this._register(
-        this.configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration(
-            LayoutSettings.ACTIVITY_BAR_LOCATION
-          )) {
-            this.updateViewHeaders();
-          }
-        })
-      );
+      this._register(this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(LayoutSettings.ACTIVITY_BAR_LOCATION)) {
+          this.updateViewHeaders();
+        }
+      }));
     });
-    this._register(
-      this.viewContainerModel.onDidChangeActiveViewDescriptors(
-        () => this._onTitleAreaUpdate.fire()
-      )
-    );
+    this._register(this.viewContainerModel.onDidChangeActiveViewDescriptors(() => this._onTitleAreaUpdate.fire()));
   }
   getTitle() {
     const containerTitle = this.viewContainerModel.title;
@@ -691,7 +472,7 @@ let ViewPaneContainer = class extends Component {
     return createActionViewItem(this.instantiationService, action, options);
   }
   focus() {
-    let paneToFocus;
+    let paneToFocus = void 0;
     if (this.lastFocusedPane) {
       paneToFocus = this.lastFocusedPane;
     } else if (this.paneItems.length > 0) {
@@ -707,9 +488,7 @@ let ViewPaneContainer = class extends Component {
     }
   }
   get orientation() {
-    switch (this.viewDescriptorService.getViewContainerLocation(
-      this.viewContainer
-    )) {
+    switch (this.viewDescriptorService.getViewContainerLocation(this.viewContainer)) {
       case ViewContainerLocation.Sidebar:
       case ViewContainerLocation.AuxiliaryBar:
         return Orientation.VERTICAL;
@@ -722,10 +501,7 @@ let ViewPaneContainer = class extends Component {
   layout(dimension) {
     if (this.paneview) {
       if (this.paneview.orientation !== this.orientation) {
-        this.paneview.flipOrientation(
-          dimension.height,
-          dimension.width
-        );
+        this.paneview.flipOrientation(dimension.height, dimension.width);
       }
       this.paneview.layout(dimension.height, dimension.width);
     }
@@ -743,9 +519,7 @@ let ViewPaneContainer = class extends Component {
   }
   getOptimalWidth() {
     const additionalMargin = 16;
-    const optimalWidth = Math.max(
-      ...this.panes.map((view) => view.getOptimalWidth() || 0)
-    );
+    const optimalWidth = Math.max(...this.panes.map((view) => view.getOptimalWidth() || 0));
     return optimalWidth + additionalMargin;
   }
   addPanes(panes) {
@@ -773,23 +547,14 @@ let ViewPaneContainer = class extends Component {
     this._onTitleAreaUpdate.fire();
   }
   createView(viewDescriptor, options) {
-    return this.instantiationService.createInstance(
-      viewDescriptor.ctorDescriptor.ctor,
-      ...viewDescriptor.ctorDescriptor.staticArguments || [],
-      options
-    );
+    return this.instantiationService.createInstance(viewDescriptor.ctorDescriptor.ctor, ...viewDescriptor.ctorDescriptor.staticArguments || [], options);
   }
   getView(id) {
     return this.panes.filter((view) => view.id === id)[0];
   }
   saveViewSizes() {
     if (this.didLayout) {
-      this.viewContainerModel.setSizes(
-        this.panes.map((view) => ({
-          id: view.id,
-          size: this.getPaneSize(view)
-        }))
-      );
+      this.viewContainerModel.setSizes(this.panes.map((view) => ({ id: view.id, size: this.getPaneSize(view) })));
     }
   }
   restoreViewSizes() {
@@ -811,21 +576,12 @@ let ViewPaneContainer = class extends Component {
   computeInitialSizes() {
     const sizes = /* @__PURE__ */ new Map();
     if (this.dimension) {
-      const totalWeight = this.viewContainerModel.visibleViewDescriptors.reduce(
-        (totalWeight2, { weight }) => totalWeight2 + (weight || 20),
-        0
-      );
+      const totalWeight = this.viewContainerModel.visibleViewDescriptors.reduce((totalWeight2, { weight }) => totalWeight2 + (weight || 20), 0);
       for (const viewDescriptor of this.viewContainerModel.visibleViewDescriptors) {
         if (this.orientation === Orientation.VERTICAL) {
-          sizes.set(
-            viewDescriptor.id,
-            this.dimension.height * (viewDescriptor.weight || 20) / totalWeight
-          );
+          sizes.set(viewDescriptor.id, this.dimension.height * (viewDescriptor.weight || 20) / totalWeight);
         } else {
-          sizes.set(
-            viewDescriptor.id,
-            this.dimension.width * (viewDescriptor.weight || 20) / totalWeight
-          );
+          sizes.set(viewDescriptor.id, this.dimension.width * (viewDescriptor.weight || 20) / totalWeight);
         }
       }
     }
@@ -833,12 +589,7 @@ let ViewPaneContainer = class extends Component {
   }
   saveState() {
     this.panes.forEach((view) => view.saveState());
-    this.storageService.store(
-      this.visibleViewsStorageId,
-      this.length,
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(this.visibleViewsStorageId, this.length, StorageScope.WORKSPACE, StorageTarget.MACHINE);
   }
   onContextMenu(event, viewPane) {
     event.stopPropagation();
@@ -866,46 +617,26 @@ let ViewPaneContainer = class extends Component {
   onDidAddViewDescriptors(added) {
     const panesToAdd = [];
     for (const { viewDescriptor, collapsed, index, size } of added) {
-      const pane = this.createView(viewDescriptor, {
-        id: viewDescriptor.id,
-        title: viewDescriptor.name.value,
-        fromExtensionId: viewDescriptor.extensionId,
-        expanded: !collapsed,
-        singleViewPaneContainerTitle: viewDescriptor.singleViewPaneContainerTitle
-      });
-      pane.render();
-      const contextMenuDisposable = addDisposableListener(
-        pane.draggableElement,
-        "contextmenu",
-        (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          this.onContextMenu(
-            new StandardMouseEvent(
-              getWindow(pane.draggableElement),
-              e
-            ),
-            pane
-          );
+      const pane = this.createView(
+        viewDescriptor,
+        {
+          id: viewDescriptor.id,
+          title: viewDescriptor.name.value,
+          fromExtensionId: viewDescriptor.extensionId,
+          expanded: !collapsed,
+          singleViewPaneContainerTitle: viewDescriptor.singleViewPaneContainerTitle
         }
       );
-      const collapseDisposable = Event.latch(
-        Event.map(pane.onDidChange, () => !pane.isExpanded())
-      )((collapsed2) => {
-        this.viewContainerModel.setCollapsed(
-          viewDescriptor.id,
-          collapsed2
-        );
+      pane.render();
+      const contextMenuDisposable = addDisposableListener(pane.draggableElement, "contextmenu", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.onContextMenu(new StandardMouseEvent(getWindow(pane.draggableElement), e), pane);
       });
-      panesToAdd.push({
-        pane,
-        size: size || pane.minimumSize,
-        index,
-        disposable: combinedDisposable(
-          contextMenuDisposable,
-          collapseDisposable
-        )
+      const collapseDisposable = Event.latch(Event.map(pane.onDidChange, () => !pane.isExpanded()))((collapsed2) => {
+        this.viewContainerModel.setCollapsed(viewDescriptor.id, collapsed2);
       });
+      panesToAdd.push({ pane, size: size || pane.minimumSize, index, disposable: combinedDisposable(contextMenuDisposable, collapseDisposable) });
     }
     this.addPanes(panesToAdd);
     this.restoreViewSizes();
@@ -933,9 +664,7 @@ let ViewPaneContainer = class extends Component {
     }
   }
   toggleViewVisibility(viewId) {
-    if (this.viewContainerModel.activeViewDescriptors.some(
-      (viewDescriptor) => viewDescriptor.id === viewId
-    )) {
+    if (this.viewContainerModel.activeViewDescriptors.some((viewDescriptor) => viewDescriptor.id === viewId)) {
       const visible = !this.viewContainerModel.isVisible(viewId);
       this.viewContainerModel.setVisible(viewId, visible);
     }
@@ -951,223 +680,129 @@ let ViewPaneContainer = class extends Component {
         this.updateTitleArea();
       }
     });
-    const onDidChangeVisibility = pane.onDidChangeBodyVisibility(
-      () => this._onDidChangeViewVisibility.fire(pane)
-    );
+    const onDidChangeVisibility = pane.onDidChangeBodyVisibility(() => this._onDidChangeViewVisibility.fire(pane));
     const onDidChange = pane.onDidChange(() => {
       if (pane === this.lastFocusedPane && !pane.isExpanded()) {
         this.lastFocusedPane = void 0;
       }
     });
-    const isPanel = this.viewDescriptorService.getViewContainerLocation(
-      this.viewContainer
-    ) === ViewContainerLocation.Panel;
+    const isPanel = this.viewDescriptorService.getViewContainerLocation(this.viewContainer) === ViewContainerLocation.Panel;
     pane.style({
-      headerForeground: asCssVariable(
-        isPanel ? PANEL_SECTION_HEADER_FOREGROUND : SIDE_BAR_SECTION_HEADER_FOREGROUND
-      ),
-      headerBackground: asCssVariable(
-        isPanel ? PANEL_SECTION_HEADER_BACKGROUND : SIDE_BAR_SECTION_HEADER_BACKGROUND
-      ),
-      headerBorder: asCssVariable(
-        isPanel ? PANEL_SECTION_HEADER_BORDER : SIDE_BAR_SECTION_HEADER_BORDER
-      ),
-      dropBackground: asCssVariable(
-        isPanel ? PANEL_SECTION_DRAG_AND_DROP_BACKGROUND : SIDE_BAR_DRAG_AND_DROP_BACKGROUND
-      ),
+      headerForeground: asCssVariable(isPanel ? PANEL_SECTION_HEADER_FOREGROUND : SIDE_BAR_SECTION_HEADER_FOREGROUND),
+      headerBackground: asCssVariable(isPanel ? PANEL_SECTION_HEADER_BACKGROUND : SIDE_BAR_SECTION_HEADER_BACKGROUND),
+      headerBorder: asCssVariable(isPanel ? PANEL_SECTION_HEADER_BORDER : SIDE_BAR_SECTION_HEADER_BORDER),
+      dropBackground: asCssVariable(isPanel ? PANEL_SECTION_DRAG_AND_DROP_BACKGROUND : SIDE_BAR_DRAG_AND_DROP_BACKGROUND),
       leftBorder: isPanel ? asCssVariable(PANEL_SECTION_BORDER) : void 0
     });
     const store = new DisposableStore();
     store.add(disposable);
-    store.add(
-      combinedDisposable(
-        pane,
-        onDidFocus,
-        onDidBlur,
-        onDidChangeTitleArea,
-        onDidChange,
-        onDidChangeVisibility
-      )
-    );
+    store.add(combinedDisposable(pane, onDidFocus, onDidBlur, onDidChangeTitleArea, onDidChange, onDidChangeVisibility));
     const paneItem = { pane, disposable: store };
     this.paneItems.splice(index, 0, paneItem);
     assertIsDefined(this.paneview).addPane(pane, size, index);
     let overlay;
-    store.add(
-      CompositeDragAndDropObserver.INSTANCE.registerDraggable(
-        pane.draggableElement,
-        () => {
-          return { type: "view", id: pane.id };
-        },
-        {}
-      )
-    );
-    store.add(
-      CompositeDragAndDropObserver.INSTANCE.registerTarget(
-        pane.dropTargetElement,
-        {
-          onDragEnter: /* @__PURE__ */ __name((e) => {
-            if (!overlay) {
-              const dropData = e.dragAndDropData.getData();
-              if (dropData.type === "view" && dropData.id !== pane.id) {
-                const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(
-                  dropData.id
-                );
-                const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(
-                  dropData.id
-                );
-                if (oldViewContainer !== this.viewContainer && (!viewDescriptor || !viewDescriptor.canMoveView || this.viewContainer.rejectAddedViews)) {
-                  return;
-                }
-                overlay = new ViewPaneDropOverlay(
-                  pane.dropTargetElement,
-                  this.orientation ?? Orientation.VERTICAL,
-                  void 0,
-                  this.viewDescriptorService.getViewContainerLocation(
-                    this.viewContainer
-                  ),
-                  this.themeService
-                );
-              }
-              if (dropData.type === "composite" && dropData.id !== this.viewContainer.id && !this.viewContainer.rejectAddedViews) {
-                const container = this.viewDescriptorService.getViewContainerById(
-                  dropData.id
-                );
-                const viewsToMove = this.viewDescriptorService.getViewContainerModel(
-                  container
-                ).allViewDescriptors;
-                if (!viewsToMove.some((v) => !v.canMoveView) && viewsToMove.length > 0) {
-                  overlay = new ViewPaneDropOverlay(
-                    pane.dropTargetElement,
-                    this.orientation ?? Orientation.VERTICAL,
-                    void 0,
-                    this.viewDescriptorService.getViewContainerLocation(
-                      this.viewContainer
-                    ),
-                    this.themeService
-                  );
-                }
-              }
+    store.add(CompositeDragAndDropObserver.INSTANCE.registerDraggable(pane.draggableElement, () => {
+      return { type: "view", id: pane.id };
+    }, {}));
+    store.add(CompositeDragAndDropObserver.INSTANCE.registerTarget(pane.dropTargetElement, {
+      onDragEnter: /* @__PURE__ */ __name((e) => {
+        if (!overlay) {
+          const dropData = e.dragAndDropData.getData();
+          if (dropData.type === "view" && dropData.id !== pane.id) {
+            const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(dropData.id);
+            const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(dropData.id);
+            if (oldViewContainer !== this.viewContainer && (!viewDescriptor || !viewDescriptor.canMoveView || this.viewContainer.rejectAddedViews)) {
+              return;
             }
-          }, "onDragEnter"),
-          onDragOver: /* @__PURE__ */ __name((e) => {
-            toggleDropEffect(
-              e.eventData.dataTransfer,
-              "move",
-              overlay !== void 0
-            );
-          }, "onDragOver"),
-          onDragLeave: /* @__PURE__ */ __name((e) => {
-            overlay?.dispose();
-            overlay = void 0;
-          }, "onDragLeave"),
-          onDrop: /* @__PURE__ */ __name((e) => {
-            if (overlay) {
-              const dropData = e.dragAndDropData.getData();
-              const viewsToMove = [];
-              let anchorView;
-              if (dropData.type === "composite" && dropData.id !== this.viewContainer.id && !this.viewContainer.rejectAddedViews) {
-                const container = this.viewDescriptorService.getViewContainerById(
-                  dropData.id
-                );
-                const allViews = this.viewDescriptorService.getViewContainerModel(
-                  container
-                ).allViewDescriptors;
-                if (allViews.length > 0 && !allViews.some((v) => !v.canMoveView)) {
-                  viewsToMove.push(...allViews);
-                  anchorView = allViews[0];
-                }
-              } else if (dropData.type === "view") {
-                const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(
-                  dropData.id
-                );
-                const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(
-                  dropData.id
-                );
-                if (oldViewContainer !== this.viewContainer && viewDescriptor && viewDescriptor.canMoveView && !this.viewContainer.rejectAddedViews) {
-                  viewsToMove.push(viewDescriptor);
-                }
-                if (viewDescriptor) {
-                  anchorView = viewDescriptor;
-                }
-              }
-              if (viewsToMove) {
-                this.viewDescriptorService.moveViewsToContainer(
-                  viewsToMove,
-                  this.viewContainer,
-                  void 0,
-                  "dnd"
-                );
-              }
-              if (anchorView) {
-                if (overlay.currentDropOperation === 1 /* DOWN */ || overlay.currentDropOperation === 3 /* RIGHT */) {
-                  const fromIndex = this.panes.findIndex(
-                    (p) => p.id === anchorView.id
-                  );
-                  let toIndex = this.panes.findIndex(
-                    (p) => p.id === pane.id
-                  );
-                  if (fromIndex >= 0 && toIndex >= 0) {
-                    if (fromIndex > toIndex) {
-                      toIndex++;
-                    }
-                    if (toIndex < this.panes.length && toIndex !== fromIndex) {
-                      this.movePane(
-                        this.panes[fromIndex],
-                        this.panes[toIndex]
-                      );
-                    }
-                  }
-                }
-                if (overlay.currentDropOperation === 0 /* UP */ || overlay.currentDropOperation === 2 /* LEFT */) {
-                  const fromIndex = this.panes.findIndex(
-                    (p) => p.id === anchorView.id
-                  );
-                  let toIndex = this.panes.findIndex(
-                    (p) => p.id === pane.id
-                  );
-                  if (fromIndex >= 0 && toIndex >= 0) {
-                    if (fromIndex < toIndex) {
-                      toIndex--;
-                    }
-                    if (toIndex >= 0 && toIndex !== fromIndex) {
-                      this.movePane(
-                        this.panes[fromIndex],
-                        this.panes[toIndex]
-                      );
-                    }
-                  }
-                }
-                if (viewsToMove.length > 1) {
-                  viewsToMove.slice(1).forEach((view) => {
-                    let toIndex = this.panes.findIndex(
-                      (p) => p.id === anchorView.id
-                    );
-                    const fromIndex = this.panes.findIndex(
-                      (p) => p.id === view.id
-                    );
-                    if (fromIndex >= 0 && toIndex >= 0) {
-                      if (fromIndex > toIndex) {
-                        toIndex++;
-                      }
-                      if (toIndex < this.panes.length && toIndex !== fromIndex) {
-                        this.movePane(
-                          this.panes[fromIndex],
-                          this.panes[toIndex]
-                        );
-                        anchorView = view;
-                      }
-                    }
-                  });
-                }
-              }
+            overlay = new ViewPaneDropOverlay(pane.dropTargetElement, this.orientation ?? Orientation.VERTICAL, void 0, this.viewDescriptorService.getViewContainerLocation(this.viewContainer), this.themeService);
+          }
+          if (dropData.type === "composite" && dropData.id !== this.viewContainer.id && !this.viewContainer.rejectAddedViews) {
+            const container = this.viewDescriptorService.getViewContainerById(dropData.id);
+            const viewsToMove = this.viewDescriptorService.getViewContainerModel(container).allViewDescriptors;
+            if (!viewsToMove.some((v) => !v.canMoveView) && viewsToMove.length > 0) {
+              overlay = new ViewPaneDropOverlay(pane.dropTargetElement, this.orientation ?? Orientation.VERTICAL, void 0, this.viewDescriptorService.getViewContainerLocation(this.viewContainer), this.themeService);
             }
-            overlay?.dispose();
-            overlay = void 0;
-          }, "onDrop")
+          }
         }
-      )
-    );
+      }, "onDragEnter"),
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        toggleDropEffect(e.eventData.dataTransfer, "move", overlay !== void 0);
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        overlay?.dispose();
+        overlay = void 0;
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        if (overlay) {
+          const dropData = e.dragAndDropData.getData();
+          const viewsToMove = [];
+          let anchorView;
+          if (dropData.type === "composite" && dropData.id !== this.viewContainer.id && !this.viewContainer.rejectAddedViews) {
+            const container = this.viewDescriptorService.getViewContainerById(dropData.id);
+            const allViews = this.viewDescriptorService.getViewContainerModel(container).allViewDescriptors;
+            if (allViews.length > 0 && !allViews.some((v) => !v.canMoveView)) {
+              viewsToMove.push(...allViews);
+              anchorView = allViews[0];
+            }
+          } else if (dropData.type === "view") {
+            const oldViewContainer = this.viewDescriptorService.getViewContainerByViewId(dropData.id);
+            const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(dropData.id);
+            if (oldViewContainer !== this.viewContainer && viewDescriptor && viewDescriptor.canMoveView && !this.viewContainer.rejectAddedViews) {
+              viewsToMove.push(viewDescriptor);
+            }
+            if (viewDescriptor) {
+              anchorView = viewDescriptor;
+            }
+          }
+          if (viewsToMove) {
+            this.viewDescriptorService.moveViewsToContainer(viewsToMove, this.viewContainer, void 0, "dnd");
+          }
+          if (anchorView) {
+            if (overlay.currentDropOperation === 1 /* DOWN */ || overlay.currentDropOperation === 3 /* RIGHT */) {
+              const fromIndex = this.panes.findIndex((p) => p.id === anchorView.id);
+              let toIndex = this.panes.findIndex((p) => p.id === pane.id);
+              if (fromIndex >= 0 && toIndex >= 0) {
+                if (fromIndex > toIndex) {
+                  toIndex++;
+                }
+                if (toIndex < this.panes.length && toIndex !== fromIndex) {
+                  this.movePane(this.panes[fromIndex], this.panes[toIndex]);
+                }
+              }
+            }
+            if (overlay.currentDropOperation === 0 /* UP */ || overlay.currentDropOperation === 2 /* LEFT */) {
+              const fromIndex = this.panes.findIndex((p) => p.id === anchorView.id);
+              let toIndex = this.panes.findIndex((p) => p.id === pane.id);
+              if (fromIndex >= 0 && toIndex >= 0) {
+                if (fromIndex < toIndex) {
+                  toIndex--;
+                }
+                if (toIndex >= 0 && toIndex !== fromIndex) {
+                  this.movePane(this.panes[fromIndex], this.panes[toIndex]);
+                }
+              }
+            }
+            if (viewsToMove.length > 1) {
+              viewsToMove.slice(1).forEach((view) => {
+                let toIndex = this.panes.findIndex((p) => p.id === anchorView.id);
+                const fromIndex = this.panes.findIndex((p) => p.id === view.id);
+                if (fromIndex >= 0 && toIndex >= 0) {
+                  if (fromIndex > toIndex) {
+                    toIndex++;
+                  }
+                  if (toIndex < this.panes.length && toIndex !== fromIndex) {
+                    this.movePane(this.panes[fromIndex], this.panes[toIndex]);
+                    anchorView = view;
+                  }
+                }
+              });
+            }
+          }
+        }
+        overlay?.dispose();
+        overlay = void 0;
+      }, "onDrop")
+    }));
   }
   removePanes(panes) {
     const wasMerged = this.isViewMergedWithContainer();
@@ -1191,9 +826,7 @@ let ViewPaneContainer = class extends Component {
     paneItem.disposable.dispose();
   }
   movePane(from, to) {
-    const fromIndex = this.paneItems.findIndex(
-      (item) => item.pane === from
-    );
+    const fromIndex = this.paneItems.findIndex((item) => item.pane === from);
     const toIndex = this.paneItems.findIndex((item) => item.pane === to);
     const fromViewDescriptor = this.viewContainerModel.visibleViewDescriptors[fromIndex];
     const toViewDescriptor = this.viewContainerModel.visibleViewDescriptors[toIndex];
@@ -1206,10 +839,7 @@ let ViewPaneContainer = class extends Component {
     const [paneItem] = this.paneItems.splice(fromIndex, 1);
     this.paneItems.splice(toIndex, 0, paneItem);
     assertIsDefined(this.paneview).movePane(from, to);
-    this.viewContainerModel.move(
-      fromViewDescriptor.id,
-      toViewDescriptor.id
-    );
+    this.viewContainerModel.move(fromViewDescriptor.id, toViewDescriptor.id);
     this.updateTitleArea();
   }
   resizePane(pane, size) {
@@ -1265,8 +895,8 @@ let ViewPaneContainer = class extends Component {
     }
   }
   onDidSashReset(index) {
-    let firstPane;
-    let secondPane;
+    let firstPane = void 0;
+    let secondPane = void 0;
     for (let i = index; i >= 0; i--) {
       if (this.paneItems[i].pane?.isVisible() && this.paneItems[i]?.pane.isExpanded()) {
         firstPane = this.paneItems[i].pane;
@@ -1282,12 +912,8 @@ let ViewPaneContainer = class extends Component {
     if (firstPane && secondPane) {
       const firstPaneSize = this.getPaneSize(firstPane);
       const secondPaneSize = this.getPaneSize(secondPane);
-      const newFirstPaneSize = Math.ceil(
-        (firstPaneSize + secondPaneSize) / 2
-      );
-      const newSecondPaneSize = Math.floor(
-        (firstPaneSize + secondPaneSize) / 2
-      );
+      const newFirstPaneSize = Math.ceil((firstPaneSize + secondPaneSize) / 2);
+      const newSecondPaneSize = Math.floor((firstPaneSize + secondPaneSize) / 2);
       if (firstPaneSize > secondPaneSize) {
         this.resizePane(firstPane, newFirstPaneSize);
         this.resizePane(secondPane, newSecondPaneSize);
@@ -1329,11 +955,7 @@ class ViewPaneContainerAction extends Action2 {
   run(accessor, ...args) {
     const viewPaneContainer = accessor.get(IViewsService).getActiveViewPaneContainerWithId(this.desc.viewPaneContainerId);
     if (viewPaneContainer) {
-      return this.runInViewPaneContainer(
-        accessor,
-        viewPaneContainer,
-        ...args
-      );
+      return this.runInViewPaneContainer(accessor, viewPaneContainer, ...args);
     }
   }
 }
@@ -1354,9 +976,7 @@ class MoveViewPosition extends Action2 {
     }
     const viewContainer = viewDescriptorService.getViewContainerByViewId(viewId);
     const model = viewDescriptorService.getViewContainerModel(viewContainer);
-    const viewDescriptor = model.visibleViewDescriptors.find(
-      (vd) => vd.id === viewId
-    );
+    const viewDescriptor = model.visibleViewDescriptors.find((vd) => vd.id === viewId);
     const currentIndex = model.visibleViewDescriptors.indexOf(viewDescriptor);
     if (currentIndex + this.offset < 0 || currentIndex + this.offset >= model.visibleViewDescriptors.length) {
       return;
@@ -1371,21 +991,15 @@ registerAction2(
       __name(this, "MoveViewUp");
     }
     constructor() {
-      super(
-        {
-          id: "views.moveViewUp",
-          title: nls.localize("viewMoveUp", "Move View Up"),
-          keybinding: {
-            primary: KeyChord(
-              KeyMod.CtrlCmd + KeyCode.KeyK,
-              KeyCode.UpArrow
-            ),
-            weight: KeybindingWeight.WorkbenchContrib + 1,
-            when: FocusedViewContext.notEqualsTo("")
-          }
-        },
-        -1
-      );
+      super({
+        id: "views.moveViewUp",
+        title: nls.localize("viewMoveUp", "Move View Up"),
+        keybinding: {
+          primary: KeyChord(KeyMod.CtrlCmd + KeyCode.KeyK, KeyCode.UpArrow),
+          weight: KeybindingWeight.WorkbenchContrib + 1,
+          when: FocusedViewContext.notEqualsTo("")
+        }
+      }, -1);
     }
   }
 );
@@ -1395,21 +1009,15 @@ registerAction2(
       __name(this, "MoveViewLeft");
     }
     constructor() {
-      super(
-        {
-          id: "views.moveViewLeft",
-          title: nls.localize("viewMoveLeft", "Move View Left"),
-          keybinding: {
-            primary: KeyChord(
-              KeyMod.CtrlCmd + KeyCode.KeyK,
-              KeyCode.LeftArrow
-            ),
-            weight: KeybindingWeight.WorkbenchContrib + 1,
-            when: FocusedViewContext.notEqualsTo("")
-          }
-        },
-        -1
-      );
+      super({
+        id: "views.moveViewLeft",
+        title: nls.localize("viewMoveLeft", "Move View Left"),
+        keybinding: {
+          primary: KeyChord(KeyMod.CtrlCmd + KeyCode.KeyK, KeyCode.LeftArrow),
+          weight: KeybindingWeight.WorkbenchContrib + 1,
+          when: FocusedViewContext.notEqualsTo("")
+        }
+      }, -1);
     }
   }
 );
@@ -1419,21 +1027,15 @@ registerAction2(
       __name(this, "MoveViewDown");
     }
     constructor() {
-      super(
-        {
-          id: "views.moveViewDown",
-          title: nls.localize("viewMoveDown", "Move View Down"),
-          keybinding: {
-            primary: KeyChord(
-              KeyMod.CtrlCmd + KeyCode.KeyK,
-              KeyCode.DownArrow
-            ),
-            weight: KeybindingWeight.WorkbenchContrib + 1,
-            when: FocusedViewContext.notEqualsTo("")
-          }
-        },
-        1
-      );
+      super({
+        id: "views.moveViewDown",
+        title: nls.localize("viewMoveDown", "Move View Down"),
+        keybinding: {
+          primary: KeyChord(KeyMod.CtrlCmd + KeyCode.KeyK, KeyCode.DownArrow),
+          weight: KeybindingWeight.WorkbenchContrib + 1,
+          when: FocusedViewContext.notEqualsTo("")
+        }
+      }, 1);
     }
   }
 );
@@ -1443,61 +1045,46 @@ registerAction2(
       __name(this, "MoveViewRight");
     }
     constructor() {
-      super(
-        {
-          id: "views.moveViewRight",
-          title: nls.localize("viewMoveRight", "Move View Right"),
-          keybinding: {
-            primary: KeyChord(
-              KeyMod.CtrlCmd + KeyCode.KeyK,
-              KeyCode.RightArrow
-            ),
-            weight: KeybindingWeight.WorkbenchContrib + 1,
-            when: FocusedViewContext.notEqualsTo("")
-          }
-        },
-        1
-      );
-    }
-  }
-);
-registerAction2(
-  class MoveViews extends Action2 {
-    static {
-      __name(this, "MoveViews");
-    }
-    constructor() {
       super({
-        id: "vscode.moveViews",
-        title: nls.localize("viewsMove", "Move Views")
-      });
-    }
-    async run(accessor, options) {
-      if (!Array.isArray(options?.viewIds) || typeof options?.destinationId !== "string") {
-        return Promise.reject("Invalid arguments");
-      }
-      const viewDescriptorService = accessor.get(IViewDescriptorService);
-      const destination = viewDescriptorService.getViewContainerById(
-        options.destinationId
-      );
-      if (!destination) {
-        return;
-      }
-      for (const viewId of options.viewIds) {
-        const viewDescriptor = viewDescriptorService.getViewDescriptorById(viewId);
-        if (viewDescriptor?.canMoveView) {
-          viewDescriptorService.moveViewsToContainer(
-            [viewDescriptor],
-            destination,
-            ViewVisibilityState.Default,
-            this.desc.id
-          );
+        id: "views.moveViewRight",
+        title: nls.localize("viewMoveRight", "Move View Right"),
+        keybinding: {
+          primary: KeyChord(KeyMod.CtrlCmd + KeyCode.KeyK, KeyCode.RightArrow),
+          weight: KeybindingWeight.WorkbenchContrib + 1,
+          when: FocusedViewContext.notEqualsTo("")
         }
-      }
-      await accessor.get(IViewsService).openViewContainer(destination.id, true);
+      }, 1);
     }
   }
 );
+registerAction2(class MoveViews extends Action2 {
+  static {
+    __name(this, "MoveViews");
+  }
+  constructor() {
+    super({
+      id: "vscode.moveViews",
+      title: nls.localize("viewsMove", "Move Views")
+    });
+  }
+  async run(accessor, options) {
+    if (!Array.isArray(options?.viewIds) || typeof options?.destinationId !== "string") {
+      return Promise.reject("Invalid arguments");
+    }
+    const viewDescriptorService = accessor.get(IViewDescriptorService);
+    const destination = viewDescriptorService.getViewContainerById(options.destinationId);
+    if (!destination) {
+      return;
+    }
+    for (const viewId of options.viewIds) {
+      const viewDescriptor = viewDescriptorService.getViewDescriptorById(viewId);
+      if (viewDescriptor?.canMoveView) {
+        viewDescriptorService.moveViewsToContainer([viewDescriptor], destination, ViewVisibilityState.Default, this.desc.id);
+      }
+    }
+    await accessor.get(IViewsService).openViewContainer(destination.id, true);
+  }
+});
 export {
   ViewPaneContainer,
   ViewPaneContainerAction,

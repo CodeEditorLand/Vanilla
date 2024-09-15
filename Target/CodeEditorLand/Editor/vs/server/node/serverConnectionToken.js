@@ -1,13 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
 import * as cookie from "cookie";
-import {
-  connectionTokenCookieName,
-  connectionTokenQueryName
-} from "../../base/common/network.js";
+import * as fs from "fs";
+import * as http from "http";
+import * as url from "url";
 import * as path from "../../base/common/path.js";
 import { generateUuid } from "../../base/common/uuid.js";
+import { connectionTokenCookieName, connectionTokenQueryName } from "../../base/common/network.js";
+import { ServerParsedArgs } from "./serverEnvironmentService.js";
 import { Promises } from "../../base/node/pfs.js";
 const connectionTokenRegex = /^[0-9A-Za-z_-]+$/;
 var ServerConnectionTokenType = /* @__PURE__ */ ((ServerConnectionTokenType2) => {
@@ -51,38 +51,28 @@ async function parseServerConnectionToken(args, defaultValue) {
   const connectionTokenFile = args["connection-token-file"];
   if (withoutConnectionToken) {
     if (typeof connectionToken !== "undefined" || typeof connectionTokenFile !== "undefined") {
-      return new ServerConnectionTokenParseError(
-        `Please do not use the argument '--connection-token' or '--connection-token-file' at the same time as '--without-connection-token'.`
-      );
+      return new ServerConnectionTokenParseError(`Please do not use the argument '--connection-token' or '--connection-token-file' at the same time as '--without-connection-token'.`);
     }
     return new NoneServerConnectionToken();
   }
   if (typeof connectionTokenFile !== "undefined") {
     if (typeof connectionToken !== "undefined") {
-      return new ServerConnectionTokenParseError(
-        `Please do not use the argument '--connection-token' at the same time as '--connection-token-file'.`
-      );
+      return new ServerConnectionTokenParseError(`Please do not use the argument '--connection-token' at the same time as '--connection-token-file'.`);
     }
     let rawConnectionToken;
     try {
       rawConnectionToken = fs.readFileSync(connectionTokenFile).toString().replace(/\r?\n$/, "");
     } catch (e) {
-      return new ServerConnectionTokenParseError(
-        `Unable to read the connection token file at '${connectionTokenFile}'.`
-      );
+      return new ServerConnectionTokenParseError(`Unable to read the connection token file at '${connectionTokenFile}'.`);
     }
     if (!connectionTokenRegex.test(rawConnectionToken)) {
-      return new ServerConnectionTokenParseError(
-        `The connection token defined in '${connectionTokenFile} does not adhere to the characters 0-9, a-z, A-Z, _, or -.`
-      );
+      return new ServerConnectionTokenParseError(`The connection token defined in '${connectionTokenFile} does not adhere to the characters 0-9, a-z, A-Z, _, or -.`);
     }
     return new MandatoryServerConnectionToken(rawConnectionToken);
   }
   if (typeof connectionToken !== "undefined") {
     if (!connectionTokenRegex.test(connectionToken)) {
-      return new ServerConnectionTokenParseError(
-        `The connection token '${connectionToken} does not adhere to the characters 0-9, a-z, A-Z or -.`
-      );
+      return new ServerConnectionTokenParseError(`The connection token '${connectionToken} does not adhere to the characters 0-9, a-z, A-Z or -.`);
     }
     return new MandatoryServerConnectionToken(connectionToken);
   }
@@ -105,9 +95,7 @@ async function determineServerConnectionToken(args) {
     }
     const connectionToken = generateUuid();
     try {
-      await Promises.writeFile(storageLocation, connectionToken, {
-        mode: 384
-      });
+      await Promises.writeFile(storageLocation, connectionToken, { mode: 384 });
     } catch (err) {
     }
     return connectionToken;

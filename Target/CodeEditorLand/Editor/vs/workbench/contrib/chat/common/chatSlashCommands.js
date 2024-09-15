@@ -10,13 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+import { IChatMessage } from "./languageModels.js";
+import { IChatFollowup, IChatProgress, IChatResponseProgressFileTreeData } from "./chatService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ChatAgentLocation } from "./chatAgents.js";
 const IChatSlashCommandService = createDecorator("chatSlashCommandService");
 let ChatSlashCommandService = class extends Disposable {
   constructor(_extensionService) {
@@ -35,9 +37,7 @@ let ChatSlashCommandService = class extends Disposable {
   }
   registerSlashCommand(data, command) {
     if (this._commands.has(data.command)) {
-      throw new Error(
-        `Already registered a command with id ${data.command}}`
-      );
+      throw new Error(`Already registered a command with id ${data.command}}`);
     }
     this._commands.set(data.command, { data, command });
     this._onDidChangeCommands.fire();
@@ -48,9 +48,7 @@ let ChatSlashCommandService = class extends Disposable {
     });
   }
   getCommands(location) {
-    return Array.from(this._commands.values(), (v) => v.data).filter(
-      (c) => c.locations.includes(location)
-    );
+    return Array.from(this._commands.values(), (v) => v.data).filter((c) => c.locations.includes(location));
   }
   hasCommand(id) {
     return this._commands.has(id);

@@ -1,16 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
 import * as nls from "../../../../nls.js";
-import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions
-} from "../../../services/extensionManagement/common/extensionFeatures.js";
 import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
-import {
-  NotebookEditorPriority
-} from "../common/notebookCommon.js";
+import { NotebookEditorPriority, ContributedNotebookRendererEntrypoint, RendererMessagingSpec } from "../common/notebookCommon.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IExtensionFeatureTableRenderer, IRenderedData, ITableData, IRowData, IExtensionFeaturesRegistry, Extensions } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
 const NotebookEditorContribution = Object.freeze({
   type: "type",
   displayName: "displayName",
@@ -32,22 +30,9 @@ const NotebookPreloadContribution = Object.freeze({
   localResourceRoots: "localResourceRoots"
 });
 const notebookProviderContribution = {
-  description: nls.localize(
-    "contributes.notebook.provider",
-    "Contributes notebook document provider."
-  ),
+  description: nls.localize("contributes.notebook.provider", "Contributes notebook document provider."),
   type: "array",
-  defaultSnippets: [
-    {
-      body: [
-        {
-          type: "",
-          displayName: "",
-          selector: [{ filenamePattern: "" }]
-        }
-      ]
-    }
-  ],
+  defaultSnippets: [{ body: [{ type: "", displayName: "", "selector": [{ "filenamePattern": "" }] }] }],
   items: {
     type: "object",
     required: [
@@ -58,80 +43,48 @@ const notebookProviderContribution = {
     properties: {
       [NotebookEditorContribution.type]: {
         type: "string",
-        description: nls.localize(
-          "contributes.notebook.provider.viewType",
-          "Type of the notebook."
-        )
+        description: nls.localize("contributes.notebook.provider.viewType", "Type of the notebook.")
       },
       [NotebookEditorContribution.displayName]: {
         type: "string",
-        description: nls.localize(
-          "contributes.notebook.provider.displayName",
-          "Human readable name of the notebook."
-        )
+        description: nls.localize("contributes.notebook.provider.displayName", "Human readable name of the notebook.")
       },
       [NotebookEditorContribution.selector]: {
         type: "array",
-        description: nls.localize(
-          "contributes.notebook.provider.selector",
-          "Set of globs that the notebook is for."
-        ),
+        description: nls.localize("contributes.notebook.provider.selector", "Set of globs that the notebook is for."),
         items: {
           type: "object",
           properties: {
             filenamePattern: {
               type: "string",
-              description: nls.localize(
-                "contributes.notebook.provider.selector.filenamePattern",
-                "Glob that the notebook is enabled for."
-              )
+              description: nls.localize("contributes.notebook.provider.selector.filenamePattern", "Glob that the notebook is enabled for.")
             },
             excludeFileNamePattern: {
               type: "string",
-              description: nls.localize(
-                "contributes.notebook.selector.provider.excludeFileNamePattern",
-                "Glob that the notebook is disabled for."
-              )
+              description: nls.localize("contributes.notebook.selector.provider.excludeFileNamePattern", "Glob that the notebook is disabled for.")
             }
           }
         }
       },
       [NotebookEditorContribution.priority]: {
         type: "string",
-        markdownDeprecationMessage: nls.localize(
-          "contributes.priority",
-          "Controls if the custom editor is enabled automatically when the user opens a file. This may be overridden by users using the `workbench.editorAssociations` setting."
-        ),
+        markdownDeprecationMessage: nls.localize("contributes.priority", "Controls if the custom editor is enabled automatically when the user opens a file. This may be overridden by users using the `workbench.editorAssociations` setting."),
         enum: [
           NotebookEditorPriority.default,
           NotebookEditorPriority.option
         ],
         markdownEnumDescriptions: [
-          nls.localize(
-            "contributes.priority.default",
-            "The editor is automatically used when the user opens a resource, provided that no other default custom editors are registered for that resource."
-          ),
-          nls.localize(
-            "contributes.priority.option",
-            "The editor is not automatically used when the user opens a resource, but a user can switch to the editor using the `Reopen With` command."
-          )
+          nls.localize("contributes.priority.default", "The editor is automatically used when the user opens a resource, provided that no other default custom editors are registered for that resource."),
+          nls.localize("contributes.priority.option", "The editor is not automatically used when the user opens a resource, but a user can switch to the editor using the `Reopen With` command.")
         ],
         default: "default"
       }
     }
   }
 };
-const defaultRendererSnippet = Object.freeze({
-  id: "",
-  displayName: "",
-  mimeTypes: [""],
-  entrypoint: ""
-});
+const defaultRendererSnippet = Object.freeze({ id: "", displayName: "", mimeTypes: [""], entrypoint: "" });
 const notebookRendererContribution = {
-  description: nls.localize(
-    "contributes.notebook.renderer",
-    "Contributes notebook output renderer provider."
-  ),
+  description: nls.localize("contributes.notebook.renderer", "Contributes notebook output renderer provider."),
   type: "array",
   defaultSnippets: [{ body: [defaultRendererSnippet] }],
   items: {
@@ -146,57 +99,37 @@ const notebookRendererContribution = {
         properties: {
           [NotebookRendererContribution.id]: {
             type: "string",
-            description: nls.localize(
-              "contributes.notebook.renderer.viewType",
-              "Unique identifier of the notebook output renderer."
-            )
+            description: nls.localize("contributes.notebook.renderer.viewType", "Unique identifier of the notebook output renderer.")
           },
           [NotebookRendererContribution.displayName]: {
             type: "string",
-            description: nls.localize(
-              "contributes.notebook.renderer.displayName",
-              "Human readable name of the notebook output renderer."
-            )
+            description: nls.localize("contributes.notebook.renderer.displayName", "Human readable name of the notebook output renderer.")
           },
           [NotebookRendererContribution.hardDependencies]: {
             type: "array",
             uniqueItems: true,
             items: { type: "string" },
-            markdownDescription: nls.localize(
-              "contributes.notebook.renderer.hardDependencies",
-              "List of kernel dependencies the renderer requires. If any of the dependencies are present in the `NotebookKernel.preloads`, the renderer can be used."
-            )
+            markdownDescription: nls.localize("contributes.notebook.renderer.hardDependencies", "List of kernel dependencies the renderer requires. If any of the dependencies are present in the `NotebookKernel.preloads`, the renderer can be used.")
           },
           [NotebookRendererContribution.optionalDependencies]: {
             type: "array",
             uniqueItems: true,
             items: { type: "string" },
-            markdownDescription: nls.localize(
-              "contributes.notebook.renderer.optionalDependencies",
-              "List of soft kernel dependencies the renderer can make use of. If any of the dependencies are present in the `NotebookKernel.preloads`, the renderer will be preferred over renderers that don't interact with the kernel."
-            )
+            markdownDescription: nls.localize("contributes.notebook.renderer.optionalDependencies", "List of soft kernel dependencies the renderer can make use of. If any of the dependencies are present in the `NotebookKernel.preloads`, the renderer will be preferred over renderers that don't interact with the kernel.")
           },
           [NotebookRendererContribution.requiresMessaging]: {
             default: "never",
-            enum: ["always", "optional", "never"],
-            enumDescriptions: [
-              nls.localize(
-                "contributes.notebook.renderer.requiresMessaging.always",
-                "Messaging is required. The renderer will only be used when it's part of an extension that can be run in an extension host."
-              ),
-              nls.localize(
-                "contributes.notebook.renderer.requiresMessaging.optional",
-                "The renderer is better with messaging available, but it's not requried."
-              ),
-              nls.localize(
-                "contributes.notebook.renderer.requiresMessaging.never",
-                "The renderer does not require messaging."
-              )
+            enum: [
+              "always",
+              "optional",
+              "never"
             ],
-            description: nls.localize(
-              "contributes.notebook.renderer.requiresMessaging",
-              "Defines how and if the renderer needs to communicate with an extension host, via `createRendererMessaging`. Renderers with stronger messaging requirements may not work in all environments."
-            )
+            enumDescriptions: [
+              nls.localize("contributes.notebook.renderer.requiresMessaging.always", "Messaging is required. The renderer will only be used when it's part of an extension that can be run in an extension host."),
+              nls.localize("contributes.notebook.renderer.requiresMessaging.optional", "The renderer is better with messaging available, but it's not requried."),
+              nls.localize("contributes.notebook.renderer.requiresMessaging.never", "The renderer does not require messaging.")
+            ],
+            description: nls.localize("contributes.notebook.renderer.requiresMessaging", "Defines how and if the renderer needs to communicate with an extension host, via `createRendererMessaging`. Renderers with stronger messaging requirements may not work in all environments.")
           }
         }
       },
@@ -210,47 +143,34 @@ const notebookRendererContribution = {
             properties: {
               [NotebookRendererContribution.mimeTypes]: {
                 type: "array",
-                description: nls.localize(
-                  "contributes.notebook.selector",
-                  "Set of globs that the notebook is for."
-                ),
+                description: nls.localize("contributes.notebook.selector", "Set of globs that the notebook is for."),
                 items: {
                   type: "string"
                 }
               },
               [NotebookRendererContribution.entrypoint]: {
-                description: nls.localize(
-                  "contributes.notebook.renderer.entrypoint",
-                  "File to load in the webview to render the extension."
-                ),
+                description: nls.localize("contributes.notebook.renderer.entrypoint", "File to load in the webview to render the extension."),
                 type: "string"
               }
             }
           },
           {
-            required: [NotebookRendererContribution.entrypoint],
+            required: [
+              NotebookRendererContribution.entrypoint
+            ],
             properties: {
               [NotebookRendererContribution.entrypoint]: {
-                description: nls.localize(
-                  "contributes.notebook.renderer.entrypoint",
-                  "File to load in the webview to render the extension."
-                ),
+                description: nls.localize("contributes.notebook.renderer.entrypoint", "File to load in the webview to render the extension."),
                 type: "object",
                 required: ["extends", "path"],
                 properties: {
                   extends: {
                     type: "string",
-                    description: nls.localize(
-                      "contributes.notebook.renderer.entrypoint.extends",
-                      "Existing renderer that this one extends."
-                    )
+                    description: nls.localize("contributes.notebook.renderer.entrypoint.extends", "Existing renderer that this one extends.")
                   },
                   path: {
                     type: "string",
-                    description: nls.localize(
-                      "contributes.notebook.renderer.entrypoint",
-                      "File to load in the webview to render the extension."
-                    )
+                    description: nls.localize("contributes.notebook.renderer.entrypoint", "File to load in the webview to render the extension.")
                   }
                 }
               }
@@ -262,10 +182,7 @@ const notebookRendererContribution = {
   }
 };
 const notebookPreloadContribution = {
-  description: nls.localize(
-    "contributes.preload.provider",
-    "Contributes notebook preloads."
-  ),
+  description: nls.localize("contributes.preload.provider", "Contributes notebook preloads."),
   type: "array",
   defaultSnippets: [{ body: [{ type: "", entrypoint: "" }] }],
   items: {
@@ -277,25 +194,16 @@ const notebookPreloadContribution = {
     properties: {
       [NotebookPreloadContribution.type]: {
         type: "string",
-        description: nls.localize(
-          "contributes.preload.provider.viewType",
-          "Type of the notebook."
-        )
+        description: nls.localize("contributes.preload.provider.viewType", "Type of the notebook.")
       },
       [NotebookPreloadContribution.entrypoint]: {
         type: "string",
-        description: nls.localize(
-          "contributes.preload.entrypoint",
-          "Path to file loaded in the webview."
-        )
+        description: nls.localize("contributes.preload.entrypoint", "Path to file loaded in the webview.")
       },
       [NotebookPreloadContribution.localResourceRoots]: {
         type: "array",
         items: { type: "string" },
-        description: nls.localize(
-          "contributes.preload.localResourceRoots",
-          "Paths to additional resources that should be allowed in the webview."
-        )
+        description: nls.localize("contributes.preload.localResourceRoots", "Paths to additional resources that should be allowed in the webview.")
       }
     }
   }
@@ -345,7 +253,10 @@ class NotebooksDataRenderer extends Disposable {
       nls.localize("Notebook name", "Name")
     ];
     const rows = contrib.sort((a, b) => a.type.localeCompare(b.type)).map((notebook) => {
-      return [notebook.type, notebook.displayName];
+      return [
+        notebook.type,
+        notebook.displayName
+      ];
     });
     return {
       data: {
@@ -391,9 +302,7 @@ class NotebookRenderersDataRenderer extends Disposable {
     };
   }
 }
-Registry.as(
-  Extensions.ExtensionFeaturesRegistry
-).registerExtensionFeature({
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
   id: "notebooks",
   label: nls.localize("notebooks", "Notebooks"),
   access: {
@@ -401,9 +310,7 @@ Registry.as(
   },
   renderer: new SyncDescriptor(NotebooksDataRenderer)
 });
-Registry.as(
-  Extensions.ExtensionFeaturesRegistry
-).registerExtensionFeature({
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
   id: "notebookRenderer",
   label: nls.localize("notebookRenderer", "Notebook Renderers"),
   access: {

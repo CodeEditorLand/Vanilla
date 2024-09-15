@@ -10,40 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as crypto from "crypto";
 import { createReadStream, promises } from "fs";
 import * as path from "path";
+import * as http from "http";
 import * as url from "url";
 import * as cookie from "cookie";
-import { isESM } from "../../base/common/amd.js";
-import { streamToBuffer } from "../../base/common/buffer.js";
-import { CancellationToken } from "../../base/common/cancellation.js";
-import { CharCode } from "../../base/common/charCode.js";
+import * as crypto from "crypto";
 import { isEqualOrParent } from "../../base/common/extpath.js";
 import { getMediaMime } from "../../base/common/mime.js";
-import {
-  FileAccess,
-  Schemas,
-  builtinExtensionsPath,
-  connectionTokenCookieName,
-  connectionTokenQueryName
-} from "../../base/common/network.js";
-import { dirname, extname, join, normalize } from "../../base/common/path.js";
 import { isLinux } from "../../base/common/platform.js";
-import { isString } from "../../base/common/types.js";
-import { URI } from "../../base/common/uri.js";
-import { generateUuid } from "../../base/common/uuid.js";
-import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
 import { ILogService } from "../../platform/log/common/log.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import {
-  IRequestService,
-  asTextOrError
-} from "../../platform/request/common/request.js";
-import {
-  ServerConnectionTokenType
-} from "./serverConnectionToken.js";
 import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { extname, dirname, join, normalize } from "../../base/common/path.js";
+import { FileAccess, connectionTokenCookieName, connectionTokenQueryName, Schemas, builtinExtensionsPath } from "../../base/common/network.js";
+import { generateUuid } from "../../base/common/uuid.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { ServerConnectionToken, ServerConnectionTokenType } from "./serverConnectionToken.js";
+import { asTextOrError, IRequestService } from "../../platform/request/common/request.js";
+import { IHeaders } from "../../base/parts/request/common/request.js";
+import { CancellationToken } from "../../base/common/cancellation.js";
+import { URI } from "../../base/common/uri.js";
+import { streamToBuffer } from "../../base/common/buffer.js";
+import { IProductConfiguration } from "../../base/common/product.js";
+import { isString } from "../../base/common/types.js";
+import { CharCode } from "../../base/common/charCode.js";
+import { IExtensionManifest } from "../../platform/extensions/common/extensions.js";
+import { isESM } from "../../base/common/amd.js";
+import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
 const textMimeType = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -103,9 +96,7 @@ let WebClientServer = class {
     this._requestService = _requestService;
     this._productService = _productService;
     this._cssDevService = _cssDevService;
-    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(
-      this._productService.extensionsGallery.resourceUrlTemplate
-    ) : void 0;
+    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(this._productService.extensionsGallery.resourceUrlTemplate) : void 0;
     this._staticRoute = `${serverRootPath}/static`;
     this._callbackRoute = `${serverRootPath}/callback`;
     this._webExtensionRoute = `${serverRootPath}/web-extension-resource`;
@@ -150,21 +141,12 @@ let WebClientServer = class {
   async _handleStatic(req, res, parsedUrl) {
     const headers = /* @__PURE__ */ Object.create(null);
     const normalizedPathname = decodeURIComponent(parsedUrl.pathname);
-    const relativeFilePath = normalizedPathname.substring(
-      this._staticRoute.length + 1
-    );
+    const relativeFilePath = normalizedPathname.substring(this._staticRoute.length + 1);
     const filePath = join(APP_ROOT, relativeFilePath);
     if (!isEqualOrParent(filePath, APP_ROOT, !isLinux)) {
       return serveError(req, res, 400, `Bad request.`);
     }
-    return serveFile(
-      filePath,
-      this._environmentService.isBuilt ? 2 /* NO_EXPIRY */ : 1 /* ETAG */,
-      this._logService,
-      req,
-      res,
-      headers
-    );
+    return serveFile(filePath, this._environmentService.isBuilt ? 2 /* NO_EXPIRY */ : 1 /* ETAG */, this._logService, req, res, headers);
   }
   _getResourceURLTemplateAuthority(uri) {
     const index = uri.authority.indexOf(".");
@@ -175,25 +157,16 @@ let WebClientServer = class {
    */
   async _handleWebExtensionResource(req, res, parsedUrl) {
     if (!this._webExtensionResourceUrlTemplate) {
-      return serveError(
-        req,
-        res,
-        500,
-        "No extension gallery service configured."
-      );
+      return serveError(req, res, 500, "No extension gallery service configured.");
     }
     const normalizedPathname = decodeURIComponent(parsedUrl.pathname);
-    const path2 = normalize(
-      normalizedPathname.substring(this._webExtensionRoute.length + 1)
-    );
+    const path2 = normalize(normalizedPathname.substring(this._webExtensionRoute.length + 1));
     const uri = URI.parse(path2).with({
       scheme: this._webExtensionResourceUrlTemplate.scheme,
       authority: path2.substring(0, path2.indexOf("/")),
       path: path2.substring(path2.indexOf("/") + 1)
     });
-    if (this._getResourceURLTemplateAuthority(
-      this._webExtensionResourceUrlTemplate
-    ) !== this._getResourceURLTemplateAuthority(uri)) {
+    if (this._getResourceURLTemplateAuthority(this._webExtensionResourceUrlTemplate) !== this._getResourceURLTemplateAuthority(uri)) {
       return serveError(req, res, 403, "Request Forbidden");
     }
     const headers = {};
@@ -209,14 +182,11 @@ let WebClientServer = class {
     setRequestHeader("X-Client-Version");
     setRequestHeader("X-Machine-Id");
     setRequestHeader("X-Client-Commit");
-    const context = await this._requestService.request(
-      {
-        type: "GET",
-        url: uri.toString(true),
-        headers
-      },
-      CancellationToken.None
-    );
+    const context = await this._requestService.request({
+      type: "GET",
+      url: uri.toString(true),
+      headers
+    }, CancellationToken.None);
     const status = context.res.statusCode || 500;
     if (status !== 200) {
       let text = null;
@@ -224,12 +194,7 @@ let WebClientServer = class {
         text = await asTextOrError(context);
       } catch (error) {
       }
-      return serveError(
-        req,
-        res,
-        status,
-        text || `Request failed with status ${status}`
-      );
+      return serveError(req, res, status, text || `Request failed with status ${status}`);
     }
     const responseHeaders = /* @__PURE__ */ Object.create(null);
     const setResponseHeader = /* @__PURE__ */ __name((header) => {
@@ -259,6 +224,7 @@ let WebClientServer = class {
         {
           sameSite: "lax",
           maxAge: 60 * 60 * 24 * 7
+          /* 1 week */
         }
       );
       const newQuery = /* @__PURE__ */ Object.create(null);
@@ -267,10 +233,7 @@ let WebClientServer = class {
           newQuery[key] = parsedUrl.query[key];
         }
       }
-      const newLocation = url.format({
-        pathname: parsedUrl.pathname,
-        query: newQuery
-      });
+      const newLocation = url.format({ pathname: parsedUrl.pathname, query: newQuery });
       responseHeaders["Location"] = newLocation;
       res.writeHead(302, responseHeaders);
       return void res.end();
@@ -288,17 +251,12 @@ let WebClientServer = class {
       return JSON.stringify(value).replace(/"/g, "&quot;");
     }
     __name(asJSON, "asJSON");
-    let _wrapWebWorkerExtHostInIframe;
+    let _wrapWebWorkerExtHostInIframe = void 0;
     if (this._environmentService.args["enable-smoke-test-driver"]) {
       _wrapWebWorkerExtHostInIframe = false;
     }
-    const resolveWorkspaceURI = /* @__PURE__ */ __name((defaultLocation) => defaultLocation && URI.file(path.resolve(defaultLocation)).with({
-      scheme: Schemas.vscodeRemote,
-      authority: remoteAuthority
-    }), "resolveWorkspaceURI");
-    const filePath = FileAccess.asFileUri(
-      `vs/code/browser/workbench/workbench${this._environmentService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`
-    ).fsPath;
+    const resolveWorkspaceURI = /* @__PURE__ */ __name((defaultLocation) => defaultLocation && URI.file(path.resolve(defaultLocation)).with({ scheme: Schemas.vscodeRemote, authority: remoteAuthority }), "resolveWorkspaceURI");
+    const filePath = FileAccess.asFileUri(`vs/code/browser/workbench/workbench${this._environmentService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`).fsPath;
     const authSessionInfo = !this._environmentService.isBuilt && this._environmentService.args["github-auth"] ? {
       id: generateUuid(),
       providerId: "github",
@@ -318,11 +276,7 @@ let WebClientServer = class {
     };
     if (!this._environmentService.isBuilt) {
       try {
-        const productOverrides = JSON.parse(
-          (await promises.readFile(
-            join(APP_ROOT, "product.overrides.json")
-          )).toString()
-        );
+        const productOverrides = JSON.parse((await promises.readFile(join(APP_ROOT, "product.overrides.json"))).toString());
         Object.assign(productConfiguration, productOverrides);
       } catch (err) {
       }
@@ -331,18 +285,11 @@ let WebClientServer = class {
       remoteAuthority,
       serverBasePath: this._basePath,
       _wrapWebWorkerExtHostInIframe,
-      developmentOptions: {
-        enableSmokeTestDriver: this._environmentService.args["enable-smoke-test-driver"] ? true : void 0,
-        logLevel: this._logService.getLevel()
-      },
+      developmentOptions: { enableSmokeTestDriver: this._environmentService.args["enable-smoke-test-driver"] ? true : void 0, logLevel: this._logService.getLevel() },
       settingsSyncOptions: !this._environmentService.isBuilt && this._environmentService.args["enable-sync"] ? { enabled: true } : void 0,
       enableWorkspaceTrust: !this._environmentService.args["disable-workspace-trust"],
-      folderUri: resolveWorkspaceURI(
-        this._environmentService.args["default-folder"]
-      ),
-      workspaceUri: resolveWorkspaceURI(
-        this._environmentService.args["default-workspace"]
-      ),
+      folderUri: resolveWorkspaceURI(this._environmentService.args["default-folder"]),
+      workspaceUri: resolveWorkspaceURI(this._environmentService.args["default-workspace"]),
       productConfiguration,
       callbackRoute: this._callbackRoute
     };
@@ -369,17 +316,8 @@ let WebClientServer = class {
     }
     if (useTestResolver) {
       const bundledExtensions = [];
-      for (const extensionPath of [
-        "vscode-test-resolver",
-        "github-authentication"
-      ]) {
-        const packageJSON = JSON.parse(
-          (await promises.readFile(
-            FileAccess.asFileUri(
-              `${builtinExtensionsPath}/${extensionPath}/package.json`
-            ).fsPath
-          )).toString()
-        );
+      for (const extensionPath of ["vscode-test-resolver", "github-authentication"]) {
+        const packageJSON = JSON.parse((await promises.readFile(FileAccess.asFileUri(`${builtinExtensionsPath}/${extensionPath}/package.json`).fsPath)).toString());
         bundledExtensions.push({ extensionPath, packageJSON });
       }
       values["WORKBENCH_BUILTIN_EXTENSIONS"] = asJSON(bundledExtensions);
@@ -387,10 +325,7 @@ let WebClientServer = class {
     let data;
     try {
       const workbenchTemplate = (await promises.readFile(filePath)).toString();
-      data = workbenchTemplate.replace(
-        /\{\{([^}]+)\}\}/g,
-        (_, key) => values[key] ?? "undefined"
-      );
+      data = workbenchTemplate.replace(/\{\{([^}]+)\}\}/g, (_, key) => values[key] ?? "undefined");
     } catch (e) {
       res.writeHead(404, { "Content-Type": "text/plain" });
       return void res.end("Not found");
@@ -424,6 +359,7 @@ let WebClientServer = class {
         {
           sameSite: "lax",
           maxAge: 60 * 60 * 24 * 7
+          /* 1 week */
         }
       );
     }
@@ -431,7 +367,7 @@ let WebClientServer = class {
     return void res.end(data);
   }
   _getScriptCspHashes(content) {
-    const regex = /<script>([\s\S]+?)<\/script>/gim;
+    const regex = /<script>([\s\S]+?)<\/script>/img;
     const result = [];
     let match;
     while (match = regex.exec(content)) {
@@ -446,9 +382,7 @@ let WebClientServer = class {
    * Handle HTTP requests for /callback
    */
   async _handleCallback(res) {
-    const filePath = FileAccess.asFileUri(
-      "vs/code/browser/workbench/callback.html"
-    ).fsPath;
+    const filePath = FileAccess.asFileUri("vs/code/browser/workbench/callback.html").fsPath;
     const data = (await promises.readFile(filePath)).toString();
     const cspDirectives = [
       "default-src 'self';",

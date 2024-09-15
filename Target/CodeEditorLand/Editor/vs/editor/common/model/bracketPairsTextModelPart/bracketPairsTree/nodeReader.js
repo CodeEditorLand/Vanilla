@@ -1,10 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  lengthAdd,
-  lengthLessThan,
-  lengthZero
-} from "./length.js";
+import { AstNode } from "./ast.js";
+import { lengthAdd, lengthZero, Length, lengthLessThan } from "./length.js";
 class NodeReader {
   static {
     __name(this, "NodeReader");
@@ -21,7 +18,7 @@ class NodeReader {
   /**
    * Returns the longest node at `offset` that satisfies the predicate.
    * @param offset must be greater than or equal to the last offset this method has been called with!
-   */
+  */
   readLongestNodeAt(offset, predicate) {
     if (lengthLessThan(offset, this.lastOffset)) {
       throw new Error("Invalid offset");
@@ -78,15 +75,10 @@ class NodeReader {
         break;
       }
       const parent = lastOrUndefined(this.nextNodes);
-      const nextChildIdx = getNextChildIdx(
-        parent,
-        this.idxs[this.idxs.length - 1]
-      );
+      const nextChildIdx = getNextChildIdx(parent, this.idxs[this.idxs.length - 1]);
       if (nextChildIdx !== -1) {
         this.nextNodes.push(parent.getChild(nextChildIdx));
-        this.offsets.push(
-          lengthAdd(currentOffset, currentNode.length)
-        );
+        this.offsets.push(lengthAdd(currentOffset, currentNode.length));
         this.idxs[this.idxs.length - 1] = nextChildIdx;
         break;
       } else {

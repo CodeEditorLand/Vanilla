@@ -13,11 +13,9 @@ import { memoize } from "../../../base/common/decorators.js";
 import { join } from "../../../base/common/path.js";
 import { isLinux } from "../../../base/common/platform.js";
 import { createStaticIPCHandle } from "../../../base/parts/ipc/node/ipc.net.js";
-import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  IEnvironmentService
-} from "../common/environment.js";
+import { IEnvironmentService, INativeEnvironmentService } from "../common/environment.js";
 import { NativeEnvironmentService } from "../node/environmentService.js";
+import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
 const IEnvironmentMainService = refineServiceDecorator(IEnvironmentService);
 class EnvironmentMainService extends NativeEnvironmentService {
   static {
@@ -28,11 +26,7 @@ class EnvironmentMainService extends NativeEnvironmentService {
     return join(this.userDataPath, "Backups");
   }
   get mainIPCHandle() {
-    return createStaticIPCHandle(
-      this.userDataPath,
-      "main",
-      this.productService.version
-    );
+    return createStaticIPCHandle(this.userDataPath, "main", this.productService.version);
   }
   get mainLockfile() {
     return join(this.userDataPath, "code.lock");

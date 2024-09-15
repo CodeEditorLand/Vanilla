@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ProxyIdentifier, IRPCProtocol, Proxied } from "../../services/extensions/common/proxyIdentifier.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 const IExtHostRpcService = createDecorator("IExtHostRpcService");
 class ExtHostRpcService {

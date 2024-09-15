@@ -10,18 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { IExtensionTipsService, IConfigBasedExtensionTip } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionRecommendations, ExtensionRecommendation } from "./extensionRecommendations.js";
 import { localize } from "../../../../nls.js";
-import {
-  IExtensionTipsService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import {
-  ExtensionRecommendations
-} from "./extensionRecommendations.js";
+import { IWorkspaceContextService, IWorkspaceFoldersChangeEvent } from "../../../../platform/workspace/common/workspace.js";
+import { Emitter } from "../../../../base/common/event.js";
 let ConfigBasedRecommendations = class extends ExtensionRecommendations {
   constructor(extensionTipsService, workspaceContextService) {
     super();
@@ -48,11 +42,7 @@ let ConfigBasedRecommendations = class extends ExtensionRecommendations {
   }
   async doActivate() {
     await this.fetch();
-    this._register(
-      this.workspaceContextService.onDidChangeWorkspaceFolders(
-        (e) => this.onWorkspaceFoldersChanged(e)
-      )
-    );
+    this._register(this.workspaceContextService.onDidChangeWorkspaceFolders((e) => this.onWorkspaceFoldersChanged(e)));
   }
   async fetch() {
     const workspace = this.workspaceContextService.getWorkspace();
@@ -69,25 +59,15 @@ let ConfigBasedRecommendations = class extends ExtensionRecommendations {
       }
     }
     this.importantTips = [...importantTips.values()];
-    this.otherTips = [...otherTips.values()].filter(
-      (tip) => !importantTips.has(tip.extensionId)
-    );
-    this._otherRecommendations = this.otherTips.map(
-      (tip) => this.toExtensionRecommendation(tip)
-    );
-    this._importantRecommendations = this.importantTips.map(
-      (tip) => this.toExtensionRecommendation(tip)
-    );
+    this.otherTips = [...otherTips.values()].filter((tip) => !importantTips.has(tip.extensionId));
+    this._otherRecommendations = this.otherTips.map((tip) => this.toExtensionRecommendation(tip));
+    this._importantRecommendations = this.importantTips.map((tip) => this.toExtensionRecommendation(tip));
   }
   async onWorkspaceFoldersChanged(event) {
     if (event.added.length) {
       const oldImportantRecommended = this.importantTips;
       await this.fetch();
-      if (this.importantTips.some(
-        (current) => oldImportantRecommended.every(
-          (old) => current.extensionId !== old.extensionId
-        )
-      )) {
+      if (this.importantTips.some((current) => oldImportantRecommended.every((old) => current.extensionId !== old.extensionId))) {
         this._onDidChangeRecommendations.fire();
       }
     }
@@ -97,10 +77,7 @@ let ConfigBasedRecommendations = class extends ExtensionRecommendations {
       extension: tip.extensionId,
       reason: {
         reasonId: ExtensionRecommendationReason.WorkspaceConfig,
-        reasonText: localize(
-          "exeBasedRecommendation",
-          "This extension is recommended because of the current workspace configuration"
-        )
+        reasonText: localize("exeBasedRecommendation", "This extension is recommended because of the current workspace configuration")
       },
       whenNotInstalled: tip.whenNotInstalled
     };

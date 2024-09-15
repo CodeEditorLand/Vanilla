@@ -1,16 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStringDictionary } from "../../../base/common/collections.js";
 function merge(local, remote, base) {
   const localAdded = {};
   const localUpdated = {};
   const localRemoved = /* @__PURE__ */ new Set();
   if (!remote) {
     return {
-      local: {
-        added: localAdded,
-        updated: localUpdated,
-        removed: [...localRemoved.values()]
-      },
+      local: { added: localAdded, updated: localUpdated, removed: [...localRemoved.values()] },
       remote: { added: local, updated: {}, removed: [] },
       conflicts: []
     };
@@ -18,11 +15,7 @@ function merge(local, remote, base) {
   const localToRemote = compare(local, remote);
   if (localToRemote.added.size === 0 && localToRemote.removed.size === 0 && localToRemote.updated.size === 0) {
     return {
-      local: {
-        added: localAdded,
-        updated: localUpdated,
-        removed: [...localRemoved.values()]
-      },
+      local: { added: localAdded, updated: localUpdated, removed: [...localRemoved.values()] },
       remote: { added: {}, updated: {}, removed: [] },
       conflicts: []
     };
@@ -99,16 +92,8 @@ function merge(local, remote, base) {
     }
   }
   return {
-    local: {
-      added: localAdded,
-      removed: [...localRemoved.values()],
-      updated: localUpdated
-    },
-    remote: {
-      added: remoteAdded,
-      removed: [...remoteRemoved.values()],
-      updated: remoteUpdated
-    },
+    local: { added: localAdded, removed: [...localRemoved.values()], updated: localUpdated },
+    remote: { added: remoteAdded, removed: [...remoteRemoved.values()], updated: remoteUpdated },
     conflicts: [...conflicts.values()]
   };
 }

@@ -10,32 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { BrowserWindow, BrowserWindowConstructorOptions, Display, screen } from "electron";
 import { arch, release, type } from "os";
-import {
-  BrowserWindow,
-  screen
-} from "electron";
-import { isESM } from "../../../base/common/amd.js";
 import { raceTimeout } from "../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { FileAccess } from "../../../base/common/network.js";
-import {
-  isMacintosh
-} from "../../../base/common/platform.js";
+import { IProcessEnvironment, isMacintosh } from "../../../base/common/platform.js";
 import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
 import { getNLSLanguage, getNLSMessages, localize } from "../../../nls.js";
-import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
 import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { IIssueMainService, OldIssueReporterData, OldIssueReporterWindowConfiguration } from "../common/issue.js";
 import { ILogService } from "../../log/common/log.js";
 import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
 import product from "../../product/common/product.js";
-import {
-  IProtocolMainService
-} from "../../protocol/electron-main/protocol.js";
+import { IIPCObjectUrl, IProtocolMainService } from "../../protocol/electron-main/protocol.js";
 import { zoomLevelToZoomFactor } from "../../window/common/window.js";
+import { ICodeWindow, IWindowState } from "../../window/electron-main/window.js";
 import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { isESM } from "../../../base/common/amd.js";
+import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
 let IssueMainService = class {
   constructor(userEnv, environmentMainService, logService, dialogMainService, nativeHostMainService, protocolMainService, windowsMainService, cssDevelopmentService) {
     this.userEnv = userEnv;
@@ -59,25 +54,14 @@ let IssueMainService = class {
       this.issueReporterParentWindow = BrowserWindow.getFocusedWindow();
       if (this.issueReporterParentWindow) {
         const issueReporterDisposables = new DisposableStore();
-        const issueReporterWindowConfigUrl = issueReporterDisposables.add(
-          this.protocolMainService.createIPCObjectUrl()
-        );
-        const position = this.getWindowPosition(
-          this.issueReporterParentWindow,
-          700,
-          800
-        );
-        this.issueReporterWindow = this.createBrowserWindow(
-          position,
-          issueReporterWindowConfigUrl,
-          {
-            backgroundColor: data.styles.backgroundColor,
-            title: localize("issueReporter", "Issue Reporter"),
-            zoomLevel: data.zoomLevel,
-            alwaysOnTop: false
-          },
-          "issue-reporter"
-        );
+        const issueReporterWindowConfigUrl = issueReporterDisposables.add(this.protocolMainService.createIPCObjectUrl());
+        const position = this.getWindowPosition(this.issueReporterParentWindow, 700, 800);
+        this.issueReporterWindow = this.createBrowserWindow(position, issueReporterWindowConfigUrl, {
+          backgroundColor: data.styles.backgroundColor,
+          title: localize("issueReporter", "Issue Reporter"),
+          zoomLevel: data.zoomLevel,
+          alwaysOnTop: false
+        }, "issue-reporter");
         issueReporterWindowConfigUrl.update({
           appRoot: this.environmentMainService.appRoot,
           windowId: this.issueReporterWindow.id,
@@ -97,9 +81,7 @@ let IssueMainService = class {
           cssModules: this.cssDevelopmentService.isEnabled ? await this.cssDevelopmentService.getCssModules() : void 0
         });
         this.issueReporterWindow.loadURL(
-          FileAccess.asBrowserUri(
-            `vs/workbench/contrib/issue/electron-sandbox/issueReporter${this.environmentMainService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`
-          ).toString(true)
+          FileAccess.asBrowserUri(`vs/workbench/contrib/issue/electron-sandbox/issueReporter${this.environmentMainService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`).toString(true)
         );
         this.issueReporterWindow.on("close", () => {
           this.issueReporterWindow = null;
@@ -122,10 +104,7 @@ let IssueMainService = class {
   async $reloadWithExtensionsDisabled() {
     if (this.issueReporterParentWindow) {
       try {
-        await this.nativeHostMainService.reload(
-          this.issueReporterParentWindow.id,
-          { disableExtensions: true }
-        );
+        await this.nativeHostMainService.reload(this.issueReporterParentWindow.id, { disableExtensions: true });
       } catch (error) {
         this.logService.error(error);
       }
@@ -133,23 +112,14 @@ let IssueMainService = class {
   }
   async $showConfirmCloseDialog() {
     if (this.issueReporterWindow) {
-      const { response } = await this.dialogMainService.showMessageBox(
-        {
-          type: "warning",
-          message: localize(
-            "confirmCloseIssueReporter",
-            "Your input will not be saved. Are you sure you want to close this window?"
-          ),
-          buttons: [
-            localize(
-              { key: "yes", comment: ["&& denotes a mnemonic"] },
-              "&&Yes"
-            ),
-            localize("cancel", "Cancel")
-          ]
-        },
-        this.issueReporterWindow
-      );
+      const { response } = await this.dialogMainService.showMessageBox({
+        type: "warning",
+        message: localize("confirmCloseIssueReporter", "Your input will not be saved. Are you sure you want to close this window?"),
+        buttons: [
+          localize({ key: "yes", comment: ["&& denotes a mnemonic"] }, "&&Yes"),
+          localize("cancel", "Cancel")
+        ]
+      }, this.issueReporterWindow);
       if (response === 0) {
         if (this.issueReporterWindow) {
           this.issueReporterWindow.destroy();
@@ -160,23 +130,14 @@ let IssueMainService = class {
   }
   async $showClipboardDialog() {
     if (this.issueReporterWindow) {
-      const { response } = await this.dialogMainService.showMessageBox(
-        {
-          type: "warning",
-          message: localize(
-            "issueReporterWriteToClipboard",
-            "There is too much data to send to GitHub directly. The data will be copied to the clipboard, please paste it into the GitHub issue page that is opened."
-          ),
-          buttons: [
-            localize(
-              { key: "ok", comment: ["&& denotes a mnemonic"] },
-              "&&OK"
-            ),
-            localize("cancel", "Cancel")
-          ]
-        },
-        this.issueReporterWindow
-      );
+      const { response } = await this.dialogMainService.showMessageBox({
+        type: "warning",
+        message: localize("issueReporterWriteToClipboard", "There is too much data to send to GitHub directly. The data will be copied to the clipboard, please paste it into the GitHub issue page that is opened."),
+        buttons: [
+          localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
+          localize("cancel", "Cancel")
+        ]
+      }, this.issueReporterWindow);
       return response === 0;
     }
     return false;
@@ -185,9 +146,7 @@ let IssueMainService = class {
     if (!this.issueReporterParentWindow) {
       throw new Error("Issue reporter window not available");
     }
-    const window = this.windowsMainService.getWindowById(
-      this.issueReporterParentWindow.id
-    );
+    const window = this.windowsMainService.getWindowById(this.issueReporterParentWindow.id);
     if (!window) {
       throw new Error("Window not found");
     }
@@ -197,26 +156,11 @@ let IssueMainService = class {
     const window = this.issueReporterWindowCheck();
     const replyChannel = `vscode:triggerReporterMenu`;
     const cts = new CancellationTokenSource();
-    window.sendWhenReady(replyChannel, cts.token, {
-      replyChannel,
-      extensionId,
-      extensionName
+    window.sendWhenReady(replyChannel, cts.token, { replyChannel, extensionId, extensionName });
+    const result = await raceTimeout(new Promise((resolve) => validatedIpcMain.once(`vscode:triggerReporterMenuResponse:${extensionId}`, (_, data) => resolve(data))), 5e3, () => {
+      this.logService.error(`Error: Extension ${extensionId} timed out waiting for menu response`);
+      cts.cancel();
     });
-    const result = await raceTimeout(
-      new Promise(
-        (resolve) => validatedIpcMain.once(
-          `vscode:triggerReporterMenuResponse:${extensionId}`,
-          (_, data) => resolve(data)
-        )
-      ),
-      5e3,
-      () => {
-        this.logService.error(
-          `Error: Extension ${extensionId} timed out waiting for menu response`
-        );
-        cts.cancel();
-      }
-    );
     return result;
   }
   async $closeReporter() {
@@ -243,12 +187,8 @@ let IssueMainService = class {
       title: options.title,
       backgroundColor: options.backgroundColor || IssueMainService.DEFAULT_BACKGROUND_COLOR,
       webPreferences: {
-        preload: FileAccess.asFileUri(
-          "vs/base/parts/sandbox/electron-sandbox/preload.js"
-        ).fsPath,
-        additionalArguments: [
-          `--vscode-window-config=${ipcObjectUrl.resource.toString()}`
-        ],
+        preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-sandbox/preload.js").fsPath,
+        additionalArguments: [`--vscode-window-config=${ipcObjectUrl.resource.toString()}`],
         v8CacheOptions: this.environmentMainService.useCodeCache ? "bypassHeatCheck" : "none",
         enableWebSQL: false,
         spellcheck: false,
@@ -272,9 +212,7 @@ let IssueMainService = class {
         displayToUse = screen.getDisplayNearestPoint(cursorPoint);
       }
       if (!displayToUse && parentWindow) {
-        displayToUse = screen.getDisplayMatching(
-          parentWindow.getBounds()
-        );
+        displayToUse = screen.getDisplayMatching(parentWindow.getBounds());
       }
       if (!displayToUse) {
         displayToUse = screen.getPrimaryDisplay() || displays[0];

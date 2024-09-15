@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { toUint8 } from "../../../../base/common/uint.js";
+import { RGBA8 } from "../../../common/core/rgba.js";
 import { Constants, getCharIndex } from "./minimapCharSheet.js";
+import { toUint8 } from "../../../../base/common/uint.js";
 class MinimapCharRenderer {
   constructor(charData, scale) {
     this.scale = scale;

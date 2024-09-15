@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 var MarkerTag = /* @__PURE__ */ ((MarkerTag2) => {
@@ -23,10 +25,7 @@ var MarkerSeverity = /* @__PURE__ */ ((MarkerSeverity2) => {
   __name(compare, "compare");
   const _displayStrings = /* @__PURE__ */ Object.create(null);
   _displayStrings[8 /* Error */] = localize("sev.error", "Error");
-  _displayStrings[4 /* Warning */] = localize(
-    "sev.warning",
-    "Warning"
-  );
+  _displayStrings[4 /* Warning */] = localize("sev.warning", "Warning");
   _displayStrings[2 /* Info */] = localize("sev.info", "Info");
   function toString(a) {
     return _displayStrings[a] || "";

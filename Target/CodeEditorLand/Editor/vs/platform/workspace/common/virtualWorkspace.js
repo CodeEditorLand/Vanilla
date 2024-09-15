@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { IWorkspace } from "./workspace.js";
 function isVirtualResource(resource) {
   return resource.scheme !== Schemas.file && resource.scheme !== Schemas.vscodeRemote;
 }

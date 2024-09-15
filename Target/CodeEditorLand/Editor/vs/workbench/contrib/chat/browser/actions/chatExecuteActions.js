@@ -2,28 +2,17 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
 import { localize2 } from "../../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IChatAgentService } from "../../common/chatAgents.js";
-import {
-  CONTEXT_CHAT_INPUT_HAS_AGENT,
-  CONTEXT_CHAT_INPUT_HAS_TEXT,
-  CONTEXT_CHAT_REQUEST_IN_PROGRESS,
-  CONTEXT_IN_CHAT_INPUT
-} from "../../common/chatContextKeys.js";
-import {
-  chatAgentLeader,
-  extractAgentAndCommand
-} from "../../common/chatParserTypes.js";
-import { IChatService } from "../../common/chatService.js";
-import { IChatWidgetService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
+import { IChatWidget, IChatWidgetService } from "../chat.js";
+import { IChatAgentService } from "../../common/chatAgents.js";
+import { CONTEXT_CHAT_INPUT_HAS_AGENT, CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_REQUEST_IN_PROGRESS, CONTEXT_IN_CHAT_INPUT } from "../../common/chatContextKeys.js";
+import { chatAgentLeader, extractAgentAndCommand } from "../../common/chatParserTypes.js";
+import { IChatService } from "../../common/chatService.js";
 class SubmitAction extends Action2 {
   static {
     __name(this, "SubmitAction");
@@ -36,10 +25,7 @@ class SubmitAction extends Action2 {
       f1: false,
       category: CHAT_CATEGORY,
       icon: Codicon.send,
-      precondition: ContextKeyExpr.and(
-        CONTEXT_CHAT_INPUT_HAS_TEXT,
-        CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate()
-      ),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate()),
       keybinding: {
         when: CONTEXT_IN_CHAT_INPUT,
         primary: KeyCode.Enter,
@@ -73,20 +59,8 @@ class ChatSubmitSecondaryAgentAction extends Action2 {
   constructor() {
     super({
       id: ChatSubmitSecondaryAgentAction.ID,
-      title: localize2(
-        {
-          key: "actions.chat.submitSecondaryAgent",
-          comment: [
-            "Send input from the chat input box to the secondary agent"
-          ]
-        },
-        "Submit to Secondary Agent"
-      ),
-      precondition: ContextKeyExpr.and(
-        CONTEXT_CHAT_INPUT_HAS_TEXT,
-        CONTEXT_CHAT_INPUT_HAS_AGENT.negate(),
-        CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate()
-      ),
+      title: localize2({ key: "actions.chat.submitSecondaryAgent", comment: ["Send input from the chat input box to the secondary agent"] }, "Submit to Secondary Agent"),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_INPUT_HAS_AGENT.negate(), CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate()),
       keybinding: {
         when: CONTEXT_IN_CHAT_INPUT,
         primary: KeyMod.CtrlCmd | KeyCode.Enter,
@@ -114,9 +88,7 @@ class ChatSubmitSecondaryAgentAction extends Action2 {
       widget.acceptInput();
     } else {
       widget.lastSelectedAgent = secondaryAgent;
-      widget.acceptInputWithPrefix(
-        `${chatAgentLeader}${secondaryAgent.name}`
-      );
+      widget.acceptInputWithPrefix(`${chatAgentLeader}${secondaryAgent.name}`);
     }
   }
 }
@@ -128,10 +100,7 @@ class SendToNewChatAction extends Action2 {
     super({
       id: "workbench.action.chat.sendToNewChat",
       title: localize2("chat.newChat.label", "Send to New Chat"),
-      precondition: ContextKeyExpr.and(
-        CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(),
-        CONTEXT_CHAT_INPUT_HAS_TEXT
-      ),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(), CONTEXT_CHAT_INPUT_HAS_TEXT),
       category: CHAT_CATEGORY,
       f1: false,
       menu: {
@@ -189,9 +158,7 @@ class CancelAction extends Action2 {
     }
     const chatService = accessor.get(IChatService);
     if (widget.viewModel) {
-      chatService.cancelCurrentRequestForSession(
-        widget.viewModel.sessionId
-      );
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionId);
     }
   }
 }

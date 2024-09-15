@@ -2,10 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { importAMDNodeModule } from "../../../../amdX.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { LanguageDetectionWorkerHost, ILanguageDetectionWorker } from "./languageDetectionWorker.protocol.js";
 import { WorkerTextModelSyncServer } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
-import {
-  LanguageDetectionWorkerHost
-} from "./languageDetectionWorker.protocol.js";
 function create(workerServer) {
   return new LanguageDetectionSimpleWorker(workerServer);
 }
@@ -39,14 +38,9 @@ class LanguageDetectionSimpleWorker {
       return;
     }
     const neuralResolver = /* @__PURE__ */ __name(async () => {
-      for await (const language of this.detectLanguagesImpl(
-        documentTextSample
-      )) {
+      for await (const language of this.detectLanguagesImpl(documentTextSample)) {
         if (!this.modelIdToCoreId.has(language.languageId)) {
-          this.modelIdToCoreId.set(
-            language.languageId,
-            await this._host.$getLanguageId(language.languageId)
-          );
+          this.modelIdToCoreId.set(language.languageId, await this._host.$getLanguageId(language.languageId));
         }
         const coreId = this.modelIdToCoreId.get(language.languageId);
         if (coreId && (!supportedLangs?.length || supportedLangs.includes(coreId))) {
@@ -56,20 +50,12 @@ class LanguageDetectionSimpleWorker {
       }
       stopWatch.stop();
       if (languages.length) {
-        this._host.$sendTelemetryEvent(
-          languages,
-          confidences,
-          stopWatch.elapsed()
-        );
+        this._host.$sendTelemetryEvent(languages, confidences, stopWatch.elapsed());
         return languages[0];
       }
       return void 0;
     }, "neuralResolver");
-    const historicalResolver = /* @__PURE__ */ __name(async () => this.runRegexpModel(
-      documentTextSample,
-      langBiases ?? {},
-      supportedLangs
-    ), "historicalResolver");
+    const historicalResolver = /* @__PURE__ */ __name(async () => this.runRegexpModel(documentTextSample, langBiases ?? {}, supportedLangs), "historicalResolver");
     if (preferHistory) {
       const history = await historicalResolver();
       if (history) {
@@ -114,10 +100,7 @@ class LanguageDetectionSimpleWorker {
     }
     const uri = await this._host.$getRegexpModelUri();
     try {
-      this._regexpModel = await importAMDNodeModule(
-        uri,
-        ""
-      );
+      this._regexpModel = await importAMDNodeModule(uri, "");
       return this._regexpModel;
     } catch (e) {
       this._regexpLoadFailed = true;
@@ -138,11 +121,7 @@ class LanguageDetectionSimpleWorker {
         }
       }
     }
-    const detected = regexpModel.detect(
-      content,
-      langBiases,
-      supportedLangs
-    );
+    const detected = regexpModel.detect(content, langBiases, supportedLangs);
     return detected;
   }
   async getModelOperations() {
@@ -150,15 +129,10 @@ class LanguageDetectionSimpleWorker {
       return this._modelOperations;
     }
     const uri = await this._host.$getIndexJsUri();
-    const { ModelOperations } = await importAMDNodeModule(
-      uri,
-      ""
-    );
+    const { ModelOperations } = await importAMDNodeModule(uri, "");
     this._modelOperations = new ModelOperations({
       modelJsonLoaderFunc: /* @__PURE__ */ __name(async () => {
-        const response = await fetch(
-          await this._host.$getModelJsonUri()
-        );
+        const response = await fetch(await this._host.$getModelJsonUri());
         try {
           const modelJSON = await response.json();
           return modelJSON;

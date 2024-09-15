@@ -10,13 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { Memento } from "../../../common/memento.js";
 import { ChatAgentLocation } from "./chatAgents.js";
 import { CHAT_PROVIDER_ID } from "./chatParticipantContribTypes.js";
@@ -32,14 +28,9 @@ let ChatWidgetHistoryService = class {
   onDidClearHistory = this._onDidClearHistory.event;
   constructor(storageService) {
     this.memento = new Memento("interactive-session", storageService);
-    const loadedState = this.memento.getMemento(
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    const loadedState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
     for (const provider in loadedState.history) {
-      loadedState.history[provider] = loadedState.history[provider].map(
-        (entry) => typeof entry === "string" ? { text: entry } : entry
-      );
+      loadedState.history[provider] = loadedState.history[provider].map((entry) => typeof entry === "string" ? { text: entry } : entry);
     }
     this.viewState = loadedState;
   }

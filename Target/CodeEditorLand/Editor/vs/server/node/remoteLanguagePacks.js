@@ -23,13 +23,7 @@ async function getNLSConfiguration(language, userDataPath) {
   const cacheKey = `${language}||${userDataPath}`;
   let result = nlsConfigurationCache.get(cacheKey);
   if (!result) {
-    result = resolveNLSConfiguration({
-      userLocale: language,
-      osLocale: language,
-      commit: product.commit,
-      userDataPath,
-      nlsMetadataPath
-    });
+    result = resolveNLSConfiguration({ userLocale: language, osLocale: language, commit: product.commit, userDataPath, nlsMetadataPath });
     nlsConfigurationCache.set(cacheKey, result);
   }
   return result;

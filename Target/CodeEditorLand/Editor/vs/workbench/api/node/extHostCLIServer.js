@@ -10,21 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as fs from "fs";
-import * as http from "http";
-import { URI } from "../../../base/common/uri.js";
 import { createRandomIPCHandle } from "../../../base/parts/ipc/node/ipc.net.js";
+import * as http from "http";
+import * as fs from "fs";
+import { IExtHostCommands } from "../common/extHostCommands.js";
+import { IWindowOpenable, IOpenWindowOptions } from "../../../platform/window/common/window.js";
+import { URI } from "../../../base/common/uri.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import { hasWorkspaceFileExtension } from "../../../platform/workspace/common/workspace.js";
-import { IExtHostCommands } from "../common/extHostCommands.js";
 class CLIServerBase {
   constructor(_commands, logService, _ipcHandlePath) {
     this._commands = _commands;
     this.logService = logService;
     this._ipcHandlePath = _ipcHandlePath;
-    this._server = http.createServer(
-      (req, res) => this.onRequest(req, res)
-    );
+    this._server = http.createServer((req, res) => this.onRequest(req, res));
     this.setup().catch((err) => {
       logService.error(err);
       return "";
@@ -49,10 +48,7 @@ class CLIServerBase {
   onRequest(req, res) {
     const sendResponse = /* @__PURE__ */ __name((statusCode, returnObj) => {
       res.writeHead(statusCode, { "content-type": "application/json" });
-      res.end(
-        JSON.stringify(returnObj || null),
-        (err) => err && this.logService.error(err)
-      );
+      res.end(JSON.stringify(returnObj || null), (err) => err && this.logService.error(err));
     }, "sendResponse");
     const chunks = [];
     req.setEncoding("utf8");
@@ -87,18 +83,7 @@ class CLIServerBase {
     });
   }
   async open(data) {
-    const {
-      fileURIs,
-      folderURIs,
-      forceNewWindow,
-      diffMode,
-      mergeMode,
-      addMode,
-      forceReuseWindow,
-      gotoLineMode,
-      waitMarkerFilePath,
-      remoteAuthority
-    } = data;
+    const { fileURIs, folderURIs, forceNewWindow, diffMode, mergeMode, addMode, forceReuseWindow, gotoLineMode, waitMarkerFilePath, remoteAuthority } = data;
     const urisToOpen = [];
     if (Array.isArray(folderURIs)) {
       for (const s of folderURIs) {
@@ -122,52 +107,28 @@ class CLIServerBase {
     }
     const waitMarkerFileURI = waitMarkerFilePath ? URI.file(waitMarkerFilePath) : void 0;
     const preferNewWindow = !forceReuseWindow && !waitMarkerFileURI && !addMode;
-    const windowOpenArgs = {
-      forceNewWindow,
-      diffMode,
-      mergeMode,
-      addMode,
-      gotoLineMode,
-      forceReuseWindow,
-      preferNewWindow,
-      waitMarkerFileURI,
-      remoteAuthority
-    };
-    this._commands.executeCommand(
-      "_remoteCLI.windowOpen",
-      urisToOpen,
-      windowOpenArgs
-    );
+    const windowOpenArgs = { forceNewWindow, diffMode, mergeMode, addMode, gotoLineMode, forceReuseWindow, preferNewWindow, waitMarkerFileURI, remoteAuthority };
+    this._commands.executeCommand("_remoteCLI.windowOpen", urisToOpen, windowOpenArgs);
   }
   async openExternal(data) {
     for (const uriString of data.uris) {
       const uri = URI.parse(uriString);
       const urioOpen = uri.scheme === "file" ? uri : uriString;
-      await this._commands.executeCommand(
-        "_remoteCLI.openExternal",
-        urioOpen
-      );
+      await this._commands.executeCommand("_remoteCLI.openExternal", urioOpen);
     }
   }
   async manageExtensions(data) {
-    const toExtOrVSIX = /* @__PURE__ */ __name((inputs) => inputs?.map(
-      (input) => /\.vsix$/i.test(input) ? URI.parse(input) : input
-    ), "toExtOrVSIX");
+    const toExtOrVSIX = /* @__PURE__ */ __name((inputs) => inputs?.map((input) => /\.vsix$/i.test(input) ? URI.parse(input) : input), "toExtOrVSIX");
     const commandArgs = {
       list: data.list,
       install: toExtOrVSIX(data.install),
       uninstall: toExtOrVSIX(data.uninstall),
       force: data.force
     };
-    return await this._commands.executeCommand(
-      "_remoteCLI.manageExtensions",
-      commandArgs
-    );
+    return await this._commands.executeCommand("_remoteCLI.manageExtensions", commandArgs);
   }
   async getStatus(data) {
-    return await this._commands.executeCommand(
-      "_remoteCLI.getSystemStatus"
-    );
+    return await this._commands.executeCommand("_remoteCLI.getSystemStatus");
   }
   dispose() {
     this._server.close();

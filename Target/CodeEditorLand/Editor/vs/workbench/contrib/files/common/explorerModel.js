@@ -9,50 +9,30 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { coalesce } from "../../../../base/common/arrays.js";
-import { memoize } from "../../../../base/common/decorators.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { isEqual } from "../../../../base/common/extpath.js";
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { posix } from "../../../../base/common/path.js";
-import {
-  basenameOrAuthority,
-  isEqualOrParent,
-  joinPath
-} from "../../../../base/common/resources.js";
-import {
-  equalsIgnoreCase,
-  rtrim,
-  startsWithIgnoreCase
-} from "../../../../base/common/strings.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  FileSystemProviderCapabilities
-} from "../../../../platform/files/common/files.js";
+import { isEqual } from "../../../../base/common/extpath.js";
+import { posix } from "../../../../base/common/path.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IFileStat, IFileService, FileSystemProviderCapabilities } from "../../../../platform/files/common/files.js";
+import { rtrim, startsWithIgnoreCase, equalsIgnoreCase } from "../../../../base/common/strings.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { memoize } from "../../../../base/common/decorators.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { joinPath, isEqualOrParent, basenameOrAuthority } from "../../../../base/common/resources.js";
+import { IFilesConfiguration, SortOrder } from "./files.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { ExplorerFileNestingTrie } from "./explorerFileNestingTrie.js";
-import { SortOrder } from "./files.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
 class ExplorerModel {
   constructor(contextService, uriIdentityService, fileService, configService, filesConfigService) {
     this.contextService = contextService;
     this.uriIdentityService = uriIdentityService;
-    const setRoots = /* @__PURE__ */ __name(() => this._roots = this.contextService.getWorkspace().folders.map(
-      (folder) => new ExplorerItem(
-        folder.uri,
-        fileService,
-        configService,
-        filesConfigService,
-        void 0,
-        true,
-        false,
-        false,
-        false,
-        folder.name
-      )
-    ), "setRoots");
+    const setRoots = /* @__PURE__ */ __name(() => this._roots = this.contextService.getWorkspace().folders.map((folder) => new ExplorerItem(folder.uri, fileService, configService, filesConfigService, void 0, true, false, false, false, folder.name)), "setRoots");
     setRoots();
     this._listener = this.contextService.onDidChangeWorkspaceFolders(() => {
       setRoots();
@@ -87,9 +67,7 @@ class ExplorerModel {
   findClosest(resource) {
     const folder = this.contextService.getWorkspaceFolder(resource);
     if (folder) {
-      const root = this.roots.find(
-        (r) => this.uriIdentityService.extUri.isEqual(r.resource, folder.uri)
-      );
+      const root = this.roots.find((r) => this.uriIdentityService.extUri.isEqual(r.resource, folder.uri));
       if (root) {
         return root.find(resource);
       }
@@ -157,12 +135,7 @@ const _ExplorerItem = class _ExplorerItem {
     return !!this._isDirectory;
   }
   get isReadonly() {
-    return this.filesConfigService.isReadonly(this.resource, {
-      resource: this.resource,
-      name: this.name,
-      readonly: this._readonly,
-      locked: this._locked
-    });
+    return this.filesConfigService.isReadonly(this.resource, { resource: this.resource, name: this.name, readonly: this._readonly, locked: this._locked });
   }
   get mtime() {
     return this._mtime;
@@ -200,34 +173,14 @@ const _ExplorerItem = class _ExplorerItem {
     return this === this.root;
   }
   static create(fileService, configService, filesConfigService, raw, parent, resolveTo) {
-    const stat = new _ExplorerItem(
-      raw.resource,
-      fileService,
-      configService,
-      filesConfigService,
-      parent,
-      raw.isDirectory,
-      raw.isSymbolicLink,
-      raw.readonly,
-      raw.locked,
-      raw.name,
-      raw.mtime,
-      !raw.isFile && !raw.isDirectory
-    );
+    const stat = new _ExplorerItem(raw.resource, fileService, configService, filesConfigService, parent, raw.isDirectory, raw.isSymbolicLink, raw.readonly, raw.locked, raw.name, raw.mtime, !raw.isFile && !raw.isDirectory);
     if (stat.isDirectory) {
       stat._isDirectoryResolved = !!raw.children || !!resolveTo && resolveTo.some((r) => {
         return isEqualOrParent(r, stat.resource);
       });
       if (raw.children) {
         for (let i = 0, len = raw.children.length; i < len; i++) {
-          const child = _ExplorerItem.create(
-            fileService,
-            configService,
-            filesConfigService,
-            raw.children[i],
-            stat,
-            resolveTo
-          );
+          const child = _ExplorerItem.create(fileService, configService, filesConfigService, raw.children[i], stat, resolveTo);
           stat.addChild(child);
         }
       }
@@ -263,14 +216,9 @@ const _ExplorerItem = class _ExplorerItem {
       });
       local.children.clear();
       disk.children.forEach((diskChild) => {
-        const formerLocalChild = oldLocalChildren.get(
-          diskChild.resource
-        );
+        const formerLocalChild = oldLocalChildren.get(diskChild.resource);
         if (formerLocalChild) {
-          _ExplorerItem.mergeLocalWithDisk(
-            diskChild,
-            formerLocalChild
-          );
+          _ExplorerItem.mergeLocalWithDisk(diskChild, formerLocalChild);
           local.addChild(formerLocalChild);
           oldLocalChildren.delete(diskChild.resource);
         } else {
@@ -296,9 +244,7 @@ const _ExplorerItem = class _ExplorerItem {
     return this.children.get(this.getPlatformAwareName(name));
   }
   fetchChildren(sortOrder) {
-    const nestingConfig = this.configService.getValue({
-      resource: this.root.resource
-    }).explorer.fileNesting;
+    const nestingConfig = this.configService.getValue({ resource: this.root.resource }).explorer.fileNesting;
     if (nestingConfig.enabled && this.nestedChildren) {
       return this.nestedChildren;
     }
@@ -307,17 +253,8 @@ const _ExplorerItem = class _ExplorerItem {
         const resolveMetadata = sortOrder === SortOrder.Modified;
         this.error = void 0;
         try {
-          const stat = await this.fileService.resolve(this.resource, {
-            resolveSingleChildDescendants: true,
-            resolveMetadata
-          });
-          const resolved = _ExplorerItem.create(
-            this.fileService,
-            this.configService,
-            this.filesConfigService,
-            stat,
-            this
-          );
+          const stat = await this.fileService.resolve(this.resource, { resolveSingleChildDescendants: true, resolveMetadata });
+          const resolved = _ExplorerItem.create(this.fileService, this.configService, this.filesConfigService, stat, this);
           _ExplorerItem.mergeLocalWithDisk(resolved, this);
         } catch (e) {
           this.error = e;
@@ -346,9 +283,7 @@ const _ExplorerItem = class _ExplorerItem {
           if (nestedItems !== void 0) {
             fileEntryItem.nestedChildren = [];
             for (const name of nestedItems.keys()) {
-              const child = assertIsDefined(
-                this.children.get(name)
-              );
+              const child = assertIsDefined(this.children.get(name));
               fileEntryItem.nestedChildren.push(child);
               child.nestedParent = fileEntryItem;
             }
@@ -371,21 +306,11 @@ const _ExplorerItem = class _ExplorerItem {
   _fileNester;
   get fileNester() {
     if (!this.root._fileNester) {
-      const nestingConfig = this.configService.getValue({
-        resource: this.root.resource
-      }).explorer.fileNesting;
-      const patterns = Object.entries(nestingConfig.patterns).filter(
-        (entry) => typeof entry[0] === "string" && typeof entry[1] === "string" && entry[0] && entry[1]
-      ).map(
-        ([parentPattern, childrenPatterns]) => [
-          this.getPlatformAwareName(parentPattern.trim()),
-          childrenPatterns.split(",").map(
-            (p) => this.getPlatformAwareName(
-              p.trim().replace(/\u200b/g, "").trim()
-            )
-          ).filter((p) => p !== "")
-        ]
-      );
+      const nestingConfig = this.configService.getValue({ resource: this.root.resource }).explorer.fileNesting;
+      const patterns = Object.entries(nestingConfig.patterns).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "string" && entry[0] && entry[1]).map(([parentPattern, childrenPatterns]) => [
+        this.getPlatformAwareName(parentPattern.trim()),
+        childrenPatterns.split(",").map((p) => this.getPlatformAwareName(p.trim().replace(/\u200b/g, "").trim())).filter((p) => p !== "")
+      ]);
       this.root._fileNester = new ExplorerFileNestingTrie(patterns);
     }
     return this.root._fileNester;
@@ -404,10 +329,7 @@ const _ExplorerItem = class _ExplorerItem {
     this._fileNester = void 0;
   }
   getPlatformAwareName(name) {
-    return this.fileService.hasCapability(
-      this.resource,
-      FileSystemProviderCapabilities.PathCaseSensitive
-    ) ? name : name.toLowerCase();
+    return this.fileService.hasCapability(this.resource, FileSystemProviderCapabilities.PathCaseSensitive) ? name : name.toLowerCase();
   }
   /**
    * Moves this element under a new parent element.
@@ -445,16 +367,9 @@ const _ExplorerItem = class _ExplorerItem {
    * Will return "null" in case the child does not exist.
    */
   find(resource) {
-    const ignoreCase = !this.fileService.hasCapability(
-      resource,
-      FileSystemProviderCapabilities.PathCaseSensitive
-    );
+    const ignoreCase = !this.fileService.hasCapability(resource, FileSystemProviderCapabilities.PathCaseSensitive);
     if (resource && this.resource.scheme === resource.scheme && equalsIgnoreCase(this.resource.authority, resource.authority) && (ignoreCase ? startsWithIgnoreCase(resource.path, this.resource.path) : resource.path.startsWith(this.resource.path))) {
-      return this.findByPath(
-        rtrim(resource.path, posix.sep),
-        this.resource.path.length,
-        ignoreCase
-      );
+      return this.findByPath(rtrim(resource.path, posix.sep), this.resource.path.length, ignoreCase);
     }
     return null;
   }
@@ -488,14 +403,7 @@ class NewExplorerItem extends ExplorerItem {
     __name(this, "NewExplorerItem");
   }
   constructor(fileService, configService, filesConfigService, parent, isDirectory) {
-    super(
-      URI.file(""),
-      fileService,
-      configService,
-      filesConfigService,
-      parent,
-      isDirectory
-    );
+    super(URI.file(""), fileService, configService, filesConfigService, parent, isDirectory);
     this._isDirectoryResolved = true;
   }
 }

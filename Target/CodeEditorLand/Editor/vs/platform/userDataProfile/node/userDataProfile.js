@@ -10,27 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { isString } from "../../../base/common/types.js";
-import {
-  URI
-} from "../../../base/common/uri.js";
+import { URI, UriComponents, UriDto } from "../../../base/common/uri.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
 import { IFileService } from "../../files/common/files.js";
 import { ILogService } from "../../log/common/log.js";
 import { IStateReadService, IStateService } from "../../state/node/state.js";
-import { SaveStrategy, StateService } from "../../state/node/stateService.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  UserDataProfilesService as BaseUserDataProfilesService
-} from "../common/userDataProfile.js";
+import { IUserDataProfilesService, UserDataProfilesService as BaseUserDataProfilesService, StoredUserDataProfile, StoredProfileAssociations } from "../common/userDataProfile.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { isString } from "../../../base/common/types.js";
+import { SaveStrategy, StateService } from "../../state/node/stateService.js";
 let UserDataProfilesReadonlyService = class extends BaseUserDataProfilesService {
   constructor(stateReadonlyService, uriIdentityService, nativeEnvironmentService, fileService, logService) {
-    super(
-      nativeEnvironmentService,
-      fileService,
-      uriIdentityService,
-      logService
-    );
+    super(nativeEnvironmentService, fileService, uriIdentityService, logService);
     this.stateReadonlyService = stateReadonlyService;
     this.nativeEnvironmentService = nativeEnvironmentService;
   }
@@ -40,32 +32,15 @@ let UserDataProfilesReadonlyService = class extends BaseUserDataProfilesService 
   static PROFILE_ASSOCIATIONS_MIGRATION_KEY = "profileAssociationsMigration";
   getStoredProfiles() {
     const storedProfilesState = this.stateReadonlyService.getItem(UserDataProfilesReadonlyService.PROFILES_KEY, []);
-    return storedProfilesState.map((p) => ({
-      ...p,
-      location: isString(p.location) ? this.uriIdentityService.extUri.joinPath(
-        this.profilesHome,
-        p.location
-      ) : URI.revive(p.location)
-    }));
+    return storedProfilesState.map((p) => ({ ...p, location: isString(p.location) ? this.uriIdentityService.extUri.joinPath(this.profilesHome, p.location) : URI.revive(p.location) }));
   }
   getStoredProfileAssociations() {
-    const associations = this.stateReadonlyService.getItem(
-      UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_KEY,
-      {}
-    );
-    const migrated = this.stateReadonlyService.getItem(
-      UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
-      false
-    );
+    const associations = this.stateReadonlyService.getItem(UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_KEY, {});
+    const migrated = this.stateReadonlyService.getItem(UserDataProfilesReadonlyService.PROFILE_ASSOCIATIONS_MIGRATION_KEY, false);
     return migrated ? associations : this.migrateStoredProfileAssociations(associations);
   }
   getDefaultProfileExtensionsLocation() {
-    return this.uriIdentityService.extUri.joinPath(
-      URI.file(this.nativeEnvironmentService.extensionsPath).with({
-        scheme: this.profilesHome.scheme
-      }),
-      "extensions.json"
-    );
+    return this.uriIdentityService.extUri.joinPath(URI.file(this.nativeEnvironmentService.extensionsPath).with({ scheme: this.profilesHome.scheme }), "extensions.json");
   }
 };
 UserDataProfilesReadonlyService = __decorateClass([
@@ -77,13 +52,7 @@ UserDataProfilesReadonlyService = __decorateClass([
 ], UserDataProfilesReadonlyService);
 let UserDataProfilesService = class extends UserDataProfilesReadonlyService {
   constructor(stateService, uriIdentityService, environmentService, fileService, logService) {
-    super(
-      stateService,
-      uriIdentityService,
-      environmentService,
-      fileService,
-      logService
-    );
+    super(stateService, uriIdentityService, environmentService, fileService, logService);
     this.stateService = stateService;
   }
   static {
@@ -91,25 +60,14 @@ let UserDataProfilesService = class extends UserDataProfilesReadonlyService {
   }
   saveStoredProfiles(storedProfiles) {
     if (storedProfiles.length) {
-      this.stateService.setItem(
-        UserDataProfilesService.PROFILES_KEY,
-        storedProfiles.map((profile) => ({
-          ...profile,
-          location: this.uriIdentityService.extUri.basename(
-            profile.location
-          )
-        }))
-      );
+      this.stateService.setItem(UserDataProfilesService.PROFILES_KEY, storedProfiles.map((profile) => ({ ...profile, location: this.uriIdentityService.extUri.basename(profile.location) })));
     } else {
       this.stateService.removeItem(UserDataProfilesService.PROFILES_KEY);
     }
   }
   getStoredProfiles() {
     const storedProfiles = super.getStoredProfiles();
-    if (!this.stateService.getItem(
-      "userDataProfilesMigration",
-      false
-    )) {
+    if (!this.stateService.getItem("userDataProfilesMigration", false)) {
       this.saveStoredProfiles(storedProfiles);
       this.stateService.setItem("userDataProfilesMigration", true);
     }
@@ -117,14 +75,9 @@ let UserDataProfilesService = class extends UserDataProfilesReadonlyService {
   }
   saveStoredProfileAssociations(storedProfileAssociations) {
     if (storedProfileAssociations.emptyWindows || storedProfileAssociations.workspaces) {
-      this.stateService.setItem(
-        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY,
-        storedProfileAssociations
-      );
+      this.stateService.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY, storedProfileAssociations);
     } else {
-      this.stateService.removeItem(
-        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY
-      );
+      this.stateService.removeItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY);
     }
   }
   getStoredProfileAssociations() {
@@ -136,21 +89,12 @@ let UserDataProfilesService = class extends UserDataProfilesReadonlyService {
         result[URI.revive(workspace).toString()] = URI.revive(profile).toString();
         return result;
       }, {});
-      this.stateService.setItem(
-        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY,
-        { workspaces }
-      );
+      this.stateService.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY, { workspaces });
     }
     const associations = super.getStoredProfileAssociations();
-    if (!this.stateService.getItem(
-      UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
-      false
-    )) {
+    if (!this.stateService.getItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY, false)) {
       this.saveStoredProfileAssociations(associations);
-      this.stateService.setItem(
-        UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY,
-        true
-      );
+      this.stateService.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_MIGRATION_KEY, true);
     }
     return associations;
   }
@@ -167,18 +111,7 @@ let ServerUserDataProfilesService = class extends UserDataProfilesService {
     __name(this, "ServerUserDataProfilesService");
   }
   constructor(uriIdentityService, environmentService, fileService, logService) {
-    super(
-      new StateService(
-        SaveStrategy.IMMEDIATE,
-        environmentService,
-        logService,
-        fileService
-      ),
-      uriIdentityService,
-      environmentService,
-      fileService,
-      logService
-    );
+    super(new StateService(SaveStrategy.IMMEDIATE, environmentService, logService, fileService), uriIdentityService, environmentService, fileService, logService);
   }
   async init() {
     await this.stateService.init();

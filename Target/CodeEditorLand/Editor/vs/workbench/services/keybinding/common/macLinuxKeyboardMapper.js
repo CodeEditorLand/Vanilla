@@ -1,20 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../../base/common/charCode.js";
-import {
-  IMMUTABLE_CODE_TO_KEY_CODE,
-  IMMUTABLE_KEY_CODE_TO_CODE,
-  KeyCode,
-  KeyCodeUtils,
-  ScanCode,
-  ScanCodeUtils
-} from "../../../../base/common/keyCodes.js";
-import {
-  KeyCodeChord,
-  ScanCodeChord
-} from "../../../../base/common/keybindings.js";
+import { KeyCode, KeyCodeUtils, IMMUTABLE_CODE_TO_KEY_CODE, IMMUTABLE_KEY_CODE_TO_CODE, ScanCode, ScanCodeUtils } from "../../../../base/common/keyCodes.js";
+import { ResolvedKeybinding, KeyCodeChord, SingleModifierChord, ScanCodeChord, Keybinding, Chord } from "../../../../base/common/keybindings.js";
 import { OperatingSystem } from "../../../../base/common/platform.js";
+import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
+import { IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
 import { BaseResolvedKeybinding } from "../../../../platform/keybinding/common/baseResolvedKeybinding.js";
+import { IMacLinuxKeyboardMapping, IMacLinuxKeyMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
 const CHAR_CODE_TO_KEY_CODE = [];
 class NativeResolvedKeybinding extends BaseResolvedKeybinding {
   static {
@@ -109,9 +102,7 @@ class ScanCodeCombo {
     return mapping.value;
   }
   getProducedChar(mapping) {
-    const charCode = MacLinuxKeyboardMapper.getCharCode(
-      this.getProducedCharCode(mapping)
-    );
+    const charCode = MacLinuxKeyboardMapper.getCharCode(this.getProducedCharCode(mapping));
     if (charCode === 0) {
       return " --- ";
     }
@@ -209,13 +200,9 @@ class ScanCodeKeyCodeMapper {
       }
     }
     this._scanCodeToKeyCode[scanCodeComboEncoded] = this._scanCodeToKeyCode[scanCodeComboEncoded] || [];
-    this._scanCodeToKeyCode[scanCodeComboEncoded].unshift(
-      keyCodeComboEncoded
-    );
+    this._scanCodeToKeyCode[scanCodeComboEncoded].unshift(keyCodeComboEncoded);
     this._keyCodeToScanCode[keyCodeComboEncoded] = this._keyCodeToScanCode[keyCodeComboEncoded] || [];
-    this._keyCodeToScanCode[keyCodeComboEncoded].unshift(
-      scanCodeComboEncoded
-    );
+    this._keyCodeToScanCode[keyCodeComboEncoded].unshift(scanCodeComboEncoded);
   }
   lookupKeyCodeCombo(keyCodeCombo) {
     const keyCodeComboEncoded = this._encodeKeyCodeCombo(keyCodeCombo);
@@ -276,12 +263,8 @@ class ScanCodeKeyCodeMapper {
           return KeyCode.Digit0;
       }
     }
-    const keyCodeCombos1 = this.lookupScanCodeCombo(
-      new ScanCodeCombo(false, false, false, scanCode)
-    );
-    const keyCodeCombos2 = this.lookupScanCodeCombo(
-      new ScanCodeCombo(false, true, false, scanCode)
-    );
+    const keyCodeCombos1 = this.lookupScanCodeCombo(new ScanCodeCombo(false, false, false, scanCode));
+    const keyCodeCombos2 = this.lookupScanCodeCombo(new ScanCodeCombo(false, true, false, scanCode));
     if (keyCodeCombos1.length === 1 && keyCodeCombos2.length === 1) {
       const shiftKey1 = keyCodeCombos1[0].shiftKey;
       const keyCode1 = keyCodeCombos1[0].keyCode;
@@ -294,20 +277,10 @@ class ScanCodeKeyCodeMapper {
     return KeyCode.DependsOnKbLayout;
   }
   _encodeScanCodeCombo(scanCodeCombo) {
-    return this._encode(
-      scanCodeCombo.ctrlKey,
-      scanCodeCombo.shiftKey,
-      scanCodeCombo.altKey,
-      scanCodeCombo.scanCode
-    );
+    return this._encode(scanCodeCombo.ctrlKey, scanCodeCombo.shiftKey, scanCodeCombo.altKey, scanCodeCombo.scanCode);
   }
   _encodeKeyCodeCombo(keyCodeCombo) {
-    return this._encode(
-      keyCodeCombo.ctrlKey,
-      keyCodeCombo.shiftKey,
-      keyCodeCombo.altKey,
-      keyCodeCombo.keyCode
-    );
+    return this._encode(keyCodeCombo.ctrlKey, keyCodeCombo.shiftKey, keyCodeCombo.altKey, keyCodeCombo.keyCode);
   }
   _encode(ctrlKey, shiftKey, altKey, principal) {
     return ((ctrlKey ? 1 : 0) << 0 | (shiftKey ? 1 : 0) << 1 | (altKey ? 1 : 0) << 2 | principal << 3) >>> 0;
@@ -324,18 +297,8 @@ class MacLinuxKeyboardMapper {
     this._scanCodeToDispatch = [];
     const _registerIfUnknown = /* @__PURE__ */ __name((hwCtrlKey, hwShiftKey, hwAltKey, scanCode, kbCtrlKey, kbShiftKey, kbAltKey, keyCode) => {
       this._scanCodeKeyCodeMapper.registerIfUnknown(
-        new ScanCodeCombo(
-          hwCtrlKey ? true : false,
-          hwShiftKey ? true : false,
-          hwAltKey ? true : false,
-          scanCode
-        ),
-        new KeyCodeCombo(
-          kbCtrlKey ? true : false,
-          kbShiftKey ? true : false,
-          kbAltKey ? true : false,
-          keyCode
-        )
+        new ScanCodeCombo(hwCtrlKey ? true : false, hwShiftKey ? true : false, hwAltKey ? true : false, scanCode),
+        new KeyCodeCombo(kbCtrlKey ? true : false, kbShiftKey ? true : false, kbAltKey ? true : false, keyCode)
       );
     }, "_registerIfUnknown");
     const _registerAllCombos = /* @__PURE__ */ __name((_ctrlKey, _shiftKey, _altKey, scanCode, keyCode) => {
@@ -387,9 +350,7 @@ class MacLinuxKeyboardMapper {
             continue;
           }
           const rawMapping = rawMappings[strScanCode];
-          const value = MacLinuxKeyboardMapper.getCharCode(
-            rawMapping.value
-          );
+          const value = MacLinuxKeyboardMapper.getCharCode(rawMapping.value);
           if (value >= CharCode.a && value <= CharCode.z) {
             const upperCaseValue = CharCode.A + (value - CharCode.a);
             producesLatinLetter[upperCaseValue] = true;
@@ -446,18 +407,10 @@ class MacLinuxKeyboardMapper {
         }
         this._codeInfo[scanCode] = rawMappings[strScanCode];
         const rawMapping = missingLatinLettersOverride[strScanCode] || rawMappings[strScanCode];
-        const value = MacLinuxKeyboardMapper.getCharCode(
-          rawMapping.value
-        );
-        const withShift = MacLinuxKeyboardMapper.getCharCode(
-          rawMapping.withShift
-        );
-        const withAltGr = MacLinuxKeyboardMapper.getCharCode(
-          rawMapping.withAltGr
-        );
-        const withShiftAltGr = MacLinuxKeyboardMapper.getCharCode(
-          rawMapping.withShiftAltGr
-        );
+        const value = MacLinuxKeyboardMapper.getCharCode(rawMapping.value);
+        const withShift = MacLinuxKeyboardMapper.getCharCode(rawMapping.withShift);
+        const withAltGr = MacLinuxKeyboardMapper.getCharCode(rawMapping.withAltGr);
+        const withShiftAltGr = MacLinuxKeyboardMapper.getCharCode(rawMapping.withShiftAltGr);
         const mapping = {
           scanCode,
           value,
@@ -604,12 +557,13 @@ class MacLinuxKeyboardMapper {
   _scanCodeToDispatch = [];
   dumpDebugInfo() {
     const result = [];
-    const immutableSamples = [ScanCode.ArrowUp, ScanCode.Numpad0];
+    const immutableSamples = [
+      ScanCode.ArrowUp,
+      ScanCode.Numpad0
+    ];
     let cnt = 0;
     result.push(`isUSStandard: ${this._isUSStandard}`);
-    result.push(
-      `----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`
-    );
+    result.push(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`);
     for (let scanCode = ScanCode.None; scanCode < ScanCode.MAX_VALUE; scanCode++) {
       if (IMMUTABLE_CODE_TO_KEY_CODE[scanCode] !== KeyCode.DependsOnKbLayout) {
         if (immutableSamples.indexOf(scanCode) === -1) {
@@ -617,12 +571,8 @@ class MacLinuxKeyboardMapper {
         }
       }
       if (cnt % 4 === 0) {
-        result.push(
-          `|       HW Code combination      |  Key  |    KeyCode combination    | Pri |          UI label         |         User settings          |    Electron accelerator   |       Dispatching string       | WYSIWYG |`
-        );
-        result.push(
-          `----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`
-        );
+        result.push(`|       HW Code combination      |  Key  |    KeyCode combination    | Pri |          UI label         |         User settings          |    Electron accelerator   |       Dispatching string       | WYSIWYG |`);
+        result.push(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`);
       }
       cnt++;
       const mapping = this._codeInfo[scanCode];
@@ -630,12 +580,7 @@ class MacLinuxKeyboardMapper {
         const hwCtrlKey = mod & 1 ? true : false;
         const hwShiftKey = mod & 2 ? true : false;
         const hwAltKey = mod & 4 ? true : false;
-        const scanCodeCombo = new ScanCodeCombo(
-          hwCtrlKey,
-          hwShiftKey,
-          hwAltKey,
-          scanCode
-        );
+        const scanCodeCombo = new ScanCodeCombo(hwCtrlKey, hwShiftKey, hwAltKey, scanCode);
         const resolvedKb = this.resolveKeyboardEvent({
           _standardKeyboardEventBrand: true,
           ctrlKey: scanCodeCombo.ctrlKey,
@@ -655,20 +600,14 @@ class MacLinuxKeyboardMapper {
         const outDispatchStr = resolvedKb.getDispatchChords()[0];
         const isWYSIWYG = resolvedKb ? resolvedKb.isWYSIWYG() : false;
         const outWYSIWYG = isWYSIWYG ? "       " : "   NO  ";
-        const kbCombos = this._scanCodeKeyCodeMapper.lookupScanCodeCombo(
-          scanCodeCombo
-        );
+        const kbCombos = this._scanCodeKeyCodeMapper.lookupScanCodeCombo(scanCodeCombo);
         if (kbCombos.length === 0) {
-          result.push(
-            `| ${this._leftPad(outScanCodeCombo, 30)} | ${outKey} | ${this._leftPad("", 25)} | ${this._leftPad("", 3)} | ${this._leftPad(outUILabel, 25)} | ${this._leftPad(outUserSettings, 30)} | ${this._leftPad(outElectronAccelerator, 25)} | ${this._leftPad(outDispatchStr, 30)} | ${outWYSIWYG} |`
-          );
+          result.push(`| ${this._leftPad(outScanCodeCombo, 30)} | ${outKey} | ${this._leftPad("", 25)} | ${this._leftPad("", 3)} | ${this._leftPad(outUILabel, 25)} | ${this._leftPad(outUserSettings, 30)} | ${this._leftPad(outElectronAccelerator, 25)} | ${this._leftPad(outDispatchStr, 30)} | ${outWYSIWYG} |`);
         } else {
           for (let i = 0, len = kbCombos.length; i < len; i++) {
             const kbCombo = kbCombos[i];
             let colPriority;
-            const scanCodeCombos = this._scanCodeKeyCodeMapper.lookupKeyCodeCombo(
-              kbCombo
-            );
+            const scanCodeCombos = this._scanCodeKeyCodeMapper.lookupKeyCodeCombo(kbCombo);
             if (scanCodeCombos.length === 1) {
               colPriority = "";
             } else {
@@ -683,20 +622,14 @@ class MacLinuxKeyboardMapper {
             }
             const outKeybinding = kbCombo.toString();
             if (i === 0) {
-              result.push(
-                `| ${this._leftPad(outScanCodeCombo, 30)} | ${outKey} | ${this._leftPad(outKeybinding, 25)} | ${this._leftPad(colPriority, 3)} | ${this._leftPad(outUILabel, 25)} | ${this._leftPad(outUserSettings, 30)} | ${this._leftPad(outElectronAccelerator, 25)} | ${this._leftPad(outDispatchStr, 30)} | ${outWYSIWYG} |`
-              );
+              result.push(`| ${this._leftPad(outScanCodeCombo, 30)} | ${outKey} | ${this._leftPad(outKeybinding, 25)} | ${this._leftPad(colPriority, 3)} | ${this._leftPad(outUILabel, 25)} | ${this._leftPad(outUserSettings, 30)} | ${this._leftPad(outElectronAccelerator, 25)} | ${this._leftPad(outDispatchStr, 30)} | ${outWYSIWYG} |`);
             } else {
-              result.push(
-                `| ${this._leftPad("", 30)} |       | ${this._leftPad(outKeybinding, 25)} | ${this._leftPad(colPriority, 3)} | ${this._leftPad("", 25)} | ${this._leftPad("", 30)} | ${this._leftPad("", 25)} | ${this._leftPad("", 30)} |         |`
-              );
+              result.push(`| ${this._leftPad("", 30)} |       | ${this._leftPad(outKeybinding, 25)} | ${this._leftPad(colPriority, 3)} | ${this._leftPad("", 25)} | ${this._leftPad("", 30)} | ${this._leftPad("", 25)} | ${this._leftPad("", 30)} |         |`);
             }
           }
         }
       }
-      result.push(
-        `----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`
-      );
+      result.push(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`);
     }
     return result.join("\n");
   }
@@ -711,34 +644,15 @@ class MacLinuxKeyboardMapper {
   }
   keyCodeChordToScanCodeChord(chord) {
     if (chord.keyCode === KeyCode.Enter) {
-      return [
-        new ScanCodeChord(
-          chord.ctrlKey,
-          chord.shiftKey,
-          chord.altKey,
-          chord.metaKey,
-          ScanCode.Enter
-        )
-      ];
+      return [new ScanCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, ScanCode.Enter)];
     }
     const scanCodeCombos = this._scanCodeKeyCodeMapper.lookupKeyCodeCombo(
-      new KeyCodeCombo(
-        chord.ctrlKey,
-        chord.shiftKey,
-        chord.altKey,
-        chord.keyCode
-      )
+      new KeyCodeCombo(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.keyCode)
     );
     const result = [];
     for (let i = 0, len = scanCodeCombos.length; i < len; i++) {
       const scanCodeCombo = scanCodeCombos[i];
-      result[i] = new ScanCodeChord(
-        scanCodeCombo.ctrlKey,
-        scanCodeCombo.shiftKey,
-        scanCodeCombo.altKey,
-        chord.metaKey,
-        scanCodeCombo.scanCode
-      );
+      result[i] = new ScanCodeChord(scanCodeCombo.ctrlKey, scanCodeCombo.shiftKey, scanCodeCombo.altKey, chord.metaKey, scanCodeCombo.scanCode);
     }
     return result;
   }
@@ -802,27 +716,15 @@ class MacLinuxKeyboardMapper {
     }
     const immutableKeyCode = IMMUTABLE_CODE_TO_KEY_CODE[chord.scanCode];
     if (immutableKeyCode !== KeyCode.DependsOnKbLayout) {
-      return KeyCodeUtils.toUserSettingsUS(
-        immutableKeyCode
-      ).toLowerCase();
+      return KeyCodeUtils.toUserSettingsUS(immutableKeyCode).toLowerCase();
     }
     const constantKeyCode = this._scanCodeKeyCodeMapper.guessStableKeyCode(chord.scanCode);
     if (constantKeyCode !== KeyCode.DependsOnKbLayout) {
-      const reverseChords = this.keyCodeChordToScanCodeChord(
-        new KeyCodeChord(
-          chord.ctrlKey,
-          chord.shiftKey,
-          chord.altKey,
-          chord.metaKey,
-          constantKeyCode
-        )
-      );
+      const reverseChords = this.keyCodeChordToScanCodeChord(new KeyCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, constantKeyCode));
       for (let i = 0, len = reverseChords.length; i < len; i++) {
         const reverseChord = reverseChords[i];
         if (reverseChord.scanCode === chord.scanCode) {
-          return KeyCodeUtils.toUserSettingsUS(
-            constantKeyCode
-          ).toLowerCase();
+          return KeyCodeUtils.toUserSettingsUS(constantKeyCode).toLowerCase();
         }
       }
     }
@@ -862,16 +764,9 @@ class MacLinuxKeyboardMapper {
     for (let i = 0, len = chordPart.length; i < len; i++) {
       const chords = [...previousParts, chordPart[i]];
       if (isFinalIndex) {
-        result.push(
-          new NativeResolvedKeybinding(this, this._OS, chords)
-        );
+        result.push(new NativeResolvedKeybinding(this, this._OS, chords));
       } else {
-        this._generateResolvedKeybindings(
-          chordParts,
-          currentIndex + 1,
-          chords,
-          result
-        );
+        this._generateResolvedKeybindings(chordParts, currentIndex + 1, chords, result);
       }
     }
   }
@@ -886,23 +781,19 @@ class MacLinuxKeyboardMapper {
       if (immutableScanCode !== ScanCode.DependsOnKbLayout) {
         code = immutableScanCode;
       }
-    } else if (code === ScanCode.Numpad1 || code === ScanCode.Numpad2 || code === ScanCode.Numpad3 || code === ScanCode.Numpad4 || code === ScanCode.Numpad5 || code === ScanCode.Numpad6 || code === ScanCode.Numpad7 || code === ScanCode.Numpad8 || code === ScanCode.Numpad9 || code === ScanCode.Numpad0 || code === ScanCode.NumpadDecimal) {
-      if (keyCode >= 0) {
-        const immutableScanCode = IMMUTABLE_KEY_CODE_TO_CODE[keyCode];
-        if (immutableScanCode !== ScanCode.DependsOnKbLayout) {
-          code = immutableScanCode;
+    } else {
+      if (code === ScanCode.Numpad1 || code === ScanCode.Numpad2 || code === ScanCode.Numpad3 || code === ScanCode.Numpad4 || code === ScanCode.Numpad5 || code === ScanCode.Numpad6 || code === ScanCode.Numpad7 || code === ScanCode.Numpad8 || code === ScanCode.Numpad9 || code === ScanCode.Numpad0 || code === ScanCode.NumpadDecimal) {
+        if (keyCode >= 0) {
+          const immutableScanCode = IMMUTABLE_KEY_CODE_TO_CODE[keyCode];
+          if (immutableScanCode !== ScanCode.DependsOnKbLayout) {
+            code = immutableScanCode;
+          }
         }
       }
     }
     const ctrlKey = keyboardEvent.ctrlKey || this._mapAltGrToCtrlAlt && keyboardEvent.altGraphKey;
     const altKey = keyboardEvent.altKey || this._mapAltGrToCtrlAlt && keyboardEvent.altGraphKey;
-    const chord = new ScanCodeChord(
-      ctrlKey,
-      keyboardEvent.shiftKey,
-      altKey,
-      keyboardEvent.metaKey,
-      code
-    );
+    const chord = new ScanCodeChord(ctrlKey, keyboardEvent.shiftKey, altKey, keyboardEvent.metaKey, code);
     return new NativeResolvedKeybinding(this, this._OS, [chord]);
   }
   _resolveChord(chord) {
@@ -915,9 +806,7 @@ class MacLinuxKeyboardMapper {
     return this.keyCodeChordToScanCodeChord(chord);
   }
   resolveKeybinding(keybinding) {
-    const chords = keybinding.chords.map(
-      (chord) => this._resolveChord(chord)
-    );
+    const chords = keybinding.chords.map((chord) => this._resolveChord(chord));
     return this._toResolvedKeybinding(chords);
   }
   static _redirectCharCode(charCode) {
@@ -986,15 +875,12 @@ class MacLinuxKeyboardMapper {
     return charCode;
   }
 }
-(() => {
+(function() {
   function define(charCode, keyCode, shiftKey) {
     for (let i = CHAR_CODE_TO_KEY_CODE.length; i < charCode; i++) {
       CHAR_CODE_TO_KEY_CODE[i] = null;
     }
-    CHAR_CODE_TO_KEY_CODE[charCode] = {
-      keyCode,
-      shiftKey
-    };
+    CHAR_CODE_TO_KEY_CODE[charCode] = { keyCode, shiftKey };
   }
   __name(define, "define");
   for (let chCode = CharCode.A; chCode <= CharCode.Z; chCode++) {

@@ -24,7 +24,7 @@ class LinkedText {
 __decorateClass([
   memoize
 ], LinkedText.prototype, "toString", 1);
-const LINK_REGEX = /\[([^\]]+)\]\(((?:https?:\/\/|command:|file:)[^)\s]+)(?: (["'])(.+?)(\3))?\)/gi;
+const LINK_REGEX = /\[([^\]]+)\]\(((?:https?:\/\/|command:|file:)[^\)\s]+)(?: (["'])(.+?)(\3))?\)/gi;
 function parseLinkedText(text) {
   const result = [];
   let index = 0;

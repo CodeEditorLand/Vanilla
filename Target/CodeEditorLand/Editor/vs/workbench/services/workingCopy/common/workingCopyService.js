@@ -1,44 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Disposable, IDisposable, toDisposable, DisposableStore, DisposableMap } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IWorkingCopy, IWorkingCopyIdentifier, IWorkingCopySaveEvent as IBaseWorkingCopySaveEvent } from "./workingCopy.js";
 const IWorkingCopyService = createDecorator("workingCopyService");
 class WorkingCopyService extends Disposable {
   static {
     __name(this, "WorkingCopyService");
   }
   //#region Events
-  _onDidRegister = this._register(
-    new Emitter()
-  );
+  _onDidRegister = this._register(new Emitter());
   onDidRegister = this._onDidRegister.event;
-  _onDidUnregister = this._register(
-    new Emitter()
-  );
+  _onDidUnregister = this._register(new Emitter());
   onDidUnregister = this._onDidUnregister.event;
-  _onDidChangeDirty = this._register(
-    new Emitter()
-  );
+  _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
   //#endregion
   //#region Registry
@@ -47,43 +30,22 @@ class WorkingCopyService extends Disposable {
   }
   _workingCopies = /* @__PURE__ */ new Set();
   mapResourceToWorkingCopies = new ResourceMap();
-  mapWorkingCopyToListeners = this._register(
-    new DisposableMap()
-  );
+  mapWorkingCopyToListeners = this._register(new DisposableMap());
   registerWorkingCopy(workingCopy) {
-    let workingCopiesForResource = this.mapResourceToWorkingCopies.get(
-      workingCopy.resource
-    );
+    let workingCopiesForResource = this.mapResourceToWorkingCopies.get(workingCopy.resource);
     if (workingCopiesForResource?.has(workingCopy.typeId)) {
-      throw new Error(
-        `Cannot register more than one working copy with the same resource ${workingCopy.resource.toString()} and type ${workingCopy.typeId}.`
-      );
+      throw new Error(`Cannot register more than one working copy with the same resource ${workingCopy.resource.toString()} and type ${workingCopy.typeId}.`);
     }
     this._workingCopies.add(workingCopy);
     if (!workingCopiesForResource) {
       workingCopiesForResource = /* @__PURE__ */ new Map();
-      this.mapResourceToWorkingCopies.set(
-        workingCopy.resource,
-        workingCopiesForResource
-      );
+      this.mapResourceToWorkingCopies.set(workingCopy.resource, workingCopiesForResource);
     }
     workingCopiesForResource.set(workingCopy.typeId, workingCopy);
     const disposables = new DisposableStore();
-    disposables.add(
-      workingCopy.onDidChangeContent(
-        () => this._onDidChangeContent.fire(workingCopy)
-      )
-    );
-    disposables.add(
-      workingCopy.onDidChangeDirty(
-        () => this._onDidChangeDirty.fire(workingCopy)
-      )
-    );
-    disposables.add(
-      workingCopy.onDidSave(
-        (e) => this._onDidSave.fire({ workingCopy, ...e })
-      )
-    );
+    disposables.add(workingCopy.onDidChangeContent(() => this._onDidChangeContent.fire(workingCopy)));
+    disposables.add(workingCopy.onDidChangeDirty(() => this._onDidChangeDirty.fire(workingCopy)));
+    disposables.add(workingCopy.onDidSave((e) => this._onDidSave.fire({ workingCopy, ...e })));
     this.mapWorkingCopyToListeners.set(workingCopy, disposables);
     this._onDidRegister.fire(workingCopy);
     if (workingCopy.isDirty()) {
@@ -96,9 +58,7 @@ class WorkingCopyService extends Disposable {
   }
   unregisterWorkingCopy(workingCopy) {
     this._workingCopies.delete(workingCopy);
-    const workingCopiesForResource = this.mapResourceToWorkingCopies.get(
-      workingCopy.resource
-    );
+    const workingCopiesForResource = this.mapResourceToWorkingCopies.get(workingCopy.resource);
     if (workingCopiesForResource?.delete(workingCopy.typeId) && workingCopiesForResource.size === 0) {
       this.mapResourceToWorkingCopies.delete(workingCopy.resource);
     }
@@ -143,9 +103,7 @@ class WorkingCopyService extends Disposable {
     return totalDirtyCount;
   }
   get dirtyWorkingCopies() {
-    return this.workingCopies.filter(
-      (workingCopy) => workingCopy.isDirty()
-    );
+    return this.workingCopies.filter((workingCopy) => workingCopy.isDirty());
   }
   get modifiedCount() {
     let totalModifiedCount = 0;
@@ -157,9 +115,7 @@ class WorkingCopyService extends Disposable {
     return totalModifiedCount;
   }
   get modifiedWorkingCopies() {
-    return this.workingCopies.filter(
-      (workingCopy) => workingCopy.isModified()
-    );
+    return this.workingCopies.filter((workingCopy) => workingCopy.isModified());
   }
   isDirty(resource, typeId) {
     const workingCopies = this.mapResourceToWorkingCopies.get(resource);
@@ -178,11 +134,7 @@ class WorkingCopyService extends Disposable {
   }
   //#endregion
 }
-registerSingleton(
-  IWorkingCopyService,
-  WorkingCopyService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkingCopyService, WorkingCopyService, InstantiationType.Delayed);
 export {
   IWorkingCopyService,
   WorkingCopyService

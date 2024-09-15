@@ -1,23 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../common/event.js";
-import { KeyCode } from "../../../common/keyCodes.js";
 import * as dom from "../../dom.js";
-import {
-  HistoryInputBox
-} from "../inputbox/inputBox.js";
+import { IKeyboardEvent } from "../../keyboardEvent.js";
+import { IMouseEvent } from "../../mouseEvent.js";
+import { IToggleStyles, Toggle } from "../toggle/toggle.js";
+import { IContextViewProvider } from "../contextview/contextview.js";
+import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from "./findInputToggles.js";
+import { HistoryInputBox, IInputBoxStyles, IInputValidator, IMessage as InputBoxMessage } from "../inputbox/inputBox.js";
 import { Widget } from "../widget.js";
-import {
-  CaseSensitiveToggle,
-  RegexToggle,
-  WholeWordsToggle
-} from "./findInputToggles.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { KeyCode } from "../../../common/keyCodes.js";
 import "./findInput.css";
 import * as nls from "../../../../nls.js";
-import {
-  DisposableStore,
-  MutableDisposable
-} from "../../../common/lifecycle.js";
+import { DisposableStore, MutableDisposable } from "../../../common/lifecycle.js";
 import { createInstantHoverDelegate } from "../hover/hoverDelegateFactory.js";
 const NLS_DEFAULT_LABEL = nls.localize("defaultLabel", "input");
 class FindInput extends Widget {
@@ -39,9 +34,7 @@ class FindInput extends Widget {
   additionalToggles = [];
   domNode;
   inputBox;
-  _onDidOptionChange = this._register(
-    new Emitter()
-  );
+  _onDidOptionChange = this._register(new Emitter());
   onDidOptionChange = this._onDidOptionChange.event;
   _onKeyDown = this._register(new Emitter());
   onKeyDown = this._onKeyDown.event;
@@ -51,9 +44,7 @@ class FindInput extends Widget {
   onInput = this._onInput.event;
   _onKeyUp = this._register(new Emitter());
   onKeyUp = this._onKeyUp.event;
-  _onCaseSensitiveKeyDown = this._register(
-    new Emitter()
-  );
+  _onCaseSensitiveKeyDown = this._register(new Emitter());
   onCaseSensitiveKeyDown = this._onCaseSensitiveKeyDown.event;
   _onRegexKeyDown = this._register(new Emitter());
   onRegexKeyDown = this._onRegexKeyDown.event;
@@ -72,94 +63,70 @@ class FindInput extends Widget {
     const flexibleMaxHeight = options.flexibleMaxHeight;
     this.domNode = document.createElement("div");
     this.domNode.classList.add("monaco-findInput");
-    this.inputBox = this._register(
-      new HistoryInputBox(this.domNode, contextViewProvider, {
-        placeholder: this.placeholder || "",
-        ariaLabel: this.label || "",
-        validationOptions: {
-          validation: this.validation
-        },
-        history,
-        showHistoryHint: options.showHistoryHint,
-        flexibleHeight,
-        flexibleWidth,
-        flexibleMaxHeight,
-        inputBoxStyles: options.inputBoxStyles
-      })
-    );
+    this.inputBox = this._register(new HistoryInputBox(this.domNode, contextViewProvider, {
+      placeholder: this.placeholder || "",
+      ariaLabel: this.label || "",
+      validationOptions: {
+        validation: this.validation
+      },
+      history,
+      showHistoryHint: options.showHistoryHint,
+      flexibleHeight,
+      flexibleWidth,
+      flexibleMaxHeight,
+      inputBoxStyles: options.inputBoxStyles
+    }));
     const hoverDelegate = this._register(createInstantHoverDelegate());
     if (this.showCommonFindToggles) {
-      this.regex = this._register(
-        new RegexToggle({
-          appendTitle: appendRegexLabel,
-          isChecked: false,
-          hoverDelegate,
-          ...options.toggleStyles
-        })
-      );
-      this._register(
-        this.regex.onChange((viaKeyboard) => {
-          this._onDidOptionChange.fire(viaKeyboard);
-          if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
-            this.inputBox.focus();
-          }
-          this.validate();
-        })
-      );
-      this._register(
-        this.regex.onKeyDown((e) => {
-          this._onRegexKeyDown.fire(e);
-        })
-      );
-      this.wholeWords = this._register(
-        new WholeWordsToggle({
-          appendTitle: appendWholeWordsLabel,
-          isChecked: false,
-          hoverDelegate,
-          ...options.toggleStyles
-        })
-      );
-      this._register(
-        this.wholeWords.onChange((viaKeyboard) => {
-          this._onDidOptionChange.fire(viaKeyboard);
-          if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
-            this.inputBox.focus();
-          }
-          this.validate();
-        })
-      );
-      this.caseSensitive = this._register(
-        new CaseSensitiveToggle({
-          appendTitle: appendCaseSensitiveLabel,
-          isChecked: false,
-          hoverDelegate,
-          ...options.toggleStyles
-        })
-      );
-      this._register(
-        this.caseSensitive.onChange((viaKeyboard) => {
-          this._onDidOptionChange.fire(viaKeyboard);
-          if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
-            this.inputBox.focus();
-          }
-          this.validate();
-        })
-      );
-      this._register(
-        this.caseSensitive.onKeyDown((e) => {
-          this._onCaseSensitiveKeyDown.fire(e);
-        })
-      );
-      const indexes = [
-        this.caseSensitive.domNode,
-        this.wholeWords.domNode,
-        this.regex.domNode
-      ];
+      this.regex = this._register(new RegexToggle({
+        appendTitle: appendRegexLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.regex.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this._register(this.regex.onKeyDown((e) => {
+        this._onRegexKeyDown.fire(e);
+      }));
+      this.wholeWords = this._register(new WholeWordsToggle({
+        appendTitle: appendWholeWordsLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.wholeWords.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this.caseSensitive = this._register(new CaseSensitiveToggle({
+        appendTitle: appendCaseSensitiveLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.caseSensitive.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this._register(this.caseSensitive.onKeyDown((e) => {
+        this._onCaseSensitiveKeyDown.fire(e);
+      }));
+      const indexes = [this.caseSensitive.domNode, this.wholeWords.domNode, this.regex.domNode];
       this.onkeydown(this.domNode, (event) => {
         if (event.equals(KeyCode.LeftArrow) || event.equals(KeyCode.RightArrow) || event.equals(KeyCode.Escape)) {
-          const index = indexes.indexOf(
-            this.domNode.ownerDocument.activeElement
-          );
+          const index = indexes.indexOf(this.domNode.ownerDocument.activeElement);
           if (index >= 0) {
             let newIndex = -1;
             if (event.equals(KeyCode.RightArrow)) {
@@ -199,35 +166,17 @@ class FindInput extends Widget {
       this.domNode.appendChild(this.controls);
     }
     parent?.appendChild(this.domNode);
-    this._register(
-      dom.addDisposableListener(
-        this.inputBox.inputElement,
-        "compositionstart",
-        (e) => {
-          this.imeSessionInProgress = true;
-        }
-      )
-    );
-    this._register(
-      dom.addDisposableListener(
-        this.inputBox.inputElement,
-        "compositionend",
-        (e) => {
-          this.imeSessionInProgress = false;
-          this._onInput.fire();
-        }
-      )
-    );
-    this.onkeydown(
-      this.inputBox.inputElement,
-      (e) => this._onKeyDown.fire(e)
-    );
+    this._register(dom.addDisposableListener(this.inputBox.inputElement, "compositionstart", (e) => {
+      this.imeSessionInProgress = true;
+    }));
+    this._register(dom.addDisposableListener(this.inputBox.inputElement, "compositionend", (e) => {
+      this.imeSessionInProgress = false;
+      this._onInput.fire();
+    }));
+    this.onkeydown(this.inputBox.inputElement, (e) => this._onKeyDown.fire(e));
     this.onkeyup(this.inputBox.inputElement, (e) => this._onKeyUp.fire(e));
     this.oninput(this.inputBox.inputElement, (e) => this._onInput.fire());
-    this.onmousedown(
-      this.inputBox.inputElement,
-      (e) => this._onMouseDown.fire(e)
-    );
+    this.onmousedown(this.inputBox.inputElement, (e) => this._onMouseDown.fire(e));
   }
   get isImeSessionInProgress() {
     return this.imeSessionInProgress;
@@ -278,14 +227,12 @@ class FindInput extends Widget {
     for (const toggle of toggles ?? []) {
       this.additionalTogglesDisposables.value.add(toggle);
       this.controls.appendChild(toggle.domNode);
-      this.additionalTogglesDisposables.value.add(
-        toggle.onChange((viaKeyboard) => {
-          this._onDidOptionChange.fire(viaKeyboard);
-          if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
-            this.inputBox.focus();
-          }
-        })
-      );
+      this.additionalTogglesDisposables.value.add(toggle.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+      }));
       this.additionalToggles.push(toggle);
     }
     if (this.additionalToggles.length > 0) {
@@ -355,13 +302,9 @@ class FindInput extends Widget {
   }
   _lastHighlightFindOptions = 0;
   highlightFindOptions() {
-    this.domNode.classList.remove(
-      "highlight-" + this._lastHighlightFindOptions
-    );
+    this.domNode.classList.remove("highlight-" + this._lastHighlightFindOptions);
     this._lastHighlightFindOptions = 1 - this._lastHighlightFindOptions;
-    this.domNode.classList.add(
-      "highlight-" + this._lastHighlightFindOptions
-    );
+    this.domNode.classList.add("highlight-" + this._lastHighlightFindOptions);
   }
   validate() {
     this.inputBox.validate();

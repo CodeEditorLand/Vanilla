@@ -10,19 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { matchesScheme } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IOpenerService
-} from "../../../../platform/opener/common/opener.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IURLService } from "../../../../platform/url/common/url.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { AbstractURLService } from "../../../../platform/url/common/urlService.js";
+import { Event } from "../../../../base/common/event.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IOpenerService, IOpener, OpenExternalOptions, OpenInternalOptions } from "../../../../platform/opener/common/opener.js";
+import { matchesScheme } from "../../../../base/common/network.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 class BrowserURLOpener {
   constructor(urlService, productService) {
     this.urlService = urlService;
@@ -53,17 +49,9 @@ let BrowserURLService = class extends AbstractURLService {
     super();
     this.provider = environmentService.options?.urlCallbackProvider;
     if (this.provider) {
-      this._register(
-        this.provider.onCallback(
-          (uri) => this.open(uri, { trusted: true })
-        )
-      );
+      this._register(this.provider.onCallback((uri) => this.open(uri, { trusted: true })));
     }
-    this._register(
-      openerService.registerOpener(
-        new BrowserURLOpener(this, productService)
-      )
-    );
+    this._register(openerService.registerOpener(new BrowserURLOpener(this, productService)));
   }
   create(options) {
     if (this.provider) {

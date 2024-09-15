@@ -1,14 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IBoundarySashes, Orientation } from "../sash/sash.js";
 import { equals, tail2 as tail } from "../../../common/arrays.js";
+import { Event } from "../../../common/event.js";
 import { Disposable } from "../../../common/lifecycle.js";
-import { Orientation } from "../sash/sash.js";
 import "./gridview.css";
-import {
-  GridView,
-  Sizing as GridViewSizing,
-  orthogonal
-} from "./gridview.js";
+import { Box, GridView, IGridViewOptions, IGridViewStyles, IView as IGridViewView, IViewSize, orthogonal, Sizing as GridViewSizing, GridLocation } from "./gridview.js";
 import { LayoutPriority, Orientation as Orientation2, orthogonal as orthogonal2 } from "./gridview.js";
 var Direction = /* @__PURE__ */ ((Direction2) => {
   Direction2[Direction2["Up"] = 0] = "Up";
@@ -319,11 +316,7 @@ class Grid extends Disposable {
       this.orientation = orientation;
     }
     const referenceLocation = this.getViewLocation(referenceView);
-    const location = getRelativeLocation(
-      this.gridview.orientation,
-      referenceLocation,
-      direction
-    );
+    const location = getRelativeLocation(this.gridview.orientation, referenceLocation, direction);
     let viewSize;
     if (typeof size === "number") {
       viewSize = size;
@@ -393,19 +386,12 @@ class Grid extends Disposable {
     const sourceLocation = this.getViewLocation(view);
     const [sourceParentLocation, from] = tail(sourceLocation);
     const referenceLocation = this.getViewLocation(referenceView);
-    const targetLocation = getRelativeLocation(
-      this.gridview.orientation,
-      referenceLocation,
-      direction
-    );
+    const targetLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, direction);
     const [targetParentLocation, to] = tail(targetLocation);
     if (equals(sourceParentLocation, targetParentLocation)) {
       this.gridview.moveView(sourceParentLocation, from, to);
     } else {
-      this.removeView(
-        view,
-        typeof sizing === "number" ? void 0 : sizing
-      );
+      this.removeView(view, typeof sizing === "number" ? void 0 : sizing);
       this.addView(view, sizing, referenceView, direction);
     }
   }
@@ -426,10 +412,7 @@ class Grid extends Disposable {
       this.gridview.moveView(sourceParentLocation, from, to);
     } else {
       const size = this.getViewSize(view);
-      const orientation = getLocationOrientation(
-        this.gridview.orientation,
-        sourceLocation
-      );
+      const orientation = getLocationOrientation(this.gridview.orientation, sourceLocation);
       const cachedViewSize = this.getViewCachedVisibleSize(view);
       const sizing = typeof cachedViewSize === "undefined" ? orientation === Orientation.HORIZONTAL ? size.width : size.height : Sizing.Invisible(cachedViewSize);
       this.removeView(view);
@@ -512,9 +495,7 @@ class Grid extends Disposable {
    */
   maximizeView(view) {
     if (this.views.size < 2) {
-      throw new Error(
-        "At least two views are required to maximize a view"
-      );
+      throw new Error("At least two views are required to maximize a view");
     }
     const location = this.getViewLocation(view);
     this.gridview.maximizeView(location);
@@ -581,26 +562,16 @@ class Grid extends Disposable {
     let boundary = getBoxBoundary(node.box, direction);
     if (wrap) {
       if (direction === 0 /* Up */ && node.box.top === 0) {
-        boundary = {
-          offset: root.box.top + root.box.height,
-          range: boundary.range
-        };
+        boundary = { offset: root.box.top + root.box.height, range: boundary.range };
       } else if (direction === 3 /* Right */ && node.box.left + node.box.width === root.box.width) {
         boundary = { offset: 0, range: boundary.range };
       } else if (direction === 1 /* Down */ && node.box.top + node.box.height === root.box.height) {
         boundary = { offset: 0, range: boundary.range };
       } else if (direction === 2 /* Left */ && node.box.left === 0) {
-        boundary = {
-          offset: root.box.left + root.box.width,
-          range: boundary.range
-        };
+        boundary = { offset: root.box.left + root.box.width, range: boundary.range };
       }
     }
-    return findAdjacentBoxLeafNodes(
-      root,
-      oppositeDirection(direction),
-      boundary
-    ).map((node2) => node2.view);
+    return findAdjacentBoxLeafNodes(root, oppositeDirection(direction), boundary).map((node2) => node2.view);
   }
   getViewLocation(view) {
     const element = this.views.get(view);
@@ -615,10 +586,7 @@ class Grid extends Disposable {
       if (isGridBranchNode(node)) {
         return false;
       }
-      const direction = getLocationOrientation(
-        this.orientation,
-        location2
-      );
+      const direction = getLocationOrientation(this.orientation, location2);
       const size = direction === Orientation.HORIZONTAL ? node.view.preferredWidth : node.view.preferredHeight;
       if (typeof size !== "number") {
         return false;
@@ -644,11 +612,7 @@ class SerializableGrid extends Grid {
   static serializeNode(node, orientation) {
     const size = orientation === Orientation.VERTICAL ? node.box.width : node.box.height;
     if (!isGridBranchNode(node)) {
-      const serializedLeafNode = {
-        type: "leaf",
-        data: node.view.toJSON(),
-        size
-      };
+      const serializedLeafNode = { type: "leaf", data: node.view.toJSON(), size };
       if (typeof node.cachedVisibleSize === "number") {
         serializedLeafNode.size = node.cachedVisibleSize;
         serializedLeafNode.visible = false;
@@ -657,9 +621,7 @@ class SerializableGrid extends Grid {
       }
       return serializedLeafNode;
     }
-    const data = node.children.map(
-      (c) => SerializableGrid.serializeNode(c, orthogonal(orientation))
-    );
+    const data = node.children.map((c) => SerializableGrid.serializeNode(c, orthogonal(orientation)));
     if (data.some((c) => c.visible !== false)) {
       return { type: "branch", data, size };
     }
@@ -674,15 +636,11 @@ class SerializableGrid extends Grid {
    */
   static deserialize(json, deserializer, options = {}) {
     if (typeof json.orientation !== "number") {
-      throw new Error(
-        "Invalid JSON: 'orientation' property must be a number."
-      );
+      throw new Error("Invalid JSON: 'orientation' property must be a number.");
     } else if (typeof json.width !== "number") {
       throw new Error("Invalid JSON: 'width' property must be a number.");
     } else if (typeof json.height !== "number") {
-      throw new Error(
-        "Invalid JSON: 'height' property must be a number."
-      );
+      throw new Error("Invalid JSON: 'height' property must be a number.");
     }
     const gridview = GridView.deserialize(json, deserializer, options);
     const result = new SerializableGrid(gridview, options);
@@ -695,11 +653,7 @@ class SerializableGrid extends Grid {
    * @returns A new {@link SerializableGrid} instance.
    */
   static from(gridDescriptor, options = {}) {
-    return SerializableGrid.deserialize(
-      createSerializedGrid(gridDescriptor),
-      { fromJSON: /* @__PURE__ */ __name((view) => view, "fromJSON") },
-      options
-    );
+    return SerializableGrid.deserialize(createSerializedGrid(gridDescriptor), { fromJSON: /* @__PURE__ */ __name((view) => view, "fromJSON") }, options);
   }
   /**
    * Useful information in order to proportionally restore view sizes
@@ -711,10 +665,7 @@ class SerializableGrid extends Grid {
    */
   serialize() {
     return {
-      root: SerializableGrid.serializeNode(
-        this.getViews(),
-        this.orientation
-      ),
+      root: SerializableGrid.serializeNode(this.getViews(), this.orientation),
       orientation: this.orientation,
       width: this.width,
       height: this.height
@@ -760,40 +711,22 @@ function sanitizeGridNodeDescriptor(nodeDescriptor, rootNode) {
 __name(sanitizeGridNodeDescriptor, "sanitizeGridNodeDescriptor");
 function createSerializedNode(nodeDescriptor) {
   if (isGridBranchNodeDescriptor(nodeDescriptor)) {
-    return {
-      type: "branch",
-      data: nodeDescriptor.groups.map((c) => createSerializedNode(c)),
-      size: nodeDescriptor.size
-    };
+    return { type: "branch", data: nodeDescriptor.groups.map((c) => createSerializedNode(c)), size: nodeDescriptor.size };
   } else {
-    return {
-      type: "leaf",
-      data: nodeDescriptor.data,
-      size: nodeDescriptor.size
-    };
+    return { type: "leaf", data: nodeDescriptor.data, size: nodeDescriptor.size };
   }
 }
 __name(createSerializedNode, "createSerializedNode");
 function getDimensions(node, orientation) {
   if (node.type === "branch") {
-    const childrenDimensions = node.data.map(
-      (c) => getDimensions(c, orthogonal(orientation))
-    );
+    const childrenDimensions = node.data.map((c) => getDimensions(c, orthogonal(orientation)));
     if (orientation === Orientation.VERTICAL) {
       const width = node.size || (childrenDimensions.length === 0 ? void 0 : Math.max(...childrenDimensions.map((d) => d.width || 0)));
-      const height = childrenDimensions.length === 0 ? void 0 : childrenDimensions.reduce(
-        (r, d) => r + (d.height || 0),
-        0
-      );
+      const height = childrenDimensions.length === 0 ? void 0 : childrenDimensions.reduce((r, d) => r + (d.height || 0), 0);
       return { width, height };
     } else {
-      const width = childrenDimensions.length === 0 ? void 0 : childrenDimensions.reduce(
-        (r, d) => r + (d.width || 0),
-        0
-      );
-      const height = node.size || (childrenDimensions.length === 0 ? void 0 : Math.max(
-        ...childrenDimensions.map((d) => d.height || 0)
-      ));
+      const width = childrenDimensions.length === 0 ? void 0 : childrenDimensions.reduce((r, d) => r + (d.width || 0), 0);
+      const height = node.size || (childrenDimensions.length === 0 ? void 0 : Math.max(...childrenDimensions.map((d) => d.height || 0)));
       return { width, height };
     }
   } else {

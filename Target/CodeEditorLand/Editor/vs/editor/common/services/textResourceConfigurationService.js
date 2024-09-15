@@ -10,15 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import {
-  ConfigurationTarget,
-  IConfigurationService
-} from "../../../platform/configuration/common/configuration.js";
-import { Position } from "../core/position.js";
+import { URI } from "../../../base/common/uri.js";
+import { IPosition, Position } from "../core/position.js";
 import { ILanguageService } from "../languages/language.js";
 import { IModelService } from "./model.js";
+import { ITextResourceConfigurationService, ITextResourceConfigurationChangeEvent } from "./textResourceConfiguration.js";
+import { IConfigurationService, ConfigurationTarget, IConfigurationValue, IConfigurationChangeEvent } from "../../../platform/configuration/common/configuration.js";
 let TextResourceConfigurationService = class extends Disposable {
   constructor(configurationService, modelService, languageService) {
     super();
@@ -35,37 +34,18 @@ let TextResourceConfigurationService = class extends Disposable {
   onDidChangeConfiguration = this._onDidChangeConfiguration.event;
   getValue(resource, arg2, arg3) {
     if (typeof arg3 === "string") {
-      return this._getValue(
-        resource,
-        Position.isIPosition(arg2) ? arg2 : null,
-        arg3
-      );
+      return this._getValue(resource, Position.isIPosition(arg2) ? arg2 : null, arg3);
     }
-    return this._getValue(
-      resource,
-      null,
-      typeof arg2 === "string" ? arg2 : void 0
-    );
+    return this._getValue(resource, null, typeof arg2 === "string" ? arg2 : void 0);
   }
   updateValue(resource, key, value, configurationTarget) {
     const language = this.getLanguage(resource, null);
-    const configurationValue = this.configurationService.inspect(key, {
-      resource,
-      overrideIdentifier: language
-    });
+    const configurationValue = this.configurationService.inspect(key, { resource, overrideIdentifier: language });
     if (configurationTarget === void 0) {
-      configurationTarget = this.deriveConfigurationTarget(
-        configurationValue,
-        language
-      );
+      configurationTarget = this.deriveConfigurationTarget(configurationValue, language);
     }
     const overrideIdentifier = language && configurationValue.overrideIdentifiers?.includes(language) ? language : void 0;
-    return this.configurationService.updateValue(
-      key,
-      value,
-      { resource, overrideIdentifier },
-      configurationTarget
-    );
+    return this.configurationService.updateValue(key, value, { resource, overrideIdentifier }, configurationTarget);
   }
   deriveConfigurationTarget(configurationValue, language) {
     if (language) {
@@ -102,44 +82,27 @@ let TextResourceConfigurationService = class extends Disposable {
   _getValue(resource, position, section) {
     const language = resource ? this.getLanguage(resource, position) : void 0;
     if (typeof section === "undefined") {
-      return this.configurationService.getValue({
-        resource,
-        overrideIdentifier: language
-      });
+      return this.configurationService.getValue({ resource, overrideIdentifier: language });
     }
-    return this.configurationService.getValue(section, {
-      resource,
-      overrideIdentifier: language
-    });
+    return this.configurationService.getValue(section, { resource, overrideIdentifier: language });
   }
   inspect(resource, position, section) {
     const language = resource ? this.getLanguage(resource, position) : void 0;
-    return this.configurationService.inspect(section, {
-      resource,
-      overrideIdentifier: language
-    });
+    return this.configurationService.inspect(section, { resource, overrideIdentifier: language });
   }
   getLanguage(resource, position) {
     const model = this.modelService.getModel(resource);
     if (model) {
-      return position ? model.getLanguageIdAtPosition(
-        position.lineNumber,
-        position.column
-      ) : model.getLanguageId();
+      return position ? model.getLanguageIdAtPosition(position.lineNumber, position.column) : model.getLanguageId();
     }
-    return this.languageService.guessLanguageIdByFilepathOrFirstLine(
-      resource
-    );
+    return this.languageService.guessLanguageIdByFilepathOrFirstLine(resource);
   }
   toResourceConfigurationChangeEvent(configurationChangeEvent) {
     return {
       affectedKeys: configurationChangeEvent.affectedKeys,
       affectsConfiguration: /* @__PURE__ */ __name((resource, configuration) => {
         const overrideIdentifier = resource ? this.getLanguage(resource, null) : void 0;
-        return configurationChangeEvent.affectsConfiguration(
-          configuration,
-          { resource, overrideIdentifier }
-        );
+        return configurationChangeEvent.affectsConfiguration(configuration, { resource, overrideIdentifier });
       }, "affectsConfiguration")
     };
   }

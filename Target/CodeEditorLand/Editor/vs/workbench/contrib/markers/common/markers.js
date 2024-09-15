@@ -25,46 +25,16 @@ var Markers;
 })(Markers || (Markers = {}));
 var MarkersContextKeys;
 ((MarkersContextKeys2) => {
-  MarkersContextKeys2.MarkersViewModeContextKey = new RawContextKey(
-    "problemsViewMode",
-    "tree" /* Tree */
-  );
-  MarkersContextKeys2.MarkersTreeVisibilityContextKey = new RawContextKey(
-    "problemsVisibility",
-    false
-  );
-  MarkersContextKeys2.MarkerFocusContextKey = new RawContextKey(
-    "problemFocus",
-    false
-  );
-  MarkersContextKeys2.MarkerViewFilterFocusContextKey = new RawContextKey(
-    "problemsFilterFocus",
-    false
-  );
-  MarkersContextKeys2.RelatedInformationFocusContextKey = new RawContextKey(
-    "relatedInformationFocus",
-    false
-  );
-  MarkersContextKeys2.ShowErrorsFilterContextKey = new RawContextKey(
-    "problems.filter.errors",
-    true
-  );
-  MarkersContextKeys2.ShowWarningsFilterContextKey = new RawContextKey(
-    "problems.filter.warnings",
-    true
-  );
-  MarkersContextKeys2.ShowInfoFilterContextKey = new RawContextKey(
-    "problems.filter.info",
-    true
-  );
-  MarkersContextKeys2.ShowActiveFileFilterContextKey = new RawContextKey(
-    "problems.filter.activeFile",
-    false
-  );
-  MarkersContextKeys2.ShowExcludedFilesFilterContextKey = new RawContextKey(
-    "problems.filter.excludedFiles",
-    true
-  );
+  MarkersContextKeys2.MarkersViewModeContextKey = new RawContextKey("problemsViewMode", "tree" /* Tree */);
+  MarkersContextKeys2.MarkersTreeVisibilityContextKey = new RawContextKey("problemsVisibility", false);
+  MarkersContextKeys2.MarkerFocusContextKey = new RawContextKey("problemFocus", false);
+  MarkersContextKeys2.MarkerViewFilterFocusContextKey = new RawContextKey("problemsFilterFocus", false);
+  MarkersContextKeys2.RelatedInformationFocusContextKey = new RawContextKey("relatedInformationFocus", false);
+  MarkersContextKeys2.ShowErrorsFilterContextKey = new RawContextKey("problems.filter.errors", true);
+  MarkersContextKeys2.ShowWarningsFilterContextKey = new RawContextKey("problems.filter.warnings", true);
+  MarkersContextKeys2.ShowInfoFilterContextKey = new RawContextKey("problems.filter.info", true);
+  MarkersContextKeys2.ShowActiveFileFilterContextKey = new RawContextKey("problems.filter.activeFile", false);
+  MarkersContextKeys2.ShowExcludedFilesFilterContextKey = new RawContextKey("problems.filter.excludedFiles", true);
 })(MarkersContextKeys || (MarkersContextKeys = {}));
 export {
   Markers,

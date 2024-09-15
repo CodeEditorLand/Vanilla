@@ -1,27 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { CharCode } from "../../../base/common/charCode.js";
-import {
-  isMarkdownString
-} from "../../../base/common/htmlContent.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { commonPrefixLength } from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  LinkComputer,
-  State,
-  StateMachine
-} from "../../../editor/common/languages/linkComputer.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { MainContext, IMainContext, ExtHostFileSystemShape, MainThreadFileSystemShape, IFileChangeDto } from "./extHost.protocol.js";
 import * as files from "../../../platform/files/common/files.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
-import * as typeConverter from "./extHostTypeConverters.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { FileChangeType } from "./extHostTypes.js";
+import * as typeConverter from "./extHostTypeConverters.js";
+import { ExtHostLanguageFeatures } from "./extHostLanguageFeatures.js";
+import { State, StateMachine, LinkComputer, Edge } from "../../../editor/common/languages/linkComputer.js";
+import { commonPrefixLength } from "../../../base/common/strings.js";
+import { CharCode } from "../../../base/common/charCode.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { IMarkdownString, isMarkdownString } from "../../../base/common/htmlContent.js";
 class FsLinkProvider {
   static {
     __name(this, "FsLinkProvider");
@@ -48,7 +40,7 @@ class FsLinkProvider {
       let lastState = State.LastKnownState;
       let nextState = State.LastKnownState;
       for (const scheme of schemes) {
-        let pos = prevScheme ? commonPrefixLength(prevScheme, scheme) : 0;
+        let pos = !prevScheme ? 0 : commonPrefixLength(prevScheme, scheme);
         if (pos === 0) {
           prevState = State.Start;
         } else {
@@ -61,16 +53,8 @@ class FsLinkProvider {
           } else {
             nextState += 1;
           }
-          edges.push([
-            prevState,
-            scheme.toUpperCase().charCodeAt(pos),
-            nextState
-          ]);
-          edges.push([
-            prevState,
-            scheme.toLowerCase().charCodeAt(pos),
-            nextState
-          ]);
+          edges.push([prevState, scheme.toUpperCase().charCodeAt(pos), nextState]);
+          edges.push([prevState, scheme.toLowerCase().charCodeAt(pos), nextState]);
           prevState = nextState;
         }
         prevScheme = scheme;
@@ -84,17 +68,14 @@ class FsLinkProvider {
   provideDocumentLinks(document) {
     this._initStateMachine();
     const result = [];
-    const links = LinkComputer.computeLinks(
-      {
-        getLineContent(lineNumber) {
-          return document.lineAt(lineNumber - 1).text;
-        },
-        getLineCount() {
-          return document.lineCount;
-        }
+    const links = LinkComputer.computeLinks({
+      getLineContent(lineNumber) {
+        return document.lineAt(lineNumber - 1).text;
       },
-      this._stateMachine
-    );
+      getLineCount() {
+        return document.lineCount;
+      }
+    }, this._stateMachine);
     for (const link of links) {
       const docLink = typeConverter.DocumentLink.to(link);
       if (docLink.target) {
@@ -125,16 +106,10 @@ class ExtHostFileSystem {
   registerFileSystemProvider(extension, scheme, provider, options = {}) {
     ExtHostFileSystem._validateFileSystemProvider(provider);
     if (this._registeredSchemes.has(scheme)) {
-      throw new Error(
-        `a provider for the scheme '${scheme}' is already registered`
-      );
+      throw new Error(`a provider for the scheme '${scheme}' is already registered`);
     }
     if (!this._linkProviderRegistration) {
-      this._linkProviderRegistration = this._extHostLanguageFeatures.registerDocumentLinkProvider(
-        extension,
-        "*",
-        this._linkProvider
-      );
+      this._linkProviderRegistration = this._extHostLanguageFeatures.registerDocumentLinkProvider(extension, "*", this._linkProvider);
     }
     const handle = this._handlePool++;
     this._linkProvider.add(scheme);
@@ -165,15 +140,8 @@ class ExtHostFileSystem {
         uris: options.isReadonly.uris
       };
     }
-    this._proxy.$registerFileSystemProvider(
-      handle,
-      scheme,
-      capabilities,
-      readOnlyMessage
-    ).catch((err) => {
-      console.error(
-        `FAILED to register filesystem provider of ${extension.identifier.value}-extension for the scheme ${scheme}`
-      );
+    this._proxy.$registerFileSystemProvider(handle, scheme, capabilities, readOnlyMessage).catch((err) => {
+      console.error(`FAILED to register filesystem provider of ${extension.identifier.value}-extension for the scheme ${scheme}`);
       console.error(err);
     });
     const subscription = provider.onDidChangeFile((event) => {
@@ -243,62 +211,35 @@ class ExtHostFileSystem {
     return { type, ctime, mtime, size, permissions };
   }
   $stat(handle, resource) {
-    return Promise.resolve(
-      this._getFsProvider(handle).stat(URI.revive(resource))
-    ).then((stat) => ExtHostFileSystem._asIStat(stat));
+    return Promise.resolve(this._getFsProvider(handle).stat(URI.revive(resource))).then((stat) => ExtHostFileSystem._asIStat(stat));
   }
   $readdir(handle, resource) {
-    return Promise.resolve(
-      this._getFsProvider(handle).readDirectory(URI.revive(resource))
-    );
+    return Promise.resolve(this._getFsProvider(handle).readDirectory(URI.revive(resource)));
   }
   $readFile(handle, resource) {
-    return Promise.resolve(
-      this._getFsProvider(handle).readFile(URI.revive(resource))
-    ).then((data) => VSBuffer.wrap(data));
+    return Promise.resolve(this._getFsProvider(handle).readFile(URI.revive(resource))).then((data) => VSBuffer.wrap(data));
   }
   $writeFile(handle, resource, content, opts) {
-    return Promise.resolve(
-      this._getFsProvider(handle).writeFile(
-        URI.revive(resource),
-        content.buffer,
-        opts
-      )
-    );
+    return Promise.resolve(this._getFsProvider(handle).writeFile(URI.revive(resource), content.buffer, opts));
   }
   $delete(handle, resource, opts) {
-    return Promise.resolve(
-      this._getFsProvider(handle).delete(URI.revive(resource), opts)
-    );
+    return Promise.resolve(this._getFsProvider(handle).delete(URI.revive(resource), opts));
   }
   $rename(handle, oldUri, newUri, opts) {
-    return Promise.resolve(
-      this._getFsProvider(handle).rename(
-        URI.revive(oldUri),
-        URI.revive(newUri),
-        opts
-      )
-    );
+    return Promise.resolve(this._getFsProvider(handle).rename(URI.revive(oldUri), URI.revive(newUri), opts));
   }
   $copy(handle, oldUri, newUri, opts) {
     const provider = this._getFsProvider(handle);
     if (!provider.copy) {
       throw new Error('FileSystemProvider does not implement "copy"');
     }
-    return Promise.resolve(
-      provider.copy(URI.revive(oldUri), URI.revive(newUri), opts)
-    );
+    return Promise.resolve(provider.copy(URI.revive(oldUri), URI.revive(newUri), opts));
   }
   $mkdir(handle, resource) {
-    return Promise.resolve(
-      this._getFsProvider(handle).createDirectory(URI.revive(resource))
-    );
+    return Promise.resolve(this._getFsProvider(handle).createDirectory(URI.revive(resource)));
   }
   $watch(handle, session, resource, opts) {
-    const subscription = this._getFsProvider(handle).watch(
-      URI.revive(resource),
-      opts
-    );
+    const subscription = this._getFsProvider(handle).watch(URI.revive(resource), opts);
     this._watches.set(session, subscription);
   }
   $unwatch(_handle, session) {
@@ -328,9 +269,7 @@ class ExtHostFileSystem {
       throw new Error('FileSystemProvider does not implement "read"');
     }
     const data = VSBuffer.alloc(length);
-    return Promise.resolve(
-      provider.read(fd, pos, data.buffer, 0, length)
-    ).then((read) => {
+    return Promise.resolve(provider.read(fd, pos, data.buffer, 0, length)).then((read) => {
       return data.slice(0, read);
     });
   }
@@ -339,9 +278,7 @@ class ExtHostFileSystem {
     if (!provider.write) {
       throw new Error('FileSystemProvider does not implement "write"');
     }
-    return Promise.resolve(
-      provider.write(fd, pos, data.buffer, 0, data.byteLength)
-    );
+    return Promise.resolve(provider.write(fd, pos, data.buffer, 0, data.byteLength));
   }
   _getFsProvider(handle) {
     const provider = this._fsProvider.get(handle);

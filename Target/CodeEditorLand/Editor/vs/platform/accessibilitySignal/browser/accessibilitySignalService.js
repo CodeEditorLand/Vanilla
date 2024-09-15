@@ -12,16 +12,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CachedFunction } from "../../../base/common/cache.js";
 import { getStructuralKey } from "../../../base/common/equals.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Event, IValueWithChangeEvent } from "../../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { FileAccess } from "../../../base/common/network.js";
-import {
-  ValueWithChangeEventFromObservable,
-  derived,
-  observableFromEvent
-} from "../../../base/common/observable.js";
+import { derived, observableFromEvent, ValueWithChangeEventFromObservable } from "../../../base/common/observable.js";
 import { localize } from "../../../nls.js";
 import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
@@ -29,9 +23,7 @@ import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { observableConfigValue } from "../../observable/common/platformObservableUtils.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 const IAccessibilitySignalService = createDecorator("accessibilitySignalService");
-const AcknowledgeDocCommentsToken = Symbol(
-  "AcknowledgeDocCommentsToken"
-);
+const AcknowledgeDocCommentsToken = Symbol("AcknowledgeDocCommentsToken");
 let AccessibilitySignalService = class extends Disposable {
   constructor(configurationService, accessibilityService, telemetryService) {
     super();
@@ -54,9 +46,7 @@ let AccessibilitySignalService = class extends Disposable {
   );
   sentTelemetry = /* @__PURE__ */ new Set();
   getEnabledState(signal, userGesture, modality) {
-    return new ValueWithChangeEventFromObservable(
-      this._signalEnabledState.get({ signal, userGesture, modality })
-    );
+    return new ValueWithChangeEventFromObservable(this._signalEnabledState.get({ signal, userGesture, modality }));
   }
   async playSignal(signal, options = {}) {
     const shouldPlayAnnouncement = options.modality === "announcement" || options.modality === void 0;
@@ -67,30 +57,20 @@ let AccessibilitySignalService = class extends Disposable {
     const shouldPlaySound = options.modality === "sound" || options.modality === void 0;
     if (shouldPlaySound && this.isSoundEnabled(signal, options.userGesture)) {
       this.sendSignalTelemetry(signal, options.source);
-      await this.playSound(
-        signal.sound.getSound(),
-        options.allowManyInParallel
-      );
+      await this.playSound(signal.sound.getSound(), options.allowManyInParallel);
     }
   }
   async playSignals(signals) {
     for (const signal of signals) {
-      this.sendSignalTelemetry(
-        "signal" in signal ? signal.signal : signal,
-        "source" in signal ? signal.source : void 0
-      );
+      this.sendSignalTelemetry("signal" in signal ? signal.signal : signal, "source" in signal ? signal.source : void 0);
     }
     const signalArray = signals.map((s) => "signal" in s ? s.signal : s);
     const announcements = signalArray.filter((signal) => this.isAnnouncementEnabled(signal)).map((s) => s.announcementMessage);
     if (announcements.length) {
       this.accessibilityService.status(announcements.join(", "));
     }
-    const sounds = new Set(
-      signalArray.filter((signal) => this.isSoundEnabled(signal)).map((signal) => signal.sound.getSound())
-    );
-    await Promise.all(
-      Array.from(sounds).map((sound) => this.playSound(sound, true))
-    );
+    const sounds = new Set(signalArray.filter((signal) => this.isSoundEnabled(signal)).map((signal) => signal.sound.getSound()));
+    await Promise.all(Array.from(sounds).map((sound) => this.playSound(sound, true)));
   }
   sendSignalTelemetry(signal, source) {
     const isScreenReaderOptimized = this.accessibilityService.isScreenReaderOptimized();
@@ -106,9 +86,7 @@ let AccessibilitySignalService = class extends Disposable {
     });
   }
   getVolumeInPercent() {
-    const volume = this.configurationService.getValue(
-      "accessibility.signalOptions.volume"
-    );
+    const volume = this.configurationService.getValue("accessibility.signalOptions.volume");
     if (typeof volume !== "number") {
       return 50;
     }
@@ -120,9 +98,7 @@ let AccessibilitySignalService = class extends Disposable {
       return;
     }
     this.playingSounds.add(sound);
-    const url = FileAccess.asBrowserUri(
-      `vs/platform/accessibilitySignal/browser/media/${sound.fileName}`
-    ).toString(true);
+    const url = FileAccess.asBrowserUri(`vs/platform/accessibilitySignal/browser/media/${sound.fileName}`).toString(true);
     try {
       const sound2 = this.sounds.get(url);
       if (sound2) {
@@ -130,16 +106,11 @@ let AccessibilitySignalService = class extends Disposable {
         sound2.currentTime = 0;
         await sound2.play();
       } else {
-        const playedSound = await playAudio(
-          url,
-          this.getVolumeInPercent() / 100
-        );
+        const playedSound = await playAudio(url, this.getVolumeInPercent() / 100);
         this.sounds.set(url, playedSound);
       }
     } catch (e) {
-      if (!e.message.includes(
-        "play() can only be initiated by a user gesture"
-      )) {
+      if (!e.message.includes("play() can only be initiated by a user gesture")) {
         console.error("Error while playing sound", e);
       }
     } finally {
@@ -150,47 +121,31 @@ let AccessibilitySignalService = class extends Disposable {
     let playing = true;
     const playSound = /* @__PURE__ */ __name(() => {
       if (playing) {
-        this.playSignal(signal, { allowManyInParallel: true }).finally(
-          () => {
-            setTimeout(() => {
-              if (playing) {
-                playSound();
-              }
-            }, milliseconds);
-          }
-        );
+        this.playSignal(signal, { allowManyInParallel: true }).finally(() => {
+          setTimeout(() => {
+            if (playing) {
+              playSound();
+            }
+          }, milliseconds);
+        });
       }
     }, "playSound");
     playSound();
     return toDisposable(() => playing = false);
   }
-  _signalConfigValue = new CachedFunction(
-    (signal) => observableConfigValue(
-      signal.settingsKey,
-      { sound: "off", announcement: "off" },
-      this.configurationService
-    )
-  );
+  _signalConfigValue = new CachedFunction((signal) => observableConfigValue(signal.settingsKey, { sound: "off", announcement: "off" }, this.configurationService));
   _signalEnabledState = new CachedFunction(
     { getCacheKey: getStructuralKey },
     (arg) => {
       return derived((reader) => {
         const setting = this._signalConfigValue.get(arg.signal).read(reader);
         if (arg.modality === "sound" || arg.modality === void 0) {
-          if (checkEnabledState(
-            setting.sound,
-            () => this.screenReaderAttached.read(reader),
-            arg.userGesture
-          )) {
+          if (checkEnabledState(setting.sound, () => this.screenReaderAttached.read(reader), arg.userGesture)) {
             return true;
           }
         }
         if (arg.modality === "announcement" || arg.modality === void 0) {
-          if (checkEnabledState(
-            setting.announcement,
-            () => this.screenReaderAttached.read(reader),
-            arg.userGesture
-          )) {
+          if (checkEnabledState(setting.announcement, () => this.screenReaderAttached.read(reader), arg.userGesture)) {
             return true;
           }
         }
@@ -202,11 +157,7 @@ let AccessibilitySignalService = class extends Disposable {
     if (!signal.announcementMessage) {
       return false;
     }
-    return this._signalEnabledState.get({
-      signal,
-      userGesture: !!userGesture,
-      modality: "announcement"
-    }).get();
+    return this._signalEnabledState.get({ signal, userGesture: !!userGesture, modality: "announcement" }).get();
   }
   isSoundEnabled(signal, userGesture) {
     return this._signalEnabledState.get({ signal, userGesture: !!userGesture, modality: "sound" }).get();
@@ -215,24 +166,16 @@ let AccessibilitySignalService = class extends Disposable {
     return this.getEnabledState(signal, false).onDidChange;
   }
   getDelayMs(signal, modality, mode) {
-    if (!this.configurationService.getValue(
-      "accessibility.signalOptions.debouncePositionChanges"
-    )) {
+    if (!this.configurationService.getValue("accessibility.signalOptions.debouncePositionChanges")) {
       return 0;
     }
     let value;
     if (signal.name === AccessibilitySignal.errorAtPosition.name && mode === "positional") {
-      value = this.configurationService.getValue(
-        "accessibility.signalOptions.experimental.delays.errorAtPosition"
-      );
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.errorAtPosition");
     } else if (signal.name === AccessibilitySignal.warningAtPosition.name && mode === "positional") {
-      value = this.configurationService.getValue(
-        "accessibility.signalOptions.experimental.delays.warningAtPosition"
-      );
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.warningAtPosition");
     } else {
-      value = this.configurationService.getValue(
-        "accessibility.signalOptions.experimental.delays.general"
-      );
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.general");
     }
     return modality === "sound" ? value.sound : value.announcement;
   }
@@ -274,64 +217,28 @@ class Sound {
     return sound;
   }
   static error = Sound.register({ fileName: "error.mp3" });
-  static warning = Sound.register({
-    fileName: "warning.mp3"
-  });
-  static success = Sound.register({
-    fileName: "success.mp3"
-  });
-  static foldedArea = Sound.register({
-    fileName: "foldedAreas.mp3"
-  });
+  static warning = Sound.register({ fileName: "warning.mp3" });
+  static success = Sound.register({ fileName: "success.mp3" });
+  static foldedArea = Sound.register({ fileName: "foldedAreas.mp3" });
   static break = Sound.register({ fileName: "break.mp3" });
-  static quickFixes = Sound.register({
-    fileName: "quickFixes.mp3"
-  });
-  static taskCompleted = Sound.register({
-    fileName: "taskCompleted.mp3"
-  });
-  static taskFailed = Sound.register({
-    fileName: "taskFailed.mp3"
-  });
-  static terminalBell = Sound.register({
-    fileName: "terminalBell.mp3"
-  });
-  static diffLineInserted = Sound.register({
-    fileName: "diffLineInserted.mp3"
-  });
-  static diffLineDeleted = Sound.register({
-    fileName: "diffLineDeleted.mp3"
-  });
-  static diffLineModified = Sound.register({
-    fileName: "diffLineModified.mp3"
-  });
-  static chatRequestSent = Sound.register({
-    fileName: "chatRequestSent.mp3"
-  });
-  static chatResponseReceived1 = Sound.register({
-    fileName: "chatResponseReceived1.mp3"
-  });
-  static chatResponseReceived2 = Sound.register({
-    fileName: "chatResponseReceived2.mp3"
-  });
-  static chatResponseReceived3 = Sound.register({
-    fileName: "chatResponseReceived3.mp3"
-  });
-  static chatResponseReceived4 = Sound.register({
-    fileName: "chatResponseReceived4.mp3"
-  });
+  static quickFixes = Sound.register({ fileName: "quickFixes.mp3" });
+  static taskCompleted = Sound.register({ fileName: "taskCompleted.mp3" });
+  static taskFailed = Sound.register({ fileName: "taskFailed.mp3" });
+  static terminalBell = Sound.register({ fileName: "terminalBell.mp3" });
+  static diffLineInserted = Sound.register({ fileName: "diffLineInserted.mp3" });
+  static diffLineDeleted = Sound.register({ fileName: "diffLineDeleted.mp3" });
+  static diffLineModified = Sound.register({ fileName: "diffLineModified.mp3" });
+  static chatRequestSent = Sound.register({ fileName: "chatRequestSent.mp3" });
+  static chatResponseReceived1 = Sound.register({ fileName: "chatResponseReceived1.mp3" });
+  static chatResponseReceived2 = Sound.register({ fileName: "chatResponseReceived2.mp3" });
+  static chatResponseReceived3 = Sound.register({ fileName: "chatResponseReceived3.mp3" });
+  static chatResponseReceived4 = Sound.register({ fileName: "chatResponseReceived4.mp3" });
   static clear = Sound.register({ fileName: "clear.mp3" });
   static save = Sound.register({ fileName: "save.mp3" });
   static format = Sound.register({ fileName: "format.mp3" });
-  static voiceRecordingStarted = Sound.register({
-    fileName: "voiceRecordingStarted.mp3"
-  });
-  static voiceRecordingStopped = Sound.register({
-    fileName: "voiceRecordingStopped.mp3"
-  });
-  static progress = Sound.register({
-    fileName: "progress.mp3"
-  });
+  static voiceRecordingStarted = Sound.register({ fileName: "voiceRecordingStarted.mp3" });
+  static voiceRecordingStopped = Sound.register({ fileName: "voiceRecordingStopped.mp3" });
+  static progress = Sound.register({ fileName: "progress.mp3" });
 }
 class SoundSource {
   constructor(randomOneOf) {
@@ -363,9 +270,7 @@ class AccessibilitySignal {
   }
   static _signals = /* @__PURE__ */ new Set();
   static register(options) {
-    const soundSource = new SoundSource(
-      "randomOneOf" in options.sound ? options.sound.randomOneOf : [options.sound]
-    );
+    const soundSource = new SoundSource("randomOneOf" in options.sound ? options.sound.randomOneOf : [options.sound]);
     const signal = new AccessibilitySignal(
       soundSource,
       options.name,
@@ -381,136 +286,79 @@ class AccessibilitySignal {
     return [...this._signals];
   }
   static errorAtPosition = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.positionHasError.name",
-      "Error at Position"
-    ),
+    name: localize("accessibilitySignals.positionHasError.name", "Error at Position"),
     sound: Sound.error,
-    announcementMessage: localize(
-      "accessibility.signals.positionHasError",
-      "Error"
-    ),
+    announcementMessage: localize("accessibility.signals.positionHasError", "Error"),
     settingsKey: "accessibility.signals.positionHasError",
     delaySettingsKey: "accessibility.signalOptions.delays.errorAtPosition"
   });
   static warningAtPosition = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.positionHasWarning.name",
-      "Warning at Position"
-    ),
+    name: localize("accessibilitySignals.positionHasWarning.name", "Warning at Position"),
     sound: Sound.warning,
-    announcementMessage: localize(
-      "accessibility.signals.positionHasWarning",
-      "Warning"
-    ),
+    announcementMessage: localize("accessibility.signals.positionHasWarning", "Warning"),
     settingsKey: "accessibility.signals.positionHasWarning",
     delaySettingsKey: "accessibility.signalOptions.delays.warningAtPosition"
   });
   static errorOnLine = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.lineHasError.name",
-      "Error on Line"
-    ),
+    name: localize("accessibilitySignals.lineHasError.name", "Error on Line"),
     sound: Sound.error,
     legacySoundSettingsKey: "audioCues.lineHasError",
     legacyAnnouncementSettingsKey: "accessibility.alert.error",
-    announcementMessage: localize(
-      "accessibility.signals.lineHasError",
-      "Error on Line"
-    ),
+    announcementMessage: localize("accessibility.signals.lineHasError", "Error on Line"),
     settingsKey: "accessibility.signals.lineHasError"
   });
   static warningOnLine = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.lineHasWarning.name",
-      "Warning on Line"
-    ),
+    name: localize("accessibilitySignals.lineHasWarning.name", "Warning on Line"),
     sound: Sound.warning,
     legacySoundSettingsKey: "audioCues.lineHasWarning",
     legacyAnnouncementSettingsKey: "accessibility.alert.warning",
-    announcementMessage: localize(
-      "accessibility.signals.lineHasWarning",
-      "Warning on Line"
-    ),
+    announcementMessage: localize("accessibility.signals.lineHasWarning", "Warning on Line"),
     settingsKey: "accessibility.signals.lineHasWarning"
   });
   static foldedArea = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.lineHasFoldedArea.name",
-      "Folded Area on Line"
-    ),
+    name: localize("accessibilitySignals.lineHasFoldedArea.name", "Folded Area on Line"),
     sound: Sound.foldedArea,
     legacySoundSettingsKey: "audioCues.lineHasFoldedArea",
     legacyAnnouncementSettingsKey: "accessibility.alert.foldedArea",
-    announcementMessage: localize(
-      "accessibility.signals.lineHasFoldedArea",
-      "Folded"
-    ),
+    announcementMessage: localize("accessibility.signals.lineHasFoldedArea", "Folded"),
     settingsKey: "accessibility.signals.lineHasFoldedArea"
   });
   static break = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.lineHasBreakpoint.name",
-      "Breakpoint on Line"
-    ),
+    name: localize("accessibilitySignals.lineHasBreakpoint.name", "Breakpoint on Line"),
     sound: Sound.break,
     legacySoundSettingsKey: "audioCues.lineHasBreakpoint",
     legacyAnnouncementSettingsKey: "accessibility.alert.breakpoint",
-    announcementMessage: localize(
-      "accessibility.signals.lineHasBreakpoint",
-      "Breakpoint"
-    ),
+    announcementMessage: localize("accessibility.signals.lineHasBreakpoint", "Breakpoint"),
     settingsKey: "accessibility.signals.lineHasBreakpoint"
   });
   static inlineSuggestion = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.lineHasInlineSuggestion.name",
-      "Inline Suggestion on Line"
-    ),
+    name: localize("accessibilitySignals.lineHasInlineSuggestion.name", "Inline Suggestion on Line"),
     sound: Sound.quickFixes,
     legacySoundSettingsKey: "audioCues.lineHasInlineSuggestion",
     settingsKey: "accessibility.signals.lineHasInlineSuggestion"
   });
   static terminalQuickFix = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.terminalQuickFix.name",
-      "Terminal Quick Fix"
-    ),
+    name: localize("accessibilitySignals.terminalQuickFix.name", "Terminal Quick Fix"),
     sound: Sound.quickFixes,
     legacySoundSettingsKey: "audioCues.terminalQuickFix",
     legacyAnnouncementSettingsKey: "accessibility.alert.terminalQuickFix",
-    announcementMessage: localize(
-      "accessibility.signals.terminalQuickFix",
-      "Quick Fix"
-    ),
+    announcementMessage: localize("accessibility.signals.terminalQuickFix", "Quick Fix"),
     settingsKey: "accessibility.signals.terminalQuickFix"
   });
   static onDebugBreak = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.onDebugBreak.name",
-      "Debugger Stopped on Breakpoint"
-    ),
+    name: localize("accessibilitySignals.onDebugBreak.name", "Debugger Stopped on Breakpoint"),
     sound: Sound.break,
     legacySoundSettingsKey: "audioCues.onDebugBreak",
     legacyAnnouncementSettingsKey: "accessibility.alert.onDebugBreak",
-    announcementMessage: localize(
-      "accessibility.signals.onDebugBreak",
-      "Breakpoint"
-    ),
+    announcementMessage: localize("accessibility.signals.onDebugBreak", "Breakpoint"),
     settingsKey: "accessibility.signals.onDebugBreak"
   });
   static noInlayHints = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.noInlayHints",
-      "No Inlay Hints on Line"
-    ),
+    name: localize("accessibilitySignals.noInlayHints", "No Inlay Hints on Line"),
     sound: Sound.error,
     legacySoundSettingsKey: "audioCues.noInlayHints",
     legacyAnnouncementSettingsKey: "accessibility.alert.noInlayHints",
-    announcementMessage: localize(
-      "accessibility.signals.noInlayHints",
-      "No Inlay Hints"
-    ),
+    announcementMessage: localize("accessibility.signals.noInlayHints", "No Inlay Hints"),
     settingsKey: "accessibility.signals.noInlayHints"
   });
   static taskCompleted = AccessibilitySignal.register({
@@ -518,10 +366,7 @@ class AccessibilitySignal {
     sound: Sound.taskCompleted,
     legacySoundSettingsKey: "audioCues.taskCompleted",
     legacyAnnouncementSettingsKey: "accessibility.alert.taskCompleted",
-    announcementMessage: localize(
-      "accessibility.signals.taskCompleted",
-      "Task Completed"
-    ),
+    announcementMessage: localize("accessibility.signals.taskCompleted", "Task Completed"),
     settingsKey: "accessibility.signals.taskCompleted"
   });
   static taskFailed = AccessibilitySignal.register({
@@ -529,38 +374,21 @@ class AccessibilitySignal {
     sound: Sound.taskFailed,
     legacySoundSettingsKey: "audioCues.taskFailed",
     legacyAnnouncementSettingsKey: "accessibility.alert.taskFailed",
-    announcementMessage: localize(
-      "accessibility.signals.taskFailed",
-      "Task Failed"
-    ),
+    announcementMessage: localize("accessibility.signals.taskFailed", "Task Failed"),
     settingsKey: "accessibility.signals.taskFailed"
   });
-  static terminalCommandFailed = AccessibilitySignal.register(
-    {
-      name: localize(
-        "accessibilitySignals.terminalCommandFailed",
-        "Terminal Command Failed"
-      ),
-      sound: Sound.error,
-      legacySoundSettingsKey: "audioCues.terminalCommandFailed",
-      legacyAnnouncementSettingsKey: "accessibility.alert.terminalCommandFailed",
-      announcementMessage: localize(
-        "accessibility.signals.terminalCommandFailed",
-        "Command Failed"
-      ),
-      settingsKey: "accessibility.signals.terminalCommandFailed"
-    }
-  );
+  static terminalCommandFailed = AccessibilitySignal.register({
+    name: localize("accessibilitySignals.terminalCommandFailed", "Terminal Command Failed"),
+    sound: Sound.error,
+    legacySoundSettingsKey: "audioCues.terminalCommandFailed",
+    legacyAnnouncementSettingsKey: "accessibility.alert.terminalCommandFailed",
+    announcementMessage: localize("accessibility.signals.terminalCommandFailed", "Command Failed"),
+    settingsKey: "accessibility.signals.terminalCommandFailed"
+  });
   static terminalCommandSucceeded = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.terminalCommandSucceeded",
-      "Terminal Command Succeeded"
-    ),
+    name: localize("accessibilitySignals.terminalCommandSucceeded", "Terminal Command Succeeded"),
     sound: Sound.success,
-    announcementMessage: localize(
-      "accessibility.signals.terminalCommandSucceeded",
-      "Command Succeeded"
-    ),
+    announcementMessage: localize("accessibility.signals.terminalCommandSucceeded", "Command Succeeded"),
     settingsKey: "accessibility.signals.terminalCommandSucceeded"
   });
   static terminalBell = AccessibilitySignal.register({
@@ -568,88 +396,53 @@ class AccessibilitySignal {
     sound: Sound.terminalBell,
     legacySoundSettingsKey: "audioCues.terminalBell",
     legacyAnnouncementSettingsKey: "accessibility.alert.terminalBell",
-    announcementMessage: localize(
-      "accessibility.signals.terminalBell",
-      "Terminal Bell"
-    ),
+    announcementMessage: localize("accessibility.signals.terminalBell", "Terminal Bell"),
     settingsKey: "accessibility.signals.terminalBell"
   });
-  static notebookCellCompleted = AccessibilitySignal.register(
-    {
-      name: localize(
-        "accessibilitySignals.notebookCellCompleted",
-        "Notebook Cell Completed"
-      ),
-      sound: Sound.taskCompleted,
-      legacySoundSettingsKey: "audioCues.notebookCellCompleted",
-      legacyAnnouncementSettingsKey: "accessibility.alert.notebookCellCompleted",
-      announcementMessage: localize(
-        "accessibility.signals.notebookCellCompleted",
-        "Notebook Cell Completed"
-      ),
-      settingsKey: "accessibility.signals.notebookCellCompleted"
-    }
-  );
+  static notebookCellCompleted = AccessibilitySignal.register({
+    name: localize("accessibilitySignals.notebookCellCompleted", "Notebook Cell Completed"),
+    sound: Sound.taskCompleted,
+    legacySoundSettingsKey: "audioCues.notebookCellCompleted",
+    legacyAnnouncementSettingsKey: "accessibility.alert.notebookCellCompleted",
+    announcementMessage: localize("accessibility.signals.notebookCellCompleted", "Notebook Cell Completed"),
+    settingsKey: "accessibility.signals.notebookCellCompleted"
+  });
   static notebookCellFailed = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.notebookCellFailed",
-      "Notebook Cell Failed"
-    ),
+    name: localize("accessibilitySignals.notebookCellFailed", "Notebook Cell Failed"),
     sound: Sound.taskFailed,
     legacySoundSettingsKey: "audioCues.notebookCellFailed",
     legacyAnnouncementSettingsKey: "accessibility.alert.notebookCellFailed",
-    announcementMessage: localize(
-      "accessibility.signals.notebookCellFailed",
-      "Notebook Cell Failed"
-    ),
+    announcementMessage: localize("accessibility.signals.notebookCellFailed", "Notebook Cell Failed"),
     settingsKey: "accessibility.signals.notebookCellFailed"
   });
   static diffLineInserted = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.diffLineInserted",
-      "Diff Line Inserted"
-    ),
+    name: localize("accessibilitySignals.diffLineInserted", "Diff Line Inserted"),
     sound: Sound.diffLineInserted,
     legacySoundSettingsKey: "audioCues.diffLineInserted",
     settingsKey: "accessibility.signals.diffLineInserted"
   });
   static diffLineDeleted = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.diffLineDeleted",
-      "Diff Line Deleted"
-    ),
+    name: localize("accessibilitySignals.diffLineDeleted", "Diff Line Deleted"),
     sound: Sound.diffLineDeleted,
     legacySoundSettingsKey: "audioCues.diffLineDeleted",
     settingsKey: "accessibility.signals.diffLineDeleted"
   });
   static diffLineModified = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.diffLineModified",
-      "Diff Line Modified"
-    ),
+    name: localize("accessibilitySignals.diffLineModified", "Diff Line Modified"),
     sound: Sound.diffLineModified,
     legacySoundSettingsKey: "audioCues.diffLineModified",
     settingsKey: "accessibility.signals.diffLineModified"
   });
   static chatRequestSent = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.chatRequestSent",
-      "Chat Request Sent"
-    ),
+    name: localize("accessibilitySignals.chatRequestSent", "Chat Request Sent"),
     sound: Sound.chatRequestSent,
     legacySoundSettingsKey: "audioCues.chatRequestSent",
     legacyAnnouncementSettingsKey: "accessibility.alert.chatRequestSent",
-    announcementMessage: localize(
-      "accessibility.signals.chatRequestSent",
-      "Chat Request Sent"
-    ),
+    announcementMessage: localize("accessibility.signals.chatRequestSent", "Chat Request Sent"),
     settingsKey: "accessibility.signals.chatRequestSent"
   });
   static chatResponseReceived = AccessibilitySignal.register({
-    name: localize(
-      "accessibilitySignals.chatResponseReceived",
-      "Chat Response Received"
-    ),
+    name: localize("accessibilitySignals.chatResponseReceived", "Chat Response Received"),
     legacySoundSettingsKey: "audioCues.chatResponseReceived",
     sound: {
       randomOneOf: [
@@ -666,10 +459,7 @@ class AccessibilitySignal {
     sound: Sound.progress,
     legacySoundSettingsKey: "audioCues.chatResponsePending",
     legacyAnnouncementSettingsKey: "accessibility.alert.progress",
-    announcementMessage: localize(
-      "accessibility.signals.progress",
-      "Progress"
-    ),
+    announcementMessage: localize("accessibility.signals.progress", "Progress"),
     settingsKey: "accessibility.signals.progress"
   });
   static clear = AccessibilitySignal.register({
@@ -696,28 +486,18 @@ class AccessibilitySignal {
     announcementMessage: localize("accessibility.signals.format", "Format"),
     settingsKey: "accessibility.signals.format"
   });
-  static voiceRecordingStarted = AccessibilitySignal.register(
-    {
-      name: localize(
-        "accessibilitySignals.voiceRecordingStarted",
-        "Voice Recording Started"
-      ),
-      sound: Sound.voiceRecordingStarted,
-      legacySoundSettingsKey: "audioCues.voiceRecordingStarted",
-      settingsKey: "accessibility.signals.voiceRecordingStarted"
-    }
-  );
-  static voiceRecordingStopped = AccessibilitySignal.register(
-    {
-      name: localize(
-        "accessibilitySignals.voiceRecordingStopped",
-        "Voice Recording Stopped"
-      ),
-      sound: Sound.voiceRecordingStopped,
-      legacySoundSettingsKey: "audioCues.voiceRecordingStopped",
-      settingsKey: "accessibility.signals.voiceRecordingStopped"
-    }
-  );
+  static voiceRecordingStarted = AccessibilitySignal.register({
+    name: localize("accessibilitySignals.voiceRecordingStarted", "Voice Recording Started"),
+    sound: Sound.voiceRecordingStarted,
+    legacySoundSettingsKey: "audioCues.voiceRecordingStarted",
+    settingsKey: "accessibility.signals.voiceRecordingStarted"
+  });
+  static voiceRecordingStopped = AccessibilitySignal.register({
+    name: localize("accessibilitySignals.voiceRecordingStopped", "Voice Recording Stopped"),
+    sound: Sound.voiceRecordingStopped,
+    legacySoundSettingsKey: "audioCues.voiceRecordingStopped",
+    settingsKey: "accessibility.signals.voiceRecordingStopped"
+  });
 }
 export {
   AccessibilitySignal,

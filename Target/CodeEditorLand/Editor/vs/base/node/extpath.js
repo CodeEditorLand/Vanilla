@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as fs from "fs";
+import { CancellationToken } from "../common/cancellation.js";
 import { basename, dirname, join, normalize, sep } from "../common/path.js";
 import { isLinux } from "../common/platform.js";
 import { rtrim } from "../common/strings.js";

@@ -11,13 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Dimension } from "../../../../base/browser/dom.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  StickyEditorGroupModel,
-  UnstickyEditorGroupModel
-} from "../../../common/editor/filteredEditorGroupModel.js";
+import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
+import { IEditorTabsControl } from "./editorTabsControl.js";
 import { MultiEditorTabsControl } from "./multiEditorTabsControl.js";
+import { IEditorPartOptions } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { StickyEditorGroupModel, UnstickyEditorGroupModel } from "../../../common/editor/filteredEditorGroupModel.js";
+import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
+import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
 let MultiRowEditorControl = class extends Disposable {
   constructor(parent, editorPartsView, groupsView, groupView, model, instantiationService) {
     super();
@@ -61,9 +64,7 @@ let MultiRowEditorControl = class extends Disposable {
   }
   openEditor(editor, options) {
     const didActiveControlChange = this.didActiveControlChange();
-    const didOpenEditorChange = this.getEditorTabsController(
-      editor
-    ).openEditor(editor, options);
+    const didOpenEditorChange = this.getEditorTabsController(editor).openEditor(editor, options);
     const didChange = didOpenEditorChange || didActiveControlChange;
     if (didChange) {
       this.handleOpenedEditors();
@@ -113,20 +114,12 @@ let MultiRowEditorControl = class extends Disposable {
         this.unstickyEditorTabsControl.openEditor(editor);
       }
       this.handleTabBarsStateChange();
-    } else if (this.model.isSticky(editor)) {
-      this.stickyEditorTabsControl.moveEditor(
-        editor,
-        fromIndex,
-        targetIndex,
-        stickyStateChange
-      );
     } else {
-      this.unstickyEditorTabsControl.moveEditor(
-        editor,
-        fromIndex - this.model.stickyCount,
-        targetIndex - this.model.stickyCount,
-        stickyStateChange
-      );
+      if (this.model.isSticky(editor)) {
+        this.stickyEditorTabsControl.moveEditor(editor, fromIndex, targetIndex, stickyStateChange);
+      } else {
+        this.unstickyEditorTabsControl.moveEditor(editor, fromIndex - this.model.stickyCount, targetIndex - this.model.stickyCount, stickyStateChange);
+      }
     }
   }
   pinEditor(editor) {
@@ -164,14 +157,9 @@ let MultiRowEditorControl = class extends Disposable {
     const stickyDimensions = this.stickyEditorTabsControl.layout(dimensions);
     const unstickyAvailableDimensions = {
       container: dimensions.container,
-      available: new Dimension(
-        dimensions.available.width,
-        dimensions.available.height - stickyDimensions.height
-      )
+      available: new Dimension(dimensions.available.width, dimensions.available.height - stickyDimensions.height)
     };
-    const unstickyDimensions = this.unstickyEditorTabsControl.layout(
-      unstickyAvailableDimensions
-    );
+    const unstickyDimensions = this.unstickyEditorTabsControl.layout(unstickyAvailableDimensions);
     return new Dimension(
       dimensions.container.width,
       stickyDimensions.height + unstickyDimensions.height

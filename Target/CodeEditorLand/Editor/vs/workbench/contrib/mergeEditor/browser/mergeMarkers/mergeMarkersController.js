@@ -1,15 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { h } from "../../../../../base/browser/dom.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import {
-  autorun
-} from "../../../../../base/common/observable.js";
-import * as nls from "../../../../../nls.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { autorun, IObservable } from "../../../../../base/common/observable.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { LineRange } from "../model/lineRange.js";
+import { MergeEditorViewModel } from "../view/viewModel.js";
+import * as nls from "../../../../../nls.js";
 const conflictMarkers = {
   start: "<<<<<<<",
   end: ">>>>>>>"
@@ -19,16 +17,12 @@ class MergeMarkersController extends Disposable {
     super();
     this.editor = editor;
     this.mergeEditorViewModel = mergeEditorViewModel;
-    this._register(
-      editor.onDidChangeModelContent((e) => {
-        this.updateDecorations();
-      })
-    );
-    this._register(
-      editor.onDidChangeModel((e) => {
-        this.updateDecorations();
-      })
-    );
+    this._register(editor.onDidChangeModelContent((e) => {
+      this.updateDecorations();
+    }));
+    this._register(editor.onDidChangeModel((e) => {
+      this.updateDecorations();
+    }));
     this.updateDecorations();
   }
   static {
@@ -38,14 +32,8 @@ class MergeMarkersController extends Disposable {
   disposableStore = new DisposableStore();
   updateDecorations() {
     const model = this.editor.getModel();
-    const blocks = model ? getBlocks(model, {
-      blockToRemoveStartLinePrefix: conflictMarkers.start,
-      blockToRemoveEndLinePrefix: conflictMarkers.end
-    }) : { blocks: [] };
-    this.editor.setHiddenAreas(
-      blocks.blocks.map((b) => b.lineRange.deltaEnd(-1).toRange()),
-      this
-    );
+    const blocks = model ? getBlocks(model, { blockToRemoveStartLinePrefix: conflictMarkers.start, blockToRemoveEndLinePrefix: conflictMarkers.end }) : { blocks: [] };
+    this.editor.setHiddenAreas(blocks.blocks.map((b) => b.lineRange.deltaEnd(-1).toRange()), this);
     this.editor.changeViewZones((c) => {
       this.disposableStore.clear();
       for (const id of this.viewZoneIds) {
@@ -62,24 +50,15 @@ class MergeMarkersController extends Disposable {
             h("span.dots", ["..."]),
             h("pre", [endLine]),
             h("span.text", [
-              conflictingLinesCount === 1 ? nls.localize(
-                "conflictingLine",
-                "1 Conflicting Line"
-              ) : nls.localize(
-                "conflictingLines",
-                "{0} Conflicting Lines",
-                conflictingLinesCount
-              )
+              conflictingLinesCount === 1 ? nls.localize("conflictingLine", "1 Conflicting Line") : nls.localize("conflictingLines", "{0} Conflicting Lines", conflictingLinesCount)
             ])
           ])
         ]).root;
-        this.viewZoneIds.push(
-          c.addZone({
-            afterLineNumber: b.lineRange.endLineNumberExclusive - 1,
-            domNode,
-            heightInLines: 1.5
-          })
-        );
+        this.viewZoneIds.push(c.addZone({
+          afterLineNumber: b.lineRange.endLineNumberExclusive - 1,
+          domNode,
+          heightInLines: 1.5
+        }));
         const updateWidth = /* @__PURE__ */ __name(() => {
           const layoutInfo = this.editor.getLayoutInfo();
           domNode.style.width = `${layoutInfo.contentWidth - layoutInfo.verticalScrollbarWidth}px`;
@@ -90,27 +69,22 @@ class MergeMarkersController extends Disposable {
           })
         );
         updateWidth();
-        this.disposableStore.add(
-          autorun((reader) => {
-            const vm = this.mergeEditorViewModel.read(reader);
-            if (!vm) {
-              return;
+        this.disposableStore.add(autorun((reader) => {
+          const vm = this.mergeEditorViewModel.read(reader);
+          if (!vm) {
+            return;
+          }
+          const activeRange = vm.activeModifiedBaseRange.read(reader);
+          const classNames = [];
+          classNames.push("conflict-zone");
+          if (activeRange) {
+            const activeRangeInResult = vm.model.getLineRangeInResult(activeRange.baseRange, reader);
+            if (activeRangeInResult.intersects(b.lineRange)) {
+              classNames.push("focused");
             }
-            const activeRange = vm.activeModifiedBaseRange.read(reader);
-            const classNames = [];
-            classNames.push("conflict-zone");
-            if (activeRange) {
-              const activeRangeInResult = vm.model.getLineRangeInResult(
-                activeRange.baseRange,
-                reader
-              );
-              if (activeRangeInResult.intersects(b.lineRange)) {
-                classNames.push("focused");
-              }
-            }
-            domNode.className = classNames.join(" ");
-          })
-        );
+          }
+          domNode.className = classNames.join(" ");
+        }));
       }
     });
   }
@@ -123,24 +97,19 @@ function getBlocks(document, configuration) {
   let curLine = 0;
   for (const line of document.getLinesContent()) {
     curLine++;
-    if (inBlock) {
+    if (!inBlock) {
+      if (line.startsWith(configuration.blockToRemoveStartLinePrefix)) {
+        inBlock = true;
+        startLineNumber = curLine;
+      } else {
+        transformedContent.push(line);
+      }
+    } else {
       if (line.startsWith(configuration.blockToRemoveEndLinePrefix)) {
         inBlock = false;
-        blocks.push(
-          new Block(
-            new LineRange(
-              startLineNumber,
-              curLine - startLineNumber + 1
-            )
-          )
-        );
+        blocks.push(new Block(new LineRange(startLineNumber, curLine - startLineNumber + 1)));
         transformedContent.push("");
       }
-    } else if (line.startsWith(configuration.blockToRemoveStartLinePrefix)) {
-      inBlock = true;
-      startLineNumber = curLine;
-    } else {
-      transformedContent.push(line);
     }
   }
   return {

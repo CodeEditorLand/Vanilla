@@ -12,14 +12,27 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getDomNodePagePosition } from "../../../../base/browser/dom.js";
 import * as aria from "../../../../base/browser/ui/aria/aria.js";
+import { IAnchor } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Color } from "../../../../base/common/color.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IEditorContribution, ScrollType } from "../../../common/editorCommon.js";
+import { CodeActionTriggerType } from "../../../common/languages.js";
+import { IModelDeltaDecoration } from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ApplyCodeActionReason, applyCodeAction } from "./codeAction.js";
+import { CodeActionKeybindingResolver } from "./codeActionKeybindingResolver.js";
+import { toMenuItems } from "./codeActionMenu.js";
+import { LightBulbWidget } from "./lightBulbWidget.js";
+import { MessageController } from "../../message/browser/messageController.js";
 import { localize } from "../../../../nls.js";
+import { IActionListDelegate } from "../../../../platform/actionWidget/browser/actionList.js";
 import { IActionWidgetService } from "../../../../platform/actionWidget/browser/actionWidget.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
@@ -27,31 +40,13 @@ import { IContextKeyService } from "../../../../platform/contextkey/common/conte
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IMarkerService } from "../../../../platform/markers/common/markers.js";
 import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  editorFindMatchHighlight,
-  editorFindMatchHighlightBorder
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { editorFindMatchHighlight, editorFindMatchHighlightBorder } from "../../../../platform/theme/common/colorRegistry.js";
 import { isHighContrast } from "../../../../platform/theme/common/theme.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
-import { Position } from "../../../common/core/position.js";
-import {
-  ScrollType
-} from "../../../common/editorCommon.js";
-import { CodeActionTriggerType } from "../../../common/languages.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { MessageController } from "../../message/browser/messageController.js";
-import {
-  CodeActionAutoApply,
-  CodeActionKind,
-  CodeActionTriggerSource
-} from "../common/types.js";
-import { ApplyCodeActionReason, applyCodeAction } from "./codeAction.js";
-import { CodeActionKeybindingResolver } from "./codeActionKeybindingResolver.js";
-import { toMenuItems } from "./codeActionMenu.js";
+import { CodeActionAutoApply, CodeActionFilter, CodeActionItem, CodeActionKind, CodeActionSet, CodeActionTrigger, CodeActionTriggerSource } from "../common/types.js";
 import { CodeActionModel, CodeActionsState } from "./codeActionModel.js";
-import { LightBulbWidget } from "./lightBulbWidget.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 const DECORATION_CLASS_NAME = "quickfix-edit-highlight";
 let CodeActionController = class extends Disposable {
   constructor(editor, markerService, contextKeyService, instantiationService, languageFeaturesService, progressService, _commandService, _configurationService, _actionWidgetService, _instantiationService, _telemetryService) {
@@ -62,57 +57,29 @@ let CodeActionController = class extends Disposable {
     this._instantiationService = _instantiationService;
     this._telemetryService = _telemetryService;
     this._editor = editor;
-    this._model = this._register(
-      new CodeActionModel(
-        this._editor,
-        languageFeaturesService.codeActionProvider,
-        markerService,
-        contextKeyService,
-        progressService,
-        _configurationService,
-        this._telemetryService
-      )
-    );
-    this._register(
-      this._model.onDidChangeState((newState) => this.update(newState))
-    );
+    this._model = this._register(new CodeActionModel(this._editor, languageFeaturesService.codeActionProvider, markerService, contextKeyService, progressService, _configurationService, this._telemetryService));
+    this._register(this._model.onDidChangeState((newState) => this.update(newState)));
     this._lightBulbWidget = new Lazy(() => {
-      const widget = this._editor.getContribution(
-        LightBulbWidget.ID
-      );
+      const widget = this._editor.getContribution(LightBulbWidget.ID);
       if (widget) {
-        this._register(
-          widget.onClick(
-            (e) => this.showCodeActionsFromLightbulb(e.actions, e)
-          )
-        );
+        this._register(widget.onClick((e) => this.showCodeActionsFromLightbulb(e.actions, e)));
       }
       return widget;
     });
-    this._resolver = instantiationService.createInstance(
-      CodeActionKeybindingResolver
-    );
-    this._register(
-      this._editor.onDidLayoutChange(
-        () => this._actionWidgetService.hide()
-      )
-    );
+    this._resolver = instantiationService.createInstance(CodeActionKeybindingResolver);
+    this._register(this._editor.onDidLayoutChange(() => this._actionWidgetService.hide()));
   }
   static {
     __name(this, "CodeActionController");
   }
   static ID = "editor.contrib.codeActionController";
   static get(editor) {
-    return editor.getContribution(
-      CodeActionController.ID
-    );
+    return editor.getContribution(CodeActionController.ID);
   }
   _editor;
   _model;
   _lightBulbWidget;
-  _activeCodeActions = this._register(
-    new MutableDisposable()
-  );
+  _activeCodeActions = this._register(new MutableDisposable());
   _showDisabled = false;
   _resolver;
   _disposed = false;
@@ -126,30 +93,16 @@ let CodeActionController = class extends Disposable {
       const command = actionItem.action.command;
       if (command && command.id === "inlineChat.start") {
         if (command.arguments && command.arguments.length >= 1) {
-          command.arguments[0] = {
-            ...command.arguments[0],
-            autoSend: false
-          };
+          command.arguments[0] = { ...command.arguments[0], autoSend: false };
         }
       }
-      await this._applyCodeAction(
-        actionItem,
-        false,
-        false,
-        ApplyCodeActionReason.FromAILightbulb
-      );
+      await this._applyCodeAction(actionItem, false, false, ApplyCodeActionReason.FromAILightbulb);
       return;
     }
-    await this.showCodeActionList(actions, at, {
-      includeDisabledActions: false,
-      fromLightbulb: true
-    });
+    await this.showCodeActionList(actions, at, { includeDisabledActions: false, fromLightbulb: true });
   }
   showCodeActions(_trigger, actions, at) {
-    return this.showCodeActionList(actions, at, {
-      includeDisabledActions: false,
-      fromLightbulb: false
-    });
+    return this.showCodeActionList(actions, at, { includeDisabledActions: false, fromLightbulb: false });
   }
   hideCodeActions() {
     this._actionWidgetService.hide();
@@ -160,32 +113,17 @@ let CodeActionController = class extends Disposable {
     }
     MessageController.get(this._editor)?.closeMessage();
     const triggerPosition = this._editor.getPosition();
-    this._trigger({
-      type: CodeActionTriggerType.Invoke,
-      triggerAction,
-      filter,
-      autoApply,
-      context: { notAvailableMessage, position: triggerPosition }
-    });
+    this._trigger({ type: CodeActionTriggerType.Invoke, triggerAction, filter, autoApply, context: { notAvailableMessage, position: triggerPosition } });
   }
   _trigger(trigger) {
     return this._model.trigger(trigger);
   }
   async _applyCodeAction(action, retrigger, preview, actionReason) {
     try {
-      await this._instantiationService.invokeFunction(
-        applyCodeAction,
-        action,
-        actionReason,
-        { preview, editor: this._editor }
-      );
+      await this._instantiationService.invokeFunction(applyCodeAction, action, actionReason, { preview, editor: this._editor });
     } finally {
       if (retrigger) {
-        this._trigger({
-          type: CodeActionTriggerType.Auto,
-          triggerAction: CodeActionTriggerSource.QuickFix,
-          filter: {}
-        });
+        this._trigger({ type: CodeActionTriggerType.Auto, triggerAction: CodeActionTriggerSource.QuickFix, filter: {} });
       }
     }
   }
@@ -212,41 +150,23 @@ let CodeActionController = class extends Disposable {
     if (selection?.startLineNumber !== newState.position.lineNumber) {
       return;
     }
-    this._lightBulbWidget.value?.update(
-      actions,
-      newState.trigger,
-      newState.position
-    );
+    this._lightBulbWidget.value?.update(actions, newState.trigger, newState.position);
     if (newState.trigger.type === CodeActionTriggerType.Invoke) {
       if (newState.trigger.filter?.include) {
-        const validActionToApply = this.tryGetValidActionToApply(
-          newState.trigger,
-          actions
-        );
+        const validActionToApply = this.tryGetValidActionToApply(newState.trigger, actions);
         if (validActionToApply) {
           try {
             this.hideLightBulbWidget();
-            await this._applyCodeAction(
-              validActionToApply,
-              false,
-              false,
-              ApplyCodeActionReason.FromCodeActions
-            );
+            await this._applyCodeAction(validActionToApply, false, false, ApplyCodeActionReason.FromCodeActions);
           } finally {
             actions.dispose();
           }
           return;
         }
         if (newState.trigger.context) {
-          const invalidAction = this.getInvalidActionThatWouldHaveBeenApplied(
-            newState.trigger,
-            actions
-          );
+          const invalidAction = this.getInvalidActionThatWouldHaveBeenApplied(newState.trigger, actions);
           if (invalidAction && invalidAction.action.disabled) {
-            MessageController.get(this._editor)?.showMessage(
-              invalidAction.action.disabled,
-              newState.trigger.context.position
-            );
+            MessageController.get(this._editor)?.showMessage(invalidAction.action.disabled, newState.trigger.context.position);
             actions.dispose();
             return;
           }
@@ -255,20 +175,14 @@ let CodeActionController = class extends Disposable {
       const includeDisabledActions = !!newState.trigger.filter?.include;
       if (newState.trigger.context) {
         if (!actions.allActions.length || !includeDisabledActions && !actions.validActions.length) {
-          MessageController.get(this._editor)?.showMessage(
-            newState.trigger.context.notAvailableMessage,
-            newState.trigger.context.position
-          );
+          MessageController.get(this._editor)?.showMessage(newState.trigger.context.notAvailableMessage, newState.trigger.context.position);
           this._activeCodeActions.value = actions;
           actions.dispose();
           return;
         }
       }
       this._activeCodeActions.value = actions;
-      this.showCodeActionList(actions, this.toCoords(newState.position), {
-        includeDisabledActions,
-        fromLightbulb: false
-      });
+      this.showCodeActionList(actions, this.toCoords(newState.position), { includeDisabledActions, fromLightbulb: false });
     } else {
       if (this._actionWidgetService.isVisible) {
         actions.dispose();
@@ -341,13 +255,9 @@ let CodeActionController = class extends Disposable {
             CodeActionKind.RefactorMove,
             CodeActionKind.Source
           ];
-          canPreview = refactorKinds.some(
-            (refactorKind) => refactorKind.contains(hierarchicalKind)
-          );
+          canPreview = refactorKinds.some((refactorKind) => refactorKind.contains(hierarchicalKind));
         }
-        return {
-          canPreview: canPreview || !!action.action.edit?.edits.length
-        };
+        return { canPreview: canPreview || !!action.action.edit?.edits.length };
       }, "onHover"),
       onFocus: /* @__PURE__ */ __name((action) => {
         if (action && action.action) {
@@ -355,35 +265,15 @@ let CodeActionController = class extends Disposable {
           const diagnostics = action.action.diagnostics;
           currentDecorations.clear();
           if (ranges && ranges.length > 0) {
-            const decorations = diagnostics && diagnostics?.length > 1 ? diagnostics.map((diagnostic) => ({
-              range: diagnostic,
-              options: CodeActionController.DECORATION
-            })) : ranges.map((range) => ({
-              range,
-              options: CodeActionController.DECORATION
-            }));
+            const decorations = diagnostics && diagnostics?.length > 1 ? diagnostics.map((diagnostic) => ({ range: diagnostic, options: CodeActionController.DECORATION })) : ranges.map((range) => ({ range, options: CodeActionController.DECORATION }));
             currentDecorations.set(decorations);
           } else if (diagnostics && diagnostics.length > 0) {
-            const decorations = diagnostics.map((diagnostic2) => ({
-              range: diagnostic2,
-              options: CodeActionController.DECORATION
-            }));
+            const decorations = diagnostics.map((diagnostic2) => ({ range: diagnostic2, options: CodeActionController.DECORATION }));
             currentDecorations.set(decorations);
             const diagnostic = diagnostics[0];
             if (diagnostic.startLineNumber && diagnostic.startColumn) {
-              const selectionText = this._editor.getModel()?.getWordAtPosition({
-                lineNumber: diagnostic.startLineNumber,
-                column: diagnostic.startColumn
-              })?.word;
-              aria.status(
-                localize(
-                  "editingNewSelection",
-                  "Context: {0} at line {1} and column {2}.",
-                  selectionText,
-                  diagnostic.startLineNumber,
-                  diagnostic.startColumn
-                )
-              );
+              const selectionText = this._editor.getModel()?.getWordAtPosition({ lineNumber: diagnostic.startLineNumber, column: diagnostic.startColumn })?.word;
+              aria.status(localize("editingNewSelection", "Context: {0} at line {1} and column {2}.", selectionText, diagnostic.startLineNumber, diagnostic.startColumn));
             }
           }
         } else {
@@ -394,11 +284,7 @@ let CodeActionController = class extends Disposable {
     this._actionWidgetService.show(
       "codeActionWidget",
       true,
-      toMenuItems(
-        actionsToShow,
-        this._shouldShowHeaders(),
-        this._resolver.getResolver()
-      ),
+      toMenuItems(actionsToShow, this._shouldShowHeaders(), this._resolver.getResolver()),
       delegate,
       anchor,
       editorDom,
@@ -419,60 +305,42 @@ let CodeActionController = class extends Disposable {
   }
   _shouldShowHeaders() {
     const model = this._editor?.getModel();
-    return this._configurationService.getValue(
-      "editor.codeActionWidget.showHeaders",
-      { resource: model?.uri }
-    );
+    return this._configurationService.getValue("editor.codeActionWidget.showHeaders", { resource: model?.uri });
   }
   _getActionBarActions(actions, at, options) {
     if (options.fromLightbulb) {
       return [];
     }
-    const resultActions = actions.documentation.map(
-      (command) => ({
-        id: command.id,
-        label: command.title,
-        tooltip: command.tooltip ?? "",
-        class: void 0,
-        enabled: true,
-        run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
-          command.id,
-          ...command.arguments ?? []
-        ), "run")
-      })
-    );
+    const resultActions = actions.documentation.map((command) => ({
+      id: command.id,
+      label: command.title,
+      tooltip: command.tooltip ?? "",
+      class: void 0,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(command.id, ...command.arguments ?? []), "run")
+    }));
     if (options.includeDisabledActions && actions.validActions.length > 0 && actions.allActions.length !== actions.validActions.length) {
-      resultActions.push(
-        this._showDisabled ? {
-          id: "hideMoreActions",
-          label: localize("hideMoreActions", "Hide Disabled"),
-          enabled: true,
-          tooltip: "",
-          class: void 0,
-          run: /* @__PURE__ */ __name(() => {
-            this._showDisabled = false;
-            return this.showCodeActionList(
-              actions,
-              at,
-              options
-            );
-          }, "run")
-        } : {
-          id: "showMoreActions",
-          label: localize("showMoreActions", "Show Disabled"),
-          enabled: true,
-          tooltip: "",
-          class: void 0,
-          run: /* @__PURE__ */ __name(() => {
-            this._showDisabled = true;
-            return this.showCodeActionList(
-              actions,
-              at,
-              options
-            );
-          }, "run")
-        }
-      );
+      resultActions.push(this._showDisabled ? {
+        id: "hideMoreActions",
+        label: localize("hideMoreActions", "Hide Disabled"),
+        enabled: true,
+        tooltip: "",
+        class: void 0,
+        run: /* @__PURE__ */ __name(() => {
+          this._showDisabled = false;
+          return this.showCodeActionList(actions, at, options);
+        }, "run")
+      } : {
+        id: "showMoreActions",
+        label: localize("showMoreActions", "Show Disabled"),
+        enabled: true,
+        tooltip: "",
+        class: void 0,
+        run: /* @__PURE__ */ __name(() => {
+          this._showDisabled = true;
+          return this.showCodeActionList(actions, at, options);
+        }, "run")
+      });
     }
     return resultActions;
   }
@@ -492,22 +360,13 @@ CodeActionController = __decorateClass([
 registerThemingParticipant((theme, collector) => {
   const addBackgroundColorRule = /* @__PURE__ */ __name((selector, color) => {
     if (color) {
-      collector.addRule(
-        `.monaco-editor ${selector} { background-color: ${color}; }`
-      );
+      collector.addRule(`.monaco-editor ${selector} { background-color: ${color}; }`);
     }
   }, "addBackgroundColorRule");
-  addBackgroundColorRule(
-    ".quickfix-edit-highlight",
-    theme.getColor(editorFindMatchHighlight)
-  );
-  const findMatchHighlightBorder = theme.getColor(
-    editorFindMatchHighlightBorder
-  );
+  addBackgroundColorRule(".quickfix-edit-highlight", theme.getColor(editorFindMatchHighlight));
+  const findMatchHighlightBorder = theme.getColor(editorFindMatchHighlightBorder);
   if (findMatchHighlightBorder) {
-    collector.addRule(
-      `.monaco-editor .quickfix-edit-highlight { border: 1px ${isHighContrast(theme.type) ? "dotted" : "solid"} ${findMatchHighlightBorder}; box-sizing: border-box; }`
-    );
+    collector.addRule(`.monaco-editor .quickfix-edit-highlight { border: 1px ${isHighContrast(theme.type) ? "dotted" : "solid"} ${findMatchHighlightBorder}; box-sizing: border-box; }`);
   }
 });
 export {

@@ -12,71 +12,44 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "../common/walkThroughUtils.js";
 import "./media/walkThroughPart.css";
-import {
-  addDisposableListener,
-  isHTMLAnchorElement,
-  isHTMLButtonElement,
-  isHTMLElement,
-  safeInnerHtml,
-  size
-} from "../../../../base/browser/dom.js";
-import {
-  Gesture,
-  EventType as TouchEventType
-} from "../../../../base/browser/touch.js";
 import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
-import { UILabelProvider } from "../../../../base/common/keybindingLabels.js";
-import {
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { deepClone } from "../../../../base/common/objects.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { EventType as TouchEventType, GestureEvent, Gesture } from "../../../../base/browser/touch.js";
 import { ScrollbarVisibility } from "../../../../base/common/scrollable.js";
 import * as strings from "../../../../base/common/strings.js";
-import { isObject } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import {
-  EditorOption
-} from "../../../../editor/common/config/editorOptions.js";
+import { IDisposable, dispose, toDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IEditorMemento, IEditorOpenContext } from "../../../common/editor.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { WalkThroughInput } from "./walkThroughInput.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { localize } from "../../../../nls.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { localize } from "../../../../nls.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { RawContextKey, IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { isObject } from "../../../../base/common/types.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IEditorOptions as ICodeEditorOptions, EditorOption } from "../../../../editor/common/config/editorOptions.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
-import {
-  IEditorGroupsService
-} from "../../../services/editor/common/editorGroupsService.js";
+import { UILabelProvider } from "../../../../base/common/keybindingLabels.js";
+import { OS, OperatingSystem } from "../../../../base/common/platform.js";
+import { deepClone } from "../../../../base/common/objects.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { addDisposableListener, Dimension, isHTMLAnchorElement, isHTMLButtonElement, isHTMLElement, safeInnerHtml, size } from "../../../../base/browser/dom.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { WalkThroughInput } from "./walkThroughInput.js";
-const WALK_THROUGH_FOCUS = new RawContextKey(
-  "interactivePlaygroundFocus",
-  false
-);
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+const WALK_THROUGH_FOCUS = new RawContextKey("interactivePlaygroundFocus", false);
 const UNBOUND_COMMAND = localize("walkThrough.unboundCommand", "unbound");
 const WALK_THROUGH_EDITOR_VIEW_STATE_PREFERENCE_KEY = "walkThroughEditorViewState";
 let WalkThroughPart = class extends EditorPane {
   constructor(group, telemetryService, themeService, textResourceConfigurationService, instantiationService, openerService, keybindingService, storageService, contextKeyService, configurationService, notificationService, extensionService, editorGroupService) {
-    super(
-      WalkThroughPart.ID,
-      group,
-      telemetryService,
-      themeService,
-      storageService
-    );
+    super(WalkThroughPart.ID, group, telemetryService, themeService, storageService);
     this.instantiationService = instantiationService;
     this.openerService = openerService;
     this.keybindingService = keybindingService;
@@ -85,11 +58,7 @@ let WalkThroughPart = class extends EditorPane {
     this.notificationService = notificationService;
     this.extensionService = extensionService;
     this.editorFocus = WALK_THROUGH_FOCUS.bindTo(this.contextKeyService);
-    this.editorMemento = this.getEditorMemento(
-      editorGroupService,
-      textResourceConfigurationService,
-      WALK_THROUGH_EDITOR_VIEW_STATE_PREFERENCE_KEY
-    );
+    this.editorMemento = this.getEditorMemento(editorGroupService, textResourceConfigurationService, WALK_THROUGH_EDITOR_VIEW_STATE_PREFERENCE_KEY);
   }
   static {
     __name(this, "WalkThroughPart");
@@ -116,9 +85,7 @@ let WalkThroughPart = class extends EditorPane {
     container.appendChild(this.scrollbar.getDomNode());
     this.registerFocusHandlers();
     this.registerClickHandler();
-    this.disposables.add(
-      this.scrollbar.onScroll((e) => this.updatedScrollPosition())
-    );
+    this.disposables.add(this.scrollbar.onScroll((e) => this.updatedScrollPosition()));
   }
   updatedScrollPosition() {
     const scrollDimensions = this.scrollbar.getScrollDimensions();
@@ -127,19 +94,14 @@ let WalkThroughPart = class extends EditorPane {
     if (scrollHeight && this.input instanceof WalkThroughInput) {
       const scrollTop = scrollPosition.scrollTop;
       const height = scrollDimensions.height;
-      this.input.relativeScrollPosition(
-        scrollTop / scrollHeight,
-        (scrollTop + height) / scrollHeight
-      );
+      this.input.relativeScrollPosition(scrollTop / scrollHeight, (scrollTop + height) / scrollHeight);
     }
   }
   onTouchChange(event) {
     event.preventDefault();
     event.stopPropagation();
     const scrollPosition = this.scrollbar.getScrollPosition();
-    this.scrollbar.setScrollPosition({
-      scrollTop: scrollPosition.scrollTop - event.translationY
-    });
+    this.scrollbar.setScrollPosition({ scrollTop: scrollPosition.scrollTop - event.translationY });
   }
   addEventListener(element, type, listener, useCapture) {
     element.addEventListener(type, listener, useCapture);
@@ -148,33 +110,25 @@ let WalkThroughPart = class extends EditorPane {
     });
   }
   registerFocusHandlers() {
-    this.disposables.add(
-      this.addEventListener(this.content, "mousedown", (e) => {
-        this.focus();
-      })
-    );
-    this.disposables.add(
-      this.addEventListener(this.content, "focus", (e) => {
-        this.editorFocus.set(true);
-      })
-    );
-    this.disposables.add(
-      this.addEventListener(this.content, "blur", (e) => {
-        this.editorFocus.reset();
-      })
-    );
-    this.disposables.add(
-      this.addEventListener(this.content, "focusin", (e) => {
-        if (isHTMLElement(e.target) && e.target.classList.contains("zone-widget-container")) {
-          const scrollPosition = this.scrollbar.getScrollPosition();
-          this.content.scrollTop = scrollPosition.scrollTop;
-          this.content.scrollLeft = scrollPosition.scrollLeft;
-        }
-        if (isHTMLElement(e.target)) {
-          this.lastFocus = e.target;
-        }
-      })
-    );
+    this.disposables.add(this.addEventListener(this.content, "mousedown", (e) => {
+      this.focus();
+    }));
+    this.disposables.add(this.addEventListener(this.content, "focus", (e) => {
+      this.editorFocus.set(true);
+    }));
+    this.disposables.add(this.addEventListener(this.content, "blur", (e) => {
+      this.editorFocus.reset();
+    }));
+    this.disposables.add(this.addEventListener(this.content, "focusin", (e) => {
+      if (isHTMLElement(e.target) && e.target.classList.contains("zone-widget-container")) {
+        const scrollPosition = this.scrollbar.getScrollPosition();
+        this.content.scrollTop = scrollPosition.scrollTop;
+        this.content.scrollLeft = scrollPosition.scrollLeft;
+      }
+      if (isHTMLElement(e.target)) {
+        this.lastFocus = e.target;
+      }
+    }));
   }
   registerClickHandler() {
     this.content.addEventListener("click", (event) => {
@@ -182,16 +136,12 @@ let WalkThroughPart = class extends EditorPane {
         if (isHTMLAnchorElement(node) && node.href) {
           const baseElement = node.ownerDocument.getElementsByTagName("base")[0] || this.window.location;
           if (baseElement && node.href.indexOf(baseElement.href) >= 0 && node.hash) {
-            const scrollTarget = this.content.querySelector(
-              node.hash
-            );
+            const scrollTarget = this.content.querySelector(node.hash);
             const innerContent = this.content.firstElementChild;
             if (scrollTarget && innerContent) {
               const targetTop = scrollTarget.getBoundingClientRect().top - 20;
               const containerTop = innerContent.getBoundingClientRect().top;
-              this.scrollbar.setScrollPosition({
-                scrollTop: targetTop - containerTop
-              });
+              this.scrollbar.setScrollPosition({ scrollTop: targetTop - containerTop });
             }
           } else {
             this.open(URI.parse(node.href));
@@ -212,12 +162,7 @@ let WalkThroughPart = class extends EditorPane {
   }
   open(uri) {
     if (uri.scheme === "command" && uri.path === "git.clone" && !CommandsRegistry.getCommand("git.clone")) {
-      this.notificationService.info(
-        localize(
-          "walkThrough.gitNotFound",
-          "It looks like Git is not installed on your system."
-        )
-      );
+      this.notificationService.info(localize("walkThrough.gitNotFound", "It looks like Git is not installed on your system."));
       return;
     }
     this.openerService.open(this.addFrom(uri), { allowCommands: true });
@@ -248,10 +193,7 @@ let WalkThroughPart = class extends EditorPane {
   updateSizeClasses() {
     const innerContent = this.content.firstElementChild;
     if (this.size && innerContent) {
-      innerContent.classList.toggle(
-        "max-height-685px",
-        this.size.height <= 685
-      );
+      innerContent.classList.toggle("max-height-685px", this.size.height <= 685);
     }
   }
   focus() {
@@ -267,15 +209,11 @@ let WalkThroughPart = class extends EditorPane {
   }
   arrowUp() {
     const scrollPosition = this.scrollbar.getScrollPosition();
-    this.scrollbar.setScrollPosition({
-      scrollTop: scrollPosition.scrollTop - this.getArrowScrollHeight()
-    });
+    this.scrollbar.setScrollPosition({ scrollTop: scrollPosition.scrollTop - this.getArrowScrollHeight() });
   }
   arrowDown() {
     const scrollPosition = this.scrollbar.getScrollPosition();
-    this.scrollbar.setScrollPosition({
-      scrollTop: scrollPosition.scrollTop + this.getArrowScrollHeight()
-    });
+    this.scrollbar.setScrollPosition({ scrollTop: scrollPosition.scrollTop + this.getArrowScrollHeight() });
   }
   getArrowScrollHeight() {
     let fontSize = this.configurationService.getValue("editor.fontSize");
@@ -287,16 +225,12 @@ let WalkThroughPart = class extends EditorPane {
   pageUp() {
     const scrollDimensions = this.scrollbar.getScrollDimensions();
     const scrollPosition = this.scrollbar.getScrollPosition();
-    this.scrollbar.setScrollPosition({
-      scrollTop: scrollPosition.scrollTop - scrollDimensions.height
-    });
+    this.scrollbar.setScrollPosition({ scrollTop: scrollPosition.scrollTop - scrollDimensions.height });
   }
   pageDown() {
     const scrollDimensions = this.scrollbar.getScrollDimensions();
     const scrollPosition = this.scrollbar.getScrollPosition();
-    this.scrollbar.setScrollPosition({
-      scrollTop: scrollPosition.scrollTop + scrollDimensions.height
-    });
+    this.scrollbar.setScrollPosition({ scrollTop: scrollPosition.scrollTop + scrollDimensions.height });
   }
   setInput(input, options, context, token) {
     const store = new DisposableStore();
@@ -313,20 +247,11 @@ let WalkThroughPart = class extends EditorPane {
       }
       const content = model.main;
       if (!input.resource.path.endsWith(".md")) {
-        safeInnerHtml(this.content, content, {
-          ALLOW_UNKNOWN_PROTOCOLS: true
-        });
+        safeInnerHtml(this.content, content, { ALLOW_UNKNOWN_PROTOCOLS: true });
         this.updateSizeClasses();
         this.decorateContent();
-        this.contentDisposables.push(
-          this.keybindingService.onDidUpdateKeybindings(
-            () => this.decorateContent()
-          )
-        );
-        input.onReady?.(
-          this.content.firstElementChild,
-          store
-        );
+        this.contentDisposables.push(this.keybindingService.onDidUpdateKeybindings(() => this.decorateContent()));
+        input.onReady?.(this.content.firstElementChild, store);
         this.scrollbar.scanDomNode();
         this.loadTextEditorViewState(input);
         this.updatedScrollPosition();
@@ -335,9 +260,7 @@ let WalkThroughPart = class extends EditorPane {
       const innerContent = document.createElement("div");
       innerContent.classList.add("walkThroughContent");
       const markdown = this.expandMacros(content);
-      safeInnerHtml(innerContent, markdown, {
-        ALLOW_UNKNOWN_PROTOCOLS: true
-      });
+      safeInnerHtml(innerContent, markdown, { ALLOW_UNKNOWN_PROTOCOLS: true });
       this.content.appendChild(innerContent);
       model.snippets.forEach((snippet, i) => {
         const model2 = snippet.textEditorModel;
@@ -345,30 +268,19 @@ let WalkThroughPart = class extends EditorPane {
           return;
         }
         const id = `snippet-${model2.uri.fragment}`;
-        const div = innerContent.querySelector(
-          `#${id.replace(/[\\.]/g, "\\$&")}`
-        );
-        const options2 = this.getEditorOptions(
-          model2.getLanguageId()
-        );
+        const div = innerContent.querySelector(`#${id.replace(/[\\.]/g, "\\$&")}`);
+        const options2 = this.getEditorOptions(model2.getLanguageId());
         const telemetryData = {
           target: this.input instanceof WalkThroughInput ? this.input.getTelemetryFrom() : void 0,
           snippet: i
         };
-        const editor = this.instantiationService.createInstance(
-          CodeEditorWidget,
-          div,
-          options2,
-          {
-            telemetryData
-          }
-        );
+        const editor = this.instantiationService.createInstance(CodeEditorWidget, div, options2, {
+          telemetryData
+        });
         editor.setModel(model2);
         this.contentDisposables.push(editor);
         const updateHeight = /* @__PURE__ */ __name((initial) => {
-          const lineHeight = editor.getOption(
-            EditorOption.lineHeight
-          );
+          const lineHeight = editor.getOption(EditorOption.lineHeight);
           const height = `${Math.max(model2.getLineCount() + 1, 4) * lineHeight}px`;
           if (div.style.height !== height) {
             div.style.height = height;
@@ -379,81 +291,49 @@ let WalkThroughPart = class extends EditorPane {
           }
         }, "updateHeight");
         updateHeight(true);
-        this.contentDisposables.push(
-          editor.onDidChangeModelContent(
-            () => updateHeight(false)
-          )
-        );
-        this.contentDisposables.push(
-          editor.onDidChangeCursorPosition((e) => {
-            const innerContent2 = this.content.firstElementChild;
-            if (innerContent2) {
-              const targetTop = div.getBoundingClientRect().top;
-              const containerTop = innerContent2.getBoundingClientRect().top;
-              const lineHeight = editor.getOption(
-                EditorOption.lineHeight
-              );
-              const lineTop = targetTop + (e.position.lineNumber - 1) * lineHeight - containerTop;
-              const lineBottom = lineTop + lineHeight;
-              const scrollDimensions = this.scrollbar.getScrollDimensions();
-              const scrollPosition = this.scrollbar.getScrollPosition();
-              const scrollTop = scrollPosition.scrollTop;
-              const height = scrollDimensions.height;
-              if (scrollTop > lineTop) {
-                this.scrollbar.setScrollPosition({
-                  scrollTop: lineTop
-                });
-              } else if (scrollTop < lineBottom - height) {
-                this.scrollbar.setScrollPosition({
-                  scrollTop: lineBottom - height
-                });
-              }
+        this.contentDisposables.push(editor.onDidChangeModelContent(() => updateHeight(false)));
+        this.contentDisposables.push(editor.onDidChangeCursorPosition((e) => {
+          const innerContent2 = this.content.firstElementChild;
+          if (innerContent2) {
+            const targetTop = div.getBoundingClientRect().top;
+            const containerTop = innerContent2.getBoundingClientRect().top;
+            const lineHeight = editor.getOption(EditorOption.lineHeight);
+            const lineTop = targetTop + (e.position.lineNumber - 1) * lineHeight - containerTop;
+            const lineBottom = lineTop + lineHeight;
+            const scrollDimensions = this.scrollbar.getScrollDimensions();
+            const scrollPosition = this.scrollbar.getScrollPosition();
+            const scrollTop = scrollPosition.scrollTop;
+            const height = scrollDimensions.height;
+            if (scrollTop > lineTop) {
+              this.scrollbar.setScrollPosition({ scrollTop: lineTop });
+            } else if (scrollTop < lineBottom - height) {
+              this.scrollbar.setScrollPosition({ scrollTop: lineBottom - height });
             }
-          })
-        );
-        this.contentDisposables.push(
-          this.configurationService.onDidChangeConfiguration(
-            (e) => {
-              if (e.affectsConfiguration("editor") && snippet.textEditorModel) {
-                editor.updateOptions(
-                  this.getEditorOptions(
-                    snippet.textEditorModel.getLanguageId()
-                  )
-                );
-              }
-            }
-          )
-        );
+          }
+        }));
+        this.contentDisposables.push(this.configurationService.onDidChangeConfiguration((e) => {
+          if (e.affectsConfiguration("editor") && snippet.textEditorModel) {
+            editor.updateOptions(this.getEditorOptions(snippet.textEditorModel.getLanguageId()));
+          }
+        }));
       });
       this.updateSizeClasses();
       this.multiCursorModifier();
-      this.contentDisposables.push(
-        this.configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration("editor.multiCursorModifier")) {
-            this.multiCursorModifier();
-          }
-        })
-      );
+      this.contentDisposables.push(this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.multiCursorModifier")) {
+          this.multiCursorModifier();
+        }
+      }));
       input.onReady?.(innerContent, store);
       this.scrollbar.scanDomNode();
       this.loadTextEditorViewState(input);
       this.updatedScrollPosition();
       this.contentDisposables.push(Gesture.addTarget(innerContent));
-      this.contentDisposables.push(
-        addDisposableListener(
-          innerContent,
-          TouchEventType.Change,
-          (e) => this.onTouchChange(e)
-        )
-      );
+      this.contentDisposables.push(addDisposableListener(innerContent, TouchEventType.Change, (e) => this.onTouchChange(e)));
     });
   }
   getEditorOptions(language) {
-    const config = deepClone(
-      this.configurationService.getValue("editor", {
-        overrideIdentifier: language
-      })
-    );
+    const config = deepClone(this.configurationService.getValue("editor", { overrideIdentifier: language }));
     return {
       ...isObject(config) ? config : /* @__PURE__ */ Object.create(null),
       scrollBeyondLastLine: false,
@@ -472,14 +352,11 @@ let WalkThroughPart = class extends EditorPane {
     };
   }
   expandMacros(input) {
-    return input.replace(
-      /kb\(([a-z.\d-]+)\)/gi,
-      (match, kb) => {
-        const keybinding = this.keybindingService.lookupKeybinding(kb);
-        const shortcut = keybinding ? keybinding.getLabel() || "" : UNBOUND_COMMAND;
-        return `<span class="shortcut">${strings.escape(shortcut)}</span>`;
-      }
-    );
+    return input.replace(/kb\(([a-z.\d\-]+)\)/gi, (match, kb) => {
+      const keybinding = this.keybindingService.lookupKeybinding(kb);
+      const shortcut = keybinding ? keybinding.getLabel() || "" : UNBOUND_COMMAND;
+      return `<span class="shortcut">${strings.escape(shortcut)}</span>`;
+    });
   }
   decorateContent() {
     const keys = this.content.querySelectorAll(".shortcut[data-command]");
@@ -492,20 +369,16 @@ let WalkThroughPart = class extends EditorPane {
       }
       key.appendChild(document.createTextNode(label));
     });
-    const ifkeys = this.content.querySelectorAll(
-      ".if_shortcut[data-command]"
-    );
+    const ifkeys = this.content.querySelectorAll(".if_shortcut[data-command]");
     Array.prototype.forEach.call(ifkeys, (key) => {
       const command = key.getAttribute("data-command");
       const keybinding = command && this.keybindingService.lookupKeybinding(command);
-      key.style.display = keybinding ? "" : "none";
+      key.style.display = !keybinding ? "none" : "";
     });
   }
   multiCursorModifier() {
     const labels = UILabelProvider.modifierLabels[OS];
-    const value = this.configurationService.getValue(
-      "editor.multiCursorModifier"
-    );
+    const value = this.configurationService.getValue("editor.multiCursorModifier");
     const modifier = labels[value === "ctrlCmd" ? OS === OperatingSystem.Macintosh ? "metaKey" : "ctrlKey" : "altKey"];
     const keys = this.content.querySelectorAll(".multi-cursor-modifier");
     Array.prototype.forEach.call(keys, (key) => {

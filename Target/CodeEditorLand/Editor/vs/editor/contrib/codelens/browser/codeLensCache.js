@@ -10,23 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { runWhenWindowIdle } from "../../../../base/browser/dom.js";
-import { mainWindow } from "../../../../base/browser/window.js";
 import { Event } from "../../../../base/common/event.js";
 import { LRUCache } from "../../../../base/common/map.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget,
-  WillSaveStateReason
-} from "../../../../platform/storage/common/storage.js";
 import { Range } from "../../../common/core/range.js";
+import { ITextModel } from "../../../common/model.js";
+import { CodeLens, CodeLensList, CodeLensProvider } from "../../../common/languages.js";
 import { CodeLensModel } from "./codelens.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { runWhenWindowIdle } from "../../../../base/browser/dom.js";
 const ICodeLensCache = createDecorator("ICodeLensCache");
 class CacheItem {
   constructor(lineCount, data) {
@@ -49,42 +43,25 @@ let CodeLensCache = class {
   _cache = new LRUCache(20, 0.75);
   constructor(storageService) {
     const oldkey = "codelens/cache";
-    runWhenWindowIdle(
-      mainWindow,
-      () => storageService.remove(oldkey, StorageScope.WORKSPACE)
-    );
+    runWhenWindowIdle(mainWindow, () => storageService.remove(oldkey, StorageScope.WORKSPACE));
     const key = "codelens/cache2";
     const raw = storageService.get(key, StorageScope.WORKSPACE, "{}");
     this._deserialize(raw);
-    const onWillSaveStateBecauseOfShutdown = Event.filter(
-      storageService.onWillSaveState,
-      (e) => e.reason === WillSaveStateReason.SHUTDOWN
-    );
+    const onWillSaveStateBecauseOfShutdown = Event.filter(storageService.onWillSaveState, (e) => e.reason === WillSaveStateReason.SHUTDOWN);
     Event.once(onWillSaveStateBecauseOfShutdown)((e) => {
-      storageService.store(
-        key,
-        this._serialize(),
-        StorageScope.WORKSPACE,
-        StorageTarget.MACHINE
-      );
+      storageService.store(key, this._serialize(), StorageScope.WORKSPACE, StorageTarget.MACHINE);
     });
   }
   put(model, data) {
     const copyItems = data.lenses.map((item2) => {
       return {
         range: item2.symbol.range,
-        command: item2.symbol.command && {
-          id: "",
-          title: item2.symbol.command?.title
-        }
+        command: item2.symbol.command && { id: "", title: item2.symbol.command?.title }
       };
     });
     const copyModel = new CodeLensModel();
-    copyModel.add(
-      { lenses: copyItems, dispose: /* @__PURE__ */ __name(() => {
-      }, "dispose") },
-      this._fakeProvider
-    );
+    copyModel.add({ lenses: copyItems, dispose: /* @__PURE__ */ __name(() => {
+    }, "dispose") }, this._fakeProvider);
     const item = new CacheItem(model.getLineCount(), copyModel);
     this._cache.set(model.uri.toString(), item);
   }

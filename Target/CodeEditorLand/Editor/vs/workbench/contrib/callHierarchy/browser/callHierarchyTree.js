@@ -1,22 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IAsyncDataSource, ITreeRenderer, ITreeNode, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
+import { CallHierarchyItem, CallHierarchyDirection, CallHierarchyModel } from "../common/callHierarchy.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { FuzzyScore, createMatches } from "../../../../base/common/filters.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { SymbolKinds, Location, SymbolTag } from "../../../../editor/common/languages.js";
 import { compare } from "../../../../base/common/strings.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  SymbolKinds,
-  SymbolTag
-} from "../../../../editor/common/languages.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
 import { localize } from "../../../../nls.js";
-import {
-  CallHierarchyDirection,
-  CallHierarchyModel
-} from "../common/callHierarchy.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 class Call {
   constructor(item, locations, model, parent) {
     this.item = item;
@@ -47,9 +42,7 @@ class DataSource {
   }
   async getChildren(element) {
     if (element instanceof CallHierarchyModel) {
-      return element.roots.map(
-        (root) => new Call(root, void 0, element, void 0)
-      );
+      return element.roots.map((root) => new Call(root, void 0, element, void 0));
     }
     const { model, item } = element;
     if (this.getDirection() === CallHierarchyDirection.CallsFrom) {
@@ -65,10 +58,7 @@ class DataSource {
       return (await model.resolveIncomingCalls(item, CancellationToken.None)).map((call) => {
         return new Call(
           call.from,
-          call.fromRanges.map((range) => ({
-            range,
-            uri: call.from.uri
-          })),
+          call.fromRanges.map((range) => ({ range, uri: call.from.uri })),
           model,
           element
         );
@@ -125,17 +115,12 @@ class CallRenderer {
     const { element, filterData } = node;
     const deprecated = element.item.tags?.includes(SymbolTag.Deprecated);
     template.icon.className = "";
-    template.icon.classList.add(
-      "inline",
-      ...ThemeIcon.asClassNameArray(
-        SymbolKinds.toIcon(element.item.kind)
-      )
+    template.icon.classList.add("inline", ...ThemeIcon.asClassNameArray(SymbolKinds.toIcon(element.item.kind)));
+    template.label.setLabel(
+      element.item.name,
+      element.item.detail,
+      { labelEscapeNewLines: true, matches: createMatches(filterData), strikethrough: deprecated }
     );
-    template.label.setLabel(element.item.name, element.item.detail, {
-      labelEscapeNewLines: true,
-      matches: createMatches(filterData),
-      strikethrough: deprecated
-    });
   }
   disposeTemplate(template) {
     template.label.dispose();

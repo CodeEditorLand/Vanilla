@@ -18,21 +18,11 @@ function anchorGlob(glob) {
 }
 __name(anchorGlob, "anchorGlob");
 function rangeToSearchRange(range) {
-  return new SearchRange(
-    range.start.line,
-    range.start.character,
-    range.end.line,
-    range.end.character
-  );
+  return new SearchRange(range.start.line, range.start.character, range.end.line, range.end.character);
 }
 __name(rangeToSearchRange, "rangeToSearchRange");
 function searchRangeToRange(range) {
-  return new searchExtTypes.Range(
-    range.startLineNumber,
-    range.startColumn,
-    range.endLineNumber,
-    range.endColumn
-  );
+  return new searchExtTypes.Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
 }
 __name(searchRangeToRange, "searchRangeToRange");
 let OutputChannel = class {

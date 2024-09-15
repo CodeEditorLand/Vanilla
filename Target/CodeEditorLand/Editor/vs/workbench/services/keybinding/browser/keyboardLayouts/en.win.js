@@ -2,18 +2,10 @@ import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
   layout: { name: "00000409", id: "", text: "US", isUSStandard: true },
   secondaryLayouts: [
-    {
-      name: "00000804",
-      id: "",
-      text: "Chinese (Simplified) - US Keyboard"
-    },
+    { name: "00000804", id: "", text: "Chinese (Simplified) - US Keyboard" },
     { name: "00000411", id: "", text: "Japanese" },
     { name: "00000412", id: "", text: "Korean" },
-    {
-      name: "00000404",
-      id: "",
-      text: "Chinese (Traditional) - US Keyboard"
-    }
+    { name: "00000404", id: "", text: "Chinese (Traditional) - US Keyboard" }
   ],
   mapping: {
     Sleep: [],

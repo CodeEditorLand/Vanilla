@@ -11,16 +11,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import {
-  Button
-} from "../../../../base/browser/ui/button/button.js";
+import { Button, IButtonStyles } from "../../../../base/browser/ui/button/button.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
-import {
-  IChatAgentService
-} from "../common/chatAgents.js";
+import { ChatAgentLocation, IChatAgentService } from "../common/chatAgents.js";
 import { formatChatQuestion } from "../common/chatParserTypes.js";
+import { IChatFollowup } from "../common/chatService.js";
 const $ = dom.$;
 let ChatFollowups = class extends Disposable {
   constructor(container, followups, location, options, clickHandler, chatAgentService) {
@@ -29,13 +26,8 @@ let ChatFollowups = class extends Disposable {
     this.options = options;
     this.clickHandler = clickHandler;
     this.chatAgentService = chatAgentService;
-    const followupsContainer = dom.append(
-      container,
-      $(".interactive-session-followups")
-    );
-    followups.forEach(
-      (followup) => this.renderFollowup(followupsContainer, followup)
-    );
+    const followupsContainer = dom.append(container, $(".interactive-session-followups"));
+    followups.forEach((followup) => this.renderFollowup(followupsContainer, followup));
   }
   static {
     __name(this, "ChatFollowups");
@@ -44,32 +36,20 @@ let ChatFollowups = class extends Disposable {
     if (!this.chatAgentService.getDefaultAgent(this.location)) {
       return;
     }
-    const tooltipPrefix = formatChatQuestion(
-      this.chatAgentService,
-      this.location,
-      "",
-      followup.agentId,
-      followup.subCommand
-    );
+    const tooltipPrefix = formatChatQuestion(this.chatAgentService, this.location, "", followup.agentId, followup.subCommand);
     if (tooltipPrefix === void 0) {
       return;
     }
     const baseTitle = followup.kind === "reply" ? followup.title || followup.message : followup.title;
     const message = followup.kind === "reply" ? followup.message : followup.title;
     const tooltip = (tooltipPrefix + ("tooltip" in followup && followup.tooltip || message)).trim();
-    const button = this._register(
-      new Button(container, { ...this.options, title: tooltip })
-    );
+    const button = this._register(new Button(container, { ...this.options, title: tooltip }));
     if (followup.kind === "reply") {
       button.element.classList.add("interactive-followup-reply");
     } else if (followup.kind === "command") {
       button.element.classList.add("interactive-followup-command");
     }
-    button.element.ariaLabel = localize(
-      "followUpAriaLabel",
-      "Follow up question: {0}",
-      baseTitle
-    );
+    button.element.ariaLabel = localize("followUpAriaLabel", "Follow up question: {0}", baseTitle);
     button.label = new MarkdownString(baseTitle);
     this._register(button.onDidClick(() => this.clickHandler(followup)));
   }

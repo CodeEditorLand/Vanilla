@@ -10,19 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { BrowserWindow, app } from "electron";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { assertIsDefined } from "../../../base/common/types.js";
+import { app, BrowserWindow, Event as IpcEvent } from "electron";
 import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { URI } from "../../../base/common/uri.js";
+import { IDiagnosticInfo, IDiagnosticInfoOptions, IMainProcessDiagnostics, IProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo, IWindowDiagnostics } from "../common/diagnostics.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ICodeWindow } from "../../window/electron-main/window.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { assertIsDefined } from "../../../base/common/types.js";
 import { ILogService } from "../../log/common/log.js";
 import { UtilityProcess } from "../../utilityProcess/electron-main/utilityProcess.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-import {
-  isSingleFolderWorkspaceIdentifier,
-  isWorkspaceIdentifier
-} from "../../workspace/common/workspace.js";
-import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
 const ID = "diagnosticsMainService";
 const IDiagnosticsMainService = createDecorator(ID);
 let DiagnosticsMainService = class {
@@ -36,54 +36,33 @@ let DiagnosticsMainService = class {
   }
   async getRemoteDiagnostics(options) {
     const windows = this.windowsMainService.getWindows();
-    const diagnostics = await Promise.all(
-      windows.map(async (window) => {
-        const remoteAuthority = window.remoteAuthority;
-        if (!remoteAuthority) {
-          return void 0;
-        }
-        const replyChannel = `vscode:getDiagnosticInfoResponse${window.id}`;
-        const args = {
-          includeProcesses: options.includeProcesses,
-          folders: options.includeWorkspaceMetadata ? await this.getFolderURIs(window) : void 0
-        };
-        return new Promise(
-          (resolve) => {
-            window.sendWhenReady(
-              "vscode:getDiagnosticInfo",
-              CancellationToken.None,
-              { replyChannel, args }
-            );
-            validatedIpcMain.once(
-              replyChannel,
-              (_, data) => {
-                if (!data) {
-                  resolve({
-                    hostName: remoteAuthority,
-                    errorMessage: `Unable to resolve connection to '${remoteAuthority}'.`
-                  });
-                }
-                resolve(data);
-              }
-            );
-            setTimeout(() => {
-              resolve({
-                hostName: remoteAuthority,
-                errorMessage: `Connection to '${remoteAuthority}' could not be established`
-              });
-            }, 5e3);
+    const diagnostics = await Promise.all(windows.map(async (window) => {
+      const remoteAuthority = window.remoteAuthority;
+      if (!remoteAuthority) {
+        return void 0;
+      }
+      const replyChannel = `vscode:getDiagnosticInfoResponse${window.id}`;
+      const args = {
+        includeProcesses: options.includeProcesses,
+        folders: options.includeWorkspaceMetadata ? await this.getFolderURIs(window) : void 0
+      };
+      return new Promise((resolve) => {
+        window.sendWhenReady("vscode:getDiagnosticInfo", CancellationToken.None, { replyChannel, args });
+        validatedIpcMain.once(replyChannel, (_, data) => {
+          if (!data) {
+            resolve({ hostName: remoteAuthority, errorMessage: `Unable to resolve connection to '${remoteAuthority}'.` });
           }
-        );
-      })
-    );
-    return diagnostics.filter(
-      (x) => !!x
-    );
+          resolve(data);
+        });
+        setTimeout(() => {
+          resolve({ hostName: remoteAuthority, errorMessage: `Connection to '${remoteAuthority}' could not be established` });
+        }, 5e3);
+      });
+    }));
+    return diagnostics.filter((x) => !!x);
   }
   async getMainDiagnostics() {
-    this.logService.trace(
-      "Received request for main process info from other instance."
-    );
+    this.logService.trace("Received request for main process info from other instance.");
     const windows = [];
     for (const window of BrowserWindow.getAllWindows()) {
       const codeWindow = this.windowsMainService.getWindowById(window.id);
@@ -109,11 +88,7 @@ let DiagnosticsMainService = class {
   async codeWindowToInfo(window) {
     const folderURIs = await this.getFolderURIs(window);
     const win = assertIsDefined(window.win);
-    return this.browserWindowToInfo(
-      win,
-      folderURIs,
-      window.remoteAuthority
-    );
+    return this.browserWindowToInfo(win, folderURIs, window.remoteAuthority);
   }
   browserWindowToInfo(window, folderURIs = [], remoteAuthority) {
     return {
@@ -130,9 +105,7 @@ let DiagnosticsMainService = class {
     if (isSingleFolderWorkspaceIdentifier(workspace)) {
       folderURIs.push(workspace.uri);
     } else if (isWorkspaceIdentifier(workspace)) {
-      const resolvedWorkspace = await this.workspacesManagementMainService.resolveLocalWorkspace(
-        workspace.configPath
-      );
+      const resolvedWorkspace = await this.workspacesManagementMainService.resolveLocalWorkspace(workspace.configPath);
       if (resolvedWorkspace) {
         const rootFolders = resolvedWorkspace.folders;
         rootFolders.forEach((root) => {

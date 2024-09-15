@@ -1,34 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import {
-  observableFromEvent
-} from "../../../base/common/observable.js";
-import { TokenizationRegistry } from "../languages.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
 import { LanguagesRegistry } from "./languagesRegistry.js";
+import { ILanguageNameIdPair, ILanguageSelection, ILanguageService, ILanguageIcon, ILanguageExtensionPoint } from "../languages/language.js";
+import { ILanguageIdCodec, TokenizationRegistry } from "../languages.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+import { IObservable, observableFromEvent } from "../../../base/common/observable.js";
 class LanguageService extends Disposable {
   static {
     __name(this, "LanguageService");
   }
   _serviceBrand;
   static instanceCount = 0;
-  _onDidRequestBasicLanguageFeatures = this._register(
-    new Emitter()
-  );
+  _onDidRequestBasicLanguageFeatures = this._register(new Emitter());
   onDidRequestBasicLanguageFeatures = this._onDidRequestBasicLanguageFeatures.event;
-  _onDidRequestRichLanguageFeatures = this._register(
-    new Emitter()
-  );
+  _onDidRequestRichLanguageFeatures = this._register(new Emitter());
   onDidRequestRichLanguageFeatures = this._onDidRequestRichLanguageFeatures.event;
-  _onDidChange = this._register(
-    new Emitter({
-      leakWarningThreshold: 200
-    })
-  );
+  _onDidChange = this._register(new Emitter({
+    leakWarningThreshold: 200
+    /* https://github.com/microsoft/vscode/issues/119968 */
+  }));
   onDidChange = this._onDidChange.event;
   _requestedBasicLanguages = /* @__PURE__ */ new Set();
   _requestedRichLanguages = /* @__PURE__ */ new Set();
@@ -37,13 +30,9 @@ class LanguageService extends Disposable {
   constructor(warnOnOverwrite = false) {
     super();
     LanguageService.instanceCount++;
-    this._registry = this._register(
-      new LanguagesRegistry(true, warnOnOverwrite)
-    );
+    this._registry = this._register(new LanguagesRegistry(true, warnOnOverwrite));
     this.languageIdCodec = this._registry.languageIdCodec;
-    this._register(
-      this._registry.onDidChange(() => this._onDidChange.fire())
-    );
+    this._register(this._registry.onDidChange(() => this._onDidChange.fire()));
   }
   dispose() {
     LanguageService.instanceCount--;
@@ -86,10 +75,7 @@ class LanguageService extends Disposable {
     return this._registry.getLanguageIdByMimeType(mimeType);
   }
   guessLanguageIdByFilepathOrFirstLine(resource, firstLine) {
-    const languageIds = this._registry.guessLanguageIdByFilepathOrFirstLine(
-      resource,
-      firstLine
-    );
+    const languageIds = this._registry.guessLanguageIdByFilepathOrFirstLine(resource, firstLine);
     return languageIds.at(0) ?? null;
   }
   createById(languageId) {
@@ -105,10 +91,7 @@ class LanguageService extends Disposable {
   }
   createByFilepathOrFirstLine(resource, firstLine) {
     return new LanguageSelection(this.onDidChange, () => {
-      const languageId = this.guessLanguageIdByFilepathOrFirstLine(
-        resource,
-        firstLine
-      );
+      const languageId = this.guessLanguageIdByFilepathOrFirstLine(resource, firstLine);
       return this._createAndGetLanguageIdentifier(languageId);
     });
   }
@@ -140,11 +123,7 @@ class LanguageSelection {
   _value;
   onDidChange;
   constructor(onDidChangeLanguages, selector) {
-    this._value = observableFromEvent(
-      this,
-      onDidChangeLanguages,
-      () => selector()
-    );
+    this._value = observableFromEvent(this, onDidChangeLanguages, () => selector());
     this.onDidChange = Event.fromObservable(this._value);
   }
   get languageId() {

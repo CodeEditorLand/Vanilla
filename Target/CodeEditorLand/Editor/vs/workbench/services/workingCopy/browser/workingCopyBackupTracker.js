@@ -10,33 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import {
-  ILifecycleService
-} from "../../lifecycle/common/lifecycle.js";
 import { IWorkingCopyBackupService } from "../common/workingCopyBackup.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { IWorkingCopyService } from "../common/workingCopyService.js";
+import { ILifecycleService, ShutdownReason } from "../../lifecycle/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { WorkingCopyBackupTracker } from "../common/workingCopyBackupTracker.js";
 import { IWorkingCopyEditorService } from "../common/workingCopyEditorService.js";
-import { IWorkingCopyService } from "../common/workingCopyService.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
 let BrowserWorkingCopyBackupTracker = class extends WorkingCopyBackupTracker {
   static {
     __name(this, "BrowserWorkingCopyBackupTracker");
   }
   static ID = "workbench.contrib.browserWorkingCopyBackupTracker";
   constructor(workingCopyBackupService, filesConfigurationService, workingCopyService, lifecycleService, logService, workingCopyEditorService, editorService, editorGroupService) {
-    super(
-      workingCopyBackupService,
-      workingCopyService,
-      logService,
-      lifecycleService,
-      filesConfigurationService,
-      workingCopyEditorService,
-      editorService,
-      editorGroupService
-    );
+    super(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService, editorGroupService);
   }
   onFinalBeforeShutdown(reason) {
     const modifiedWorkingCopies = this.workingCopyService.modifiedWorkingCopies;
@@ -47,10 +37,7 @@ let BrowserWorkingCopyBackupTracker = class extends WorkingCopyBackupTracker {
       return true;
     }
     for (const modifiedWorkingCopy of modifiedWorkingCopies) {
-      if (!this.workingCopyBackupService.hasBackupSync(
-        modifiedWorkingCopy,
-        this.getContentVersion(modifiedWorkingCopy)
-      )) {
+      if (!this.workingCopyBackupService.hasBackupSync(modifiedWorkingCopy, this.getContentVersion(modifiedWorkingCopy))) {
         this.logService.warn("Unload veto: pending backups");
         return true;
       }

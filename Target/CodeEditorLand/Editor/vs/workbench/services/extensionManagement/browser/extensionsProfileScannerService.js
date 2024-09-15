@@ -10,33 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  AbstractExtensionsProfileScannerService,
-  IExtensionsProfileScannerService
-} from "../../../../platform/extensionManagement/common/extensionsProfileScannerService.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { AbstractExtensionsProfileScannerService, IExtensionsProfileScannerService } from "../../../../platform/extensionManagement/common/extensionsProfileScannerService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 let ExtensionsProfileScannerService = class extends AbstractExtensionsProfileScannerService {
   static {
     __name(this, "ExtensionsProfileScannerService");
   }
   constructor(environmentService, fileService, userDataProfilesService, uriIdentityService, telemetryService, logService) {
-    super(
-      environmentService.userRoamingDataHome,
-      fileService,
-      userDataProfilesService,
-      uriIdentityService,
-      telemetryService,
-      logService
-    );
+    super(environmentService.userRoamingDataHome, fileService, userDataProfilesService, uriIdentityService, telemetryService, logService);
   }
 };
 ExtensionsProfileScannerService = __decorateClass([
@@ -47,11 +34,7 @@ ExtensionsProfileScannerService = __decorateClass([
   __decorateParam(4, ITelemetryService),
   __decorateParam(5, ILogService)
 ], ExtensionsProfileScannerService);
-registerSingleton(
-  IExtensionsProfileScannerService,
-  ExtensionsProfileScannerService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionsProfileScannerService, ExtensionsProfileScannerService, InstantiationType.Delayed);
 export {
   ExtensionsProfileScannerService
 };

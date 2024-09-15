@@ -3,12 +3,13 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { range } from "../../../common/arrays.js";
 import { CancellationTokenSource } from "../../../common/cancellation.js";
 import { Event } from "../../../common/event.js";
-import { Disposable } from "../../../common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { IPagedModel } from "../../../common/paging.js";
+import { ScrollbarVisibility } from "../../../common/scrollable.js";
 import "./list.css";
+import { IListContextMenuEvent, IListEvent, IListMouseEvent, IListRenderer, IListVirtualDelegate } from "./list.js";
+import { IListAccessibilityProvider, IListOptions, IListOptionsUpdate, IListStyles, List, TypeNavigationMode } from "./listWidget.js";
 import { isActiveElement } from "../../dom.js";
-import {
-  List
-} from "./listWidget.js";
 class PagedRenderer {
   constructor(renderer, modelProvider) {
     this.renderer = renderer;
@@ -31,20 +32,13 @@ class PagedRenderer {
     }
     const model = this.modelProvider();
     if (model.isResolved(index)) {
-      return this.renderer.renderElement(
-        model.get(index),
-        index,
-        data.data,
-        height
-      );
+      return this.renderer.renderElement(model.get(index), index, data.data, height);
     }
     const cts = new CancellationTokenSource();
     const promise = model.resolve(index, cts.token);
     data.disposable = { dispose: /* @__PURE__ */ __name(() => cts.cancel(), "dispose") };
     this.renderer.renderPlaceholder(index, data.data);
-    promise.then(
-      (entry) => this.renderer.renderElement(entry, index, data.data, height)
-    );
+    promise.then((entry) => this.renderer.renderElement(entry, index, data.data, height));
   }
   disposeTemplate(data) {
     if (data.disposable) {
@@ -79,10 +73,7 @@ class PagedAccessibilityProvider {
 function fromPagedListOptions(modelProvider, options) {
   return {
     ...options,
-    accessibilityProvider: options.accessibilityProvider && new PagedAccessibilityProvider(
-      modelProvider,
-      options.accessibilityProvider
-    )
+    accessibilityProvider: options.accessibilityProvider && new PagedAccessibilityProvider(modelProvider, options.accessibilityProvider)
   };
 }
 __name(fromPagedListOptions, "fromPagedListOptions");
@@ -94,16 +85,8 @@ class PagedList {
   _model;
   constructor(user, container, virtualDelegate, renderers, options = {}) {
     const modelProvider = /* @__PURE__ */ __name(() => this.model, "modelProvider");
-    const pagedRenderers = renderers.map(
-      (r) => new PagedRenderer(r, modelProvider)
-    );
-    this.list = new List(
-      user,
-      container,
-      virtualDelegate,
-      pagedRenderers,
-      fromPagedListOptions(modelProvider, options)
-    );
+    const pagedRenderers = renderers.map((r) => new PagedRenderer(r, modelProvider));
+    this.list = new List(user, container, virtualDelegate, pagedRenderers, fromPagedListOptions(modelProvider, options));
   }
   updateOptions(options) {
     this.list.updateOptions(options);
@@ -130,75 +113,25 @@ class PagedList {
     return this.list.onDidDispose;
   }
   get onMouseClick() {
-    return Event.map(
-      this.list.onMouseClick,
-      ({ element, index, browserEvent }) => ({
-        element: element === void 0 ? void 0 : this._model.get(element),
-        index,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onMouseClick, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
   }
   get onMouseDblClick() {
-    return Event.map(
-      this.list.onMouseDblClick,
-      ({ element, index, browserEvent }) => ({
-        element: element === void 0 ? void 0 : this._model.get(element),
-        index,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onMouseDblClick, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
   }
   get onTap() {
-    return Event.map(
-      this.list.onTap,
-      ({ element, index, browserEvent }) => ({
-        element: element === void 0 ? void 0 : this._model.get(element),
-        index,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onTap, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
   }
   get onPointer() {
-    return Event.map(
-      this.list.onPointer,
-      ({ element, index, browserEvent }) => ({
-        element: element === void 0 ? void 0 : this._model.get(element),
-        index,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onPointer, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
   }
   get onDidChangeFocus() {
-    return Event.map(
-      this.list.onDidChangeFocus,
-      ({ elements, indexes, browserEvent }) => ({
-        elements: elements.map((e) => this._model.get(e)),
-        indexes,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onDidChangeFocus, ({ elements, indexes, browserEvent }) => ({ elements: elements.map((e) => this._model.get(e)), indexes, browserEvent }));
   }
   get onDidChangeSelection() {
-    return Event.map(
-      this.list.onDidChangeSelection,
-      ({ elements, indexes, browserEvent }) => ({
-        elements: elements.map((e) => this._model.get(e)),
-        indexes,
-        browserEvent
-      })
-    );
+    return Event.map(this.list.onDidChangeSelection, ({ elements, indexes, browserEvent }) => ({ elements: elements.map((e) => this._model.get(e)), indexes, browserEvent }));
   }
   get onContextMenu() {
-    return Event.map(
-      this.list.onContextMenu,
-      ({ element, index, anchor, browserEvent }) => typeof element === "undefined" ? { element, index, anchor, browserEvent } : {
-        element: this._model.get(element),
-        index,
-        anchor,
-        browserEvent
-      }
-    );
+    return Event.map(this.list.onContextMenu, ({ element, index, anchor, browserEvent }) => typeof element === "undefined" ? { element, index, anchor, browserEvent } : { element: this._model.get(element), index, anchor, browserEvent });
   }
   get model() {
     return this._model;

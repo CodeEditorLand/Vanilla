@@ -11,30 +11,21 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import {
-  derived,
-  observableFromEvent,
-  observableValue
-} from "../../../../base/common/observable.js";
+import { IObservable, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
 import "./inlineEdit.css";
-import { observableCodeEditor } from "../../../browser/observableCodeEditor.js";
-import {
-  diffDeleteDecoration,
-  diffLineDeleteDecorationBackgroundWithIndicator
-} from "../../../browser/widget/diffEditor/registrations.contribution.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
+import { IRange, Range } from "../../../common/core/range.js";
 import { ILanguageService } from "../../../common/languages/language.js";
-import {
-  InjectedTextCursorStops
-} from "../../../common/model.js";
-import { LineTokens } from "../../../common/tokens/lineTokens.js";
+import { IModelDeltaDecoration, ITextModel, InjectedTextCursorStops } from "../../../common/model.js";
 import { LineDecoration } from "../../../common/viewLayout/lineDecorations.js";
 import { InlineDecorationType } from "../../../common/viewModel.js";
+import { AdditionalLinesWidget, LineData } from "../../inlineCompletions/browser/view/ghostTextView.js";
+import { GhostText } from "../../inlineCompletions/browser/model/ghostText.js";
 import { ColumnRange } from "../../inlineCompletions/browser/utils.js";
-import {
-  AdditionalLinesWidget
-} from "../../inlineCompletions/browser/view/ghostTextView.js";
+import { diffDeleteDecoration, diffLineDeleteDecorationBackgroundWithIndicator } from "../../../browser/widget/diffEditor/registrations.contribution.js";
+import { LineTokens } from "../../../common/tokens/lineTokens.js";
+import { observableCodeEditor } from "../../../browser/observableCodeEditor.js";
 const INLINE_EDIT_DESCRIPTION = "inline-edit";
 let GhostTextWidget = class extends Disposable {
   constructor(_editor, model, languageService) {
@@ -51,14 +42,10 @@ let GhostTextWidget = class extends Disposable {
     __name(this, "GhostTextWidget");
   }
   isDisposed = observableValue(this, false);
-  currentTextModel = observableFromEvent(
-    this,
-    this._editor.onDidChangeModel,
-    () => (
-      /** @description editor.model */
-      this._editor.getModel()
-    )
-  );
+  currentTextModel = observableFromEvent(this, this._editor.onDidChangeModel, () => (
+    /** @description editor.model */
+    this._editor.getModel()
+  ));
   _editorObs = observableCodeEditor(this._editor);
   uiState = derived(this, (reader) => {
     if (this.isDisposed.read(reader)) {
@@ -99,20 +86,13 @@ let GhostTextWidget = class extends Disposable {
       for (const line of lines) {
         additionalLines.push({
           content: line,
-          decorations: className ? [
-            new LineDecoration(
-              1,
-              line.length + 1,
-              className,
-              InlineDecorationType.Regular
-            )
-          ] : []
+          decorations: className ? [new LineDecoration(1, line.length + 1, className, InlineDecorationType.Regular)] : []
         });
       }
     }
     __name(addToAdditionalLines, "addToAdditionalLines");
     const textBufferLine = textModel.getLineContent(ghostText.lineNumber);
-    let hiddenTextStartColumn;
+    let hiddenTextStartColumn = void 0;
     let lastIdx = 0;
     if (!isPureRemove && (isSingleLine || !range)) {
       for (const part of ghostText.parts) {
@@ -129,10 +109,7 @@ let GhostTextWidget = class extends Disposable {
           });
           lines = lines.slice(1);
         } else {
-          addToAdditionalLines(
-            [textBufferLine.substring(lastIdx, part.column - 1)],
-            void 0
-          );
+          addToAdditionalLines([textBufferLine.substring(lastIdx, part.column - 1)], void 0);
         }
         if (lines.length > 0) {
           addToAdditionalLines(lines, INLINE_EDIT_DESCRIPTION);
@@ -143,16 +120,10 @@ let GhostTextWidget = class extends Disposable {
         lastIdx = part.column - 1;
       }
       if (hiddenTextStartColumn !== void 0) {
-        addToAdditionalLines(
-          [textBufferLine.substring(lastIdx)],
-          void 0
-        );
+        addToAdditionalLines([textBufferLine.substring(lastIdx)], void 0);
       }
     }
-    const hiddenRange = hiddenTextStartColumn !== void 0 ? new ColumnRange(
-      hiddenTextStartColumn,
-      textBufferLine.length + 1
-    ) : void 0;
+    const hiddenRange = hiddenTextStartColumn !== void 0 ? new ColumnRange(hiddenTextStartColumn, textBufferLine.length + 1) : void 0;
     const lineNumber = isSingleLine || !range ? ghostText.lineNumber : range.endLineNumber - 1;
     return {
       inlineTexts,
@@ -175,10 +146,7 @@ let GhostTextWidget = class extends Disposable {
     if (uiState.hiddenRange) {
       decorations.push({
         range: uiState.hiddenRange.toRange(uiState.lineNumber),
-        options: {
-          inlineClassName: "inline-edit-hidden",
-          description: "inline-edit-hidden"
-        }
+        options: { inlineClassName: "inline-edit-hidden", description: "inline-edit-hidden" }
       });
     }
     if (uiState.range) {
@@ -189,18 +157,9 @@ let GhostTextWidget = class extends Disposable {
         const lines = uiState.range.endLineNumber - uiState.range.startLineNumber;
         for (let i = 0; i < lines; i++) {
           const line = uiState.range.startLineNumber + i;
-          const firstNonWhitespace = uiState.targetTextModel.getLineFirstNonWhitespaceColumn(
-            line
-          );
-          const lastNonWhitespace = uiState.targetTextModel.getLineLastNonWhitespaceColumn(
-            line
-          );
-          const range = new Range(
-            line,
-            firstNonWhitespace,
-            line,
-            lastNonWhitespace
-          );
+          const firstNonWhitespace = uiState.targetTextModel.getLineFirstNonWhitespaceColumn(line);
+          const lastNonWhitespace = uiState.targetTextModel.getLineLastNonWhitespaceColumn(line);
+          const range = new Range(line, firstNonWhitespace, line, lastNonWhitespace);
           ranges.push(range);
         }
       }
@@ -212,12 +171,7 @@ let GhostTextWidget = class extends Disposable {
       }
     }
     if (uiState.range && !uiState.isSingleLine && uiState.isPureRemove) {
-      const r = new Range(
-        uiState.range.startLineNumber,
-        1,
-        uiState.range.endLineNumber - 1,
-        1
-      );
+      const r = new Range(uiState.range.startLineNumber, 1, uiState.range.endLineNumber - 1, 1);
       decorations.push({
         range: r,
         options: diffLineDeleteDecorationBackgroundWithIndicator
@@ -225,16 +179,10 @@ let GhostTextWidget = class extends Disposable {
     }
     for (const p of uiState.inlineTexts) {
       decorations.push({
-        range: Range.fromPositions(
-          new Position(uiState.lineNumber, p.column)
-        ),
+        range: Range.fromPositions(new Position(uiState.lineNumber, p.column)),
         options: {
           description: INLINE_EDIT_DESCRIPTION,
-          after: {
-            content: p.text,
-            inlineClassName: p.preview ? "inline-edit-decoration-preview" : "inline-edit-decoration",
-            cursorStops: InjectedTextCursorStops.Left
-          },
+          after: { content: p.text, inlineClassName: p.preview ? "inline-edit-decoration-preview" : "inline-edit-decoration", cursorStops: InjectedTextCursorStops.Left },
           showIfCollapsed: true
         }
       });
@@ -248,15 +196,10 @@ let GhostTextWidget = class extends Disposable {
         const uiState = this.uiState.read(reader);
         return uiState && !uiState.isPureRemove && (uiState.isSingleLine || !uiState.range) ? {
           lineNumber: uiState.lineNumber,
-          additionalLines: uiState.additionalLines.map(
-            (l) => ({
-              content: LineTokens.createEmpty(
-                l.content,
-                this.languageService.languageIdCodec
-              ),
-              decorations: l.decorations
-            })
-          ),
+          additionalLines: uiState.additionalLines.map((l) => ({
+            content: LineTokens.createEmpty(l.content, this.languageService.languageIdCodec),
+            decorations: l.decorations
+          })),
           minReservedLineCount: uiState.additionalReservedLineCount,
           targetTextModel: uiState.targetTextModel
         } : void 0;

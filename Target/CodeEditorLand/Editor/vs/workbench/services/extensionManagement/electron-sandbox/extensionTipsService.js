@@ -10,18 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas } from "../../../../base/common/network.js";
-import {
-  IExtensionTipsService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IExtensionTipsService, IExecutableBasedExtensionTip, IConfigBasedExtensionTip } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { URI } from "../../../../base/common/uri.js";
 import { ExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionTipsService.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Schemas } from "../../../../base/common/network.js";
 let NativeExtensionTipsService = class extends ExtensionTipsService {
   static {
     __name(this, "NativeExtensionTipsService");
@@ -33,22 +30,15 @@ let NativeExtensionTipsService = class extends ExtensionTipsService {
   }
   getConfigBasedTips(folder) {
     if (folder.scheme === Schemas.file) {
-      return this.channel.call(
-        "getConfigBasedTips",
-        [folder]
-      );
+      return this.channel.call("getConfigBasedTips", [folder]);
     }
     return super.getConfigBasedTips(folder);
   }
   getImportantExecutableBasedTips() {
-    return this.channel.call(
-      "getImportantExecutableBasedTips"
-    );
+    return this.channel.call("getImportantExecutableBasedTips");
   }
   getOtherExecutableBasedTips() {
-    return this.channel.call(
-      "getOtherExecutableBasedTips"
-    );
+    return this.channel.call("getOtherExecutableBasedTips");
   }
 };
 NativeExtensionTipsService = __decorateClass([
@@ -56,9 +46,5 @@ NativeExtensionTipsService = __decorateClass([
   __decorateParam(1, IProductService),
   __decorateParam(2, ISharedProcessService)
 ], NativeExtensionTipsService);
-registerSingleton(
-  IExtensionTipsService,
-  NativeExtensionTipsService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionTipsService, NativeExtensionTipsService, InstantiationType.Delayed);
 //# sourceMappingURL=extensionTipsService.js.map

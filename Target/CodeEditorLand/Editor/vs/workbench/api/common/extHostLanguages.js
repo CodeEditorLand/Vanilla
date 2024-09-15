@@ -1,20 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { disposableTimeout } from "../../../base/common/async.js";
-import {
-  DisposableStore
-} from "../../../base/common/lifecycle.js";
-import Severity from "../../../base/common/severity.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { MainContext, MainThreadLanguagesShape, IMainContext, ExtHostLanguagesShape } from "./extHost.protocol.js";
+import { ExtHostDocuments } from "./extHostDocuments.js";
 import * as typeConvert from "./extHostTypeConverters.js";
-import {
-  LanguageStatusSeverity,
-  Range,
-  StandardTokenType
-} from "./extHostTypes.js";
+import { StandardTokenType, Range, Position, LanguageStatusSeverity } from "./extHostTypes.js";
+import Severity from "../../../base/common/severity.js";
+import { disposableTimeout } from "../../../base/common/async.js";
+import { DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { CommandsConverter } from "./extHostCommands.js";
+import { IURITransformer } from "../../../base/common/uriIpc.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 class ExtHostLanguages {
   constructor(mainContext, _documents, _commands, _uriTransformer) {
     this._documents = _documents;
@@ -47,12 +43,7 @@ class ExtHostLanguages {
     const info = await this._proxy.$tokensAtPosition(document.uri, pos);
     const defaultRange = {
       type: StandardTokenType.Other,
-      range: document.getWordRangeAtPosition(position) ?? new Range(
-        position.line,
-        position.character,
-        position.line,
-        position.character
-      )
+      range: document.getWordRangeAtPosition(position) ?? new Range(position.line, position.character, position.line, position.character)
     };
     if (!info) {
       return defaultRange;
@@ -77,9 +68,7 @@ class ExtHostLanguages {
     const ids = this._ids;
     const fullyQualifiedId = `${extension.identifier.value}/${id}`;
     if (ids.has(fullyQualifiedId)) {
-      throw new Error(
-        `LanguageStatusItem with id '${id}' ALREADY exists`
-      );
+      throw new Error(`LanguageStatusItem with id '${id}' ALREADY exists`);
     }
     ids.add(fullyQualifiedId);
     const data = {
@@ -97,9 +86,7 @@ class ExtHostLanguages {
     const updateAsync = /* @__PURE__ */ __name(() => {
       soonHandle?.dispose();
       if (!ids.has(fullyQualifiedId)) {
-        console.warn(
-          `LanguageStatusItem (${id}) from ${extension.identifier.value} has been disposed and CANNOT be updated anymore`
-        );
+        console.warn(`LanguageStatusItem (${id}) from ${extension.identifier.value} has been disposed and CANNOT be updated anymore`);
         return;
       }
       soonHandle = disposableTimeout(() => {
@@ -108,17 +95,11 @@ class ExtHostLanguages {
           id: fullyQualifiedId,
           name: data.name ?? extension.displayName ?? extension.name,
           source: extension.displayName ?? extension.name,
-          selector: typeConvert.DocumentSelector.from(
-            data.selector,
-            this._uriTransformer
-          ),
+          selector: typeConvert.DocumentSelector.from(data.selector, this._uriTransformer),
           label: data.text,
           detail: data.detail ?? "",
           severity: data.severity === LanguageStatusSeverity.Error ? Severity.Error : data.severity === LanguageStatusSeverity.Warning ? Severity.Warning : Severity.Info,
-          command: data.command && this._commands.toInternal(
-            data.command,
-            commandDisposables
-          ),
+          command: data.command && this._commands.toInternal(data.command, commandDisposables),
           accessibilityInfo: data.accessibilityInformation,
           busy: data.busy
         });

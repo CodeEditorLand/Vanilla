@@ -1,10 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ExtHostSecretState } from "./extHostSecretState.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { Event } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import {
-  ExtensionIdentifier
-} from "../../../platform/extensions/common/extensions.js";
 class ExtensionSecrets {
   static {
     __name(this, "ExtensionSecrets");
@@ -17,10 +16,7 @@ class ExtensionSecrets {
     this._id = ExtensionIdentifier.toKey(extensionDescription.identifier);
     this.#secretState = secretState;
     this.onDidChange = Event.map(
-      Event.filter(
-        this.#secretState.onDidChangePassword,
-        (e) => e.extensionId === this._id
-      ),
+      Event.filter(this.#secretState.onDidChangePassword, (e) => e.extensionId === this._id),
       (e) => ({ key: e.key }),
       this.disposables
     );

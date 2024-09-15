@@ -12,35 +12,32 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
-import { HoverPosition } from "../../../../../../base/browser/ui/hover/hoverWidget.js";
 import { SimpleIconLabel } from "../../../../../../base/browser/ui/iconLabel/simpleIconLabel.js";
+import { WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from "../../../../../../base/common/actions.js";
 import { toErrorMessage } from "../../../../../../base/common/errorMessage.js";
-import { Emitter } from "../../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
 import { stripIcons } from "../../../../../../base/common/iconLabels.js";
 import { KeyCode } from "../../../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, dispose } from "../../../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../../../base/common/marshallingIds.js";
+import { ICodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
 import { isThemeColor } from "../../../../../../editor/common/editorCommon.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { INotificationService } from "../../../../../../platform/notification/common/notification.js";
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
-import {
-  CellStatusbarAlignment
-} from "../../../common/notebookCommon.js";
-import {
-  CellFocusMode
-} from "../../notebookBrowser.js";
-import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { ThemeColor } from "../../../../../../base/common/themables.js";
+import { INotebookCellActionContext } from "../../controller/coreActions.js";
+import { CellFocusMode, ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
 import { CellContentPart } from "../cellPart.js";
-import { ClickTargetType } from "./cellWidgets.js";
+import { ClickTargetType, IClickTarget } from "./cellWidgets.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { CellStatusbarAlignment, INotebookCellStatusBarItem } from "../../../common/notebookCommon.js";
+import { IHoverDelegate, IHoverDelegateOptions } from "../../../../../../base/browser/ui/hover/hoverDelegate.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { HoverPosition } from "../../../../../../base/browser/ui/hover/hoverWidget.js";
 const $ = DOM.$;
 let CellEditorStatusBar = class extends CellContentPart {
   constructor(_notebookEditor, _cellContainer, editorPart, _editor, _instantiationService, hoverService, configurationService, _themeService) {
@@ -50,27 +47,12 @@ let CellEditorStatusBar = class extends CellContentPart {
     this._editor = _editor;
     this._instantiationService = _instantiationService;
     this._themeService = _themeService;
-    this.statusBarContainer = DOM.append(
-      editorPart,
-      $(".cell-statusbar-container")
-    );
+    this.statusBarContainer = DOM.append(editorPart, $(".cell-statusbar-container"));
     this.statusBarContainer.tabIndex = -1;
-    const leftItemsContainer = DOM.append(
-      this.statusBarContainer,
-      $(".cell-status-left")
-    );
-    const rightItemsContainer = DOM.append(
-      this.statusBarContainer,
-      $(".cell-status-right")
-    );
-    this.leftItemsContainer = DOM.append(
-      leftItemsContainer,
-      $(".cell-contributed-items.cell-contributed-items-left")
-    );
-    this.rightItemsContainer = DOM.append(
-      rightItemsContainer,
-      $(".cell-contributed-items.cell-contributed-items-right")
-    );
+    const leftItemsContainer = DOM.append(this.statusBarContainer, $(".cell-status-left"));
+    const rightItemsContainer = DOM.append(this.statusBarContainer, $(".cell-status-right"));
+    this.leftItemsContainer = DOM.append(leftItemsContainer, $(".cell-contributed-items.cell-contributed-items-left"));
+    this.rightItemsContainer = DOM.append(rightItemsContainer, $(".cell-contributed-items.cell-contributed-items-right"));
     this.itemsDisposable = this._register(new DisposableStore());
     this.hoverDelegate = new class {
       _lastHoverHideTime = 0;
@@ -81,59 +63,43 @@ let CellEditorStatusBar = class extends CellContentPart {
       }, "showHover");
       placement = "element";
       get delay() {
-        return Date.now() - this._lastHoverHideTime < 200 ? 0 : configurationService.getValue(
-          "workbench.hover.delay"
-        );
+        return Date.now() - this._lastHoverHideTime < 200 ? 0 : configurationService.getValue("workbench.hover.delay");
       }
       onDidHideHover() {
         this._lastHoverHideTime = Date.now();
       }
     }();
-    this._register(
-      this._themeService.onDidColorThemeChange(
-        () => this.currentContext && this.updateContext(this.currentContext)
-      )
-    );
-    this._register(
-      DOM.addDisposableListener(
-        this.statusBarContainer,
-        DOM.EventType.CLICK,
-        (e) => {
-          if (e.target === leftItemsContainer || e.target === rightItemsContainer || e.target === this.statusBarContainer) {
-            this._onDidClick.fire({
-              type: ClickTargetType.Container,
-              event: e
-            });
-          } else {
-            const target = e.target;
-            let itemHasCommand = false;
-            if (target && DOM.isHTMLElement(target)) {
-              const targetElement = target;
-              if (targetElement.classList.contains(
-                "cell-status-item-has-command"
-              )) {
-                itemHasCommand = true;
-              } else if (targetElement.parentElement && targetElement.parentElement.classList.contains(
-                "cell-status-item-has-command"
-              )) {
-                itemHasCommand = true;
-              }
-            }
-            if (itemHasCommand) {
-              this._onDidClick.fire({
-                type: ClickTargetType.ContributedCommandItem,
-                event: e
-              });
-            } else {
-              this._onDidClick.fire({
-                type: ClickTargetType.ContributedTextItem,
-                event: e
-              });
-            }
+    this._register(this._themeService.onDidColorThemeChange(() => this.currentContext && this.updateContext(this.currentContext)));
+    this._register(DOM.addDisposableListener(this.statusBarContainer, DOM.EventType.CLICK, (e) => {
+      if (e.target === leftItemsContainer || e.target === rightItemsContainer || e.target === this.statusBarContainer) {
+        this._onDidClick.fire({
+          type: ClickTargetType.Container,
+          event: e
+        });
+      } else {
+        const target = e.target;
+        let itemHasCommand = false;
+        if (target && DOM.isHTMLElement(target)) {
+          const targetElement = target;
+          if (targetElement.classList.contains("cell-status-item-has-command")) {
+            itemHasCommand = true;
+          } else if (targetElement.parentElement && targetElement.parentElement.classList.contains("cell-status-item-has-command")) {
+            itemHasCommand = true;
           }
         }
-      )
-    );
+        if (itemHasCommand) {
+          this._onDidClick.fire({
+            type: ClickTargetType.ContributedCommandItem,
+            event: e
+          });
+        } else {
+          this._onDidClick.fire({
+            type: ClickTargetType.ContributedTextItem,
+            event: e
+          });
+        }
+      }
+    }));
   }
   static {
     __name(this, "CellEditorStatusBar");
@@ -146,9 +112,7 @@ let CellEditorStatusBar = class extends CellContentPart {
   rightItems = [];
   width = 0;
   currentContext;
-  _onDidClick = this._register(
-    new Emitter()
-  );
+  _onDidClick = this._register(new Emitter());
   onDidClick = this._onDidClick.event;
   hoverDelegate;
   didRenderCell(element) {
@@ -163,9 +127,7 @@ let CellEditorStatusBar = class extends CellContentPart {
     }
     if (this._editor) {
       const updateFocusModeForEditorEvent = /* @__PURE__ */ __name(() => {
-        if (this._editor && (this._editor.hasWidgetFocus() || this.statusBarContainer.ownerDocument.activeElement && this.statusBarContainer.contains(
-          this.statusBarContainer.ownerDocument.activeElement
-        ))) {
+        if (this._editor && (this._editor.hasWidgetFocus() || this.statusBarContainer.ownerDocument.activeElement && this.statusBarContainer.contains(this.statusBarContainer.ownerDocument.activeElement))) {
           element.focusMode = CellFocusMode.Editor;
         } else {
           const currentMode = element.focusMode;
@@ -178,47 +140,27 @@ let CellEditorStatusBar = class extends CellContentPart {
           }
         }
       }, "updateFocusModeForEditorEvent");
-      this.cellDisposables.add(
-        this._editor.onDidFocusEditorWidget(() => {
+      this.cellDisposables.add(this._editor.onDidFocusEditorWidget(() => {
+        updateFocusModeForEditorEvent();
+      }));
+      this.cellDisposables.add(this._editor.onDidBlurEditorWidget(() => {
+        if (this._notebookEditor.hasEditorFocus() && !(this.statusBarContainer.ownerDocument.activeElement && this.statusBarContainer.contains(this.statusBarContainer.ownerDocument.activeElement))) {
           updateFocusModeForEditorEvent();
-        })
-      );
-      this.cellDisposables.add(
-        this._editor.onDidBlurEditorWidget(() => {
-          if (this._notebookEditor.hasEditorFocus() && !(this.statusBarContainer.ownerDocument.activeElement && this.statusBarContainer.contains(
-            this.statusBarContainer.ownerDocument.activeElement
-          ))) {
-            updateFocusModeForEditorEvent();
+        }
+      }));
+      this.cellDisposables.add(this.onDidClick((e) => {
+        if (this.currentCell instanceof CodeCellViewModel && e.type !== ClickTargetType.ContributedCommandItem && this._editor) {
+          const target = this._editor.getTargetAtClientPoint(e.event.clientX, e.event.clientY - this._notebookEditor.notebookOptions.computeEditorStatusbarHeight(this.currentCell.internalMetadata, this.currentCell.uri));
+          if (target?.position) {
+            this._editor.setPosition(target.position);
+            this._editor.focus();
           }
-        })
-      );
-      this.cellDisposables.add(
-        this.onDidClick((e) => {
-          if (this.currentCell instanceof CodeCellViewModel && e.type !== ClickTargetType.ContributedCommandItem && this._editor) {
-            const target = this._editor.getTargetAtClientPoint(
-              e.event.clientX,
-              e.event.clientY - this._notebookEditor.notebookOptions.computeEditorStatusbarHeight(
-                this.currentCell.internalMetadata,
-                this.currentCell.uri
-              )
-            );
-            if (target?.position) {
-              this._editor.setPosition(target.position);
-              this._editor.focus();
-            }
-          }
-        })
-      );
+        }
+      }));
     }
   }
   updateInternalLayoutNow(element) {
-    this._cellContainer.classList.toggle(
-      "cell-statusbar-hidden",
-      this._notebookEditor.notebookOptions.computeEditorStatusbarHeight(
-        element.internalMetadata,
-        element.uri
-      ) === 0
-    );
+    this._cellContainer.classList.toggle("cell-statusbar-hidden", this._notebookEditor.notebookOptions.computeEditorStatusbarHeight(element.internalMetadata, element.uri) === 0);
     const layoutInfo = element.layoutInfo;
     const width = layoutInfo.editorWidth;
     if (!width) {
@@ -239,33 +181,20 @@ let CellEditorStatusBar = class extends CellContentPart {
     if (!this.currentContext) {
       return;
     }
-    this.itemsDisposable.add(
-      this.currentContext.cell.onDidChangeLayout(() => {
-        if (this.currentContext) {
-          this.updateInternalLayoutNow(this.currentContext.cell);
-        }
-      })
-    );
-    this.itemsDisposable.add(
-      this.currentContext.cell.onDidChangeCellStatusBarItems(
-        () => this.updateRenderedItems()
-      )
-    );
-    this.itemsDisposable.add(
-      this.currentContext.notebookEditor.onDidChangeActiveCell(
-        () => this.updateActiveCell()
-      )
-    );
+    this.itemsDisposable.add(this.currentContext.cell.onDidChangeLayout(() => {
+      if (this.currentContext) {
+        this.updateInternalLayoutNow(this.currentContext.cell);
+      }
+    }));
+    this.itemsDisposable.add(this.currentContext.cell.onDidChangeCellStatusBarItems(() => this.updateRenderedItems()));
+    this.itemsDisposable.add(this.currentContext.notebookEditor.onDidChangeActiveCell(() => this.updateActiveCell()));
     this.updateInternalLayoutNow(this.currentContext.cell);
     this.updateActiveCell();
     this.updateRenderedItems();
   }
   updateActiveCell() {
     const isActiveCell = this.currentContext.notebookEditor.getActiveCell() === this.currentContext?.cell;
-    this.statusBarContainer.classList.toggle(
-      "is-active-cell",
-      isActiveCell
-    );
+    this.statusBarContainer.classList.toggle("is-active-cell", isActiveCell);
   }
   updateRenderedItems() {
     const items = this.currentContext.cell.getCellStatusBarItems();
@@ -273,16 +202,11 @@ let CellEditorStatusBar = class extends CellContentPart {
       return (itemB.priority ?? 0) - (itemA.priority ?? 0);
     });
     const maxItemWidth = this.getMaxItemWidth();
-    const newLeftItems = items.filter(
-      (item) => item.alignment === CellStatusbarAlignment.Left
-    );
+    const newLeftItems = items.filter((item) => item.alignment === CellStatusbarAlignment.Left);
     const newRightItems = items.filter((item) => item.alignment === CellStatusbarAlignment.Right).reverse();
     const updateItems = /* @__PURE__ */ __name((renderedItems, newItems, container) => {
       if (renderedItems.length > newItems.length) {
-        const deleted = renderedItems.splice(
-          newItems.length,
-          renderedItems.length - newItems.length
-        );
+        const deleted = renderedItems.splice(newItems.length, renderedItems.length - newItems.length);
         for (const deletedItem of deleted) {
           deletedItem.container.remove();
           deletedItem.dispose();
@@ -293,14 +217,7 @@ let CellEditorStatusBar = class extends CellContentPart {
         if (existingItem) {
           existingItem.updateItem(newLeftItem, maxItemWidth);
         } else {
-          const item = this._instantiationService.createInstance(
-            CellStatusBarItem,
-            this.currentContext,
-            this.hoverDelegate,
-            this._editor,
-            newLeftItem,
-            maxItemWidth
-          );
+          const item = this._instantiationService.createInstance(CellStatusBarItem, this.currentContext, this.hoverDelegate, this._editor, newLeftItem, maxItemWidth);
           renderedItems.push(item);
           container.appendChild(item.container);
         }
@@ -346,9 +263,7 @@ let CellStatusBarItem = class extends Disposable {
   updateItem(item, maxWidth) {
     this._itemDisposables.clear();
     if (!this._currentItem || this._currentItem.text !== item.text) {
-      this._itemDisposables.add(
-        new SimpleIconLabel(this.container)
-      ).text = item.text.replace(/\n/g, " ");
+      this._itemDisposables.add(new SimpleIconLabel(this.container)).text = item.text.replace(/\n/g, " ");
     }
     const resolveColor = /* @__PURE__ */ __name((color) => {
       return isThemeColor(color) ? this._themeService.getColorTheme().getColor(color.id)?.toString() || "" : color;
@@ -356,10 +271,7 @@ let CellStatusBarItem = class extends Disposable {
     this.container.style.color = item.color ? resolveColor(item.color) : "";
     this.container.style.backgroundColor = item.backgroundColor ? resolveColor(item.backgroundColor) : "";
     this.container.style.opacity = item.opacity ? item.opacity : "";
-    this.container.classList.toggle(
-      "cell-status-item-show-when-active",
-      !!item.onlyShowWhenActive
-    );
+    this.container.classList.toggle("cell-status-item-show-when-active", !!item.onlyShowWhenActive);
     if (typeof maxWidth === "number") {
       this.maxWidth = maxWidth;
     }
@@ -374,45 +286,21 @@ let CellStatusBarItem = class extends Disposable {
     this.container.setAttribute("aria-label", ariaLabel);
     this.container.setAttribute("role", role || "");
     if (item.tooltip) {
-      const hoverContent = typeof item.tooltip === "string" ? item.tooltip : {
-        markdown: item.tooltip,
-        markdownNotSupportedFallback: void 0
-      };
-      this._itemDisposables.add(
-        this._hoverService.setupManagedHover(
-          this._hoverDelegate,
-          this.container,
-          hoverContent
-        )
-      );
+      const hoverContent = typeof item.tooltip === "string" ? item.tooltip : { markdown: item.tooltip, markdownNotSupportedFallback: void 0 };
+      this._itemDisposables.add(this._hoverService.setupManagedHover(this._hoverDelegate, this.container, hoverContent));
     }
-    this.container.classList.toggle(
-      "cell-status-item-has-command",
-      !!item.command
-    );
+    this.container.classList.toggle("cell-status-item-has-command", !!item.command);
     if (item.command) {
       this.container.tabIndex = 0;
-      this._itemDisposables.add(
-        DOM.addDisposableListener(
-          this.container,
-          DOM.EventType.CLICK,
-          (_e) => {
-            this.executeCommand();
-          }
-        )
-      );
-      this._itemDisposables.add(
-        DOM.addDisposableListener(
-          this.container,
-          DOM.EventType.KEY_DOWN,
-          (e) => {
-            const event = new StandardKeyboardEvent(e);
-            if (event.equals(KeyCode.Space) || event.equals(KeyCode.Enter)) {
-              this.executeCommand();
-            }
-          }
-        )
-      );
+      this._itemDisposables.add(DOM.addDisposableListener(this.container, DOM.EventType.CLICK, (_e) => {
+        this.executeCommand();
+      }));
+      this._itemDisposables.add(DOM.addDisposableListener(this.container, DOM.EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(KeyCode.Space) || event.equals(KeyCode.Enter)) {
+          this.executeCommand();
+        }
+      }));
     } else {
       this.container.removeAttribute("tabIndex");
     }

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Range } from "../../../common/core/range.js";
 import { MATCHES_LIMIT } from "./findModel.js";
@@ -43,9 +43,7 @@ class FindReplaceState extends Disposable {
   _loop;
   _isSearching;
   _filters;
-  _onFindReplaceStateChange = this._register(
-    new Emitter()
-  );
+  _onFindReplaceStateChange = this._register(new Emitter());
   get searchString() {
     return this._searchString;
   }
@@ -68,10 +66,7 @@ class FindReplaceState extends Disposable {
     return effectiveOptionValue(this._matchCaseOverride, this._matchCase);
   }
   get preserveCase() {
-    return effectiveOptionValue(
-      this._preserveCaseOverride,
-      this._preserveCase
-    );
+    return effectiveOptionValue(this._preserveCaseOverride, this._preserveCase);
   }
   get actualIsRegex() {
     return this._isRegex;
@@ -242,10 +237,7 @@ class FindReplaceState extends Disposable {
     if (typeof newState.searchScope !== "undefined") {
       if (!newState.searchScope?.every((newSearchScope) => {
         return this._searchScope?.some((existingSearchScope) => {
-          return !Range.equalsRange(
-            existingSearchScope,
-            newSearchScope
-          );
+          return !Range.equalsRange(existingSearchScope, newSearchScope);
         });
       })) {
         this._searchScope = newState.searchScope;

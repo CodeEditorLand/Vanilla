@@ -1,4 +1,4 @@
-var settings_default = "../../../../../../Asset/settings-DU624MLJ.svg";
+var settings_default = "../../../../../../Asset/settings-QKKOAVST.svg";
 export {
   settings_default as default
 };

@@ -13,15 +13,9 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { URI } from "../../../../base/common/uri.js";
 import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IExtensionsProfileScannerService } from "../../../../platform/extensionManagement/common/extensionsProfileScannerService.js";
-import {
-  IExtensionsScannerService,
-  NativeExtensionsScannerService
-} from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+import { IExtensionsScannerService, NativeExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
@@ -60,11 +54,7 @@ ExtensionsScannerService = __decorateClass([
   __decorateParam(7, IUriIdentityService),
   __decorateParam(8, IInstantiationService)
 ], ExtensionsScannerService);
-registerSingleton(
-  IExtensionsScannerService,
-  ExtensionsScannerService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionsScannerService, ExtensionsScannerService, InstantiationType.Delayed);
 export {
   ExtensionsScannerService
 };

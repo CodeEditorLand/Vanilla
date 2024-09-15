@@ -10,102 +10,39 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  $,
-  Dimension,
-  EventHelper,
-  addDisposableGenericMouseDownListener,
-  getActiveElement,
-  getWindow,
-  isAncestorOfActiveElement,
-  isHTMLElement
-} from "../../../../base/browser/dom.js";
-import { CenteredViewLayout } from "../../../../base/browser/ui/centered/centeredViewLayout.js";
-import {
-  Direction,
-  LayoutPriority,
-  Orientation,
-  SerializableGrid,
-  Sizing,
-  createSerializedGrid,
-  isGridBranchNode,
-  orthogonal
-} from "../../../../base/browser/ui/grid/grid.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-import { coalesce, distinct } from "../../../../base/common/arrays.js";
-import { DeferredPromise, Promises } from "../../../../base/common/async.js";
-import { Color } from "../../../../base/common/color.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import {
-  Emitter,
-  Event,
-  PauseableEmitter,
-  Relay
-} from "../../../../base/common/event.js";
-import {
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  assertIsDefined,
-  assertType
-} from "../../../../base/common/types.js";
-import {
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  contrastBorder,
-  editorBackground
-} from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  EditorPartMaximizedEditorGroupContext,
-  EditorPartMultipleEditorGroupsContext,
-  IsAuxiliaryEditorPartContext
-} from "../../../common/contextkeys.js";
-import {
-  GroupModelChangeKind
-} from "../../../common/editor.js";
-import {
-  isSerializedEditorGroupModel
-} from "../../../common/editor/editorGroupModel.js";
-import {
-  EDITOR_GROUP_BORDER,
-  EDITOR_PANE_BACKGROUND
-} from "../../../common/theme.js";
-import { findGroup } from "../../../services/editor/common/editorGroupFinder.js";
-import {
-  GroupDirection,
-  GroupLocation,
-  GroupOrientation,
-  GroupsArrangement,
-  GroupsOrder,
-  MergeGroupMode
-} from "../../../services/editor/common/editorGroupsService.js";
-import { SIDE_GROUP } from "../../../services/editor/common/editorService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import {
-  IWorkbenchLayoutService,
-  Parts,
-  Position
-} from "../../../services/layout/browser/layoutService.js";
-import { CompositeDragAndDropObserver } from "../../dnd.js";
 import { Part } from "../../part.js";
-import {
-  getEditorPartOptions,
-  impactsEditorPartOptions
-} from "./editor.js";
-import { EditorDropTarget } from "./editorDropTarget.js";
+import { Dimension, $, EventHelper, addDisposableGenericMouseDownListener, getWindow, isAncestorOfActiveElement, getActiveElement, isHTMLElement } from "../../../../base/browser/dom.js";
+import { Event, Emitter, Relay, PauseableEmitter } from "../../../../base/common/event.js";
+import { contrastBorder, editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { GroupDirection, GroupsArrangement, GroupOrientation, IMergeGroupOptions, MergeGroupMode, GroupsOrder, GroupLocation, IFindGroupScope, EditorGroupLayout, GroupLayoutArgument, IEditorSideGroup, IEditorDropTargetDelegate, IEditorPart } from "../../../services/editor/common/editorGroupsService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IView, orthogonal, LayoutPriority, IViewSize, Direction, SerializableGrid, Sizing, ISerializedGrid, ISerializedNode, Orientation, GridBranchNode, isGridBranchNode, GridNode, createSerializedGrid, Grid } from "../../../../base/browser/ui/grid/grid.js";
+import { GroupIdentifier, EditorInputWithOptions, IEditorPartOptions, IEditorPartOptionsChangeEvent, GroupModelChangeKind } from "../../../common/editor.js";
+import { EDITOR_GROUP_BORDER, EDITOR_PANE_BACKGROUND } from "../../../common/theme.js";
+import { distinct, coalesce } from "../../../../base/common/arrays.js";
+import { IEditorGroupView, getEditorPartOptions, impactsEditorPartOptions, IEditorPartCreationOptions, IEditorPartsView, IEditorGroupsView, IEditorGroupViewOptions } from "./editor.js";
 import { EditorGroupView } from "./editorGroupView.js";
+import { IConfigurationService, IConfigurationChangeEvent } from "../../../../platform/configuration/common/configuration.js";
+import { IDisposable, dispose, toDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ISerializedEditorGroupModel, isSerializedEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { EditorDropTarget } from "./editorDropTarget.js";
+import { Color } from "../../../../base/common/color.js";
+import { CenteredViewLayout } from "../../../../base/browser/ui/centered/centeredViewLayout.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Parts, IWorkbenchLayoutService, Position } from "../../../services/layout/browser/layoutService.js";
+import { DeepPartial, assertIsDefined, assertType } from "../../../../base/common/types.js";
+import { CompositeDragAndDropObserver } from "../../dnd.js";
+import { DeferredPromise, Promises } from "../../../../base/common/async.js";
+import { findGroup } from "../../../services/editor/common/editorGroupFinder.js";
+import { SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { EditorPartMaximizedEditorGroupContext, EditorPartMultipleEditorGroupsContext, IsAuxiliaryEditorPartContext } from "../../../common/contextkeys.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 class GridWidgetView {
   static {
     __name(this, "GridWidgetView");
@@ -168,101 +105,48 @@ let EditorPart = class extends Part {
   onDidFocus = this._onDidFocus.event;
   _onDidLayout = this._register(new Emitter());
   onDidLayout = this._onDidLayout.event;
-  _onDidChangeActiveGroup = this._register(
-    new Emitter()
-  );
+  _onDidChangeActiveGroup = this._register(new Emitter());
   onDidChangeActiveGroup = this._onDidChangeActiveGroup.event;
-  _onDidChangeGroupIndex = this._register(
-    new Emitter()
-  );
+  _onDidChangeGroupIndex = this._register(new Emitter());
   onDidChangeGroupIndex = this._onDidChangeGroupIndex.event;
-  _onDidChangeGroupLabel = this._register(
-    new Emitter()
-  );
+  _onDidChangeGroupLabel = this._register(new Emitter());
   onDidChangeGroupLabel = this._onDidChangeGroupLabel.event;
-  _onDidChangeGroupLocked = this._register(
-    new Emitter()
-  );
+  _onDidChangeGroupLocked = this._register(new Emitter());
   onDidChangeGroupLocked = this._onDidChangeGroupLocked.event;
-  _onDidChangeGroupMaximized = this._register(
-    new Emitter()
-  );
+  _onDidChangeGroupMaximized = this._register(new Emitter());
   onDidChangeGroupMaximized = this._onDidChangeGroupMaximized.event;
-  _onDidActivateGroup = this._register(
-    new Emitter()
-  );
+  _onDidActivateGroup = this._register(new Emitter());
   onDidActivateGroup = this._onDidActivateGroup.event;
-  _onDidAddGroup = this._register(
-    new PauseableEmitter()
-  );
+  _onDidAddGroup = this._register(new PauseableEmitter());
   onDidAddGroup = this._onDidAddGroup.event;
-  _onDidRemoveGroup = this._register(
-    new PauseableEmitter()
-  );
+  _onDidRemoveGroup = this._register(new PauseableEmitter());
   onDidRemoveGroup = this._onDidRemoveGroup.event;
-  _onDidMoveGroup = this._register(
-    new Emitter()
-  );
+  _onDidMoveGroup = this._register(new Emitter());
   onDidMoveGroup = this._onDidMoveGroup.event;
-  onDidSetGridWidget = this._register(
-    new Emitter()
-  );
-  _onDidChangeSizeConstraints = this._register(
-    new Relay()
-  );
-  onDidChangeSizeConstraints = Event.any(
-    this.onDidSetGridWidget.event,
-    this._onDidChangeSizeConstraints.event
-  );
+  onDidSetGridWidget = this._register(new Emitter());
+  _onDidChangeSizeConstraints = this._register(new Relay());
+  onDidChangeSizeConstraints = Event.any(this.onDidSetGridWidget.event, this._onDidChangeSizeConstraints.event);
   _onDidScroll = this._register(new Relay());
-  onDidScroll = Event.any(
-    this.onDidSetGridWidget.event,
-    this._onDidScroll.event
-  );
-  _onDidChangeEditorPartOptions = this._register(
-    new Emitter()
-  );
+  onDidScroll = Event.any(this.onDidSetGridWidget.event, this._onDidScroll.event);
+  _onDidChangeEditorPartOptions = this._register(new Emitter());
   onDidChangeEditorPartOptions = this._onDidChangeEditorPartOptions.event;
   _onWillDispose = this._register(new Emitter());
   onWillDispose = this._onWillDispose.event;
   //#endregion
-  workspaceMemento = this.getMemento(
-    StorageScope.WORKSPACE,
-    StorageTarget.USER
-  );
-  profileMemento = this.getMemento(
-    StorageScope.PROFILE,
-    StorageTarget.MACHINE
-  );
+  workspaceMemento = this.getMemento(StorageScope.WORKSPACE, StorageTarget.USER);
+  profileMemento = this.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
   groupViews = /* @__PURE__ */ new Map();
   mostRecentActiveGroups = [];
   container;
   scopedInstantiationService;
   centeredLayoutWidget;
   gridWidget;
-  gridWidgetDisposables = this._register(
-    new DisposableStore()
-  );
-  gridWidgetView = this._register(
-    new GridWidgetView()
-  );
+  gridWidgetDisposables = this._register(new DisposableStore());
+  gridWidgetView = this._register(new GridWidgetView());
   registerListeners() {
-    this._register(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => this.onConfigurationUpdated(e)
-      )
-    );
-    this._register(
-      this.themeService.onDidFileIconThemeChange(
-        () => this.handleChangedPartOptions()
-      )
-    );
-    this._register(
-      this.onDidChangeMementoValue(
-        StorageScope.WORKSPACE,
-        this._store
-      )((e) => this.onDidChangeMementoState(e))
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(this.themeService.onDidFileIconThemeChange(() => this.handleChangedPartOptions()));
+    this._register(this.onDidChangeMementoValue(StorageScope.WORKSPACE, this._store)((e) => this.onDidChangeMementoState(e)));
   }
   onConfigurationUpdated(event) {
     if (impactsEditorPartOptions(event)) {
@@ -271,24 +155,15 @@ let EditorPart = class extends Part {
   }
   handleChangedPartOptions() {
     const oldPartOptions = this._partOptions;
-    const newPartOptions = getEditorPartOptions(
-      this.configurationService,
-      this.themeService
-    );
+    const newPartOptions = getEditorPartOptions(this.configurationService, this.themeService);
     for (const enforcedPartOptions of this.enforcedPartOptions) {
       Object.assign(newPartOptions, enforcedPartOptions);
     }
     this._partOptions = newPartOptions;
-    this._onDidChangeEditorPartOptions.fire({
-      oldPartOptions,
-      newPartOptions
-    });
+    this._onDidChangeEditorPartOptions.fire({ oldPartOptions, newPartOptions });
   }
   enforcedPartOptions = [];
-  _partOptions = getEditorPartOptions(
-    this.configurationService,
-    this.themeService
-  );
+  _partOptions = getEditorPartOptions(this.configurationService, this.themeService);
   get partOptions() {
     return this._partOptions;
   }
@@ -296,10 +171,7 @@ let EditorPart = class extends Part {
     this.enforcedPartOptions.push(options);
     this.handleChangedPartOptions();
     return toDisposable(() => {
-      this.enforcedPartOptions.splice(
-        this.enforcedPartOptions.indexOf(options),
-        1
-      );
+      this.enforcedPartOptions.splice(this.enforcedPartOptions.indexOf(options), 1);
       this.handleChangedPartOptions();
     });
   }
@@ -315,9 +187,7 @@ let EditorPart = class extends Part {
   }
   sideGroup = {
     openEditor: /* @__PURE__ */ __name((editor, options) => {
-      const [group] = this.scopedInstantiationService.invokeFunction(
-        (accessor) => findGroup(accessor, { editor, options }, SIDE_GROUP)
-      );
+      const [group] = this.scopedInstantiationService.invokeFunction((accessor) => findGroup(accessor, { editor, options }, SIDE_GROUP));
       return group.openEditor(editor, options);
     }, "openEditor")
   };
@@ -350,11 +220,7 @@ let EditorPart = class extends Part {
       case GroupsOrder.CREATION_TIME:
         return this.groups;
       case GroupsOrder.MOST_RECENTLY_ACTIVE: {
-        const mostRecentActive = coalesce(
-          this.mostRecentActiveGroups.map(
-            (groupId) => this.getGroup(groupId)
-          )
-        );
+        const mostRecentActive = coalesce(this.mostRecentActiveGroups.map((groupId) => this.getGroup(groupId)));
         return distinct([...mostRecentActive, ...this.groups]);
       }
       case GroupsOrder.GRID_APPEARANCE: {
@@ -390,14 +256,8 @@ let EditorPart = class extends Part {
   }
   doFindGroupByDirection(direction, source, wrap) {
     const sourceGroupView = this.assertGroupView(source);
-    const neighbours = this.gridWidget.getNeighborViews(
-      sourceGroupView,
-      this.toGridViewDirection(direction),
-      wrap
-    );
-    neighbours.sort(
-      (n1, n2) => this.mostRecentActiveGroups.indexOf(n1.id) - this.mostRecentActiveGroups.indexOf(n2.id)
-    );
+    const neighbours = this.gridWidget.getNeighborViews(sourceGroupView, this.toGridViewDirection(direction), wrap);
+    neighbours.sort((n1, n2) => this.mostRecentActiveGroups.indexOf(n1.id) - this.mostRecentActiveGroups.indexOf(n2.id));
     return neighbours[0];
   }
   doFindGroupByLocation(location, source, wrap) {
@@ -412,20 +272,14 @@ let EditorPart = class extends Part {
       case GroupLocation.NEXT: {
         let nextGroup = groups[index + 1];
         if (!nextGroup && wrap) {
-          nextGroup = this.doFindGroupByLocation(
-            GroupLocation.FIRST,
-            source
-          );
+          nextGroup = this.doFindGroupByLocation(GroupLocation.FIRST, source);
         }
         return nextGroup;
       }
       case GroupLocation.PREVIOUS: {
         let previousGroup = groups[index - 1];
         if (!previousGroup && wrap) {
-          previousGroup = this.doFindGroupByLocation(
-            GroupLocation.LAST,
-            source
-          );
+          previousGroup = this.doFindGroupByLocation(GroupLocation.LAST, source);
         }
         return previousGroup;
       }
@@ -548,11 +402,7 @@ let EditorPart = class extends Part {
       ),
       groups: layout.groups
     });
-    this.doApplyGridState(
-      gridDescriptor,
-      activeGroup.id,
-      currentGroupViews
-    );
+    this.doApplyGridState(gridDescriptor, activeGroup.id, currentGroupViews);
     if (restoreFocus) {
       this._activeGroup.focus();
     }
@@ -560,9 +410,7 @@ let EditorPart = class extends Part {
   getLayout() {
     const serializedGrid = this.gridWidget.serialize();
     const orientation = serializedGrid.orientation === Orientation.HORIZONTAL ? GroupOrientation.HORIZONTAL : GroupOrientation.VERTICAL;
-    const root = this.serializedNodeToGroupLayoutArgument(
-      serializedGrid.root
-    );
+    const root = this.serializedNodeToGroupLayoutArgument(serializedGrid.root);
     return {
       orientation,
       groups: root.groups
@@ -572,9 +420,7 @@ let EditorPart = class extends Part {
     if (serializedNode.type === "branch") {
       return {
         size: serializedNode.size,
-        groups: serializedNode.data.map(
-          (node) => this.serializedNodeToGroupLayoutArgument(node)
-        )
+        groups: serializedNode.data.map((node) => this.serializedNodeToGroupLayoutArgument(node))
       };
     }
     return { size: serializedNode.size };
@@ -619,11 +465,7 @@ let EditorPart = class extends Part {
         locationView.focus();
       }
     } else {
-      newGroupView = locationView.groupsView.addGroup(
-        locationView,
-        direction,
-        groupToCopy
-      );
+      newGroupView = locationView.groupsView.addGroup(locationView, direction, groupToCopy);
     }
     return newGroupView;
   }
@@ -640,63 +482,34 @@ let EditorPart = class extends Part {
   doCreateGroupView(from, options) {
     let groupView;
     if (from instanceof EditorGroupView) {
-      groupView = EditorGroupView.createCopy(
-        from,
-        this.editorPartsView,
-        this,
-        this.groupsLabel,
-        this.count,
-        this.scopedInstantiationService,
-        options
-      );
+      groupView = EditorGroupView.createCopy(from, this.editorPartsView, this, this.groupsLabel, this.count, this.scopedInstantiationService, options);
     } else if (isSerializedEditorGroupModel(from)) {
-      groupView = EditorGroupView.createFromSerialized(
-        from,
-        this.editorPartsView,
-        this,
-        this.groupsLabel,
-        this.count,
-        this.scopedInstantiationService,
-        options
-      );
+      groupView = EditorGroupView.createFromSerialized(from, this.editorPartsView, this, this.groupsLabel, this.count, this.scopedInstantiationService, options);
     } else {
-      groupView = EditorGroupView.createNew(
-        this.editorPartsView,
-        this,
-        this.groupsLabel,
-        this.count,
-        this.scopedInstantiationService,
-        options
-      );
+      groupView = EditorGroupView.createNew(this.editorPartsView, this, this.groupsLabel, this.count, this.scopedInstantiationService, options);
     }
     this.groupViews.set(groupView.id, groupView);
     const groupDisposables = new DisposableStore();
-    groupDisposables.add(
-      groupView.onDidFocus(() => {
-        this.doSetGroupActive(groupView);
-        this._onDidFocus.fire();
-      })
-    );
-    groupDisposables.add(
-      groupView.onDidModelChange((e) => {
-        switch (e.kind) {
-          case GroupModelChangeKind.GROUP_LOCKED:
-            this._onDidChangeGroupLocked.fire(groupView);
-            break;
-          case GroupModelChangeKind.GROUP_INDEX:
-            this._onDidChangeGroupIndex.fire(groupView);
-            break;
-          case GroupModelChangeKind.GROUP_LABEL:
-            this._onDidChangeGroupLabel.fire(groupView);
-            break;
-        }
-      })
-    );
-    groupDisposables.add(
-      groupView.onDidActiveEditorChange(() => {
-        this.updateContainer();
-      })
-    );
+    groupDisposables.add(groupView.onDidFocus(() => {
+      this.doSetGroupActive(groupView);
+      this._onDidFocus.fire();
+    }));
+    groupDisposables.add(groupView.onDidModelChange((e) => {
+      switch (e.kind) {
+        case GroupModelChangeKind.GROUP_LOCKED:
+          this._onDidChangeGroupLocked.fire(groupView);
+          break;
+        case GroupModelChangeKind.GROUP_INDEX:
+          this._onDidChangeGroupIndex.fire(groupView);
+          break;
+        case GroupModelChangeKind.GROUP_LABEL:
+          this._onDidChangeGroupLabel.fire(groupView);
+          break;
+      }
+    }));
+    groupDisposables.add(groupView.onDidActiveEditorChange(() => {
+      this.updateContainer();
+    }));
     Event.once(groupView.onWillDispose)(() => {
       dispose(groupDisposables);
       this.groupViews.delete(groupView.id);
@@ -772,9 +585,7 @@ let EditorPart = class extends Part {
     }
   }
   doRemoveGroupWithEditors(groupView) {
-    const mostRecentlyActiveGroups = this.getGroups(
-      GroupsOrder.MOST_RECENTLY_ACTIVE
-    );
+    const mostRecentlyActiveGroups = this.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
     let lastActiveGroup;
     if (this._activeGroup === groupView) {
       lastActiveGroup = mostRecentlyActiveGroups[1];
@@ -786,9 +597,7 @@ let EditorPart = class extends Part {
   doRemoveEmptyGroup(groupView, preserveFocus) {
     const restoreFocus = !preserveFocus && this.shouldRestoreFocus(this.container);
     if (this._activeGroup === groupView) {
-      const mostRecentlyActiveGroups = this.getGroups(
-        GroupsOrder.MOST_RECENTLY_ACTIVE
-      );
+      const mostRecentlyActiveGroups = this.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
       const nextActiveGroup = mostRecentlyActiveGroups[1];
       this.doSetGroupActive(nextActiveGroup);
     }
@@ -810,19 +619,10 @@ let EditorPart = class extends Part {
     const restoreFocus = this.shouldRestoreFocus(sourceView.element);
     let movedView;
     if (sourceView.groupsView === targetView.groupsView) {
-      this.gridWidget.moveView(
-        sourceView,
-        this.getSplitSizingStyle(),
-        targetView,
-        this.toGridViewDirection(direction)
-      );
+      this.gridWidget.moveView(sourceView, this.getSplitSizingStyle(), targetView, this.toGridViewDirection(direction));
       movedView = sourceView;
     } else {
-      movedView = targetView.groupsView.addGroup(
-        targetView,
-        direction,
-        sourceView
-      );
+      movedView = targetView.groupsView.addGroup(targetView, direction, sourceView);
       sourceView.closeAllEditors();
       this.removeGroup(sourceView, restoreFocus);
     }
@@ -837,11 +637,7 @@ let EditorPart = class extends Part {
     const groupView = this.assertGroupView(group);
     const locationView = this.assertGroupView(location);
     const restoreFocus = this.shouldRestoreFocus(groupView.element);
-    const copiedGroupView = this.addGroup(
-      locationView,
-      direction,
-      groupView
-    );
+    const copiedGroupView = this.addGroup(locationView, direction, groupView);
     if (restoreFocus) {
       copiedGroupView.focus();
     }
@@ -855,11 +651,7 @@ let EditorPart = class extends Part {
     for (const editor of sourceView.editors) {
       const inactive = !sourceView.isActive(editor) || this._activeGroup !== sourceView;
       const sticky = sourceView.isSticky(editor);
-      const options2 = {
-        index: sticky ? void 0 : index,
-        inactive,
-        preserveFocus: inactive
-      };
+      const options2 = { index: !sticky ? index : void 0, inactive, preserveFocus: inactive };
       editors.push({ editor, options: options2 });
       index++;
     }
@@ -902,32 +694,18 @@ let EditorPart = class extends Part {
   }
   createEditorDropTarget(container, delegate) {
     assertType(isHTMLElement(container));
-    return this.scopedInstantiationService.createInstance(
-      EditorDropTarget,
-      container,
-      delegate
-    );
+    return this.scopedInstantiationService.createInstance(EditorDropTarget, container, delegate);
   }
   //#region Part
   // TODO @sbatten @joao find something better to prevent editor taking over #79897
   get minimumWidth() {
-    return Math.min(
-      this.centeredLayoutWidget.minimumWidth,
-      this.layoutService.getMaximumEditorDimensions(
-        this.layoutService.getContainer(getWindow(this.container))
-      ).width
-    );
+    return Math.min(this.centeredLayoutWidget.minimumWidth, this.layoutService.getMaximumEditorDimensions(this.layoutService.getContainer(getWindow(this.container))).width);
   }
   get maximumWidth() {
     return this.centeredLayoutWidget.maximumWidth;
   }
   get minimumHeight() {
-    return Math.min(
-      this.centeredLayoutWidget.minimumHeight,
-      this.layoutService.getMaximumEditorDimensions(
-        this.layoutService.getContainer(getWindow(this.container))
-      ).height
-    );
+    return Math.min(this.centeredLayoutWidget.minimumHeight, this.layoutService.getMaximumEditorDimensions(this.layoutService.getContainer(getWindow(this.container))).height);
   }
   get maximumHeight() {
     return this.centeredLayoutWidget.maximumHeight;
@@ -936,10 +714,7 @@ let EditorPart = class extends Part {
     return this.layoutService.getPanelAlignment() === "center";
   }
   get onDidChange() {
-    return Event.any(
-      this.centeredLayoutWidget.onDidChange,
-      this.onDidSetGridWidget.event
-    );
+    return Event.any(this.centeredLayoutWidget.onDidChange, this.onDidSetGridWidget.event);
   }
   priority = LayoutPriority.High;
   get gridSeparatorBorder() {
@@ -948,10 +723,7 @@ let EditorPart = class extends Part {
   updateStyles() {
     const container = assertIsDefined(this.container);
     container.style.backgroundColor = this.getColor(editorBackground) || "";
-    const separatorBorderStyle = {
-      separatorBorder: this.gridSeparatorBorder,
-      background: this.theme.getColor(EDITOR_PANE_BACKGROUND) || Color.transparent
-    };
+    const separatorBorderStyle = { separatorBorder: this.gridSeparatorBorder, background: this.theme.getColor(EDITOR_PANE_BACKGROUND) || Color.transparent };
     this.gridWidget.style(separatorBorderStyle);
     this.centeredLayoutWidget.styles(separatorBorderStyle);
   }
@@ -963,50 +735,26 @@ let EditorPart = class extends Part {
       this.container.classList.add("auxiliary");
     }
     parent.appendChild(this.container);
-    const scopedContextKeyService = this._register(
-      this.contextKeyService.createScoped(this.container)
-    );
-    this.scopedInstantiationService = this._register(
-      this.instantiationService.createChild(
-        new ServiceCollection([
-          IContextKeyService,
-          scopedContextKeyService
-        ])
-      )
-    );
+    const scopedContextKeyService = this._register(this.contextKeyService.createScoped(this.container));
+    this.scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection(
+      [IContextKeyService, scopedContextKeyService]
+    )));
     this._willRestoreState = !options || options.restorePreviousState;
     this.doCreateGridControl();
-    this.centeredLayoutWidget = this._register(
-      new CenteredViewLayout(
-        this.container,
-        this.gridWidgetView,
-        this.profileMemento[EditorPart.EDITOR_PART_CENTERED_VIEW_STORAGE_KEY],
-        this._partOptions.centeredLayoutFixedWidth
-      )
-    );
-    this._register(
-      this.onDidChangeEditorPartOptions(
-        (e) => this.centeredLayoutWidget.setFixedWidth(
-          e.newPartOptions.centeredLayoutFixedWidth ?? false
-        )
-      )
-    );
+    this.centeredLayoutWidget = this._register(new CenteredViewLayout(this.container, this.gridWidgetView, this.profileMemento[EditorPart.EDITOR_PART_CENTERED_VIEW_STORAGE_KEY], this._partOptions.centeredLayoutFixedWidth));
+    this._register(this.onDidChangeEditorPartOptions((e) => this.centeredLayoutWidget.setFixedWidth(e.newPartOptions.centeredLayoutFixedWidth ?? false)));
     this.setupDragAndDropSupport(parent, this.container);
     this.handleContextKeys(scopedContextKeyService);
     this.whenReadyPromise.complete();
     this._isReady = true;
-    Promises.settled(
-      this.groups.map((group) => group.whenRestored)
-    ).finally(() => {
+    Promises.settled(this.groups.map((group) => group.whenRestored)).finally(() => {
       this.whenRestoredPromise.complete();
     });
     return this.container;
   }
   handleContextKeys(contextKeyService) {
     const isAuxiliaryEditorPartContext = IsAuxiliaryEditorPartContext.bindTo(contextKeyService);
-    isAuxiliaryEditorPartContext.set(
-      this.windowId !== mainWindow.vscodeWindowId
-    );
+    isAuxiliaryEditorPartContext.set(this.windowId !== mainWindow.vscodeWindowId);
     const multipleEditorGroupsContext = EditorPartMultipleEditorGroupsContext.bindTo(contextKeyService);
     const maximizedEditorGroupContext = EditorPartMaximizedEditorGroupContext.bindTo(contextKeyService);
     const updateContextKeys = /* @__PURE__ */ __name(() => {
@@ -1025,29 +773,18 @@ let EditorPart = class extends Part {
     updateContextKeys();
     this._register(this.onDidAddGroup(() => updateContextKeys()));
     this._register(this.onDidRemoveGroup(() => updateContextKeys()));
-    this._register(
-      this.onDidChangeGroupMaximized(() => updateContextKeys())
-    );
+    this._register(this.onDidChangeGroupMaximized(() => updateContextKeys()));
   }
   setupDragAndDropSupport(parent, container) {
-    this._register(
-      this.createEditorDropTarget(container, /* @__PURE__ */ Object.create(null))
-    );
+    this._register(this.createEditorDropTarget(container, /* @__PURE__ */ Object.create(null)));
     const overlay = document.createElement("div");
     overlay.classList.add("drop-block-overlay");
     parent.appendChild(overlay);
-    this._register(
-      addDisposableGenericMouseDownListener(
-        overlay,
-        () => overlay.classList.remove("visible")
-      )
-    );
-    this._register(
-      CompositeDragAndDropObserver.INSTANCE.registerTarget(this.element, {
-        onDragStart: /* @__PURE__ */ __name((e) => overlay.classList.add("visible"), "onDragStart"),
-        onDragEnd: /* @__PURE__ */ __name((e) => overlay.classList.remove("visible"), "onDragEnd")
-      })
-    );
+    this._register(addDisposableGenericMouseDownListener(overlay, () => overlay.classList.remove("visible")));
+    this._register(CompositeDragAndDropObserver.INSTANCE.registerTarget(this.element, {
+      onDragStart: /* @__PURE__ */ __name((e) => overlay.classList.add("visible"), "onDragStart"),
+      onDragEnd: /* @__PURE__ */ __name((e) => overlay.classList.remove("visible"), "onDragEnd")
+    }));
     let horizontalOpenerTimeout;
     let verticalOpenerTimeout;
     let lastOpenHorizontalPosition;
@@ -1056,10 +793,7 @@ let EditorPart = class extends Part {
       if (!this.layoutService.isVisible(Parts.PANEL_PART) && position === this.layoutService.getPanelPosition()) {
         this.layoutService.setPartHidden(false, Parts.PANEL_PART);
       } else if (!this.layoutService.isVisible(Parts.AUXILIARYBAR_PART) && position === (this.layoutService.getSideBarPosition() === Position.RIGHT ? Position.LEFT : Position.RIGHT)) {
-        this.layoutService.setPartHidden(
-          false,
-          Parts.AUXILIARYBAR_PART
-        );
+        this.layoutService.setPartHidden(false, Parts.AUXILIARYBAR_PART);
       }
     }, "openPartAtPosition");
     const clearAllTimeouts = /* @__PURE__ */ __name(() => {
@@ -1072,57 +806,49 @@ let EditorPart = class extends Part {
         verticalOpenerTimeout = void 0;
       }
     }, "clearAllTimeouts");
-    this._register(
-      CompositeDragAndDropObserver.INSTANCE.registerTarget(overlay, {
-        onDragOver: /* @__PURE__ */ __name((e) => {
-          EventHelper.stop(e.eventData, true);
-          if (e.eventData.dataTransfer) {
-            e.eventData.dataTransfer.dropEffect = "none";
-          }
-          const boundingRect = overlay.getBoundingClientRect();
-          let openHorizontalPosition;
-          let openVerticalPosition;
-          const proximity = 100;
-          if (e.eventData.clientX < boundingRect.left + proximity) {
-            openHorizontalPosition = Position.LEFT;
-          }
-          if (e.eventData.clientX > boundingRect.right - proximity) {
-            openHorizontalPosition = Position.RIGHT;
-          }
-          if (e.eventData.clientY > boundingRect.bottom - proximity) {
-            openVerticalPosition = Position.BOTTOM;
-          }
-          if (e.eventData.clientY < boundingRect.top + proximity) {
-            openVerticalPosition = Position.TOP;
-          }
-          if (horizontalOpenerTimeout && openHorizontalPosition !== lastOpenHorizontalPosition) {
-            clearTimeout(horizontalOpenerTimeout);
-            horizontalOpenerTimeout = void 0;
-          }
-          if (verticalOpenerTimeout && openVerticalPosition !== lastOpenVerticalPosition) {
-            clearTimeout(verticalOpenerTimeout);
-            verticalOpenerTimeout = void 0;
-          }
-          if (!horizontalOpenerTimeout && openHorizontalPosition !== void 0) {
-            lastOpenHorizontalPosition = openHorizontalPosition;
-            horizontalOpenerTimeout = setTimeout(
-              () => openPartAtPosition(openHorizontalPosition),
-              200
-            );
-          }
-          if (!verticalOpenerTimeout && openVerticalPosition !== void 0) {
-            lastOpenVerticalPosition = openVerticalPosition;
-            verticalOpenerTimeout = setTimeout(
-              () => openPartAtPosition(openVerticalPosition),
-              200
-            );
-          }
-        }, "onDragOver"),
-        onDragLeave: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDragLeave"),
-        onDragEnd: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDragEnd"),
-        onDrop: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDrop")
-      })
-    );
+    this._register(CompositeDragAndDropObserver.INSTANCE.registerTarget(overlay, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        if (e.eventData.dataTransfer) {
+          e.eventData.dataTransfer.dropEffect = "none";
+        }
+        const boundingRect = overlay.getBoundingClientRect();
+        let openHorizontalPosition = void 0;
+        let openVerticalPosition = void 0;
+        const proximity = 100;
+        if (e.eventData.clientX < boundingRect.left + proximity) {
+          openHorizontalPosition = Position.LEFT;
+        }
+        if (e.eventData.clientX > boundingRect.right - proximity) {
+          openHorizontalPosition = Position.RIGHT;
+        }
+        if (e.eventData.clientY > boundingRect.bottom - proximity) {
+          openVerticalPosition = Position.BOTTOM;
+        }
+        if (e.eventData.clientY < boundingRect.top + proximity) {
+          openVerticalPosition = Position.TOP;
+        }
+        if (horizontalOpenerTimeout && openHorizontalPosition !== lastOpenHorizontalPosition) {
+          clearTimeout(horizontalOpenerTimeout);
+          horizontalOpenerTimeout = void 0;
+        }
+        if (verticalOpenerTimeout && openVerticalPosition !== lastOpenVerticalPosition) {
+          clearTimeout(verticalOpenerTimeout);
+          verticalOpenerTimeout = void 0;
+        }
+        if (!horizontalOpenerTimeout && openHorizontalPosition !== void 0) {
+          lastOpenHorizontalPosition = openHorizontalPosition;
+          horizontalOpenerTimeout = setTimeout(() => openPartAtPosition(openHorizontalPosition), 200);
+        }
+        if (!verticalOpenerTimeout && openVerticalPosition !== void 0) {
+          lastOpenVerticalPosition = openVerticalPosition;
+          verticalOpenerTimeout = setTimeout(() => openPartAtPosition(openVerticalPosition), 200);
+        }
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDragLeave"),
+      onDragEnd: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDragEnd"),
+      onDrop: /* @__PURE__ */ __name(() => clearAllTimeouts(), "onDrop")
+    }));
   }
   centerLayout(active) {
     this.centeredLayoutWidget.activate(active);
@@ -1152,16 +878,9 @@ let EditorPart = class extends Part {
     if (state?.serializedGrid) {
       try {
         this.mostRecentActiveGroups = state.mostRecentActiveGroups;
-        this.doCreateGridControlWithState(
-          state.serializedGrid,
-          state.activeGroup
-        );
+        this.doCreateGridControlWithState(state.serializedGrid, state.activeGroup);
       } catch (error) {
-        onUnexpectedError(
-          new Error(
-            `Error restoring editor grid widget: ${error} (with state: ${JSON.stringify(state)})`
-          )
-        );
+        onUnexpectedError(new Error(`Error restoring editor grid widget: ${error} (with state: ${JSON.stringify(state)})`));
         this.disposeGroups();
         return false;
       }
@@ -1176,34 +895,25 @@ let EditorPart = class extends Part {
       reuseGroupViews = [];
     }
     const groupViews = [];
-    const gridWidget = SerializableGrid.deserialize(
-      serializedGrid,
-      {
-        fromJSON: /* @__PURE__ */ __name((serializedEditorGroup) => {
-          let groupView;
-          if (reuseGroupViews.length > 0) {
-            groupView = reuseGroupViews.shift();
-          } else {
-            groupView = this.doCreateGroupView(
-              serializedEditorGroup,
-              options
-            );
-          }
-          groupViews.push(groupView);
-          if (groupView.id === activeGroupId) {
-            this.doSetGroupActive(groupView);
-          }
-          return groupView;
-        }, "fromJSON")
-      },
-      { styles: { separatorBorder: this.gridSeparatorBorder } }
-    );
+    const gridWidget = SerializableGrid.deserialize(serializedGrid, {
+      fromJSON: /* @__PURE__ */ __name((serializedEditorGroup) => {
+        let groupView;
+        if (reuseGroupViews.length > 0) {
+          groupView = reuseGroupViews.shift();
+        } else {
+          groupView = this.doCreateGroupView(serializedEditorGroup, options);
+        }
+        groupViews.push(groupView);
+        if (groupView.id === activeGroupId) {
+          this.doSetGroupActive(groupView);
+        }
+        return groupView;
+      }, "fromJSON")
+    }, { styles: { separatorBorder: this.gridSeparatorBorder } });
     if (!this._activeGroup) {
       this.doSetGroupActive(groupViews[0]);
     }
-    if (this.mostRecentActiveGroups.some(
-      (groupId) => !this.getGroup(groupId)
-    )) {
+    if (this.mostRecentActiveGroups.some((groupId) => !this.getGroup(groupId))) {
       this.mostRecentActiveGroups = groupViews.map((group) => group.id);
     }
     this.doSetGridWidget(gridWidget);
@@ -1220,11 +930,7 @@ let EditorPart = class extends Part {
     this._onDidChangeSizeConstraints.input = gridWidget.onDidChange;
     this._onDidScroll.input = gridWidget.onDidScroll;
     this.gridWidgetDisposables.clear();
-    this.gridWidgetDisposables.add(
-      gridWidget.onDidChangeViewMaximized(
-        (maximized) => this._onDidChangeGroupMaximized.fire(maximized)
-      )
-    );
+    this.gridWidgetDisposables.add(gridWidget.onDidChangeViewMaximized((maximized) => this._onDidChangeGroupMaximized.fire(maximized)));
     this._onDidChangeGroupMaximized.fire(this.hasMaximizedGroup());
     this.onDidSetGridWidget.fire(void 0);
   }
@@ -1233,9 +939,7 @@ let EditorPart = class extends Part {
     container.classList.toggle("empty", this.isEmpty);
   }
   notifyGroupIndexChange() {
-    this.getGroups(GroupsOrder.GRID_APPEARANCE).forEach(
-      (group, index) => group.notifyIndexChanged(index)
-    );
+    this.getGroups(GroupsOrder.GRID_APPEARANCE).forEach((group, index) => group.notifyIndexChanged(index));
   }
   notifyGroupsLabelChange(newLabel) {
     for (const group of this.groups) {
@@ -1257,12 +961,7 @@ let EditorPart = class extends Part {
   }
   doLayout(dimension, top = this.top, left = this.left) {
     this._contentDimension = dimension;
-    this.centeredLayoutWidget.layout(
-      this._contentDimension.width,
-      this._contentDimension.height,
-      top,
-      left
-    );
+    this.centeredLayoutWidget.layout(this._contentDimension.width, this._contentDimension.height, top, left);
     this._onDidLayout.fire(dimension);
   }
   saveState() {
@@ -1307,28 +1006,15 @@ let EditorPart = class extends Part {
     this.disposeGroups();
     this.mostRecentActiveGroups = state.mostRecentActiveGroups;
     try {
-      this.doApplyGridState(
-        state.serializedGrid,
-        state.activeGroup,
-        void 0,
-        options
-      );
+      this.doApplyGridState(state.serializedGrid, state.activeGroup, void 0, options);
     } finally {
       this._onDidRemoveGroup.resume();
       this._onDidAddGroup.resume();
     }
     await this.activeGroup.openEditors(
-      groups.flatMap((group) => group.editors).filter(
-        (editor) => this.editorPartsView.groups.every(
-          (groupView) => !groupView.contains(editor)
-        )
-      ).map((editor) => ({
+      groups.flatMap((group) => group.editors).filter((editor) => this.editorPartsView.groups.every((groupView) => !groupView.contains(editor))).map((editor) => ({
         editor,
-        options: {
-          pinned: true,
-          preserveFocus: true,
-          inactive: true
-        }
+        options: { pinned: true, preserveFocus: true, inactive: true }
       }))
     );
   }
@@ -1344,12 +1030,7 @@ let EditorPart = class extends Part {
     return groups;
   }
   doApplyGridState(gridState, activeGroupId, editorGroupViewsToReuse, options) {
-    this.doCreateGridControlWithState(
-      gridState,
-      activeGroupId,
-      editorGroupViewsToReuse,
-      options
-    );
+    this.doCreateGridControlWithState(gridState, activeGroupId, editorGroupViewsToReuse, options);
     this.doLayout(this._contentDimension);
     this.updateContainer();
     for (const groupView of this.getGroups(GroupsOrder.GRID_APPEARANCE)) {
@@ -1403,19 +1084,7 @@ let MainEditorPart = class extends EditorPart {
     __name(this, "MainEditorPart");
   }
   constructor(editorPartsView, instantiationService, themeService, configurationService, storageService, layoutService, hostService, contextKeyService) {
-    super(
-      editorPartsView,
-      Parts.EDITOR_PART,
-      "",
-      mainWindow.vscodeWindowId,
-      instantiationService,
-      themeService,
-      configurationService,
-      storageService,
-      layoutService,
-      hostService,
-      contextKeyService
-    );
+    super(editorPartsView, Parts.EDITOR_PART, "", mainWindow.vscodeWindowId, instantiationService, themeService, configurationService, storageService, layoutService, hostService, contextKeyService);
   }
 };
 MainEditorPart = __decorateClass([

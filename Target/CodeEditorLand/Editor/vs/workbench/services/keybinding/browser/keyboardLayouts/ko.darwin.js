@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.inputmethod.Korean.2SetKorean",
-    lang: "ko",
-    localizedName: "2-Set Korean"
-  },
+  layout: { id: "com.apple.inputmethod.Korean.2SetKorean", lang: "ko", localizedName: "2-Set Korean" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["\u3141", "\u3141", "a", "A", 0],

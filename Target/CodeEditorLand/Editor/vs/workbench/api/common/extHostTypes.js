@@ -20,41 +20,24 @@ var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var _callOnDispose, _delegate, _items, _DataTransfer_instances, normalizeMime_fn;
-import {
-  asArray,
-  coalesceInPlace,
-  equals
-} from "../../../base/common/arrays.js";
+import { asArray, coalesceInPlace, equals } from "../../../base/common/arrays.js";
 import { illegalArgument } from "../../../base/common/errors.js";
-import {
-  MarkdownString as BaseMarkdownString
-} from "../../../base/common/htmlContent.js";
+import { IRelativePattern } from "../../../base/common/glob.js";
+import { MarkdownString as BaseMarkdownString, MarkdownStringTrustedOptions } from "../../../base/common/htmlContent.js";
 import { ResourceMap } from "../../../base/common/map.js";
 import { Mimes, normalizeMimeType } from "../../../base/common/mime.js";
 import { nextCharLength } from "../../../base/common/strings.js";
-import {
-  isNumber,
-  isObject,
-  isString,
-  isStringArray
-} from "../../../base/common/types.js";
+import { isNumber, isObject, isString, isStringArray } from "../../../base/common/types.js";
 import { URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import {
-  ExtensionIdentifier
-} from "../../../platform/extensions/common/extensions.js";
-import {
-  FileSystemProviderErrorCode,
-  markAsFileSystemProviderError
-} from "../../../platform/files/common/files.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from "../../../platform/files/common/files.js";
 import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import {
-  CellEditType,
-  isTextStreamMime
-} from "../../contrib/notebook/common/notebookCommon.js";
+import { IRelativePatternDto } from "./extHost.protocol.js";
+import { CellEditType, ICellMetadataEdit, IDocumentMetadataEdit, isTextStreamMime } from "../../contrib/notebook/common/notebookCommon.js";
 function es5ClassCompat(target) {
   const interceptFunctions = {
-    apply: /* @__PURE__ */ __name((...args) => {
+    apply: /* @__PURE__ */ __name(function(...args) {
       if (args.length === 0) {
         return Reflect.construct(target, []);
       } else {
@@ -62,7 +45,7 @@ function es5ClassCompat(target) {
         return Reflect.construct(target, argsList, args[0].constructor);
       }
     }, "apply"),
-    call: /* @__PURE__ */ __name((...args) => {
+    call: /* @__PURE__ */ __name(function(...args) {
       if (args.length === 0) {
         return Reflect.construct(target, []);
       } else {
@@ -92,7 +75,7 @@ let Disposable = class {
   }
   static from(...inDisposables) {
     let disposables = inDisposables;
-    return new Disposable(() => {
+    return new Disposable(function() {
       if (disposables) {
         for (const disposable of disposables) {
           if (disposable && typeof disposable.dispose === "function") {
@@ -239,10 +222,7 @@ let Position = class {
     if (lineDelta === 0 && characterDelta === 0) {
       return this;
     }
-    return new Position(
-      this.line + lineDelta,
-      this.character + characterDelta
-    );
+    return new Position(this.line + lineDelta, this.character + characterDelta);
   }
   with(lineOrChange, character = this.character) {
     if (lineOrChange === null || character === null) {
@@ -462,7 +442,7 @@ function getDebugDescriptionOfSelection(selection) {
 }
 __name(getDebugDescriptionOfSelection, "getDebugDescriptionOfSelection");
 const validateConnectionToken = /* @__PURE__ */ __name((connectionToken) => {
-  if (typeof connectionToken !== "string" || connectionToken.length === 0 || !/^[0-9A-Za-z_-]+$/.test(connectionToken)) {
+  if (typeof connectionToken !== "string" || connectionToken.length === 0 || !/^[0-9A-Za-z_\-]+$/.test(connectionToken)) {
     throw illegalArgument("connectionToken");
   }
 }, "validateConnectionToken");
@@ -511,17 +491,10 @@ class RemoteAuthorityResolverError extends Error {
     __name(this, "RemoteAuthorityResolverError");
   }
   static NotAvailable(message, handled) {
-    return new RemoteAuthorityResolverError(
-      message,
-      RemoteAuthorityResolverErrorCode.NotAvailable,
-      handled
-    );
+    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.NotAvailable, handled);
   }
   static TemporarilyNotAvailable(message) {
-    return new RemoteAuthorityResolverError(
-      message,
-      RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable
-    );
+    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable);
   }
   _message;
   _code;
@@ -565,10 +538,7 @@ let TextEdit = class {
     return TextEdit.replace(range, "");
   }
   static setEndOfLine(eol) {
-    const ret = new TextEdit(
-      new Range(new Position(0, 0), new Position(0, 0)),
-      ""
-    );
+    const ret = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), "");
     ret.newEol = eol;
     return ret;
   }
@@ -701,148 +671,44 @@ let WorkspaceEdit = class {
   }
   // --- file
   renameFile(from, to, options, metadata) {
-    this._edits.push({
-      _type: 1 /* File */,
-      from,
-      to,
-      options,
-      metadata
-    });
+    this._edits.push({ _type: 1 /* File */, from, to, options, metadata });
   }
   createFile(uri, options, metadata) {
-    this._edits.push({
-      _type: 1 /* File */,
-      from: void 0,
-      to: uri,
-      options,
-      metadata
-    });
+    this._edits.push({ _type: 1 /* File */, from: void 0, to: uri, options, metadata });
   }
   deleteFile(uri, options, metadata) {
-    this._edits.push({
-      _type: 1 /* File */,
-      from: uri,
-      to: void 0,
-      options,
-      metadata
-    });
+    this._edits.push({ _type: 1 /* File */, from: uri, to: void 0, options, metadata });
   }
   // --- notebook
   replaceNotebookMetadata(uri, value, metadata) {
-    this._edits.push({
-      _type: 3 /* Cell */,
-      metadata,
-      uri,
-      edit: { editType: CellEditType.DocumentMetadata, metadata: value },
-      notebookMetadata: value
-    });
+    this._edits.push({ _type: 3 /* Cell */, metadata, uri, edit: { editType: CellEditType.DocumentMetadata, metadata: value }, notebookMetadata: value });
   }
   replaceNotebookCells(uri, startOrRange, cellData, metadata) {
     const start = startOrRange.start;
     const end = startOrRange.end;
     if (start !== end || cellData.length > 0) {
-      this._edits.push({
-        _type: 5 /* CellReplace */,
-        uri,
-        index: start,
-        count: end - start,
-        cells: cellData,
-        metadata
-      });
+      this._edits.push({ _type: 5 /* CellReplace */, uri, index: start, count: end - start, cells: cellData, metadata });
     }
   }
   replaceNotebookCellMetadata(uri, index, cellMetadata, metadata) {
-    this._edits.push({
-      _type: 3 /* Cell */,
-      metadata,
-      uri,
-      edit: {
-        editType: CellEditType.Metadata,
-        index,
-        metadata: cellMetadata
-      }
-    });
+    this._edits.push({ _type: 3 /* Cell */, metadata, uri, edit: { editType: CellEditType.Metadata, index, metadata: cellMetadata } });
   }
   // --- text
   replace(uri, range, newText, metadata) {
-    this._edits.push({
-      _type: 2 /* Text */,
-      uri,
-      edit: new TextEdit(range, newText),
-      metadata
-    });
+    this._edits.push({ _type: 2 /* Text */, uri, edit: new TextEdit(range, newText), metadata });
   }
   insert(resource, position, newText, metadata) {
-    this.replace(
-      resource,
-      new Range(position, position),
-      newText,
-      metadata
-    );
+    this.replace(resource, new Range(position, position), newText, metadata);
   }
   delete(resource, range, metadata) {
     this.replace(resource, range, "", metadata);
   }
   // --- text (Maplike)
   has(uri) {
-    return this._edits.some(
-      (edit) => edit._type === 2 /* Text */ && edit.uri.toString() === uri.toString()
-    );
+    return this._edits.some((edit) => edit._type === 2 /* Text */ && edit.uri.toString() === uri.toString());
   }
   set(uri, edits) {
-    if (edits) {
-      for (const editOrTuple of edits) {
-        if (!editOrTuple) {
-          continue;
-        }
-        let edit;
-        let metadata;
-        if (Array.isArray(editOrTuple)) {
-          edit = editOrTuple[0];
-          metadata = editOrTuple[1];
-        } else {
-          edit = editOrTuple;
-        }
-        if (NotebookEdit.isNotebookCellEdit(edit)) {
-          if (edit.newCellMetadata) {
-            this.replaceNotebookCellMetadata(
-              uri,
-              edit.range.start,
-              edit.newCellMetadata,
-              metadata
-            );
-          } else if (edit.newNotebookMetadata) {
-            this.replaceNotebookMetadata(
-              uri,
-              edit.newNotebookMetadata,
-              metadata
-            );
-          } else {
-            this.replaceNotebookCells(
-              uri,
-              edit.range,
-              edit.newCells,
-              metadata
-            );
-          }
-        } else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
-          this._edits.push({
-            _type: 6 /* Snippet */,
-            uri,
-            range: edit.range,
-            edit: edit.snippet,
-            metadata
-          });
-        } else {
-          this._edits.push({
-            _type: 2 /* Text */,
-            uri,
-            edit,
-            metadata
-          });
-        }
-      }
-    } else {
+    if (!edits) {
       for (let i = 0; i < this._edits.length; i++) {
         const element = this._edits[i];
         switch (element._type) {
@@ -857,6 +723,33 @@ let WorkspaceEdit = class {
         }
       }
       coalesceInPlace(this._edits);
+    } else {
+      for (const editOrTuple of edits) {
+        if (!editOrTuple) {
+          continue;
+        }
+        let edit;
+        let metadata;
+        if (Array.isArray(editOrTuple)) {
+          edit = editOrTuple[0];
+          metadata = editOrTuple[1];
+        } else {
+          edit = editOrTuple;
+        }
+        if (NotebookEdit.isNotebookCellEdit(edit)) {
+          if (edit.newCellMetadata) {
+            this.replaceNotebookCellMetadata(uri, edit.range.start, edit.newCellMetadata, metadata);
+          } else if (edit.newNotebookMetadata) {
+            this.replaceNotebookMetadata(uri, edit.newNotebookMetadata, metadata);
+          } else {
+            this.replaceNotebookCells(uri, edit.range, edit.newCells, metadata);
+          }
+        } else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
+          this._edits.push({ _type: 6 /* Snippet */, uri, range: edit.range, edit: edit.snippet, metadata });
+        } else {
+          this._edits.push({ _type: 2 /* Text */, uri, edit, metadata });
+        }
+      }
     }
   }
   get(uri) {
@@ -1021,9 +914,7 @@ let DiagnosticRelatedInformation = class {
     if (!thing) {
       return false;
     }
-    return typeof thing.message === "string" && thing.location && Range.isRange(
-      thing.location.range
-    ) && URI.isUri(thing.location.uri);
+    return typeof thing.message === "string" && thing.location && Range.isRange(thing.location.range) && URI.isUri(thing.location.uri);
   }
   location;
   message;
@@ -1080,11 +971,7 @@ let Diagnostic = class {
     if (!a || !b) {
       return false;
     }
-    return a.message === b.message && a.severity === b.severity && a.code === b.code && a.severity === b.severity && a.source === b.source && a.range.isEqual(b.range) && equals(a.tags, b.tags) && equals(
-      a.relatedInformation,
-      b.relatedInformation,
-      DiagnosticRelatedInformation.isEqual
-    );
+    return a.message === b.message && a.severity === b.severity && a.code === b.code && a.severity === b.severity && a.source === b.source && a.range.isEqual(b.range) && equals(a.tags, b.tags) && equals(a.relatedInformation, b.relatedInformation, DiagnosticRelatedInformation.isEqual);
   }
 };
 __name(Diagnostic, "Diagnostic");
@@ -1298,9 +1185,7 @@ let CodeActionKind = class {
     this.value = value;
   }
   append(parts) {
-    return new CodeActionKind(
-      this.value ? this.value + CodeActionKind.sep + parts : parts
-    );
+    return new CodeActionKind(this.value ? this.value + CodeActionKind.sep + parts : parts);
   }
   intersects(other) {
     return this.contains(other) || other.contains(this);
@@ -2108,9 +1993,7 @@ let ShellExecution = class {
       props.push(this._commandLine);
     }
     if (this._command !== void 0) {
-      props.push(
-        typeof this._command === "string" ? this._command : this._command.value
-      );
+      props.push(typeof this._command === "string" ? this._command : this._command.value);
     }
     if (this._args && this._args.length > 0) {
       for (const arg of this._args) {
@@ -2289,15 +2172,15 @@ let Task = class {
     return this._problemMatchers;
   }
   set problemMatchers(value) {
-    if (Array.isArray(value)) {
-      this.clear();
-      this._problemMatchers = value;
-      this._hasDefinedMatchers = true;
-    } else {
+    if (!Array.isArray(value)) {
       this.clear();
       this._problemMatchers = [];
       this._hasDefinedMatchers = false;
       return;
+    } else {
+      this.clear();
+      this._problemMatchers = value;
+      this._hasDefinedMatchers = true;
     }
   }
   get hasDefinedMatchers() {
@@ -2382,17 +2265,11 @@ var ViewBadge;
   function isViewBadge(thing) {
     const viewBadgeThing = thing;
     if (!isNumber(viewBadgeThing.value)) {
-      console.log(
-        "INVALID view badge, invalid value",
-        viewBadgeThing.value
-      );
+      console.log("INVALID view badge, invalid value", viewBadgeThing.value);
       return false;
     }
     if (viewBadgeThing.tooltip && !isString(viewBadgeThing.tooltip)) {
-      console.log(
-        "INVALID view badge, invalid tooltip",
-        viewBadgeThing.tooltip
-      );
+      console.log("INVALID view badge, invalid tooltip", viewBadgeThing.tooltip);
       return false;
     }
     return true;
@@ -2422,10 +2299,7 @@ let TreeItem = class {
       const checkbox = isNumber(treeItemThing.checkboxState) ? treeItemThing.checkboxState : isObject(treeItemThing.checkboxState) && isNumber(treeItemThing.checkboxState.state) ? treeItemThing.checkboxState.state : void 0;
       const tooltip = !isNumber(treeItemThing.checkboxState) && isObject(treeItemThing.checkboxState) ? treeItemThing.checkboxState.tooltip : void 0;
       if (checkbox === void 0 || checkbox !== 1 /* Checked */ && checkbox !== 0 /* Unchecked */ || tooltip !== void 0 && !isString(tooltip)) {
-        console.log(
-          "INVALID tree item, invalid checkboxState",
-          treeItemThing.checkboxState
-        );
+        console.log("INVALID tree item, invalid checkboxState", treeItemThing.checkboxState);
         return false;
       }
     }
@@ -2433,10 +2307,7 @@ let TreeItem = class {
       return true;
     }
     if (treeItemThing.label !== void 0 && !isString(treeItemThing.label) && !treeItemThing.label?.label) {
-      console.log(
-        "INVALID tree item, invalid label",
-        treeItemThing.label
-      );
+      console.log("INVALID tree item, invalid label", treeItemThing.label);
       return false;
     }
     if (treeItemThing.id !== void 0 && !isString(treeItemThing.id)) {
@@ -2446,60 +2317,36 @@ let TreeItem = class {
     if (treeItemThing.iconPath !== void 0 && !isString(treeItemThing.iconPath) && !URI.isUri(treeItemThing.iconPath) && (!treeItemThing.iconPath || !isString(treeItemThing.iconPath.id))) {
       const asLightAndDarkThing = treeItemThing.iconPath;
       if (!asLightAndDarkThing || !isString(asLightAndDarkThing.light) && !URI.isUri(asLightAndDarkThing.light) && !isString(asLightAndDarkThing.dark) && !URI.isUri(asLightAndDarkThing.dark)) {
-        console.log(
-          "INVALID tree item, invalid iconPath",
-          treeItemThing.iconPath
-        );
+        console.log("INVALID tree item, invalid iconPath", treeItemThing.iconPath);
         return false;
       }
     }
     if (treeItemThing.description !== void 0 && !isString(treeItemThing.description) && typeof treeItemThing.description !== "boolean") {
-      console.log(
-        "INVALID tree item, invalid description",
-        treeItemThing.description
-      );
+      console.log("INVALID tree item, invalid description", treeItemThing.description);
       return false;
     }
     if (treeItemThing.resourceUri !== void 0 && !URI.isUri(treeItemThing.resourceUri)) {
-      console.log(
-        "INVALID tree item, invalid resourceUri",
-        treeItemThing.resourceUri
-      );
+      console.log("INVALID tree item, invalid resourceUri", treeItemThing.resourceUri);
       return false;
     }
     if (treeItemThing.tooltip !== void 0 && !isString(treeItemThing.tooltip) && !(treeItemThing.tooltip instanceof MarkdownString)) {
-      console.log(
-        "INVALID tree item, invalid tooltip",
-        treeItemThing.tooltip
-      );
+      console.log("INVALID tree item, invalid tooltip", treeItemThing.tooltip);
       return false;
     }
     if (treeItemThing.command !== void 0 && !treeItemThing.command.command) {
-      console.log(
-        "INVALID tree item, invalid command",
-        treeItemThing.command
-      );
+      console.log("INVALID tree item, invalid command", treeItemThing.command);
       return false;
     }
     if (treeItemThing.collapsibleState !== void 0 && treeItemThing.collapsibleState < 0 /* None */ && treeItemThing.collapsibleState > 2 /* Expanded */) {
-      console.log(
-        "INVALID tree item, invalid collapsibleState",
-        treeItemThing.collapsibleState
-      );
+      console.log("INVALID tree item, invalid collapsibleState", treeItemThing.collapsibleState);
       return false;
     }
     if (treeItemThing.contextValue !== void 0 && !isString(treeItemThing.contextValue)) {
-      console.log(
-        "INVALID tree item, invalid contextValue",
-        treeItemThing.contextValue
-      );
+      console.log("INVALID tree item, invalid contextValue", treeItemThing.contextValue);
       return false;
     }
     if (treeItemThing.accessibilityInformation !== void 0 && !treeItemThing.accessibilityInformation?.label) {
-      console.log(
-        "INVALID tree item, invalid accessibilityInformation",
-        treeItemThing.accessibilityInformation
-      );
+      console.log("INVALID tree item, invalid accessibilityInformation", treeItemThing.accessibilityInformation);
       return false;
     }
     return true;
@@ -2645,11 +2492,7 @@ class DocumentDropOrPasteEditKind {
   static Empty;
   static sep = ".";
   append(...parts) {
-    return new DocumentDropOrPasteEditKind(
-      (this.value ? [this.value, ...parts] : parts).join(
-        DocumentDropOrPasteEditKind.sep
-      )
-    );
+    return new DocumentDropOrPasteEditKind((this.value ? [this.value, ...parts] : parts).join(DocumentDropOrPasteEditKind.sep));
   }
   intersects(other) {
     return this.contains(other) || other.contains(this);
@@ -3000,52 +2843,26 @@ var FileChangeType = /* @__PURE__ */ ((FileChangeType2) => {
 })(FileChangeType || {});
 let FileSystemError = class extends Error {
   static FileExists(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.FileExists,
-      FileSystemError.FileExists
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileExists, FileSystemError.FileExists);
   }
   static FileNotFound(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.FileNotFound,
-      FileSystemError.FileNotFound
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileNotFound, FileSystemError.FileNotFound);
   }
   static FileNotADirectory(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.FileNotADirectory,
-      FileSystemError.FileNotADirectory
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileNotADirectory, FileSystemError.FileNotADirectory);
   }
   static FileIsADirectory(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.FileIsADirectory,
-      FileSystemError.FileIsADirectory
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileIsADirectory, FileSystemError.FileIsADirectory);
   }
   static NoPermissions(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.NoPermissions,
-      FileSystemError.NoPermissions
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.NoPermissions, FileSystemError.NoPermissions);
   }
   static Unavailable(messageOrUri) {
-    return new FileSystemError(
-      messageOrUri,
-      FileSystemProviderErrorCode.Unavailable,
-      FileSystemError.Unavailable
-    );
+    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.Unavailable, FileSystemError.Unavailable);
   }
   code;
   constructor(uriOrMessage, code = FileSystemProviderErrorCode.Unknown, terminator) {
-    super(
-      URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage
-    );
+    super(URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage);
     this.code = terminator?.name ?? "Unknown";
     markAsFileSystemProviderError(this, code);
     Object.setPrototypeOf(this, FileSystemError.prototype);
@@ -3184,9 +3001,7 @@ class SemanticTokensBuilder {
     if (tokenModifiers) {
       for (const tokenModifier of tokenModifiers) {
         if (!this._tokenModifierStrToInt.has(tokenModifier)) {
-          throw new Error(
-            "`tokenModifier` is not in the provided legend"
-          );
+          throw new Error("`tokenModifier` is not in the provided legend");
         }
         const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier);
         nTokenModifiers |= 1 << nTokenModifier >>> 0;
@@ -3272,10 +3087,7 @@ class SemanticTokensBuilder {
   }
   build(resultId) {
     if (!this._dataIsSortedAndDeltaEncoded) {
-      return new SemanticTokens(
-        SemanticTokensBuilder._sortAndDeltaEncode(this._data),
-        resultId
-      );
+      return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
     }
     return new SemanticTokens(new Uint32Array(this._data), resultId);
   }
@@ -3340,9 +3152,7 @@ let QuickInputButtons = class {
   }
 };
 __name(QuickInputButtons, "QuickInputButtons");
-__publicField(QuickInputButtons, "Back", {
-  iconPath: new ThemeIcon("arrow-left")
-});
+__publicField(QuickInputButtons, "Back", { iconPath: new ThemeIcon("arrow-left") });
 QuickInputButtons = __decorateClass([
   es5ClassCompat
 ], QuickInputButtons);
@@ -3373,15 +3183,11 @@ class FileDecoration {
         len += nextCharLength(d.badge, len);
       }
       if (d.badge.length > len) {
-        throw new Error(
-          `The 'badge'-property must be undefined or a short character`
-        );
+        throw new Error(`The 'badge'-property must be undefined or a short character`);
       }
     } else if (d.badge) {
       if (!ThemeIcon.isThemeIcon(d.badge)) {
-        throw new Error(
-          `The 'badge'-property is not a valid ThemeIcon`
-        );
+        throw new Error(`The 'badge'-property is not a valid ThemeIcon`);
       }
     }
     if (!d.color && !d.badge && !d.tooltip) {
@@ -3485,9 +3291,7 @@ class NotebookCellData {
     }
   }
   static isNotebookCellDataArray(value) {
-    return Array.isArray(value) && value.every(
-      (elem) => NotebookCellData.isNotebookCellData(elem)
-    );
+    return Array.isArray(value) && value.every((elem) => NotebookCellData.isNotebookCellData(elem));
   }
   static isNotebookCellData(value) {
     return true;
@@ -3526,9 +3330,7 @@ class NotebookCellOutputItem {
     this.mime = mime;
     const mimeNormalized = normalizeMimeType(mime, true);
     if (!mimeNormalized) {
-      throw new Error(
-        `INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`
-      );
+      throw new Error(`INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`);
     }
     this.mime = mimeNormalized;
   }
@@ -3550,22 +3352,13 @@ class NotebookCellOutputItem {
       message: err.message,
       stack: err.stack
     };
-    return NotebookCellOutputItem.json(
-      obj,
-      "application/vnd.code.notebook.error"
-    );
+    return NotebookCellOutputItem.json(obj, "application/vnd.code.notebook.error");
   }
   static stdout(value) {
-    return NotebookCellOutputItem.text(
-      value,
-      "application/vnd.code.notebook.stdout"
-    );
+    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stdout");
   }
   static stderr(value) {
-    return NotebookCellOutputItem.text(
-      value,
-      "application/vnd.code.notebook.stderr"
-    );
+    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stderr");
   }
   static bytes(value, mime = "application/octet-stream") {
     return new NotebookCellOutputItem(value, mime);
@@ -3605,9 +3398,7 @@ class NotebookCellOutput {
       }
       removeIdx.add(i);
       if (warn) {
-        console.warn(
-          `DUPLICATED mime type '${item.mime}' will be dropped`
-        );
+        console.warn(`DUPLICATED mime type '${item.mime}' will be dropped`);
       }
     }
     if (removeIdx.size === 0) {
@@ -3835,14 +3626,10 @@ function validateTestCoverageCount(cc) {
     return;
   }
   if (cc.covered > cc.total) {
-    throw new Error(
-      `The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`
-    );
+    throw new Error(`The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`);
   }
   if (cc.total < 0) {
-    throw new Error(
-      `The number of covered items (${cc.total}) cannot be negative`
-    );
+    throw new Error(`The number of covered items (${cc.total}) cannot be negative`);
   }
 }
 __name(validateTestCoverageCount, "validateTestCoverageCount");
@@ -4130,9 +3917,7 @@ class ChatResponseMarkdownPart {
   value;
   constructor(value) {
     if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error(
-        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
-      );
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
     }
     this.value = typeof value === "string" ? new MarkdownString(value) : value;
   }
@@ -4145,9 +3930,7 @@ class ChatResponseMarkdownWithVulnerabilitiesPart {
   vulnerabilities;
   constructor(value, vulnerabilities) {
     if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error(
-        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
-      );
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
     }
     this.value = typeof value === "string" ? new MarkdownString(value) : value;
     this.vulnerabilities = vulnerabilities;
@@ -4231,9 +4014,7 @@ class ChatResponseWarningPart {
   value;
   constructor(value) {
     if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error(
-        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
-      );
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
     }
     this.value = typeof value === "string" ? new MarkdownString(value) : value;
   }
@@ -4380,20 +4161,12 @@ class LanguageModelChatMessage {
     __name(this, "LanguageModelChatMessage");
   }
   static User(content, name) {
-    const value = new LanguageModelChatMessage(
-      1 /* User */,
-      typeof content === "string" ? content : "",
-      name
-    );
+    const value = new LanguageModelChatMessage(1 /* User */, typeof content === "string" ? content : "", name);
     value.content2 = [content];
     return value;
   }
   static Assistant(content, name) {
-    return new LanguageModelChatMessage(
-      2 /* Assistant */,
-      content,
-      name
-    );
+    return new LanguageModelChatMessage(2 /* Assistant */, content, name);
   }
   role;
   content;
@@ -4464,16 +4237,10 @@ class LanguageModelError extends Error {
     __name(this, "LanguageModelError");
   }
   static NotFound(message) {
-    return new LanguageModelError(
-      message,
-      LanguageModelError.NotFound.name
-    );
+    return new LanguageModelError(message, LanguageModelError.NotFound.name);
   }
   static NoPermissions(message) {
-    return new LanguageModelError(
-      message,
-      LanguageModelError.NoPermissions.name
-    );
+    return new LanguageModelError(message, LanguageModelError.NoPermissions.name);
   }
   static Blocked(message) {
     return new LanguageModelError(message, LanguageModelError.Blocked.name);

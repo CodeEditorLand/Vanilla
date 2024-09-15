@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
+import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
 import { TelemetryLevel } from "./telemetry.js";
+import { ITelemetryAppender } from "./telemetryUtils.js";
+import { IServerTelemetryService } from "./serverTelemetryService.js";
 class ServerTelemetryChannel extends Disposable {
   constructor(telemetryService, telemetryAppender) {
     super();
@@ -15,9 +19,7 @@ class ServerTelemetryChannel extends Disposable {
     switch (command) {
       case "updateTelemetryLevel": {
         const { telemetryLevel } = arg;
-        return this.telemetryService.updateInjectedTelemetryLevel(
-          telemetryLevel
-        );
+        return this.telemetryService.updateInjectedTelemetryLevel(telemetryLevel);
       }
       case "logTelemetry": {
         const { eventName, data } = arg;

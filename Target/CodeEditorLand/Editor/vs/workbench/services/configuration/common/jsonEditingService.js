@@ -10,27 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Queue } from "../../../../base/common/async.js";
+import * as nls from "../../../../nls.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as json from "../../../../base/common/json.js";
 import { setProperty } from "../../../../base/common/jsonEdit.js";
+import { Queue } from "../../../../base/common/async.js";
+import { Edit } from "../../../../base/common/jsonFormatter.js";
+import { IReference } from "../../../../base/common/lifecycle.js";
 import { EditOperation } from "../../../../editor/common/core/editOperation.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { Selection } from "../../../../editor/common/core/selection.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
-import * as nls from "../../../../nls.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { ITextFileService } from "../../textfile/common/textfiles.js";
-import {
-  IJSONEditingService,
-  JSONEditingError,
-  JSONEditingErrorCode
-} from "./jsonEditing.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ITextModelService, IResolvedTextEditorModel } from "../../../../editor/common/services/resolverService.js";
+import { IJSONEditingService, IJSONValue, JSONEditingError, JSONEditingErrorCode } from "./jsonEditing.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 let JSONEditingService = class {
   constructor(fileService, textModelResolverService, textFileService) {
     this.fileService = fileService;
@@ -44,9 +39,7 @@ let JSONEditingService = class {
   _serviceBrand;
   queue;
   write(resource, values) {
-    return Promise.resolve(
-      this.queue.queue(() => this.doWriteConfiguration(resource, values))
-    );
+    return Promise.resolve(this.queue.queue(() => this.doWriteConfiguration(resource, values)));
   }
   async doWriteConfiguration(resource, values) {
     const reference = await this.resolveAndValidate(resource, true);
@@ -69,27 +62,11 @@ let JSONEditingService = class {
   applyEditsToBuffer(edit, model) {
     const startPosition = model.getPositionAt(edit.offset);
     const endPosition = model.getPositionAt(edit.offset + edit.length);
-    const range = new Range(
-      startPosition.lineNumber,
-      startPosition.column,
-      endPosition.lineNumber,
-      endPosition.column
-    );
+    const range = new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
     const currentText = model.getValueInRange(range);
     if (edit.content !== currentText) {
       const editOperation = currentText ? EditOperation.replace(range, edit.content) : EditOperation.insert(startPosition, edit.content);
-      model.pushEditOperations(
-        [
-          new Selection(
-            startPosition.lineNumber,
-            startPosition.column,
-            startPosition.lineNumber,
-            startPosition.column
-          )
-        ],
-        [editOperation],
-        () => []
-      );
+      model.pushEditOperations([new Selection(startPosition.lineNumber, startPosition.column, startPosition.lineNumber, startPosition.column)], [editOperation], () => []);
       return true;
     }
     return false;
@@ -99,40 +76,25 @@ let JSONEditingService = class {
     const eol = model.getEOL();
     const { path, value } = configurationValue;
     if (!path.length) {
-      const content = JSON.stringify(
-        value,
-        null,
-        insertSpaces ? " ".repeat(tabSize) : "	"
-      );
-      return [
-        {
-          content,
-          length: content.length,
-          offset: 0
-        }
-      ];
+      const content = JSON.stringify(value, null, insertSpaces ? " ".repeat(tabSize) : "	");
+      return [{
+        content,
+        length: content.length,
+        offset: 0
+      }];
     }
-    return setProperty(model.getValue(), path, value, {
-      tabSize,
-      insertSpaces,
-      eol
-    });
+    return setProperty(model.getValue(), path, value, { tabSize, insertSpaces, eol });
   }
   async resolveModelReference(resource) {
     const exists = await this.fileService.exists(resource);
     if (!exists) {
-      await this.textFileService.write(resource, "{}", {
-        encoding: "utf8"
-      });
+      await this.textFileService.write(resource, "{}", { encoding: "utf8" });
     }
     return this.textModelResolverService.createModelReference(resource);
   }
   hasParseErrors(model) {
     const parseErrors = [];
-    json.parse(model.getValue(), parseErrors, {
-      allowTrailingComma: true,
-      allowEmptyContent: true
-    });
+    json.parse(model.getValue(), parseErrors, { allowTrailingComma: true, allowEmptyContent: true });
     return parseErrors.length > 0;
   }
   async resolveAndValidate(resource, checkDirty) {
@@ -140,9 +102,7 @@ let JSONEditingService = class {
     const model = reference.object.textEditorModel;
     if (this.hasParseErrors(model)) {
       reference.dispose();
-      return this.reject(
-        JSONEditingErrorCode.ERROR_INVALID_FILE
-      );
+      return this.reject(JSONEditingErrorCode.ERROR_INVALID_FILE);
     }
     return reference;
   }
@@ -154,10 +114,7 @@ let JSONEditingService = class {
     switch (error) {
       // User issues
       case JSONEditingErrorCode.ERROR_INVALID_FILE: {
-        return nls.localize(
-          "errorInvalidFile",
-          "Unable to write into the file. Please open the file to correct errors/warnings in the file and try again."
-        );
+        return nls.localize("errorInvalidFile", "Unable to write into the file. Please open the file to correct errors/warnings in the file and try again.");
       }
     }
   }
@@ -167,11 +124,7 @@ JSONEditingService = __decorateClass([
   __decorateParam(1, ITextModelService),
   __decorateParam(2, ITextFileService)
 ], JSONEditingService);
-registerSingleton(
-  IJSONEditingService,
-  JSONEditingService,
-  InstantiationType.Delayed
-);
+registerSingleton(IJSONEditingService, JSONEditingService, InstantiationType.Delayed);
 export {
   JSONEditingService
 };

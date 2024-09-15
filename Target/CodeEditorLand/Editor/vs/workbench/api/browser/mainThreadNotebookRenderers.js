@@ -11,30 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, ExtHostNotebookRenderersShape, MainContext, MainThreadNotebookRenderersShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { INotebookRendererMessagingService } from "../../contrib/notebook/common/notebookRendererMessagingService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadNotebookRenderers = class extends Disposable {
   constructor(extHostContext, messaging) {
     super();
     this.messaging = messaging;
-    this.proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostNotebookRenderers
-    );
-    this._register(
-      messaging.onShouldPostMessage((e) => {
-        this.proxy.$postRendererMessage(
-          e.editorId,
-          e.rendererId,
-          e.message
-        );
-      })
-    );
+    this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostNotebookRenderers);
+    this._register(messaging.onShouldPostMessage((e) => {
+      this.proxy.$postRendererMessage(e.editorId, e.rendererId, e.message);
+    }));
   }
   proxy;
   $postMessage(editorId, rendererId, message) {

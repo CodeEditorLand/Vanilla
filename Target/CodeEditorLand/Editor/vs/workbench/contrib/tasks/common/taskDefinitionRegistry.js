@@ -1,23 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as Objects from "../../../../base/common/objects.js";
-import * as Types from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
-import {
-  ExtensionsRegistry
-} from "../../../services/extensions/common/extensionsRegistry.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { IJSONSchema, IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import * as Types from "../../../../base/common/types.js";
+import * as Objects from "../../../../base/common/objects.js";
+import { ExtensionsRegistry, ExtensionMessageCollector } from "../../../services/extensions/common/extensionsRegistry.js";
+import * as Tasks from "./tasks.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 const taskDefinitionSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
     type: {
       type: "string",
-      description: nls.localize(
-        "TaskDefinition.description",
-        "The actual task type. Please note that types starting with a '$' are reserved for internal usage."
-      )
+      description: nls.localize("TaskDefinition.description", "The actual task type. Please note that types starting with a '$' are reserved for internal usage.")
     },
     required: {
       type: "array",
@@ -27,20 +26,14 @@ const taskDefinitionSchema = {
     },
     properties: {
       type: "object",
-      description: nls.localize(
-        "TaskDefinition.properties",
-        "Additional properties of the task type"
-      ),
+      description: nls.localize("TaskDefinition.properties", "Additional properties of the task type"),
       additionalProperties: {
         $ref: "http://json-schema.org/draft-07/schema#"
       }
     },
     when: {
       type: "string",
-      markdownDescription: nls.localize(
-        "TaskDefinition.when",
-        "Condition which must be true to enable this type of task. Consider using `shellExecutionSupported`, `processExecutionSupported`, and `customExecutionSupported` as appropriate for this task definition. See the [API documentation](https://code.visualstudio.com/api/extension-guides/task-provider#when-clause) for more information."
-      ),
+      markdownDescription: nls.localize("TaskDefinition.when", "Condition which must be true to enable this type of task. Consider using `shellExecutionSupported`, `processExecutionSupported`, and `customExecutionSupported` as appropriate for this task definition. See the [API documentation](https://code.visualstudio.com/api/extension-guides/task-provider#when-clause) for more information."),
       default: ""
     }
   }
@@ -53,12 +46,7 @@ var Configuration;
     }
     const taskType = Types.isString(value.type) ? value.type : void 0;
     if (!taskType || taskType.length === 0) {
-      messageCollector.error(
-        nls.localize(
-          "TaskTypeConfiguration.noType",
-          "The task type configuration is missing the required 'taskType' property"
-        )
-      );
+      messageCollector.error(nls.localize("TaskTypeConfiguration.noType", "The task type configuration is missing the required 'taskType' property"));
       return void 0;
     }
     const required = [];
@@ -90,10 +78,7 @@ const taskDefinitionsExtPoint = ExtensionsRegistry.registerExtensionPoint({
     }
   }, "activationEventsGenerator"),
   jsonSchema: {
-    description: nls.localize(
-      "TaskDefinitionExtPoint",
-      "Contributes task kinds"
-    ),
+    description: nls.localize("TaskDefinitionExtPoint", "Contributes task kinds"),
     type: "array",
     items: taskDefinitionSchema
   }
@@ -124,11 +109,7 @@ class TaskDefinitionRegistryImpl {
           for (const extension of delta.added) {
             const taskTypes = extension.value;
             for (const taskType of taskTypes) {
-              const type = Configuration.from(
-                taskType,
-                extension.description.identifier,
-                extension.collector
-              );
+              const type = Configuration.from(taskType, extension.description.identifier, extension.collector);
               if (type) {
                 this.taskTypes[type.taskType] = type;
               }
@@ -164,9 +145,7 @@ class TaskDefinitionRegistryImpl {
           schema.required = definition.required.slice(0);
         }
         if (definition.properties !== void 0) {
-          schema.properties = Objects.deepClone(
-            definition.properties
-          );
+          schema.properties = Objects.deepClone(definition.properties);
         } else {
           schema.properties = /* @__PURE__ */ Object.create(null);
         }

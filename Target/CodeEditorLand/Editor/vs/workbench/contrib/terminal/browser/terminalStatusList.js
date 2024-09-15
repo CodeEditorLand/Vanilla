@@ -10,19 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { mainWindow } from "../../../../base/browser/window.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import Severity from "../../../../base/common/severity.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { TerminalSettingId } from "../../../../platform/terminal/common/terminal.js";
-import {
-  listErrorForeground,
-  listWarningForeground
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { listErrorForeground, listWarningForeground } from "../../../../platform/theme/common/colorRegistry.js";
 import { spinningLoading } from "../../../../platform/theme/common/iconRegistry.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ITerminalStatus } from "../common/terminal.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 var TerminalStatus = /* @__PURE__ */ ((TerminalStatus2) => {
   TerminalStatus2["Bell"] = "bell";
   TerminalStatus2["Disconnected"] = "disconnected";
@@ -41,21 +39,15 @@ let TerminalStatusList = class extends Disposable {
   }
   _statuses = /* @__PURE__ */ new Map();
   _statusTimeouts = /* @__PURE__ */ new Map();
-  _onDidAddStatus = this._register(
-    new Emitter()
-  );
+  _onDidAddStatus = this._register(new Emitter());
   get onDidAddStatus() {
     return this._onDidAddStatus.event;
   }
-  _onDidRemoveStatus = this._register(
-    new Emitter()
-  );
+  _onDidRemoveStatus = this._register(new Emitter());
   get onDidRemoveStatus() {
     return this._onDidRemoveStatus.event;
   }
-  _onDidChangePrimaryStatus = this._register(
-    new Emitter()
-  );
+  _onDidChangePrimaryStatus = this._register(new Emitter());
   get onDidChangePrimaryStatus() {
     return this._onDidChangePrimaryStatus.event;
   }
@@ -81,10 +73,7 @@ let TerminalStatusList = class extends Disposable {
       this._statusTimeouts.delete(status.id);
     }
     if (duration && duration > 0) {
-      const timeout = mainWindow.setTimeout(
-        () => this.remove(status),
-        duration
-      );
+      const timeout = mainWindow.setTimeout(() => this.remove(status), duration);
       this._statusTimeouts.set(status.id, timeout);
     }
     const existingStatus = this._statuses.get(status.id);
@@ -121,9 +110,7 @@ let TerminalStatusList = class extends Disposable {
     }
   }
   _applyAnimationSetting(status) {
-    if (!status.icon || ThemeIcon.getModifier(status.icon) !== "spin" || this._configurationService.getValue(
-      TerminalSettingId.TabsEnableAnimation
-    )) {
+    if (!status.icon || ThemeIcon.getModifier(status.icon) !== "spin" || this._configurationService.getValue(TerminalSettingId.TabsEnableAnimation)) {
       return status;
     }
     let icon;

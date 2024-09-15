@@ -1,4 +1,4 @@
-var tsec_exemptions_default = "./Asset/tsec.exemptions-LOCCFHHH.json";
+var tsec_exemptions_default = "./Asset/tsec.exemptions-BMC7YC2G.json";
 export {
   tsec_exemptions_default as default
 };

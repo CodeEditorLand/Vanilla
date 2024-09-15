@@ -4,18 +4,14 @@ import { getActiveWindow } from "../../../../base/browser/dom.js";
 import { BugIndicatingError } from "../../../../base/common/errors.js";
 import { TwoKeyMap } from "../../../../base/common/map.js";
 import { ensureNonNullable } from "../gpuUtils.js";
-import {
-  UsagePreviewColors
-} from "./atlas.js";
+import { UsagePreviewColors } from "./atlas.js";
 class TextureAtlasSlabAllocator {
   constructor(_canvas, _textureIndex, options) {
     this._canvas = _canvas;
     this._textureIndex = _textureIndex;
-    this._ctx = ensureNonNullable(
-      this._canvas.getContext("2d", {
-        willReadFrequently: true
-      })
-    );
+    this._ctx = ensureNonNullable(this._canvas.getContext("2d", {
+      willReadFrequently: true
+    }));
     this._slabW = Math.min(
       options?.slabW ?? 64 << Math.floor(getActiveWindow().devicePixelRatio) - 1,
       this._canvas.width
@@ -47,9 +43,7 @@ class TextureAtlasSlabAllocator {
     const glyphWidth = rasterizedGlyph.boundingBox.right - rasterizedGlyph.boundingBox.left + 1;
     const glyphHeight = rasterizedGlyph.boundingBox.bottom - rasterizedGlyph.boundingBox.top + 1;
     if (glyphWidth > this._canvas.width || glyphHeight > this._canvas.height) {
-      throw new BugIndicatingError(
-        "Glyph is too large for the atlas page"
-      );
+      throw new BugIndicatingError("Glyph is too large for the atlas page");
     }
     if (glyphWidth > this._slabW || glyphHeight > this._slabH) {
       if (this._allocatedGlyphs.size > 0) {
@@ -62,9 +56,7 @@ class TextureAtlasSlabAllocator {
       this._slabW = sizeCandidate;
       this._slabH = sizeCandidate;
       this._slabsPerRow = Math.floor(this._canvas.width / this._slabW);
-      this._slabsPerColumn = Math.floor(
-        this._canvas.height / this._slabH
-      );
+      this._slabsPerColumn = Math.floor(this._canvas.height / this._slabH);
     }
     const desiredSlabSize = {
       // Nearest square number
@@ -81,10 +73,7 @@ class TextureAtlasSlabAllocator {
       w: glyphWidth,
       h: glyphHeight
     };
-    let slab = this._activeSlabsByDims.get(
-      desiredSlabSize.w,
-      desiredSlabSize.h
-    );
+    let slab = this._activeSlabsByDims.get(desiredSlabSize.w, desiredSlabSize.h);
     if (slab) {
       const glyphsPerSlab = Math.floor(this._slabW / slab.entryW) * Math.floor(this._slabH / slab.entryH);
       if (slab.count >= glyphsPerSlab) {
@@ -185,11 +174,7 @@ class TextureAtlasSlabAllocator {
           });
         }
         this._slabs.push(slab);
-        this._activeSlabsByDims.set(
-          desiredSlabSize.w,
-          desiredSlabSize.h,
-          slab
-        );
+        this._activeSlabsByDims.set(desiredSlabSize.w, desiredSlabSize.h, slab);
       }
       const glyphsPerRow = Math.floor(this._slabW / slab.entryW);
       dx = slab.x + Math.floor(slab.count % glyphsPerRow) * slab.entryW;

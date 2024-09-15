@@ -10,37 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Promises, ResourceQueue } from "../../../../base/common/async.js";
-import { toErrorMessage } from "../../../../base/common/errorMessage.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { extname, joinPath } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  PLAINTEXT_EXTENSION,
-  PLAINTEXT_LANGUAGE_ID
-} from "../../../../editor/common/languages/modesRegistry.js";
-import { createTextBufferFactoryFromSnapshot } from "../../../../editor/common/model/textModel.js";
 import { localize } from "../../../../nls.js";
-import {
-  FileChangeType,
-  FileOperation,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  IWorkingCopyFileService
-} from "../../workingCopy/common/workingCopyFileService.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
 import { TextFileEditorModel } from "./textFileEditorModel.js";
+import { dispose, IDisposable, Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ITextFileEditorModel, ITextFileEditorModelManager, ITextFileEditorModelResolveOrCreateOptions, ITextFileResolveEvent, ITextFileSaveEvent, ITextFileSaveParticipant } from "./textfiles.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IFileService, FileChangesEvent, FileOperation, FileChangeType, IFileSystemProviderRegistrationEvent, IFileSystemProviderCapabilitiesChangeEvent } from "../../../../platform/files/common/files.js";
+import { Promises, ResourceQueue } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { TextFileSaveParticipant } from "./textFileSaveParticipant.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStoredFileWorkingCopySaveParticipantContext, IWorkingCopyFileService, WorkingCopyFileEvent } from "../../workingCopy/common/workingCopyFileService.js";
+import { ITextSnapshot } from "../../../../editor/common/model.js";
+import { extname, joinPath } from "../../../../base/common/resources.js";
+import { createTextBufferFactoryFromSnapshot } from "../../../../editor/common/model/textModel.js";
+import { PLAINTEXT_EXTENSION, PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
 let TextFileEditorModelManager = class extends Disposable {
   constructor(instantiationService, fileService, notificationService, workingCopyFileService, uriIdentityService) {
     super();
@@ -54,45 +45,28 @@ let TextFileEditorModelManager = class extends Disposable {
   static {
     __name(this, "TextFileEditorModelManager");
   }
-  _onDidCreate = this._register(
-    new Emitter({
-      leakWarningThreshold: 500
-    })
-  );
+  _onDidCreate = this._register(new Emitter({
+    leakWarningThreshold: 500
+    /* increased for users with hundreds of inputs opened */
+  }));
   onDidCreate = this._onDidCreate.event;
-  _onDidResolve = this._register(
-    new Emitter()
-  );
+  _onDidResolve = this._register(new Emitter());
   onDidResolve = this._onDidResolve.event;
   _onDidRemove = this._register(new Emitter());
   onDidRemove = this._onDidRemove.event;
-  _onDidChangeDirty = this._register(
-    new Emitter()
-  );
+  _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidChangeReadonly = this._register(
-    new Emitter()
-  );
+  _onDidChangeReadonly = this._register(new Emitter());
   onDidChangeReadonly = this._onDidChangeReadonly.event;
-  _onDidChangeOrphaned = this._register(
-    new Emitter()
-  );
+  _onDidChangeOrphaned = this._register(new Emitter());
   onDidChangeOrphaned = this._onDidChangeOrphaned.event;
-  _onDidSaveError = this._register(
-    new Emitter()
-  );
+  _onDidSaveError = this._register(new Emitter());
   onDidSaveError = this._onDidSaveError.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
-  _onDidRevert = this._register(
-    new Emitter()
-  );
+  _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
-  _onDidChangeEncoding = this._register(
-    new Emitter()
-  );
+  _onDidChangeEncoding = this._register(new Emitter());
   onDidChangeEncoding = this._onDidChangeEncoding.event;
   mapResourceToModel = new ResourceMap();
   mapResourceToModelListeners = new ResourceMap();
@@ -103,19 +77,7 @@ let TextFileEditorModelManager = class extends Disposable {
     const notificationService = this.notificationService;
     return {
       onSaveError(error, model) {
-        notificationService.error(
-          localize(
-            {
-              key: "genericSaveError",
-              comment: [
-                "{0} is the resource that failed to save and {1} the error message"
-              ]
-            },
-            "Failed to save '{0}': {1}",
-            model.name,
-            toErrorMessage(error, false)
-          )
-        );
+        notificationService.error(localize({ key: "genericSaveError", comment: ["{0} is the resource that failed to save and {1} the error message"] }, "Failed to save '{0}': {1}", model.name, toErrorMessage(error, false)));
       }
     };
   })();
@@ -123,45 +85,19 @@ let TextFileEditorModelManager = class extends Disposable {
     return [...this.mapResourceToModel.values()];
   }
   registerListeners() {
-    this._register(
-      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderCapabilities(
-        (e) => this.onDidChangeFileSystemProviderCapabilities(e)
-      )
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderRegistrations(
-        (e) => this.onDidChangeFileSystemProviderRegistrations(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onWillRunWorkingCopyFileOperation(
-        (e) => this.onWillRunWorkingCopyFileOperation(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onDidFailWorkingCopyFileOperation(
-        (e) => this.onDidFailWorkingCopyFileOperation(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onDidRunWorkingCopyFileOperation(
-        (e) => this.onDidRunWorkingCopyFileOperation(e)
-      )
-    );
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
+    this._register(this.fileService.onDidChangeFileSystemProviderCapabilities((e) => this.onDidChangeFileSystemProviderCapabilities(e)));
+    this._register(this.fileService.onDidChangeFileSystemProviderRegistrations((e) => this.onDidChangeFileSystemProviderRegistrations(e)));
+    this._register(this.workingCopyFileService.onWillRunWorkingCopyFileOperation((e) => this.onWillRunWorkingCopyFileOperation(e)));
+    this._register(this.workingCopyFileService.onDidFailWorkingCopyFileOperation((e) => this.onDidFailWorkingCopyFileOperation(e)));
+    this._register(this.workingCopyFileService.onDidRunWorkingCopyFileOperation((e) => this.onDidRunWorkingCopyFileOperation(e)));
   }
   onDidFilesChange(e) {
     for (const model of this.models) {
       if (model.isDirty()) {
         continue;
       }
-      if (e.contains(
-        model.resource,
-        FileChangeType.UPDATED,
-        FileChangeType.ADDED
-      )) {
+      if (e.contains(model.resource, FileChangeType.UPDATED, FileChangeType.ADDED)) {
         this.queueModelReload(model);
       }
     }
@@ -208,28 +144,17 @@ let TextFileEditorModelManager = class extends Disposable {
           }
           const sourceModels = [];
           for (const model of this.models) {
-            if (this.uriIdentityService.extUri.isEqualOrParent(
-              model.resource,
-              source
-            )) {
+            if (this.uriIdentityService.extUri.isEqualOrParent(model.resource, source)) {
               sourceModels.push(model);
             }
           }
           for (const sourceModel of sourceModels) {
             const sourceModelResource = sourceModel.resource;
             let targetModelResource;
-            if (this.uriIdentityService.extUri.isEqual(
-              sourceModelResource,
-              source
-            )) {
+            if (this.uriIdentityService.extUri.isEqual(sourceModelResource, source)) {
               targetModelResource = target;
             } else {
-              targetModelResource = joinPath(
-                target,
-                sourceModelResource.path.substr(
-                  source.path.length + 1
-                )
-              );
+              targetModelResource = joinPath(target, sourceModelResource.path.substr(source.path.length + 1));
             }
             modelsToRestore.push({
               source: sourceModelResource,
@@ -241,17 +166,12 @@ let TextFileEditorModelManager = class extends Disposable {
           }
         }
       }
-      this.mapCorrelationIdToModelsToRestore.set(
-        e.correlationId,
-        modelsToRestore
-      );
+      this.mapCorrelationIdToModelsToRestore.set(e.correlationId, modelsToRestore);
     }
   }
   onDidFailWorkingCopyFileOperation(e) {
     if (e.operation === FileOperation.MOVE || e.operation === FileOperation.COPY) {
-      const modelsToRestore = this.mapCorrelationIdToModelsToRestore.get(
-        e.correlationId
-      );
+      const modelsToRestore = this.mapCorrelationIdToModelsToRestore.get(e.correlationId);
       if (modelsToRestore) {
         this.mapCorrelationIdToModelsToRestore.delete(e.correlationId);
         modelsToRestore.forEach((model) => {
@@ -266,56 +186,36 @@ let TextFileEditorModelManager = class extends Disposable {
     switch (e.operation) {
       // Create: Revert existing models
       case FileOperation.CREATE:
-        e.waitUntil(
-          (async () => {
-            for (const { target } of e.files) {
-              const model = this.get(target);
-              if (model && !model.isDisposed()) {
-                await model.revert();
-              }
+        e.waitUntil((async () => {
+          for (const { target } of e.files) {
+            const model = this.get(target);
+            if (model && !model.isDisposed()) {
+              await model.revert();
             }
-          })()
-        );
+          }
+        })());
         break;
       // Move/Copy: restore models that were resolved before the operation took place
       case FileOperation.MOVE:
       case FileOperation.COPY:
-        e.waitUntil(
-          (async () => {
-            const modelsToRestore = this.mapCorrelationIdToModelsToRestore.get(
-              e.correlationId
-            );
-            if (modelsToRestore) {
-              this.mapCorrelationIdToModelsToRestore.delete(
-                e.correlationId
-              );
-              await Promises.settled(
-                modelsToRestore.map(async (modelToRestore) => {
-                  const target = this.uriIdentityService.asCanonicalUri(
-                    modelToRestore.target
-                  );
-                  const restoredModel = await this.resolve(
-                    target,
-                    {
-                      reload: { async: false },
-                      // enforce a reload
-                      contents: modelToRestore.snapshot ? createTextBufferFactoryFromSnapshot(
-                        modelToRestore.snapshot
-                      ) : void 0,
-                      encoding: modelToRestore.encoding
-                    }
-                  );
-                  if (modelToRestore.languageId && modelToRestore.languageId !== PLAINTEXT_LANGUAGE_ID && restoredModel.getLanguageId() === PLAINTEXT_LANGUAGE_ID && extname(target) !== PLAINTEXT_EXTENSION) {
-                    restoredModel.updateTextEditorModel(
-                      void 0,
-                      modelToRestore.languageId
-                    );
-                  }
-                })
-              );
-            }
-          })()
-        );
+        e.waitUntil((async () => {
+          const modelsToRestore = this.mapCorrelationIdToModelsToRestore.get(e.correlationId);
+          if (modelsToRestore) {
+            this.mapCorrelationIdToModelsToRestore.delete(e.correlationId);
+            await Promises.settled(modelsToRestore.map(async (modelToRestore) => {
+              const target = this.uriIdentityService.asCanonicalUri(modelToRestore.target);
+              const restoredModel = await this.resolve(target, {
+                reload: { async: false },
+                // enforce a reload
+                contents: modelToRestore.snapshot ? createTextBufferFactoryFromSnapshot(modelToRestore.snapshot) : void 0,
+                encoding: modelToRestore.encoding
+              });
+              if (modelToRestore.languageId && modelToRestore.languageId !== PLAINTEXT_LANGUAGE_ID && restoredModel.getLanguageId() === PLAINTEXT_LANGUAGE_ID && extname(target) !== PLAINTEXT_EXTENSION) {
+                restoredModel.updateTextEditorModel(void 0, modelToRestore.languageId);
+              }
+            }));
+          }
+        })());
         break;
     }
   }
@@ -372,12 +272,7 @@ let TextFileEditorModelManager = class extends Disposable {
       }
     } else {
       didCreateModel = true;
-      const newModel = model = this.instantiationService.createInstance(
-        TextFileEditorModel,
-        resource,
-        options ? options.encoding : void 0,
-        options ? options.languageId : void 0
-      );
+      const newModel = model = this.instantiationService.createInstance(TextFileEditorModel, resource, options ? options.encoding : void 0, options ? options.languageId : void 0);
       modelResolve = model.resolve(options);
       this.registerModel(newModel);
     }
@@ -430,38 +325,14 @@ let TextFileEditorModelManager = class extends Disposable {
   }
   registerModel(model) {
     const modelListeners = new DisposableStore();
-    modelListeners.add(
-      model.onDidResolve(
-        (reason) => this._onDidResolve.fire({ model, reason })
-      )
-    );
-    modelListeners.add(
-      model.onDidChangeDirty(() => this._onDidChangeDirty.fire(model))
-    );
-    modelListeners.add(
-      model.onDidChangeReadonly(
-        () => this._onDidChangeReadonly.fire(model)
-      )
-    );
-    modelListeners.add(
-      model.onDidChangeOrphaned(
-        () => this._onDidChangeOrphaned.fire(model)
-      )
-    );
-    modelListeners.add(
-      model.onDidSaveError(() => this._onDidSaveError.fire(model))
-    );
-    modelListeners.add(
-      model.onDidSave((e) => this._onDidSave.fire({ model, ...e }))
-    );
-    modelListeners.add(
-      model.onDidRevert(() => this._onDidRevert.fire(model))
-    );
-    modelListeners.add(
-      model.onDidChangeEncoding(
-        () => this._onDidChangeEncoding.fire(model)
-      )
-    );
+    modelListeners.add(model.onDidResolve((reason) => this._onDidResolve.fire({ model, reason })));
+    modelListeners.add(model.onDidChangeDirty(() => this._onDidChangeDirty.fire(model)));
+    modelListeners.add(model.onDidChangeReadonly(() => this._onDidChangeReadonly.fire(model)));
+    modelListeners.add(model.onDidChangeOrphaned(() => this._onDidChangeOrphaned.fire(model)));
+    modelListeners.add(model.onDidSaveError(() => this._onDidSaveError.fire(model)));
+    modelListeners.add(model.onDidSave((e) => this._onDidSave.fire({ model, ...e })));
+    modelListeners.add(model.onDidRevert(() => this._onDidRevert.fire(model)));
+    modelListeners.add(model.onDidChangeEncoding(() => this._onDidChangeEncoding.fire(model)));
     this.mapResourceToModelListeners.set(model.resource, modelListeners);
   }
   add(resource, model) {
@@ -472,10 +343,7 @@ let TextFileEditorModelManager = class extends Disposable {
     const disposeListener = this.mapResourceToDisposeListener.get(resource);
     disposeListener?.dispose();
     this.mapResourceToModel.set(resource, model);
-    this.mapResourceToDisposeListener.set(
-      resource,
-      model.onWillDispose(() => this.remove(resource))
-    );
+    this.mapResourceToDisposeListener.set(resource, model.onWillDispose(() => this.remove(resource)));
   }
   remove(resource) {
     const removed = this.mapResourceToModel.delete(resource);
@@ -494,19 +362,12 @@ let TextFileEditorModelManager = class extends Disposable {
     }
   }
   //#region Save participants
-  saveParticipants = this._register(
-    this.instantiationService.createInstance(TextFileSaveParticipant)
-  );
+  saveParticipants = this._register(this.instantiationService.createInstance(TextFileSaveParticipant));
   addSaveParticipant(participant) {
     return this.saveParticipants.addSaveParticipant(participant);
   }
   runSaveParticipants(model, context, progress, token) {
-    return this.saveParticipants.participate(
-      model,
-      context,
-      progress,
-      token
-    );
+    return this.saveParticipants.participate(model, context, progress, token);
   }
   //#endregion
   canDispose(model) {

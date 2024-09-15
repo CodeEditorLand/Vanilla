@@ -1,38 +1,36 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { toAction } from "../../base/common/actions.js";
-import {
-  createErrorWithActions,
-  isErrorWithActions
-} from "../../base/common/errorMessage.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../base/common/lifecycle.js";
-import { Schemas } from "../../base/common/network.js";
-import Severity from "../../base/common/severity.js";
-import {
-  assertIsDefined
-} from "../../base/common/types.js";
-import { URI } from "../../base/common/uri.js";
 import { localize } from "../../nls.js";
-import {
-  FileType
-} from "../../platform/files/common/files.js";
-import {
-  IInstantiationService
-} from "../../platform/instantiation/common/instantiation.js";
+import { Event } from "../../base/common/event.js";
+import { DeepRequiredNonNullable, assertIsDefined } from "../../base/common/types.js";
+import { URI } from "../../base/common/uri.js";
+import { Disposable, IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { ICodeEditorViewState, IDiffEditor, IDiffEditorViewState, IEditor, IEditorViewState } from "../../editor/common/editorCommon.js";
+import { IEditorOptions, IResourceEditorInput, ITextResourceEditorInput, IBaseTextResourceEditorInput, IBaseUntypedEditorInput, ITextEditorOptions } from "../../platform/editor/common/editor.js";
+import { IInstantiationService, IConstructorSignature, ServicesAccessor, BrandedService } from "../../platform/instantiation/common/instantiation.js";
+import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
 import { Registry } from "../../platform/registry/common/platform.js";
+import { IEncodingSupport, ILanguageSupport } from "../services/textfile/common/textfiles.js";
+import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
+import { ICompositeControl, IComposite } from "./composite.js";
+import { FileType, IFileReadLimits, IFileService } from "../../platform/files/common/files.js";
+import { IPathData } from "../../platform/window/common/window.js";
+import { IExtUri } from "../../base/common/resources.js";
+import { Schemas } from "../../base/common/network.js";
+import { IEditorService } from "../services/editor/common/editorService.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IErrorWithActions, createErrorWithActions, isErrorWithActions } from "../../base/common/errorMessage.js";
+import { IAction, toAction } from "../../base/common/actions.js";
+import Severity from "../../base/common/severity.js";
+import { IPreferencesService } from "../services/preferences/common/preferences.js";
+import { IReadonlyEditorGroupModel } from "./editor/editorGroupModel.js";
 const EditorExtensions = {
   EditorPane: "workbench.contributions.editors",
   EditorFactory: "workbench.contributions.editor.inputFactories"
 };
 const DEFAULT_EDITOR_ASSOCIATION = {
   id: "default",
-  displayName: localize(
-    "promptOpenWith.defaultEditor.displayName",
-    "Text Editor"
-  ),
+  displayName: localize("promptOpenWith.defaultEditor.displayName", "Text Editor"),
   providerDisplayName: localize("builtinProviderDisplayName", "Built-in")
 };
 const SIDE_BY_SIDE_EDITOR_ID = "workbench.editor.sidebysideEditor";
@@ -205,40 +203,31 @@ function isDiffEditorInput(editor) {
 }
 __name(isDiffEditorInput, "isDiffEditorInput");
 function createTooLargeFileError(group, input, options, message, preferencesService) {
-  return createEditorOpenError(
-    message,
-    [
-      toAction({
-        id: "workbench.action.openLargeFile",
-        label: localize("openLargeFile", "Open Anyway"),
-        run: /* @__PURE__ */ __name(() => {
-          const fileEditorOptions = {
-            ...options,
-            limits: {
-              size: Number.MAX_VALUE
-            }
-          };
-          group.openEditor(input, fileEditorOptions);
-        }, "run")
-      }),
-      toAction({
-        id: "workbench.action.configureEditorLargeFileConfirmation",
-        label: localize(
-          "configureEditorLargeFileConfirmation",
-          "Configure Limit"
-        ),
-        run: /* @__PURE__ */ __name(() => {
-          return preferencesService.openUserSettings({
-            query: "workbench.editorLargeFileConfirmation"
-          });
-        }, "run")
-      })
-    ],
-    {
-      forceMessage: true,
-      forceSeverity: Severity.Warning
-    }
-  );
+  return createEditorOpenError(message, [
+    toAction({
+      id: "workbench.action.openLargeFile",
+      label: localize("openLargeFile", "Open Anyway"),
+      run: /* @__PURE__ */ __name(() => {
+        const fileEditorOptions = {
+          ...options,
+          limits: {
+            size: Number.MAX_VALUE
+          }
+        };
+        group.openEditor(input, fileEditorOptions);
+      }, "run")
+    }),
+    toAction({
+      id: "workbench.action.configureEditorLargeFileConfirmation",
+      label: localize("configureEditorLargeFileConfirmation", "Configure Limit"),
+      run: /* @__PURE__ */ __name(() => {
+        return preferencesService.openUserSettings({ query: "workbench.editorLargeFileConfirmation" });
+      }, "run")
+    })
+  ], {
+    forceMessage: true,
+    forceSeverity: Severity.Warning
+  });
 }
 __name(createTooLargeFileError, "createTooLargeFileError");
 function isEditorInputWithOptions(editor) {
@@ -303,29 +292,18 @@ class EditorResourceAccessorImpl {
       return void 0;
     }
     if (isResourceMergeEditorInput(editor)) {
-      return EditorResourceAccessor.getOriginalUri(
-        editor.result,
-        options
-      );
+      return EditorResourceAccessor.getOriginalUri(editor.result, options);
     }
     if (options?.supportSideBySide) {
       const { primary, secondary } = this.getSideEditors(editor);
       if (primary && secondary) {
         if (options?.supportSideBySide === 3 /* BOTH */) {
           return {
-            primary: this.getOriginalUri(primary, {
-              filterByScheme: options.filterByScheme
-            }),
-            secondary: this.getOriginalUri(secondary, {
-              filterByScheme: options.filterByScheme
-            })
+            primary: this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }),
+            secondary: this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme })
           };
         } else if (options?.supportSideBySide === 4 /* ANY */) {
-          return this.getOriginalUri(primary, {
-            filterByScheme: options.filterByScheme
-          }) ?? this.getOriginalUri(secondary, {
-            filterByScheme: options.filterByScheme
-          });
+          return this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme });
         }
         editor = options.supportSideBySide === 1 /* PRIMARY */ ? primary : secondary;
       }
@@ -353,29 +331,18 @@ class EditorResourceAccessorImpl {
       return void 0;
     }
     if (isResourceMergeEditorInput(editor)) {
-      return EditorResourceAccessor.getCanonicalUri(
-        editor.result,
-        options
-      );
+      return EditorResourceAccessor.getCanonicalUri(editor.result, options);
     }
     if (options?.supportSideBySide) {
       const { primary, secondary } = this.getSideEditors(editor);
       if (primary && secondary) {
         if (options?.supportSideBySide === 3 /* BOTH */) {
           return {
-            primary: this.getCanonicalUri(primary, {
-              filterByScheme: options.filterByScheme
-            }),
-            secondary: this.getCanonicalUri(secondary, {
-              filterByScheme: options.filterByScheme
-            })
+            primary: this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }),
+            secondary: this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme })
           };
         } else if (options?.supportSideBySide === 4 /* ANY */) {
-          return this.getCanonicalUri(primary, {
-            filterByScheme: options.filterByScheme
-          }) ?? this.getCanonicalUri(secondary, {
-            filterByScheme: options.filterByScheme
-          });
+          return this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme });
         }
         editor = options.supportSideBySide === 1 /* PRIMARY */ ? primary : secondary;
       }
@@ -394,8 +361,10 @@ class EditorResourceAccessorImpl {
       if (filter.some((scheme) => resource.scheme === scheme)) {
         return resource;
       }
-    } else if (filter === resource.scheme) {
-      return resource;
+    } else {
+      if (filter === resource.scheme) {
+        return resource;
+      }
     }
     return void 0;
   }
@@ -436,9 +405,7 @@ class EditorFactoryRegistry {
   editorSerializerConstructors = /* @__PURE__ */ new Map();
   editorSerializerInstances = /* @__PURE__ */ new Map();
   start(accessor) {
-    const instantiationService = this.instantiationService = accessor.get(
-      IInstantiationService
-    );
+    const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
     for (const [key, ctor] of this.editorSerializerConstructors) {
       this.createEditorSerializer(key, ctor, instantiationService);
     }
@@ -459,18 +426,12 @@ class EditorFactoryRegistry {
   }
   registerEditorSerializer(editorTypeId, ctor) {
     if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
-      throw new Error(
-        `A editor serializer with type ID '${editorTypeId}' was already registered.`
-      );
+      throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
     }
-    if (this.instantiationService) {
-      this.createEditorSerializer(
-        editorTypeId,
-        ctor,
-        this.instantiationService
-      );
-    } else {
+    if (!this.instantiationService) {
       this.editorSerializerConstructors.set(editorTypeId, ctor);
+    } else {
+      this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
     }
     return toDisposable(() => {
       this.editorSerializerConstructors.delete(editorTypeId);
@@ -478,9 +439,7 @@ class EditorFactoryRegistry {
     });
   }
   getEditorSerializer(arg1) {
-    return this.editorSerializerInstances.get(
-      typeof arg1 === "string" ? arg1 : arg1.typeId
-    );
+    return this.editorSerializerInstances.get(typeof arg1 === "string" ? arg1 : arg1.typeId);
   }
 }
 Registry.add(EditorExtensions.EditorFactory, new EditorFactoryRegistry());
@@ -488,59 +447,45 @@ async function pathsToEditors(paths, fileService, logService) {
   if (!paths || !paths.length) {
     return [];
   }
-  return await Promise.all(
-    paths.map(async (path) => {
-      const resource = URI.revive(path.fileUri);
-      if (!resource) {
-        logService.info(
-          "Cannot resolve the path because it is not valid.",
-          path
-        );
-        return void 0;
+  return await Promise.all(paths.map(async (path) => {
+    const resource = URI.revive(path.fileUri);
+    if (!resource) {
+      logService.info("Cannot resolve the path because it is not valid.", path);
+      return void 0;
+    }
+    const canHandleResource = await fileService.canHandleResource(resource);
+    if (!canHandleResource) {
+      logService.info("Cannot resolve the path because it cannot be handled", path);
+      return void 0;
+    }
+    let exists = path.exists;
+    let type = path.type;
+    if (typeof exists !== "boolean" || typeof type !== "number") {
+      try {
+        type = (await fileService.stat(resource)).isDirectory ? FileType.Directory : FileType.Unknown;
+        exists = true;
+      } catch (error) {
+        logService.error(error);
+        exists = false;
       }
-      const canHandleResource = await fileService.canHandleResource(resource);
-      if (!canHandleResource) {
-        logService.info(
-          "Cannot resolve the path because it cannot be handled",
-          path
-        );
-        return void 0;
-      }
-      let exists = path.exists;
-      let type = path.type;
-      if (typeof exists !== "boolean" || typeof type !== "number") {
-        try {
-          type = (await fileService.stat(resource)).isDirectory ? FileType.Directory : FileType.Unknown;
-          exists = true;
-        } catch (error) {
-          logService.error(error);
-          exists = false;
-        }
-      }
-      if (!exists && path.openOnlyIfExists) {
-        logService.info(
-          "Cannot resolve the path because it does not exist",
-          path
-        );
-        return void 0;
-      }
-      if (type === FileType.Directory) {
-        logService.info(
-          "Cannot resolve the path because it is a directory",
-          path
-        );
-        return void 0;
-      }
-      const options = {
-        ...path.options,
-        pinned: true
-      };
-      if (!exists) {
-        return { resource, options, forceUntitled: true };
-      }
-      return { resource, options };
-    })
-  );
+    }
+    if (!exists && path.openOnlyIfExists) {
+      logService.info("Cannot resolve the path because it does not exist", path);
+      return void 0;
+    }
+    if (type === FileType.Directory) {
+      logService.info("Cannot resolve the path because it is a directory", path);
+      return void 0;
+    }
+    const options = {
+      ...path.options,
+      pinned: true
+    };
+    if (!exists) {
+      return { resource, options, forceUntitled: true };
+    }
+    return { resource, options };
+  }));
 }
 __name(pathsToEditors, "pathsToEditors");
 var EditorsOrder = /* @__PURE__ */ ((EditorsOrder2) => {
@@ -566,10 +511,7 @@ function isEditorOpenError(obj) {
 }
 __name(isEditorOpenError, "isEditorOpenError");
 function createEditorOpenError(messageOrError, actions, options) {
-  const error = createErrorWithActions(
-    messageOrError,
-    actions
-  );
+  const error = createErrorWithActions(messageOrError, actions);
   error.forceMessage = options?.forceMessage;
   error.forceSeverity = options?.forceSeverity;
   error.allowDialog = options?.allowDialog;

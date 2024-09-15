@@ -11,46 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as arrays from "../../../../base/common/arrays.js";
-import {
-  DeferredPromise,
-  raceCancellationError
-} from "../../../../base/common/async.js";
+import { DeferredPromise, raceCancellationError } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { CancellationError } from "../../../../base/common/errors.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { ResourceMap, ResourceSet } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
 import { isNumber } from "../../../../base/common/types.js";
+import { URI, URI as uri } from "../../../../base/common/uri.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  EditorResourceAccessor,
-  SideBySideEditor
-} from "../../../common/editor.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
-import {
-  DEFAULT_MAX_SEARCH_RESULTS,
-  FileMatch,
-  QueryType,
-  SEARCH_RESULT_LANGUAGE_ID,
-  SearchErrorCode,
-  SearchProviderType,
-  deserializeSearchError,
-  isFileMatch,
-  isProgressMessage,
-  pathIncludedInQuery
-} from "./search.js";
-import {
-  editorMatchesToTextSearchResults,
-  getTextSearchMatchWithModelContext
-} from "./searchHelpers.js";
+import { DEFAULT_MAX_SEARCH_RESULTS, deserializeSearchError, FileMatch, IAITextQuery, ICachedSearchStats, IFileMatch, IFileQuery, IFileSearchStats, IFolderQuery, IProgressMessage, ISearchComplete, ISearchEngineStats, ISearchProgressItem, ISearchQuery, ISearchResultProvider, ISearchService, isFileMatch, isProgressMessage, ITextQuery, pathIncludedInQuery, QueryType, SEARCH_RESULT_LANGUAGE_ID, SearchError, SearchErrorCode, SearchProviderType } from "./search.js";
+import { getTextSearchMatchWithModelContext, editorMatchesToTextSearchResults } from "./searchHelpers.js";
 let SearchService = class extends Disposable {
   constructor(modelService, editorService, telemetryService, logService, extensionService, fileService, uriIdentityService) {
     super();
@@ -124,9 +103,7 @@ let SearchService = class extends Disposable {
   textSearchSplitSyncAsync(query, token, onProgress, notebookFilesToIgnore, asyncNotebookFilesToIgnore) {
     const openEditorResults = this.getOpenEditorResults(query);
     if (onProgress) {
-      arrays.coalesce([...openEditorResults.results.values()]).filter(
-        (e) => !(notebookFilesToIgnore && notebookFilesToIgnore.has(e.resource))
-      ).forEach(onProgress);
+      arrays.coalesce([...openEditorResults.results.values()]).filter((e) => !(notebookFilesToIgnore && notebookFilesToIgnore.has(e.resource))).forEach(onProgress);
     }
     const syncResults = {
       results: arrays.coalesce([...openEditorResults.results.values()]),
@@ -137,19 +114,14 @@ let SearchService = class extends Disposable {
       const resolvedAsyncNotebookFilesToIgnore = await asyncNotebookFilesToIgnore ?? new ResourceSet();
       const onProviderProgress = /* @__PURE__ */ __name((progress) => {
         if (isFileMatch(progress)) {
-          if (!openEditorResults.results.has(progress.resource) && !resolvedAsyncNotebookFilesToIgnore.has(
-            progress.resource
-          ) && onProgress) {
+          if (!openEditorResults.results.has(progress.resource) && !resolvedAsyncNotebookFilesToIgnore.has(progress.resource) && onProgress) {
             onProgress(progress);
           }
         } else if (onProgress) {
           onProgress(progress);
         }
         if (isProgressMessage(progress)) {
-          this.logService.debug(
-            "SearchService#search",
-            progress.message
-          );
+          this.logService.debug("SearchService#search", progress.message);
         }
       }, "onProviderProgress");
       return await this.doSearch(query, token, onProviderProgress);
@@ -166,14 +138,8 @@ let SearchService = class extends Disposable {
     this.logService.trace("SearchService#search", JSON.stringify(query));
     const schemesInQuery = this.getSchemesInQuery(query);
     const providerActivations = [Promise.resolve(null)];
-    schemesInQuery.forEach(
-      (scheme) => providerActivations.push(
-        this.extensionService.activateByEvent(`onSearch:${scheme}`)
-      )
-    );
-    providerActivations.push(
-      this.extensionService.activateByEvent("onSearch:file")
-    );
+    schemesInQuery.forEach((scheme) => providerActivations.push(this.extensionService.activateByEvent(`onSearch:${scheme}`)));
+    providerActivations.push(this.extensionService.activateByEvent("onSearch:file"));
     const providerPromise = (async () => {
       await Promise.all(providerActivations);
       await this.extensionService.whenInstalledExtensionsRegistered();
@@ -186,19 +152,9 @@ let SearchService = class extends Disposable {
         }
         onProgress?.(item);
       }, "progressCallback");
-      const exists = await Promise.all(
-        query.folderQueries.map(
-          (query2) => this.fileService.exists(query2.folder)
-        )
-      );
-      query.folderQueries = query.folderQueries.filter(
-        (_, i) => exists[i]
-      );
-      let completes = await this.searchWithProviders(
-        query,
-        progressCallback,
-        token
-      );
+      const exists = await Promise.all(query.folderQueries.map((query2) => this.fileService.exists(query2.folder)));
+      query.folderQueries = query.folderQueries.filter((_, i) => exists[i]);
+      let completes = await this.searchWithProviders(query, progressCallback, token);
       completes = arrays.coalesce(completes);
       if (!completes.length) {
         return {
@@ -210,11 +166,7 @@ let SearchService = class extends Disposable {
       return {
         limitHit: completes[0] && completes[0].limitHit,
         stats: completes[0].stats,
-        messages: arrays.coalesce(completes.flatMap((i) => i.messages)).filter(
-          arrays.uniqueFilter(
-            (message) => message.type + message.text + message.trusted
-          )
-        ),
+        messages: arrays.coalesce(completes.flatMap((i) => i.messages)).filter(arrays.uniqueFilter((message) => message.type + message.text + message.trusted)),
         results: completes.flatMap((c) => c.results)
       };
     })();
@@ -223,9 +175,7 @@ let SearchService = class extends Disposable {
   getSchemesInQuery(query) {
     const schemes = /* @__PURE__ */ new Set();
     query.folderQueries?.forEach((fq) => schemes.add(fq.folder.scheme));
-    query.extraFileResources?.forEach(
-      (extraFile) => schemes.add(extraFile.scheme)
-    );
+    query.extraFileResources?.forEach((extraFile) => schemes.add(extraFile.scheme));
     return schemes;
   }
   async waitForProvider(queryType, scheme) {
@@ -272,89 +222,60 @@ let SearchService = class extends Disposable {
     if (query.type === QueryType.aiText && !someSchemeHasProvider) {
       return [];
     }
-    await Promise.all(
-      [...fqs.keys()].map(async (scheme) => {
-        if (query.onlyFileScheme && scheme !== Schemas.file) {
-          return;
-        }
-        const schemeFQs = fqs.get(scheme);
-        let provider = this.getSearchProvider(query.type).get(scheme);
-        if (!provider) {
-          if (someSchemeHasProvider) {
-            if (!this.loggedSchemesMissingProviders.has(scheme)) {
-              this.logService.warn(
-                `No search provider registered for scheme: ${scheme}. Another scheme has a provider, not waiting for ${scheme}`
-              );
-              this.loggedSchemesMissingProviders.add(scheme);
-            }
-            return;
-          } else {
-            if (!this.loggedSchemesMissingProviders.has(scheme)) {
-              this.logService.warn(
-                `No search provider registered for scheme: ${scheme}, waiting`
-              );
-              this.loggedSchemesMissingProviders.add(scheme);
-            }
-            provider = await this.waitForProvider(
-              query.type,
-              scheme
-            );
-          }
-        }
-        const oneSchemeQuery = {
-          ...query,
-          ...{
-            folderQueries: schemeFQs
-          }
-        };
-        const doProviderSearch = /* @__PURE__ */ __name(() => {
-          switch (query.type) {
-            case QueryType.File:
-              return provider.fileSearch(
-                oneSchemeQuery,
-                token
-              );
-            case QueryType.Text:
-              return provider.textSearch(
-                oneSchemeQuery,
-                onProviderProgress,
-                token
-              );
-            default:
-              return provider.textSearch(
-                oneSchemeQuery,
-                onProviderProgress,
-                token
-              );
-          }
-        }, "doProviderSearch");
-        searchPs.push(doProviderSearch());
-      })
-    );
-    return Promise.all(searchPs).then(
-      (completes) => {
-        const endToEndTime = e2eSW.elapsed();
-        this.logService.trace(
-          `SearchService#search: ${endToEndTime}ms`
-        );
-        completes.forEach((complete) => {
-          this.sendTelemetry(query, endToEndTime, complete);
-        });
-        return completes;
-      },
-      (err) => {
-        const endToEndTime = e2eSW.elapsed();
-        this.logService.trace(
-          `SearchService#search: ${endToEndTime}ms`
-        );
-        const searchError = deserializeSearchError(err);
-        this.logService.trace(
-          `SearchService#searchError: ${searchError.message}`
-        );
-        this.sendTelemetry(query, endToEndTime, void 0, searchError);
-        throw searchError;
+    await Promise.all([...fqs.keys()].map(async (scheme) => {
+      if (query.onlyFileScheme && scheme !== Schemas.file) {
+        return;
       }
-    );
+      const schemeFQs = fqs.get(scheme);
+      let provider = this.getSearchProvider(query.type).get(scheme);
+      if (!provider) {
+        if (someSchemeHasProvider) {
+          if (!this.loggedSchemesMissingProviders.has(scheme)) {
+            this.logService.warn(`No search provider registered for scheme: ${scheme}. Another scheme has a provider, not waiting for ${scheme}`);
+            this.loggedSchemesMissingProviders.add(scheme);
+          }
+          return;
+        } else {
+          if (!this.loggedSchemesMissingProviders.has(scheme)) {
+            this.logService.warn(`No search provider registered for scheme: ${scheme}, waiting`);
+            this.loggedSchemesMissingProviders.add(scheme);
+          }
+          provider = await this.waitForProvider(query.type, scheme);
+        }
+      }
+      const oneSchemeQuery = {
+        ...query,
+        ...{
+          folderQueries: schemeFQs
+        }
+      };
+      const doProviderSearch = /* @__PURE__ */ __name(() => {
+        switch (query.type) {
+          case QueryType.File:
+            return provider.fileSearch(oneSchemeQuery, token);
+          case QueryType.Text:
+            return provider.textSearch(oneSchemeQuery, onProviderProgress, token);
+          default:
+            return provider.textSearch(oneSchemeQuery, onProviderProgress, token);
+        }
+      }, "doProviderSearch");
+      searchPs.push(doProviderSearch());
+    }));
+    return Promise.all(searchPs).then((completes) => {
+      const endToEndTime = e2eSW.elapsed();
+      this.logService.trace(`SearchService#search: ${endToEndTime}ms`);
+      completes.forEach((complete) => {
+        this.sendTelemetry(query, endToEndTime, complete);
+      });
+      return completes;
+    }, (err) => {
+      const endToEndTime = e2eSW.elapsed();
+      this.logService.trace(`SearchService#search: ${endToEndTime}ms`);
+      const searchError = deserializeSearchError(err);
+      this.logService.trace(`SearchService#searchError: ${searchError.message}`);
+      this.sendTelemetry(query, endToEndTime, void 0, searchError);
+      throw searchError;
+    });
   }
   groupFolderQueriesByScheme(query) {
     const queries = /* @__PURE__ */ new Map();
@@ -366,12 +287,8 @@ let SearchService = class extends Disposable {
     return queries;
   }
   sendTelemetry(query, endToEndTime, complete, err) {
-    const fileSchemeOnly = query.folderQueries.every(
-      (fq) => fq.folder.scheme === Schemas.file
-    );
-    const otherSchemeOnly = query.folderQueries.every(
-      (fq) => fq.folder.scheme !== Schemas.file
-    );
+    const fileSchemeOnly = query.folderQueries.every((fq) => fq.folder.scheme === Schemas.file);
+    const otherSchemeOnly = query.folderQueries.every((fq) => fq.folder.scheme !== Schemas.file);
     const scheme = fileSchemeOnly ? Schemas.file : otherSchemeOnly ? "other" : "mixed";
     if (query.type === QueryType.File && complete && complete.stats) {
       const fileSearchStats = complete.stats;
@@ -420,26 +337,15 @@ let SearchService = class extends Disposable {
     }
   }
   getOpenEditorResults(query) {
-    const openEditorResults = new ResourceMap(
-      (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
-    );
+    const openEditorResults = new ResourceMap((uri2) => this.uriIdentityService.extUri.getComparisonKey(uri2));
     let limitHit = false;
     if (query.type === QueryType.Text) {
       const canonicalToOriginalResources = new ResourceMap();
       for (const editorInput of this.editorService.editors) {
-        const canonical = EditorResourceAccessor.getCanonicalUri(
-          editorInput,
-          { supportSideBySide: SideBySideEditor.PRIMARY }
-        );
-        const original = EditorResourceAccessor.getOriginalUri(
-          editorInput,
-          { supportSideBySide: SideBySideEditor.PRIMARY }
-        );
+        const canonical = EditorResourceAccessor.getCanonicalUri(editorInput, { supportSideBySide: SideBySideEditor.PRIMARY });
+        const original = EditorResourceAccessor.getOriginalUri(editorInput, { supportSideBySide: SideBySideEditor.PRIMARY });
         if (canonical) {
-          canonicalToOriginalResources.set(
-            canonical,
-            original ?? canonical
-          );
+          canonicalToOriginalResources.set(canonical, original ?? canonical);
         }
       }
       const models = this.modelService.getModels();
@@ -468,15 +374,7 @@ let SearchService = class extends Disposable {
           return;
         }
         const askMax = (isNumber(query.maxResults) ? query.maxResults : DEFAULT_MAX_SEARCH_RESULTS) + 1;
-        let matches = model.findMatches(
-          query.contentPattern.pattern,
-          false,
-          !!query.contentPattern.isRegExp,
-          !!query.contentPattern.isCaseSensitive,
-          query.contentPattern.isWordMatch ? query.contentPattern.wordSeparators : null,
-          false,
-          askMax
-        );
+        let matches = model.findMatches(query.contentPattern.pattern, false, !!query.contentPattern.isRegExp, !!query.contentPattern.isCaseSensitive, query.contentPattern.isWordMatch ? query.contentPattern.wordSeparators : null, false, askMax);
         if (matches.length) {
           if (askMax && matches.length >= askMax) {
             limitHit = true;
@@ -484,16 +382,8 @@ let SearchService = class extends Disposable {
           }
           const fileMatch = new FileMatch(originalResource);
           openEditorResults.set(originalResource, fileMatch);
-          const textSearchResults = editorMatchesToTextSearchResults(
-            matches,
-            model,
-            query.previewOptions
-          );
-          fileMatch.results = getTextSearchMatchWithModelContext(
-            textSearchResults,
-            model,
-            query
-          );
+          const textSearchResults = editorMatchesToTextSearchResults(matches, model, query.previewOptions);
+          fileMatch.results = getTextSearchMatchWithModelContext(textSearchResults, model, query);
         } else {
           openEditorResults.set(originalResource, null);
         }
@@ -508,9 +398,7 @@ let SearchService = class extends Disposable {
     return pathIncludedInQuery(query, resource.fsPath);
   }
   async clearCache(cacheKey) {
-    const clearPs = Array.from(this.fileSearchProviders.values()).map(
-      (provider) => provider && provider.clearCache(cacheKey)
-    );
+    const clearPs = Array.from(this.fileSearchProviders.values()).map((provider) => provider && provider.clearCache(cacheKey));
     await Promise.all(clearPs);
   }
 };

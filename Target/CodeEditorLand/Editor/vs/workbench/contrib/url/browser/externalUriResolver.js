@@ -12,6 +12,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
 let ExternalUriResolverContribution = class extends Disposable {
   static {
@@ -21,17 +22,15 @@ let ExternalUriResolverContribution = class extends Disposable {
   constructor(_openerService, _workbenchEnvironmentService) {
     super();
     if (_workbenchEnvironmentService.options?.resolveExternalUri) {
-      this._register(
-        _openerService.registerExternalUriResolver({
-          resolveExternalUri: /* @__PURE__ */ __name(async (resource) => {
-            return {
-              resolved: await _workbenchEnvironmentService.options.resolveExternalUri(resource),
-              dispose: /* @__PURE__ */ __name(() => {
-              }, "dispose")
-            };
-          }, "resolveExternalUri")
-        })
-      );
+      this._register(_openerService.registerExternalUriResolver({
+        resolveExternalUri: /* @__PURE__ */ __name(async (resource) => {
+          return {
+            resolved: await _workbenchEnvironmentService.options.resolveExternalUri(resource),
+            dispose: /* @__PURE__ */ __name(() => {
+            }, "dispose")
+          };
+        }, "resolveExternalUri")
+      }));
     }
   }
 };

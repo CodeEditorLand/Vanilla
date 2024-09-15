@@ -1,20 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer, decodeBase64 } from "../../../../base/common/buffer.js";
+import { decodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { StringSHA1 } from "../../../../base/common/hash.js";
 import { localize, localize2 } from "../../../../nls.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-const EDIT_SESSION_SYNC_CATEGORY = localize2(
-  "cloud changes",
-  "Cloud Changes"
-);
+import { IResourceRefHandle } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { Event } from "../../../../base/common/event.js";
+import { StringSHA1 } from "../../../../base/common/hash.js";
+import { EditSessionsStoreClient } from "./editSessionsStorageClient.js";
+const EDIT_SESSION_SYNC_CATEGORY = localize2("cloud changes", "Cloud Changes");
 const IEditSessionsStorageService = createDecorator("IEditSessionsStorageService");
-const IEditSessionsLogService = createDecorator(
-  "IEditSessionsLogService"
-);
+const IEditSessionsLogService = createDecorator("IEditSessionsLogService");
 var ChangeType = /* @__PURE__ */ ((ChangeType2) => {
   ChangeType2[ChangeType2["Addition"] = 1] = "Addition";
   ChangeType2[ChangeType2["Deletion"] = 2] = "Deletion";
@@ -26,30 +26,14 @@ var FileType = /* @__PURE__ */ ((FileType2) => {
 })(FileType || {});
 const EditSessionSchemaVersion = 3;
 const EDIT_SESSIONS_SIGNED_IN_KEY = "editSessionsSignedIn";
-const EDIT_SESSIONS_SIGNED_IN = new RawContextKey(
-  EDIT_SESSIONS_SIGNED_IN_KEY,
-  false
-);
+const EDIT_SESSIONS_SIGNED_IN = new RawContextKey(EDIT_SESSIONS_SIGNED_IN_KEY, false);
 const EDIT_SESSIONS_PENDING_KEY = "editSessionsPending";
-const EDIT_SESSIONS_PENDING = new RawContextKey(
-  EDIT_SESSIONS_PENDING_KEY,
-  false
-);
+const EDIT_SESSIONS_PENDING = new RawContextKey(EDIT_SESSIONS_PENDING_KEY, false);
 const EDIT_SESSIONS_CONTAINER_ID = "workbench.view.editSessions";
 const EDIT_SESSIONS_DATA_VIEW_ID = "workbench.views.editSessions.data";
-const EDIT_SESSIONS_TITLE = localize2(
-  "cloud changes",
-  "Cloud Changes"
-);
-const EDIT_SESSIONS_VIEW_ICON = registerIcon(
-  "edit-sessions-view-icon",
-  Codicon.cloudDownload,
-  localize("editSessionViewIcon", "View icon of the cloud changes view.")
-);
-const EDIT_SESSIONS_SHOW_VIEW = new RawContextKey(
-  "editSessionsShowView",
-  false
-);
+const EDIT_SESSIONS_TITLE = localize2("cloud changes", "Cloud Changes");
+const EDIT_SESSIONS_VIEW_ICON = registerIcon("edit-sessions-view-icon", Codicon.cloudDownload, localize("editSessionViewIcon", "View icon of the cloud changes view."));
+const EDIT_SESSIONS_SHOW_VIEW = new RawContextKey("editSessionsShowView", false);
 const EDIT_SESSIONS_SCHEME = "vscode-edit-sessions";
 function decodeEditSessionFileContent(version, content) {
   switch (version) {
@@ -58,9 +42,7 @@ function decodeEditSessionFileContent(version, content) {
     case 2:
       return decodeBase64(content);
     default:
-      throw new Error(
-        "Upgrade to a newer version to decode this content."
-      );
+      throw new Error("Upgrade to a newer version to decode this content.");
   }
 }
 __name(decodeEditSessionFileContent, "decodeEditSessionFileContent");

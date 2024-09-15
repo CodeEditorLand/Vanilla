@@ -10,24 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { localize } from "../../../../nls.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { BrowserClipboardService as BaseBrowserClipboardService } from "../../../../platform/clipboard/browser/clipboardService.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { Event } from "../../../../base/common/event.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
-import { BrowserClipboardService as BaseBrowserClipboardService } from "../../../../platform/clipboard/browser/clipboardService.js";
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
 let BrowserClipboardService = class extends BaseBrowserClipboardService {
   constructor(notificationService, openerService, environmentService, logService, layoutService) {
     super(layoutService, logService);
@@ -58,25 +52,17 @@ let BrowserClipboardService = class extends BaseBrowserClipboardService {
         const listener = new DisposableStore();
         const handle = this.notificationService.prompt(
           Severity.Error,
-          localize(
-            "clipboardError",
-            "Unable to read from the browser's clipboard. Please make sure you have granted access for this website to read from the clipboard."
-          ),
-          [
-            {
-              label: localize("retry", "Retry"),
-              run: /* @__PURE__ */ __name(async () => {
-                listener.dispose();
-                resolve(await this.readText(type));
-              }, "run")
-            },
-            {
-              label: localize("learnMore", "Learn More"),
-              run: /* @__PURE__ */ __name(() => this.openerService.open(
-                "https://go.microsoft.com/fwlink/?linkid=2151362"
-              ), "run")
-            }
-          ],
+          localize("clipboardError", "Unable to read from the browser's clipboard. Please make sure you have granted access for this website to read from the clipboard."),
+          [{
+            label: localize("retry", "Retry"),
+            run: /* @__PURE__ */ __name(async () => {
+              listener.dispose();
+              resolve(await this.readText(type));
+            }, "run")
+          }, {
+            label: localize("learnMore", "Learn More"),
+            run: /* @__PURE__ */ __name(() => this.openerService.open("https://go.microsoft.com/fwlink/?linkid=2151362"), "run")
+          }],
           {
             sticky: true
           }
@@ -93,11 +79,7 @@ BrowserClipboardService = __decorateClass([
   __decorateParam(3, ILogService),
   __decorateParam(4, ILayoutService)
 ], BrowserClipboardService);
-registerSingleton(
-  IClipboardService,
-  BrowserClipboardService,
-  InstantiationType.Delayed
-);
+registerSingleton(IClipboardService, BrowserClipboardService, InstantiationType.Delayed);
 export {
   BrowserClipboardService
 };

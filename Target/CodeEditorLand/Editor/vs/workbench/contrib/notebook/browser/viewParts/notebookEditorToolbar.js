@@ -13,44 +13,30 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as DOM from "../../../../../base/browser/dom.js";
 import { DomScrollableElement } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
 import { ToolBar } from "../../../../../base/browser/ui/toolbar/toolbar.js";
-import { Separator } from "../../../../../base/common/actions.js";
-import { disposableTimeout } from "../../../../../base/common/async.js";
+import { IAction, Separator } from "../../../../../base/common/actions.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
 import { ScrollbarVisibility } from "../../../../../base/common/scrollable.js";
-import {
-  MenuEntryActionViewItem,
-  SubmenuEntryActionViewItem
-} from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  HiddenItemStrategy,
-  WorkbenchToolBar
-} from "../../../../../platform/actions/browser/toolbar.js";
-import {
-  IMenuService,
-  MenuId,
-  MenuItemAction,
-  SubmenuItemAction
-} from "../../../../../platform/actions/common/actions.js";
+import { MenuEntryActionViewItem, SubmenuEntryActionViewItem } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenu, IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { IWorkbenchAssignmentService } from "../../../../services/assignment/common/assignmentService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import {
-  NOTEBOOK_EDITOR_ID,
-  NotebookSetting
-} from "../../common/notebookCommon.js";
 import { SELECT_KERNEL_ID } from "../controller/coreActions.js";
-import {
-  ActionViewWithLabel,
-  UnifiedSubmenuActionView
-} from "../view/cellParts/cellActionView.js";
+import { NOTEBOOK_EDITOR_ID, NotebookSetting } from "../../common/notebookCommon.js";
+import { INotebookEditorDelegate } from "../notebookBrowser.js";
 import { NotebooKernelActionViewItem } from "./notebookKernelView.js";
+import { ActionViewWithLabel, UnifiedSubmenuActionView } from "../view/cellParts/cellActionView.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IWorkbenchAssignmentService } from "../../../../services/assignment/common/assignmentService.js";
+import { NotebookOptions } from "../notebookOptions.js";
+import { IActionViewItem, IActionViewItemProvider } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { disposableTimeout } from "../../../../../base/common/async.js";
+import { HiddenItemStrategy, IWorkbenchToolBarOptions, WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { IActionViewItemOptions } from "../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
 var RenderLabel = /* @__PURE__ */ ((RenderLabel2) => {
   RenderLabel2[RenderLabel2["Always"] = 0] = "Always";
   RenderLabel2[RenderLabel2["Never"] = 1] = "Never";
@@ -87,46 +73,24 @@ class WorkbenchAlwaysLabelStrategy {
   }
   actionProvider(action, options) {
     if (action.id === SELECT_KERNEL_ID) {
-      return this.instantiationService.createInstance(
-        NotebooKernelActionViewItem,
-        action,
-        this.notebookEditor,
-        options
-      );
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
     }
     if (action instanceof MenuItemAction) {
-      return this.instantiationService.createInstance(
-        ActionViewWithLabel,
-        action,
-        { hoverDelegate: options.hoverDelegate }
-      );
+      return this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate });
     }
     if (action instanceof SubmenuItemAction && action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
-      return this.instantiationService.createInstance(
-        UnifiedSubmenuActionView,
-        action,
-        { hoverDelegate: options.hoverDelegate },
-        true,
-        {
-          getActions: /* @__PURE__ */ __name(() => {
-            return this.goToMenu.getActions().find(
-              ([group]) => group === "navigation/execute"
-            )?.[1] ?? [];
-          }, "getActions")
-        },
-        this.actionProvider.bind(this)
-      );
+      return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, true, {
+        getActions: /* @__PURE__ */ __name(() => {
+          return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+        }, "getActions")
+      }, this.actionProvider.bind(this));
     }
     return void 0;
   }
   calculateActions(leftToolbarContainerMaxWidth) {
     const initialPrimaryActions = this.editorToolbar.primaryActions;
     const initialSecondaryActions = this.editorToolbar.secondaryActions;
-    const actionOutput = workbenchCalculateActions(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth
-    );
+    const actionOutput = workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
     return {
       primaryActions: actionOutput.primaryActions.map((a) => a.action),
       secondaryActions: actionOutput.secondaryActions
@@ -145,42 +109,20 @@ class WorkbenchNeverLabelStrategy {
   }
   actionProvider(action, options) {
     if (action.id === SELECT_KERNEL_ID) {
-      return this.instantiationService.createInstance(
-        NotebooKernelActionViewItem,
-        action,
-        this.notebookEditor,
-        options
-      );
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
     }
     if (action instanceof MenuItemAction) {
-      return this.instantiationService.createInstance(
-        MenuEntryActionViewItem,
-        action,
-        { hoverDelegate: options.hoverDelegate }
-      );
+      return this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
     }
     if (action instanceof SubmenuItemAction) {
       if (action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
-        return this.instantiationService.createInstance(
-          UnifiedSubmenuActionView,
-          action,
-          { hoverDelegate: options.hoverDelegate },
-          false,
-          {
-            getActions: /* @__PURE__ */ __name(() => {
-              return this.goToMenu.getActions().find(
-                ([group]) => group === "navigation/execute"
-              )?.[1] ?? [];
-            }, "getActions")
-          },
-          this.actionProvider.bind(this)
-        );
+        return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, false, {
+          getActions: /* @__PURE__ */ __name(() => {
+            return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+          }, "getActions")
+        }, this.actionProvider.bind(this));
       } else {
-        return this.instantiationService.createInstance(
-          SubmenuEntryActionViewItem,
-          action,
-          { hoverDelegate: options.hoverDelegate }
-        );
+        return this.instantiationService.createInstance(SubmenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
       }
     }
     return void 0;
@@ -188,11 +130,7 @@ class WorkbenchNeverLabelStrategy {
   calculateActions(leftToolbarContainerMaxWidth) {
     const initialPrimaryActions = this.editorToolbar.primaryActions;
     const initialSecondaryActions = this.editorToolbar.secondaryActions;
-    const actionOutput = workbenchCalculateActions(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth
-    );
+    const actionOutput = workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
     return {
       primaryActions: actionOutput.primaryActions.map((a) => a.action),
       secondaryActions: actionOutput.secondaryActions
@@ -211,71 +149,34 @@ class WorkbenchDynamicLabelStrategy {
   }
   actionProvider(action, options) {
     if (action.id === SELECT_KERNEL_ID) {
-      return this.instantiationService.createInstance(
-        NotebooKernelActionViewItem,
-        action,
-        this.notebookEditor,
-        options
-      );
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
     }
-    const a = this.editorToolbar.primaryActions.find(
-      (a2) => a2.action.id === action.id
-    );
+    const a = this.editorToolbar.primaryActions.find((a2) => a2.action.id === action.id);
     if (!a || a.renderLabel) {
       if (action instanceof MenuItemAction) {
-        return this.instantiationService.createInstance(
-          ActionViewWithLabel,
-          action,
-          { hoverDelegate: options.hoverDelegate }
-        );
+        return this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate });
       }
       if (action instanceof SubmenuItemAction && action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
-        return this.instantiationService.createInstance(
-          UnifiedSubmenuActionView,
-          action,
-          { hoverDelegate: options.hoverDelegate },
-          true,
-          {
-            getActions: /* @__PURE__ */ __name(() => {
-              return this.goToMenu.getActions().find(
-                ([group]) => group === "navigation/execute"
-              )?.[1] ?? [];
-            }, "getActions")
-          },
-          this.actionProvider.bind(this)
-        );
+        return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, true, {
+          getActions: /* @__PURE__ */ __name(() => {
+            return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+          }, "getActions")
+        }, this.actionProvider.bind(this));
       }
       return void 0;
     } else {
       if (action instanceof MenuItemAction) {
-        this.instantiationService.createInstance(
-          MenuEntryActionViewItem,
-          action,
-          { hoverDelegate: options.hoverDelegate }
-        );
+        this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
       }
       if (action instanceof SubmenuItemAction) {
         if (action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
-          return this.instantiationService.createInstance(
-            UnifiedSubmenuActionView,
-            action,
-            { hoverDelegate: options.hoverDelegate },
-            false,
-            {
-              getActions: /* @__PURE__ */ __name(() => {
-                return this.goToMenu.getActions().find(
-                  ([group]) => group === "navigation/execute"
-                )?.[1] ?? [];
-              }, "getActions")
-            },
-            this.actionProvider.bind(this)
-          );
+          return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, false, {
+            getActions: /* @__PURE__ */ __name(() => {
+              return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+            }, "getActions")
+          }, this.actionProvider.bind(this));
         } else {
-          return this.instantiationService.createInstance(
-            SubmenuEntryActionViewItem,
-            action,
-            { hoverDelegate: options.hoverDelegate }
-          );
+          return this.instantiationService.createInstance(SubmenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
         }
       }
       return void 0;
@@ -284,11 +185,7 @@ class WorkbenchDynamicLabelStrategy {
   calculateActions(leftToolbarContainerMaxWidth) {
     const initialPrimaryActions = this.editorToolbar.primaryActions;
     const initialSecondaryActions = this.editorToolbar.secondaryActions;
-    const actionOutput = workbenchDynamicCalculateActions(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth
-    );
+    const actionOutput = workbenchDynamicCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
     return {
       primaryActions: actionOutput.primaryActions.map((a) => a.action),
       secondaryActions: actionOutput.secondaryActions
@@ -312,13 +209,11 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     this._primaryActions = [];
     this._secondaryActions = [];
     this._buildBody();
-    this._register(
-      Event.debounce(
-        this.editorService.onDidActiveEditorChange,
-        (last, _current) => last,
-        200
-      )(this._updatePerEditorChange, this)
-    );
+    this._register(Event.debounce(
+      this.editorService.onDidActiveEditorChange,
+      (last, _current) => last,
+      200
+    )(this._updatePerEditorChange, this));
     this._registerNotebookActionsToolbar();
   }
   static {
@@ -349,9 +244,7 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
       this._onDidChangeVisibility.fire(visible);
     }
   }
-  _onDidChangeVisibility = this._register(
-    new Emitter()
-  );
+  _onDidChangeVisibility = this._register(new Emitter());
   onDidChangeVisibility = this._onDidChangeVisibility.event;
   get useGlobalToolbar() {
     return this._useGlobalToolbar;
@@ -360,25 +253,18 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
   _deferredActionUpdate;
   _buildBody() {
     this._notebookTopLeftToolbarContainer = document.createElement("div");
-    this._notebookTopLeftToolbarContainer.classList.add(
-      "notebook-toolbar-left"
-    );
-    this._leftToolbarScrollable = new DomScrollableElement(
-      this._notebookTopLeftToolbarContainer,
-      {
-        vertical: ScrollbarVisibility.Hidden,
-        horizontal: ScrollbarVisibility.Visible,
-        horizontalScrollbarSize: 3,
-        useShadows: false,
-        scrollYToX: true
-      }
-    );
+    this._notebookTopLeftToolbarContainer.classList.add("notebook-toolbar-left");
+    this._leftToolbarScrollable = new DomScrollableElement(this._notebookTopLeftToolbarContainer, {
+      vertical: ScrollbarVisibility.Hidden,
+      horizontal: ScrollbarVisibility.Visible,
+      horizontalScrollbarSize: 3,
+      useShadows: false,
+      scrollYToX: true
+    });
     this._register(this._leftToolbarScrollable);
     DOM.append(this.domNode, this._leftToolbarScrollable.getDomNode());
     this._notebookTopRightToolbarContainer = document.createElement("div");
-    this._notebookTopRightToolbarContainer.classList.add(
-      "notebook-toolbar-right"
-    );
+    this._notebookTopRightToolbarContainer.classList.add("notebook-toolbar-right");
     DOM.append(this.domNode, this._notebookTopRightToolbarContainer);
   }
   _updatePerEditorChange() {
@@ -391,24 +277,10 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     }
   }
   _registerNotebookActionsToolbar() {
-    this._notebookGlobalActionsMenu = this._register(
-      this.menuService.createMenu(
-        this.notebookEditor.creationOptions.menuIds.notebookToolbar,
-        this.contextKeyService
-      )
-    );
-    this._executeGoToActionsMenu = this._register(
-      this.menuService.createMenu(
-        MenuId.NotebookCellExecuteGoTo,
-        this.contextKeyService
-      )
-    );
+    this._notebookGlobalActionsMenu = this._register(this.menuService.createMenu(this.notebookEditor.creationOptions.menuIds.notebookToolbar, this.contextKeyService));
+    this._executeGoToActionsMenu = this._register(this.menuService.createMenu(MenuId.NotebookCellExecuteGoTo, this.contextKeyService));
     this._useGlobalToolbar = this.notebookOptions.getDisplayOptions().globalToolbar;
-    this._renderLabel = this._convertConfiguration(
-      this.configurationService.getValue(
-        NotebookSetting.globalToolbarShowLabel
-      )
-    );
+    this._renderLabel = this._convertConfiguration(this.configurationService.getValue(NotebookSetting.globalToolbarShowLabel));
     this._updateStrategy();
     const context = {
       ui: true,
@@ -417,46 +289,20 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     };
     const actionProvider = /* @__PURE__ */ __name((action, options) => {
       if (action.id === SELECT_KERNEL_ID) {
-        return this.instantiationService.createInstance(
-          NotebooKernelActionViewItem,
-          action,
-          this.notebookEditor,
-          options
-        );
+        return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
       }
       if (this._renderLabel !== 1 /* Never */) {
-        const a = this._primaryActions.find(
-          (a2) => a2.action.id === action.id
-        );
+        const a = this._primaryActions.find((a2) => a2.action.id === action.id);
         if (a && a.renderLabel) {
-          return action instanceof MenuItemAction ? this.instantiationService.createInstance(
-            ActionViewWithLabel,
-            action,
-            { hoverDelegate: options.hoverDelegate }
-          ) : void 0;
+          return action instanceof MenuItemAction ? this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate }) : void 0;
         } else {
-          return action instanceof MenuItemAction ? this.instantiationService.createInstance(
-            MenuEntryActionViewItem,
-            action,
-            { hoverDelegate: options.hoverDelegate }
-          ) : void 0;
+          return action instanceof MenuItemAction ? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }) : void 0;
         }
       } else {
-        return action instanceof MenuItemAction ? this.instantiationService.createInstance(
-          MenuEntryActionViewItem,
-          action,
-          { hoverDelegate: options.hoverDelegate }
-        ) : void 0;
+        return action instanceof MenuItemAction ? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }) : void 0;
       }
     }, "actionProvider");
-    const hoverDelegate = this._register(
-      this.instantiationService.createInstance(
-        WorkbenchHoverDelegate,
-        "element",
-        true,
-        {}
-      )
-    );
+    const hoverDelegate = this._register(this.instantiationService.createInstance(WorkbenchHoverDelegate, "element", true, {}));
     hoverDelegate.setInstantHoverTimeLimit(600);
     const leftToolbarOptions = {
       hiddenItemStrategy: HiddenItemStrategy.RenderInSecondaryGroup,
@@ -475,79 +321,59 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     );
     this._register(this._notebookLeftToolbar);
     this._notebookLeftToolbar.context = context;
-    this._notebookRightToolbar = new ToolBar(
-      this._notebookTopRightToolbarContainer,
-      this.contextMenuService,
-      {
-        getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
-        actionViewItemProvider: actionProvider,
-        renderDropdownAsChildElement: true,
-        hoverDelegate
-      }
-    );
+    this._notebookRightToolbar = new ToolBar(this._notebookTopRightToolbarContainer, this.contextMenuService, {
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      actionViewItemProvider: actionProvider,
+      renderDropdownAsChildElement: true,
+      hoverDelegate
+    });
     this._register(this._notebookRightToolbar);
     this._notebookRightToolbar.context = context;
     this._showNotebookActionsinEditorToolbar();
     let dropdownIsVisible = false;
     let deferredUpdate;
-    this._register(
-      this._notebookGlobalActionsMenu.onDidChange(() => {
-        if (dropdownIsVisible) {
-          deferredUpdate = /* @__PURE__ */ __name(() => this._showNotebookActionsinEditorToolbar(), "deferredUpdate");
-          return;
-        }
-        if (this.notebookEditor.isVisible) {
-          this._showNotebookActionsinEditorToolbar();
-        }
-      })
-    );
-    this._register(
-      this._notebookLeftToolbar.onDidChangeDropdownVisibility(
-        (visible) => {
-          dropdownIsVisible = visible;
-          if (deferredUpdate && !visible) {
-            setTimeout(() => {
-              deferredUpdate?.();
-            }, 0);
-            deferredUpdate = void 0;
-          }
-        }
-      )
-    );
-    this._register(
-      this.notebookOptions.onDidChangeOptions((e) => {
-        if (e.globalToolbar !== void 0) {
-          this._useGlobalToolbar = this.notebookOptions.getDisplayOptions().globalToolbar;
-          this._showNotebookActionsinEditorToolbar();
-        }
-      })
-    );
-    this._register(
-      this.configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          NotebookSetting.globalToolbarShowLabel
-        )) {
-          this._renderLabel = this._convertConfiguration(
-            this.configurationService.getValue(
-              NotebookSetting.globalToolbarShowLabel
-            )
-          );
-          this._updateStrategy();
-          const oldElement = this._notebookLeftToolbar.getElement();
-          oldElement.remove();
-          this._notebookLeftToolbar.dispose();
-          this._notebookLeftToolbar = this.instantiationService.createInstance(
-            WorkbenchToolBar,
-            this._notebookTopLeftToolbarContainer,
-            leftToolbarOptions
-          );
-          this._register(this._notebookLeftToolbar);
-          this._notebookLeftToolbar.context = context;
-          this._showNotebookActionsinEditorToolbar();
-          return;
-        }
-      })
-    );
+    this._register(this._notebookGlobalActionsMenu.onDidChange(() => {
+      if (dropdownIsVisible) {
+        deferredUpdate = /* @__PURE__ */ __name(() => this._showNotebookActionsinEditorToolbar(), "deferredUpdate");
+        return;
+      }
+      if (this.notebookEditor.isVisible) {
+        this._showNotebookActionsinEditorToolbar();
+      }
+    }));
+    this._register(this._notebookLeftToolbar.onDidChangeDropdownVisibility((visible) => {
+      dropdownIsVisible = visible;
+      if (deferredUpdate && !visible) {
+        setTimeout(() => {
+          deferredUpdate?.();
+        }, 0);
+        deferredUpdate = void 0;
+      }
+    }));
+    this._register(this.notebookOptions.onDidChangeOptions((e) => {
+      if (e.globalToolbar !== void 0) {
+        this._useGlobalToolbar = this.notebookOptions.getDisplayOptions().globalToolbar;
+        this._showNotebookActionsinEditorToolbar();
+      }
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(NotebookSetting.globalToolbarShowLabel)) {
+        this._renderLabel = this._convertConfiguration(this.configurationService.getValue(NotebookSetting.globalToolbarShowLabel));
+        this._updateStrategy();
+        const oldElement = this._notebookLeftToolbar.getElement();
+        oldElement.remove();
+        this._notebookLeftToolbar.dispose();
+        this._notebookLeftToolbar = this.instantiationService.createInstance(
+          WorkbenchToolBar,
+          this._notebookTopLeftToolbarContainer,
+          leftToolbarOptions
+        );
+        this._register(this._notebookLeftToolbar);
+        this._notebookLeftToolbar.context = context;
+        this._showNotebookActionsinEditorToolbar();
+        return;
+      }
+    }));
     if (this.experimentService) {
       this.experimentService.getTreatment("nbtoolbarineditor").then((treatment) => {
         if (treatment === void 0) {
@@ -563,28 +389,13 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
   _updateStrategy() {
     switch (this._renderLabel) {
       case 0 /* Always */:
-        this._strategy = new WorkbenchAlwaysLabelStrategy(
-          this.notebookEditor,
-          this,
-          this._executeGoToActionsMenu,
-          this.instantiationService
-        );
+        this._strategy = new WorkbenchAlwaysLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
         break;
       case 1 /* Never */:
-        this._strategy = new WorkbenchNeverLabelStrategy(
-          this.notebookEditor,
-          this,
-          this._executeGoToActionsMenu,
-          this.instantiationService
-        );
+        this._strategy = new WorkbenchNeverLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
         break;
       case 2 /* Dynamic */:
-        this._strategy = new WorkbenchDynamicLabelStrategy(
-          this.notebookEditor,
-          this,
-          this._executeGoToActionsMenu,
-          this.instantiationService
-        );
+        this._strategy = new WorkbenchDynamicLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
         break;
     }
   }
@@ -612,27 +423,22 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     if (this._deferredActionUpdate) {
       return;
     }
-    if (this._useGlobalToolbar) {
+    if (!this._useGlobalToolbar) {
+      this.domNode.style.display = "none";
+      this._deferredActionUpdate = void 0;
+      this.visible = false;
+    } else {
       this._deferredActionUpdate = disposableTimeout(async () => {
         await this._setNotebookActions();
         this.visible = true;
         this._deferredActionUpdate = void 0;
       }, 50);
-    } else {
-      this.domNode.style.display = "none";
-      this._deferredActionUpdate = void 0;
-      this.visible = false;
     }
   }
   async _setNotebookActions() {
-    const groups = this._notebookGlobalActionsMenu.getActions({
-      shouldForwardArgs: true,
-      renderShortTitle: true
-    });
+    const groups = this._notebookGlobalActionsMenu.getActions({ shouldForwardArgs: true, renderShortTitle: true });
     this.domNode.style.display = "flex";
-    const primaryLeftGroups = groups.filter(
-      (group) => /^navigation/.test(group[0])
-    );
+    const primaryLeftGroups = groups.filter((group) => /^navigation/.test(group[0]));
     const primaryActions = [];
     primaryLeftGroups.sort((a, b) => {
       if (a[0] === "navigation") {
@@ -648,13 +454,9 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
         primaryActions.push(new Separator());
       }
     });
-    const primaryRightGroup = groups.find(
-      (group) => /^status/.test(group[0])
-    );
+    const primaryRightGroup = groups.find((group) => /^status/.test(group[0]));
     const primaryRightActions = primaryRightGroup ? primaryRightGroup[1] : [];
-    const secondaryActions = groups.filter(
-      (group) => !/^navigation/.test(group[0]) && !/^status/.test(group[0])
-    ).reduce((prev, curr) => {
+    const secondaryActions = groups.filter((group) => !/^navigation/.test(group[0]) && !/^status/.test(group[0])).reduce((prev, curr) => {
       prev.push(...curr[1]);
       return prev;
     }, []);
@@ -678,9 +480,7 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
     for (let i = 0; i < toolbar.getItemsLength(); i++) {
       const action = toolbar.getItemAction(i);
       if (action && action.id !== "toolbar.toggle.more") {
-        const existing = this._primaryActions.find(
-          (a) => a.action.id === action.id
-        );
+        const existing = this._primaryActions.find((a) => a.action.id === action.id);
         if (existing) {
           existing.size = toolbar.getItemWidth(i);
         }
@@ -701,21 +501,16 @@ let NotebookEditorWorkbenchToolbar = class extends Disposable {
       const leftToolbarContainerMaxWidth = this._dimension.width - kernelWidth - (ACTION_PADDING + TOGGLE_MORE_ACTION_WIDTH) - /** toolbar left margin */
       ACTION_PADDING - /** toolbar right margin */
       ACTION_PADDING;
-      const calculatedActions = this._strategy.calculateActions(
-        leftToolbarContainerMaxWidth
-      );
-      this._notebookLeftToolbar.setActions(
-        calculatedActions.primaryActions,
-        calculatedActions.secondaryActions
-      );
+      const calculatedActions = this._strategy.calculateActions(leftToolbarContainerMaxWidth);
+      this._notebookLeftToolbar.setActions(calculatedActions.primaryActions, calculatedActions.secondaryActions);
     }
   }
   layout(dimension) {
     this._dimension = dimension;
-    if (this._useGlobalToolbar) {
-      this.domNode.style.display = "flex";
-    } else {
+    if (!this._useGlobalToolbar) {
       this.domNode.style.display = "none";
+    } else {
+      this.domNode.style.display = "flex";
     }
     this._computeSizes();
   }
@@ -741,46 +536,26 @@ NotebookEditorWorkbenchToolbar = __decorateClass([
   __decorateParam(10, IWorkbenchAssignmentService)
 ], NotebookEditorWorkbenchToolbar);
 function workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth) {
-  return actionOverflowHelper(
-    initialPrimaryActions,
-    initialSecondaryActions,
-    leftToolbarContainerMaxWidth,
-    false
-  );
+  return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, false);
 }
 __name(workbenchCalculateActions, "workbenchCalculateActions");
 function workbenchDynamicCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth) {
   if (initialPrimaryActions.length === 0) {
-    return {
-      primaryActions: [],
-      secondaryActions: initialSecondaryActions
-    };
+    return { primaryActions: [], secondaryActions: initialSecondaryActions };
   }
-  const visibleActionLength = initialPrimaryActions.filter(
-    (action) => action.size !== 0
-  ).length;
+  const visibleActionLength = initialPrimaryActions.filter((action) => action.size !== 0).length;
   const totalWidthWithLabels = initialPrimaryActions.map((action) => action.size).reduce((a, b) => a + b, 0) + (visibleActionLength - 1) * ACTION_PADDING;
   if (totalWidthWithLabels <= leftToolbarContainerMaxWidth) {
     initialPrimaryActions.forEach((action) => {
       action.renderLabel = true;
     });
-    return actionOverflowHelper(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth,
-      false
-    );
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, false);
   }
   if (visibleActionLength * ICON_ONLY_ACTION_WIDTH + (visibleActionLength - 1) * ACTION_PADDING > leftToolbarContainerMaxWidth) {
     initialPrimaryActions.forEach((action) => {
       action.renderLabel = false;
     });
-    return actionOverflowHelper(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth,
-      true
-    );
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, true);
   }
   let sum = 0;
   let lastActionWithLabel = -1;
@@ -800,12 +575,7 @@ function workbenchDynamicCalculateActions(initialPrimaryActions, initialSecondar
     initialPrimaryActions.forEach((action) => {
       action.renderLabel = false;
     });
-    return actionOverflowHelper(
-      initialPrimaryActions,
-      initialSecondaryActions,
-      leftToolbarContainerMaxWidth,
-      true
-    );
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, true);
   }
   initialPrimaryActions.slice(0, lastActionWithLabel + 1).forEach((action) => {
     action.renderLabel = true;
@@ -826,10 +596,7 @@ function actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, le
   let nonZeroAction = false;
   let containerFull = false;
   if (initialPrimaryActions.length === 0) {
-    return {
-      primaryActions: [],
-      secondaryActions: initialSecondaryActions
-    };
+    return { primaryActions: [], secondaryActions: initialSecondaryActions };
   }
   for (let i = 0; i < initialPrimaryActions.length; i++) {
     const actionModel = initialPrimaryActions[i];
@@ -878,9 +645,7 @@ function actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, le
     overflow.push(new Separator());
   }
   if (iconOnly) {
-    const markdownIndex = renderActions.findIndex(
-      (a) => a.action.id === "notebook.cell.insertMarkdownCellBelow"
-    );
+    const markdownIndex = renderActions.findIndex((a) => a.action.id === "notebook.cell.insertMarkdownCellBelow");
     if (markdownIndex !== -1) {
       renderActions.splice(markdownIndex, 1);
     }

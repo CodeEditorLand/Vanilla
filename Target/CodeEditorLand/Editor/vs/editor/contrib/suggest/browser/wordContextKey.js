@@ -10,18 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 let WordContextKey = class {
   constructor(_editor, contextKeyService) {
     this._editor = _editor;
     this._ckAtEnd = WordContextKey.AtEnd.bindTo(contextKeyService);
-    this._configListener = this._editor.onDidChangeConfiguration(
-      (e) => e.hasChanged(EditorOption.tabCompletion) && this._update()
-    );
+    this._configListener = this._editor.onDidChangeConfiguration((e) => e.hasChanged(EditorOption.tabCompletion) && this._update());
     this._update();
   }
   static {
@@ -51,16 +48,12 @@ let WordContextKey = class {
         }
         const model = this._editor.getModel();
         const selection = this._editor.getSelection();
-        const word = model.getWordAtPosition(
-          selection.getStartPosition()
-        );
+        const word = model.getWordAtPosition(selection.getStartPosition());
         if (!word) {
           this._ckAtEnd.set(false);
           return;
         }
-        this._ckAtEnd.set(
-          word.endColumn === selection.getStartPosition().column
-        );
+        this._ckAtEnd.set(word.endColumn === selection.getStartPosition().column);
       }, "checkForWordEnd");
       this._selectionListener = this._editor.onDidChangeCursorSelection(checkForWordEnd);
       checkForWordEnd();

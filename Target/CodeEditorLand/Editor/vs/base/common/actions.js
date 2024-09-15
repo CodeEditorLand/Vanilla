@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "./event.js";
+import { Disposable, IDisposable } from "./lifecycle.js";
 import * as nls from "../../nls.js";
-import { Emitter } from "./event.js";
-import { Disposable } from "./lifecycle.js";
 class Action extends Disposable {
   static {
     __name(this, "Action");
@@ -106,7 +106,7 @@ class ActionRunner extends Disposable {
       return;
     }
     this._onWillRun.fire({ action });
-    let error;
+    let error = void 0;
     try {
       await this.runAction(action, context);
     } catch (e) {
@@ -176,12 +176,7 @@ class EmptySubmenuAction extends Action {
   }
   static ID = "vs.actions.empty";
   constructor() {
-    super(
-      EmptySubmenuAction.ID,
-      nls.localize("submenu.empty", "(empty)"),
-      void 0,
-      false
-    );
+    super(EmptySubmenuAction.ID, nls.localize("submenu.empty", "(empty)"), void 0, false);
   }
 }
 function toAction(props) {

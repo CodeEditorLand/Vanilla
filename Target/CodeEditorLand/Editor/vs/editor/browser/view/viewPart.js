@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FastDomNode } from "../../../base/browser/fastDomNode.js";
+import { RenderingContext, RestrictedRenderingContext } from "./renderingContext.js";
+import { ViewContext } from "../../common/viewModel/viewContext.js";
 import { ViewEventHandler } from "../../common/viewEventHandler.js";
 class ViewPart extends ViewEventHandler {
   static {
@@ -41,7 +44,7 @@ class PartFingerprints {
     if (r === null) {
       return 0 /* None */;
     }
-    return Number.parseInt(r, 10);
+    return parseInt(r, 10);
   }
   static collect(child, stopAt) {
     const result = [];

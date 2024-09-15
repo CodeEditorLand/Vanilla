@@ -10,18 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  $,
-  createStyleSheet,
-  isHTMLInputElement,
-  isHTMLTextAreaElement,
-  reset,
-  windowOpenNoOpener
-} from "../../../../base/browser/dom.js";
-import {
-  Button,
-  unthemedButtonStyles
-} from "../../../../base/browser/ui/button/button.js";
+import { $, createStyleSheet, isHTMLInputElement, isHTMLTextAreaElement, reset, windowOpenNoOpener } from "../../../../base/browser/dom.js";
+import { Button, unthemedButtonStyles } from "../../../../base/browser/ui/button/button.js";
 import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { Delayer, RunOnceScheduler } from "../../../../base/common/async.js";
@@ -36,21 +26,11 @@ import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { isRemoteDiagnosticError } from "../../../../platform/diagnostics/common/diagnostics.js";
-import {
-  IIssueMainService,
-  IProcessMainService,
-  OldIssueType
-} from "../../../../platform/issue/common/issue.js";
+import { IIssueMainService, IProcessMainService, OldIssueReporterData, OldIssueReporterExtensionData, OldIssueReporterStyles, OldIssueReporterWindowConfiguration, OldIssueType } from "../../../../platform/issue/common/issue.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { getIconsStyleSheet } from "../../../../platform/theme/browser/iconsStyleSheet.js";
-import {
-  applyZoom,
-  zoomIn,
-  zoomOut
-} from "../../../../platform/window/electron-sandbox/window.js";
-import {
-  IssueReporterModel
-} from "../browser/issueReporterModel.js";
+import { applyZoom, zoomIn, zoomOut } from "../../../../platform/window/electron-sandbox/window.js";
+import { IssueReporterData, IssueReporterModel, IssueReporterData as IssueReporterModelData } from "../browser/issueReporterModel.js";
 import { normalizeGitHubUrl } from "../common/issueReporterUtil.js";
 const MAX_URL_LENGTH = 7500;
 var IssueSource = /* @__PURE__ */ ((IssueSource2) => {
@@ -67,9 +47,7 @@ let IssueReporter = class extends Disposable {
     this.nativeHostService = nativeHostService;
     this.issueMainService = issueMainService;
     this.processMainService = processMainService;
-    const targetExtension = configuration.data.extensionId ? configuration.data.enabledExtensions.find(
-      (extension) => extension.id.toLocaleLowerCase() === configuration.data.extensionId?.toLocaleLowerCase()
-    ) : void 0;
+    const targetExtension = configuration.data.extensionId ? configuration.data.enabledExtensions.find((extension) => extension.id.toLocaleLowerCase() === configuration.data.extensionId?.toLocaleLowerCase()) : void 0;
     this.issueReporterModel = new IssueReporterModel({
       ...configuration.data,
       issueType: configuration.data.issueType || OldIssueType.Bug,
@@ -86,10 +64,7 @@ let IssueReporter = class extends Disposable {
     this.issueReporterModel.update({ fileOnMarketplace, fileOnProduct });
     const issueReporterElement = this.getElementById("issue-reporter");
     if (issueReporterElement) {
-      this.previewButton = new Button(
-        issueReporterElement,
-        unthemedButtonStyles
-      );
+      this.previewButton = new Button(issueReporterElement, unthemedButtonStyles);
       const issueRepoName = document.createElement("a");
       issueReporterElement.appendChild(issueRepoName);
       issueRepoName.id = "show-repo-name";
@@ -180,89 +155,55 @@ let IssueReporter = class extends Disposable {
     const styleTag = document.createElement("style");
     const content = [];
     if (styles.inputBackground) {
-      content.push(
-        `input[type="text"], textarea, select, .issues-container > .issue > .issue-state, .block-info { background-color: ${styles.inputBackground}; }`
-      );
+      content.push(`input[type="text"], textarea, select, .issues-container > .issue > .issue-state, .block-info { background-color: ${styles.inputBackground}; }`);
     }
     if (styles.inputBorder) {
-      content.push(
-        `input[type="text"], textarea, select { border: 1px solid ${styles.inputBorder}; }`
-      );
+      content.push(`input[type="text"], textarea, select { border: 1px solid ${styles.inputBorder}; }`);
     } else {
-      content.push(
-        `input[type="text"], textarea, select { border: 1px solid transparent; }`
-      );
+      content.push(`input[type="text"], textarea, select { border: 1px solid transparent; }`);
     }
     if (styles.inputForeground) {
-      content.push(
-        `input[type="text"], textarea, select, .issues-container > .issue > .issue-state, .block-info { color: ${styles.inputForeground}; }`
-      );
+      content.push(`input[type="text"], textarea, select, .issues-container > .issue > .issue-state, .block-info { color: ${styles.inputForeground}; }`);
     }
     if (styles.inputErrorBorder) {
-      content.push(
-        `.invalid-input, .invalid-input:focus, .validation-error { border: 1px solid ${styles.inputErrorBorder} !important; }`
-      );
-      content.push(
-        `.required-input { color: ${styles.inputErrorBorder}; }`
-      );
+      content.push(`.invalid-input, .invalid-input:focus, .validation-error { border: 1px solid ${styles.inputErrorBorder} !important; }`);
+      content.push(`.required-input { color: ${styles.inputErrorBorder}; }`);
     }
     if (styles.inputErrorBackground) {
-      content.push(
-        `.validation-error { background: ${styles.inputErrorBackground}; }`
-      );
+      content.push(`.validation-error { background: ${styles.inputErrorBackground}; }`);
     }
     if (styles.inputErrorForeground) {
-      content.push(
-        `.validation-error { color: ${styles.inputErrorForeground}; }`
-      );
+      content.push(`.validation-error { color: ${styles.inputErrorForeground}; }`);
     }
     if (styles.inputActiveBorder) {
-      content.push(
-        `input[type='text']:focus, textarea:focus, select:focus, summary:focus, button:focus, a:focus, .workbenchCommand:focus  { border: 1px solid ${styles.inputActiveBorder}; outline-style: none; }`
-      );
+      content.push(`input[type='text']:focus, textarea:focus, select:focus, summary:focus, button:focus, a:focus, .workbenchCommand:focus  { border: 1px solid ${styles.inputActiveBorder}; outline-style: none; }`);
     }
     if (styles.textLinkColor) {
-      content.push(
-        `a, .workbenchCommand { color: ${styles.textLinkColor}; }`
-      );
+      content.push(`a, .workbenchCommand { color: ${styles.textLinkColor}; }`);
     }
     if (styles.textLinkColor) {
       content.push(`a { color: ${styles.textLinkColor}; }`);
     }
     if (styles.textLinkActiveForeground) {
-      content.push(
-        `a:hover, .workbenchCommand:hover { color: ${styles.textLinkActiveForeground}; }`
-      );
+      content.push(`a:hover, .workbenchCommand:hover { color: ${styles.textLinkActiveForeground}; }`);
     }
     if (styles.sliderBackgroundColor) {
-      content.push(
-        `::-webkit-scrollbar-thumb { background-color: ${styles.sliderBackgroundColor}; }`
-      );
+      content.push(`::-webkit-scrollbar-thumb { background-color: ${styles.sliderBackgroundColor}; }`);
     }
     if (styles.sliderActiveColor) {
-      content.push(
-        `::-webkit-scrollbar-thumb:active { background-color: ${styles.sliderActiveColor}; }`
-      );
+      content.push(`::-webkit-scrollbar-thumb:active { background-color: ${styles.sliderActiveColor}; }`);
     }
     if (styles.sliderHoverColor) {
-      content.push(
-        `::--webkit-scrollbar-thumb:hover { background-color: ${styles.sliderHoverColor}; }`
-      );
+      content.push(`::--webkit-scrollbar-thumb:hover { background-color: ${styles.sliderHoverColor}; }`);
     }
     if (styles.buttonBackground) {
-      content.push(
-        `.monaco-text-button { background-color: ${styles.buttonBackground} !important; }`
-      );
+      content.push(`.monaco-text-button { background-color: ${styles.buttonBackground} !important; }`);
     }
     if (styles.buttonForeground) {
-      content.push(
-        `.monaco-text-button { color: ${styles.buttonForeground} !important; }`
-      );
+      content.push(`.monaco-text-button { color: ${styles.buttonForeground} !important; }`);
     }
     if (styles.buttonHoverBackground) {
-      content.push(
-        `.monaco-text-button:not(.disabled):hover, .monaco-text-button:focus { background-color: ${styles.buttonHoverBackground} !important; }`
-      );
+      content.push(`.monaco-text-button:not(.disabled):hover, .monaco-text-button:focus { background-color: ${styles.buttonHoverBackground} !important; }`);
     }
     styleTag.textContent = content.join("\n");
     mainWindow.document.head.appendChild(styleTag);
@@ -274,11 +215,7 @@ let IssueReporter = class extends Disposable {
       return ext.isTheme ? "themes" : "nonThemes";
     });
     const numberOfThemeExtesions = themes && themes.length;
-    this.issueReporterModel.update({
-      numberOfThemeExtesions,
-      enabledNonThemeExtesions: nonThemes,
-      allExtensions: installedExtensions
-    });
+    this.issueReporterModel.update({ numberOfThemeExtesions, enabledNonThemeExtesions: nonThemes, allExtensions: installedExtensions });
     this.updateExtensionTable(nonThemes, numberOfThemeExtesions);
     if (this.configuration.disableExtensions || installedExtensions.length === 0) {
       this.getElementById("disableExtensions").disabled = true;
@@ -297,10 +234,7 @@ let IssueReporter = class extends Disposable {
   }
   async sendReporterMenu(extension) {
     try {
-      const data = await this.issueMainService.$sendReporterMenu(
-        extension.id,
-        extension.name
-      );
+      const data = await this.issueMainService.$sendReporterMenu(extension.id, extension.name);
       return data;
     } catch (e) {
       console.error(e);
@@ -309,70 +243,49 @@ let IssueReporter = class extends Disposable {
   }
   setEventHandlers() {
     this.addEventListener("issue-type", "change", (event) => {
-      const issueType = Number.parseInt(
-        event.target.value
-      );
+      const issueType = parseInt(event.target.value);
       this.issueReporterModel.update({ issueType });
       if (issueType === OldIssueType.PerformanceIssue && !this.receivedPerformanceInfo) {
         this.processMainService.$getPerformanceInfo().then((info) => {
-          this.updatePerformanceInfo(
-            info
-          );
+          this.updatePerformanceInfo(info);
         });
       }
       const descriptionTextArea = this.getElementById("issue-title");
       if (descriptionTextArea) {
-        descriptionTextArea.placeholder = localize(
-          "undefinedPlaceholder",
-          "Please enter a title"
-        );
+        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
       }
       this.updatePreviewButtonState();
       this.setSourceOptions();
       this.render();
     });
-    [
-      "includeSystemInfo",
-      "includeProcessInfo",
-      "includeWorkspaceInfo",
-      "includeExtensions",
-      "includeExperiments",
-      "includeExtensionData"
-    ].forEach((elementId) => {
+    ["includeSystemInfo", "includeProcessInfo", "includeWorkspaceInfo", "includeExtensions", "includeExperiments", "includeExtensionData"].forEach((elementId) => {
       this.addEventListener(elementId, "click", (event) => {
         event.stopPropagation();
-        this.issueReporterModel.update({
-          [elementId]: !this.issueReporterModel.getData()[elementId]
-        });
+        this.issueReporterModel.update({ [elementId]: !this.issueReporterModel.getData()[elementId] });
       });
     });
     const showInfoElements = mainWindow.document.getElementsByClassName("showInfo");
     for (let i = 0; i < showInfoElements.length; i++) {
       const showInfo = showInfoElements.item(i);
-      showInfo.addEventListener(
-        "click",
-        (e) => {
-          e.preventDefault();
-          const label = e.target;
-          if (label) {
-            const containingElement = label.parentElement && label.parentElement.parentElement;
-            const info = containingElement && containingElement.lastElementChild;
-            if (info && info.classList.contains("hidden")) {
-              show(info);
-              label.textContent = localize("hide", "hide");
-            } else {
-              hide(info);
-              label.textContent = localize("show", "show");
-            }
+      showInfo.addEventListener("click", (e) => {
+        e.preventDefault();
+        const label = e.target;
+        if (label) {
+          const containingElement = label.parentElement && label.parentElement.parentElement;
+          const info = containingElement && containingElement.lastElementChild;
+          if (info && info.classList.contains("hidden")) {
+            show(info);
+            label.textContent = localize("hide", "hide");
+          } else {
+            hide(info);
+            label.textContent = localize("show", "show");
           }
         }
-      );
+      });
     }
     this.addEventListener("issue-source", "change", (e) => {
       const value = e.target.value;
-      const problemSourceHelpText = this.getElementById(
-        "problem-source-help-text"
-      );
+      const problemSourceHelpText = this.getElementById("problem-source-help-text");
       if (value === "") {
         this.issueReporterModel.update({ fileOnExtension: void 0 });
         show(problemSourceHelpText);
@@ -384,25 +297,13 @@ let IssueReporter = class extends Disposable {
       }
       const descriptionTextArea = this.getElementById("issue-title");
       if (value === "vscode" /* VSCode */) {
-        descriptionTextArea.placeholder = localize(
-          "vscodePlaceholder",
-          "E.g Workbench is missing problems panel"
-        );
+        descriptionTextArea.placeholder = localize("vscodePlaceholder", "E.g Workbench is missing problems panel");
       } else if (value === "extension" /* Extension */) {
-        descriptionTextArea.placeholder = localize(
-          "extensionPlaceholder",
-          "E.g. Missing alt text on extension readme image"
-        );
+        descriptionTextArea.placeholder = localize("extensionPlaceholder", "E.g. Missing alt text on extension readme image");
       } else if (value === "marketplace" /* Marketplace */) {
-        descriptionTextArea.placeholder = localize(
-          "marketplacePlaceholder",
-          "E.g Cannot disable installed extension"
-        );
+        descriptionTextArea.placeholder = localize("marketplacePlaceholder", "E.g Cannot disable installed extension");
       } else {
-        descriptionTextArea.placeholder = localize(
-          "undefinedPlaceholder",
-          "Please enter a title"
-        );
+        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
       }
       let fileOnExtension, fileOnMarketplace = false;
       if (value === "extension" /* Extension */) {
@@ -410,10 +311,7 @@ let IssueReporter = class extends Disposable {
       } else if (value === "marketplace" /* Marketplace */) {
         fileOnMarketplace = true;
       }
-      this.issueReporterModel.update({
-        fileOnExtension,
-        fileOnMarketplace
-      });
+      this.issueReporterModel.update({ fileOnExtension, fileOnMarketplace });
       this.render();
       const title = this.getElementById("issue-title").value;
       this.searchIssues(title, fileOnExtension, fileOnMarketplace);
@@ -428,9 +326,7 @@ let IssueReporter = class extends Disposable {
     });
     this.addEventListener("issue-title", "input", (e) => {
       const title = e.target.value;
-      const lengthValidationMessage = this.getElementById(
-        "issue-title-length-validation-error"
-      );
+      const lengthValidationMessage = this.getElementById("issue-title-length-validation-error");
       const issueUrl = this.getIssueUrl();
       if (title && this.getIssueUrlWithTitle(title, issueUrl).length > MAX_URL_LENGTH) {
         show(lengthValidationMessage);
@@ -508,36 +404,22 @@ let IssueReporter = class extends Disposable {
   updatePreviewButtonState() {
     if (this.isPreviewEnabled()) {
       if (this.configuration.data.githubAccessToken) {
-        this.previewButton.label = localize(
-          "createOnGitHub",
-          "Create on GitHub"
-        );
+        this.previewButton.label = localize("createOnGitHub", "Create on GitHub");
       } else {
-        this.previewButton.label = localize(
-          "previewOnGitHub",
-          "Preview on GitHub"
-        );
+        this.previewButton.label = localize("previewOnGitHub", "Preview on GitHub");
       }
       this.previewButton.enabled = true;
     } else {
       this.previewButton.enabled = false;
-      this.previewButton.label = localize(
-        "loadingData",
-        "Loading data..."
-      );
+      this.previewButton.label = localize("loadingData", "Loading data...");
     }
-    const issueRepoName = this.getElementById(
-      "show-repo-name"
-    );
+    const issueRepoName = this.getElementById("show-repo-name");
     const selectedExtension = this.issueReporterModel.getData().selectedExtension;
     if (selectedExtension && selectedExtension.uri) {
       const urlString = URI.revive(selectedExtension.uri).toString();
       issueRepoName.href = urlString;
       issueRepoName.addEventListener("click", (e) => this.openLink(e));
-      issueRepoName.addEventListener(
-        "auxclick",
-        (e) => this.openLink(e)
-      );
+      issueRepoName.addEventListener("auxclick", (e) => this.openLink(e));
       const gitHubInfo = this.parseGitHubUrl(urlString);
       issueRepoName.textContent = gitHubInfo ? gitHubInfo.owner + "/" + gitHubInfo.repositoryName : urlString;
       Object.assign(issueRepoName.style, {
@@ -614,14 +496,9 @@ let IssueReporter = class extends Disposable {
   }
   searchMarketplaceIssues(title) {
     if (title) {
-      const gitHubInfo = this.parseGitHubUrl(
-        this.configuration.product.reportMarketplaceIssueUrl
-      );
+      const gitHubInfo = this.parseGitHubUrl(this.configuration.product.reportMarketplaceIssueUrl);
       if (gitHubInfo) {
-        return this.searchGitHub(
-          `${gitHubInfo.owner}/${gitHubInfo.repositoryName}`,
-          title
-        );
+        return this.searchGitHub(`${gitHubInfo.owner}/${gitHubInfo.repositoryName}`, title);
       }
     }
   }
@@ -643,13 +520,10 @@ let IssueReporter = class extends Disposable {
           this.displaySearchResults(result.items);
         } else {
           const message = $("div.list-title");
-          message.textContent = localize(
-            "rateLimited",
-            "GitHub query limit exceeded. Please wait."
-          );
+          message.textContent = localize("rateLimited", "GitHub query limit exceeded. Please wait.");
           similarIssues.appendChild(message);
           const resetTime = response.headers.get("X-RateLimit-Reset");
-          const timeToWait = resetTime ? Number.parseInt(resetTime) - Math.floor(Date.now() / 1e3) : 1;
+          const timeToWait = resetTime ? parseInt(resetTime) - Math.floor(Date.now() / 1e3) : 1;
           if (this.shouldQueueSearch) {
             this.shouldQueueSearch = false;
             setTimeout(() => {
@@ -681,9 +555,7 @@ let IssueReporter = class extends Disposable {
         if (result && result.candidates) {
           this.displaySearchResults(result.candidates);
         } else {
-          throw new Error(
-            "Unexpected response, no candidates property"
-          );
+          throw new Error("Unexpected response, no candidates property");
         }
       }).catch((_) => {
       });
@@ -695,10 +567,7 @@ let IssueReporter = class extends Disposable {
     if (results.length) {
       const issues = $("div.issues-container");
       const issuesText = $("div.list-title");
-      issuesText.textContent = localize(
-        "similarIssues",
-        "Similar issues"
-      );
+      issuesText.textContent = localize("similarIssues", "Similar issues");
       this.numberOfSearchResultsDisplayed = results.length < 5 ? results.length : 5;
       for (let i = 0; i < this.numberOfSearchResultsDisplayed; i++) {
         const issue = results[i];
@@ -706,20 +575,13 @@ let IssueReporter = class extends Disposable {
         link.textContent = issue.title;
         link.title = issue.title;
         link.addEventListener("click", (e) => this.openLink(e));
-        link.addEventListener(
-          "auxclick",
-          (e) => this.openLink(e)
-        );
+        link.addEventListener("auxclick", (e) => this.openLink(e));
         let issueState;
         let item;
         if (issue.state) {
           issueState = $("span.issue-state");
           const issueIcon = $("span.issue-icon");
-          issueIcon.appendChild(
-            renderIcon(
-              issue.state === "open" ? Codicon.issueOpened : Codicon.issueClosed
-            )
-          );
+          issueIcon.appendChild(renderIcon(issue.state === "open" ? Codicon.issueOpened : Codicon.issueClosed));
           const issueStateLabel = $("span.issue-state.label");
           issueStateLabel.textContent = issue.state === "open" ? localize("open", "Open") : localize("closed", "Closed");
           issueState.title = issue.state === "open" ? localize("open", "Open") : localize("closed", "Closed");
@@ -735,33 +597,19 @@ let IssueReporter = class extends Disposable {
       similarIssues.appendChild(issues);
     } else {
       const message = $("div.list-title");
-      message.textContent = localize(
-        "noSimilarIssues",
-        "No similar issues found"
-      );
+      message.textContent = localize("noSimilarIssues", "No similar issues found");
       similarIssues.appendChild(message);
     }
   }
   setUpTypes() {
-    const makeOption = /* @__PURE__ */ __name((issueType2, description) => $("option", { value: issueType2.valueOf() }, escape(description)), "makeOption");
-    const typeSelect = this.getElementById(
-      "issue-type"
-    );
+    const makeOption = /* @__PURE__ */ __name((issueType2, description) => $("option", { "value": issueType2.valueOf() }, escape(description)), "makeOption");
+    const typeSelect = this.getElementById("issue-type");
     const { issueType } = this.issueReporterModel.getData();
     reset(
       typeSelect,
       makeOption(OldIssueType.Bug, localize("bugReporter", "Bug Report")),
-      makeOption(
-        OldIssueType.FeatureRequest,
-        localize("featureRequest", "Feature Request")
-      ),
-      makeOption(
-        OldIssueType.PerformanceIssue,
-        localize(
-          "performanceIssue",
-          "Performance Issue (freeze, slow, crash)"
-        )
-      )
+      makeOption(OldIssueType.FeatureRequest, localize("featureRequest", "Feature Request")),
+      makeOption(OldIssueType.PerformanceIssue, localize("performanceIssue", "Performance Issue (freeze, slow, crash)"))
     );
     typeSelect.value = issueType.toString();
     this.setSourceOptions();
@@ -774,16 +622,8 @@ let IssueReporter = class extends Disposable {
     return option;
   }
   setSourceOptions() {
-    const sourceSelect = this.getElementById(
-      "issue-source"
-    );
-    const {
-      issueType,
-      fileOnExtension,
-      selectedExtension,
-      fileOnMarketplace,
-      fileOnProduct
-    } = this.issueReporterModel.getData();
+    const sourceSelect = this.getElementById("issue-source");
+    const { issueType, fileOnExtension, selectedExtension, fileOnMarketplace, fileOnProduct } = this.issueReporterModel.getData();
     let selected = sourceSelect.selectedIndex;
     if (selected === -1) {
       if (fileOnExtension !== void 0) {
@@ -797,44 +637,14 @@ let IssueReporter = class extends Disposable {
       }
     }
     sourceSelect.innerText = "";
-    sourceSelect.append(
-      this.makeOption(
-        "",
-        localize("selectSource", "Select source"),
-        true
-      )
-    );
-    sourceSelect.append(
-      this.makeOption(
-        "vscode" /* VSCode */,
-        localize("vscode", "Visual Studio Code"),
-        false
-      )
-    );
-    sourceSelect.append(
-      this.makeOption(
-        "extension" /* Extension */,
-        localize("extension", "A VS Code extension"),
-        false
-      )
-    );
+    sourceSelect.append(this.makeOption("", localize("selectSource", "Select source"), true));
+    sourceSelect.append(this.makeOption("vscode" /* VSCode */, localize("vscode", "Visual Studio Code"), false));
+    sourceSelect.append(this.makeOption("extension" /* Extension */, localize("extension", "A VS Code extension"), false));
     if (this.configuration.product.reportMarketplaceIssueUrl) {
-      sourceSelect.append(
-        this.makeOption(
-          "marketplace" /* Marketplace */,
-          localize("marketplace", "Extensions Marketplace"),
-          false
-        )
-      );
+      sourceSelect.append(this.makeOption("marketplace" /* Marketplace */, localize("marketplace", "Extensions Marketplace"), false));
     }
     if (issueType !== OldIssueType.FeatureRequest) {
-      sourceSelect.append(
-        this.makeOption(
-          "unknown" /* Unknown */,
-          localize("unknown", "Don't know"),
-          false
-        )
-      );
+      sourceSelect.append(this.makeOption("unknown" /* Unknown */, localize("unknown", "Don't know"), false));
     }
     if (selected !== -1 && selected < sourceSelect.options.length) {
       sourceSelect.selectedIndex = selected;
@@ -844,28 +654,17 @@ let IssueReporter = class extends Disposable {
     }
   }
   renderBlocks() {
-    const {
-      issueType,
-      fileOnExtension,
-      fileOnMarketplace,
-      selectedExtension
-    } = this.issueReporterModel.getData();
+    const { issueType, fileOnExtension, fileOnMarketplace, selectedExtension } = this.issueReporterModel.getData();
     const blockContainer = this.getElementById("block-container");
     const systemBlock = mainWindow.document.querySelector(".block-system");
     const processBlock = mainWindow.document.querySelector(".block-process");
     const workspaceBlock = mainWindow.document.querySelector(".block-workspace");
     const extensionsBlock = mainWindow.document.querySelector(".block-extensions");
     const experimentsBlock = mainWindow.document.querySelector(".block-experiments");
-    const extensionDataBlock = mainWindow.document.querySelector(
-      ".block-extension-data"
-    );
+    const extensionDataBlock = mainWindow.document.querySelector(".block-extension-data");
     const problemSource = this.getElementById("problem-source");
-    const descriptionTitle = this.getElementById(
-      "issue-description-label"
-    );
-    const descriptionSubtitle = this.getElementById(
-      "issue-description-subtitle"
-    );
+    const descriptionTitle = this.getElementById("issue-description-label");
+    const descriptionSubtitle = this.getElementById("issue-description-subtitle");
     const extensionSelector = this.getElementById("extension-selection");
     const titleTextArea = this.getElementById("issue-title-container");
     const descriptionTextArea = this.getElementById("description");
@@ -888,25 +687,9 @@ let IssueReporter = class extends Disposable {
     if (selectedExtension && this.nonGitHubIssueUrl) {
       hide(titleTextArea);
       hide(descriptionTextArea);
-      reset(
-        descriptionTitle,
-        localize(
-          "handlesIssuesElsewhere",
-          "This extension handles issues outside of VS Code"
-        )
-      );
-      reset(
-        descriptionSubtitle,
-        localize(
-          "elsewhereDescription",
-          "The '{0}' extension prefers to use an external issue reporter. To be taken to that issue reporting experience, click the button below.",
-          selectedExtension.displayName
-        )
-      );
-      this.previewButton.label = localize(
-        "openIssueReporter",
-        "Open External Issue Reporter"
-      );
+      reset(descriptionTitle, localize("handlesIssuesElsewhere", "This extension handles issues outside of VS Code"));
+      reset(descriptionSubtitle, localize("elsewhereDescription", "The '{0}' extension prefers to use an external issue reporter. To be taken to that issue reporting experience, click the button below.", selectedExtension.displayName));
+      this.previewButton.label = localize("openIssueReporter", "Open External Issue Reporter");
       return;
     }
     if (fileOnExtension && selectedExtension?.data) {
@@ -932,18 +715,8 @@ let IssueReporter = class extends Disposable {
           show(extensionsBlock);
         }
       }
-      reset(
-        descriptionTitle,
-        localize("stepsToReproduce", "Steps to Reproduce") + " ",
-        $("span.required-input", void 0, "*")
-      );
-      reset(
-        descriptionSubtitle,
-        localize(
-          "bugDescription",
-          "Share the steps needed to reliably reproduce the problem. Please include actual and expected results. We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."
-        )
-      );
+      reset(descriptionTitle, localize("stepsToReproduce", "Steps to Reproduce") + " ", $("span.required-input", void 0, "*"));
+      reset(descriptionSubtitle, localize("bugDescription", "Share the steps needed to reliably reproduce the problem. Please include actual and expected results. We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."));
     } else if (issueType === OldIssueType.PerformanceIssue) {
       if (!fileOnMarketplace) {
         show(blockContainer);
@@ -957,41 +730,17 @@ let IssueReporter = class extends Disposable {
       } else if (!fileOnMarketplace) {
         show(extensionsBlock);
       }
-      reset(
-        descriptionTitle,
-        localize("stepsToReproduce", "Steps to Reproduce") + " ",
-        $("span.required-input", void 0, "*")
-      );
-      reset(
-        descriptionSubtitle,
-        localize(
-          "performanceIssueDesciption",
-          "When did this performance issue happen? Does it occur on startup or after a specific series of actions? We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."
-        )
-      );
+      reset(descriptionTitle, localize("stepsToReproduce", "Steps to Reproduce") + " ", $("span.required-input", void 0, "*"));
+      reset(descriptionSubtitle, localize("performanceIssueDesciption", "When did this performance issue happen? Does it occur on startup or after a specific series of actions? We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."));
     } else if (issueType === OldIssueType.FeatureRequest) {
-      reset(
-        descriptionTitle,
-        localize("description", "Description") + " ",
-        $("span.required-input", void 0, "*")
-      );
-      reset(
-        descriptionSubtitle,
-        localize(
-          "featureRequestDescription",
-          "Please describe the feature you would like to see. We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."
-        )
-      );
+      reset(descriptionTitle, localize("description", "Description") + " ", $("span.required-input", void 0, "*"));
+      reset(descriptionSubtitle, localize("featureRequestDescription", "Please describe the feature you would like to see. We support GitHub-flavored Markdown. You will be able to edit your issue and add screenshots when we preview it on GitHub."));
     }
   }
   validateInput(inputId) {
     const inputElement = this.getElementById(inputId);
-    const inputValidationMessage = this.getElementById(
-      `${inputId}-empty-error`
-    );
-    const descriptionShortMessage = this.getElementById(
-      `description-short-error`
-    );
+    const inputValidationMessage = this.getElementById(`${inputId}-empty-error`);
+    const descriptionShortMessage = this.getElementById(`description-short-error`);
     if (!inputElement.value) {
       inputElement.classList.add("invalid-input");
       inputValidationMessage?.classList.remove("hidden");
@@ -1031,7 +780,7 @@ let IssueReporter = class extends Disposable {
       }),
       headers: new Headers({
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.configuration.data.githubAccessToken}`
+        "Authorization": `Bearer ${this.configuration.data.githubAccessToken}`
       })
     };
     const response = await fetch(url, init);
@@ -1089,10 +838,7 @@ let IssueReporter = class extends Disposable {
       issueUrl = uri.toString();
     }
     const gitHubDetails = this.parseGitHubUrl(issueUrl);
-    const baseUrl = this.getIssueUrlWithTitle(
-      this.getElementById("issue-title").value,
-      issueUrl
-    );
+    const baseUrl = this.getIssueUrlWithTitle(this.getElementById("issue-title").value, issueUrl);
     let url = baseUrl + `&body=${encodeURIComponent(issueBody)}`;
     if (url.length > MAX_URL_LENGTH) {
       try {
@@ -1119,7 +865,7 @@ let IssueReporter = class extends Disposable {
     return this.issueReporterModel.fileOnExtension() ? this.getExtensionGitHubUrl() : this.issueReporterModel.getData().fileOnMarketplace ? this.configuration.product.reportMarketplaceIssueUrl : this.configuration.product.reportIssueUrl;
   }
   parseGitHubUrl(url) {
-    const match = /^https?:\/\/github\.com\/([^/]*)\/([^/]*).*/.exec(url);
+    const match = /^https?:\/\/github\.com\/([^\/]*)\/([^\/]*).*/.exec(url);
     if (match && match.length) {
       return {
         owner: match[1],
@@ -1134,11 +880,9 @@ let IssueReporter = class extends Disposable {
     let repositoryUrl = "";
     const bugsUrl = this.getExtensionBugsUrl();
     const extensionUrl = this.getExtensionRepositoryUrl();
-    if (bugsUrl && bugsUrl.match(
-      /^https?:\/\/github\.com\/([^/]*)\/([^/]*)\/?(\/issues)?$/
-    )) {
+    if (bugsUrl && bugsUrl.match(/^https?:\/\/github\.com\/([^\/]*)\/([^\/]*)\/?(\/issues)?$/)) {
       repositoryUrl = normalizeGitHubUrl(bugsUrl);
-    } else if (extensionUrl && extensionUrl.match(/^https?:\/\/github\.com\/([^/]*)\/([^/]*)$/)) {
+    } else if (extensionUrl && extensionUrl.match(/^https?:\/\/github\.com\/([^\/]*)\/([^\/]*)$/)) {
       repositoryUrl = normalizeGitHubUrl(extensionUrl);
     } else {
       this.nonGitHubIssueUrl = true;
@@ -1154,9 +898,7 @@ let IssueReporter = class extends Disposable {
     return `${repositoryUrl}${queryStringPrefix}title=${encodeURIComponent(issueTitle)}`;
   }
   updateSystemInfo(state) {
-    const target = mainWindow.document.querySelector(
-      ".block-system .block-info"
-    );
+    const target = mainWindow.document.querySelector(".block-system .block-info");
     if (target) {
       const systemInfo = state.systemInfo;
       const renderedDataTable = $(
@@ -1172,13 +914,7 @@ let IssueReporter = class extends Disposable {
           "tr",
           void 0,
           $("td", void 0, "GPU Status"),
-          $(
-            "td",
-            void 0,
-            Object.keys(systemInfo.gpuStatus).map(
-              (key) => `${key}: ${systemInfo.gpuStatus[key]}`
-            ).join("\n")
-          )
+          $("td", void 0, Object.keys(systemInfo.gpuStatus).map((key) => `${key}: ${systemInfo.gpuStatus[key]}`).join("\n"))
         ),
         $(
           "tr",
@@ -1240,11 +976,7 @@ let IssueReporter = class extends Disposable {
               "tr",
               void 0,
               $("td", void 0, "Remote"),
-              $(
-                "td",
-                void 0,
-                remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName
-              )
+              $("td", void 0, remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName)
             ),
             $(
               "tr",
@@ -1296,92 +1028,60 @@ let IssueReporter = class extends Disposable {
     });
     const makeOption = /* @__PURE__ */ __name((extension, selectedExtension) => {
       const selected = selectedExtension && extension.id === selectedExtension.id;
-      return $(
-        "option",
-        {
-          value: extension.id,
-          selected: selected || ""
-        },
-        extension.name
-      );
+      return $("option", {
+        "value": extension.id,
+        "selected": selected || ""
+      }, extension.name);
     }, "makeOption");
     const extensionsSelector = this.getElementById("extension-selector");
     if (extensionsSelector) {
       const { selectedExtension } = this.issueReporterModel.getData();
-      reset(
-        extensionsSelector,
-        this.makeOption(
-          "",
-          localize("selectExtension", "Select extension"),
-          true
-        ),
-        ...extensionOptions.map(
-          (extension) => makeOption(extension, selectedExtension)
-        )
-      );
+      reset(extensionsSelector, this.makeOption("", localize("selectExtension", "Select extension"), true), ...extensionOptions.map((extension) => makeOption(extension, selectedExtension)));
       if (!selectedExtension) {
         extensionsSelector.selectedIndex = 0;
       }
-      this.addEventListener(
-        "extension-selector",
-        "change",
-        async (e) => {
-          this.clearExtensionData();
-          const selectedExtensionId = e.target.value;
-          this.selectedExtension = selectedExtensionId;
-          const extensions2 = this.issueReporterModel.getData().allExtensions;
-          const matches = extensions2.filter(
-            (extension) => extension.id === selectedExtensionId
-          );
-          if (matches.length) {
-            this.issueReporterModel.update({
-              selectedExtension: matches[0]
-            });
-            const selectedExtension2 = this.issueReporterModel.getData().selectedExtension;
-            if (selectedExtension2) {
-              const iconElement = document.createElement("span");
-              iconElement.classList.add(
-                ...ThemeIcon.asClassNameArray(Codicon.loading),
-                "codicon-modifier-spin"
-              );
-              this.setLoading(iconElement);
-              const openReporterData = await this.sendReporterMenu(selectedExtension2);
-              if (openReporterData) {
-                if (this.selectedExtension === selectedExtensionId) {
-                  this.removeLoading(iconElement, true);
-                  this.configuration.data = openReporterData;
-                } else if (this.selectedExtension !== selectedExtensionId) {
-                }
-              } else {
-                if (!this.loadingExtensionData) {
-                  iconElement.classList.remove(
-                    ...ThemeIcon.asClassNameArray(
-                      Codicon.loading
-                    ),
-                    "codicon-modifier-spin"
-                  );
-                }
-                this.removeLoading(iconElement);
-                this.clearExtensionData();
-                selectedExtension2.data = void 0;
-                selectedExtension2.uri = void 0;
-              }
+      this.addEventListener("extension-selector", "change", async (e) => {
+        this.clearExtensionData();
+        const selectedExtensionId = e.target.value;
+        this.selectedExtension = selectedExtensionId;
+        const extensions2 = this.issueReporterModel.getData().allExtensions;
+        const matches = extensions2.filter((extension) => extension.id === selectedExtensionId);
+        if (matches.length) {
+          this.issueReporterModel.update({ selectedExtension: matches[0] });
+          const selectedExtension2 = this.issueReporterModel.getData().selectedExtension;
+          if (selectedExtension2) {
+            const iconElement = document.createElement("span");
+            iconElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.loading), "codicon-modifier-spin");
+            this.setLoading(iconElement);
+            const openReporterData = await this.sendReporterMenu(selectedExtension2);
+            if (openReporterData) {
               if (this.selectedExtension === selectedExtensionId) {
-                this.updateExtensionStatus(matches[0]);
-                this.openReporter = false;
+                this.removeLoading(iconElement, true);
+                this.configuration.data = openReporterData;
+              } else if (this.selectedExtension !== selectedExtensionId) {
               }
             } else {
-              this.issueReporterModel.update({
-                selectedExtension: void 0
-              });
-              this.clearSearchResults();
+              if (!this.loadingExtensionData) {
+                iconElement.classList.remove(...ThemeIcon.asClassNameArray(Codicon.loading), "codicon-modifier-spin");
+              }
+              this.removeLoading(iconElement);
               this.clearExtensionData();
-              this.validateSelectedExtension();
-              this.updateExtensionStatus(matches[0]);
+              selectedExtension2.data = void 0;
+              selectedExtension2.uri = void 0;
             }
+            if (this.selectedExtension === selectedExtensionId) {
+              this.updateExtensionStatus(matches[0]);
+              this.openReporter = false;
+            }
+          } else {
+            this.issueReporterModel.update({ selectedExtension: void 0 });
+            this.clearSearchResults();
+            this.clearExtensionData();
+            this.validateSelectedExtension();
+            this.updateExtensionStatus(matches[0]);
           }
         }
-      );
+      });
     }
     this.addEventListener("problem-source", "change", (_) => {
       this.validateSelectedExtension();
@@ -1403,18 +1103,14 @@ let IssueReporter = class extends Disposable {
       if (descriptionText === "" || !descriptionText.includes(template.toString())) {
         const fullTextArea = descriptionText + (descriptionText === "" ? "" : "\n") + template.toString();
         descriptionTextArea.value = fullTextArea;
-        this.issueReporterModel.update({
-          issueDescription: fullTextArea
-        });
+        this.issueReporterModel.update({ issueDescription: fullTextArea });
       }
     }
     const data = this.configuration.data.data;
     if (data) {
       this.issueReporterModel.update({ extensionData: data });
       extension.data = data;
-      const extensionDataBlock = mainWindow.document.querySelector(
-        ".block-extension-data"
-      );
+      const extensionDataBlock = mainWindow.document.querySelector(".block-extension-data");
       show(extensionDataBlock);
       this.renderBlocks();
     }
@@ -1430,12 +1126,8 @@ let IssueReporter = class extends Disposable {
     this.renderBlocks();
   }
   validateSelectedExtension() {
-    const extensionValidationMessage = this.getElementById(
-      "extension-selection-validation-error"
-    );
-    const extensionValidationNoUrlsMessage = this.getElementById(
-      "extension-selection-validation-error-no-url"
-    );
+    const extensionValidationMessage = this.getElementById("extension-selection-validation-error");
+    const extensionValidationNoUrlsMessage = this.getElementById("extension-selection-validation-error-no-url");
     hide(extensionValidationMessage);
     hide(extensionValidationNoUrlsMessage);
     const extension = this.issueReporterModel.getData().selectedExtension;
@@ -1460,12 +1152,8 @@ let IssueReporter = class extends Disposable {
     this.updatePreviewButtonState();
     const extensionDataCaption = this.getElementById("extension-id");
     hide(extensionDataCaption);
-    const extensionDataCaption2 = Array.from(
-      mainWindow.document.querySelectorAll(".ext-parens")
-    );
-    extensionDataCaption2.forEach(
-      (extensionDataCaption22) => hide(extensionDataCaption22)
-    );
+    const extensionDataCaption2 = Array.from(mainWindow.document.querySelectorAll(".ext-parens"));
+    extensionDataCaption2.forEach((extensionDataCaption22) => hide(extensionDataCaption22));
     const showLoading = this.getElementById("ext-loading");
     show(showLoading);
     while (showLoading.firstChild) {
@@ -1480,12 +1168,8 @@ let IssueReporter = class extends Disposable {
     this.updatePreviewButtonState();
     const extensionDataCaption = this.getElementById("extension-id");
     show(extensionDataCaption);
-    const extensionDataCaption2 = Array.from(
-      mainWindow.document.querySelectorAll(".ext-parens")
-    );
-    extensionDataCaption2.forEach(
-      (extensionDataCaption22) => show(extensionDataCaption22)
-    );
+    const extensionDataCaption2 = Array.from(mainWindow.document.querySelectorAll(".ext-parens"));
+    extensionDataCaption2.forEach((extensionDataCaption22) => show(extensionDataCaption22));
     const hideLoading = this.getElementById("ext-loading");
     hide(hideLoading);
     if (hideLoading.firstChild) {
@@ -1494,12 +1178,8 @@ let IssueReporter = class extends Disposable {
     this.renderBlocks();
   }
   setExtensionValidationMessage() {
-    const extensionValidationMessage = this.getElementById(
-      "extension-selection-validation-error"
-    );
-    const extensionValidationNoUrlsMessage = this.getElementById(
-      "extension-selection-validation-error-no-url"
-    );
+    const extensionValidationMessage = this.getElementById("extension-selection-validation-error");
+    const extensionValidationNoUrlsMessage = this.getElementById("extension-selection-validation-error-no-url");
     const bugsUrl = this.getExtensionBugsUrl();
     if (bugsUrl) {
       show(extensionValidationMessage);
@@ -1517,28 +1197,19 @@ let IssueReporter = class extends Disposable {
     show(extensionValidationNoUrlsMessage);
   }
   updateProcessInfo(state) {
-    const target = mainWindow.document.querySelector(
-      ".block-process .block-info"
-    );
+    const target = mainWindow.document.querySelector(".block-process .block-info");
     if (target) {
       reset(target, $("code", void 0, state.processInfo ?? ""));
     }
   }
   updateWorkspaceInfo(state) {
-    mainWindow.document.querySelector(
-      ".block-workspace .block-info code"
-    ).textContent = "\n" + state.workspaceInfo;
+    mainWindow.document.querySelector(".block-workspace .block-info code").textContent = "\n" + state.workspaceInfo;
   }
   updateExtensionTable(extensions, numThemeExtensions) {
-    const target = mainWindow.document.querySelector(
-      ".block-extensions .block-info"
-    );
+    const target = mainWindow.document.querySelector(".block-extensions .block-info");
     if (target) {
       if (this.configuration.disableExtensions) {
-        reset(
-          target,
-          localize("disabledExtensions", "Extensions are disabled")
-        );
+        reset(target, localize("disabledExtensions", "Extensions are disabled"));
         return;
       }
       const themeExclusionStr = numThemeExtensions ? `
@@ -1548,11 +1219,7 @@ let IssueReporter = class extends Disposable {
         target.innerText = "Extensions: none" + themeExclusionStr;
         return;
       }
-      reset(
-        target,
-        this.getExtensionTableHtml(extensions),
-        document.createTextNode(themeExclusionStr)
-      );
+      reset(target, this.getExtensionTableHtml(extensions), document.createTextNode(themeExclusionStr));
     }
   }
   updateRestrictedMode(restrictedMode) {
@@ -1563,9 +1230,7 @@ let IssueReporter = class extends Disposable {
   }
   updateExperimentsInfo(experimentInfo) {
     this.issueReporterModel.update({ experimentInfo });
-    const target = mainWindow.document.querySelector(
-      ".block-experiments .block-info"
-    );
+    const target = mainWindow.document.querySelector(".block-experiments .block-info");
     if (target) {
       target.textContent = experimentInfo ? experimentInfo : localize("noCurrentExperiments", "No current experiments.");
     }
@@ -1581,19 +1246,13 @@ let IssueReporter = class extends Disposable {
         $("th", void 0, "Author (truncated)"),
         $("th", void 0, "Version")
       ),
-      ...extensions.map(
-        (extension) => $(
-          "tr",
-          void 0,
-          $("td", void 0, extension.name),
-          $(
-            "td",
-            void 0,
-            extension.publisher?.substr(0, 3) ?? "N/A"
-          ),
-          $("td", void 0, extension.version)
-        )
-      )
+      ...extensions.map((extension) => $(
+        "tr",
+        void 0,
+        $("td", void 0, extension.name),
+        $("td", void 0, extension.publisher?.substr(0, 3) ?? "N/A"),
+        $("td", void 0, extension.version)
+      ))
     );
   }
   openLink(event) {

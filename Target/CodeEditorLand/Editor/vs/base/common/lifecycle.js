@@ -2,9 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { compareBy, numberComparator } from "./arrays.js";
 import { groupBy } from "./collections.js";
+import { SetMap } from "./map.js";
 import { createSingleCallFunction } from "./functional.js";
 import { Iterable } from "./iterator.js";
-import { SetMap } from "./map.js";
 const TRACK_DISPOSABLES = false;
 let disposableTracker = null;
 class DisposableTracker {
@@ -16,13 +16,7 @@ class DisposableTracker {
   getDisposableData(d) {
     let val = this.livingDisposables.get(d);
     if (!val) {
-      val = {
-        parent: null,
-        source: null,
-        isSingleton: false,
-        value: d,
-        idx: DisposableTracker.idx++
-      };
+      val = { parent: null, source: null, isSingleton: false, value: d, idx: DisposableTracker.idx++ };
       this.livingDisposables.set(d, val);
     }
     return val;
@@ -54,9 +48,7 @@ class DisposableTracker {
   }
   getTrackedDisposables() {
     const rootParentCache = /* @__PURE__ */ new Map();
-    const leaking = [...this.livingDisposables.entries()].filter(
-      ([, v]) => v.source !== null && !this.getRootParent(v, rootParentCache).isSingleton
-    ).flatMap(([k]) => k);
+    const leaking = [...this.livingDisposables.entries()].filter(([, v]) => v.source !== null && !this.getRootParent(v, rootParentCache).isSingleton).flatMap(([k]) => k);
     return leaking;
   }
   computeLeakingDisposables(maxReported = 10, preComputedLeaks) {
@@ -65,9 +57,7 @@ class DisposableTracker {
       uncoveredLeakingObjs = preComputedLeaks;
     } else {
       const rootParentCache = /* @__PURE__ */ new Map();
-      const leakingObjects = [...this.livingDisposables.values()].filter(
-        (info) => info.source !== null && !this.getRootParent(info, rootParentCache).isSingleton
-      );
+      const leakingObjects = [...this.livingDisposables.values()].filter((info) => info.source !== null && !this.getRootParent(info, rootParentCache).isSingleton);
       if (leakingObjects.length === 0) {
         return;
       }
@@ -84,19 +74,13 @@ class DisposableTracker {
     }
     function getStackTracePath(leaking) {
       function removePrefix(array, linesToRemove) {
-        while (array.length > 0 && linesToRemove.some(
-          (regexp) => typeof regexp === "string" ? regexp === array[0] : array[0].match(regexp)
-        )) {
+        while (array.length > 0 && linesToRemove.some((regexp) => typeof regexp === "string" ? regexp === array[0] : array[0].match(regexp))) {
           array.shift();
         }
       }
       __name(removePrefix, "removePrefix");
       const lines = leaking.source.split("\n").map((p) => p.trim().replace("at ", "")).filter((l) => l !== "");
-      removePrefix(lines, [
-        "Error",
-        /^trackDisposable \(.*\)$/,
-        /^DisposableTracker.trackDisposable \(.*\)$/
-      ]);
+      removePrefix(lines, ["Error", /^trackDisposable \(.*\)$/, /^DisposableTracker.trackDisposable \(.*\)$/]);
       return lines.reverse();
     }
     __name(getStackTracePath, "getStackTracePath");
@@ -104,10 +88,7 @@ class DisposableTracker {
     for (const leaking of uncoveredLeakingObjs) {
       const stackTracePath = getStackTracePath(leaking);
       for (let i2 = 0; i2 <= stackTracePath.length; i2++) {
-        stackTraceStarts.add(
-          stackTracePath.slice(0, i2).join("\n"),
-          leaking
-        );
+        stackTraceStarts.add(stackTracePath.slice(0, i2).join("\n"), leaking);
       }
     }
     uncoveredLeakingObjs.sort(compareBy((l) => l.idx, numberComparator));
@@ -119,22 +100,13 @@ class DisposableTracker {
       const stackTraceFormattedLines = [];
       for (let i2 = 0; i2 < stackTracePath.length; i2++) {
         let line = stackTracePath[i2];
-        const starts = stackTraceStarts.get(
-          stackTracePath.slice(0, i2 + 1).join("\n")
-        );
+        const starts = stackTraceStarts.get(stackTracePath.slice(0, i2 + 1).join("\n"));
         line = `(shared with ${starts.size}/${uncoveredLeakingObjs.length} leaks) at ${line}`;
-        const prevStarts = stackTraceStarts.get(
-          stackTracePath.slice(0, i2).join("\n")
-        );
-        const continuations = groupBy(
-          [...prevStarts].map((d) => getStackTracePath(d)[i2]),
-          (v) => v
-        );
+        const prevStarts = stackTraceStarts.get(stackTracePath.slice(0, i2).join("\n"));
+        const continuations = groupBy([...prevStarts].map((d) => getStackTracePath(d)[i2]), (v) => v);
         delete continuations[stackTracePath[i2]];
         for (const [cont, set] of Object.entries(continuations)) {
-          stackTraceFormattedLines.unshift(
-            `    - stacktraces of ${set.length} other leaks continue with ${cont}`
-          );
+          stackTraceFormattedLines.unshift(`    - stacktraces of ${set.length} other leaks continue with ${cont}`);
         }
         stackTraceFormattedLines.unshift(line);
       }
@@ -164,36 +136,34 @@ function setDisposableTracker(tracker) {
 __name(setDisposableTracker, "setDisposableTracker");
 if (TRACK_DISPOSABLES) {
   const __is_disposable_tracked__ = "__is_disposable_tracked__";
-  setDisposableTracker(
-    new class {
-      trackDisposable(x) {
-        const stack = new Error("Potentially leaked disposable").stack;
-        setTimeout(() => {
-          if (!x[__is_disposable_tracked__]) {
-            console.log(stack);
-          }
-        }, 3e3);
-      }
-      setParent(child, parent) {
-        if (child && child !== Disposable.None) {
-          try {
-            child[__is_disposable_tracked__] = true;
-          } catch {
-          }
+  setDisposableTracker(new class {
+    trackDisposable(x) {
+      const stack = new Error("Potentially leaked disposable").stack;
+      setTimeout(() => {
+        if (!x[__is_disposable_tracked__]) {
+          console.log(stack);
+        }
+      }, 3e3);
+    }
+    setParent(child, parent) {
+      if (child && child !== Disposable.None) {
+        try {
+          child[__is_disposable_tracked__] = true;
+        } catch {
         }
       }
-      markAsDisposed(disposable) {
-        if (disposable && disposable !== Disposable.None) {
-          try {
-            disposable[__is_disposable_tracked__] = true;
-          } catch {
-          }
+    }
+    markAsDisposed(disposable) {
+      if (disposable && disposable !== Disposable.None) {
+        try {
+          disposable[__is_disposable_tracked__] = true;
+        } catch {
         }
       }
-      markAsSingleton(disposable) {
-      }
-    }()
-  );
+    }
+    markAsSingleton(disposable) {
+    }
+  }());
 }
 function trackDisposable(x) {
   disposableTracker?.trackDisposable(x);
@@ -241,10 +211,7 @@ function dispose(arg) {
     if (errors.length === 1) {
       throw errors[0];
     } else if (errors.length > 1) {
-      throw new AggregateError(
-        errors,
-        "Encountered errors while disposing of store"
-      );
+      throw new AggregateError(errors, "Encountered errors while disposing of store");
     }
     return Array.isArray(arg) ? [] : arg;
   } else if (arg) {
@@ -333,11 +300,7 @@ class DisposableStore {
     setParentOfDisposable(o, this);
     if (this._isDisposed) {
       if (!DisposableStore.DISABLE_DISPOSED_WARNING) {
-        console.warn(
-          new Error(
-            "Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!"
-          ).stack
-        );
+        console.warn(new Error("Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!").stack);
       }
     } else {
       this._toDispose.add(o);
@@ -438,7 +401,7 @@ class MutableDisposable {
   /**
    * Clears the value, but does not dispose it.
    * The old value is returned.
-   */
+  */
   clearAndLeak() {
     const oldValue = this._value;
     this._value = void 0;
@@ -524,10 +487,7 @@ class ReferenceCollection {
   acquire(key, ...args) {
     let reference = this.references.get(key);
     if (!reference) {
-      reference = {
-        counter: 0,
-        object: this.createReferencedObject(key, ...args)
-      };
+      reference = { counter: 0, object: this.createReferencedObject(key, ...args) };
       this.references.set(key, reference);
     }
     const { object } = reference;
@@ -624,11 +584,7 @@ class DisposableMap {
   }
   set(key, value, skipDisposeOnOverwrite = false) {
     if (this._isDisposed) {
-      console.warn(
-        new Error(
-          "Trying to add a disposable to a DisposableMap that has already been disposed of. The added object will be leaked!"
-        ).stack
-      );
+      console.warn(new Error("Trying to add a disposable to a DisposableMap that has already been disposed of. The added object will be leaked!").stack);
     }
     if (!skipDisposeOnOverwrite) {
       this._store.get(key)?.dispose();

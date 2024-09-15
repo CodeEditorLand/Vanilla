@@ -10,59 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Barrier } from "../../../../base/common/async.js";
 import { Emitter } from "../../../../base/common/event.js";
+import { Barrier } from "../../../../base/common/async.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { mark } from "../../../../base/common/performance.js";
+import { ILifecycleService, WillShutdownEvent, StartupKind, LifecyclePhase, LifecyclePhaseToString, ShutdownReason, BeforeShutdownErrorEvent, InternalBeforeShutdownEvent } from "./lifecycle.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget,
-  WillSaveStateReason
-} from "../../../../platform/storage/common/storage.js";
-import {
-  LifecyclePhase,
-  LifecyclePhaseToString,
-  ShutdownReason,
-  StartupKind
-} from "./lifecycle.js";
+import { mark } from "../../../../base/common/performance.js";
+import { IStorageService, StorageScope, StorageTarget, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
 let AbstractLifecycleService = class extends Disposable {
   constructor(logService, storageService) {
     super();
     this.logService = logService;
     this.storageService = storageService;
     this._startupKind = this.resolveStartupKind();
-    this._register(
-      this.storageService.onWillSaveState((e) => {
-        if (e.reason === WillSaveStateReason.SHUTDOWN) {
-          this.storageService.store(
-            AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY,
-            this.shutdownReason,
-            StorageScope.WORKSPACE,
-            StorageTarget.MACHINE
-          );
-        }
-      })
-    );
+    this._register(this.storageService.onWillSaveState((e) => {
+      if (e.reason === WillSaveStateReason.SHUTDOWN) {
+        this.storageService.store(AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY, this.shutdownReason, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      }
+    }));
   }
   static {
     __name(this, "AbstractLifecycleService");
   }
   static LAST_SHUTDOWN_REASON_KEY = "lifecyle.lastShutdownReason";
-  _onBeforeShutdown = this._register(
-    new Emitter()
-  );
+  _onBeforeShutdown = this._register(new Emitter());
   onBeforeShutdown = this._onBeforeShutdown.event;
-  _onWillShutdown = this._register(
-    new Emitter()
-  );
+  _onWillShutdown = this._register(new Emitter());
   onWillShutdown = this._onWillShutdown.event;
   _onDidShutdown = this._register(new Emitter());
   onDidShutdown = this._onDidShutdown.event;
-  _onBeforeShutdownError = this._register(
-    new Emitter()
-  );
+  _onBeforeShutdownError = this._register(new Emitter());
   onBeforeShutdownError = this._onBeforeShutdownError.event;
   _onShutdownVeto = this._register(new Emitter());
   onShutdownVeto = this._onShutdownVeto.event;
@@ -78,21 +55,13 @@ let AbstractLifecycleService = class extends Disposable {
   shutdownReason;
   resolveStartupKind() {
     const startupKind = this.doResolveStartupKind() ?? StartupKind.NewWindow;
-    this.logService.trace(
-      `[lifecycle] starting up (startup kind: ${startupKind})`
-    );
+    this.logService.trace(`[lifecycle] starting up (startup kind: ${startupKind})`);
     return startupKind;
   }
   doResolveStartupKind() {
-    const lastShutdownReason = this.storageService.getNumber(
-      AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY,
-      StorageScope.WORKSPACE
-    );
-    this.storageService.remove(
-      AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY,
-      StorageScope.WORKSPACE
-    );
-    let startupKind;
+    const lastShutdownReason = this.storageService.getNumber(AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY, StorageScope.WORKSPACE);
+    this.storageService.remove(AbstractLifecycleService.LAST_SHUTDOWN_REASON_KEY, StorageScope.WORKSPACE);
+    let startupKind = void 0;
     switch (lastShutdownReason) {
       case ShutdownReason.RELOAD:
         startupKind = StartupKind.ReloadedWindow;

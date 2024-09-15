@@ -58,24 +58,9 @@ function writeFile(pluginName, moduleName, req, write2, config) {
     ], entries = entryPoints[moduleName];
     for (let i = 0; i < entries.length; i++) {
       if (inlineResources) {
-        contents.push(
-          rewriteOrInlineUrls(
-            entries[i].fsPath,
-            entries[i].moduleName,
-            moduleName,
-            entries[i].contents,
-            inlineResources === "base64",
-            inlineResourcesLimit
-          )
-        );
+        contents.push(rewriteOrInlineUrls(entries[i].fsPath, entries[i].moduleName, moduleName, entries[i].contents, inlineResources === "base64", inlineResourcesLimit));
       } else {
-        contents.push(
-          rewriteUrls(
-            entries[i].moduleName,
-            moduleName,
-            entries[i].contents
-          )
-        );
+        contents.push(rewriteUrls(entries[i].moduleName, moduleName, entries[i].contents));
       }
     }
     write2(fileName, contents.join("\r\n"));
@@ -88,9 +73,7 @@ function getInlinedResources() {
 __name(getInlinedResources, "getInlinedResources");
 function rewriteOrInlineUrls(originalFileFSPath, originalFile, newFile, contents, forceBase64, inlineByteLimit) {
   if (!fs || !path) {
-    throw new Error(
-      `Cannot rewrite or inline urls without 'fs' or 'path'!`
-    );
+    throw new Error(`Cannot rewrite or inline urls without 'fs' or 'path'!`);
   }
   return CSSPluginUtilities.replaceURL(contents, (url) => {
     if (/\.(svg|png)$/.test(url)) {
@@ -111,20 +94,14 @@ function rewriteOrInlineUrls(originalFileFSPath, originalFile, newFile, contents
         return '"data:' + MIME + DATA + '"';
       }
     }
-    const absoluteUrl = CSSPluginUtilities.joinPaths(
-      CSSPluginUtilities.pathOf(originalFile),
-      url
-    );
+    const absoluteUrl = CSSPluginUtilities.joinPaths(CSSPluginUtilities.pathOf(originalFile), url);
     return CSSPluginUtilities.relativePath(newFile, absoluteUrl);
   });
 }
 __name(rewriteOrInlineUrls, "rewriteOrInlineUrls");
 function rewriteUrls(originalFile, newFile, contents) {
   return CSSPluginUtilities.replaceURL(contents, (url) => {
-    const absoluteUrl = CSSPluginUtilities.joinPaths(
-      CSSPluginUtilities.pathOf(originalFile),
-      url
-    );
+    const absoluteUrl = CSSPluginUtilities.joinPaths(CSSPluginUtilities.pathOf(originalFile), url);
     return CSSPluginUtilities.relativePath(newFile, absoluteUrl);
   });
 }
@@ -155,10 +132,7 @@ class CSSPluginUtilities {
   static joinPaths(a, b) {
     function findSlashIndexAfterPrefix(haystack, prefix) {
       if (CSSPluginUtilities.startsWith(haystack, prefix)) {
-        return Math.max(
-          prefix.length,
-          haystack.indexOf("/", prefix.length)
-        );
+        return Math.max(prefix.length, haystack.indexOf("/", prefix.length));
       }
       return 0;
     }
@@ -233,25 +207,22 @@ class CSSPluginUtilities {
     return result + toPath;
   }
   static replaceURL(contents, replacer) {
-    return contents.replace(
-      /url\(\s*([^)]+)\s*\)?/g,
-      (_, ...matches) => {
-        let url = matches[0];
-        if (url.charAt(0) === '"' || url.charAt(0) === "'") {
-          url = url.substring(1);
-        }
-        while (url.length > 0 && (url.charAt(url.length - 1) === " " || url.charAt(url.length - 1) === "	")) {
-          url = url.substring(0, url.length - 1);
-        }
-        if (url.charAt(url.length - 1) === '"' || url.charAt(url.length - 1) === "'") {
-          url = url.substring(0, url.length - 1);
-        }
-        if (!CSSPluginUtilities.startsWith(url, "data:") && !CSSPluginUtilities.startsWith(url, "http://") && !CSSPluginUtilities.startsWith(url, "https://")) {
-          url = replacer(url);
-        }
-        return "url(" + url + ")";
+    return contents.replace(/url\(\s*([^\)]+)\s*\)?/g, (_, ...matches) => {
+      let url = matches[0];
+      if (url.charAt(0) === '"' || url.charAt(0) === "'") {
+        url = url.substring(1);
       }
-    );
+      while (url.length > 0 && (url.charAt(url.length - 1) === " " || url.charAt(url.length - 1) === "	")) {
+        url = url.substring(0, url.length - 1);
+      }
+      if (url.charAt(url.length - 1) === '"' || url.charAt(url.length - 1) === "'") {
+        url = url.substring(0, url.length - 1);
+      }
+      if (!CSSPluginUtilities.startsWith(url, "data:") && !CSSPluginUtilities.startsWith(url, "http://") && !CSSPluginUtilities.startsWith(url, "https://")) {
+        url = replacer(url);
+      }
+      return "url(" + url + ")";
+    });
   }
 }
 export {

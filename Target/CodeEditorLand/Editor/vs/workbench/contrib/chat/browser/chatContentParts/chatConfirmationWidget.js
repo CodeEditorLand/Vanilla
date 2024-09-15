@@ -13,7 +13,7 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as dom from "../../../../../base/browser/dom.js";
 import "./media/chatConfirmationWidget.css";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
-import { Emitter } from "../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
@@ -29,34 +29,21 @@ let ChatConfirmationWidget = class extends Disposable {
       dom.h(".chat-confirmation-buttons-container@buttonsContainer")
     ]);
     this._domNode = elements.root;
-    const renderer = this._register(
-      this.instantiationService.createInstance(MarkdownRenderer, {})
-    );
-    const renderedTitle = this._register(
-      renderer.render(new MarkdownString(title))
-    );
+    const renderer = this._register(this.instantiationService.createInstance(MarkdownRenderer, {}));
+    const renderedTitle = this._register(renderer.render(new MarkdownString(title)));
     elements.title.appendChild(renderedTitle.element);
-    const renderedMessage = this._register(
-      renderer.render(new MarkdownString(message))
-    );
+    const renderedMessage = this._register(renderer.render(new MarkdownString(message)));
     elements.message.appendChild(renderedMessage.element);
     buttons.forEach((buttonData) => {
-      const button = new Button(elements.buttonsContainer, {
-        ...defaultButtonStyles,
-        secondary: buttonData.isSecondary
-      });
+      const button = new Button(elements.buttonsContainer, { ...defaultButtonStyles, secondary: buttonData.isSecondary });
       button.label = buttonData.label;
-      this._register(
-        button.onDidClick(() => this._onDidClick.fire(buttonData))
-      );
+      this._register(button.onDidClick(() => this._onDidClick.fire(buttonData)));
     });
   }
   static {
     __name(this, "ChatConfirmationWidget");
   }
-  _onDidClick = this._register(
-    new Emitter()
-  );
+  _onDidClick = this._register(new Emitter());
   get onDidClick() {
     return this._onDidClick.event;
   }

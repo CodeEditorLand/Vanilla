@@ -1,4 +1,4 @@
-var debug_default = "../../../../../../Asset/debug-TFVM4NXH.svg";
+var debug_default = "../../../../../../Asset/debug-BGSICIBX.svg";
 export {
   debug_default as default
 };

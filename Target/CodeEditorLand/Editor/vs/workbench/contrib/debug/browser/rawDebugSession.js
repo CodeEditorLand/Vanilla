@@ -10,27 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toAction } from "../../../../base/common/actions.js";
-import { createErrorWithActions } from "../../../../base/common/errorMessage.js";
-import * as errors from "../../../../base/common/errors.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import * as objects from "../../../../base/common/objects.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import {
-  IExtensionHostDebugService
-} from "../../../../platform/debug/common/extensionHostDebug.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import * as objects from "../../../../base/common/objects.js";
+import { toAction } from "../../../../base/common/actions.js";
+import * as errors from "../../../../base/common/errors.js";
+import { createErrorWithActions } from "../../../../base/common/errorMessage.js";
 import { formatPII, isUri } from "../common/debugUtils.js";
+import { IDebugAdapter, IConfig, AdapterEndEvent, IDebugger } from "../common/debug.js";
+import { IExtensionHostDebugService, IOpenExtensionWindowResult } from "../../../../platform/debug/common/extensionHostDebug.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { Schemas } from "../../../../base/common/network.js";
 let RawDebugSession = class {
   constructor(debugAdapter, dbgr, sessionId, name, extensionHostDebugService, openerService, notificationService, dialogSerivce) {
     this.dbgr = dbgr;
@@ -42,20 +37,16 @@ let RawDebugSession = class {
     this.dialogSerivce = dialogSerivce;
     this.debugAdapter = debugAdapter;
     this._capabilities = /* @__PURE__ */ Object.create(null);
-    this.toDispose.push(
-      this.debugAdapter.onError((err) => {
-        this.shutdown(err);
-      })
-    );
-    this.toDispose.push(
-      this.debugAdapter.onExit((code) => {
-        if (code !== 0) {
-          this.shutdown(new Error(`exit code: ${code}`));
-        } else {
-          this.shutdown();
-        }
-      })
-    );
+    this.toDispose.push(this.debugAdapter.onError((err) => {
+      this.shutdown(err);
+    }));
+    this.toDispose.push(this.debugAdapter.onExit((code) => {
+      if (code !== 0) {
+        this.shutdown(new Error(`exit code: ${code}`));
+      } else {
+        this.shutdown();
+      }
+    }));
     this.debugAdapter.onEvent((event) => {
       switch (event.event) {
         case "initialized":
@@ -63,9 +54,7 @@ let RawDebugSession = class {
           this._onDidInitialize.fire(event);
           break;
         case "loadedSource":
-          this._onDidLoadedSource.fire(
-            event
-          );
+          this._onDidLoadedSource.fire(event);
           break;
         case "capabilities":
           if (event.body) {
@@ -80,9 +69,7 @@ let RawDebugSession = class {
           break;
         case "continued":
           this.allThreadsContinued = event.body.allThreadsContinued === false ? false : true;
-          this._onDidContinued.fire(
-            event
-          );
+          this._onDidContinued.fire(event);
           break;
         case "thread":
           this._onDidThread.fire(event);
@@ -91,44 +78,28 @@ let RawDebugSession = class {
           this._onDidOutput.fire(event);
           break;
         case "breakpoint":
-          this._onDidBreakpoint.fire(
-            event
-          );
+          this._onDidBreakpoint.fire(event);
           break;
         case "terminated":
-          this._onDidTerminateDebugee.fire(
-            event
-          );
+          this._onDidTerminateDebugee.fire(event);
           break;
         case "exited":
-          this._onDidExitDebugee.fire(
-            event
-          );
+          this._onDidExitDebugee.fire(event);
           break;
         case "progressStart":
-          this._onDidProgressStart.fire(
-            event
-          );
+          this._onDidProgressStart.fire(event);
           break;
         case "progressUpdate":
-          this._onDidProgressUpdate.fire(
-            event
-          );
+          this._onDidProgressUpdate.fire(event);
           break;
         case "progressEnd":
-          this._onDidProgressEnd.fire(
-            event
-          );
+          this._onDidProgressEnd.fire(event);
           break;
         case "invalidated":
-          this._onDidInvalidated.fire(
-            event
-          );
+          this._onDidInvalidated.fire(event);
           break;
         case "memory":
-          this._onDidInvalidateMemory.fire(
-            event
-          );
+          this._onDidInvalidateMemory.fire(event);
           break;
         case "process":
           break;
@@ -249,14 +220,7 @@ let RawDebugSession = class {
    */
   async start() {
     if (!this.debugAdapter) {
-      return Promise.reject(
-        new Error(
-          nls.localize(
-            "noDebugAdapterStart",
-            "No debug adapter, can not start debug session."
-          )
-        )
-      );
+      return Promise.reject(new Error(nls.localize("noDebugAdapterStart", "No debug adapter, can not start debug session.")));
     }
     await this.debugAdapter.startSession();
     this.startTime = (/* @__PURE__ */ new Date()).getTime();
@@ -265,13 +229,7 @@ let RawDebugSession = class {
    * Send client capabilities to the debug adapter and receive DA capabilities in return.
    */
   async initialize(args) {
-    const response = await this.send(
-      "initialize",
-      args,
-      void 0,
-      void 0,
-      false
-    );
+    const response = await this.send("initialize", args, void 0, void 0, false);
     if (response) {
       this.mergeCapabilities(response.body);
     }
@@ -283,22 +241,11 @@ let RawDebugSession = class {
   disconnect(args) {
     const terminateDebuggee = this.capabilities.supportTerminateDebuggee ? args.terminateDebuggee : void 0;
     const suspendDebuggee = this.capabilities.supportTerminateDebuggee && this.capabilities.supportSuspendDebuggee ? args.suspendDebuggee : void 0;
-    return this.shutdown(
-      void 0,
-      args.restart,
-      terminateDebuggee,
-      suspendDebuggee
-    );
+    return this.shutdown(void 0, args.restart, terminateDebuggee, suspendDebuggee);
   }
   //---- DAP requests
   async launchOrAttach(config) {
-    const response = await this.send(
-      config.request,
-      config,
-      void 0,
-      void 0,
-      false
-    );
+    const response = await this.send(config.request, config, void 0, void 0, false);
     if (response) {
       this.mergeCapabilities(response.body);
     }
@@ -349,18 +296,12 @@ let RawDebugSession = class {
   }
   async continue(args) {
     this.stoppedSinceLastStep = false;
-    const response = await this.send(
-      "continue",
-      args
-    );
+    const response = await this.send("continue", args);
     if (response && response.body && response.body.allThreadsContinued !== void 0) {
       this.allThreadsContinued = response.body.allThreadsContinued;
     }
     if (!this.stoppedSinceLastStep) {
-      this.fireSimulatedContinuedEvent(
-        args.threadId,
-        this.allThreadsContinued
-      );
+      this.fireSimulatedContinuedEvent(args.threadId, this.allThreadsContinued);
     }
     return response;
   }
@@ -375,19 +316,13 @@ let RawDebugSession = class {
   }
   setVariable(args) {
     if (this.capabilities.supportsSetVariable) {
-      return this.send(
-        "setVariable",
-        args
-      );
+      return this.send("setVariable", args);
     }
     return Promise.reject(new Error("setVariable not supported"));
   }
   setExpression(args) {
     if (this.capabilities.supportsSetExpression) {
-      return this.send(
-        "setExpression",
-        args
-      );
+      return this.send("setExpression", args);
     }
     return Promise.reject(new Error("setExpression not supported"));
   }
@@ -410,62 +345,39 @@ let RawDebugSession = class {
   }
   completions(args, token) {
     if (this.capabilities.supportsCompletionsRequest) {
-      return this.send(
-        "completions",
-        args,
-        token
-      );
+      return this.send("completions", args, token);
     }
     return Promise.reject(new Error("completions not supported"));
   }
   setBreakpoints(args) {
-    return this.send(
-      "setBreakpoints",
-      args
-    );
+    return this.send("setBreakpoints", args);
   }
   setFunctionBreakpoints(args) {
     if (this.capabilities.supportsFunctionBreakpoints) {
-      return this.send(
-        "setFunctionBreakpoints",
-        args
-      );
+      return this.send("setFunctionBreakpoints", args);
     }
-    return Promise.reject(
-      new Error("setFunctionBreakpoints not supported")
-    );
+    return Promise.reject(new Error("setFunctionBreakpoints not supported"));
   }
   dataBreakpointInfo(args) {
     if (this.capabilities.supportsDataBreakpoints) {
-      return this.send(
-        "dataBreakpointInfo",
-        args
-      );
+      return this.send("dataBreakpointInfo", args);
     }
     return Promise.reject(new Error("dataBreakpointInfo not supported"));
   }
   setDataBreakpoints(args) {
     if (this.capabilities.supportsDataBreakpoints) {
-      return this.send(
-        "setDataBreakpoints",
-        args
-      );
+      return this.send("setDataBreakpoints", args);
     }
     return Promise.reject(new Error("setDataBreakpoints not supported"));
   }
   setExceptionBreakpoints(args) {
-    return this.send(
-      "setExceptionBreakpoints",
-      args
-    );
+    return this.send("setExceptionBreakpoints", args);
   }
   breakpointLocations(args) {
     if (this.capabilities.supportsBreakpointLocationsRequest) {
       return this.send("breakpointLocations", args);
     }
-    return Promise.reject(
-      new Error("breakpointLocations is not supported")
-    );
+    return Promise.reject(new Error("breakpointLocations is not supported"));
   }
   configurationDone() {
     if (this.capabilities.supportsConfigurationDoneRequest) {
@@ -474,18 +386,11 @@ let RawDebugSession = class {
     return Promise.reject(new Error("configurationDone not supported"));
   }
   stackTrace(args, token) {
-    return this.send(
-      "stackTrace",
-      args,
-      token
-    );
+    return this.send("stackTrace", args, token);
   }
   exceptionInfo(args) {
     if (this.capabilities.supportsExceptionInfoRequest) {
-      return this.send(
-        "exceptionInfo",
-        args
-      );
+      return this.send("exceptionInfo", args);
     }
     return Promise.reject(new Error("exceptionInfo not supported"));
   }
@@ -493,11 +398,7 @@ let RawDebugSession = class {
     return this.send("scopes", args, token);
   }
   variables(args, token) {
-    return this.send(
-      "variables",
-      args,
-      token
-    );
+    return this.send("variables", args, token);
   }
   source(args) {
     return this.send("source", args);
@@ -507,10 +408,7 @@ let RawDebugSession = class {
   }
   loadedSources(args) {
     if (this.capabilities.supportsLoadedSourcesRequest) {
-      return this.send(
-        "loadedSources",
-        args
-      );
+      return this.send("loadedSources", args);
     }
     return Promise.reject(new Error("loadedSources not supported"));
   }
@@ -563,9 +461,7 @@ let RawDebugSession = class {
     if (this.capabilities.supportsInstructionBreakpoints) {
       return await this.send("setInstructionBreakpoints", args);
     }
-    return Promise.reject(
-      new Error("setInstructionBreakpoints is not supported")
-    );
+    return Promise.reject(new Error("setInstructionBreakpoints is not supported"));
   }
   async disassemble(args) {
     if (this.capabilities.supportsDisassembleRequest) {
@@ -604,12 +500,7 @@ let RawDebugSession = class {
           if (typeof suspendDebuggee === "boolean") {
             args.suspendDebuggee = suspendDebuggee;
           }
-          await this.send(
-            "disconnect",
-            args,
-            void 0,
-            error ? 200 : 2e3
-          );
+          await this.send("disconnect", args, void 0, error ? 200 : 2e3);
         } catch (e) {
         } finally {
           await this.stopAdapter(error);
@@ -655,28 +546,15 @@ let RawDebugSession = class {
     const safeSendResponse = /* @__PURE__ */ __name((response2) => this.debugAdapter && this.debugAdapter.sendResponse(response2), "safeSendResponse");
     if (request.command === "launchVSCode") {
       try {
-        let result = await this.launchVsCode(
-          request.arguments
-        );
+        let result = await this.launchVsCode(request.arguments);
         if (!result.success) {
           const { confirmed } = await this.dialogSerivce.confirm({
             type: Severity.Warning,
-            message: nls.localize(
-              "canNotStart",
-              "The debugger needs to open a new tab or window for the debuggee but the browser prevented this. You must give permission to continue."
-            ),
-            primaryButton: nls.localize(
-              {
-                key: "continue",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "&&Continue"
-            )
+            message: nls.localize("canNotStart", "The debugger needs to open a new tab or window for the debuggee but the browser prevented this. You must give permission to continue."),
+            primaryButton: nls.localize({ key: "continue", comment: ["&& denotes a mnemonic"] }, "&&Continue")
           });
           if (confirmed) {
-            result = await this.launchVsCode(
-              request.arguments
-            );
+            result = await this.launchVsCode(request.arguments);
           } else {
             response.success = false;
             safeSendResponse(response);
@@ -694,10 +572,7 @@ let RawDebugSession = class {
       }
     } else if (request.command === "runInTerminal") {
       try {
-        const shellProcessId = await this.dbgr.runInTerminal(
-          request.arguments,
-          this.sessionId
-        );
+        const shellProcessId = await this.dbgr.runInTerminal(request.arguments, this.sessionId);
         const resp = response;
         resp.body = {};
         if (typeof shellProcessId === "number") {
@@ -720,10 +595,7 @@ let RawDebugSession = class {
             name: args.configuration.name || this.name
           }
         };
-        const success = await this.dbgr.startDebugging(
-          config,
-          this.sessionId
-        );
+        const success = await this.dbgr.startDebugging(config, this.sessionId);
         if (success) {
           safeSendResponse(response);
         } else {
@@ -759,61 +631,38 @@ let RawDebugSession = class {
       }
     }
     if (vscodeArgs.env) {
-      args.push(
-        `--extensionEnvironment=${JSON.stringify(vscodeArgs.env)}`
-      );
+      args.push(`--extensionEnvironment=${JSON.stringify(vscodeArgs.env)}`);
     }
-    return this.extensionHostDebugService.openExtensionDevelopmentHostWindow(
-      args,
-      !!vscodeArgs.debugRenderer
-    );
+    return this.extensionHostDebugService.openExtensionDevelopmentHostWindow(args, !!vscodeArgs.debugRenderer);
   }
   send(command, args, token, timeout, showErrors = true) {
-    return new Promise(
-      (completeDispatch, errorDispatch) => {
-        if (!this.debugAdapter) {
-          if (this.inShutdown) {
-            completeDispatch(void 0);
-          } else {
-            errorDispatch(
-              new Error(
-                nls.localize(
-                  "noDebugAdapter",
-                  "No debugger available found. Can not send '{0}'.",
-                  command
-                )
-              )
-            );
-          }
-          return;
+    return new Promise((completeDispatch, errorDispatch) => {
+      if (!this.debugAdapter) {
+        if (this.inShutdown) {
+          completeDispatch(void 0);
+        } else {
+          errorDispatch(new Error(nls.localize("noDebugAdapter", "No debugger available found. Can not send '{0}'.", command)));
         }
-        let cancelationListener;
-        const requestId = this.debugAdapter.sendRequest(
-          command,
-          args,
-          (response) => {
-            cancelationListener?.dispose();
-            if (response.success) {
-              completeDispatch(response);
-            } else {
-              errorDispatch(response);
-            }
-          },
-          timeout
-        );
-        if (token) {
-          cancelationListener = token.onCancellationRequested(() => {
-            cancelationListener.dispose();
-            if (this.capabilities.supportsCancelRequest) {
-              this.cancel({ requestId });
-            }
-          });
-        }
+        return;
       }
-    ).then(
-      void 0,
-      (err) => Promise.reject(this.handleErrorResponse(err, showErrors))
-    );
+      let cancelationListener;
+      const requestId = this.debugAdapter.sendRequest(command, args, (response) => {
+        cancelationListener?.dispose();
+        if (response.success) {
+          completeDispatch(response);
+        } else {
+          errorDispatch(response);
+        }
+      }, timeout);
+      if (token) {
+        cancelationListener = token.onCancellationRequested(() => {
+          cancelationListener.dispose();
+          if (this.capabilities.supportsCancelRequest) {
+            this.cancel({ requestId });
+          }
+        });
+      }
+    }).then(void 0, (err) => Promise.reject(this.handleErrorResponse(err, showErrors)));
   }
   handleErrorResponse(errorResponse, showErrors) {
     if (errorResponse.command === "canceled" && errorResponse.message === "canceled") {
@@ -827,13 +676,7 @@ let RawDebugSession = class {
       const label = error.urlLabel ? error.urlLabel : nls.localize("moreInfo", "More Info");
       const uri = URI.parse(url);
       const actionId = uri.scheme === Schemas.command ? "debug.moreInfo.command" : "debug.moreInfo";
-      return createErrorWithActions(userMessage, [
-        toAction({
-          id: actionId,
-          label,
-          run: /* @__PURE__ */ __name(() => this.openerService.open(uri, { allowCommands: true }), "run")
-        })
-      ]);
+      return createErrorWithActions(userMessage, [toAction({ id: actionId, label, run: /* @__PURE__ */ __name(() => this.openerService.open(uri, { allowCommands: true }), "run") })]);
     }
     if (showErrors && error && error.format && error.showUser) {
       this.notificationService.error(userMessage);
@@ -844,10 +687,7 @@ let RawDebugSession = class {
   }
   mergeCapabilities(capabilities) {
     if (capabilities) {
-      this._capabilities = objects.mixin(
-        this._capabilities,
-        capabilities
-      );
+      this._capabilities = objects.mixin(this._capabilities, capabilities);
     }
   }
   fireSimulatedContinuedEvent(threadId, allThreadsContinued = false) {

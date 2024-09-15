@@ -1,4 +1,4 @@
-var menuBar_default = "../../../../../../Asset/menuBar-QITCMVYZ.svg";
+var menuBar_default = "../../../../../../Asset/menuBar-VWJHYVJ6.svg";
 export {
   menuBar_default as default
 };

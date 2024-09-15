@@ -33,35 +33,25 @@ class FullFileRenderStrategy extends Disposable {
     this._device = _device;
     this._canvas = _canvas;
     this._atlas = _atlas;
-    const fontFamily = this._context.configuration.options.get(
-      EditorOption.fontFamily
-    );
-    const fontSize = this._context.configuration.options.get(
-      EditorOption.fontSize
-    );
-    this._glyphRasterizer = this._register(
-      new GlyphRasterizer(fontSize, fontFamily)
-    );
+    const fontFamily = this._context.configuration.options.get(EditorOption.fontFamily);
+    const fontSize = this._context.configuration.options.get(EditorOption.fontSize);
+    this._glyphRasterizer = this._register(new GlyphRasterizer(fontSize, fontFamily));
     const bufferSize = FullFileRenderStrategy._lineCount * FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */ * Float32Array.BYTES_PER_ELEMENT;
-    this._cellBindBuffer = this._register(
-      GPULifecycle.createBuffer(this._device, {
-        label: "Monaco full file cell buffer",
-        size: bufferSize,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-      })
-    ).object;
+    this._cellBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco full file cell buffer",
+      size: bufferSize,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    })).object;
     this._cellValueBuffers = [
       new ArrayBuffer(bufferSize),
       new ArrayBuffer(bufferSize)
     ];
     const scrollOffsetBufferSize = 2;
-    this._scrollOffsetBindBuffer = this._register(
-      GPULifecycle.createBuffer(this._device, {
-        label: "Monaco scroll offset buffer",
-        size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-      })
-    ).object;
+    this._scrollOffsetBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco scroll offset buffer",
+      size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    })).object;
     this._scrollOffsetValueBuffers = [
       new Float32Array(scrollOffsetBufferSize),
       new Float32Array(scrollOffsetBufferSize)
@@ -81,38 +71,21 @@ class FullFileRenderStrategy extends Disposable {
    */
   _cellValueBuffers;
   _activeDoubleBufferIndex = 0;
-  _upToDateLines = [
-    /* @__PURE__ */ new Set(),
-    /* @__PURE__ */ new Set()
-  ];
+  _upToDateLines = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
   _visibleObjectCount = 0;
   _scrollOffsetBindBuffer;
   _scrollOffsetValueBuffers;
   get bindGroupEntries() {
     return [
-      {
-        binding: BindingId.Cells,
-        resource: { buffer: this._cellBindBuffer }
-      },
-      {
-        binding: BindingId.ScrollOffset,
-        resource: { buffer: this._scrollOffsetBindBuffer }
-      }
+      { binding: BindingId.Cells, resource: { buffer: this._cellBindBuffer } },
+      { binding: BindingId.ScrollOffset, resource: { buffer: this._scrollOffsetBindBuffer } }
     ];
   }
   reset() {
     for (const bufferIndex of [0, 1]) {
-      const buffer = new Float32Array(
-        this._cellValueBuffers[bufferIndex]
-      );
+      const buffer = new Float32Array(this._cellValueBuffers[bufferIndex]);
       buffer.fill(0, 0, buffer.length);
-      this._device.queue.writeBuffer(
-        this._cellBindBuffer,
-        0,
-        buffer.buffer,
-        0,
-        buffer.byteLength
-      );
+      this._device.queue.writeBuffer(this._cellBindBuffer, 0, buffer.buffer, 0, buffer.byteLength);
       this._upToDateLines[bufferIndex].clear();
     }
     this._visibleObjectCount = 0;
@@ -142,14 +115,8 @@ class FullFileRenderStrategy extends Disposable {
     const scrollTop = this._context.viewLayout.getCurrentScrollTop() * activeWindow.devicePixelRatio;
     const scrollOffsetBuffer = this._scrollOffsetValueBuffers[this._activeDoubleBufferIndex];
     scrollOffsetBuffer[1] = scrollTop;
-    this._device.queue.writeBuffer(
-      this._scrollOffsetBindBuffer,
-      0,
-      scrollOffsetBuffer
-    );
-    const cellBuffer = new Float32Array(
-      this._cellValueBuffers[this._activeDoubleBufferIndex]
-    );
+    this._device.queue.writeBuffer(this._scrollOffsetBindBuffer, 0, scrollOffsetBuffer);
+    const cellBuffer = new Float32Array(this._cellValueBuffers[this._activeDoubleBufferIndex]);
     const lineIndexCount = FullFileRenderStrategy._columnCount * 6 /* IndicesPerCell */;
     const upToDateLines = this._upToDateLines[this._activeDoubleBufferIndex];
     let dirtyLineStart = Number.MAX_SAFE_INTEGER;
@@ -181,28 +148,15 @@ class FullFileRenderStrategy extends Disposable {
             continue;
           }
           if (chars === "	") {
-            xOffset = CursorColumns.nextRenderTabStop(
-              x + xOffset,
-              lineData.tabSize
-            ) - x - 1;
+            xOffset = CursorColumns.nextRenderTabStop(x + xOffset, lineData.tabSize) - x - 1;
             continue;
           }
-          glyph = this._atlas.getGlyph(
-            this._glyphRasterizer,
-            chars,
-            tokenMetadata
-          );
-          screenAbsoluteX = Math.round(
-            (x + xOffset) * viewLineOptions.spaceWidth * activeWindow.devicePixelRatio
-          );
+          glyph = this._atlas.getGlyph(this._glyphRasterizer, chars, tokenMetadata);
+          screenAbsoluteX = Math.round((x + xOffset) * viewLineOptions.spaceWidth * activeWindow.devicePixelRatio);
           screenAbsoluteY = Math.ceil(
             // Top of line including line height
             (viewportData.relativeVerticalOffset[y - viewportData.startLineNumber] + // Delta to top of line after line height
-            Math.floor(
-              (viewportData.lineHeight - this._context.configuration.options.get(
-                EditorOption.fontSize
-              )) / 2
-            )) * activeWindow.devicePixelRatio
+            Math.floor((viewportData.lineHeight - this._context.configuration.options.get(EditorOption.fontSize)) / 2)) * activeWindow.devicePixelRatio
           );
           zeroToOneX = screenAbsoluteX / this._canvas.width;
           zeroToOneY = screenAbsoluteY / this._canvas.height;

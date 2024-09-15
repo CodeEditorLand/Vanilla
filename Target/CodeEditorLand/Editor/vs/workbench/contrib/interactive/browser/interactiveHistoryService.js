@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { HistoryNavigator2 } from "../../../../base/common/history.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 const IInteractiveHistoryService = createDecorator("IInteractiveHistoryService");
 class InteractiveHistoryService extends Disposable {
@@ -40,12 +41,12 @@ class InteractiveHistoryService extends Disposable {
   }
   replaceLast(uri, value) {
     const history = this._history.get(uri);
-    if (history) {
-      history.replaceLast(value);
-      history.resetCursor();
-    } else {
+    if (!history) {
       this._history.set(uri, new HistoryNavigator2([value], 50));
       return;
+    } else {
+      history.replaceLast(value);
+      history.resetCursor();
     }
   }
   clearHistory(uri) {

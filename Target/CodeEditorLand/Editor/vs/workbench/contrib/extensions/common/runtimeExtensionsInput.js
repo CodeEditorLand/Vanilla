@@ -1,21 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Codicon } from "../../../../base/common/codicons.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import {
-  EditorInputCapabilities
-} from "../../../common/editor.js";
+import { URI } from "../../../../base/common/uri.js";
+import { EditorInputCapabilities, IUntypedEditorInput } from "../../../common/editor.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
-const RuntimeExtensionsEditorIcon = registerIcon(
-  "runtime-extensions-editor-label-icon",
-  Codicon.extensions,
-  nls.localize(
-    "runtimeExtensionEditorLabelIcon",
-    "Icon of the runtime extensions editor label."
-  )
-);
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const RuntimeExtensionsEditorIcon = registerIcon("runtime-extensions-editor-label-icon", Codicon.extensions, nls.localize("runtimeExtensionEditorLabelIcon", "Icon of the runtime extensions editor label."));
 class RuntimeExtensionsInput extends EditorInput {
   static {
     __name(this, "RuntimeExtensionsInput");

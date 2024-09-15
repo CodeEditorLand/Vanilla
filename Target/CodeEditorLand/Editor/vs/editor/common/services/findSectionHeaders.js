@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const markRegex = /\bMARK:\s*(.*)$/d;
+import { IRange } from "../core/range.js";
+import { FoldingRules } from "../languages/languageConfiguration.js";
+const markRegex = new RegExp("\\bMARK:\\s*(.*)$", "d");
 const trimDashesRegex = /^-+|-+$/g;
 function findSectionHeaders(model, options) {
   let headers = [];
@@ -22,12 +24,7 @@ function collectRegionHeaders(model, options) {
     const lineContent = model.getLineContent(lineNumber);
     const match = lineContent.match(options.foldingRules.markers.start);
     if (match) {
-      const range = {
-        startLineNumber: lineNumber,
-        startColumn: match[0].length + 1,
-        endLineNumber: lineNumber,
-        endColumn: lineContent.length + 1
-      };
+      const range = { startLineNumber: lineNumber, startColumn: match[0].length + 1, endLineNumber: lineNumber, endColumn: lineContent.length + 1 };
       if (range.endColumn > range.startColumn) {
         const sectionHeader = {
           range,
@@ -59,12 +56,7 @@ function addMarkHeaderIfFound(lineContent, lineNumber, sectionHeaders) {
   if (match) {
     const column = match.indices[1][0] + 1;
     const endColumn = match.indices[1][1] + 1;
-    const range = {
-      startLineNumber: lineNumber,
-      startColumn: column,
-      endLineNumber: lineNumber,
-      endColumn
-    };
+    const range = { startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn };
     if (range.endColumn > range.startColumn) {
       const sectionHeader = {
         range,

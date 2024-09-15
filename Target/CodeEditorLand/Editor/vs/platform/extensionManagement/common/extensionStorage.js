@@ -10,23 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { distinct } from "../../../base/common/arrays.js";
-import { Emitter } from "../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import { isString } from "../../../base/common/types.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { ILogService } from "../../log/common/log.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { IProfileStorageValueChangeEvent, IStorageService, StorageScope, StorageTarget } from "../../storage/common/storage.js";
+import { adoptToGalleryExtensionId, areSameExtensions, getExtensionId } from "./extensionManagementUtil.js";
 import { IProductService } from "../../product/common/productService.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../storage/common/storage.js";
-import {
-  adoptToGalleryExtensionId,
-  areSameExtensions,
-  getExtensionId
-} from "./extensionManagementUtil.js";
+import { distinct } from "../../../base/common/arrays.js";
+import { ILogService } from "../../log/common/log.js";
+import { IExtension } from "../../extensions/common/extensions.js";
+import { isString } from "../../../base/common/types.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { IExtensionManagementService, IGalleryExtension } from "./extensionManagement.js";
 const IExtensionStorageService = createDecorator("IExtensionStorageService");
 const EXTENSION_KEYS_ID_VERSION_REGEX = /^extensionKeys\/([^.]+\..+)@(\d+\.\d+\.\d+(-.*)?)$/;
 let ExtensionStorageService = class extends Disposable {
@@ -35,16 +30,8 @@ let ExtensionStorageService = class extends Disposable {
     this.storageService = storageService;
     this.productService = productService;
     this.logService = logService;
-    this.extensionsWithKeysForSync = ExtensionStorageService.readAllExtensionsWithKeysForSync(
-      storageService
-    );
-    this._register(
-      this.storageService.onDidChangeValue(
-        StorageScope.PROFILE,
-        void 0,
-        this._register(new DisposableStore())
-      )((e) => this.onDidChangeStorageValue(e))
-    );
+    this.extensionsWithKeysForSync = ExtensionStorageService.readAllExtensionsWithKeysForSync(storageService);
+    this._register(this.storageService.onDidChangeValue(StorageScope.PROFILE, void 0, this._register(new DisposableStore()))((e) => this.onDidChangeStorageValue(e)));
   }
   static {
     __name(this, "ExtensionStorageService");
@@ -65,20 +52,11 @@ let ExtensionStorageService = class extends Disposable {
   static async removeOutdatedExtensionVersions(extensionManagementService, storageService) {
     const extensions = await extensionManagementService.getInstalled();
     const extensionVersionsToRemove = [];
-    for (const [
-      id,
-      versions
-    ] of ExtensionStorageService.readAllExtensionsWithKeysForSync(
-      storageService
-    )) {
-      const extensionVersion = extensions.find(
-        (e) => areSameExtensions(e.identifier, { id })
-      )?.manifest.version;
+    for (const [id, versions] of ExtensionStorageService.readAllExtensionsWithKeysForSync(storageService)) {
+      const extensionVersion = extensions.find((e) => areSameExtensions(e.identifier, { id }))?.manifest.version;
       for (const version of versions) {
         if (extensionVersion !== version) {
-          extensionVersionsToRemove.push(
-            ExtensionStorageService.toKey({ id, version })
-          );
+          extensionVersionsToRemove.push(ExtensionStorageService.toKey({ id, version }));
         }
       }
     }
@@ -88,30 +66,20 @@ let ExtensionStorageService = class extends Disposable {
   }
   static readAllExtensionsWithKeysForSync(storageService) {
     const extensionsWithKeysForSync = /* @__PURE__ */ new Map();
-    const keys = storageService.keys(
-      StorageScope.PROFILE,
-      StorageTarget.MACHINE
-    );
+    const keys = storageService.keys(StorageScope.PROFILE, StorageTarget.MACHINE);
     for (const key of keys) {
       const extensionIdWithVersion = ExtensionStorageService.fromKey(key);
       if (extensionIdWithVersion) {
-        let versions = extensionsWithKeysForSync.get(
-          extensionIdWithVersion.id.toLowerCase()
-        );
+        let versions = extensionsWithKeysForSync.get(extensionIdWithVersion.id.toLowerCase());
         if (!versions) {
-          extensionsWithKeysForSync.set(
-            extensionIdWithVersion.id.toLowerCase(),
-            versions = []
-          );
+          extensionsWithKeysForSync.set(extensionIdWithVersion.id.toLowerCase(), versions = []);
         }
         versions.push(extensionIdWithVersion.version);
       }
     }
     return extensionsWithKeysForSync;
   }
-  _onDidChangeExtensionStorageToSync = this._register(
-    new Emitter()
-  );
+  _onDidChangeExtensionStorageToSync = this._register(new Emitter());
   onDidChangeExtensionStorageToSync = this._onDidChangeExtensionStorageToSync.event;
   extensionsWithKeysForSync;
   onDidChangeStorageValue(e) {
@@ -122,18 +90,11 @@ let ExtensionStorageService = class extends Disposable {
     const extensionIdWithVersion = ExtensionStorageService.fromKey(e.key);
     if (extensionIdWithVersion) {
       if (this.storageService.get(e.key, StorageScope.PROFILE) === void 0) {
-        this.extensionsWithKeysForSync.delete(
-          extensionIdWithVersion.id.toLowerCase()
-        );
+        this.extensionsWithKeysForSync.delete(extensionIdWithVersion.id.toLowerCase());
       } else {
-        let versions = this.extensionsWithKeysForSync.get(
-          extensionIdWithVersion.id.toLowerCase()
-        );
+        let versions = this.extensionsWithKeysForSync.get(extensionIdWithVersion.id.toLowerCase());
         if (!versions) {
-          this.extensionsWithKeysForSync.set(
-            extensionIdWithVersion.id.toLowerCase(),
-            versions = []
-          );
+          this.extensionsWithKeysForSync.set(extensionIdWithVersion.id.toLowerCase(), versions = []);
         }
         versions.push(extensionIdWithVersion.version);
         this._onDidChangeExtensionStorageToSync.fire();
@@ -156,67 +117,45 @@ let ExtensionStorageService = class extends Disposable {
       try {
         return JSON.parse(jsonValue);
       } catch (error) {
-        this.logService.error(
-          `[mainThreadStorage] unexpected error parsing storage contents (extensionId: ${extensionId}, global: ${global}): ${error}`
-        );
+        this.logService.error(`[mainThreadStorage] unexpected error parsing storage contents (extensionId: ${extensionId}, global: ${global}): ${error}`);
       }
     }
     return void 0;
   }
   getExtensionStateRaw(extension, global) {
     const extensionId = this.getExtensionId(extension);
-    const rawState = this.storageService.get(
-      extensionId,
-      global ? StorageScope.PROFILE : StorageScope.WORKSPACE
-    );
+    const rawState = this.storageService.get(extensionId, global ? StorageScope.PROFILE : StorageScope.WORKSPACE);
     if (rawState && rawState?.length > ExtensionStorageService.LARGE_STATE_WARNING_THRESHOLD) {
-      this.logService.warn(
-        `[mainThreadStorage] large extension state detected (extensionId: ${extensionId}, global: ${global}): ${rawState.length / 1024}kb. Consider to use 'storageUri' or 'globalStorageUri' to store this data on disk instead.`
-      );
+      this.logService.warn(`[mainThreadStorage] large extension state detected (extensionId: ${extensionId}, global: ${global}): ${rawState.length / 1024}kb. Consider to use 'storageUri' or 'globalStorageUri' to store this data on disk instead.`);
     }
     return rawState;
   }
   setExtensionState(extension, state, global) {
     const extensionId = this.getExtensionId(extension);
     if (state === void 0) {
-      this.storageService.remove(
-        extensionId,
-        global ? StorageScope.PROFILE : StorageScope.WORKSPACE
-      );
+      this.storageService.remove(extensionId, global ? StorageScope.PROFILE : StorageScope.WORKSPACE);
     } else {
       this.storageService.store(
         extensionId,
         JSON.stringify(state),
         global ? StorageScope.PROFILE : StorageScope.WORKSPACE,
         StorageTarget.MACHINE
+        /* Extension state is synced separately through extensions */
       );
     }
   }
   setKeysForSync(extensionIdWithVersion, keys) {
-    this.storageService.store(
-      ExtensionStorageService.toKey(extensionIdWithVersion),
-      JSON.stringify(keys),
-      StorageScope.PROFILE,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(ExtensionStorageService.toKey(extensionIdWithVersion), JSON.stringify(keys), StorageScope.PROFILE, StorageTarget.MACHINE);
   }
   getKeysForSync(extensionIdWithVersion) {
     const extensionKeysForSyncFromProduct = this.productService.extensionSyncedKeys?.[extensionIdWithVersion.id.toLowerCase()];
-    const extensionKeysForSyncFromStorageValue = this.storageService.get(
-      ExtensionStorageService.toKey(extensionIdWithVersion),
-      StorageScope.PROFILE
-    );
+    const extensionKeysForSyncFromStorageValue = this.storageService.get(ExtensionStorageService.toKey(extensionIdWithVersion), StorageScope.PROFILE);
     const extensionKeysForSyncFromStorage = extensionKeysForSyncFromStorageValue ? JSON.parse(extensionKeysForSyncFromStorageValue) : void 0;
-    return extensionKeysForSyncFromStorage && extensionKeysForSyncFromProduct ? distinct([
-      ...extensionKeysForSyncFromStorage,
-      ...extensionKeysForSyncFromProduct
-    ]) : extensionKeysForSyncFromStorage || extensionKeysForSyncFromProduct;
+    return extensionKeysForSyncFromStorage && extensionKeysForSyncFromProduct ? distinct([...extensionKeysForSyncFromStorage, ...extensionKeysForSyncFromProduct]) : extensionKeysForSyncFromStorage || extensionKeysForSyncFromProduct;
   }
   addToMigrationList(from, to) {
     if (from !== to) {
-      const migrationList = this.migrationList.filter(
-        (entry) => !entry.includes(from) && !entry.includes(to)
-      );
+      const migrationList = this.migrationList.filter((entry) => !entry.includes(from) && !entry.includes(to));
       migrationList.push([from, to]);
       this.migrationList = migrationList;
     }
@@ -226,11 +165,7 @@ let ExtensionStorageService = class extends Disposable {
     return entry ? entry[0] : void 0;
   }
   get migrationList() {
-    const value = this.storageService.get(
-      "extensionStorage.migrationList",
-      StorageScope.APPLICATION,
-      "[]"
-    );
+    const value = this.storageService.get("extensionStorage.migrationList", StorageScope.APPLICATION, "[]");
     try {
       const migrationList = JSON.parse(value);
       if (Array.isArray(migrationList)) {
@@ -242,17 +177,9 @@ let ExtensionStorageService = class extends Disposable {
   }
   set migrationList(migrationList) {
     if (migrationList.length) {
-      this.storageService.store(
-        "extensionStorage.migrationList",
-        JSON.stringify(migrationList),
-        StorageScope.APPLICATION,
-        StorageTarget.MACHINE
-      );
+      this.storageService.store("extensionStorage.migrationList", JSON.stringify(migrationList), StorageScope.APPLICATION, StorageTarget.MACHINE);
     } else {
-      this.storageService.remove(
-        "extensionStorage.migrationList",
-        StorageScope.APPLICATION
-      );
+      this.storageService.remove("extensionStorage.migrationList", StorageScope.APPLICATION);
     }
   }
 };

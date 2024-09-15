@@ -1,28 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { addDisposableListener } from "../../../../../base/browser/dom.js";
-import {
-  Disposable
-} from "../../../../../base/common/lifecycle.js";
+import { IDisposable, Disposable } from "../../../../../base/common/lifecycle.js";
 class FocusTracker extends Disposable {
   constructor(_domNode, _onFocusChange) {
     super();
     this._domNode = _domNode;
     this._onFocusChange = _onFocusChange;
-    this._register(
-      addDisposableListener(
-        this._domNode,
-        "focus",
-        () => this._handleFocusedChanged(true)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this._domNode,
-        "blur",
-        () => this._handleFocusedChanged(false)
-      )
-    );
+    this._register(addDisposableListener(this._domNode, "focus", () => this._handleFocusedChanged(true)));
+    this._register(addDisposableListener(this._domNode, "blur", () => this._handleFocusedChanged(false)));
   }
   static {
     __name(this, "FocusTracker");

@@ -10,38 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  createCancelablePromise
-} from "../../../../../base/common/async.js";
+import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { CancelablePromise, createCancelablePromise } from "../../../../../base/common/async.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../../base/common/errors.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import "./goToDefinitionAtPosition.css";
+import { CodeEditorStateFlag, EditorState } from "../../../editorState/browser/editorState.js";
+import { ICodeEditor, MouseTargetType } from "../../../../browser/editorBrowser.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../../browser/editorExtensions.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { Position } from "../../../../common/core/position.js";
+import { IRange, Range } from "../../../../common/core/range.js";
+import { IEditorContribution, IEditorDecorationsCollection } from "../../../../common/editorCommon.js";
+import { IModelDeltaDecoration, ITextModel } from "../../../../common/model.js";
+import { LocationLink } from "../../../../common/languages.js";
+import { ILanguageService } from "../../../../common/languages/language.js";
+import { ITextModelService } from "../../../../common/services/resolverService.js";
+import { ClickLinkGesture, ClickLinkKeyboardEvent, ClickLinkMouseEvent } from "./clickLinkGesture.js";
+import { PeekContext } from "../../../peekView/browser/peekView.js";
 import * as nls from "../../../../../nls.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import {
-  MouseTargetType
-} from "../../../../browser/editorBrowser.js";
-import {
-  EditorContributionInstantiation,
-  registerEditorContribution
-} from "../../../../browser/editorExtensions.js";
-import { EditorOption } from "../../../../common/config/editorOptions.js";
-import { Range } from "../../../../common/core/range.js";
-import { ILanguageService } from "../../../../common/languages/language.js";
-import { ModelDecorationInjectedTextOptions } from "../../../../common/model/textModel.js";
-import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
-import { ITextModelService } from "../../../../common/services/resolverService.js";
-import {
-  CodeEditorStateFlag,
-  EditorState
-} from "../../../editorState/browser/editorState.js";
-import { PeekContext } from "../../../peekView/browser/peekView.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { DefinitionAction } from "../goToCommands.js";
 import { getDefinitionsAtPosition } from "../goToSymbol.js";
-import {
-  ClickLinkGesture
-} from "./clickLinkGesture.js";
+import { IWordAtPosition } from "../../../../common/core/wordHelper.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { ModelDecorationInjectedTextOptions } from "../../../../common/model/textModel.js";
 let GotoDefinitionAtPositionEditorContribution = class {
   constructor(editor, textModelResolverService, languageService, languageFeaturesService) {
     this.textModelResolverService = textModelResolverService;
@@ -51,36 +47,22 @@ let GotoDefinitionAtPositionEditorContribution = class {
     this.linkDecorations = this.editor.createDecorationsCollection();
     const linkGesture = new ClickLinkGesture(editor);
     this.toUnhook.add(linkGesture);
-    this.toUnhook.add(
-      linkGesture.onMouseMoveOrRelevantKeyDown(
-        ([mouseEvent, keyboardEvent]) => {
-          this.startFindDefinitionFromMouse(
-            mouseEvent,
-            keyboardEvent ?? void 0
-          );
-        }
-      )
-    );
-    this.toUnhook.add(
-      linkGesture.onExecute((mouseEvent) => {
-        if (this.isEnabled(mouseEvent)) {
-          this.gotoDefinition(
-            mouseEvent.target.position,
-            mouseEvent.hasSideBySideModifier
-          ).catch((error) => {
-            onUnexpectedError(error);
-          }).finally(() => {
-            this.removeLinkDecorations();
-          });
-        }
-      })
-    );
-    this.toUnhook.add(
-      linkGesture.onCancel(() => {
-        this.removeLinkDecorations();
-        this.currentWordAtPosition = null;
-      })
-    );
+    this.toUnhook.add(linkGesture.onMouseMoveOrRelevantKeyDown(([mouseEvent, keyboardEvent]) => {
+      this.startFindDefinitionFromMouse(mouseEvent, keyboardEvent ?? void 0);
+    }));
+    this.toUnhook.add(linkGesture.onExecute((mouseEvent) => {
+      if (this.isEnabled(mouseEvent)) {
+        this.gotoDefinition(mouseEvent.target.position, mouseEvent.hasSideBySideModifier).catch((error) => {
+          onUnexpectedError(error);
+        }).finally(() => {
+          this.removeLinkDecorations();
+        });
+      }
+    }));
+    this.toUnhook.add(linkGesture.onCancel(() => {
+      this.removeLinkDecorations();
+      this.currentWordAtPosition = null;
+    }));
   }
   static {
     __name(this, "GotoDefinitionAtPositionEditorContribution");
@@ -94,28 +76,22 @@ let GotoDefinitionAtPositionEditorContribution = class {
   currentWordAtPosition = null;
   previousPromise = null;
   static get(editor) {
-    return editor.getContribution(
-      GotoDefinitionAtPositionEditorContribution.ID
-    );
+    return editor.getContribution(GotoDefinitionAtPositionEditorContribution.ID);
   }
   async startFindDefinitionFromCursor(position) {
     await this.startFindDefinition(position);
-    this.toUnhookForKeyboard.add(
-      this.editor.onDidChangeCursorPosition(() => {
+    this.toUnhookForKeyboard.add(this.editor.onDidChangeCursorPosition(() => {
+      this.currentWordAtPosition = null;
+      this.removeLinkDecorations();
+      this.toUnhookForKeyboard.clear();
+    }));
+    this.toUnhookForKeyboard.add(this.editor.onKeyDown((e) => {
+      if (e) {
         this.currentWordAtPosition = null;
         this.removeLinkDecorations();
         this.toUnhookForKeyboard.clear();
-      })
-    );
-    this.toUnhookForKeyboard.add(
-      this.editor.onKeyDown((e) => {
-        if (e) {
-          this.currentWordAtPosition = null;
-          this.removeLinkDecorations();
-          this.toUnhookForKeyboard.clear();
-        }
-      })
-    );
+      }
+    }));
   }
   startFindDefinitionFromMouse(mouseEvent, withKey) {
     if (mouseEvent.target.type === MouseTargetType.CONTENT_WIDGET && this.linkDecorations.length > 0) {
@@ -141,17 +117,12 @@ let GotoDefinitionAtPositionEditorContribution = class {
       return;
     }
     this.currentWordAtPosition = word;
-    const state = new EditorState(
-      this.editor,
-      CodeEditorStateFlag.Position | CodeEditorStateFlag.Value | CodeEditorStateFlag.Selection | CodeEditorStateFlag.Scroll
-    );
+    const state = new EditorState(this.editor, CodeEditorStateFlag.Position | CodeEditorStateFlag.Value | CodeEditorStateFlag.Selection | CodeEditorStateFlag.Scroll);
     if (this.previousPromise) {
       this.previousPromise.cancel();
       this.previousPromise = null;
     }
-    this.previousPromise = createCancelablePromise(
-      (token) => this.findDefinition(position, token)
-    );
+    this.previousPromise = createCancelablePromise((token) => this.findDefinition(position, token));
     let results;
     try {
       results = await this.previousPromise;
@@ -163,31 +134,17 @@ let GotoDefinitionAtPositionEditorContribution = class {
       this.removeLinkDecorations();
       return;
     }
-    const linkRange = results[0].originSelectionRange ? Range.lift(results[0].originSelectionRange) : new Range(
-      position.lineNumber,
-      word.startColumn,
-      position.lineNumber,
-      word.endColumn
-    );
+    const linkRange = results[0].originSelectionRange ? Range.lift(results[0].originSelectionRange) : new Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
     if (results.length > 1) {
       let combinedRange = linkRange;
       for (const { originSelectionRange } of results) {
         if (originSelectionRange) {
-          combinedRange = Range.plusRange(
-            combinedRange,
-            originSelectionRange
-          );
+          combinedRange = Range.plusRange(combinedRange, originSelectionRange);
         }
       }
       this.addDecoration(
         combinedRange,
-        new MarkdownString().appendText(
-          nls.localize(
-            "multipleResults",
-            "Click to show {0} definitions.",
-            results.length
-          )
-        )
+        new MarkdownString().appendText(nls.localize("multipleResults", "Click to show {0} definitions.", results.length))
       );
     } else {
       const result = results[0];
@@ -199,28 +156,17 @@ let GotoDefinitionAtPositionEditorContribution = class {
           ref.dispose();
           return;
         }
-        const {
-          object: { textEditorModel }
-        } = ref;
+        const { object: { textEditorModel } } = ref;
         const { startLineNumber } = result.range;
         if (startLineNumber < 1 || startLineNumber > textEditorModel.getLineCount()) {
           ref.dispose();
           return;
         }
-        const previewValue = this.getPreviewValue(
-          textEditorModel,
-          startLineNumber,
-          result
-        );
-        const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(
-          textEditorModel.uri
-        );
+        const previewValue = this.getPreviewValue(textEditorModel, startLineNumber, result);
+        const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(textEditorModel.uri);
         this.addDecoration(
           linkRange,
-          previewValue ? new MarkdownString().appendCodeblock(
-            languageId ? languageId : "",
-            previewValue
-          ) : void 0
+          previewValue ? new MarkdownString().appendCodeblock(languageId ? languageId : "", previewValue) : void 0
         );
         ref.dispose();
       });
@@ -230,16 +176,9 @@ let GotoDefinitionAtPositionEditorContribution = class {
     let rangeToUse = result.range;
     const numberOfLinesInRange = rangeToUse.endLineNumber - rangeToUse.startLineNumber;
     if (numberOfLinesInRange >= GotoDefinitionAtPositionEditorContribution.MAX_SOURCE_PREVIEW_LINES) {
-      rangeToUse = this.getPreviewRangeBasedOnIndentation(
-        textEditorModel,
-        startLineNumber
-      );
+      rangeToUse = this.getPreviewRangeBasedOnIndentation(textEditorModel, startLineNumber);
     }
-    const previewValue = this.stripIndentationFromPreviewRange(
-      textEditorModel,
-      startLineNumber,
-      rangeToUse
-    );
+    const previewValue = this.stripIndentationFromPreviewRange(textEditorModel, startLineNumber, rangeToUse);
     return previewValue;
   }
   stripIndentationFromPreviewRange(textEditorModel, startLineNumber, previewRange) {
@@ -254,10 +193,7 @@ let GotoDefinitionAtPositionEditorContribution = class {
   }
   getPreviewRangeBasedOnIndentation(textEditorModel, startLineNumber) {
     const startIndent = textEditorModel.getLineFirstNonWhitespaceColumn(startLineNumber);
-    const maxLineNumber = Math.min(
-      textEditorModel.getLineCount(),
-      startLineNumber + GotoDefinitionAtPositionEditorContribution.MAX_SOURCE_PREVIEW_LINES
-    );
+    const maxLineNumber = Math.min(textEditorModel.getLineCount(), startLineNumber + GotoDefinitionAtPositionEditorContribution.MAX_SOURCE_PREVIEW_LINES);
     let endLineNumber = startLineNumber + 1;
     for (; endLineNumber < maxLineNumber; endLineNumber++) {
       const endIndent = textEditorModel.getLineFirstNonWhitespaceColumn(endLineNumber);
@@ -282,35 +218,20 @@ let GotoDefinitionAtPositionEditorContribution = class {
     this.linkDecorations.clear();
   }
   isEnabled(mouseEvent, withKey) {
-    return this.editor.hasModel() && mouseEvent.isLeftClick && mouseEvent.isNoneOrSingleMouseDown && mouseEvent.target.type === MouseTargetType.CONTENT_TEXT && !(mouseEvent.target.detail.injectedText?.options instanceof ModelDecorationInjectedTextOptions) && (mouseEvent.hasTriggerModifier || (withKey ? withKey.keyCodeIsTriggerKey : false)) && this.languageFeaturesService.definitionProvider.has(
-      this.editor.getModel()
-    );
+    return this.editor.hasModel() && mouseEvent.isLeftClick && mouseEvent.isNoneOrSingleMouseDown && mouseEvent.target.type === MouseTargetType.CONTENT_TEXT && !(mouseEvent.target.detail.injectedText?.options instanceof ModelDecorationInjectedTextOptions) && (mouseEvent.hasTriggerModifier || (withKey ? withKey.keyCodeIsTriggerKey : false)) && this.languageFeaturesService.definitionProvider.has(this.editor.getModel());
   }
   findDefinition(position, token) {
     const model = this.editor.getModel();
     if (!model) {
       return Promise.resolve(null);
     }
-    return getDefinitionsAtPosition(
-      this.languageFeaturesService.definitionProvider,
-      model,
-      position,
-      false,
-      token
-    );
+    return getDefinitionsAtPosition(this.languageFeaturesService.definitionProvider, model, position, false, token);
   }
   gotoDefinition(position, openToSide) {
     this.editor.setPosition(position);
     return this.editor.invokeWithinContext((accessor) => {
       const canPeek = !openToSide && this.editor.getOption(EditorOption.definitionLinkOpensInPeek) && !this.isInPeekEditor(accessor);
-      const action = new DefinitionAction(
-        { openToSide, openInPeek: canPeek, muteMessage: true },
-        {
-          title: { value: "", original: "" },
-          id: "",
-          precondition: void 0
-        }
-      );
+      const action = new DefinitionAction({ openToSide, openInPeek: canPeek, muteMessage: true }, { title: { value: "", original: "" }, id: "", precondition: void 0 });
       return action.run(accessor);
     });
   }
@@ -328,11 +249,7 @@ GotoDefinitionAtPositionEditorContribution = __decorateClass([
   __decorateParam(2, ILanguageService),
   __decorateParam(3, ILanguageFeaturesService)
 ], GotoDefinitionAtPositionEditorContribution);
-registerEditorContribution(
-  GotoDefinitionAtPositionEditorContribution.ID,
-  GotoDefinitionAtPositionEditorContribution,
-  EditorContributionInstantiation.BeforeFirstInteraction
-);
+registerEditorContribution(GotoDefinitionAtPositionEditorContribution.ID, GotoDefinitionAtPositionEditorContribution, EditorContributionInstantiation.BeforeFirstInteraction);
 export {
   GotoDefinitionAtPositionEditorContribution
 };

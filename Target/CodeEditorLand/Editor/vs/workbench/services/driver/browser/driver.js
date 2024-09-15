@@ -10,28 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  getClientArea,
-  getTopLeftOffset
-} from "../../../../base/browser/dom.js";
+import { getClientArea, getTopLeftOffset } from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { coalesce } from "../../../../base/common/arrays.js";
 import { language, locale } from "../../../../base/common/platform.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import localizedStrings from "../../../../platform/languagePacks/common/localizedStrings.js";
-import {
-  getLogs
-} from "../../../../platform/log/browser/log.js";
+import { ILogFile, getLogs } from "../../../../platform/log/browser/log.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
+import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IWindowDriver, IElement, ILocaleInfo, ILocalizedStrings } from "../common/driver.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
 let BrowserWindowDriver = class {
   constructor(fileService, environmentService, lifecycleService, logService) {
     this.fileService = fileService;
@@ -46,16 +38,10 @@ let BrowserWindowDriver = class {
     return getLogs(this.fileService, this.environmentService);
   }
   async whenWorkbenchRestored() {
-    this.logService.info(
-      "[driver] Waiting for restored lifecycle phase..."
-    );
+    this.logService.info("[driver] Waiting for restored lifecycle phase...");
     await this.lifecycleService.when(LifecyclePhase.Restored);
-    this.logService.info(
-      "[driver] Restored lifecycle phase reached. Waiting for contributions..."
-    );
-    await Registry.as(
-      WorkbenchExtensions.Workbench
-    ).whenRestored;
+    this.logService.info("[driver] Restored lifecycle phase reached. Waiting for contributions...");
+    await Registry.as(WorkbenchExtensions.Workbench).whenRestored;
     this.logService.info("[driver] Workbench contributions created.");
   }
   async setValue(selector, text) {
@@ -76,15 +62,11 @@ let BrowserWindowDriver = class {
       while (el) {
         const tagName = el.tagName;
         const id = el.id ? `#${el.id}` : "";
-        const classes = coalesce(
-          el.className.split(/\s+/g).map((c) => c.trim())
-        ).map((c) => `.${c}`).join("");
+        const classes = coalesce(el.className.split(/\s+/g).map((c) => c.trim())).map((c) => `.${c}`).join("");
         chain.unshift(`${tagName}${id}${classes}`);
         el = el.parentElement;
       }
-      throw new Error(
-        `Active element not found. Current active element is '${chain.join(" > ")}'. Looking for ${selector}`
-      );
+      throw new Error(`Active element not found. Current active element is '${chain.join(" > ")}'. Looking for ${selector}`);
     }
     return true;
   }
@@ -141,7 +123,7 @@ let BrowserWindowDriver = class {
     const newValue = value.substr(0, start) + text + value.substr(start);
     textarea.value = newValue;
     textarea.setSelectionRange(newStart, newStart);
-    const event = new Event("input", { bubbles: true, cancelable: true });
+    const event = new Event("input", { "bubbles": true, "cancelable": true });
     textarea.dispatchEvent(event);
   }
   async getTerminalBuffer(selector) {
@@ -212,9 +194,7 @@ BrowserWindowDriver = __decorateClass([
   __decorateParam(3, ILogService)
 ], BrowserWindowDriver);
 function registerWindowDriver(instantiationService) {
-  Object.assign(mainWindow, {
-    driver: instantiationService.createInstance(BrowserWindowDriver)
-  });
+  Object.assign(mainWindow, { driver: instantiationService.createInstance(BrowserWindowDriver) });
 }
 __name(registerWindowDriver, "registerWindowDriver");
 export {

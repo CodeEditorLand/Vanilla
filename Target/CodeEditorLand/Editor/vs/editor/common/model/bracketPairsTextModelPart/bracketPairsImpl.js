@@ -2,17 +2,18 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CallbackIterable, compareBy } from "../../../../base/common/arrays.js";
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, IDisposable, IReference, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IPosition, Position } from "../../core/position.js";
 import { Range } from "../../core/range.js";
+import { ILanguageConfigurationService, LanguageConfigurationServiceChangeEvent } from "../../languages/languageConfigurationRegistry.js";
 import { ignoreBracketsInToken } from "../../languages/supports.js";
-import {
-  BracketsUtils
-} from "../../languages/supports/richEditBrackets.js";
+import { LanguageBracketsConfiguration } from "../../languages/supports/languageBracketsConfiguration.js";
+import { BracketsUtils, RichEditBracket, RichEditBrackets } from "../../languages/supports/richEditBrackets.js";
 import { BracketPairsTree } from "./bracketPairsTree/bracketPairsTree.js";
+import { TextModel } from "../textModel.js";
+import { BracketInfo, BracketPairInfo, BracketPairWithMinIndentationInfo, IBracketPairsTextModelPart, IFoundBracket } from "../../textModelBracketPairs.js";
+import { IModelContentChangedEvent, IModelLanguageChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "../../textModelEvents.js";
+import { LineTokens } from "../../tokens/lineTokens.js";
 class BracketPairsTextModelPart extends Disposable {
   constructor(textModel, languageConfigurationService) {
     super();
@@ -22,9 +23,7 @@ class BracketPairsTextModelPart extends Disposable {
   static {
     __name(this, "BracketPairsTextModelPart");
   }
-  bracketPairsTree = this._register(
-    new MutableDisposable()
-  );
+  bracketPairsTree = this._register(new MutableDisposable());
   onDidChangeEmitter = new Emitter();
   onDidChange = this.onDidChangeEmitter.event;
   get canBuildAST() {
@@ -68,76 +67,58 @@ class BracketPairsTextModelPart extends Disposable {
         this.bracketPairsTree.value = createDisposableRef(
           store.add(
             new BracketPairsTree(this.textModel, (languageId) => {
-              return this.languageConfigurationService.getLanguageConfiguration(
-                languageId
-              );
+              return this.languageConfigurationService.getLanguageConfiguration(languageId);
             })
           ),
           store
         );
-        store.add(
-          this.bracketPairsTree.value.object.onDidChange(
-            (e) => this.onDidChangeEmitter.fire(e)
-          )
-        );
+        store.add(this.bracketPairsTree.value.object.onDidChange((e) => this.onDidChangeEmitter.fire(e)));
         this.onDidChangeEmitter.fire();
       }
-    } else if (this.bracketPairsTree.value) {
-      this.bracketPairsTree.clear();
-      this.onDidChangeEmitter.fire();
+    } else {
+      if (this.bracketPairsTree.value) {
+        this.bracketPairsTree.clear();
+        this.onDidChangeEmitter.fire();
+      }
     }
   }
   /**
    * Returns all bracket pairs that intersect the given range.
    * The result is sorted by the start position.
-   */
+  */
   getBracketPairsInRange(range) {
     this.bracketsRequested = true;
     this.updateBracketPairsTree();
-    return this.bracketPairsTree.value?.object.getBracketPairsInRange(
-      range,
-      false
-    ) || CallbackIterable.empty;
+    return this.bracketPairsTree.value?.object.getBracketPairsInRange(range, false) || CallbackIterable.empty;
   }
   getBracketPairsInRangeWithMinIndentation(range) {
     this.bracketsRequested = true;
     this.updateBracketPairsTree();
-    return this.bracketPairsTree.value?.object.getBracketPairsInRange(
-      range,
-      true
-    ) || CallbackIterable.empty;
+    return this.bracketPairsTree.value?.object.getBracketPairsInRange(range, true) || CallbackIterable.empty;
   }
   getBracketsInRange(range, onlyColorizedBrackets = false) {
     this.bracketsRequested = true;
     this.updateBracketPairsTree();
-    return this.bracketPairsTree.value?.object.getBracketsInRange(
-      range,
-      onlyColorizedBrackets
-    ) || CallbackIterable.empty;
+    return this.bracketPairsTree.value?.object.getBracketsInRange(range, onlyColorizedBrackets) || CallbackIterable.empty;
   }
   findMatchingBracketUp(_bracket, _position, maxDuration) {
     const position = this.textModel.validatePosition(_position);
-    const languageId = this.textModel.getLanguageIdAtPosition(
-      position.lineNumber,
-      position.column
-    );
+    const languageId = this.textModel.getLanguageIdAtPosition(position.lineNumber, position.column);
     if (this.canBuildAST) {
       const closingBracketInfo = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew.getClosingBracketInfo(_bracket);
       if (!closingBracketInfo) {
         return null;
       }
-      const bracketPair = this.getBracketPairsInRange(
-        Range.fromPositions(_position, _position)
-      ).findLast((b) => closingBracketInfo.closes(b.openingBracketInfo));
+      const bracketPair = this.getBracketPairsInRange(Range.fromPositions(_position, _position)).findLast(
+        (b) => closingBracketInfo.closes(b.openingBracketInfo)
+      );
       if (bracketPair) {
         return bracketPair.openingBracketRange;
       }
       return null;
     } else {
       const bracket = _bracket.toLowerCase();
-      const bracketsSupport = this.languageConfigurationService.getLanguageConfiguration(
-        languageId
-      ).brackets;
+      const bracketsSupport = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
       if (!bracketsSupport) {
         return null;
       }
@@ -145,13 +126,7 @@ class BracketPairsTextModelPart extends Disposable {
       if (!data) {
         return null;
       }
-      return stripBracketSearchCanceled(
-        this._findMatchingBracketUp(
-          data,
-          position,
-          createTimeBasedContinueBracketSearchPredicate(maxDuration)
-        )
-      );
+      return stripBracketSearchCanceled(this._findMatchingBracketUp(data, position, createTimeBasedContinueBracketSearchPredicate(maxDuration)));
     }
   }
   matchBracket(position, maxDuration) {
@@ -159,9 +134,7 @@ class BracketPairsTextModelPart extends Disposable {
       const bracketPair = this.getBracketPairsInRange(
         Range.fromPositions(position, position)
       ).filter(
-        (item) => item.closingBracketRange !== void 0 && (item.openingBracketRange.containsPosition(position) || item.closingBracketRange.containsPosition(
-          position
-        ))
+        (item) => item.closingBracketRange !== void 0 && (item.openingBracketRange.containsPosition(position) || item.closingBracketRange.containsPosition(position))
       ).findLastMaxBy(
         compareBy(
           (item) => item.openingBracketRange.containsPosition(position) ? item.openingBracketRange : item.closingBracketRange,
@@ -169,27 +142,18 @@ class BracketPairsTextModelPart extends Disposable {
         )
       );
       if (bracketPair) {
-        return [
-          bracketPair.openingBracketRange,
-          bracketPair.closingBracketRange
-        ];
+        return [bracketPair.openingBracketRange, bracketPair.closingBracketRange];
       }
       return null;
     } else {
       const continueSearchPredicate = createTimeBasedContinueBracketSearchPredicate(maxDuration);
-      return this._matchBracket(
-        this.textModel.validatePosition(position),
-        continueSearchPredicate
-      );
+      return this._matchBracket(this.textModel.validatePosition(position), continueSearchPredicate);
     }
   }
   _establishBracketSearchOffsets(position, lineTokens, modeBrackets, tokenIndex) {
     const tokenCount = lineTokens.getCount();
     const currentLanguageId = lineTokens.getLanguageId(tokenIndex);
-    let searchStartOffset = Math.max(
-      0,
-      position.column - 1 - modeBrackets.maxBracketLength
-    );
+    let searchStartOffset = Math.max(0, position.column - 1 - modeBrackets.maxBracketLength);
     for (let i = tokenIndex - 1; i >= 0; i--) {
       const tokenEndOffset = lineTokens.getEndOffset(i);
       if (tokenEndOffset <= searchStartOffset) {
@@ -200,10 +164,7 @@ class BracketPairsTextModelPart extends Disposable {
         break;
       }
     }
-    let searchEndOffset = Math.min(
-      lineTokens.getLineContent().length,
-      position.column - 1 + modeBrackets.maxBracketLength
-    );
+    let searchEndOffset = Math.min(lineTokens.getLineContent().length, position.column - 1 + modeBrackets.maxBracketLength);
     for (let i = tokenIndex + 1; i < tokenCount; i++) {
       const tokenStartOffset = lineTokens.getStartOffset(i);
       if (tokenStartOffset >= searchEndOffset) {
@@ -220,45 +181,22 @@ class BracketPairsTextModelPart extends Disposable {
     const lineNumber = position.lineNumber;
     const lineTokens = this.textModel.tokenization.getLineTokens(lineNumber);
     const lineText = this.textModel.getLineContent(lineNumber);
-    const tokenIndex = lineTokens.findTokenIndexAtOffset(
-      position.column - 1
-    );
+    const tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
     if (tokenIndex < 0) {
       return null;
     }
-    const currentModeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-      lineTokens.getLanguageId(tokenIndex)
-    ).brackets;
+    const currentModeBrackets = this.languageConfigurationService.getLanguageConfiguration(lineTokens.getLanguageId(tokenIndex)).brackets;
     if (currentModeBrackets && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex))) {
-      let { searchStartOffset, searchEndOffset } = this._establishBracketSearchOffsets(
-        position,
-        lineTokens,
-        currentModeBrackets,
-        tokenIndex
-      );
+      let { searchStartOffset, searchEndOffset } = this._establishBracketSearchOffsets(position, lineTokens, currentModeBrackets, tokenIndex);
       let bestResult = null;
       while (true) {
-        const foundBracket = BracketsUtils.findNextBracketInRange(
-          currentModeBrackets.forwardRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const foundBracket = BracketsUtils.findNextBracketInRange(currentModeBrackets.forwardRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (!foundBracket) {
           break;
         }
         if (foundBracket.startColumn <= position.column && position.column <= foundBracket.endColumn) {
-          const foundBracketText = lineText.substring(
-            foundBracket.startColumn - 1,
-            foundBracket.endColumn - 1
-          ).toLowerCase();
-          const r = this._matchFoundBracket(
-            foundBracket,
-            currentModeBrackets.textIsBracket[foundBracketText],
-            currentModeBrackets.textIsOpenBracket[foundBracketText],
-            continueSearchPredicate
-          );
+          const foundBracketText = lineText.substring(foundBracket.startColumn - 1, foundBracket.endColumn - 1).toLowerCase();
+          const r = this._matchFoundBracket(foundBracket, currentModeBrackets.textIsBracket[foundBracketText], currentModeBrackets.textIsOpenBracket[foundBracketText], continueSearchPredicate);
           if (r) {
             if (r instanceof BracketSearchCanceled) {
               return null;
@@ -274,36 +212,13 @@ class BracketPairsTextModelPart extends Disposable {
     }
     if (tokenIndex > 0 && lineTokens.getStartOffset(tokenIndex) === position.column - 1) {
       const prevTokenIndex = tokenIndex - 1;
-      const prevModeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-        lineTokens.getLanguageId(prevTokenIndex)
-      ).brackets;
-      if (prevModeBrackets && !ignoreBracketsInToken(
-        lineTokens.getStandardTokenType(prevTokenIndex)
-      )) {
-        const { searchStartOffset, searchEndOffset } = this._establishBracketSearchOffsets(
-          position,
-          lineTokens,
-          prevModeBrackets,
-          prevTokenIndex
-        );
-        const foundBracket = BracketsUtils.findPrevBracketInRange(
-          prevModeBrackets.reversedRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+      const prevModeBrackets = this.languageConfigurationService.getLanguageConfiguration(lineTokens.getLanguageId(prevTokenIndex)).brackets;
+      if (prevModeBrackets && !ignoreBracketsInToken(lineTokens.getStandardTokenType(prevTokenIndex))) {
+        const { searchStartOffset, searchEndOffset } = this._establishBracketSearchOffsets(position, lineTokens, prevModeBrackets, prevTokenIndex);
+        const foundBracket = BracketsUtils.findPrevBracketInRange(prevModeBrackets.reversedRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (foundBracket && foundBracket.startColumn <= position.column && position.column <= foundBracket.endColumn) {
-          const foundBracketText = lineText.substring(
-            foundBracket.startColumn - 1,
-            foundBracket.endColumn - 1
-          ).toLowerCase();
-          const r = this._matchFoundBracket(
-            foundBracket,
-            prevModeBrackets.textIsBracket[foundBracketText],
-            prevModeBrackets.textIsOpenBracket[foundBracketText],
-            continueSearchPredicate
-          );
+          const foundBracketText = lineText.substring(foundBracket.startColumn - 1, foundBracket.endColumn - 1).toLowerCase();
+          const r = this._matchFoundBracket(foundBracket, prevModeBrackets.textIsBracket[foundBracketText], prevModeBrackets.textIsOpenBracket[foundBracketText], continueSearchPredicate);
           if (r) {
             if (r instanceof BracketSearchCanceled) {
               return null;
@@ -319,15 +234,7 @@ class BracketPairsTextModelPart extends Disposable {
     if (!data) {
       return null;
     }
-    const matched = isOpen ? this._findMatchingBracketDown(
-      data,
-      foundBracket.getEndPosition(),
-      continueSearchPredicate
-    ) : this._findMatchingBracketUp(
-      data,
-      foundBracket.getStartPosition(),
-      continueSearchPredicate
-    );
+    const matched = isOpen ? this._findMatchingBracketDown(data, foundBracket.getEndPosition(), continueSearchPredicate) : this._findMatchingBracketUp(data, foundBracket.getStartPosition(), continueSearchPredicate);
     if (!matched) {
       return null;
     }
@@ -346,13 +253,7 @@ class BracketPairsTextModelPart extends Disposable {
         if (continueSearchPredicate && ++totalCallCount % 100 === 0 && !continueSearchPredicate()) {
           return BracketSearchCanceled.INSTANCE;
         }
-        const r = BracketsUtils.findPrevBracketInRange(
-          reversedBracketRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = BracketsUtils.findPrevBracketInRange(reversedBracketRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (!r) {
           break;
         }
@@ -377,17 +278,13 @@ class BracketPairsTextModelPart extends Disposable {
       let searchStartOffset = lineText.length;
       let searchEndOffset = lineText.length;
       if (lineNumber === position.lineNumber) {
-        tokenIndex = lineTokens.findTokenIndexAtOffset(
-          position.column - 1
-        );
+        tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
         searchStartOffset = position.column - 1;
         searchEndOffset = position.column - 1;
       }
       let prevSearchInToken = true;
       for (; tokenIndex >= 0; tokenIndex--) {
-        const searchInToken = lineTokens.getLanguageId(tokenIndex) === languageId && !ignoreBracketsInToken(
-          lineTokens.getStandardTokenType(tokenIndex)
-        );
+        const searchInToken = lineTokens.getLanguageId(tokenIndex) === languageId && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex));
         if (searchInToken) {
           if (prevSearchInToken) {
             searchStartOffset = lineTokens.getStartOffset(tokenIndex);
@@ -397,12 +294,7 @@ class BracketPairsTextModelPart extends Disposable {
           }
         } else {
           if (prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = searchPrevMatchingBracketInRange(
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = searchPrevMatchingBracketInRange(lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return r;
             }
@@ -411,12 +303,7 @@ class BracketPairsTextModelPart extends Disposable {
         prevSearchInToken = searchInToken;
       }
       if (prevSearchInToken && searchStartOffset !== searchEndOffset) {
-        const r = searchPrevMatchingBracketInRange(
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = searchPrevMatchingBracketInRange(lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (r) {
           return r;
         }
@@ -434,13 +321,7 @@ class BracketPairsTextModelPart extends Disposable {
         if (continueSearchPredicate && ++totalCallCount % 100 === 0 && !continueSearchPredicate()) {
           return BracketSearchCanceled.INSTANCE;
         }
-        const r = BracketsUtils.findNextBracketInRange(
-          bracketRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = BracketsUtils.findNextBracketInRange(bracketRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (!r) {
           break;
         }
@@ -466,17 +347,13 @@ class BracketPairsTextModelPart extends Disposable {
       let searchStartOffset = 0;
       let searchEndOffset = 0;
       if (lineNumber === position.lineNumber) {
-        tokenIndex = lineTokens.findTokenIndexAtOffset(
-          position.column - 1
-        );
+        tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
         searchStartOffset = position.column - 1;
         searchEndOffset = position.column - 1;
       }
       let prevSearchInToken = true;
       for (; tokenIndex < tokenCount; tokenIndex++) {
-        const searchInToken = lineTokens.getLanguageId(tokenIndex) === languageId && !ignoreBracketsInToken(
-          lineTokens.getStandardTokenType(tokenIndex)
-        );
+        const searchInToken = lineTokens.getLanguageId(tokenIndex) === languageId && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex));
         if (searchInToken) {
           if (prevSearchInToken) {
             searchEndOffset = lineTokens.getEndOffset(tokenIndex);
@@ -486,12 +363,7 @@ class BracketPairsTextModelPart extends Disposable {
           }
         } else {
           if (prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = searchNextMatchingBracketInRange(
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = searchNextMatchingBracketInRange(lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return r;
             }
@@ -500,12 +372,7 @@ class BracketPairsTextModelPart extends Disposable {
         prevSearchInToken = searchInToken;
       }
       if (prevSearchInToken && searchStartOffset !== searchEndOffset) {
-        const r = searchNextMatchingBracketInRange(
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = searchNextMatchingBracketInRange(lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (r) {
           return r;
         }
@@ -518,9 +385,7 @@ class BracketPairsTextModelPart extends Disposable {
     if (this.canBuildAST) {
       this.bracketsRequested = true;
       this.updateBracketPairsTree();
-      return this.bracketPairsTree.value?.object.getFirstBracketBefore(
-        position
-      ) || null;
+      return this.bracketPairsTree.value?.object.getFirstBracketBefore(position) || null;
     }
     let languageId = null;
     let modeBrackets = null;
@@ -533,20 +398,14 @@ class BracketPairsTextModelPart extends Disposable {
       let searchStartOffset = lineText.length;
       let searchEndOffset = lineText.length;
       if (lineNumber === position.lineNumber) {
-        tokenIndex = lineTokens.findTokenIndexAtOffset(
-          position.column - 1
-        );
+        tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
         searchStartOffset = position.column - 1;
         searchEndOffset = position.column - 1;
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
-          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).bracketsNew;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
+          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew;
         }
       }
       let prevSearchInToken = true;
@@ -554,29 +413,17 @@ class BracketPairsTextModelPart extends Disposable {
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           if (modeBrackets && bracketConfig && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = BracketsUtils.findPrevBracketInRange(
-              modeBrackets.reversedRegex,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = BracketsUtils.findPrevBracketInRange(modeBrackets.reversedRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return this._toFoundBracket(bracketConfig, r);
             }
             prevSearchInToken = false;
           }
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
-          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).bracketsNew;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
+          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew;
         }
-        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(
-          lineTokens.getStandardTokenType(tokenIndex)
-        );
+        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex));
         if (searchInToken) {
           if (prevSearchInToken) {
             searchStartOffset = lineTokens.getStartOffset(tokenIndex);
@@ -586,13 +433,7 @@ class BracketPairsTextModelPart extends Disposable {
           }
         } else {
           if (bracketConfig && modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = BracketsUtils.findPrevBracketInRange(
-              modeBrackets.reversedRegex,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = BracketsUtils.findPrevBracketInRange(modeBrackets.reversedRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return this._toFoundBracket(bracketConfig, r);
             }
@@ -601,13 +442,7 @@ class BracketPairsTextModelPart extends Disposable {
         prevSearchInToken = searchInToken;
       }
       if (bracketConfig && modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-        const r = BracketsUtils.findPrevBracketInRange(
-          modeBrackets.reversedRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = BracketsUtils.findPrevBracketInRange(modeBrackets.reversedRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (r) {
           return this._toFoundBracket(bracketConfig, r);
         }
@@ -620,9 +455,7 @@ class BracketPairsTextModelPart extends Disposable {
     if (this.canBuildAST) {
       this.bracketsRequested = true;
       this.updateBracketPairsTree();
-      return this.bracketPairsTree.value?.object.getFirstBracketAfter(
-        position
-      ) || null;
+      return this.bracketPairsTree.value?.object.getFirstBracketAfter(position) || null;
     }
     const lineCount = this.textModel.getLineCount();
     let languageId = null;
@@ -636,20 +469,14 @@ class BracketPairsTextModelPart extends Disposable {
       let searchStartOffset = 0;
       let searchEndOffset = 0;
       if (lineNumber === position.lineNumber) {
-        tokenIndex = lineTokens.findTokenIndexAtOffset(
-          position.column - 1
-        );
+        tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
         searchStartOffset = position.column - 1;
         searchEndOffset = position.column - 1;
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
-          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).bracketsNew;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
+          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew;
         }
       }
       let prevSearchInToken = true;
@@ -657,29 +484,17 @@ class BracketPairsTextModelPart extends Disposable {
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           if (bracketConfig && modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = BracketsUtils.findNextBracketInRange(
-              modeBrackets.forwardRegex,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = BracketsUtils.findNextBracketInRange(modeBrackets.forwardRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return this._toFoundBracket(bracketConfig, r);
             }
             prevSearchInToken = false;
           }
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
-          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).bracketsNew;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
+          bracketConfig = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew;
         }
-        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(
-          lineTokens.getStandardTokenType(tokenIndex)
-        );
+        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex));
         if (searchInToken) {
           if (prevSearchInToken) {
             searchEndOffset = lineTokens.getEndOffset(tokenIndex);
@@ -689,13 +504,7 @@ class BracketPairsTextModelPart extends Disposable {
           }
         } else {
           if (bracketConfig && modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = BracketsUtils.findNextBracketInRange(
-              modeBrackets.forwardRegex,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = BracketsUtils.findNextBracketInRange(modeBrackets.forwardRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return this._toFoundBracket(bracketConfig, r);
             }
@@ -704,13 +513,7 @@ class BracketPairsTextModelPart extends Disposable {
         prevSearchInToken = searchInToken;
       }
       if (bracketConfig && modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-        const r = BracketsUtils.findNextBracketInRange(
-          modeBrackets.forwardRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = BracketsUtils.findNextBracketInRange(modeBrackets.forwardRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (r) {
           return this._toFoundBracket(bracketConfig, r);
         }
@@ -722,16 +525,11 @@ class BracketPairsTextModelPart extends Disposable {
     const position = this.textModel.validatePosition(_position);
     if (this.canBuildAST) {
       const range = Range.fromPositions(position);
-      const bracketPair = this.getBracketPairsInRange(
-        Range.fromPositions(position, position)
-      ).findLast(
+      const bracketPair = this.getBracketPairsInRange(Range.fromPositions(position, position)).findLast(
         (item) => item.closingBracketRange !== void 0 && item.range.strictContainsRange(range)
       );
       if (bracketPair) {
-        return [
-          bracketPair.openingBracketRange,
-          bracketPair.closingBracketRange
-        ];
+        return [bracketPair.openingBracketRange, bracketPair.closingBracketRange];
       }
       return null;
     }
@@ -755,13 +553,7 @@ class BracketPairsTextModelPart extends Disposable {
         if (continueSearchPredicate && ++totalCallCount % 100 === 0 && !continueSearchPredicate()) {
           return BracketSearchCanceled.INSTANCE;
         }
-        const r = BracketsUtils.findNextBracketInRange(
-          modeBrackets2.forwardRegex,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = BracketsUtils.findNextBracketInRange(modeBrackets2.forwardRegex, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (!r) {
           break;
         }
@@ -774,12 +566,7 @@ class BracketPairsTextModelPart extends Disposable {
             counts[bracket.index]--;
           }
           if (counts[bracket.index] === -1) {
-            return this._matchFoundBracket(
-              r,
-              bracket,
-              false,
-              continueSearchPredicate
-            );
+            return this._matchFoundBracket(r, bracket, false, continueSearchPredicate);
           }
         }
         searchStartOffset = r.endColumn - 1;
@@ -796,17 +583,13 @@ class BracketPairsTextModelPart extends Disposable {
       let searchStartOffset = 0;
       let searchEndOffset = 0;
       if (lineNumber === position.lineNumber) {
-        tokenIndex = lineTokens.findTokenIndexAtOffset(
-          position.column - 1
-        );
+        tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
         searchStartOffset = position.column - 1;
         searchEndOffset = position.column - 1;
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
           resetCounts(languageId, modeBrackets);
         }
       }
@@ -815,27 +598,17 @@ class BracketPairsTextModelPart extends Disposable {
         const tokenLanguageId = lineTokens.getLanguageId(tokenIndex);
         if (languageId !== tokenLanguageId) {
           if (modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = searchInRange(
-              modeBrackets,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = searchInRange(modeBrackets, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return stripBracketSearchCanceled(r);
             }
             prevSearchInToken = false;
           }
           languageId = tokenLanguageId;
-          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(
-            languageId
-          ).brackets;
+          modeBrackets = this.languageConfigurationService.getLanguageConfiguration(languageId).brackets;
           resetCounts(languageId, modeBrackets);
         }
-        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(
-          lineTokens.getStandardTokenType(tokenIndex)
-        );
+        const searchInToken = !!modeBrackets && !ignoreBracketsInToken(lineTokens.getStandardTokenType(tokenIndex));
         if (searchInToken) {
           if (prevSearchInToken) {
             searchEndOffset = lineTokens.getEndOffset(tokenIndex);
@@ -845,13 +618,7 @@ class BracketPairsTextModelPart extends Disposable {
           }
         } else {
           if (modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-            const r = searchInRange(
-              modeBrackets,
-              lineNumber,
-              lineText,
-              searchStartOffset,
-              searchEndOffset
-            );
+            const r = searchInRange(modeBrackets, lineNumber, lineText, searchStartOffset, searchEndOffset);
             if (r) {
               return stripBracketSearchCanceled(r);
             }
@@ -860,13 +627,7 @@ class BracketPairsTextModelPart extends Disposable {
         prevSearchInToken = searchInToken;
       }
       if (modeBrackets && prevSearchInToken && searchStartOffset !== searchEndOffset) {
-        const r = searchInRange(
-          modeBrackets,
-          lineNumber,
-          lineText,
-          searchStartOffset,
-          searchEndOffset
-        );
+        const r = searchInRange(modeBrackets, lineNumber, lineText, searchStartOffset, searchEndOffset);
         if (r) {
           return stripBracketSearchCanceled(r);
         }

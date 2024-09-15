@@ -12,10 +12,10 @@
 }
 .monaco-editor .lightBulbWidget.codicon-lightbulb-autofix,
 .monaco-editor .lightBulbWidget.codicon-lightbulb-sparkle-autofix {
-  color: var( --vscode-editorLightBulbAutoFix-foreground, var(--vscode-editorLightBulb-foreground) );
+  color: var(--vscode-editorLightBulbAutoFix-foreground, var(--vscode-editorLightBulb-foreground));
 }
 .monaco-editor .lightBulbWidget.codicon-sparkle-filled {
-  color: var( --vscode-editorLightBulbAi-foreground, var(--vscode-icon-foreground) );
+  color: var(--vscode-editorLightBulbAi-foreground, var(--vscode-icon-foreground));
 }
 .monaco-editor .lightBulbWidget:before {
   position: relative;
@@ -42,9 +42,9 @@
 }
 .monaco-editor .glyph-margin-widgets .cgmr.codicon-gutter-lightbulb-auto-fix,
 .monaco-editor .glyph-margin-widgets .cgmr.codicon-gutter-lightbulb-aifix-auto-fix {
-  color: var( --vscode-editorLightBulbAutoFix-foreground, var(--vscode-editorLightBulb-foreground) );
+  color: var(--vscode-editorLightBulbAutoFix-foreground, var(--vscode-editorLightBulb-foreground));
 }
 .monaco-editor .glyph-margin-widgets .cgmr.codicon-gutter-lightbulb-sparkle-filled {
-  color: var( --vscode-editorLightBulbAi-foreground, var(--vscode-icon-foreground) );
+  color: var(--vscode-editorLightBulbAi-foreground, var(--vscode-icon-foreground));
 }
 /*# sourceMappingURL=lightBulbWidget.css.map */

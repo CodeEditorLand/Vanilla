@@ -11,18 +11,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Event } from "../../../../base/common/event.js";
-import {
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../platform/progress/common/progress.js";
+import { IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { IProgressService, ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDebugService, IDebugSession, VIEWLET_ID } from "../common/debug.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
-  IDebugService,
-  VIEWLET_ID
-} from "../common/debug.js";
 let DebugProgressContribution = class {
   static {
     __name(this, "DebugProgressContribution");
@@ -36,80 +29,60 @@ let DebugProgressContribution = class {
         progressListener = void 0;
       }
       if (session) {
-        progressListener = session.onDidProgressStart(
-          async (progressStartEvent) => {
-            const promise = new Promise((r) => {
-              const listener = Event.any(
-                Event.filter(
-                  session.onDidProgressEnd,
-                  (e) => e.body.progressId === progressStartEvent.body.progressId
-                ),
-                session.onDidEndAdapter
-              )(() => {
-                listener.dispose();
-                r();
-              });
+        progressListener = session.onDidProgressStart(async (progressStartEvent) => {
+          const promise = new Promise((r) => {
+            const listener = Event.any(
+              Event.filter(session.onDidProgressEnd, (e) => e.body.progressId === progressStartEvent.body.progressId),
+              session.onDidEndAdapter
+            )(() => {
+              listener.dispose();
+              r();
             });
-            if (viewsService.isViewContainerVisible(VIEWLET_ID)) {
-              progressService.withProgress(
-                { location: VIEWLET_ID },
-                () => promise
-              );
-            }
-            const source = debugService.getAdapterManager().getDebuggerLabel(session.configuration.type);
-            progressService.withProgress(
-              {
-                location: ProgressLocation.Notification,
-                title: progressStartEvent.body.title,
-                cancellable: progressStartEvent.body.cancellable,
-                source,
-                delay: 500
-              },
-              (progressStep) => {
-                let total = 0;
-                const reportProgress = /* @__PURE__ */ __name((progress) => {
-                  let increment;
-                  if (typeof progress.percentage === "number") {
-                    increment = progress.percentage - total;
-                    total += increment;
-                  }
-                  progressStep.report({
-                    message: progress.message,
-                    increment,
-                    total: typeof increment === "number" ? 100 : void 0
-                  });
-                }, "reportProgress");
-                if (progressStartEvent.body.message) {
-                  reportProgress(progressStartEvent.body);
-                }
-                const progressUpdateListener = session.onDidProgressUpdate((e) => {
-                  if (e.body.progressId === progressStartEvent.body.progressId) {
-                    reportProgress(e.body);
-                  }
-                });
-                return promise.then(
-                  () => progressUpdateListener.dispose()
-                );
-              },
-              () => session.cancel(
-                progressStartEvent.body.progressId
-              )
-            );
+          });
+          if (viewsService.isViewContainerVisible(VIEWLET_ID)) {
+            progressService.withProgress({ location: VIEWLET_ID }, () => promise);
           }
-        );
+          const source = debugService.getAdapterManager().getDebuggerLabel(session.configuration.type);
+          progressService.withProgress({
+            location: ProgressLocation.Notification,
+            title: progressStartEvent.body.title,
+            cancellable: progressStartEvent.body.cancellable,
+            source,
+            delay: 500
+          }, (progressStep) => {
+            let total = 0;
+            const reportProgress = /* @__PURE__ */ __name((progress) => {
+              let increment = void 0;
+              if (typeof progress.percentage === "number") {
+                increment = progress.percentage - total;
+                total += increment;
+              }
+              progressStep.report({
+                message: progress.message,
+                increment,
+                total: typeof increment === "number" ? 100 : void 0
+              });
+            }, "reportProgress");
+            if (progressStartEvent.body.message) {
+              reportProgress(progressStartEvent.body);
+            }
+            const progressUpdateListener = session.onDidProgressUpdate((e) => {
+              if (e.body.progressId === progressStartEvent.body.progressId) {
+                reportProgress(e.body);
+              }
+            });
+            return promise.then(() => progressUpdateListener.dispose());
+          }, () => session.cancel(progressStartEvent.body.progressId));
+        });
       }
     }, "listenOnProgress");
-    this.toDispose.push(
-      debugService.getViewModel().onDidFocusSession(listenOnProgress)
-    );
+    this.toDispose.push(debugService.getViewModel().onDidFocusSession(listenOnProgress));
     listenOnProgress(debugService.getViewModel().focusedSession);
-    this.toDispose.push(
-      debugService.onWillNewSession((session) => {
-        if (!progressListener) {
-          listenOnProgress(session);
-        }
-      })
-    );
+    this.toDispose.push(debugService.onWillNewSession((session) => {
+      if (!progressListener) {
+        listenOnProgress(session);
+      }
+    }));
   }
   dispose() {
     dispose(this.toDispose);

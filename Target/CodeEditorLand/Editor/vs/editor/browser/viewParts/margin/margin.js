@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./margin.css";
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
 import { ViewPart } from "../../view/viewPart.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
 class Margin extends ViewPart {
   static {
     __name(this, "Margin");
@@ -22,9 +23,7 @@ class Margin extends ViewPart {
     super(context);
     const options = this._context.configuration.options;
     const layoutInfo = options.get(EditorOption.layoutInfo);
-    this._canUseLayerHinting = !options.get(
-      EditorOption.disableLayerHinting
-    );
+    this._canUseLayerHinting = !options.get(EditorOption.disableLayerHinting);
     this._contentLeft = layoutInfo.contentLeft;
     this._glyphMarginLeft = layoutInfo.glyphMarginLeft;
     this._glyphMarginWidth = layoutInfo.glyphMarginWidth;
@@ -33,9 +32,7 @@ class Margin extends ViewPart {
     this._domNode.setPosition("absolute");
     this._domNode.setAttribute("role", "presentation");
     this._domNode.setAttribute("aria-hidden", "true");
-    this._glyphMarginBackgroundDomNode = createFastDomNode(
-      document.createElement("div")
-    );
+    this._glyphMarginBackgroundDomNode = createFastDomNode(document.createElement("div"));
     this._glyphMarginBackgroundDomNode.setClassName(Margin.CLASS_NAME);
     this._domNode.appendChild(this._glyphMarginBackgroundDomNode);
   }
@@ -49,9 +46,7 @@ class Margin extends ViewPart {
   onConfigurationChanged(e) {
     const options = this._context.configuration.options;
     const layoutInfo = options.get(EditorOption.layoutInfo);
-    this._canUseLayerHinting = !options.get(
-      EditorOption.disableLayerHinting
-    );
+    this._canUseLayerHinting = !options.get(EditorOption.disableLayerHinting);
     this._contentLeft = layoutInfo.contentLeft;
     this._glyphMarginLeft = layoutInfo.glyphMarginLeft;
     this._glyphMarginWidth = layoutInfo.glyphMarginWidth;

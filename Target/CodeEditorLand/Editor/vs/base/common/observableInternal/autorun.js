@@ -1,14 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  DisposableStore,
-  assertFn,
-  markAsDisposed,
-  onBugIndicatingError,
-  toDisposable,
-  trackDisposable
-} from "./commonFacade/deps.js";
-import { DebugNameData } from "./debugName.js";
+import { IChangeContext, IObservable, IObserver, IReader } from "./base.js";
+import { DebugNameData, IDebugNameData } from "./debugName.js";
+import { assertFn, DisposableStore, IDisposable, markAsDisposed, onBugIndicatingError, toDisposable, trackDisposable } from "./commonFacade/deps.js";
 import { getLogger } from "./logging.js";
 function autorun(fn) {
   return new AutorunObserver(
@@ -21,11 +15,7 @@ function autorun(fn) {
 __name(autorun, "autorun");
 function autorunOpts(options, fn) {
   return new AutorunObserver(
-    new DebugNameData(
-      options.owner,
-      options.debugName,
-      options.debugReferenceFn ?? fn
-    ),
+    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn),
     fn,
     void 0,
     void 0
@@ -34,11 +24,7 @@ function autorunOpts(options, fn) {
 __name(autorunOpts, "autorunOpts");
 function autorunHandleChanges(options, fn) {
   return new AutorunObserver(
-    new DebugNameData(
-      options.owner,
-      options.debugName,
-      options.debugReferenceFn ?? fn
-    ),
+    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn),
     fn,
     options.createEmptyChangeSummary,
     options.handleChange
@@ -201,14 +187,11 @@ class AutorunObserver {
   handleChange(observable, change) {
     if (this.dependencies.has(observable) && !this.dependenciesToBeRemoved.has(observable)) {
       try {
-        const shouldReact = this._handleChange ? this._handleChange(
-          {
-            changedObservable: observable,
-            change,
-            didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
-          },
-          this.changeSummary
-        ) : true;
+        const shouldReact = this._handleChange ? this._handleChange({
+          changedObservable: observable,
+          change,
+          didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
+        }, this.changeSummary) : true;
         if (shouldReact) {
           this.state = 2 /* stale */;
         }

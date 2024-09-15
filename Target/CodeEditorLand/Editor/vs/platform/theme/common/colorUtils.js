@@ -3,12 +3,12 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { assertNever } from "../../../base/common/assert.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
 import { Color } from "../../../base/common/color.js";
-import { Emitter } from "../../../base/common/event.js";
-import * as nls from "../../../nls.js";
-import {
-  Extensions as JSONExtensions
-} from "../../jsonschemas/common/jsonContributionRegistry.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IJSONSchema, IJSONSchemaSnippet } from "../../../base/common/jsonSchema.js";
+import { IJSONContributionRegistry, Extensions as JSONExtensions } from "../../jsonschemas/common/jsonContributionRegistry.js";
 import * as platform from "../../registry/common/platform.js";
+import { IColorTheme } from "./themeService.js";
+import * as nls from "../../../nls.js";
 function asCssVariableName(colorIdent) {
   return `--vscode-${colorIdent.replace(/\./g, "-")}`;
 }
@@ -46,10 +46,7 @@ class ColorRegistry {
   _onDidChangeSchema = new Emitter();
   onDidChangeSchema = this._onDidChangeSchema.event;
   colorsById;
-  colorSchema = {
-    type: "object",
-    properties: {}
-  };
+  colorSchema = { type: "object", properties: {} };
   colorReferenceSchema = { type: "string", enum: [], enumDescriptions: [] };
   constructor() {
     this.colorsById = {};
@@ -64,41 +61,21 @@ class ColorRegistry {
     this._onDidChangeSchema.fire();
   }
   registerColor(id, defaults, description, needsTransparency = false, deprecationMessage) {
-    const colorContribution = {
-      id,
-      description,
-      defaults,
-      needsTransparency,
-      deprecationMessage
-    };
+    const colorContribution = { id, description, defaults, needsTransparency, deprecationMessage };
     this.colorsById[id] = colorContribution;
-    const propertySchema = {
-      type: "string",
-      format: "color-hex",
-      defaultSnippets: [{ body: "${1:#ff0000}" }]
-    };
+    const propertySchema = { type: "string", format: "color-hex", defaultSnippets: [{ body: "${1:#ff0000}" }] };
     if (deprecationMessage) {
       propertySchema.deprecationMessage = deprecationMessage;
     }
     if (needsTransparency) {
       propertySchema.pattern = "^#(?:(?<rgba>[0-9a-fA-f]{3}[0-9a-eA-E])|(?:[0-9a-fA-F]{6}(?:(?![fF]{2})(?:[0-9a-fA-F]{2}))))?$";
-      propertySchema.patternErrorMessage = nls.localize(
-        "transparecyRequired",
-        "This color must be transparent or it will obscure content"
-      );
+      propertySchema.patternErrorMessage = nls.localize("transparecyRequired", "This color must be transparent or it will obscure content");
     }
     this.colorSchema.properties[id] = {
       description,
       oneOf: [
         propertySchema,
-        {
-          type: "string",
-          const: DEFAULT_COLOR_CONFIG_VALUE,
-          description: nls.localize(
-            "useDefault",
-            "Use the default color."
-          )
-        }
+        { type: "string", const: DEFAULT_COLOR_CONFIG_VALUE, description: nls.localize("useDefault", "Use the default color.") }
       ]
     };
     this.colorReferenceSchema.enum.push(id);
@@ -148,13 +125,7 @@ class ColorRegistry {
 const colorRegistry = new ColorRegistry();
 platform.Registry.add(Extensions.ColorContribution, colorRegistry);
 function registerColor(id, defaults, description, needsTransparency, deprecationMessage) {
-  return colorRegistry.registerColor(
-    id,
-    defaults,
-    description,
-    needsTransparency,
-    deprecationMessage
-  );
+  return colorRegistry.registerColor(id, defaults, description, needsTransparency, deprecationMessage);
 }
 __name(registerColor, "registerColor");
 function getColorRegistry() {
@@ -164,28 +135,17 @@ __name(getColorRegistry, "getColorRegistry");
 function executeTransform(transform, theme) {
   switch (transform.op) {
     case 0 /* Darken */:
-      return resolveColorValue(transform.value, theme)?.darken(
-        transform.factor
-      );
+      return resolveColorValue(transform.value, theme)?.darken(transform.factor);
     case 1 /* Lighten */:
-      return resolveColorValue(transform.value, theme)?.lighten(
-        transform.factor
-      );
+      return resolveColorValue(transform.value, theme)?.lighten(transform.factor);
     case 2 /* Transparent */:
-      return resolveColorValue(transform.value, theme)?.transparent(
-        transform.factor
-      );
+      return resolveColorValue(transform.value, theme)?.transparent(transform.factor);
     case 3 /* Opaque */: {
-      const backgroundColor = resolveColorValue(
-        transform.background,
-        theme
-      );
+      const backgroundColor = resolveColorValue(transform.background, theme);
       if (!backgroundColor) {
         return resolveColorValue(transform.value, theme);
       }
-      return resolveColorValue(transform.value, theme)?.makeOpaque(
-        backgroundColor
-      );
+      return resolveColorValue(transform.value, theme)?.makeOpaque(backgroundColor);
     }
     case 4 /* OneOf */:
       for (const candidate of transform.values) {
@@ -196,33 +156,17 @@ function executeTransform(transform, theme) {
       }
       return void 0;
     case 6 /* IfDefinedThenElse */:
-      return resolveColorValue(
-        theme.defines(transform.if) ? transform.then : transform.else,
-        theme
-      );
+      return resolveColorValue(theme.defines(transform.if) ? transform.then : transform.else, theme);
     case 5 /* LessProminent */: {
       const from = resolveColorValue(transform.value, theme);
       if (!from) {
         return void 0;
       }
-      const backgroundColor = resolveColorValue(
-        transform.background,
-        theme
-      );
+      const backgroundColor = resolveColorValue(transform.background, theme);
       if (!backgroundColor) {
-        return from.transparent(
-          transform.factor * transform.transparency
-        );
+        return from.transparent(transform.factor * transform.transparency);
       }
-      return from.isDarkerThan(backgroundColor) ? Color.getLighterColor(
-        from,
-        backgroundColor,
-        transform.factor
-      ).transparent(transform.transparency) : Color.getDarkerColor(
-        from,
-        backgroundColor,
-        transform.factor
-      ).transparent(transform.transparency);
+      return from.isDarkerThan(backgroundColor) ? Color.getLighterColor(from, backgroundColor, transform.factor).transparent(transform.transparency) : Color.getDarkerColor(from, backgroundColor, transform.factor).transparent(transform.transparency);
     }
     default:
       throw assertNever(transform);
@@ -250,22 +194,11 @@ function oneOf(...colorValues) {
 }
 __name(oneOf, "oneOf");
 function ifDefinedThenElse(ifArg, thenArg, elseArg) {
-  return {
-    op: 6 /* IfDefinedThenElse */,
-    if: ifArg,
-    then: thenArg,
-    else: elseArg
-  };
+  return { op: 6 /* IfDefinedThenElse */, if: ifArg, then: thenArg, else: elseArg };
 }
 __name(ifDefinedThenElse, "ifDefinedThenElse");
 function lessProminent(colorValue, backgroundColorValue, factor, transparency) {
-  return {
-    op: 5 /* LessProminent */,
-    value: colorValue,
-    background: backgroundColorValue,
-    factor,
-    transparency
-  };
+  return { op: 5 /* LessProminent */, value: colorValue, background: backgroundColorValue, factor, transparency };
 }
 __name(lessProminent, "lessProminent");
 function resolveColorValue(colorValue, theme) {
@@ -285,17 +218,9 @@ function resolveColorValue(colorValue, theme) {
 }
 __name(resolveColorValue, "resolveColorValue");
 const workbenchColorsSchemaId = "vscode://schemas/workbench-colors";
-const schemaRegistry = platform.Registry.as(
-  JSONExtensions.JSONContribution
-);
-schemaRegistry.registerSchema(
-  workbenchColorsSchemaId,
-  colorRegistry.getColorSchema()
-);
-const delayer = new RunOnceScheduler(
-  () => schemaRegistry.notifySchemaChanged(workbenchColorsSchemaId),
-  200
-);
+const schemaRegistry = platform.Registry.as(JSONExtensions.JSONContribution);
+schemaRegistry.registerSchema(workbenchColorsSchemaId, colorRegistry.getColorSchema());
+const delayer = new RunOnceScheduler(() => schemaRegistry.notifySchemaChanged(workbenchColorsSchemaId), 200);
 colorRegistry.onDidChangeSchema(() => {
   if (!delayer.isScheduled()) {
     delayer.schedule();

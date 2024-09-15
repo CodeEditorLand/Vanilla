@@ -25,11 +25,7 @@ class CursorColumns {
     const iterator = new strings.GraphemeIterator(text);
     let result = 0;
     while (!iterator.eol()) {
-      const codePoint = strings.getNextCodePoint(
-        text,
-        textLen,
-        iterator.offset
-      );
+      const codePoint = strings.getNextCodePoint(text, textLen, iterator.offset);
       iterator.nextGraphemeLength();
       result = this._nextVisibleColumn(codePoint, result, tabSize);
     }
@@ -40,10 +36,7 @@ class CursorColumns {
    * @see {@link CursorColumns}
    */
   static toStatusbarColumn(lineContent, column, tabSize) {
-    const text = lineContent.substring(
-      0,
-      Math.min(column - 1, lineContent.length)
-    );
+    const text = lineContent.substring(0, Math.min(column - 1, lineContent.length));
     const iterator = new strings.CodePointIterator(text);
     let result = 0;
     while (!iterator.eol()) {
@@ -69,17 +62,9 @@ class CursorColumns {
     let beforeVisibleColumn = 0;
     let beforeColumn = 1;
     while (!iterator.eol()) {
-      const codePoint = strings.getNextCodePoint(
-        lineContent,
-        lineContentLength,
-        iterator.offset
-      );
+      const codePoint = strings.getNextCodePoint(lineContent, lineContentLength, iterator.offset);
       iterator.nextGraphemeLength();
-      const afterVisibleColumn = this._nextVisibleColumn(
-        codePoint,
-        beforeVisibleColumn,
-        tabSize
-      );
+      const afterVisibleColumn = this._nextVisibleColumn(codePoint, beforeVisibleColumn, tabSize);
       const afterColumn = iterator.offset + 1;
       if (afterVisibleColumn >= visibleColumn) {
         const beforeDelta = visibleColumn - beforeVisibleColumn;

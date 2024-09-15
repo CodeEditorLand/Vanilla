@@ -3,28 +3,20 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Lazy } from "./lazy.js";
 import { sep } from "./path.js";
 const intlFileNameCollatorBaseNumeric = new Lazy(() => {
-  const collator = new Intl.Collator(void 0, {
-    numeric: true,
-    sensitivity: "base"
-  });
+  const collator = new Intl.Collator(void 0, { numeric: true, sensitivity: "base" });
   return {
     collator,
     collatorIsNumeric: collator.resolvedOptions().numeric
   };
 });
-const intlFileNameCollatorNumeric = new Lazy(
-  () => {
-    const collator = new Intl.Collator(void 0, { numeric: true });
-    return {
-      collator
-    };
-  }
-);
+const intlFileNameCollatorNumeric = new Lazy(() => {
+  const collator = new Intl.Collator(void 0, { numeric: true });
+  return {
+    collator
+  };
+});
 const intlFileNameCollatorNumericCaseInsensitive = new Lazy(() => {
-  const collator = new Intl.Collator(void 0, {
-    numeric: true,
-    sensitivity: "accent"
-  });
+  const collator = new Intl.Collator(void 0, { numeric: true, sensitivity: "accent" });
   return {
     collator
   };
@@ -72,18 +64,12 @@ __name(compareFileNamesUnicode, "compareFileNamesUnicode");
 function compareFileExtensions(one, other) {
   const [oneName, oneExtension] = extractNameAndExtension(one);
   const [otherName, otherExtension] = extractNameAndExtension(other);
-  let result = intlFileNameCollatorBaseNumeric.value.collator.compare(
-    oneExtension,
-    otherExtension
-  );
+  let result = intlFileNameCollatorBaseNumeric.value.collator.compare(oneExtension, otherExtension);
   if (result === 0) {
     if (intlFileNameCollatorBaseNumeric.value.collatorIsNumeric && oneExtension !== otherExtension) {
       return oneExtension < otherExtension ? -1 : 1;
     }
-    result = intlFileNameCollatorBaseNumeric.value.collator.compare(
-      oneName,
-      otherName
-    );
+    result = intlFileNameCollatorBaseNumeric.value.collator.compare(oneName, otherName);
     if (intlFileNameCollatorBaseNumeric.value.collatorIsNumeric && result === 0 && oneName !== otherName) {
       return oneName < otherName ? -1 : 1;
     }
@@ -98,11 +84,7 @@ function compareFileExtensionsDefault(one, other) {
   const otherExtension = extractExtension(other);
   const collatorNumeric = intlFileNameCollatorNumeric.value.collator;
   const collatorNumericCaseInsensitive = intlFileNameCollatorNumericCaseInsensitive.value.collator;
-  return compareAndDisambiguateByLength(
-    collatorNumericCaseInsensitive,
-    oneExtension,
-    otherExtension
-  ) || compareAndDisambiguateByLength(collatorNumeric, one, other);
+  return compareAndDisambiguateByLength(collatorNumericCaseInsensitive, oneExtension, otherExtension) || compareAndDisambiguateByLength(collatorNumeric, one, other);
 }
 __name(compareFileExtensionsDefault, "compareFileExtensionsDefault");
 function compareFileExtensionsUpper(one, other) {
@@ -112,11 +94,7 @@ function compareFileExtensionsUpper(one, other) {
   const otherExtension = extractExtension(other);
   const collatorNumeric = intlFileNameCollatorNumeric.value.collator;
   const collatorNumericCaseInsensitive = intlFileNameCollatorNumericCaseInsensitive.value.collator;
-  return compareAndDisambiguateByLength(
-    collatorNumericCaseInsensitive,
-    oneExtension,
-    otherExtension
-  ) || compareCaseUpperFirst(one, other) || compareAndDisambiguateByLength(collatorNumeric, one, other);
+  return compareAndDisambiguateByLength(collatorNumericCaseInsensitive, oneExtension, otherExtension) || compareCaseUpperFirst(one, other) || compareAndDisambiguateByLength(collatorNumeric, one, other);
 }
 __name(compareFileExtensionsUpper, "compareFileExtensionsUpper");
 function compareFileExtensionsLower(one, other) {
@@ -126,11 +104,7 @@ function compareFileExtensionsLower(one, other) {
   const otherExtension = extractExtension(other);
   const collatorNumeric = intlFileNameCollatorNumeric.value.collator;
   const collatorNumericCaseInsensitive = intlFileNameCollatorNumericCaseInsensitive.value.collator;
-  return compareAndDisambiguateByLength(
-    collatorNumericCaseInsensitive,
-    oneExtension,
-    otherExtension
-  ) || compareCaseLowerFirst(one, other) || compareAndDisambiguateByLength(collatorNumeric, one, other);
+  return compareAndDisambiguateByLength(collatorNumericCaseInsensitive, oneExtension, otherExtension) || compareCaseLowerFirst(one, other) || compareAndDisambiguateByLength(collatorNumeric, one, other);
 }
 __name(compareFileExtensionsLower, "compareFileExtensionsLower");
 function compareFileExtensionsUnicode(one, other) {
@@ -150,10 +124,7 @@ __name(compareFileExtensionsUnicode, "compareFileExtensionsUnicode");
 const FileNameMatch = /^(.*?)(\.([^.]*))?$/;
 function extractNameAndExtension(str, dotfilesAsNames = false) {
   const match = str ? FileNameMatch.exec(str) : [];
-  let result = [
-    match && match[1] || "",
-    match && match[3] || ""
-  ];
+  let result = [match && match[1] || "", match && match[3] || ""];
   if (dotfilesAsNames && (!result[0] && result[1] || result[0] && result[0].charAt(0) === ".")) {
     result = [result[0] + "." + result[1], ""];
   }
@@ -227,11 +198,7 @@ function comparePaths(one, other, caseSensitive = false) {
     } else if (endOther) {
       return 1;
     }
-    const result = comparePathComponents(
-      oneParts[i],
-      otherParts[i],
-      caseSensitive
-    );
+    const result = comparePathComponents(oneParts[i], otherParts[i], caseSensitive);
     if (result !== 0) {
       return result;
     }

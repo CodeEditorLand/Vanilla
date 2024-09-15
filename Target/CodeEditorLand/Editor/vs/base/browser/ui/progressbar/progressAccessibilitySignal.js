@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../common/lifecycle.js";
 const nullScopedAccessibilityProgressSignalFactory = /* @__PURE__ */ __name(() => ({
   msLoopTime: -1,
   msDelayTime: -1,

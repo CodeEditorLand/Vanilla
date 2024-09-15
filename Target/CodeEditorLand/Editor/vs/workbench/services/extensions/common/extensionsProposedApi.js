@@ -11,48 +11,33 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
-import {
-  MarkdownString
-} from "../../../../base/common/htmlContent.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
-import {
-  ExtensionIdentifier
-} from "../../../../platform/extensions/common/extensions.js";
-import {
-  allApiProposals
-} from "../../../../platform/extensions/common/extensionsApiProposals.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier, IExtensionDescription, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
+import { allApiProposals, ApiProposalName } from "../../../../platform/extensions/common/extensionsApiProposals.js";
 import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import {
-  Extensions
-} from "../../extensionManagement/common/extensionFeatures.js";
+import { Extensions, IExtensionFeatureMarkdownRenderer, IExtensionFeaturesRegistry, IRenderedData } from "../../extensionManagement/common/extensionFeatures.js";
+import { IMarkdownString, MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Mutable } from "../../../../base/common/types.js";
 let ExtensionsProposedApi = class {
   constructor(_logService, _environmentService, productService) {
     this._logService = _logService;
     this._environmentService = _environmentService;
-    this._envEnabledExtensions = new Set(
-      (_environmentService.extensionEnabledProposedApi ?? []).map(
-        (id) => ExtensionIdentifier.toKey(id)
-      )
-    );
+    this._envEnabledExtensions = new Set((_environmentService.extensionEnabledProposedApi ?? []).map((id) => ExtensionIdentifier.toKey(id)));
     this._envEnablesProposedApiForAll = !_environmentService.isBuilt || // always allow proposed API when running out of sources
     _environmentService.isExtensionDevelopment && productService.quality !== "stable" || // do not allow proposed API against stable builds when developing an extension
     this._envEnabledExtensions.size === 0 && Array.isArray(_environmentService.extensionEnabledProposedApi);
     this._productEnabledExtensions = /* @__PURE__ */ new Map();
     if (productService.extensionEnabledApiProposals) {
-      for (const [k, value] of Object.entries(
-        productService.extensionEnabledApiProposals
-      )) {
+      for (const [k, value] of Object.entries(productService.extensionEnabledApiProposals)) {
         const key = ExtensionIdentifier.toKey(k);
         const proposalNames = value.filter((name) => {
           if (!allApiProposals[name]) {
-            _logService.warn(
-              `Via 'product.json#extensionEnabledApiProposals' extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`
-            );
+            _logService.warn(`Via 'product.json#extensionEnabledApiProposals' extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`);
             return false;
           }
           return true;
@@ -76,13 +61,9 @@ let ExtensionsProposedApi = class {
     const key = ExtensionIdentifier.toKey(extension.identifier);
     if (isNonEmptyArray(extension.enabledApiProposals)) {
       extension.enabledApiProposals = extension.enabledApiProposals.filter((name) => {
-        const result = Boolean(
-          allApiProposals[name]
-        );
+        const result = Boolean(allApiProposals[name]);
         if (!result) {
-          this._logService.error(
-            `Extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`
-          );
+          this._logService.error(`Extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`);
         }
         return result;
       });
@@ -91,19 +72,13 @@ let ExtensionsProposedApi = class {
       const productEnabledProposals = this._productEnabledExtensions.get(key);
       const productSet = new Set(productEnabledProposals);
       const extensionSet = new Set(extension.enabledApiProposals);
-      const diff = new Set(
-        [...extensionSet].filter((a) => !productSet.has(a))
-      );
+      const diff = new Set([...extensionSet].filter((a) => !productSet.has(a)));
       if (diff.size > 0) {
-        this._logService.error(
-          `Extension '${key}' appears in product.json but enables LESS API proposals than the extension wants.
+        this._logService.error(`Extension '${key}' appears in product.json but enables LESS API proposals than the extension wants.
 package.json (LOSES): ${[...extensionSet].join(", ")}
-product.json (WINS): ${[...productSet].join(", ")}`
-        );
+product.json (WINS): ${[...productSet].join(", ")}`);
         if (this._environmentService.isExtensionDevelopment) {
-          this._logService.error(
-            `Proceeding with EXTRA proposals (${[...diff].join(", ")}) because extension is in development mode. Still, this EXTENSION WILL BE BROKEN unless product.json is updated.`
-          );
+          this._logService.error(`Proceeding with EXTRA proposals (${[...diff].join(", ")}) because extension is in development mode. Still, this EXTENSION WILL BE BROKEN unless product.json is updated.`);
           productEnabledProposals.push(...diff);
         }
       }
@@ -114,9 +89,7 @@ product.json (WINS): ${[...productSet].join(", ")}`
       return;
     }
     if (!extension.isBuiltin && isNonEmptyArray(extension.enabledApiProposals)) {
-      this._logService.error(
-        `Extension '${extension.identifier.value} CANNOT USE these API proposals '${extension.enabledApiProposals?.join(", ") || "*"}'. You MUST start in extension development mode or use the --enable-proposed-api command line flag`
-      );
+      this._logService.error(`Extension '${extension.identifier.value} CANNOT USE these API proposals '${extension.enabledApiProposals?.join(", ") || "*"}'. You MUST start in extension development mode or use the --enable-proposed-api command line flag`);
       extension.enabledApiProposals = [];
     }
   }
@@ -150,9 +123,7 @@ class ApiProposalsMarkdowneRenderer extends Disposable {
     };
   }
 }
-Registry.as(
-  Extensions.ExtensionFeaturesRegistry
-).registerExtensionFeature({
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
   id: "enabledApiProposals",
   label: localize("enabledProposedAPIs", "API Proposals"),
   access: {

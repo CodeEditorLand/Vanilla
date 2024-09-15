@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  LcsDiff
-} from "../../../../../base/common/diff/diff.js";
+import { IDiffChange, LcsDiff } from "../../../../../base/common/diff/diff.js";
 import { getLeadingWhitespace } from "../../../../../base/common/strings.js";
+import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
 import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+import { ITextModel } from "../../../../common/model.js";
 import { GhostText, GhostTextPart } from "./ghostText.js";
 import { singleTextRemoveCommonPrefix } from "./singleTextEditHelpers.js";
 function computeGhostText(edit, model, mode, cursorPosition, previewSuffixLength = 0) {
@@ -17,35 +17,13 @@ function computeGhostText(edit, model, mode, cursorPosition, previewSuffixLength
   const sourceIndentationLength = getLeadingWhitespace(sourceLine).length;
   const suggestionTouchesIndentation = e.range.startColumn - 1 <= sourceIndentationLength;
   if (suggestionTouchesIndentation) {
-    const suggestionAddedIndentationLength = getLeadingWhitespace(
-      e.text
-    ).length;
-    const replacedIndentation = sourceLine.substring(
-      e.range.startColumn - 1,
-      sourceIndentationLength
-    );
-    const [startPosition, endPosition] = [
-      e.range.getStartPosition(),
-      e.range.getEndPosition()
-    ];
+    const suggestionAddedIndentationLength = getLeadingWhitespace(e.text).length;
+    const replacedIndentation = sourceLine.substring(e.range.startColumn - 1, sourceIndentationLength);
+    const [startPosition, endPosition] = [e.range.getStartPosition(), e.range.getEndPosition()];
     const newStartPosition = startPosition.column + replacedIndentation.length <= endPosition.column ? startPosition.delta(0, replacedIndentation.length) : endPosition;
-    const rangeThatDoesNotReplaceIndentation = Range.fromPositions(
-      newStartPosition,
-      endPosition
-    );
-    const suggestionWithoutIndentationChange = e.text.startsWith(
-      replacedIndentation
-    ) ? (
-      // Adds more indentation without changing existing indentation: We can add ghost text for this
-      e.text.substring(replacedIndentation.length)
-    ) : (
-      // Changes or removes existing indentation. Only add ghost text for the non-indentation part.
-      e.text.substring(suggestionAddedIndentationLength)
-    );
-    e = new SingleTextEdit(
-      rangeThatDoesNotReplaceIndentation,
-      suggestionWithoutIndentationChange
-    );
+    const rangeThatDoesNotReplaceIndentation = Range.fromPositions(newStartPosition, endPosition);
+    const suggestionWithoutIndentationChange = e.text.startsWith(replacedIndentation) ? e.text.substring(replacedIndentation.length) : e.text.substring(suggestionAddedIndentationLength);
+    e = new SingleTextEdit(rangeThatDoesNotReplaceIndentation, suggestionWithoutIndentationChange);
   }
   const valueToBeReplaced = model.getValueInRange(e.range);
   const changes = cachingDiff(valueToBeReplaced, e.text);
@@ -73,18 +51,9 @@ function computeGhostText(edit, model, mode, cursorPosition, previewSuffixLength
       continue;
     }
     const modifiedEnd = c.modifiedStart + c.modifiedLength;
-    const nonPreviewTextEnd = Math.max(
-      c.modifiedStart,
-      Math.min(modifiedEnd, previewStartInCompletionText)
-    );
-    const nonPreviewText = e.text.substring(
-      c.modifiedStart,
-      nonPreviewTextEnd
-    );
-    const italicText = e.text.substring(
-      nonPreviewTextEnd,
-      Math.max(c.modifiedStart, modifiedEnd)
-    );
+    const nonPreviewTextEnd = Math.max(c.modifiedStart, Math.min(modifiedEnd, previewStartInCompletionText));
+    const nonPreviewText = e.text.substring(c.modifiedStart, nonPreviewTextEnd);
+    const italicText = e.text.substring(nonPreviewTextEnd, Math.max(c.modifiedStart, modifiedEnd));
     if (nonPreviewText.length > 0) {
       parts.push(new GhostTextPart(insertColumn, nonPreviewText, false));
     }
@@ -95,7 +64,7 @@ function computeGhostText(edit, model, mode, cursorPosition, previewSuffixLength
   return new GhostText(lineNumber, parts);
 }
 __name(computeGhostText, "computeGhostText");
-let lastRequest;
+let lastRequest = void 0;
 function cachingDiff(originalValue, newValue) {
   if (lastRequest?.originalValue === originalValue && lastRequest?.newValue === newValue) {
     return lastRequest?.changes;
@@ -142,10 +111,7 @@ function smartDiff(originalValue, newValue, smartBracketMatching) {
     return maxCharCode2;
   }
   __name(getMaxCharCode, "getMaxCharCode");
-  const maxCharCode = Math.max(
-    getMaxCharCode(originalValue),
-    getMaxCharCode(newValue)
-  );
+  const maxCharCode = Math.max(getMaxCharCode(originalValue), getMaxCharCode(newValue));
   function getUniqueCharCode(id) {
     if (id < 0) {
       throw new Error("unexpected");
@@ -178,10 +144,7 @@ function smartDiff(originalValue, newValue, smartBracketMatching) {
   __name(getElements, "getElements");
   const elements1 = getElements(originalValue);
   const elements2 = getElements(newValue);
-  return new LcsDiff(
-    { getElements: /* @__PURE__ */ __name(() => elements1, "getElements") },
-    { getElements: /* @__PURE__ */ __name(() => elements2, "getElements") }
-  ).ComputeDiff(false).changes;
+  return new LcsDiff({ getElements: /* @__PURE__ */ __name(() => elements1, "getElements") }, { getElements: /* @__PURE__ */ __name(() => elements2, "getElements") }).ComputeDiff(false).changes;
 }
 __name(smartDiff, "smartDiff");
 export {

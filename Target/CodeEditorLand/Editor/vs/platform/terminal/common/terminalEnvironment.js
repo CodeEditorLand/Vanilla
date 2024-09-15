@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { OS, OperatingSystem } from "../../../base/common/platform.js";
+import { OperatingSystem, OS } from "../../../base/common/platform.js";
 function escapeNonWindowsPath(path) {
   let newPath = path;
   if (newPath.includes("\\")) {
     newPath = newPath.replace(/\\/g, "\\\\");
   }
-  const bannedChars = /[`$|&>~#!^*;<"']/g;
+  const bannedChars = /[\`\$\|\&\>\~\#\!\^\*\;\<\"\']/g;
   newPath = newPath.replace(bannedChars, "");
   return `'${newPath}'`;
 }
@@ -18,7 +18,7 @@ function collapseTildePath(path, userHome, separator) {
   if (!userHome) {
     return path;
   }
-  if (userHome.match(/[/\\]$/)) {
+  if (userHome.match(/[\/\\]$/)) {
     userHome = userHome.slice(0, userHome.length - 1);
   }
   const normalizedPath = path.replace(/\\/g, "/").toLowerCase();

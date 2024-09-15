@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { SetWithKey } from "./collections.js";
-import { ArrayNavigator } from "./navigator.js";
+import { ArrayNavigator, INavigator } from "./navigator.js";
 class HistoryNavigator {
   static {
     __name(this, "HistoryNavigator");
@@ -59,12 +59,7 @@ class HistoryNavigator {
   _onChange() {
     this._reduceToLimit();
     const elements = this._elements;
-    this._navigator = new ArrayNavigator(
-      elements,
-      0,
-      elements.length,
-      elements.length
-    );
+    this._navigator = new ArrayNavigator(elements, 0, elements.length, elements.length);
   }
   _reduceToLimit() {
     const data = this._elements;

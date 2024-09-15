@@ -10,24 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ResourceQueue } from "../../../base/common/async.js";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { Schemas } from "../../../base/common/network.js";
-import {
-  extUri,
-  extUriIgnorePathCase
-} from "../../../base/common/resources.js";
+import { MainContext, MainThreadFileSystemShape } from "./extHost.protocol.js";
 import * as files from "../../../platform/files/common/files.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
-import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
 import { FileSystemError } from "./extHostTypes.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ResourceQueue } from "../../../base/common/async.js";
+import { IExtUri, extUri, extUriIgnorePathCase } from "../../../base/common/resources.js";
+import { Schemas } from "../../../base/common/network.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
 let ExtHostConsumerFileSystem = class {
   static {
     __name(this, "ExtHostConsumerFileSystem");
@@ -80,11 +74,7 @@ let ExtHostConsumerFileSystem = class {
           const provider = that._fileSystemProvider.get(uri.scheme);
           if (provider && !provider.isReadonly) {
             await that._proxy.$ensureActivation(uri.scheme);
-            return await that.mkdirp(
-              provider.impl,
-              provider.extUri,
-              uri
-            );
+            return await that.mkdirp(provider.impl, provider.extUri, uri);
           } else {
             return await that._proxy.$mkdir(uri);
           }
@@ -111,25 +101,10 @@ let ExtHostConsumerFileSystem = class {
           const provider = that._fileSystemProvider.get(uri.scheme);
           if (provider && !provider.isReadonly) {
             await that._proxy.$ensureActivation(uri.scheme);
-            await that.mkdirp(
-              provider.impl,
-              provider.extUri,
-              provider.extUri.dirname(uri)
-            );
-            return await that._writeQueue.queueFor(
-              uri,
-              () => Promise.resolve(
-                provider.impl.writeFile(uri, content, {
-                  create: true,
-                  overwrite: true
-                })
-              )
-            );
+            await that.mkdirp(provider.impl, provider.extUri, provider.extUri.dirname(uri));
+            return await that._writeQueue.queueFor(uri, () => Promise.resolve(provider.impl.writeFile(uri, content, { create: true, overwrite: true })));
           } else {
-            return await that._proxy.$writeFile(
-              uri,
-              VSBuffer.wrap(content)
-            );
+            return await that._proxy.$writeFile(uri, VSBuffer.wrap(content));
           }
         } catch (err) {
           return ExtHostConsumerFileSystem._handleError(err);
@@ -140,17 +115,9 @@ let ExtHostConsumerFileSystem = class {
           const provider = that._fileSystemProvider.get(uri.scheme);
           if (provider && !provider.isReadonly && !options?.useTrash) {
             await that._proxy.$ensureActivation(uri.scheme);
-            return await provider.impl.delete(uri, {
-              recursive: false,
-              ...options
-            });
+            return await provider.impl.delete(uri, { recursive: false, ...options });
           } else {
-            return await that._proxy.$delete(uri, {
-              recursive: false,
-              useTrash: false,
-              atomic: false,
-              ...options
-            });
+            return await that._proxy.$delete(uri, { recursive: false, useTrash: false, atomic: false, ...options });
           }
         } catch (err) {
           return ExtHostConsumerFileSystem._handleError(err);
@@ -158,20 +125,14 @@ let ExtHostConsumerFileSystem = class {
       },
       async rename(oldUri, newUri, options) {
         try {
-          return await that._proxy.$rename(oldUri, newUri, {
-            ...{ overwrite: false },
-            ...options
-          });
+          return await that._proxy.$rename(oldUri, newUri, { ...{ overwrite: false }, ...options });
         } catch (err) {
           return ExtHostConsumerFileSystem._handleError(err);
         }
       },
       async copy(source, destination, options) {
         try {
-          return await that._proxy.$copy(source, destination, {
-            ...{ overwrite: false },
-            ...options
-          });
+          return await that._proxy.$copy(source, destination, { ...{ overwrite: false }, ...options });
         } catch (err) {
           return ExtHostConsumerFileSystem._handleError(err);
         }
@@ -187,16 +148,11 @@ let ExtHostConsumerFileSystem = class {
   }
   async mkdirp(provider, providerExtUri, directory) {
     const directoriesToCreate = [];
-    while (!providerExtUri.isEqual(
-      directory,
-      providerExtUri.dirname(directory)
-    )) {
+    while (!providerExtUri.isEqual(directory, providerExtUri.dirname(directory))) {
       try {
         const stat = await provider.stat(directory);
         if ((stat.type & files.FileType.Directory) === 0) {
-          throw FileSystemError.FileExists(
-            `Unable to create folder '${directory.scheme === Schemas.file ? directory.fsPath : directory.toString(true)}' that already exists but is not a directory`
-          );
+          throw FileSystemError.FileExists(`Unable to create folder '${directory.scheme === Schemas.file ? directory.fsPath : directory.toString(true)}' that already exists but is not a directory`);
         }
         break;
       } catch (error) {
@@ -208,10 +164,7 @@ let ExtHostConsumerFileSystem = class {
       }
     }
     for (let i = directoriesToCreate.length - 1; i >= 0; i--) {
-      directory = providerExtUri.joinPath(
-        directory,
-        directoriesToCreate[i]
-      );
+      directory = providerExtUri.joinPath(directory, directoriesToCreate[i]);
       try {
         await provider.createDirectory(directory);
       } catch (error) {
@@ -240,10 +193,7 @@ let ExtHostConsumerFileSystem = class {
         case files.FileSystemProviderErrorCode.Unavailable:
           throw FileSystemError.Unavailable(err.message);
         default:
-          throw new FileSystemError(
-            err.message,
-            err.name
-          );
+          throw new FileSystemError(err.message, err.name);
       }
     }
     if (!(err instanceof Error)) {
@@ -266,19 +216,12 @@ let ExtHostConsumerFileSystem = class {
       case files.FileSystemProviderErrorCode.Unavailable:
         throw FileSystemError.Unavailable(err.message);
       default:
-        throw new FileSystemError(
-          err.message,
-          err.name
-        );
+        throw new FileSystemError(err.message, err.name);
     }
   }
   // ---
   addFileSystemProvider(scheme, provider, options) {
-    this._fileSystemProvider.set(scheme, {
-      impl: provider,
-      extUri: options?.isCaseSensitive ? extUri : extUriIgnorePathCase,
-      isReadonly: !!options?.isReadonly
-    });
+    this._fileSystemProvider.set(scheme, { impl: provider, extUri: options?.isCaseSensitive ? extUri : extUriIgnorePathCase, isReadonly: !!options?.isReadonly });
     return toDisposable(() => this._fileSystemProvider.delete(scheme));
   }
   getFileSystemProviderExtUri(scheme) {

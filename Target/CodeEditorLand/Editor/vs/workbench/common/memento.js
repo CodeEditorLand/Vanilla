@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { onUnexpectedError } from "../../base/common/errors.js";
+import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../platform/storage/common/storage.js";
 import { isEmptyObject } from "../../base/common/types.js";
-import {
-  StorageScope
-} from "../../platform/storage/common/storage.js";
+import { onUnexpectedError } from "../../base/common/errors.js";
+import { DisposableStore } from "../../base/common/lifecycle.js";
+import { Event } from "../../base/common/event.js";
 class Memento {
   constructor(id, storageService) {
     this.storageService = storageService;
@@ -23,12 +23,7 @@ class Memento {
       case StorageScope.WORKSPACE: {
         let workspaceMemento = Memento.workspaceMementos.get(this.id);
         if (!workspaceMemento) {
-          workspaceMemento = new ScopedMemento(
-            this.id,
-            scope,
-            target,
-            this.storageService
-          );
+          workspaceMemento = new ScopedMemento(this.id, scope, target, this.storageService);
           Memento.workspaceMementos.set(this.id, workspaceMemento);
         }
         return workspaceMemento.getMemento();
@@ -36,42 +31,23 @@ class Memento {
       case StorageScope.PROFILE: {
         let profileMemento = Memento.profileMementos.get(this.id);
         if (!profileMemento) {
-          profileMemento = new ScopedMemento(
-            this.id,
-            scope,
-            target,
-            this.storageService
-          );
+          profileMemento = new ScopedMemento(this.id, scope, target, this.storageService);
           Memento.profileMementos.set(this.id, profileMemento);
         }
         return profileMemento.getMemento();
       }
       case StorageScope.APPLICATION: {
-        let applicationMemento = Memento.applicationMementos.get(
-          this.id
-        );
+        let applicationMemento = Memento.applicationMementos.get(this.id);
         if (!applicationMemento) {
-          applicationMemento = new ScopedMemento(
-            this.id,
-            scope,
-            target,
-            this.storageService
-          );
-          Memento.applicationMementos.set(
-            this.id,
-            applicationMemento
-          );
+          applicationMemento = new ScopedMemento(this.id, scope, target, this.storageService);
+          Memento.applicationMementos.set(this.id, applicationMemento);
         }
         return applicationMemento.getMemento();
       }
     }
   }
   onDidChangeValue(scope, disposables) {
-    return this.storageService.onDidChangeValue(
-      scope,
-      this.id,
-      disposables
-    );
+    return this.storageService.onDidChangeValue(scope, this.id, disposables);
   }
   saveMemento() {
     Memento.workspaceMementos.get(this.id)?.save();
@@ -121,15 +97,9 @@ class ScopedMemento {
   mementoObj;
   doLoad() {
     try {
-      return this.storageService.getObject(
-        this.id,
-        this.scope,
-        {}
-      );
+      return this.storageService.getObject(this.id, this.scope, {});
     } catch (error) {
-      onUnexpectedError(
-        `[memento]: failed to parse contents: ${error} (id: ${this.id}, scope: ${this.scope}, contents: ${this.storageService.get(this.id, this.scope)})`
-      );
+      onUnexpectedError(`[memento]: failed to parse contents: ${error} (id: ${this.id}, scope: ${this.scope}, contents: ${this.storageService.get(this.id, this.scope)})`);
     }
     return {};
   }
@@ -143,15 +113,10 @@ class ScopedMemento {
     Object.assign(this.mementoObj, this.doLoad());
   }
   save() {
-    if (isEmptyObject(this.mementoObj)) {
-      this.storageService.remove(this.id, this.scope);
+    if (!isEmptyObject(this.mementoObj)) {
+      this.storageService.store(this.id, this.mementoObj, this.scope, this.target);
     } else {
-      this.storageService.store(
-        this.id,
-        this.mementoObj,
-        this.scope,
-        this.target
-      );
+      this.storageService.remove(this.id, this.scope);
     }
   }
 }

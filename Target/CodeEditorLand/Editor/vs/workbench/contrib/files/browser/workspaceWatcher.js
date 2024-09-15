@@ -10,34 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { isAbsolute } from "../../../../base/common/path.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
-import {
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  INotificationService,
-  NeverShowAgainScope,
-  NotificationPriority,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
+import { IDisposable, Disposable, dispose, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService, IConfigurationChangeEvent } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService, IFilesConfiguration } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService, IWorkspaceFolder, IWorkspaceFoldersChangeEvent } from "../../../../platform/workspace/common/workspace.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { INotificationService, Severity, NeverShowAgainScope, NotificationPriority } from "../../../../platform/notification/common/notification.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { isAbsolute } from "../../../../base/common/path.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
 import { IHostService } from "../../../services/host/browser/host.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 let WorkspaceWatcher = class extends Disposable {
   constructor(fileService, configurationService, contextService, notificationService, openerService, uriIdentityService, hostService, telemetryService) {
     super();
@@ -56,30 +41,12 @@ let WorkspaceWatcher = class extends Disposable {
     __name(this, "WorkspaceWatcher");
   }
   static ID = "workbench.contrib.workspaceWatcher";
-  watchedWorkspaces = new ResourceMap(
-    (resource) => this.uriIdentityService.extUri.getComparisonKey(resource)
-  );
+  watchedWorkspaces = new ResourceMap((resource) => this.uriIdentityService.extUri.getComparisonKey(resource));
   registerListeners() {
-    this._register(
-      this.contextService.onDidChangeWorkspaceFolders(
-        (e) => this.onDidChangeWorkspaceFolders(e)
-      )
-    );
-    this._register(
-      this.contextService.onDidChangeWorkbenchState(
-        () => this.onDidChangeWorkbenchState()
-      )
-    );
-    this._register(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => this.onDidChangeConfiguration(e)
-      )
-    );
-    this._register(
-      this.fileService.onDidWatchError(
-        (error) => this.onDidWatchError(error)
-      )
-    );
+    this._register(this.contextService.onDidChangeWorkspaceFolders((e) => this.onDidChangeWorkspaceFolders(e)));
+    this._register(this.contextService.onDidChangeWorkbenchState(() => this.onDidChangeWorkbenchState()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onDidChangeConfiguration(e)));
+    this._register(this.fileService.onDidWatchError((error) => this.onDidWatchError(error)));
   }
   onDidChangeWorkspaceFolders(e) {
     for (const removed of e.removed) {
@@ -99,48 +66,30 @@ let WorkspaceWatcher = class extends Disposable {
   }
   onDidWatchError(error) {
     const msg = error.toString();
-    let reason;
+    let reason = void 0;
     if (msg.indexOf("ENOSPC") >= 0) {
       reason = "ENOSPC";
       this.notificationService.prompt(
         Severity.Warning,
-        localize(
-          "enospcError",
-          "Unable to watch for file changes. Please follow the instructions link to resolve this issue."
-        ),
-        [
-          {
-            label: localize("learnMore", "Instructions"),
-            run: /* @__PURE__ */ __name(() => this.openerService.open(
-              URI.parse(
-                "https://go.microsoft.com/fwlink/?linkid=867693"
-              )
-            ), "run")
-          }
-        ],
+        localize("enospcError", "Unable to watch for file changes. Please follow the instructions link to resolve this issue."),
+        [{
+          label: localize("learnMore", "Instructions"),
+          run: /* @__PURE__ */ __name(() => this.openerService.open(URI.parse("https://go.microsoft.com/fwlink/?linkid=867693")), "run")
+        }],
         {
           sticky: true,
-          neverShowAgain: {
-            id: "ignoreEnospcError",
-            isSecondary: true,
-            scope: NeverShowAgainScope.WORKSPACE
-          }
+          neverShowAgain: { id: "ignoreEnospcError", isSecondary: true, scope: NeverShowAgainScope.WORKSPACE }
         }
       );
     } else if (msg.indexOf("EUNKNOWN") >= 0) {
       reason = "EUNKNOWN";
       this.notificationService.prompt(
         Severity.Warning,
-        localize(
-          "eshutdownError",
-          "File changes watcher stopped unexpectedly. A reload of the window may enable the watcher again unless the workspace cannot be watched for file changes."
-        ),
-        [
-          {
-            label: localize("reload", "Reload"),
-            run: /* @__PURE__ */ __name(() => this.hostService.reload(), "run")
-          }
-        ],
+        localize("eshutdownError", "File changes watcher stopped unexpectedly. A reload of the window may enable the watcher again unless the workspace cannot be watched for file changes."),
+        [{
+          label: localize("reload", "Reload"),
+          run: /* @__PURE__ */ __name(() => this.hostService.reload(), "run")
+        }],
         {
           sticky: true,
           priority: NotificationPriority.SILENT
@@ -156,9 +105,7 @@ let WorkspaceWatcher = class extends Disposable {
   }
   watchWorkspace(workspace) {
     const excludes = [];
-    const config = this.configurationService.getValue({
-      resource: workspace.uri
-    });
+    const config = this.configurationService.getValue({ resource: workspace.uri });
     if (config.files?.watcherExclude) {
       for (const key in config.files.watcherExclude) {
         if (key && config.files.watcherExclude[key] === true) {
@@ -166,9 +113,7 @@ let WorkspaceWatcher = class extends Disposable {
         }
       }
     }
-    const pathsToWatch = new ResourceMap(
-      (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
-    );
+    const pathsToWatch = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
     pathsToWatch.set(workspace.uri, workspace.uri);
     if (config.files?.watcherInclude) {
       for (const includePath of config.files.watcherInclude) {
@@ -176,13 +121,8 @@ let WorkspaceWatcher = class extends Disposable {
           continue;
         }
         if (isAbsolute(includePath)) {
-          const candidate = URI.file(includePath).with({
-            scheme: workspace.uri.scheme
-          });
-          if (this.uriIdentityService.extUri.isEqualOrParent(
-            candidate,
-            workspace.uri
-          )) {
+          const candidate = URI.file(includePath).with({ scheme: workspace.uri.scheme });
+          if (this.uriIdentityService.extUri.isEqualOrParent(candidate, workspace.uri)) {
             pathsToWatch.set(candidate, candidate);
           }
         } else {
@@ -193,12 +133,7 @@ let WorkspaceWatcher = class extends Disposable {
     }
     const disposables = new DisposableStore();
     for (const [, pathToWatch] of pathsToWatch) {
-      disposables.add(
-        this.fileService.watch(pathToWatch, {
-          recursive: true,
-          excludes
-        })
-      );
+      disposables.add(this.fileService.watch(pathToWatch, { recursive: true, excludes }));
     }
     this.watchedWorkspaces.set(workspace.uri, disposables);
   }

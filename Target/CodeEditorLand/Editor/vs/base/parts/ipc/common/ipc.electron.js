@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../common/buffer.js";
+import { Event } from "../../../common/event.js";
+import { IMessagePassingProtocol } from "./ipc.js";
 class Protocol {
   constructor(sender, onMessage) {
     this.sender = sender;

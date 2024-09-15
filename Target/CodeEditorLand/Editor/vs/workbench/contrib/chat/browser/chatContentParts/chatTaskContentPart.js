@@ -12,43 +12,27 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
 import { Event } from "../../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 import { ChatProgressContentPart } from "./chatProgressContentPart.js";
-import {
-  ChatCollapsibleListContentPart
-} from "./chatReferencesContentPart.js";
+import { ChatCollapsibleListContentPart, CollapsibleListPool } from "./chatReferencesContentPart.js";
+import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
+import { IChatTask } from "../../common/chatService.js";
+import { IChatResponseViewModel } from "../../common/chatViewModel.js";
 let ChatTaskContentPart = class extends Disposable {
   constructor(task, contentReferencesListPool, renderer, context, instantiationService) {
     super();
     this.task = task;
     if (task.progress.length) {
-      const refsPart = this._register(
-        instantiationService.createInstance(
-          ChatCollapsibleListContentPart,
-          task.progress,
-          task.content.value,
-          context.element,
-          contentReferencesListPool
-        )
-      );
+      const refsPart = this._register(instantiationService.createInstance(ChatCollapsibleListContentPart, task.progress, task.content.value, context.element, contentReferencesListPool));
       this.domNode = dom.$(".chat-progress-task");
       this.domNode.appendChild(refsPart.domNode);
       this.onDidChangeHeight = refsPart.onDidChangeHeight;
     } else {
       const isSettled = task.isSettled?.() ?? true;
-      const progressPart = this._register(
-        instantiationService.createInstance(
-          ChatProgressContentPart,
-          task,
-          renderer,
-          context,
-          !isSettled,
-          true
-        )
-      );
+      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, task, renderer, context, !isSettled, true));
       this.domNode = progressPart.domNode;
       this.onDidChangeHeight = Event.None;
     }

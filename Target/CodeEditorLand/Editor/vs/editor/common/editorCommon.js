@@ -1,5 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../base/common/event.js";
+import { IMarkdownString } from "../../base/common/htmlContent.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { ThemeColor } from "../../base/common/themables.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { IEditorOptions } from "./config/editorOptions.js";
+import { IDimension } from "./core/dimension.js";
+import { IPosition, Position } from "./core/position.js";
+import { IRange, Range } from "./core/range.js";
+import { ISelection, Selection } from "./core/selection.js";
+import { IModelDecoration, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, IValidEditOperation, OverviewRulerLane, TrackedRangeStickiness } from "./model.js";
+import { IModelDecorationsChangedEvent } from "./textModelEvents.js";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
 var ScrollType = /* @__PURE__ */ ((ScrollType2) => {
   ScrollType2[ScrollType2["Smooth"] = 0] = "Smooth";
   ScrollType2[ScrollType2["Immediate"] = 1] = "Immediate";

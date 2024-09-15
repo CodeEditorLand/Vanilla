@@ -10,65 +10,46 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  TreeVisibility
-} from "../../../../base/browser/ui/tree/tree.js";
-import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
-import {
-  normalizeDriveLetter,
-  tildify
-} from "../../../../base/common/labels.js";
-import { dispose } from "../../../../base/common/lifecycle.js";
-import { isAbsolute, normalize, posix } from "../../../../base/common/path.js";
-import { isWindows } from "../../../../base/common/platform.js";
-import { ltrim } from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import {
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
+import { normalize, isAbsolute, posix } from "../../../../base/common/path.js";
+import { ViewPane, ViewAction } from "../../../browser/parts/views/viewPane.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { FileKind } from "../../../../platform/files/common/files.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  ResourceLabels
-} from "../../../browser/labels.js";
-import { ViewAction, ViewPane } from "../../../browser/parts/views/viewPane.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  CONTEXT_LOADED_SCRIPTS_ITEM_TYPE,
-  IDebugService,
-  LOADED_SCRIPTS_VIEW_ID
-} from "../common/debug.js";
-import { DebugContentProvider } from "../common/debugContentProvider.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { renderViewTree } from "./baseDebugView.js";
+import { IDebugSession, IDebugService, CONTEXT_LOADED_SCRIPTS_ITEM_TYPE, LOADED_SCRIPTS_VIEW_ID } from "../common/debug.js";
+import { Source } from "../common/debugSource.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { IContextKey, IContextKeyService, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { normalizeDriveLetter, tildify } from "../../../../base/common/labels.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ltrim } from "../../../../base/common/strings.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { ResourceLabels, IResourceLabelProps, IResourceLabelOptions, IResourceLabel } from "../../../browser/labels.js";
+import { FileKind } from "../../../../platform/files/common/files.js";
+import { IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { ITreeNode, ITreeFilter, TreeVisibility, TreeFilterResult, ITreeElement } from "../../../../base/browser/ui/tree/tree.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
+import { dispose } from "../../../../base/common/lifecycle.js";
+import { createMatches, FuzzyScore } from "../../../../base/common/filters.js";
+import { DebugContentProvider } from "../common/debugContentProvider.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { registerAction2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
 import { TreeFindMode } from "../../../../base/browser/ui/tree/abstractTree.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { IPathService } from "../../../services/path/common/pathService.js";
 const NEW_STYLE_COMPRESS = true;
-const URI_SCHEMA_PATTERN = /^[a-zA-Z][a-zA-Z0-9+\-.]+:/;
+const URI_SCHEMA_PATTERN = /^[a-zA-Z][a-zA-Z0-9\+\-\.]+:/;
 class BaseTreeItem {
   constructor(_parent, _label, isIncompressible = false) {
     this._parent = _parent;
@@ -257,16 +238,7 @@ class RootTreeItem extends BaseTreeItem {
     __name(this, "RootTreeItem");
   }
   add(session) {
-    return this.createIfNeeded(
-      session.getId(),
-      () => new SessionTreeItem(
-        this._labelService,
-        this,
-        session,
-        this._pathService,
-        this._contextService
-      )
-    );
+    return this.createIfNeeded(session.getId(), () => new SessionTreeItem(this._labelService, this, session, this._pathService, this._contextService));
   }
   find(session) {
     return this.getChild(session.getId());
@@ -331,52 +303,37 @@ class SessionTreeItem extends BaseTreeItem {
     if (match && match.length === 3) {
       url = match[1];
       path = decodeURI(match[2]);
-    } else if (isAbsolute(path)) {
-      const resource = URI.file(path);
-      folder = this.rootProvider ? this.rootProvider.getWorkspaceFolder(resource) : null;
-      if (folder) {
-        path = normalize(
-          ltrim(
-            resource.path.substring(folder.uri.path.length),
-            posix.sep
-          )
-        );
-        const hasMultipleRoots = this.rootProvider.getWorkspace().folders.length > 1;
-        if (hasMultipleRoots) {
-          path = posix.sep + path;
+    } else {
+      if (isAbsolute(path)) {
+        const resource = URI.file(path);
+        folder = this.rootProvider ? this.rootProvider.getWorkspaceFolder(resource) : null;
+        if (folder) {
+          path = normalize(ltrim(resource.path.substring(folder.uri.path.length), posix.sep));
+          const hasMultipleRoots = this.rootProvider.getWorkspace().folders.length > 1;
+          if (hasMultipleRoots) {
+            path = posix.sep + path;
+          } else {
+            folder = null;
+          }
         } else {
-          folder = null;
-        }
-      } else {
-        path = normalize(path);
-        if (isWindows) {
-          path = normalizeDriveLetter(path);
-        } else {
-          path = tildify(
-            path,
-            (await this._pathService.userHome()).fsPath
-          );
+          path = normalize(path);
+          if (isWindows) {
+            path = normalizeDriveLetter(path);
+          } else {
+            path = tildify(path, (await this._pathService.userHome()).fsPath);
+          }
         }
       }
     }
     let leaf = this;
-    path.split(/[/\\]/).forEach((segment, i) => {
+    path.split(/[\/\\]/).forEach((segment, i) => {
       if (i === 0 && folder) {
         const f = folder;
-        leaf = leaf.createIfNeeded(
-          folder.name,
-          (parent) => new RootFolderTreeItem(parent, f)
-        );
+        leaf = leaf.createIfNeeded(folder.name, (parent) => new RootFolderTreeItem(parent, f));
       } else if (i === 0 && url) {
-        leaf = leaf.createIfNeeded(
-          url,
-          (parent) => new BaseTreeItem(parent, url)
-        );
+        leaf = leaf.createIfNeeded(url, (parent) => new BaseTreeItem(parent, url));
       } else {
-        leaf = leaf.createIfNeeded(
-          segment,
-          (parent) => new BaseTreeItem(parent, segment)
-        );
+        leaf = leaf.createIfNeeded(segment, (parent) => new BaseTreeItem(parent, segment));
       }
     });
     leaf.setSource(this._session, source);
@@ -408,19 +365,7 @@ function asTreeElement(item, viewState) {
 __name(asTreeElement, "asTreeElement");
 let LoadedScriptsView = class extends ViewPane {
   constructor(options, contextMenuService, keybindingService, instantiationService, viewDescriptorService, configurationService, editorService, contextKeyService, contextService, debugService, labelService, pathService, openerService, themeService, telemetryService, hoverService) {
-    super(
-      options,
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService
-    );
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
     this.editorService = editorService;
     this.contextService = contextService;
     this.debugService = debugService;
@@ -445,15 +390,8 @@ let LoadedScriptsView = class extends ViewPane {
     container.classList.add("show-file-icons");
     this.treeContainer = renderViewTree(container);
     this.filter = new LoadedScriptsFilter();
-    const root = new RootTreeItem(
-      this.pathService,
-      this.contextService,
-      this.labelService
-    );
-    this.treeLabels = this.instantiationService.createInstance(
-      ResourceLabels,
-      { onDidChangeVisibility: this.onDidChangeBodyVisibility }
-    );
+    const root = new RootTreeItem(this.pathService, this.contextService, this.labelService);
+    this.treeLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
     this._register(this.treeLabels);
     this.tree = this.instantiationService.createInstance(
       WorkbenchCompressibleObjectTree,
@@ -481,10 +419,7 @@ let LoadedScriptsView = class extends ViewPane {
         overrideStyles: this.getLocationBasedColors().listOverrideStyles
       }
     );
-    const updateView = /* @__PURE__ */ __name((viewState2) => this.tree.setChildren(
-      null,
-      asTreeElement(root, viewState2).children
-    ), "updateView");
+    const updateView = /* @__PURE__ */ __name((viewState2) => this.tree.setChildren(null, asTreeElement(root, viewState2).children), "updateView");
     updateView();
     this.changeScheduler = new RunOnceScheduler(() => {
       this.treeNeedsRefreshOnVisible = false;
@@ -493,38 +428,23 @@ let LoadedScriptsView = class extends ViewPane {
       }
     }, 300);
     this._register(this.changeScheduler);
-    this._register(
-      this.tree.onDidOpen((e) => {
-        if (e.element instanceof BaseTreeItem) {
-          const source = e.element.getSource();
-          if (source && source.available) {
-            const nullRange = {
-              startLineNumber: 0,
-              startColumn: 0,
-              endLineNumber: 0,
-              endColumn: 0
-            };
-            source.openInEditor(
-              this.editorService,
-              nullRange,
-              e.editorOptions.preserveFocus,
-              e.sideBySide,
-              e.editorOptions.pinned
-            );
-          }
+    this._register(this.tree.onDidOpen((e) => {
+      if (e.element instanceof BaseTreeItem) {
+        const source = e.element.getSource();
+        if (source && source.available) {
+          const nullRange = { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 };
+          source.openInEditor(this.editorService, nullRange, e.editorOptions.preserveFocus, e.sideBySide, e.editorOptions.pinned);
         }
-      })
-    );
-    this._register(
-      this.tree.onDidChangeFocus(() => {
-        const focus = this.tree.getFocus();
-        if (focus instanceof SessionTreeItem) {
-          this.loadedScriptsItemType.set("session");
-        } else {
-          this.loadedScriptsItemType.reset();
-        }
-      })
-    );
+      }
+    }));
+    this._register(this.tree.onDidChangeFocus(() => {
+      const focus = this.tree.getFocus();
+      if (focus instanceof SessionTreeItem) {
+        this.loadedScriptsItemType.set("session");
+      } else {
+        this.loadedScriptsItemType.reset();
+      }
+    }));
     const scheduleRefreshOnVisible = /* @__PURE__ */ __name(() => {
       if (this.isBodyVisible()) {
         this.changeScheduler.schedule();
@@ -543,88 +463,74 @@ let LoadedScriptsView = class extends ViewPane {
       }
     }, "addSourcePathsToSession");
     const registerSessionListeners = /* @__PURE__ */ __name((session) => {
-      this._register(
-        session.onDidChangeName(async () => {
-          const sessionRoot = root.find(session);
-          if (sessionRoot) {
-            sessionRoot.updateLabel(session.getLabel());
+      this._register(session.onDidChangeName(async () => {
+        const sessionRoot = root.find(session);
+        if (sessionRoot) {
+          sessionRoot.updateLabel(session.getLabel());
+          scheduleRefreshOnVisible();
+        }
+      }));
+      this._register(session.onDidLoadedSource(async (event) => {
+        let sessionRoot;
+        switch (event.reason) {
+          case "new":
+          case "changed":
+            sessionRoot = root.add(session);
+            await sessionRoot.addPath(event.source);
             scheduleRefreshOnVisible();
-          }
-        })
-      );
-      this._register(
-        session.onDidLoadedSource(async (event) => {
-          let sessionRoot;
-          switch (event.reason) {
-            case "new":
-            case "changed":
-              sessionRoot = root.add(session);
-              await sessionRoot.addPath(event.source);
+            if (event.reason === "changed") {
+              DebugContentProvider.refreshDebugContent(event.source.uri);
+            }
+            break;
+          case "removed":
+            sessionRoot = root.find(session);
+            if (sessionRoot && sessionRoot.removePath(event.source)) {
               scheduleRefreshOnVisible();
-              if (event.reason === "changed") {
-                DebugContentProvider.refreshDebugContent(
-                  event.source.uri
-                );
-              }
-              break;
-            case "removed":
-              sessionRoot = root.find(session);
-              if (sessionRoot && sessionRoot.removePath(event.source)) {
-                scheduleRefreshOnVisible();
-              }
-              break;
-            default:
-              this.filter.setFilter(event.source.name);
-              this.tree.refilter();
-              break;
-          }
-        })
-      );
+            }
+            break;
+          default:
+            this.filter.setFilter(event.source.name);
+            this.tree.refilter();
+            break;
+        }
+      }));
     }, "registerSessionListeners");
-    this._register(
-      this.debugService.onDidNewSession(registerSessionListeners)
-    );
+    this._register(this.debugService.onDidNewSession(registerSessionListeners));
     this.debugService.getModel().getSessions().forEach(registerSessionListeners);
-    this._register(
-      this.debugService.onDidEndSession(({ session }) => {
-        root.remove(session.getId());
-        this.changeScheduler.schedule();
-      })
-    );
+    this._register(this.debugService.onDidEndSession(({ session }) => {
+      root.remove(session.getId());
+      this.changeScheduler.schedule();
+    }));
     this.changeScheduler.schedule(0);
-    this._register(
-      this.onDidChangeBodyVisibility((visible) => {
-        if (visible && this.treeNeedsRefreshOnVisible) {
-          this.changeScheduler.schedule();
-        }
-      })
-    );
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible && this.treeNeedsRefreshOnVisible) {
+        this.changeScheduler.schedule();
+      }
+    }));
     let viewState;
-    this._register(
-      this.tree.onDidChangeFindPattern((pattern) => {
-        if (this.tree.findMode === TreeFindMode.Highlight) {
-          return;
-        }
-        if (!viewState && pattern) {
-          const expanded = /* @__PURE__ */ new Set();
-          const visit = /* @__PURE__ */ __name((node) => {
-            if (node.element && !node.collapsed) {
-              expanded.add(node.element.getId());
-            }
-            for (const child of node.children) {
-              visit(child);
-            }
-          }, "visit");
-          visit(this.tree.getNode());
-          viewState = { expanded };
-          this.tree.expandAll();
-        } else if (!pattern && viewState) {
-          this.tree.setFocus([]);
-          updateView(viewState);
-          viewState = void 0;
-        }
-      })
-    );
+    this._register(this.tree.onDidChangeFindPattern((pattern) => {
+      if (this.tree.findMode === TreeFindMode.Highlight) {
+        return;
+      }
+      if (!viewState && pattern) {
+        const expanded = /* @__PURE__ */ new Set();
+        const visit = /* @__PURE__ */ __name((node) => {
+          if (node.element && !node.collapsed) {
+            expanded.add(node.element.getId());
+          }
+          for (const child of node.children) {
+            visit(child);
+          }
+        }, "visit");
+        visit(this.tree.getNode());
+        viewState = { expanded };
+        this.tree.expandAll();
+      } else if (!pattern && viewState) {
+        this.tree.setFocus([]);
+        updateView(viewState);
+        viewState = void 0;
+      }
+    }));
     this.debugService.getModel().getSessions().forEach((session) => addSourcePathsToSession(session));
   }
   layoutBody(height, width) {
@@ -680,9 +586,7 @@ class LoadedScriptsRenderer {
     return LoadedScriptsRenderer.ID;
   }
   renderTemplate(container) {
-    const label = this.labels.create(container, {
-      supportHighlights: true
-    });
+    const label = this.labels.create(container, { supportHighlights: true });
     return { label };
   }
   renderElement(node, index, data) {
@@ -705,10 +609,7 @@ class LoadedScriptsRenderer {
     if (element instanceof RootFolderTreeItem) {
       options.fileKind = FileKind.ROOT_FOLDER;
     } else if (element instanceof SessionTreeItem) {
-      options.title = nls.localize(
-        "loadedScriptsSession",
-        "Debug Session"
-      );
+      options.title = nls.localize("loadedScriptsSession", "Debug Session");
       options.hideIcon = true;
     } else if (element instanceof BaseTreeItem) {
       const src = element.getSource();
@@ -731,41 +632,19 @@ class LoadedSciptsAccessibilityProvider {
     __name(this, "LoadedSciptsAccessibilityProvider");
   }
   getWidgetAriaLabel() {
-    return nls.localize(
-      {
-        comment: ["Debug is a noun in this context, not a verb."],
-        key: "loadedScriptsAriaLabel"
-      },
-      "Debug Loaded Scripts"
-    );
+    return nls.localize({ comment: ["Debug is a noun in this context, not a verb."], key: "loadedScriptsAriaLabel" }, "Debug Loaded Scripts");
   }
   getAriaLabel(element) {
     if (element instanceof RootFolderTreeItem) {
-      return nls.localize(
-        "loadedScriptsRootFolderAriaLabel",
-        "Workspace folder {0}, loaded script, debug",
-        element.getLabel()
-      );
+      return nls.localize("loadedScriptsRootFolderAriaLabel", "Workspace folder {0}, loaded script, debug", element.getLabel());
     }
     if (element instanceof SessionTreeItem) {
-      return nls.localize(
-        "loadedScriptsSessionAriaLabel",
-        "Session {0}, loaded script, debug",
-        element.getLabel()
-      );
+      return nls.localize("loadedScriptsSessionAriaLabel", "Session {0}, loaded script, debug", element.getLabel());
     }
     if (element.hasChildren()) {
-      return nls.localize(
-        "loadedScriptsFolderAriaLabel",
-        "Folder {0}, loaded script, debug",
-        element.getLabel()
-      );
+      return nls.localize("loadedScriptsFolderAriaLabel", "Folder {0}, loaded script, debug", element.getLabel());
     } else {
-      return nls.localize(
-        "loadedScriptsSourceAriaLabel",
-        "{0}, loaded script, debug",
-        element.getLabel()
-      );
+      return nls.localize("loadedScriptsSourceAriaLabel", "{0}, loaded script, debug", element.getLabel());
     }
   }
 }
@@ -791,31 +670,29 @@ class LoadedScriptsFilter {
     return TreeVisibility.Recurse;
   }
 }
-registerAction2(
-  class Collapse extends ViewAction {
-    static {
-      __name(this, "Collapse");
-    }
-    constructor() {
-      super({
-        id: "loadedScripts.collapse",
-        viewId: LOADED_SCRIPTS_VIEW_ID,
-        title: nls.localize("collapse", "Collapse All"),
-        f1: false,
-        icon: Codicon.collapseAll,
-        menu: {
-          id: MenuId.ViewTitle,
-          order: 30,
-          group: "navigation",
-          when: ContextKeyExpr.equals("view", LOADED_SCRIPTS_VIEW_ID)
-        }
-      });
-    }
-    runInView(_accessor, view) {
-      view.collapseAll();
-    }
+registerAction2(class Collapse extends ViewAction {
+  static {
+    __name(this, "Collapse");
   }
-);
+  constructor() {
+    super({
+      id: "loadedScripts.collapse",
+      viewId: LOADED_SCRIPTS_VIEW_ID,
+      title: nls.localize("collapse", "Collapse All"),
+      f1: false,
+      icon: Codicon.collapseAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        order: 30,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", LOADED_SCRIPTS_VIEW_ID)
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.collapseAll();
+  }
+});
 export {
   LoadedScriptsView
 };

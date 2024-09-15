@@ -10,33 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
 import * as nls from "../../../../nls.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IInstantiationService,
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  ITunnelService
-} from "../../../../platform/tunnel/common/tunnel.js";
-import {
-  ExtensionsRegistry
-} from "../../extensions/common/extensionsRegistry.js";
-import {
-  TunnelModel
-} from "./tunnelModel.js";
-const IRemoteExplorerService = createDecorator(
-  "remoteExplorerService"
-);
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ITunnelService, RemoteTunnel, TunnelProtocol } from "../../../../platform/tunnel/common/tunnel.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IEditableData } from "../../../common/views.js";
+import { TunnelInformation, TunnelPrivacy } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Attributes, CandidatePort, TunnelCloseReason, TunnelModel, TunnelProperties, TunnelSource } from "./tunnelModel.js";
+import { ExtensionsRegistry, IExtensionPointUser } from "../../extensions/common/extensionsRegistry.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+const IRemoteExplorerService = createDecorator("remoteExplorerService");
 const REMOTE_EXPLORER_TYPE_KEY = "remote.explorerType";
 const TUNNEL_VIEW_ID = "~remote.forwardedPorts";
 const TUNNEL_VIEW_CONTAINER_ID = "~remote.forwardedPortsContainer";
@@ -65,10 +53,7 @@ const getStartedWalkthrough = {
   required: ["id"],
   properties: {
     id: {
-      description: nls.localize(
-        "getStartedWalkthrough.id",
-        "The ID of a Get Started walkthrough to open."
-      ),
+      description: nls.localize("getStartedWalkthrough.id", "The ID of a Get Started walkthrough to open."),
       type: "string"
     }
   }
@@ -76,50 +61,31 @@ const getStartedWalkthrough = {
 const remoteHelpExtPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "remoteHelp",
   jsonSchema: {
-    description: nls.localize(
-      "RemoteHelpInformationExtPoint",
-      "Contributes help information for Remote"
-    ),
+    description: nls.localize("RemoteHelpInformationExtPoint", "Contributes help information for Remote"),
     type: "object",
     properties: {
-      getStarted: {
-        description: nls.localize(
-          "RemoteHelpInformationExtPoint.getStarted",
-          "The url, or a command that returns the url, to your project's Getting Started page, or a walkthrough ID contributed by your project's extension"
-        ),
-        oneOf: [{ type: "string" }, getStartedWalkthrough]
+      "getStarted": {
+        description: nls.localize("RemoteHelpInformationExtPoint.getStarted", "The url, or a command that returns the url, to your project's Getting Started page, or a walkthrough ID contributed by your project's extension"),
+        oneOf: [
+          { type: "string" },
+          getStartedWalkthrough
+        ]
       },
-      documentation: {
-        description: nls.localize(
-          "RemoteHelpInformationExtPoint.documentation",
-          "The url, or a command that returns the url, to your project's documentation page"
-        ),
+      "documentation": {
+        description: nls.localize("RemoteHelpInformationExtPoint.documentation", "The url, or a command that returns the url, to your project's documentation page"),
         type: "string"
       },
-      feedback: {
-        description: nls.localize(
-          "RemoteHelpInformationExtPoint.feedback",
-          "The url, or a command that returns the url, to your project's feedback reporter"
-        ),
+      "feedback": {
+        description: nls.localize("RemoteHelpInformationExtPoint.feedback", "The url, or a command that returns the url, to your project's feedback reporter"),
         type: "string",
-        markdownDeprecationMessage: nls.localize(
-          "RemoteHelpInformationExtPoint.feedback.deprecated",
-          "Use {0} instead",
-          "`reportIssue`"
-        )
+        markdownDeprecationMessage: nls.localize("RemoteHelpInformationExtPoint.feedback.deprecated", "Use {0} instead", "`reportIssue`")
       },
-      reportIssue: {
-        description: nls.localize(
-          "RemoteHelpInformationExtPoint.reportIssue",
-          "The url, or a command that returns the url, to your project's issue reporter"
-        ),
+      "reportIssue": {
+        description: nls.localize("RemoteHelpInformationExtPoint.reportIssue", "The url, or a command that returns the url, to your project's issue reporter"),
         type: "string"
       },
-      issues: {
-        description: nls.localize(
-          "RemoteHelpInformationExtPoint.issues",
-          "The url, or a command that returns the url, to your project's issues list"
-        ),
+      "issues": {
+        description: nls.localize("RemoteHelpInformationExtPoint.issues", "The url, or a command that returns the url, to your project's issues list"),
         type: "string"
       }
     }
@@ -161,18 +127,8 @@ let RemoteExplorerService = class {
     const newName = name.length > 0 ? name[0] : "";
     if (current !== newName) {
       this._targetType = name;
-      this.storageService.store(
-        REMOTE_EXPLORER_TYPE_KEY,
-        this._targetType.toString(),
-        StorageScope.WORKSPACE,
-        StorageTarget.MACHINE
-      );
-      this.storageService.store(
-        REMOTE_EXPLORER_TYPE_KEY,
-        this._targetType.toString(),
-        StorageScope.PROFILE,
-        StorageTarget.USER
-      );
+      this.storageService.store(REMOTE_EXPLORER_TYPE_KEY, this._targetType.toString(), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      this.storageService.store(REMOTE_EXPLORER_TYPE_KEY, this._targetType.toString(), StorageScope.PROFILE, StorageTarget.USER);
       this._onDidChangeTargetType.fire(this._targetType);
     }
   }
@@ -192,19 +148,15 @@ let RemoteExplorerService = class {
     if (tunnelInformation?.features) {
       this.tunnelService.setTunnelFeatures(tunnelInformation.features);
     }
-    this.tunnelModel.addEnvironmentTunnels(
-      tunnelInformation?.environmentTunnels
-    );
+    this.tunnelModel.addEnvironmentTunnels(tunnelInformation?.environmentTunnels);
   }
   setEditable(tunnelItem, editId, data) {
-    if (data) {
-      this._editable = { tunnelItem, data, editId };
-    } else {
+    if (!data) {
       this._editable = void 0;
+    } else {
+      this._editable = { tunnelItem, data, editId };
     }
-    this._onDidChangeEditable.fire(
-      tunnelItem ? { tunnel: tunnelItem, editId } : void 0
-    );
+    this._onDidChangeEditable.fire(tunnelItem ? { tunnel: tunnelItem, editId } : void 0);
   }
   getEditableData(tunnelItem, editId) {
     return this._editable && (!tunnelItem && tunnelItem === this._editable.tunnelItem || tunnelItem && this._editable.tunnelItem?.remotePort === tunnelItem.remotePort && this._editable.tunnelItem.remoteHost === tunnelItem.remoteHost && this._editable.editId === editId) ? this._editable.data : void 0;
@@ -242,11 +194,7 @@ RemoteExplorerService = __decorateClass([
   __decorateParam(1, ITunnelService),
   __decorateParam(2, IInstantiationService)
 ], RemoteExplorerService);
-registerSingleton(
-  IRemoteExplorerService,
-  RemoteExplorerService,
-  InstantiationType.Delayed
-);
+registerSingleton(IRemoteExplorerService, RemoteExplorerService, InstantiationType.Delayed);
 export {
   IRemoteExplorerService,
   PORT_AUTO_FALLBACK_SETTING,

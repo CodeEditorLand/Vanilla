@@ -28,11 +28,7 @@ class VSBuffer {
    */
   static wrap(actual) {
     if (hasBuffer && !Buffer.isBuffer(actual)) {
-      actual = Buffer.from(
-        actual.buffer,
-        actual.byteOffset,
-        actual.byteLength
-      );
+      actual = Buffer.from(actual.buffer, actual.byteOffset, actual.byteLength);
     }
     return new VSBuffer(actual);
   }
@@ -118,14 +114,7 @@ class VSBuffer {
     } else if (array instanceof ArrayBuffer) {
       this.buffer.set(new Uint8Array(array), offset);
     } else if (ArrayBuffer.isView(array)) {
-      this.buffer.set(
-        new Uint8Array(
-          array.buffer,
-          array.byteOffset,
-          array.byteLength
-        ),
-        offset
-      );
+      this.buffer.set(new Uint8Array(array.buffer, array.byteOffset, array.byteLength), offset);
     } else {
       throw new Error(`Unknown argument 'array'`);
     }
@@ -149,11 +138,7 @@ class VSBuffer {
     writeUInt8(this.buffer, value, offset);
   }
   indexOf(subarray, offset = 0) {
-    return binaryIndexOf(
-      this.buffer,
-      subarray instanceof VSBuffer ? subarray.buffer : subarray,
-      offset
-    );
+    return binaryIndexOf(this.buffer, subarray instanceof VSBuffer ? subarray.buffer : subarray, offset);
   }
 }
 function binaryIndexOf(haystack, needle, offset = 0) {
@@ -239,10 +224,7 @@ function writeUInt8(destination, value, offset) {
 }
 __name(writeUInt8, "writeUInt8");
 function readableToBuffer(readable) {
-  return streams.consumeReadable(
-    readable,
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.consumeReadable(readable, (chunks) => VSBuffer.concat(chunks));
 }
 __name(readableToBuffer, "readableToBuffer");
 function bufferToReadable(buffer) {
@@ -250,10 +232,7 @@ function bufferToReadable(buffer) {
 }
 __name(bufferToReadable, "bufferToReadable");
 function streamToBuffer(stream) {
-  return streams.consumeStream(
-    stream,
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.consumeStream(stream, (chunks) => VSBuffer.concat(chunks));
 }
 __name(streamToBuffer, "streamToBuffer");
 async function bufferedStreamToBuffer(bufferedStream) {
@@ -269,43 +248,23 @@ async function bufferedStreamToBuffer(bufferedStream) {
 }
 __name(bufferedStreamToBuffer, "bufferedStreamToBuffer");
 function bufferToStream(buffer) {
-  return streams.toStream(
-    buffer,
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.toStream(buffer, (chunks) => VSBuffer.concat(chunks));
 }
 __name(bufferToStream, "bufferToStream");
 function streamToBufferReadableStream(stream) {
-  return streams.transform(
-    stream,
-    {
-      data: /* @__PURE__ */ __name((data) => typeof data === "string" ? VSBuffer.fromString(data) : VSBuffer.wrap(data), "data")
-    },
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.transform(stream, { data: /* @__PURE__ */ __name((data) => typeof data === "string" ? VSBuffer.fromString(data) : VSBuffer.wrap(data), "data") }, (chunks) => VSBuffer.concat(chunks));
 }
 __name(streamToBufferReadableStream, "streamToBufferReadableStream");
 function newWriteableBufferStream(options) {
-  return streams.newWriteableStream(
-    (chunks) => VSBuffer.concat(chunks),
-    options
-  );
+  return streams.newWriteableStream((chunks) => VSBuffer.concat(chunks), options);
 }
 __name(newWriteableBufferStream, "newWriteableBufferStream");
 function prefixedBufferReadable(prefix, readable) {
-  return streams.prefixedReadable(
-    prefix,
-    readable,
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.prefixedReadable(prefix, readable, (chunks) => VSBuffer.concat(chunks));
 }
 __name(prefixedBufferReadable, "prefixedBufferReadable");
 function prefixedBufferStream(prefix, stream) {
-  return streams.prefixedStream(
-    prefix,
-    stream,
-    (chunks) => VSBuffer.concat(chunks)
-  );
+  return streams.prefixedStream(prefix, stream, (chunks) => VSBuffer.concat(chunks));
 }
 __name(prefixedBufferStream, "prefixedBufferStream");
 function decodeBase64(encoded) {

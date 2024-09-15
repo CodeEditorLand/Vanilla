@@ -10,18 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { IPickOptions, IInputOptions, IQuickInputService, IQuickInput, IQuickPick, IQuickPickItem } from "../../../platform/quickinput/common/quickInput.js";
+import { ExtHostContext, MainThreadQuickOpenShape, ExtHostQuickOpenShape, TransferQuickPickItem, MainContext, TransferQuickInput, TransferQuickInputButton, IInputBoxOptions, TransferQuickPickItemOrSeparator } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { URI } from "../../../base/common/uri.js";
-import {
-  IQuickInputService
-} from "../../../platform/quickinput/common/quickInput.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
 function reviveIconPathUris(iconPath) {
   iconPath.dark = URI.revive(iconPath.dark);
   if (iconPath.light) {
@@ -43,18 +37,14 @@ let MainThreadQuickOpen = class {
     }
   }
   $show(instance, options, token) {
-    const contents = new Promise(
-      (resolve, reject) => {
-        this._items[instance] = { resolve, reject };
-      }
-    );
+    const contents = new Promise((resolve, reject) => {
+      this._items[instance] = { resolve, reject };
+    });
     options = {
       ...options,
       onDidFocus: /* @__PURE__ */ __name((el) => {
         if (el) {
-          this._proxy.$onItemSelected(
-            el.handle
-          );
+          this._proxy.$onItemSelected(el.handle);
         }
       }, "onDidFocus")
     };
@@ -116,60 +106,29 @@ let MainThreadQuickOpen = class {
       const store = new DisposableStore();
       const input2 = params.type === "quickPick" ? this._quickInputService.createQuickPick() : this._quickInputService.createInputBox();
       store.add(input2);
-      store.add(
-        input2.onDidAccept(() => {
-          this._proxy.$onDidAccept(sessionId);
-        })
-      );
-      store.add(
-        input2.onDidTriggerButton((button) => {
-          this._proxy.$onDidTriggerButton(
-            sessionId,
-            button.handle
-          );
-        })
-      );
-      store.add(
-        input2.onDidChangeValue((value) => {
-          this._proxy.$onDidChangeValue(sessionId, value);
-        })
-      );
-      store.add(
-        input2.onDidHide(() => {
-          this._proxy.$onDidHide(sessionId);
-        })
-      );
+      store.add(input2.onDidAccept(() => {
+        this._proxy.$onDidAccept(sessionId);
+      }));
+      store.add(input2.onDidTriggerButton((button) => {
+        this._proxy.$onDidTriggerButton(sessionId, button.handle);
+      }));
+      store.add(input2.onDidChangeValue((value) => {
+        this._proxy.$onDidChangeValue(sessionId, value);
+      }));
+      store.add(input2.onDidHide(() => {
+        this._proxy.$onDidHide(sessionId);
+      }));
       if (params.type === "quickPick") {
         const quickpick = input2;
-        store.add(
-          quickpick.onDidChangeActive((items) => {
-            this._proxy.$onDidChangeActive(
-              sessionId,
-              items.map(
-                (item) => item.handle
-              )
-            );
-          })
-        );
-        store.add(
-          quickpick.onDidChangeSelection((items) => {
-            this._proxy.$onDidChangeSelection(
-              sessionId,
-              items.map(
-                (item) => item.handle
-              )
-            );
-          })
-        );
-        store.add(
-          quickpick.onDidTriggerItemButton((e) => {
-            this._proxy.$onDidTriggerItemButton(
-              sessionId,
-              e.item.handle,
-              e.button.handle
-            );
-          })
-        );
+        store.add(quickpick.onDidChangeActive((items) => {
+          this._proxy.$onDidChangeActive(sessionId, items.map((item) => item.handle));
+        }));
+        store.add(quickpick.onDidChangeSelection((items) => {
+          this._proxy.$onDidChangeSelection(sessionId, items.map((item) => item.handle));
+        }));
+        store.add(quickpick.onDidTriggerItemButton((e) => {
+          this._proxy.$onDidTriggerItemButton(sessionId, e.item.handle, e.button.handle);
+        }));
       }
       session = {
         input: input2,
@@ -191,24 +150,20 @@ let MainThreadQuickOpen = class {
         }
       } else if (param === "items") {
         handlesToItems.clear();
-        params[param].forEach(
-          (item) => {
-            if (item.type === "separator") {
-              return;
-            }
-            if (item.buttons) {
-              item.buttons = item.buttons.map(
-                (button) => {
-                  if (button.iconPath) {
-                    reviveIconPathUris(button.iconPath);
-                  }
-                  return button;
-                }
-              );
-            }
-            handlesToItems.set(item.handle, item);
+        params[param].forEach((item) => {
+          if (item.type === "separator") {
+            return;
           }
-        );
+          if (item.buttons) {
+            item.buttons = item.buttons.map((button) => {
+              if (button.iconPath) {
+                reviveIconPathUris(button.iconPath);
+              }
+              return button;
+            });
+          }
+          handlesToItems.set(item.handle, item);
+        });
         input[param] = params[param];
       } else if (param === "activeItems" || param === "selectedItems") {
         input[param] = params[param].filter((handle) => handlesToItems.has(handle)).map((handle) => handlesToItems.get(handle));

@@ -10,18 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
 import { isEqual } from "../../../../base/common/resources.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
-import {
-  ITextFileService,
-  TextFileEditorModelState
-} from "../../../services/textfile/common/textfiles.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
+import { ICustomEditorModel } from "./customEditor.js";
+import { ITextFileEditorModel, ITextFileService, TextFileEditorModelState } from "../../../services/textfile/common/textfiles.js";
 let CustomTextEditorModel = class extends Disposable {
   constructor(viewType, _resource, _model, textFileService) {
     super();
@@ -32,25 +30,15 @@ let CustomTextEditorModel = class extends Disposable {
     this._register(_model);
     this._textFileModel = this.textFileService.files.get(_resource);
     if (this._textFileModel) {
-      this._register(
-        this._textFileModel.onDidChangeOrphaned(
-          () => this._onDidChangeOrphaned.fire()
-        )
-      );
-      this._register(
-        this._textFileModel.onDidChangeReadonly(
-          () => this._onDidChangeReadonly.fire()
-        )
-      );
+      this._register(this._textFileModel.onDidChangeOrphaned(() => this._onDidChangeOrphaned.fire()));
+      this._register(this._textFileModel.onDidChangeReadonly(() => this._onDidChangeReadonly.fire()));
     }
-    this._register(
-      this.textFileService.files.onDidChangeDirty((e) => {
-        if (isEqual(this.resource, e.resource)) {
-          this._onDidChangeDirty.fire();
-          this._onDidChangeContent.fire();
-        }
-      })
-    );
+    this._register(this.textFileService.files.onDidChangeDirty((e) => {
+      if (isEqual(this.resource, e.resource)) {
+        this._onDidChangeDirty.fire();
+        this._onDidChangeContent.fire();
+      }
+    }));
   }
   static {
     __name(this, "CustomTextEditorModel");
@@ -59,12 +47,7 @@ let CustomTextEditorModel = class extends Disposable {
     return instantiationService.invokeFunction(async (accessor) => {
       const textModelResolverService = accessor.get(ITextModelService);
       const model = await textModelResolverService.createModelReference(resource);
-      return instantiationService.createInstance(
-        CustomTextEditorModel,
-        viewType,
-        resource,
-        model
-      );
+      return instantiationService.createInstance(CustomTextEditorModel, viewType, resource, model);
     });
   }
   _textFileModel;
@@ -90,13 +73,9 @@ let CustomTextEditorModel = class extends Disposable {
   isOrphaned() {
     return !!this._textFileModel?.hasState(TextFileEditorModelState.ORPHAN);
   }
-  _onDidChangeDirty = this._register(
-    new Emitter()
-  );
+  _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
   async revert(options) {
     return this.textFileService.revert(this.resource, options);
@@ -105,11 +84,7 @@ let CustomTextEditorModel = class extends Disposable {
     return this.textFileService.save(this.resource, options);
   }
   async saveCustomEditorAs(resource, targetResource, options) {
-    return !!await this.textFileService.saveAs(
-      resource,
-      targetResource,
-      options
-    );
+    return !!await this.textFileService.saveAs(resource, targetResource, options);
   }
 };
 CustomTextEditorModel = __decorateClass([

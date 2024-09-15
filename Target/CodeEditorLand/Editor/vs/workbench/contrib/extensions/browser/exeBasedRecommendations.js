@@ -10,14 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IExtensionTipsService, IExecutableBasedExtensionTip } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionRecommendations, ExtensionRecommendation } from "./extensionRecommendations.js";
 import { localize } from "../../../../nls.js";
-import {
-  IExtensionTipsService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import {
-  ExtensionRecommendations
-} from "./extensionRecommendations.js";
 let ExeBasedRecommendations = class extends ExtensionRecommendations {
   constructor(extensionTipsService) {
     super();
@@ -29,14 +25,10 @@ let ExeBasedRecommendations = class extends ExtensionRecommendations {
   _otherTips = [];
   _importantTips = [];
   get otherRecommendations() {
-    return this._otherTips.map(
-      (tip) => this.toExtensionRecommendation(tip)
-    );
+    return this._otherTips.map((tip) => this.toExtensionRecommendation(tip));
   }
   get importantRecommendations() {
-    return this._importantTips.map(
-      (tip) => this.toExtensionRecommendation(tip)
-    );
+    return this._importantTips.map((tip) => this.toExtensionRecommendation(tip));
   }
   get recommendations() {
     return [...this.importantRecommendations, ...this.otherRecommendations];
@@ -60,12 +52,7 @@ let ExeBasedRecommendations = class extends ExtensionRecommendations {
   async doFetchImportantExeBasedRecommendations() {
     const importantExeBasedRecommendations = /* @__PURE__ */ new Map();
     this._importantTips = await this.extensionTipsService.getImportantExecutableBasedTips();
-    this._importantTips.forEach(
-      (tip) => importantExeBasedRecommendations.set(
-        tip.extensionId.toLowerCase(),
-        tip
-      )
-    );
+    this._importantTips.forEach((tip) => importantExeBasedRecommendations.set(tip.extensionId.toLowerCase(), tip));
     return importantExeBasedRecommendations;
   }
   toExtensionRecommendation(tip) {
@@ -73,11 +60,7 @@ let ExeBasedRecommendations = class extends ExtensionRecommendations {
       extension: tip.extensionId.toLowerCase(),
       reason: {
         reasonId: ExtensionRecommendationReason.Executable,
-        reasonText: localize(
-          "exeBasedRecommendation",
-          "This extension is recommended because you have {0} installed.",
-          tip.exeFriendlyName
-        )
+        reasonText: localize("exeBasedRecommendation", "This extension is recommended because you have {0} installed.", tip.exeFriendlyName)
       }
     };
   }

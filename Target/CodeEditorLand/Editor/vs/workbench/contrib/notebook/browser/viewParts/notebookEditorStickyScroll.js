@@ -11,25 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../base/browser/dom.js";
-import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
 import { EventType as TouchEventType } from "../../../../../base/browser/touch.js";
-import { Delayer } from "../../../../../base/common/async.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../../base/common/themables.js";
-import {
-  foldingCollapsedIcon,
-  foldingExpandedIcon
-} from "../../../../../editor/contrib/folding/browser/foldingDecorations.js";
+import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { CellFoldingState, INotebookEditor } from "../notebookBrowser.js";
+import { INotebookCellList } from "../view/notebookRenderingCommon.js";
+import { OutlineEntry } from "../viewModel/OutlineEntry.js";
+import { NotebookCellOutlineDataSource } from "../viewModel/notebookOutlineDataSource.js";
 import { CellKind } from "../../common/notebookCommon.js";
+import { Delayer } from "../../../../../base/common/async.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { foldingCollapsedIcon, foldingExpandedIcon } from "../../../../../editor/contrib/folding/browser/foldingDecorations.js";
+import { MarkupCellViewModel } from "../viewModel/markupCellViewModel.js";
 import { FoldingController } from "../controller/foldingController.js";
-import { CellFoldingState } from "../notebookBrowser.js";
+import { NotebookOptionsChangeEvent } from "../notebookOptions.js";
+import { NotebookSectionArgs } from "../controller/sectionActions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { INotebookCellOutlineDataSourceFactory } from "../viewModel/notebookOutlineDataSourceFactory.js";
 class NotebookStickyLine extends Disposable {
   constructor(element, foldingIcon, header, entry, notebookEditor) {
@@ -39,54 +39,32 @@ class NotebookStickyLine extends Disposable {
     this.header = header;
     this.entry = entry;
     this.notebookEditor = notebookEditor;
-    this._register(
-      DOM.addDisposableListener(
-        this.header,
-        DOM.EventType.CLICK || TouchEventType.Tap,
-        () => {
-          this.focusCell();
-        }
-      )
-    );
-    this._register(
-      DOM.addDisposableListener(
-        this.foldingIcon.domNode,
-        DOM.EventType.CLICK || TouchEventType.Tap,
-        () => {
-          if (this.entry.cell.cellKind === CellKind.Markup) {
-            const currentFoldingState = this.entry.cell.foldingState;
-            this.toggleFoldRange(currentFoldingState);
-          }
-        }
-      )
-    );
+    this._register(DOM.addDisposableListener(this.header, DOM.EventType.CLICK || TouchEventType.Tap, () => {
+      this.focusCell();
+    }));
+    this._register(DOM.addDisposableListener(this.foldingIcon.domNode, DOM.EventType.CLICK || TouchEventType.Tap, () => {
+      if (this.entry.cell.cellKind === CellKind.Markup) {
+        const currentFoldingState = this.entry.cell.foldingState;
+        this.toggleFoldRange(currentFoldingState);
+      }
+    }));
   }
   static {
     __name(this, "NotebookStickyLine");
   }
   toggleFoldRange(currentState) {
-    const foldingController = this.notebookEditor.getContribution(
-      FoldingController.id
-    );
+    const foldingController = this.notebookEditor.getContribution(FoldingController.id);
     const index = this.entry.index;
     const headerLevel = this.entry.level;
     const newFoldingState = currentState === CellFoldingState.Collapsed ? CellFoldingState.Expanded : CellFoldingState.Collapsed;
-    foldingController.setFoldingStateDown(
-      index,
-      newFoldingState,
-      headerLevel
-    );
+    foldingController.setFoldingStateDown(index, newFoldingState, headerLevel);
     this.focusCell();
   }
   focusCell() {
     this.notebookEditor.focusNotebookCell(this.entry.cell, "container");
-    const cellScrollTop = this.notebookEditor.getAbsoluteTopOfElement(
-      this.entry.cell
-    );
+    const cellScrollTop = this.notebookEditor.getAbsoluteTopOfElement(this.entry.cell);
     const parentCount = NotebookStickyLine.getParentCount(this.entry);
-    this.notebookEditor.setScrollTop(
-      cellScrollTop - (parentCount + 1.1) * 22
-    );
+    this.notebookEditor.setScrollTop(cellScrollTop - (parentCount + 1.1) * 22);
   }
   static getParentCount(entry) {
     let count = 0;
@@ -104,9 +82,7 @@ class StickyFoldingIcon {
     this.domNode = document.createElement("div");
     this.domNode.style.width = `${dimension}px`;
     this.domNode.style.height = `${dimension}px`;
-    this.domNode.className = ThemeIcon.asClassName(
-      isCollapsed ? foldingCollapsedIcon : foldingExpandedIcon
-    );
+    this.domNode.className = ThemeIcon.asClassName(isCollapsed ? foldingCollapsedIcon : foldingExpandedIcon);
   }
   static {
     __name(this, "StickyFoldingIcon");
@@ -129,36 +105,24 @@ let NotebookStickyScroll = class extends Disposable {
     if (this.notebookEditor.notebookOptions.getDisplayOptions().stickyScrollEnabled) {
       this.init();
     }
-    this._register(
-      this.notebookEditor.notebookOptions.onDidChangeOptions((e) => {
-        if (e.stickyScrollEnabled || e.stickyScrollMode) {
-          this.updateConfig(e);
-        }
-      })
-    );
-    this._register(
-      DOM.addDisposableListener(
-        this.domNode,
-        DOM.EventType.CONTEXT_MENU,
-        async (event) => {
-          this.onContextMenu(event);
-        }
-      )
-    );
+    this._register(this.notebookEditor.notebookOptions.onDidChangeOptions((e) => {
+      if (e.stickyScrollEnabled || e.stickyScrollMode) {
+        this.updateConfig(e);
+      }
+    }));
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.CONTEXT_MENU, async (event) => {
+      this.onContextMenu(event);
+    }));
   }
   static {
     __name(this, "NotebookStickyScroll");
   }
   _disposables = new DisposableStore();
   currentStickyLines = /* @__PURE__ */ new Map();
-  _onDidChangeNotebookStickyScroll = this._register(
-    new Emitter()
-  );
+  _onDidChangeNotebookStickyScroll = this._register(new Emitter());
   onDidChangeNotebookStickyScroll = this._onDidChangeNotebookStickyScroll.event;
   notebookCellOutlineReference;
-  _layoutDisposableStore = this._register(
-    new DisposableStore()
-  );
+  _layoutDisposableStore = this._register(new DisposableStore());
   getDomNode() {
     return this.domNode;
   }
@@ -189,9 +153,7 @@ let NotebookStickyScroll = class extends Disposable {
   onContextMenu(e) {
     const event = new StandardMouseEvent(DOM.getWindow(this.domNode), e);
     const selectedElement = event.target.parentElement;
-    const selectedOutlineEntry = Array.from(
-      this.currentStickyLines.values()
-    ).find((entry) => entry.line.element.contains(selectedElement))?.line.entry;
+    const selectedOutlineEntry = Array.from(this.currentStickyLines.values()).find((entry) => entry.line.element.contains(selectedElement))?.line.entry;
     if (!selectedOutlineEntry) {
       return;
     }
@@ -217,77 +179,32 @@ let NotebookStickyScroll = class extends Disposable {
         this.updateDisplay();
       }
     } else if (e.stickyScrollMode && this.notebookEditor.notebookOptions.getDisplayOptions().stickyScrollEnabled && this.notebookCellOutlineReference?.object) {
-      this.updateContent(
-        computeContent(
-          this.notebookEditor,
-          this.notebookCellList,
-          this.notebookCellOutlineReference?.object?.entries,
-          this.getCurrentStickyHeight()
-        )
-      );
+      this.updateContent(computeContent(this.notebookEditor, this.notebookCellList, this.notebookCellOutlineReference?.object?.entries, this.getCurrentStickyHeight()));
     }
   }
   init() {
-    const { object: notebookCellOutline } = this.notebookCellOutlineReference = this.instantiationService.invokeFunction(
-      (accessor) => accessor.get(INotebookCellOutlineDataSourceFactory).getOrCreate(this.notebookEditor)
-    );
+    const { object: notebookCellOutline } = this.notebookCellOutlineReference = this.instantiationService.invokeFunction((accessor) => accessor.get(INotebookCellOutlineDataSourceFactory).getOrCreate(this.notebookEditor));
     this._register(this.notebookCellOutlineReference);
-    this.updateContent(
-      computeContent(
-        this.notebookEditor,
-        this.notebookCellList,
-        notebookCellOutline.entries,
-        this.getCurrentStickyHeight()
-      )
-    );
-    this._disposables.add(
-      notebookCellOutline.onDidChange(() => {
-        const recompute = computeContent(
-          this.notebookEditor,
-          this.notebookCellList,
-          notebookCellOutline.entries,
-          this.getCurrentStickyHeight()
-        );
-        if (!this.compareStickyLineMaps(
-          recompute,
-          this.currentStickyLines
-        )) {
+    this.updateContent(computeContent(this.notebookEditor, this.notebookCellList, notebookCellOutline.entries, this.getCurrentStickyHeight()));
+    this._disposables.add(notebookCellOutline.onDidChange(() => {
+      const recompute = computeContent(this.notebookEditor, this.notebookCellList, notebookCellOutline.entries, this.getCurrentStickyHeight());
+      if (!this.compareStickyLineMaps(recompute, this.currentStickyLines)) {
+        this.updateContent(recompute);
+      }
+    }));
+    this._disposables.add(this.notebookEditor.onDidAttachViewModel(() => {
+      this.updateContent(computeContent(this.notebookEditor, this.notebookCellList, notebookCellOutline.entries, this.getCurrentStickyHeight()));
+    }));
+    this._disposables.add(this.notebookEditor.onDidScroll(() => {
+      const d = new Delayer(100);
+      d.trigger(() => {
+        d.dispose();
+        const recompute = computeContent(this.notebookEditor, this.notebookCellList, notebookCellOutline.entries, this.getCurrentStickyHeight());
+        if (!this.compareStickyLineMaps(recompute, this.currentStickyLines)) {
           this.updateContent(recompute);
         }
-      })
-    );
-    this._disposables.add(
-      this.notebookEditor.onDidAttachViewModel(() => {
-        this.updateContent(
-          computeContent(
-            this.notebookEditor,
-            this.notebookCellList,
-            notebookCellOutline.entries,
-            this.getCurrentStickyHeight()
-          )
-        );
-      })
-    );
-    this._disposables.add(
-      this.notebookEditor.onDidScroll(() => {
-        const d = new Delayer(100);
-        d.trigger(() => {
-          d.dispose();
-          const recompute = computeContent(
-            this.notebookEditor,
-            this.notebookCellList,
-            notebookCellOutline.entries,
-            this.getCurrentStickyHeight()
-          );
-          if (!this.compareStickyLineMaps(
-            recompute,
-            this.currentStickyLines
-          )) {
-            this.updateContent(recompute);
-          }
-        });
-      })
-    );
+      });
+    }));
   }
   // take in an cell index, and get the corresponding outline entry
   static getVisibleOutlineEntry(visibleIndex, notebookOutlineEntries) {
@@ -323,26 +240,21 @@ let NotebookStickyScroll = class extends Disposable {
     const sizeDelta = this.getCurrentStickyHeight() - oldStickyHeight;
     if (sizeDelta !== 0) {
       this._onDidChangeNotebookStickyScroll.fire(sizeDelta);
-      const d = this._layoutDisposableStore.add(
-        DOM.scheduleAtNextAnimationFrame(
-          DOM.getWindow(this.getDomNode()),
-          () => {
-            this.layoutFn(sizeDelta);
-            this.updateDisplay();
-            this._layoutDisposableStore.delete(d);
-          }
-        )
-      );
+      const d = this._layoutDisposableStore.add(DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this.getDomNode()), () => {
+        this.layoutFn(sizeDelta);
+        this.updateDisplay();
+        this._layoutDisposableStore.delete(d);
+      }));
     } else {
       this.updateDisplay();
     }
   }
   updateDisplay() {
     const hasSticky = this.getCurrentStickyHeight() > 0;
-    if (hasSticky) {
-      this.domNode.style.display = "block";
-    } else {
+    if (!hasSticky) {
       this.domNode.style.display = "none";
+    } else {
+      this.domNode.style.display = "block";
     }
   }
   static computeStickyHeight(entry) {
@@ -365,10 +277,7 @@ let NotebookStickyScroll = class extends Disposable {
         currentEntry = currentEntry.parent;
         continue;
       }
-      const lineToRender = NotebookStickyScroll.createStickyElement(
-        currentEntry,
-        notebookEditor
-      );
+      const lineToRender = NotebookStickyScroll.createStickyElement(currentEntry, notebookEditor);
       newMap.set(currentEntry, { line: lineToRender, rendered: false });
       elementsToRender.unshift(lineToRender);
       currentEntry = currentEntry.parent;
@@ -377,10 +286,7 @@ let NotebookStickyScroll = class extends Disposable {
       if (i >= numLinesToRender) {
         break;
       }
-      newMap.set(elementsToRender[i].entry, {
-        line: elementsToRender[i],
-        rendered: true
-      });
+      newMap.set(elementsToRender[i].entry, { line: elementsToRender[i], rendered: true });
     }
     return newMap;
   }
@@ -405,21 +311,13 @@ let NotebookStickyScroll = class extends Disposable {
       isCollapsed = entry.cell.foldingState === CellFoldingState.Collapsed;
     }
     const stickyFoldingIcon = new StickyFoldingIcon(isCollapsed, 16);
-    stickyFoldingIcon.domNode.classList.add(
-      "notebook-sticky-scroll-folding-icon"
-    );
+    stickyFoldingIcon.domNode.classList.add("notebook-sticky-scroll-folding-icon");
     stickyFoldingIcon.setVisible(true);
     const stickyHeader = document.createElement("div");
     stickyHeader.classList.add("notebook-sticky-scroll-header");
     stickyHeader.innerText = entry.label;
     stickyElement.append(stickyFoldingIcon.domNode, stickyHeader);
-    return new NotebookStickyLine(
-      stickyElement,
-      stickyFoldingIcon,
-      stickyHeader,
-      entry,
-      notebookEditor
-    );
+    return new NotebookStickyLine(stickyElement, stickyFoldingIcon, stickyHeader, entry, notebookEditor);
   }
   disposeCurrentStickyLines() {
     this.currentStickyLines.forEach((value) => {
@@ -445,17 +343,10 @@ function computeContent(notebookEditor, notebookCellList, notebookOutlineEntries
   }
   if (visibleRange.start === 0) {
     const firstCell = notebookEditor.cellAt(0);
-    const firstCellEntry = NotebookStickyScroll.getVisibleOutlineEntry(
-      0,
-      notebookOutlineEntries
-    );
+    const firstCellEntry = NotebookStickyScroll.getVisibleOutlineEntry(0, notebookOutlineEntries);
     if (firstCell && firstCellEntry && firstCell.cellKind === CellKind.Markup && firstCellEntry.level < 7) {
       if (notebookEditor.scrollTop > 22) {
-        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-          firstCellEntry,
-          100,
-          notebookEditor
-        );
+        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(firstCellEntry, 100, notebookEditor);
         return newMap2;
       }
     }
@@ -468,10 +359,7 @@ function computeContent(notebookEditor, notebookCellList, notebookOutlineEntries
     if (!cell) {
       return /* @__PURE__ */ new Map();
     }
-    cellEntry = NotebookStickyScroll.getVisibleOutlineEntry(
-      currentIndex,
-      notebookOutlineEntries
-    );
+    cellEntry = NotebookStickyScroll.getVisibleOutlineEntry(currentIndex, notebookOutlineEntries);
     if (!cellEntry) {
       continue;
     }
@@ -479,17 +367,10 @@ function computeContent(notebookEditor, notebookCellList, notebookOutlineEntries
     if (!nextCell) {
       const sectionBottom2 = notebookEditor.getLayoutInfo().scrollHeight;
       const linesToRender2 = Math.floor(sectionBottom2 / 22);
-      const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-        cellEntry,
-        linesToRender2,
-        notebookEditor
-      );
+      const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(cellEntry, linesToRender2, notebookEditor);
       return newMap2;
     }
-    const nextCellEntry = NotebookStickyScroll.getVisibleOutlineEntry(
-      currentIndex + 1,
-      notebookOutlineEntries
-    );
+    const nextCellEntry = NotebookStickyScroll.getVisibleOutlineEntry(currentIndex + 1, notebookOutlineEntries);
     if (!nextCellEntry) {
       continue;
     }
@@ -498,38 +379,20 @@ function computeContent(notebookEditor, notebookCellList, notebookOutlineEntries
       const currentSectionStickyHeight = NotebookStickyScroll.computeStickyHeight(cellEntry);
       const nextSectionStickyHeight = NotebookStickyScroll.computeStickyHeight(nextCellEntry);
       if (editorScrollTop + currentSectionStickyHeight < sectionBottom2) {
-        const linesToRender2 = Math.floor(
-          (sectionBottom2 - editorScrollTop) / 22
-        );
-        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-          cellEntry,
-          linesToRender2,
-          notebookEditor
-        );
+        const linesToRender2 = Math.floor((sectionBottom2 - editorScrollTop) / 22);
+        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(cellEntry, linesToRender2, notebookEditor);
         return newMap2;
       } else if (nextSectionStickyHeight >= currentSectionStickyHeight) {
-        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-          nextCellEntry,
-          100,
-          notebookEditor
-        );
+        const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(nextCellEntry, 100, notebookEditor);
         return newMap2;
       } else if (nextSectionStickyHeight < currentSectionStickyHeight) {
         const availableSpace = sectionBottom2 - editorScrollTop;
         if (availableSpace >= nextSectionStickyHeight) {
           const linesToRender2 = Math.floor(availableSpace / 22);
-          const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-            cellEntry,
-            linesToRender2,
-            notebookEditor
-          );
+          const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(cellEntry, linesToRender2, notebookEditor);
           return newMap2;
         } else {
-          const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(
-            nextCellEntry,
-            100,
-            notebookEditor
-          );
+          const newMap2 = NotebookStickyScroll.checkCollapsedStickyLines(nextCellEntry, 100, notebookEditor);
           return newMap2;
         }
       }
@@ -537,11 +400,7 @@ function computeContent(notebookEditor, notebookCellList, notebookOutlineEntries
   }
   const sectionBottom = notebookEditor.getLayoutInfo().scrollHeight;
   const linesToRender = Math.floor((sectionBottom - editorScrollTop) / 22);
-  const newMap = NotebookStickyScroll.checkCollapsedStickyLines(
-    cellEntry,
-    linesToRender,
-    notebookEditor
-  );
+  const newMap = NotebookStickyScroll.checkCollapsedStickyLines(cellEntry, linesToRender, notebookEditor);
   return newMap;
 }
 __name(computeContent, "computeContent");

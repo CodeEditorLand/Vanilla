@@ -1,22 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
 import { createSingleCallFunction } from "../../../../base/common/functional.js";
-import {
-  DisposableStore,
-  MutableDisposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { TextEditorSelectionSource } from "../../../../platform/editor/common/editor.js";
-import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { DisposableStore, IDisposable, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { getCodeEditor, isDiffEditor } from "../../../browser/editorBrowser.js";
+import { IRange } from "../../../common/core/range.js";
+import { IDiffEditor, IEditor, ScrollType } from "../../../common/editorCommon.js";
+import { IModelDeltaDecoration, ITextModel, OverviewRulerLane } from "../../../common/model.js";
 import { overviewRulerRangeHighlight } from "../../../common/core/editorColorRegistry.js";
-import {
-  ScrollType
-} from "../../../common/editorCommon.js";
-import {
-  OverviewRulerLane
-} from "../../../common/model.js";
+import { IQuickAccessProvider, IQuickAccessProviderRunOptions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { IKeyMods, IQuickPick, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { TextEditorSelectionSource } from "../../../../platform/editor/common/editor.js";
 class AbstractEditorNavigationQuickAccessProvider {
   constructor(options) {
     this.options = options;
@@ -31,12 +28,10 @@ class AbstractEditorNavigationQuickAccessProvider {
     picker.matchOnLabel = picker.matchOnDescription = picker.matchOnDetail = picker.sortByLabel = false;
     const pickerDisposable = disposables.add(new MutableDisposable());
     pickerDisposable.value = this.doProvide(picker, token, runOptions);
-    disposables.add(
-      this.onDidActiveTextEditorControlChange(() => {
-        pickerDisposable.value = void 0;
-        pickerDisposable.value = this.doProvide(picker, token);
-      })
-    );
+    disposables.add(this.onDidActiveTextEditorControlChange(() => {
+      pickerDisposable.value = void 0;
+      pickerDisposable.value = this.doProvide(picker, token);
+    }));
     return disposables;
   }
   doProvide(picker, token, runOptions) {
@@ -47,26 +42,18 @@ class AbstractEditorNavigationQuickAccessProvider {
       const codeEditor = getCodeEditor(editor);
       if (codeEditor) {
         let lastKnownEditorViewState = editor.saveViewState() ?? void 0;
-        disposables.add(
-          codeEditor.onDidChangeCursorPosition(() => {
-            lastKnownEditorViewState = editor.saveViewState() ?? void 0;
-          })
-        );
+        disposables.add(codeEditor.onDidChangeCursorPosition(() => {
+          lastKnownEditorViewState = editor.saveViewState() ?? void 0;
+        }));
         context.restoreViewState = () => {
           if (lastKnownEditorViewState && editor === this.activeTextEditorControl) {
             editor.restoreViewState(lastKnownEditorViewState);
           }
         };
-        disposables.add(
-          createSingleCallFunction(token.onCancellationRequested)(
-            () => context.restoreViewState?.()
-          )
-        );
+        disposables.add(createSingleCallFunction(token.onCancellationRequested)(() => context.restoreViewState?.()));
       }
       disposables.add(toDisposable(() => this.clearDecorations(editor)));
-      disposables.add(
-        this.provideWithTextEditor(context, picker, token, runOptions)
-      );
+      disposables.add(this.provideWithTextEditor(context, picker, token, runOptions));
     } else {
       disposables.add(this.provideWithoutTextEditor(picker, token));
     }
@@ -99,12 +86,8 @@ class AbstractEditorNavigationQuickAccessProvider {
     editor.changeDecorations((changeAccessor) => {
       const deleteDecorations = [];
       if (this.rangeHighlightDecorationId) {
-        deleteDecorations.push(
-          this.rangeHighlightDecorationId.overviewRulerDecorationId
-        );
-        deleteDecorations.push(
-          this.rangeHighlightDecorationId.rangeHighlightId
-        );
+        deleteDecorations.push(this.rangeHighlightDecorationId.overviewRulerDecorationId);
+        deleteDecorations.push(this.rangeHighlightDecorationId.rangeHighlightId);
         this.rangeHighlightDecorationId = void 0;
       }
       const newDecorations = [
@@ -123,35 +106,24 @@ class AbstractEditorNavigationQuickAccessProvider {
           options: {
             description: "quick-access-range-highlight-overview",
             overviewRuler: {
-              color: themeColorFromId(
-                overviewRulerRangeHighlight
-              ),
+              color: themeColorFromId(overviewRulerRangeHighlight),
               position: OverviewRulerLane.Full
             }
           }
         }
       ];
-      const [rangeHighlightId, overviewRulerDecorationId] = changeAccessor.deltaDecorations(
-        deleteDecorations,
-        newDecorations
-      );
-      this.rangeHighlightDecorationId = {
-        rangeHighlightId,
-        overviewRulerDecorationId
-      };
+      const [rangeHighlightId, overviewRulerDecorationId] = changeAccessor.deltaDecorations(deleteDecorations, newDecorations);
+      this.rangeHighlightDecorationId = { rangeHighlightId, overviewRulerDecorationId };
     });
   }
   clearDecorations(editor) {
     const rangeHighlightDecorationId = this.rangeHighlightDecorationId;
     if (rangeHighlightDecorationId) {
       editor.changeDecorations((changeAccessor) => {
-        changeAccessor.deltaDecorations(
-          [
-            rangeHighlightDecorationId.overviewRulerDecorationId,
-            rangeHighlightDecorationId.rangeHighlightId
-          ],
-          []
-        );
+        changeAccessor.deltaDecorations([
+          rangeHighlightDecorationId.overviewRulerDecorationId,
+          rangeHighlightDecorationId.rangeHighlightId
+        ], []);
       });
       this.rangeHighlightDecorationId = void 0;
     }

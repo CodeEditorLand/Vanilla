@@ -104,7 +104,7 @@ function isUNC(path) {
   return true;
 }
 __name(isUNC, "isUNC");
-const WINDOWS_INVALID_FILE_CHARS = /[\\/:*?"<>|]/g;
+const WINDOWS_INVALID_FILE_CHARS = /[\\/:\*\?"<>\|]/g;
 const UNIX_INVALID_FILE_CHARS = /[/]/g;
 const WINDOWS_FORBIDDEN_NAMES = /^(con|prn|aux|clock\$|nul|lpt[0-9]|com[0-9])(\.(.*?))?$/i;
 function isValidBasename(name, isWindowsOS = isWindows) {
@@ -243,9 +243,9 @@ function indexOfPath(path, candidate, ignoreCase) {
 __name(indexOfPath, "indexOfPath");
 function parseLineAndColumnAware(rawPath) {
   const segments = rawPath.split(":");
-  let path;
-  let line;
-  let column;
+  let path = void 0;
+  let line = void 0;
+  let column = void 0;
   for (const segment of segments) {
     const segmentAsNumber = Number(segment);
     if (!isNumber(segmentAsNumber)) {
@@ -278,9 +278,7 @@ function randomPath(parent, prefix, randomLength = 8) {
     } else {
       pathCharsTouse = pathChars;
     }
-    suffix += pathCharsTouse.charAt(
-      Math.floor(Math.random() * pathCharsTouse.length)
-    );
+    suffix += pathCharsTouse.charAt(Math.floor(Math.random() * pathCharsTouse.length));
   }
   let randomFileName;
   if (prefix) {

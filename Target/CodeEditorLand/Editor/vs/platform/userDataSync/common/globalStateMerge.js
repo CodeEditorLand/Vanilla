@@ -1,42 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStringDictionary } from "../../../base/common/collections.js";
 import * as objects from "../../../base/common/objects.js";
-import { SYNC_SERVICE_URL_TYPE } from "./userDataSync.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStorageValue, SYNC_SERVICE_URL_TYPE } from "./userDataSync.js";
 function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService) {
   if (!remoteStorage) {
-    return {
-      remote: {
-        added: Object.keys(localStorage),
-        removed: [],
-        updated: [],
-        all: Object.keys(localStorage).length > 0 ? localStorage : null
-      },
-      local: { added: {}, removed: [], updated: {} }
-    };
+    return { remote: { added: Object.keys(localStorage), removed: [], updated: [], all: Object.keys(localStorage).length > 0 ? localStorage : null }, local: { added: {}, removed: [], updated: {} } };
   }
   const localToRemote = compare(localStorage, remoteStorage);
   if (localToRemote.added.size === 0 && localToRemote.removed.size === 0 && localToRemote.updated.size === 0) {
-    return {
-      remote: { added: [], removed: [], updated: [], all: null },
-      local: { added: {}, removed: [], updated: {} }
-    };
+    return { remote: { added: [], removed: [], updated: [], all: null }, local: { added: {}, removed: [], updated: {} } };
   }
-  const baseToRemote = baseStorage ? compare(baseStorage, remoteStorage) : {
-    added: Object.keys(remoteStorage).reduce((r, k) => {
-      r.add(k);
-      return r;
-    }, /* @__PURE__ */ new Set()),
-    removed: /* @__PURE__ */ new Set(),
-    updated: /* @__PURE__ */ new Set()
-  };
-  const baseToLocal = baseStorage ? compare(baseStorage, localStorage) : {
-    added: Object.keys(localStorage).reduce((r, k) => {
-      r.add(k);
-      return r;
-    }, /* @__PURE__ */ new Set()),
-    removed: /* @__PURE__ */ new Set(),
-    updated: /* @__PURE__ */ new Set()
-  };
+  const baseToRemote = baseStorage ? compare(baseStorage, remoteStorage) : { added: Object.keys(remoteStorage).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
+  const baseToLocal = baseStorage ? compare(baseStorage, localStorage) : { added: Object.keys(localStorage).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
   const local = { added: {}, removed: [], updated: {} };
   const remote = objects.deepClone(remoteStorage);
   const isFirstTimeSync = !baseStorage;
@@ -58,9 +41,7 @@ function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService
   for (const key of baseToRemote.added.values()) {
     const remoteValue = remoteStorage[key];
     if (storageKeys.machine.includes(key)) {
-      logService.info(
-        `GlobalState: Skipped adding ${key} in local storage because it is declared as machine scoped.`
-      );
+      logService.info(`GlobalState: Skipped adding ${key} in local storage because it is declared as machine scoped.`);
       continue;
     }
     if (baseStorage && baseToLocal.added.has(key)) {
@@ -82,9 +63,7 @@ function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService
   for (const key of baseToRemote.updated.values()) {
     const remoteValue = remoteStorage[key];
     if (storageKeys.machine.includes(key)) {
-      logService.info(
-        `GlobalState: Skipped updating ${key} in local storage because it is declared as machine scoped.`
-      );
+      logService.info(`GlobalState: Skipped updating ${key} in local storage because it is declared as machine scoped.`);
       continue;
     }
     if (baseToLocal.updated.has(key) || baseToLocal.removed.has(key)) {
@@ -98,9 +77,7 @@ function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService
   }
   for (const key of baseToRemote.removed.values()) {
     if (storageKeys.machine.includes(key)) {
-      logService.trace(
-        `GlobalState: Skipped removing ${key} in local storage because it is declared as machine scoped.`
-      );
+      logService.trace(`GlobalState: Skipped removing ${key} in local storage because it is declared as machine scoped.`);
       continue;
     }
     if (baseToLocal.updated.has(key) || baseToLocal.removed.has(key)) {
@@ -109,15 +86,7 @@ function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService
     local.removed.push(key);
   }
   const result = compare(remoteStorage, remote);
-  return {
-    local,
-    remote: {
-      added: [...result.added],
-      updated: [...result.updated],
-      removed: [...result.removed],
-      all: result.added.size === 0 && result.removed.size === 0 && result.updated.size === 0 ? null : remote
-    }
-  };
+  return { local, remote: { added: [...result.added], updated: [...result.updated], removed: [...result.removed], all: result.added.size === 0 && result.removed.size === 0 && result.updated.size === 0 ? null : remote } };
 }
 __name(merge, "merge");
 function compare(from, to) {

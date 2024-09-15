@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ISocket } from "../../../base/parts/ipc/common/ipc.net.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { RemoteConnectionOfType, RemoteConnectionType, RemoteConnection } from "./remoteAuthorityResolver.js";
 const IRemoteSocketFactoryService = createDecorator("remoteSocketFactoryService");
 class RemoteSocketFactoryService {
   static {

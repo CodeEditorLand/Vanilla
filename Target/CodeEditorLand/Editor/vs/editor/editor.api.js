@@ -1,19 +1,13 @@
-import {
-  EditorAutoIndentStrategy,
-  EditorOptions,
-  WrappingIndent
-} from "./common/config/editorOptions.js";
+import { EditorOptions, WrappingIndent, EditorAutoIndentStrategy } from "./common/config/editorOptions.js";
 import { createMonacoBaseAPI } from "./common/services/editorBaseApi.js";
-import { FormattingConflicts } from "./contrib/format/browser/format.js";
 import { createMonacoEditorAPI } from "./standalone/browser/standaloneEditor.js";
 import { createMonacoLanguagesAPI } from "./standalone/browser/standaloneLanguages.js";
+import { FormattingConflicts } from "./contrib/format/browser/format.js";
 EditorOptions.wrappingIndent.defaultValue = WrappingIndent.None;
 EditorOptions.glyphMargin.defaultValue = false;
 EditorOptions.autoIndent.defaultValue = EditorAutoIndentStrategy.Advanced;
 EditorOptions.overviewRulerLanes.defaultValue = 2;
-FormattingConflicts.setFormatterSelector(
-  (formatter, document, mode) => Promise.resolve(formatter[0])
-);
+FormattingConflicts.setFormatterSelector((formatter, document, mode) => Promise.resolve(formatter[0]));
 const api = createMonacoBaseAPI();
 api.editor = createMonacoEditorAPI();
 api.languages = createMonacoLanguagesAPI();

@@ -1,21 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
-import { Schemas } from "../../../base/common/network.js";
-import { splitLines } from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { Disposable } from "./extHostTypes.js";
+import { MainContext, ExtHostDocumentContentProvidersShape, MainThreadDocumentContentProvidersShape, IMainContext } from "./extHost.protocol.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { Schemas } from "../../../base/common/network.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { splitLines } from "../../../base/common/strings.js";
 class ExtHostDocumentContentProvider {
   constructor(mainContext, _documentsAndEditors, _logService) {
     this._documentsAndEditors = _documentsAndEditors;
     this._logService = _logService;
-    this._proxy = mainContext.getProxy(
-      MainContext.MainThreadDocumentContentProviders
-    );
+    this._proxy = mainContext.getProxy(MainContext.MainThreadDocumentContentProviders);
   }
   static {
     __name(this, "ExtHostDocumentContentProvider");
@@ -35,9 +34,7 @@ class ExtHostDocumentContentProvider {
       let lastEvent;
       subscription = provider.onDidChange(async (uri) => {
         if (uri.scheme !== scheme) {
-          this._logService.warn(
-            `Provider for scheme '${scheme}' is firing event for schema '${uri.scheme}' which will be IGNORED`
-          );
+          this._logService.warn(`Provider for scheme '${scheme}' is firing event for schema '${uri.scheme}' which will be IGNORED`);
           return;
         }
         if (!this._documentsAndEditors.getDocument(uri)) {
@@ -56,10 +53,7 @@ class ExtHostDocumentContentProvider {
           }
           const lines = splitLines(value);
           if (!document.equalLines(lines)) {
-            return this._proxy.$onVirtualDocumentChange(
-              uri,
-              value
-            );
+            return this._proxy.$onVirtualDocumentChange(uri, value);
           }
         }).catch(onUnexpectedError).finally(() => {
           if (lastEvent === thisEvent) {
@@ -82,16 +76,9 @@ class ExtHostDocumentContentProvider {
   $provideTextDocumentContent(handle, uri) {
     const provider = this._documentContentProviders.get(handle);
     if (!provider) {
-      return Promise.reject(
-        new Error(`unsupported uri-scheme: ${uri.scheme}`)
-      );
+      return Promise.reject(new Error(`unsupported uri-scheme: ${uri.scheme}`));
     }
-    return Promise.resolve(
-      provider.provideTextDocumentContent(
-        URI.revive(uri),
-        CancellationToken.None
-      )
-    );
+    return Promise.resolve(provider.provideTextDocumentContent(URI.revive(uri), CancellationToken.None));
   }
 }
 export {

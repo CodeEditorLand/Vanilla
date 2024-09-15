@@ -12,19 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Codicon } from "../../../../base/common/codicons.js";
 import { OS } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import * as nls from "../../../../nls.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { IUntypedEditorInput } from "../../../common/editor.js";
 import { EditorInput } from "../../../common/editor/editorInput.js";
 import { KeybindingsEditorModel } from "./keybindingsEditorModel.js";
-const KeybindingsEditorIcon = registerIcon(
-  "keybindings-editor-label-icon",
-  Codicon.keyboard,
-  nls.localize(
-    "keybindingsEditorLabelIcon",
-    "Icon of the keybindings editor label."
-  )
-);
+const KeybindingsEditorIcon = registerIcon("keybindings-editor-label-icon", Codicon.keyboard, nls.localize("keybindingsEditorLabelIcon", "Icon of the keybindings editor label."));
 let KeybindingsEditorInput = class extends EditorInput {
   static {
     __name(this, "KeybindingsEditorInput");
@@ -35,10 +30,7 @@ let KeybindingsEditorInput = class extends EditorInput {
   resource = void 0;
   constructor(instantiationService) {
     super();
-    this.keybindingsModel = instantiationService.createInstance(
-      KeybindingsEditorModel,
-      OS
-    );
+    this.keybindingsModel = instantiationService.createInstance(KeybindingsEditorModel, OS);
   }
   get typeId() {
     return KeybindingsEditorInput.ID;

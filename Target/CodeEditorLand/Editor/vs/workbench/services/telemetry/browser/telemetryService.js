@@ -12,33 +12,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  ILogService,
-  ILoggerService
-} from "../../../../platform/log/common/log.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService, ILoggerService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { OneDataSystemWebAppender } from "../../../../platform/telemetry/browser/1dsAppender.js";
-import {
-  ITelemetryService,
-  TELEMETRY_SETTING_ID,
-  TelemetryLevel
-} from "../../../../platform/telemetry/common/telemetry.js";
+import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "../../../../platform/telemetry/common/gdprTypings.js";
+import { ITelemetryData, ITelemetryService, TelemetryLevel, TELEMETRY_SETTING_ID } from "../../../../platform/telemetry/common/telemetry.js";
 import { TelemetryLogAppender } from "../../../../platform/telemetry/common/telemetryLogAppender.js";
-import {
-  TelemetryService as BaseTelemetryService
-} from "../../../../platform/telemetry/common/telemetryService.js";
-import {
-  NullTelemetryService,
-  getTelemetryLevel,
-  isInternalTelemetry,
-  isLoggingOnly,
-  supportsTelemetry
-} from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { ITelemetryServiceConfig, TelemetryService as BaseTelemetryService } from "../../../../platform/telemetry/common/telemetryService.js";
+import { getTelemetryLevel, isInternalTelemetry, isLoggingOnly, ITelemetryAppender, NullTelemetryService, supportsTelemetry } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 import { resolveWorkbenchCommonProperties } from "./workbenchCommonProperties.js";
@@ -68,30 +51,12 @@ let TelemetryService = class extends Disposable {
   }
   constructor(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService) {
     super();
-    this.impl = this.initializeService(
-      environmentService,
-      logService,
-      loggerService,
-      configurationService,
-      storageService,
-      productService,
-      remoteAgentService
-    );
-    this._register(
-      configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(TELEMETRY_SETTING_ID)) {
-          this.impl = this.initializeService(
-            environmentService,
-            logService,
-            loggerService,
-            configurationService,
-            storageService,
-            productService,
-            remoteAgentService
-          );
-        }
-      })
-    );
+    this.impl = this.initializeService(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService);
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TELEMETRY_SETTING_ID)) {
+        this.impl = this.initializeService(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService);
+      }
+    }));
   }
   /**
    * Initializes the telemetry service to be a full fledged service.
@@ -102,61 +67,25 @@ let TelemetryService = class extends Disposable {
     const telemetrySupported = supportsTelemetry(productService, environmentService) && productService.aiConfig?.ariaKey;
     if (telemetrySupported && getTelemetryLevel(configurationService) !== TelemetryLevel.NONE && this.impl === NullTelemetryService) {
       const appenders = [];
-      const isInternal = isInternalTelemetry(
-        productService,
-        configurationService
-      );
+      const isInternal = isInternalTelemetry(productService, configurationService);
       if (!isLoggingOnly(productService, environmentService)) {
         if (remoteAgentService.getConnection() !== null) {
           const remoteTelemetryProvider = {
-            log: remoteAgentService.logTelemetry.bind(
-              remoteAgentService
-            ),
-            flush: remoteAgentService.flushTelemetry.bind(
-              remoteAgentService
-            )
+            log: remoteAgentService.logTelemetry.bind(remoteAgentService),
+            flush: remoteAgentService.flushTelemetry.bind(remoteAgentService)
           };
           appenders.push(remoteTelemetryProvider);
         } else {
-          appenders.push(
-            new OneDataSystemWebAppender(
-              isInternal,
-              "monacoworkbench",
-              null,
-              productService.aiConfig?.ariaKey
-            )
-          );
+          appenders.push(new OneDataSystemWebAppender(isInternal, "monacoworkbench", null, productService.aiConfig?.ariaKey));
         }
       }
-      appenders.push(
-        new TelemetryLogAppender(
-          logService,
-          loggerService,
-          environmentService,
-          productService
-        )
-      );
+      appenders.push(new TelemetryLogAppender(logService, loggerService, environmentService, productService));
       const config = {
         appenders,
-        commonProperties: resolveWorkbenchCommonProperties(
-          storageService,
-          productService.commit,
-          productService.version,
-          isInternal,
-          environmentService.remoteAuthority,
-          productService.embedderIdentifier,
-          productService.removeTelemetryMachineId,
-          environmentService.options && environmentService.options.resolveCommonTelemetryProperties
-        ),
+        commonProperties: resolveWorkbenchCommonProperties(storageService, productService.commit, productService.version, isInternal, environmentService.remoteAuthority, productService.embedderIdentifier, productService.removeTelemetryMachineId, environmentService.options && environmentService.options.resolveCommonTelemetryProperties),
         sendErrorTelemetry: this.sendErrorTelemetry
       };
-      return this._register(
-        new BaseTelemetryService(
-          config,
-          configurationService,
-          productService
-        )
-      );
+      return this._register(new BaseTelemetryService(config, configurationService, productService));
     }
     return this.impl;
   }
@@ -188,11 +117,7 @@ TelemetryService = __decorateClass([
   __decorateParam(5, IProductService),
   __decorateParam(6, IRemoteAgentService)
 ], TelemetryService);
-registerSingleton(
-  ITelemetryService,
-  TelemetryService,
-  InstantiationType.Delayed
-);
+registerSingleton(ITelemetryService, TelemetryService, InstantiationType.Delayed);
 export {
   TelemetryService
 };

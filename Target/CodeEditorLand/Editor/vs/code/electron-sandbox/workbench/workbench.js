@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(() => {
+(function() {
   const bootstrapWindow = bootstrapWindowLib();
   performance.mark("code/didStartRenderer");
   bootstrapWindow.load(
@@ -8,39 +8,38 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       "vs/workbench/workbench.desktop.main",
       "vs/css!vs/workbench/workbench.desktop.main"
     ],
-    (desktopMain, configuration) => {
+    function(desktopMain, configuration) {
       performance.mark("code/didLoadWorkbenchMain");
       return desktopMain.main(configuration);
     },
     {
-      configureDeveloperSettings: /* @__PURE__ */ __name((windowConfig) => ({
-        // disable automated devtools opening on error when running extension tests
-        // as this can lead to nondeterministic test execution (devtools steals focus)
-        forceDisableShowDevtoolsOnError: typeof windowConfig.extensionTestsPath === "string" || windowConfig["enable-smoke-test-driver"] === true,
-        // enable devtools keybindings in extension development window
-        forceEnableDeveloperKeybindings: Array.isArray(windowConfig.extensionDevelopmentPath) && windowConfig.extensionDevelopmentPath.length > 0,
-        removeDeveloperKeybindingsAfterLoad: true
-      }), "configureDeveloperSettings"),
-      canModifyDOM: /* @__PURE__ */ __name((windowConfig) => {
+      configureDeveloperSettings: /* @__PURE__ */ __name(function(windowConfig) {
+        return {
+          // disable automated devtools opening on error when running extension tests
+          // as this can lead to nondeterministic test execution (devtools steals focus)
+          forceDisableShowDevtoolsOnError: typeof windowConfig.extensionTestsPath === "string" || windowConfig["enable-smoke-test-driver"] === true,
+          // enable devtools keybindings in extension development window
+          forceEnableDeveloperKeybindings: Array.isArray(windowConfig.extensionDevelopmentPath) && windowConfig.extensionDevelopmentPath.length > 0,
+          removeDeveloperKeybindingsAfterLoad: true
+        };
+      }, "configureDeveloperSettings"),
+      canModifyDOM: /* @__PURE__ */ __name(function(windowConfig) {
         showSplash(windowConfig);
       }, "canModifyDOM"),
-      beforeLoaderConfig: /* @__PURE__ */ __name((loaderConfig) => {
+      beforeLoaderConfig: /* @__PURE__ */ __name(function(loaderConfig) {
         loaderConfig.recordStats = true;
       }, "beforeLoaderConfig"),
-      beforeRequire: /* @__PURE__ */ __name((windowConfig) => {
+      beforeRequire: /* @__PURE__ */ __name(function(windowConfig) {
         performance.mark("code/willLoadWorkbenchMain");
         Object.defineProperty(window, "vscodeWindowId", {
           get: /* @__PURE__ */ __name(() => windowConfig.windowId, "get")
         });
-        window.requestIdleCallback(
-          () => {
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            context?.clearRect(0, 0, canvas.width, canvas.height);
-            canvas.remove();
-          },
-          { timeout: 50 }
-        );
+        window.requestIdleCallback(() => {
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          context?.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.remove();
+        }, { timeout: 50 });
       }, "beforeRequire")
     }
   );
@@ -111,31 +110,20 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       splash.id = "monaco-parts-splash";
       splash.className = baseTheme ?? "vs-dark";
       if (layoutInfo.windowBorder && colorInfo.windowBorder) {
-        splash.setAttribute(
-          "style",
-          `
+        splash.setAttribute("style", `
 					position: relative;
 					height: calc(100vh - 2px);
 					width: calc(100vw - 2px);
 					border: 1px solid var(--window-border-color);
-				`
-        );
-        splash.style.setProperty(
-          "--window-border-color",
-          colorInfo.windowBorder
-        );
+				`);
+        splash.style.setProperty("--window-border-color", colorInfo.windowBorder);
         if (layoutInfo.windowBorderRadius) {
           splash.style.borderRadius = layoutInfo.windowBorderRadius;
         }
       }
-      layoutInfo.sideBarWidth = Math.min(
-        layoutInfo.sideBarWidth,
-        window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth)
-      );
+      layoutInfo.sideBarWidth = Math.min(layoutInfo.sideBarWidth, window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth));
       const titleDiv = document.createElement("div");
-      titleDiv.setAttribute(
-        "style",
-        `
+      titleDiv.setAttribute("style", `
 				position: absolute;
 				width: 100%;
 				height: ${layoutInfo.titleBarHeight}px;
@@ -143,71 +131,56 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 				top: 0;
 				background-color: ${colorInfo.titleBarBackground};
 				-webkit-app-region: drag;
-			`
-      );
+			`);
       splash.appendChild(titleDiv);
       if (colorInfo.titleBarBorder && layoutInfo.titleBarHeight > 0) {
         const titleBorder = document.createElement("div");
-        titleBorder.setAttribute(
-          "style",
-          `
+        titleBorder.setAttribute("style", `
 					position: absolute;
 					width: 100%;
 					height: 1px;
 					left: 0;
 					bottom: 0;
 					border-bottom: 1px solid ${colorInfo.titleBarBorder};
-				`
-        );
+				`);
         titleDiv.appendChild(titleBorder);
       }
       const activityDiv = document.createElement("div");
-      activityDiv.setAttribute(
-        "style",
-        `
+      activityDiv.setAttribute("style", `
 				position: absolute;
 				width: ${layoutInfo.activityBarWidth}px;
 				height: calc(100% - ${layoutInfo.titleBarHeight + layoutInfo.statusBarHeight}px);
 				top: ${layoutInfo.titleBarHeight}px;
 				${layoutInfo.sideBarSide}: 0;
 				background-color: ${colorInfo.activityBarBackground};
-			`
-      );
+			`);
       splash.appendChild(activityDiv);
       if (colorInfo.activityBarBorder && layoutInfo.activityBarWidth > 0) {
         const activityBorderDiv = document.createElement("div");
-        activityBorderDiv.setAttribute(
-          "style",
-          `
+        activityBorderDiv.setAttribute("style", `
 					position: absolute;
 					width: 1px;
 					height: 100%;
 					top: 0;
 					${layoutInfo.sideBarSide === "left" ? "right" : "left"}: 0;
 					${layoutInfo.sideBarSide === "left" ? "border-right" : "border-left"}: 1px solid ${colorInfo.activityBarBorder};
-				`
-        );
+				`);
         activityDiv.appendChild(activityBorderDiv);
       }
       if (configuration.workspace) {
         const sideDiv = document.createElement("div");
-        sideDiv.setAttribute(
-          "style",
-          `
+        sideDiv.setAttribute("style", `
 					position: absolute;
 					width: ${layoutInfo.sideBarWidth}px;
 					height: calc(100% - ${layoutInfo.titleBarHeight + layoutInfo.statusBarHeight}px);
 					top: ${layoutInfo.titleBarHeight}px;
 					${layoutInfo.sideBarSide}: ${layoutInfo.activityBarWidth}px;
 					background-color: ${colorInfo.sideBarBackground};
-				`
-        );
+				`);
         splash.appendChild(sideDiv);
         if (colorInfo.sideBarBorder && layoutInfo.sideBarWidth > 0) {
           const sideBorderDiv = document.createElement("div");
-          sideBorderDiv.setAttribute(
-            "style",
-            `
+          sideBorderDiv.setAttribute("style", `
 						position: absolute;
 						width: 1px;
 						height: 100%;
@@ -215,36 +188,29 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 						right: 0;
 						${layoutInfo.sideBarSide === "left" ? "right" : "left"}: 0;
 						${layoutInfo.sideBarSide === "left" ? "border-right" : "border-left"}: 1px solid ${colorInfo.sideBarBorder};
-					`
-          );
+					`);
           sideDiv.appendChild(sideBorderDiv);
         }
       }
       const statusDiv = document.createElement("div");
-      statusDiv.setAttribute(
-        "style",
-        `
+      statusDiv.setAttribute("style", `
 				position: absolute;
 				width: 100%;
 				height: ${layoutInfo.statusBarHeight}px;
 				bottom: 0;
 				left: 0;
 				background-color: ${configuration.workspace ? colorInfo.statusBarBackground : colorInfo.statusBarNoFolderBackground};
-			`
-      );
+			`);
       splash.appendChild(statusDiv);
       if (colorInfo.statusBarBorder && layoutInfo.statusBarHeight > 0) {
         const statusBorderDiv = document.createElement("div");
-        statusBorderDiv.setAttribute(
-          "style",
-          `
+        statusBorderDiv.setAttribute("style", `
 					position: absolute;
 					width: 100%;
 					height: 1px;
 					top: 0;
 					border-top: 1px solid ${colorInfo.statusBarBorder};
-				`
-        );
+				`);
         statusDiv.appendChild(statusBorderDiv);
       }
       document.body.appendChild(splash);

@@ -1,21 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  strictEquals
-} from "./commonFacade/deps.js";
-import {
-  DebugNameData,
-  getFunctionName
-} from "./debugName.js";
+import { DebugNameData, DebugOwner, getFunctionName } from "./debugName.js";
+import { DisposableStore, EqualityComparer, IDisposable, strictEquals } from "./commonFacade/deps.js";
 import { getLogger } from "./logging.js";
+import { keepObserved, recomputeInitiallyAndOnChange } from "./utils.js";
 let _recomputeInitiallyAndOnChange;
-function _setRecomputeInitiallyAndOnChange(recomputeInitiallyAndOnChange) {
-  _recomputeInitiallyAndOnChange = recomputeInitiallyAndOnChange;
+function _setRecomputeInitiallyAndOnChange(recomputeInitiallyAndOnChange2) {
+  _recomputeInitiallyAndOnChange = recomputeInitiallyAndOnChange2;
 }
 __name(_setRecomputeInitiallyAndOnChange, "_setRecomputeInitiallyAndOnChange");
 let _keepObserved;
-function _setKeepObserved(keepObserved) {
-  _keepObserved = keepObserved;
+function _setKeepObserved(keepObserved2) {
+  _keepObserved = keepObserved2;
 }
 __name(_setKeepObserved, "_setKeepObserved");
 let _derived;
@@ -70,7 +66,7 @@ class ConvenientObservable {
   /**
    * @sealed
    * Converts an observable of an observable value into a direct observable of the value.
-   */
+  */
   flatten() {
     return _derived(
       {
@@ -129,7 +125,7 @@ function transaction(fn, getDebugName) {
   }
 }
 __name(transaction, "transaction");
-let _globalTransaction;
+let _globalTransaction = void 0;
 function globalTransaction(fn) {
   if (_globalTransaction) {
     fn(_globalTransaction);
@@ -155,10 +151,10 @@ async function asyncTransaction(fn, getDebugName) {
 }
 __name(asyncTransaction, "asyncTransaction");
 function subtransaction(tx, fn, getDebugName) {
-  if (tx) {
-    fn(tx);
-  } else {
+  if (!tx) {
     transaction(fn, getDebugName);
+  } else {
+    fn(tx);
   }
 }
 __name(subtransaction, "subtransaction");
@@ -225,22 +221,13 @@ class ObservableValue extends BaseObservable {
     }
     let _tx;
     if (!tx) {
-      tx = _tx = new TransactionImpl(
-        () => {
-        },
-        () => `Setting ${this.debugName}`
-      );
+      tx = _tx = new TransactionImpl(() => {
+      }, () => `Setting ${this.debugName}`);
     }
     try {
       const oldValue = this._value;
       this._setValue(value);
-      getLogger()?.handleObservableChanged(this, {
-        oldValue,
-        newValue: value,
-        change,
-        didChange: true,
-        hadValue: true
-      });
+      getLogger()?.handleObservableChanged(this, { oldValue, newValue: value, change, didChange: true, hadValue: true });
       for (const observer of this.observers) {
         tx.updateObserver(observer, this);
         observer.handleChange(this, change);
@@ -265,11 +252,7 @@ function disposableObservableValue(nameOrOwner, initialValue) {
   } else {
     debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
   }
-  return new DisposableObservableValue(
-    debugNameData,
-    initialValue,
-    strictEquals
-  );
+  return new DisposableObservableValue(debugNameData, initialValue, strictEquals);
 }
 __name(disposableObservableValue, "disposableObservableValue");
 class DisposableObservableValue extends ObservableValue {

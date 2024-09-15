@@ -1,31 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  Promises,
-  RunOnceScheduler,
-  runWhenGlobalIdle
-} from "../../../base/common/async.js";
-import {
-  Emitter,
-  Event,
-  PauseableEmitter
-} from "../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable,
-  dispose
-} from "../../../base/common/lifecycle.js";
+import { Promises, RunOnceScheduler, runWhenGlobalIdle } from "../../../base/common/async.js";
+import { Emitter, Event, PauseableEmitter } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, dispose, MutableDisposable } from "../../../base/common/lifecycle.js";
 import { mark } from "../../../base/common/performance.js";
 import { isUndefinedOrNull } from "../../../base/common/types.js";
-import {
-  InMemoryStorageDatabase,
-  Storage,
-  StorageHint
-} from "../../../base/parts/storage/common/storage.js";
+import { InMemoryStorageDatabase, IStorage, IStorageChangeEvent, Storage, StorageHint, StorageValue } from "../../../base/parts/storage/common/storage.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  isUserDataProfile
-} from "../../userDataProfile/common/userDataProfile.js";
+import { isUserDataProfile, IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 const IS_NEW_KEY = "__$__isNewStorageMarker";
 const TARGET_KEY = "__$__targetStorageMarker";
 const IStorageService = createDecorator("storageService");
@@ -57,9 +40,7 @@ function loadKeyTargets(storage) {
 }
 __name(loadKeyTargets, "loadKeyTargets");
 class AbstractStorageService extends Disposable {
-  constructor(options = {
-    flushInterval: AbstractStorageService.DEFAULT_FLUSH_INTERVAL
-  }) {
+  constructor(options = { flushInterval: AbstractStorageService.DEFAULT_FLUSH_INTERVAL }) {
     super();
     this.options = options;
   }
@@ -68,31 +49,16 @@ class AbstractStorageService extends Disposable {
   }
   static DEFAULT_FLUSH_INTERVAL = 60 * 1e3;
   // every minute
-  _onDidChangeValue = this._register(
-    new PauseableEmitter()
-  );
-  _onDidChangeTarget = this._register(
-    new PauseableEmitter()
-  );
+  _onDidChangeValue = this._register(new PauseableEmitter());
+  _onDidChangeTarget = this._register(new PauseableEmitter());
   onDidChangeTarget = this._onDidChangeTarget.event;
-  _onWillSaveState = this._register(
-    new Emitter()
-  );
+  _onWillSaveState = this._register(new Emitter());
   onWillSaveState = this._onWillSaveState.event;
   initializationPromise;
-  flushWhenIdleScheduler = this._register(
-    new RunOnceScheduler(
-      () => this.doFlushWhenIdle(),
-      this.options.flushInterval
-    )
-  );
+  flushWhenIdleScheduler = this._register(new RunOnceScheduler(() => this.doFlushWhenIdle(), this.options.flushInterval));
   runFlushWhenIdle = this._register(new MutableDisposable());
   onDidChangeValue(scope, key, disposable) {
-    return Event.filter(
-      this._onDidChangeValue.event,
-      (e) => e.scope === scope && (key === void 0 || e.key === key),
-      disposable
-    );
+    return Event.filter(this._onDidChangeValue.event, (e) => e.scope === scope && (key === void 0 || e.key === key), disposable);
   }
   doFlushWhenIdle() {
     this.runFlushWhenIdle.value = runWhenGlobalIdle(() => {
@@ -138,12 +104,7 @@ class AbstractStorageService extends Disposable {
       }
       this._onDidChangeTarget.fire({ scope });
     } else {
-      this._onDidChangeValue.fire({
-        scope,
-        key,
-        target: this.getKeyTargets(scope)[key],
-        external
-      });
+      this._onDidChangeValue.fire({ scope, key, target: this.getKeyTargets(scope)[key], external });
     }
   }
   emitWillSaveState(reason) {
@@ -164,13 +125,7 @@ class AbstractStorageService extends Disposable {
   storeAll(entries, external) {
     this.withPausedEmitters(() => {
       for (const entry of entries) {
-        this.store(
-          entry.key,
-          entry.value,
-          entry.scope,
-          entry.target,
-          external
-        );
+        this.store(entry.key, entry.value, entry.scope, entry.target, external);
       }
     });
   }
@@ -216,27 +171,19 @@ class AbstractStorageService extends Disposable {
     if (typeof target === "number") {
       if (keyTargets[key] !== target) {
         keyTargets[key] = target;
-        this.getStorage(scope)?.set(
-          TARGET_KEY,
-          JSON.stringify(keyTargets),
-          external
-        );
+        this.getStorage(scope)?.set(TARGET_KEY, JSON.stringify(keyTargets), external);
       }
-    } else if (typeof keyTargets[key] === "number") {
-      delete keyTargets[key];
-      this.getStorage(scope)?.set(
-        TARGET_KEY,
-        JSON.stringify(keyTargets),
-        external
-      );
+    } else {
+      if (typeof keyTargets[key] === "number") {
+        delete keyTargets[key];
+        this.getStorage(scope)?.set(TARGET_KEY, JSON.stringify(keyTargets), external);
+      }
     }
   }
   _workspaceKeyTargets = void 0;
   get workspaceKeyTargets() {
     if (!this._workspaceKeyTargets) {
-      this._workspaceKeyTargets = this.loadKeyTargets(
-        1 /* WORKSPACE */
-      );
+      this._workspaceKeyTargets = this.loadKeyTargets(1 /* WORKSPACE */);
     }
     return this._workspaceKeyTargets;
   }
@@ -250,9 +197,7 @@ class AbstractStorageService extends Disposable {
   _applicationKeyTargets = void 0;
   get applicationKeyTargets() {
     if (!this._applicationKeyTargets) {
-      this._applicationKeyTargets = this.loadKeyTargets(
-        -1 /* APPLICATION */
-      );
+      this._applicationKeyTargets = this.loadKeyTargets(-1 /* APPLICATION */);
     }
     return this._applicationKeyTargets;
   }
@@ -357,38 +302,14 @@ class InMemoryStorageService extends AbstractStorageService {
   static {
     __name(this, "InMemoryStorageService");
   }
-  applicationStorage = this._register(
-    new Storage(new InMemoryStorageDatabase(), {
-      hint: StorageHint.STORAGE_IN_MEMORY
-    })
-  );
-  profileStorage = this._register(
-    new Storage(new InMemoryStorageDatabase(), {
-      hint: StorageHint.STORAGE_IN_MEMORY
-    })
-  );
-  workspaceStorage = this._register(
-    new Storage(new InMemoryStorageDatabase(), {
-      hint: StorageHint.STORAGE_IN_MEMORY
-    })
-  );
+  applicationStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+  profileStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+  workspaceStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
   constructor() {
     super();
-    this._register(
-      this.workspaceStorage.onDidChangeStorage(
-        (e) => this.emitDidChangeValue(1 /* WORKSPACE */, e)
-      )
-    );
-    this._register(
-      this.profileStorage.onDidChangeStorage(
-        (e) => this.emitDidChangeValue(0 /* PROFILE */, e)
-      )
-    );
-    this._register(
-      this.applicationStorage.onDidChangeStorage(
-        (e) => this.emitDidChangeValue(-1 /* APPLICATION */, e)
-      )
-    );
+    this._register(this.workspaceStorage.onDidChangeStorage((e) => this.emitDidChangeValue(1 /* WORKSPACE */, e)));
+    this._register(this.profileStorage.onDidChangeStorage((e) => this.emitDidChangeValue(0 /* PROFILE */, e)));
+    this._register(this.applicationStorage.onDidChangeStorage((e) => this.emitDidChangeValue(-1 /* APPLICATION */, e)));
   }
   getStorage(scope) {
     switch (scope) {
@@ -452,9 +373,7 @@ async function logStorage(application, profile, workspace, applicationPath, prof
   if (applicationPath !== profilePath) {
     console.group(`Storage: Application (path: ${applicationPath})`);
   } else {
-    console.group(
-      `Storage: Application & Profile (path: ${applicationPath}, default profile)`
-    );
+    console.group(`Storage: Application & Profile (path: ${applicationPath}, default profile)`);
   }
   const applicationValues = [];
   applicationItems.forEach((value, key) => {
@@ -464,9 +383,7 @@ async function logStorage(application, profile, workspace, applicationPath, prof
   console.groupEnd();
   console.log(applicationItemsParsed);
   if (applicationPath !== profilePath) {
-    console.group(
-      `Storage: Profile (path: ${profilePath}, profile specific)`
-    );
+    console.group(`Storage: Profile (path: ${profilePath}, profile specific)`);
     const profileValues = [];
     profileItems.forEach((value, key) => {
       profileValues.push({ key, value });

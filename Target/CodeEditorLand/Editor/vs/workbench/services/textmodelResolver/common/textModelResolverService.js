@@ -10,34 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  AsyncReferenceCollection,
-  Disposable,
-  ReferenceCollection,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ModelUndoRedoParticipant } from "../../../../editor/common/services/modelUndoRedoParticipant.js";
-import {
-  ITextModelService,
-  isResolvedTextEditorModel
-} from "../../../../editor/common/services/resolverService.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IDisposable, toDisposable, IReference, ReferenceCollection, Disposable, AsyncReferenceCollection } from "../../../../base/common/lifecycle.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
 import { TextResourceEditorModel } from "../../../common/editor/textResourceEditorModel.js";
+import { ITextFileService, TextFileResolveReason } from "../../textfile/common/textfiles.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ITextModelService, ITextModelContentProvider, ITextEditorModel, IResolvedTextEditorModel, isResolvedTextEditorModel } from "../../../../editor/common/services/resolverService.js";
 import { TextFileEditorModel } from "../../textfile/common/textFileEditorModel.js";
-import {
-  ITextFileService,
-  TextFileResolveReason
-} from "../../textfile/common/textfiles.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { ModelUndoRedoParticipant } from "../../../../editor/common/services/modelUndoRedoParticipant.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { UntitledTextEditorModel } from "../../untitled/common/untitledTextEditorModel.js";
 let ResourceModelCollection = class extends ReferenceCollection {
   constructor(instantiationService, textFileService, fileService, modelService) {
@@ -63,36 +50,26 @@ let ResourceModelCollection = class extends ReferenceCollection {
       if (!cachedModel) {
         throw new Error(`Unable to resolve inMemory resource ${key}`);
       }
-      const model = this.instantiationService.createInstance(
-        TextResourceEditorModel,
-        resource
-      );
+      const model = this.instantiationService.createInstance(TextResourceEditorModel, resource);
       if (this.ensureResolvedModel(model, key)) {
         return model;
       }
     }
     if (resource.scheme === Schemas.untitled) {
-      const model = await this.textFileService.untitled.resolve({
-        untitledResource: resource
-      });
+      const model = await this.textFileService.untitled.resolve({ untitledResource: resource });
       if (this.ensureResolvedModel(model, key)) {
         return model;
       }
     }
     if (this.fileService.hasProvider(resource)) {
-      const model = await this.textFileService.files.resolve(resource, {
-        reason: TextFileResolveReason.REFERENCE
-      });
+      const model = await this.textFileService.files.resolve(resource, { reason: TextFileResolveReason.REFERENCE });
       if (this.ensureResolvedModel(model, key)) {
         return model;
       }
     }
     if (this.providers.has(resource.scheme)) {
       await this.resolveTextModelContent(key);
-      const model = this.instantiationService.createInstance(
-        TextResourceEditorModel,
-        resource
-      );
+      const model = this.instantiationService.createInstance(TextResourceEditorModel, resource);
       if (this.ensureResolvedModel(model, key)) {
         return model;
       }
@@ -170,9 +147,7 @@ let ResourceModelCollection = class extends ReferenceCollection {
         return value;
       }
     }
-    throw new Error(
-      `Unable to resolve text model content for resource ${key}`
-    );
+    throw new Error(`Unable to resolve text model content for resource ${key}`);
   }
 };
 ResourceModelCollection = __decorateClass([
@@ -189,13 +164,7 @@ let TextModelResolverService = class extends Disposable {
     this.undoRedoService = undoRedoService;
     this.modelService = modelService;
     this.uriIdentityService = uriIdentityService;
-    this._register(
-      new ModelUndoRedoParticipant(
-        this.modelService,
-        this,
-        this.undoRedoService
-      )
-    );
+    this._register(new ModelUndoRedoParticipant(this.modelService, this, this.undoRedoService));
   }
   static {
     __name(this, "TextModelResolverService");
@@ -203,18 +172,14 @@ let TextModelResolverService = class extends Disposable {
   _resourceModelCollection = void 0;
   get resourceModelCollection() {
     if (!this._resourceModelCollection) {
-      this._resourceModelCollection = this.instantiationService.createInstance(
-        ResourceModelCollection
-      );
+      this._resourceModelCollection = this.instantiationService.createInstance(ResourceModelCollection);
     }
     return this._resourceModelCollection;
   }
   _asyncModelCollection = void 0;
   get asyncModelCollection() {
     if (!this._asyncModelCollection) {
-      this._asyncModelCollection = new AsyncReferenceCollection(
-        this.resourceModelCollection
-      );
+      this._asyncModelCollection = new AsyncReferenceCollection(this.resourceModelCollection);
     }
     return this._asyncModelCollection;
   }
@@ -223,18 +188,13 @@ let TextModelResolverService = class extends Disposable {
     return await this.asyncModelCollection.acquire(resource.toString());
   }
   registerTextModelContentProvider(scheme, provider) {
-    return this.resourceModelCollection.registerTextModelContentProvider(
-      scheme,
-      provider
-    );
+    return this.resourceModelCollection.registerTextModelContentProvider(scheme, provider);
   }
   canHandleResource(resource) {
     if (this.fileService.hasProvider(resource) || resource.scheme === Schemas.untitled || resource.scheme === Schemas.inMemory) {
       return true;
     }
-    return this.resourceModelCollection.hasTextModelContentProvider(
-      resource.scheme
-    );
+    return this.resourceModelCollection.hasTextModelContentProvider(resource.scheme);
   }
 };
 TextModelResolverService = __decorateClass([
@@ -244,11 +204,7 @@ TextModelResolverService = __decorateClass([
   __decorateParam(3, IModelService),
   __decorateParam(4, IUriIdentityService)
 ], TextModelResolverService);
-registerSingleton(
-  ITextModelService,
-  TextModelResolverService,
-  InstantiationType.Delayed
-);
+registerSingleton(ITextModelService, TextModelResolverService, InstantiationType.Delayed);
 export {
   TextModelResolverService
 };

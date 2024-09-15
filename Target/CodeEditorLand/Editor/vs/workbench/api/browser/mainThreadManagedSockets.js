@@ -10,37 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { VSBuffer } from "../../../base/common/buffer.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import {
-  SocketCloseEventType
-} from "../../../base/parts/ipc/common/ipc.net.js";
-import {
-  ManagedSocket,
-  connectManagedSocket
-} from "../../../platform/remote/common/managedSocket.js";
-import {
-  RemoteConnectionType
-} from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import {
-  IRemoteSocketFactoryService
-} from "../../../platform/remote/common/remoteSocketFactoryService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { ISocket, SocketCloseEventType } from "../../../base/parts/ipc/common/ipc.net.js";
+import { ManagedSocket, RemoteSocketHalf, connectManagedSocket } from "../../../platform/remote/common/managedSocket.js";
+import { ManagedRemoteConnection, RemoteConnectionType } from "../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IRemoteSocketFactoryService, ISocketFactory } from "../../../platform/remote/common/remoteSocketFactoryService.js";
+import { ExtHostContext, ExtHostManagedSocketsShape, MainContext, MainThreadManagedSocketsShape } from "../common/extHost.protocol.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadManagedSockets = class extends Disposable {
   constructor(extHostContext, _remoteSocketFactoryService) {
     super();
     this._remoteSocketFactoryService = _remoteSocketFactoryService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostManagedSockets
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostManagedSockets);
   }
   _proxy;
   _registrations = /* @__PURE__ */ new Map();
@@ -64,18 +47,9 @@ let MainThreadManagedSockets = class extends Disposable {
               onEnd: new Emitter()
             };
             that._remoteSockets.set(socketId, half);
-            MainThreadManagedSocket.connect(
-              socketId,
-              that._proxy,
-              path,
-              query,
-              debugLabel,
-              half
-            ).then(
+            MainThreadManagedSocket.connect(socketId, that._proxy, path, query, debugLabel, half).then(
               (socket) => {
-                socket.onDidDispose(
-                  () => that._remoteSockets.delete(socketId)
-                );
+                socket.onDidDispose(() => that._remoteSockets.delete(socketId));
                 resolve(socket);
               },
               (err) => {
@@ -87,13 +61,7 @@ let MainThreadManagedSockets = class extends Disposable {
         });
       }
     }();
-    this._registrations.set(
-      socketFactoryId,
-      this._remoteSocketFactoryService.register(
-        RemoteConnectionType.Managed,
-        socketFactory
-      )
-    );
+    this._registrations.set(socketFactoryId, this._remoteSocketFactoryService.register(RemoteConnectionType.Managed, socketFactory));
   }
   async $unregisterSocketFactory(socketFactoryId) {
     this._registrations.get(socketFactoryId)?.dispose();
@@ -128,12 +96,7 @@ class MainThreadManagedSocket extends ManagedSocket {
     __name(this, "MainThreadManagedSocket");
   }
   static connect(socketId, proxy, path, query, debugLabel, half) {
-    const socket = new MainThreadManagedSocket(
-      socketId,
-      proxy,
-      debugLabel,
-      half
-    );
+    const socket = new MainThreadManagedSocket(socketId, proxy, debugLabel, half);
     return connectManagedSocket(socket, path, query, debugLabel, half);
   }
   write(buffer) {

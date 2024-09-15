@@ -1,24 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { URI } from "../../../base/common/uri.js";
 import * as editorRange from "../../../editor/common/core/range.js";
-import {
-  TestId,
-  TestIdPathParts
-} from "../../contrib/testing/common/testId.js";
-import {
-  TestItemCollection,
-  TestItemEventOp,
-  createTestItemChildren
-} from "../../contrib/testing/common/testItemCollection.js";
-import {
-  denamespaceTestTag
-} from "../../contrib/testing/common/testTypes.js";
-import {
-  createPrivateApiFor,
-  getPrivateApiFor
-} from "./extHostTestingPrivateApi.js";
+import { createPrivateApiFor, getPrivateApiFor, IExtHostTestItemApi } from "./extHostTestingPrivateApi.js";
+import { TestId, TestIdPathParts } from "../../contrib/testing/common/testId.js";
+import { createTestItemChildren, ExtHostTestItemEvent, ITestChildrenLike, ITestItemApi, ITestItemChildren, TestItemCollection, TestItemEventOp } from "../../contrib/testing/common/testItemCollection.js";
+import { denamespaceTestTag, ITestItem, ITestItemContext } from "../../contrib/testing/common/testTypes.js";
 import * as Convert from "./extHostTypeConverters.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 const testItemPropAccessor = /* @__PURE__ */ __name((api, defaultValue, equals, toUpdate) => {
   let value = defaultValue;
   return {
@@ -67,9 +56,7 @@ const evSetProps = /* @__PURE__ */ __name((fn) => (v) => ({ op: TestItemEventOp.
 const makePropDescriptors = /* @__PURE__ */ __name((api, label) => ({
   range: (() => {
     let value;
-    const updateProps = evSetProps((r) => ({
-      range: editorRange.Range.lift(Convert.Range.from(r))
-    }));
+    const updateProps = evSetProps((r) => ({ range: editorRange.Range.lift(Convert.Range.from(r)) }));
     return {
       enumerable: true,
       configurable: false,
@@ -85,72 +72,28 @@ const makePropDescriptors = /* @__PURE__ */ __name((api, label) => ({
       }
     };
   })(),
-  label: testItemPropAccessor(
-    api,
-    label,
-    propComparators.label,
-    evSetProps((label2) => ({ label: label2 }))
-  ),
-  description: testItemPropAccessor(
-    api,
-    void 0,
-    propComparators.description,
-    evSetProps((description) => ({ description }))
-  ),
-  sortText: testItemPropAccessor(
-    api,
-    void 0,
-    propComparators.sortText,
-    evSetProps((sortText) => ({ sortText }))
-  ),
-  canResolveChildren: testItemPropAccessor(
-    api,
-    false,
-    propComparators.canResolveChildren,
-    (state) => ({
-      op: TestItemEventOp.UpdateCanResolveChildren,
-      state
-    })
-  ),
-  busy: testItemPropAccessor(
-    api,
-    false,
-    propComparators.busy,
-    evSetProps((busy) => ({ busy }))
-  ),
-  error: testItemPropAccessor(
-    api,
-    void 0,
-    propComparators.error,
-    evSetProps((error) => ({
-      error: Convert.MarkdownString.fromStrict(error) || null
-    }))
-  ),
-  tags: testItemPropAccessor(
-    api,
-    [],
-    propComparators.tags,
-    (current, previous) => ({
-      op: TestItemEventOp.SetTags,
-      new: current.map(Convert.TestTag.from),
-      old: previous.map(Convert.TestTag.from)
-    })
-  )
+  label: testItemPropAccessor(api, label, propComparators.label, evSetProps((label2) => ({ label: label2 }))),
+  description: testItemPropAccessor(api, void 0, propComparators.description, evSetProps((description) => ({ description }))),
+  sortText: testItemPropAccessor(api, void 0, propComparators.sortText, evSetProps((sortText) => ({ sortText }))),
+  canResolveChildren: testItemPropAccessor(api, false, propComparators.canResolveChildren, (state) => ({
+    op: TestItemEventOp.UpdateCanResolveChildren,
+    state
+  })),
+  busy: testItemPropAccessor(api, false, propComparators.busy, evSetProps((busy) => ({ busy }))),
+  error: testItemPropAccessor(api, void 0, propComparators.error, evSetProps((error) => ({ error: Convert.MarkdownString.fromStrict(error) || null }))),
+  tags: testItemPropAccessor(api, [], propComparators.tags, (current, previous) => ({
+    op: TestItemEventOp.SetTags,
+    new: current.map(Convert.TestTag.from),
+    old: previous.map(Convert.TestTag.from)
+  }))
 }), "makePropDescriptors");
 const toItemFromPlain = /* @__PURE__ */ __name((item) => {
   const testId = TestId.fromString(item.extId);
-  const testItem = new TestItemImpl(
-    testId.controllerId,
-    testId.localId,
-    item.label,
-    URI.revive(item.uri) || void 0
-  );
+  const testItem = new TestItemImpl(testId.controllerId, testId.localId, item.label, URI.revive(item.uri) || void 0);
   testItem.range = Convert.Range.to(item.range || void 0);
   testItem.description = item.description || void 0;
   testItem.sortText = item.sortText || void 0;
-  testItem.tags = item.tags.map(
-    (t) => Convert.TestTag.to({ id: denamespaceTestTag(t).tagId })
-  );
+  testItem.tags = item.tags.map((t) => Convert.TestTag.to({ id: denamespaceTestTag(t).tagId }));
   return testItem;
 }, "toItemFromPlain");
 const toItemFromContext = /* @__PURE__ */ __name((context) => {
@@ -183,9 +126,7 @@ class TestItemImpl {
    */
   constructor(controllerId, id, label, uri) {
     if (id.includes(TestIdPathParts.Delimiter)) {
-      throw new Error(
-        `Test IDs may not include the ${JSON.stringify(id)} symbol`
-      );
+      throw new Error(`Test IDs may not include the ${JSON.stringify(id)} symbol`);
     }
     const api = createPrivateApiFor(this, controllerId);
     Object.defineProperties(this, {
@@ -206,11 +147,7 @@ class TestItemImpl {
         }
       },
       children: {
-        value: createTestItemChildren(
-          api,
-          getPrivateApiFor,
-          TestItemImpl
-        ),
+        value: createTestItemChildren(api, getPrivateApiFor, TestItemImpl),
         enumerable: true,
         writable: false
       },

@@ -11,23 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableMap,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import {
-  MarkdownRenderer
-} from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import * as languages from "../../../../editor/common/languages.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import * as nls from "../../../../nls.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { CommentNode } from "./commentNode.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { ICommentService } from "./commentService.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { CommentNode } from "./commentNode.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICommentThreadWidget } from "../common/commentThreadWidget.js";
+import { IMarkdownRendererOptions, MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ICellRange } from "../../notebook/common/notebookRange.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { LayoutableEditor } from "./simpleCommentEditor.js";
 let CommentThreadBody = class extends Disposable {
   constructor(_parentEditor, owner, parentResourceUri, container, _options, _commentThread, _pendingEdits, _scopedInstatiationService, _parentCommentThreadWidget, commentService, openerService, languageService) {
     super();
@@ -43,24 +43,10 @@ let CommentThreadBody = class extends Disposable {
     this.commentService = commentService;
     this.openerService = openerService;
     this.languageService = languageService;
-    this._register(
-      dom.addDisposableListener(
-        container,
-        dom.EventType.FOCUS_IN,
-        (e) => {
-          this.commentService.setActiveEditingCommentThread(
-            this._commentThread
-          );
-        }
-      )
-    );
-    this._markdownRenderer = this._register(
-      new MarkdownRenderer(
-        this._options,
-        this.languageService,
-        this.openerService
-      )
-    );
+    this._register(dom.addDisposableListener(container, dom.EventType.FOCUS_IN, (e) => {
+      this.commentService.setActiveEditingCommentThread(this._commentThread);
+    }));
+    this._markdownRenderer = this._register(new MarkdownRenderer(this._options, this.languageService, this.openerService));
   }
   static {
     __name(this, "CommentThreadBody");
@@ -88,40 +74,26 @@ let CommentThreadBody = class extends Disposable {
     }
   }
   async display() {
-    this._commentsElement = dom.append(
-      this.container,
-      dom.$("div.comments-container")
-    );
+    this._commentsElement = dom.append(this.container, dom.$("div.comments-container"));
     this._commentsElement.setAttribute("role", "presentation");
     this._commentsElement.tabIndex = 0;
     this._updateAriaLabel();
-    this._register(
-      dom.addDisposableListener(
-        this._commentsElement,
-        dom.EventType.KEY_DOWN,
-        (e) => {
-          const event = new StandardKeyboardEvent(e);
-          if ((event.equals(KeyCode.UpArrow) || event.equals(KeyCode.DownArrow)) && (!this._focusedComment || !this._commentElements[this._focusedComment].isEditing)) {
-            const moveFocusWithinBounds = /* @__PURE__ */ __name((change) => {
-              if (this._focusedComment === void 0 && change >= 0) {
-                return 0;
-              }
-              if (this._focusedComment === void 0 && change < 0) {
-                return this._commentElements.length - 1;
-              }
-              const newIndex = this._focusedComment + change;
-              return Math.min(
-                Math.max(0, newIndex),
-                this._commentElements.length - 1
-              );
-            }, "moveFocusWithinBounds");
-            this._setFocusedComment(
-              event.equals(KeyCode.UpArrow) ? moveFocusWithinBounds(-1) : moveFocusWithinBounds(1)
-            );
+    this._register(dom.addDisposableListener(this._commentsElement, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if ((event.equals(KeyCode.UpArrow) || event.equals(KeyCode.DownArrow)) && (!this._focusedComment || !this._commentElements[this._focusedComment].isEditing)) {
+        const moveFocusWithinBounds = /* @__PURE__ */ __name((change) => {
+          if (this._focusedComment === void 0 && change >= 0) {
+            return 0;
           }
-        }
-      )
-    );
+          if (this._focusedComment === void 0 && change < 0) {
+            return this._commentElements.length - 1;
+          }
+          const newIndex = this._focusedComment + change;
+          return Math.min(Math.max(0, newIndex), this._commentElements.length - 1);
+        }, "moveFocusWithinBounds");
+        this._setFocusedComment(event.equals(KeyCode.UpArrow) ? moveFocusWithinBounds(-1) : moveFocusWithinBounds(1));
+      }
+    }));
     this._commentDisposable.clearAndDisposeAll();
     this._commentElements = [];
     if (this._commentThread.comments) {
@@ -167,16 +139,10 @@ let CommentThreadBody = class extends Disposable {
     return pendingEdits;
   }
   getCommentCoords(commentUniqueId) {
-    const matchedNode = this._commentElements.filter(
-      (commentNode) => commentNode.comment.uniqueIdInThread === commentUniqueId
-    );
+    const matchedNode = this._commentElements.filter((commentNode) => commentNode.comment.uniqueIdInThread === commentUniqueId);
     if (matchedNode && matchedNode.length) {
-      const commentThreadCoords = dom.getDomNodePagePosition(
-        this._commentElements[0].domNode
-      );
-      const commentCoords = dom.getDomNodePagePosition(
-        matchedNode[0].domNode
-      );
+      const commentThreadCoords = dom.getDomNodePagePosition(this._commentElements[0].domNode);
+      const commentCoords = dom.getDomNodePagePosition(matchedNode[0].domNode);
       return {
         thread: commentThreadCoords,
         comment: commentCoords
@@ -191,9 +157,7 @@ let CommentThreadBody = class extends Disposable {
     const commentElementsToDelIndex = [];
     for (let i = 0; i < oldCommentsLen; i++) {
       const comment = this._commentElements[i].comment;
-      const newComment = commentThread.comments ? commentThread.comments.filter(
-        (c) => c.uniqueIdInThread === comment.uniqueIdInThread
-      ) : [];
+      const newComment = commentThread.comments ? commentThread.comments.filter((c) => c.uniqueIdInThread === comment.uniqueIdInThread) : [];
       if (newComment.length) {
         this._commentElements[i].update(newComment[0]);
       } else {
@@ -212,9 +176,7 @@ let CommentThreadBody = class extends Disposable {
     const newCommentsInEditMode = [];
     for (let i = newCommentsLen - 1; i >= 0; i--) {
       const currentComment = commentThread.comments[i];
-      const oldCommentNode = this._commentElements.filter(
-        (commentNode) => commentNode.comment.uniqueIdInThread === currentComment.uniqueIdInThread
-      );
+      const oldCommentNode = this._commentElements.filter((commentNode) => commentNode.comment.uniqueIdInThread === currentComment.uniqueIdInThread);
       if (oldCommentNode.length) {
         lastCommentElement = oldCommentNode[0].domNode;
         newCommentNodeList.unshift(oldCommentNode[0]);
@@ -222,10 +184,7 @@ let CommentThreadBody = class extends Disposable {
         const newElement = this.createNewCommentNode(currentComment);
         newCommentNodeList.unshift(newElement);
         if (lastCommentElement) {
-          this._commentsElement.insertBefore(
-            newElement.domNode,
-            lastCommentElement
-          );
+          this._commentsElement.insertBefore(newElement.domNode, lastCommentElement);
           lastCommentElement = newElement.domNode;
         } else {
           this._commentsElement.appendChild(newElement.domNode);
@@ -240,9 +199,7 @@ let CommentThreadBody = class extends Disposable {
     this._commentThread = commentThread;
     this._commentElements = newCommentNodeList;
     if (newCommentsInEditMode.length) {
-      const lastIndex = this._commentElements.indexOf(
-        newCommentsInEditMode[newCommentsInEditMode.length - 1]
-      );
+      const lastIndex = this._commentElements.indexOf(newCommentsInEditMode[newCommentsInEditMode.length - 1]);
       this._focusedComment = lastIndex;
     }
     this._updateAriaLabel();
@@ -285,10 +242,7 @@ let CommentThreadBody = class extends Disposable {
     if (this._commentElements.length === 0 || value === void 0) {
       this._focusedComment = void 0;
     } else {
-      this._focusedComment = Math.min(
-        value,
-        this._commentElements.length - 1
-      );
+      this._focusedComment = Math.min(value, this._commentElements.length - 1);
       this._commentElements[this._focusedComment].setFocus(true);
     }
   }
@@ -305,15 +259,9 @@ let CommentThreadBody = class extends Disposable {
       this._markdownRenderer
     );
     const disposables = new DisposableStore();
-    disposables.add(
-      newCommentNode.onDidClick(
-        (clickedNode) => this._setFocusedComment(
-          this._commentElements.findIndex(
-            (commentNode) => commentNode.comment.uniqueIdInThread === clickedNode.comment.uniqueIdInThread
-          )
-        )
-      )
-    );
+    disposables.add(newCommentNode.onDidClick(
+      (clickedNode) => this._setFocusedComment(this._commentElements.findIndex((commentNode) => commentNode.comment.uniqueIdInThread === clickedNode.comment.uniqueIdInThread))
+    ));
     disposables.add(newCommentNode);
     this._commentDisposable.set(newCommentNode, disposables);
     return newCommentNode;

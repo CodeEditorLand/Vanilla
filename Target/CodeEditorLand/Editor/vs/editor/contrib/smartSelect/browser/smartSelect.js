@@ -14,27 +14,28 @@ import * as arrays from "../../../../base/common/arrays.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { assertType } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  EditorAction,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorContributionInstantiation, IActionOptions, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { Selection } from "../../../common/core/selection.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ITextModelService } from "../../../common/services/resolverService.js";
+import { ITextModel } from "../../../common/model.js";
+import * as languages from "../../../common/languages.js";
 import { BracketSelectionRangeProvider } from "./bracketSelections.js";
 import { WordSelectionRangeProvider } from "./wordSelections.js";
+import * as nls from "../../../../nls.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
 class SelectionRanges {
   constructor(index, ranges) {
     this.index = index;
@@ -65,9 +66,7 @@ let SmartSelectController = class {
   }
   static ID = "editor.contrib.smartSelectController";
   static get(editor) {
-    return editor.getContribution(
-      SmartSelectController.ID
-    );
+    return editor.getContribution(SmartSelectController.ID);
   }
   _state;
   _selectionListener;
@@ -82,36 +81,20 @@ let SmartSelectController = class {
     const selections = this._editor.getSelections();
     const model = this._editor.getModel();
     if (!this._state) {
-      await provideSelectionRanges(
-        this._languageFeaturesService.selectionRangeProvider,
-        model,
-        selections.map((s) => s.getPosition()),
-        this._editor.getOption(EditorOption.smartSelect),
-        CancellationToken.None
-      ).then((ranges) => {
+      await provideSelectionRanges(this._languageFeaturesService.selectionRangeProvider, model, selections.map((s) => s.getPosition()), this._editor.getOption(EditorOption.smartSelect), CancellationToken.None).then((ranges) => {
         if (!arrays.isNonEmptyArray(ranges) || ranges.length !== selections.length) {
           return;
         }
-        if (!this._editor.hasModel() || !arrays.equals(
-          this._editor.getSelections(),
-          selections,
-          (a, b) => a.equalsSelection(b)
-        )) {
+        if (!this._editor.hasModel() || !arrays.equals(this._editor.getSelections(), selections, (a, b) => a.equalsSelection(b))) {
           return;
         }
         for (let i = 0; i < ranges.length; i++) {
           ranges[i] = ranges[i].filter((range) => {
-            return range.containsPosition(
-              selections[i].getStartPosition()
-            ) && range.containsPosition(
-              selections[i].getEndPosition()
-            );
+            return range.containsPosition(selections[i].getStartPosition()) && range.containsPosition(selections[i].getEndPosition());
           });
           ranges[i].unshift(selections[i]);
         }
-        this._state = ranges.map(
-          (ranges2) => new SelectionRanges(0, ranges2)
-        );
+        this._state = ranges.map((ranges2) => new SelectionRanges(0, ranges2));
         this._selectionListener?.dispose();
         this._selectionListener = this._editor.onDidChangeCursorPosition(() => {
           if (!this._ignoreSelection) {
@@ -125,12 +108,7 @@ let SmartSelectController = class {
       return;
     }
     this._state = this._state.map((state) => state.mov(forward));
-    const newSelections = this._state.map(
-      (state) => Selection.fromPositions(
-        state.ranges[state.index].getStartPosition(),
-        state.ranges[state.index].getEndPosition()
-      )
-    );
+    const newSelections = this._state.map((state) => Selection.fromPositions(state.ranges[state.index].getStartPosition(), state.ranges[state.index].getEndPosition()));
     this._ignoreSelection = true;
     try {
       this._editor.setSelections(newSelections);
@@ -173,31 +151,20 @@ class GrowSelectionAction extends AbstractSmartSelect {
         primary: KeyMod.Shift | KeyMod.Alt | KeyCode.RightArrow,
         mac: {
           primary: KeyMod.CtrlCmd | KeyMod.WinCtrl | KeyMod.Shift | KeyCode.RightArrow,
-          secondary: [
-            KeyMod.WinCtrl | KeyMod.Shift | KeyCode.RightArrow
-          ]
+          secondary: [KeyMod.WinCtrl | KeyMod.Shift | KeyCode.RightArrow]
         },
         weight: KeybindingWeight.EditorContrib
       },
       menuOpts: {
         menuId: MenuId.MenubarSelectionMenu,
         group: "1_basic",
-        title: nls.localize(
-          {
-            key: "miSmartSelectGrow",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Expand Selection"
-        ),
+        title: nls.localize({ key: "miSmartSelectGrow", comment: ["&& denotes a mnemonic"] }, "&&Expand Selection"),
         order: 2
       }
     });
   }
 }
-CommandsRegistry.registerCommandAlias(
-  "editor.action.smartSelect.grow",
-  "editor.action.smartSelect.expand"
-);
+CommandsRegistry.registerCommandAlias("editor.action.smartSelect.grow", "editor.action.smartSelect.expand");
 class ShrinkSelectionAction extends AbstractSmartSelect {
   static {
     __name(this, "ShrinkSelectionAction");
@@ -213,32 +180,20 @@ class ShrinkSelectionAction extends AbstractSmartSelect {
         primary: KeyMod.Shift | KeyMod.Alt | KeyCode.LeftArrow,
         mac: {
           primary: KeyMod.CtrlCmd | KeyMod.WinCtrl | KeyMod.Shift | KeyCode.LeftArrow,
-          secondary: [
-            KeyMod.WinCtrl | KeyMod.Shift | KeyCode.LeftArrow
-          ]
+          secondary: [KeyMod.WinCtrl | KeyMod.Shift | KeyCode.LeftArrow]
         },
         weight: KeybindingWeight.EditorContrib
       },
       menuOpts: {
         menuId: MenuId.MenubarSelectionMenu,
         group: "1_basic",
-        title: nls.localize(
-          {
-            key: "miSmartSelectShrink",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Shrink Selection"
-        ),
+        title: nls.localize({ key: "miSmartSelectShrink", comment: ["&& denotes a mnemonic"] }, "&&Shrink Selection"),
         order: 3
       }
     });
   }
 }
-registerEditorContribution(
-  SmartSelectController.ID,
-  SmartSelectController,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(SmartSelectController.ID, SmartSelectController, EditorContributionInstantiation.Lazy);
 registerEditorAction(GrowSelectionAction);
 registerEditorAction(ShrinkSelectionAction);
 async function provideSelectionRanges(registry, model, positions, options, token) {
@@ -249,29 +204,20 @@ async function provideSelectionRanges(registry, model, positions, options, token
   const work = [];
   const allRawRanges = [];
   for (const provider of providers) {
-    work.push(
-      Promise.resolve(
-        provider.provideSelectionRanges(model, positions, token)
-      ).then((allProviderRanges) => {
-        if (arrays.isNonEmptyArray(allProviderRanges) && allProviderRanges.length === positions.length) {
-          for (let i = 0; i < positions.length; i++) {
-            if (!allRawRanges[i]) {
-              allRawRanges[i] = [];
-            }
-            for (const oneProviderRanges of allProviderRanges[i]) {
-              if (Range.isIRange(oneProviderRanges.range) && Range.containsPosition(
-                oneProviderRanges.range,
-                positions[i]
-              )) {
-                allRawRanges[i].push(
-                  Range.lift(oneProviderRanges.range)
-                );
-              }
+    work.push(Promise.resolve(provider.provideSelectionRanges(model, positions, token)).then((allProviderRanges) => {
+      if (arrays.isNonEmptyArray(allProviderRanges) && allProviderRanges.length === positions.length) {
+        for (let i = 0; i < positions.length; i++) {
+          if (!allRawRanges[i]) {
+            allRawRanges[i] = [];
+          }
+          for (const oneProviderRanges of allProviderRanges[i]) {
+            if (Range.isIRange(oneProviderRanges.range) && Range.containsPosition(oneProviderRanges.range, positions[i])) {
+              allRawRanges[i].push(Range.lift(oneProviderRanges.range));
             }
           }
         }
-      }, onUnexpectedExternalError)
-    );
+      }
+    }, onUnexpectedExternalError));
   }
   await Promise.all(work);
   return allRawRanges.map((oneRawRanges) => {
@@ -307,21 +253,11 @@ async function provideSelectionRanges(registry, model, positions, options, token
       const prev = oneRanges[i - 1];
       const cur = oneRanges[i];
       if (cur.startLineNumber !== prev.startLineNumber || cur.endLineNumber !== prev.endLineNumber) {
-        const rangeNoWhitespace = new Range(
-          prev.startLineNumber,
-          model.getLineFirstNonWhitespaceColumn(prev.startLineNumber),
-          prev.endLineNumber,
-          model.getLineLastNonWhitespaceColumn(prev.endLineNumber)
-        );
+        const rangeNoWhitespace = new Range(prev.startLineNumber, model.getLineFirstNonWhitespaceColumn(prev.startLineNumber), prev.endLineNumber, model.getLineLastNonWhitespaceColumn(prev.endLineNumber));
         if (rangeNoWhitespace.containsRange(prev) && !rangeNoWhitespace.equalsRange(prev) && cur.containsRange(rangeNoWhitespace) && !cur.equalsRange(rangeNoWhitespace)) {
           oneRangesWithTrivia.push(rangeNoWhitespace);
         }
-        const rangeFull = new Range(
-          prev.startLineNumber,
-          1,
-          prev.endLineNumber,
-          model.getLineMaxColumn(prev.endLineNumber)
-        );
+        const rangeFull = new Range(prev.startLineNumber, 1, prev.endLineNumber, model.getLineMaxColumn(prev.endLineNumber));
         if (rangeFull.containsRange(prev) && !rangeFull.equalsRange(rangeNoWhitespace) && cur.containsRange(rangeFull) && !cur.equalsRange(rangeFull)) {
           oneRangesWithTrivia.push(rangeFull);
         }
@@ -332,31 +268,17 @@ async function provideSelectionRanges(registry, model, positions, options, token
   });
 }
 __name(provideSelectionRanges, "provideSelectionRanges");
-CommandsRegistry.registerCommand(
-  "_executeSelectionRangeProvider",
-  async (accessor, ...args) => {
-    const [resource, positions] = args;
-    assertType(URI.isUri(resource));
-    const registry = accessor.get(
-      ILanguageFeaturesService
-    ).selectionRangeProvider;
-    const reference = await accessor.get(ITextModelService).createModelReference(resource);
-    try {
-      return provideSelectionRanges(
-        registry,
-        reference.object.textEditorModel,
-        positions,
-        {
-          selectLeadingAndTrailingWhitespace: true,
-          selectSubwords: true
-        },
-        CancellationToken.None
-      );
-    } finally {
-      reference.dispose();
-    }
+CommandsRegistry.registerCommand("_executeSelectionRangeProvider", async function(accessor, ...args) {
+  const [resource, positions] = args;
+  assertType(URI.isUri(resource));
+  const registry = accessor.get(ILanguageFeaturesService).selectionRangeProvider;
+  const reference = await accessor.get(ITextModelService).createModelReference(resource);
+  try {
+    return provideSelectionRanges(registry, reference.object.textEditorModel, positions, { selectLeadingAndTrailingWhitespace: true, selectSubwords: true }, CancellationToken.None);
+  } finally {
+    reference.dispose();
   }
-);
+});
 export {
   SmartSelectController,
   provideSelectionRanges

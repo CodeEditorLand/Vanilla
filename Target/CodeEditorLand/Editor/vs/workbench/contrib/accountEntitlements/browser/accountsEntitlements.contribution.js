@@ -10,57 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import { localize } from "../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from "../../../common/contributions.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  Extensions as ConfigurationExtensions,
-  ConfigurationScope
-} from "../../../../platform/configuration/common/configurationRegistry.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { AuthenticationSession, IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IActivityService, NumberBadge } from "../../../services/activity/common/activity.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  IRequestService,
-  asText
-} from "../../../../platform/request/common/request.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { applicationConfigurationNodeBase } from "../../../common/configuration.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../common/contributions.js";
-import {
-  IActivityService,
-  NumberBadge
-} from "../../../services/activity/common/activity.js";
-import {
-  IAuthenticationService
-} from "../../../services/authentication/common/authentication.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions, ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { applicationConfigurationNodeBase } from "../../../common/configuration.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IRequestService, asText } from "../../../../platform/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { isWeb } from "../../../../base/common/platform.js";
 const accountsBadgeConfigKey = "workbench.accounts.experimental.showEntitlements";
 let EntitlementsContribution = class extends Disposable {
   constructor(contextService, telemetryService, authenticationService, productService, storageService, extensionManagementService, activityService, extensionService, configurationService, requestService) {
@@ -79,12 +51,7 @@ let EntitlementsContribution = class extends Disposable {
       return;
     }
     this.extensionManagementService.getInstalled().then(async (exts) => {
-      const installed = exts.find(
-        (value) => ExtensionIdentifier.equals(
-          value.identifier.id,
-          this.productService.gitHubEntitlement.extensionId
-        )
-      );
+      const installed = exts.find((value) => ExtensionIdentifier.equals(value.identifier.id, this.productService.gitHubEntitlement.extensionId));
       if (installed) {
         this.disableEntitlements();
       } else {
@@ -96,71 +63,45 @@ let EntitlementsContribution = class extends Disposable {
     __name(this, "EntitlementsContribution");
   }
   isInitialized = false;
-  showAccountsBadgeContextKey = new RawContextKey(
-    accountsBadgeConfigKey,
-    false
-  ).bindTo(this.contextService);
-  accountsMenuBadgeDisposable = this._register(
-    new MutableDisposable()
-  );
+  showAccountsBadgeContextKey = new RawContextKey(accountsBadgeConfigKey, false).bindTo(this.contextService);
+  accountsMenuBadgeDisposable = this._register(new MutableDisposable());
   registerListeners() {
-    if (this.storageService.getBoolean(
-      accountsBadgeConfigKey,
-      StorageScope.APPLICATION
-    ) === false) {
+    if (this.storageService.getBoolean(accountsBadgeConfigKey, StorageScope.APPLICATION) === false) {
       return;
     }
-    this._register(
-      this.extensionService.onDidChangeExtensions(async (result) => {
-        for (const ext of result.added) {
-          if (ExtensionIdentifier.equals(
-            this.productService.gitHubEntitlement.extensionId,
-            ext.identifier
-          )) {
-            this.disableEntitlements();
-            return;
-          }
+    this._register(this.extensionService.onDidChangeExtensions(async (result) => {
+      for (const ext of result.added) {
+        if (ExtensionIdentifier.equals(this.productService.gitHubEntitlement.extensionId, ext.identifier)) {
+          this.disableEntitlements();
+          return;
         }
-      })
-    );
-    this._register(
-      this.authenticationService.onDidChangeSessions(async (e) => {
-        if (e.providerId === this.productService.gitHubEntitlement.providerId && e.event.added?.length) {
-          await this.enableEntitlements(e.event.added[0]);
-        } else if (e.providerId === this.productService.gitHubEntitlement.providerId && e.event.removed?.length) {
-          this.showAccountsBadgeContextKey.set(false);
-          this.accountsMenuBadgeDisposable.clear();
-        }
-      })
-    );
-    this._register(
-      this.authenticationService.onDidRegisterAuthenticationProvider(
-        async (e) => {
-          if (e.id === this.productService.gitHubEntitlement.providerId) {
-            await this.enableEntitlements(
-              (await this.authenticationService.getSessions(
-                e.id
-              ))[0]
-            );
-          }
-        }
-      )
-    );
+      }
+    }));
+    this._register(this.authenticationService.onDidChangeSessions(async (e) => {
+      if (e.providerId === this.productService.gitHubEntitlement.providerId && e.event.added?.length) {
+        await this.enableEntitlements(e.event.added[0]);
+      } else if (e.providerId === this.productService.gitHubEntitlement.providerId && e.event.removed?.length) {
+        this.showAccountsBadgeContextKey.set(false);
+        this.accountsMenuBadgeDisposable.clear();
+      }
+    }));
+    this._register(this.authenticationService.onDidRegisterAuthenticationProvider(async (e) => {
+      if (e.id === this.productService.gitHubEntitlement.providerId) {
+        await this.enableEntitlements((await this.authenticationService.getSessions(e.id))[0]);
+      }
+    }));
   }
   async getEntitlementsInfo(session) {
     if (this.isInitialized) {
       return [false, ""];
     }
-    const context = await this.requestService.request(
-      {
-        type: "GET",
-        url: this.productService.gitHubEntitlement.entitlementUrl,
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`
-        }
-      },
-      CancellationToken.None
-    );
+    const context = await this.requestService.request({
+      type: "GET",
+      url: this.productService.gitHubEntitlement.entitlementUrl,
+      headers: {
+        "Authorization": `Bearer ${session.accessToken}`
+      }
+    }, CancellationToken.None);
     if (context.res.statusCode && context.res.statusCode !== 200) {
       return [false, ""];
     }
@@ -181,10 +122,7 @@ let EntitlementsContribution = class extends Disposable {
     this.telemetryService.publicLog2("entitlements.enabled", { enabled: true });
     this.isInitialized = true;
     const orgs = parsedResult["organization_list"];
-    return [
-      true,
-      orgs && orgs.length > 0 ? orgs[0].name ? orgs[0].name : orgs[0].login : void 0
-    ];
+    return [true, orgs && orgs.length > 0 ? orgs[0].name ? orgs[0].name : orgs[0].login : void 0];
   }
   async enableEntitlements(session) {
     if (!session) {
@@ -199,89 +137,61 @@ let EntitlementsContribution = class extends Disposable {
     }
   }
   disableEntitlements() {
-    this.storageService.store(
-      accountsBadgeConfigKey,
-      false,
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(accountsBadgeConfigKey, false, StorageScope.APPLICATION, StorageTarget.MACHINE);
     this.showAccountsBadgeContextKey.set(false);
     this.accountsMenuBadgeDisposable.clear();
   }
   async createAccountsBadge(org) {
-    const menuTitle = org ? this.productService.gitHubEntitlement.command.title.replace(
-      "{{org}}",
-      org
-    ) : this.productService.gitHubEntitlement.command.titleWithoutPlaceHolder;
+    const menuTitle = org ? this.productService.gitHubEntitlement.command.title.replace("{{org}}", org) : this.productService.gitHubEntitlement.command.titleWithoutPlaceHolder;
     const badge = new NumberBadge(1, () => menuTitle);
     this.accountsMenuBadgeDisposable.value = this.activityService.showAccountsActivity({ badge });
     this.contextService.onDidChangeContext((e) => {
       if (e.affectsSome(/* @__PURE__ */ new Set([accountsBadgeConfigKey]))) {
-        if (!this.contextService.getContextKeyValue(
-          accountsBadgeConfigKey
-        )) {
+        if (!this.contextService.getContextKeyValue(accountsBadgeConfigKey)) {
           this.accountsMenuBadgeDisposable.clear();
         }
       }
     });
-    this._register(
-      registerAction2(
-        class extends Action2 {
-          constructor() {
-            super({
-              id: "workbench.action.entitlementAction",
-              title: menuTitle,
-              f1: false,
-              menu: {
-                id: MenuId.AccountsContext,
-                group: "5_AccountsEntitlements",
-                when: ContextKeyExpr.equals(
-                  accountsBadgeConfigKey,
-                  true
-                )
-              }
-            });
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.entitlementAction",
+          title: menuTitle,
+          f1: false,
+          menu: {
+            id: MenuId.AccountsContext,
+            group: "5_AccountsEntitlements",
+            when: ContextKeyExpr.equals(accountsBadgeConfigKey, true)
           }
-          async run(accessor) {
-            const productService = accessor.get(IProductService);
-            const commandService = accessor.get(ICommandService);
-            const contextKeyService = accessor.get(IContextKeyService);
-            const storageService = accessor.get(IStorageService);
-            const dialogService = accessor.get(IDialogService);
-            const telemetryService = accessor.get(ITelemetryService);
-            const confirmation = await dialogService.confirm({
-              type: "question",
-              message: productService.gitHubEntitlement.confirmationMessage,
-              primaryButton: productService.gitHubEntitlement.confirmationAction
-            });
-            if (confirmation.confirmed) {
-              commandService.executeCommand(
-                productService.gitHubEntitlement.command.action,
-                productService.gitHubEntitlement.extensionId
-              );
-              telemetryService.publicLog2("accountsEntitlements.action", {
-                command: productService.gitHubEntitlement.command.action
-              });
-            } else {
-              telemetryService.publicLog2("accountsEntitlements.action", {
-                command: productService.gitHubEntitlement.command.action + "-dismissed"
-              });
-            }
-            const contextKey = new RawContextKey(
-              accountsBadgeConfigKey,
-              false
-            ).bindTo(contextKeyService);
-            contextKey.set(false);
-            storageService.store(
-              accountsBadgeConfigKey,
-              false,
-              StorageScope.APPLICATION,
-              StorageTarget.MACHINE
-            );
-          }
+        });
+      }
+      async run(accessor) {
+        const productService = accessor.get(IProductService);
+        const commandService = accessor.get(ICommandService);
+        const contextKeyService = accessor.get(IContextKeyService);
+        const storageService = accessor.get(IStorageService);
+        const dialogService = accessor.get(IDialogService);
+        const telemetryService = accessor.get(ITelemetryService);
+        const confirmation = await dialogService.confirm({
+          type: "question",
+          message: productService.gitHubEntitlement.confirmationMessage,
+          primaryButton: productService.gitHubEntitlement.confirmationAction
+        });
+        if (confirmation.confirmed) {
+          commandService.executeCommand(productService.gitHubEntitlement.command.action, productService.gitHubEntitlement.extensionId);
+          telemetryService.publicLog2("accountsEntitlements.action", {
+            command: productService.gitHubEntitlement.command.action
+          });
+        } else {
+          telemetryService.publicLog2("accountsEntitlements.action", {
+            command: productService.gitHubEntitlement.command.action + "-dismissed"
+          });
         }
-      )
-    );
+        const contextKey = new RawContextKey(accountsBadgeConfigKey, false).bindTo(contextKeyService);
+        contextKey.set(false);
+        storageService.store(accountsBadgeConfigKey, false, StorageScope.APPLICATION, StorageTarget.MACHINE);
+      }
+    }));
   }
 };
 EntitlementsContribution = __decorateClass([
@@ -296,9 +206,7 @@ EntitlementsContribution = __decorateClass([
   __decorateParam(8, IConfigurationService),
   __decorateParam(9, IRequestService)
 ], EntitlementsContribution);
-const configurationRegistry = Registry.as(
-  ConfigurationExtensions.Configuration
-);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
 configurationRegistry.registerConfiguration({
   ...applicationConfigurationNodeBase,
   properties: {
@@ -307,16 +215,9 @@ configurationRegistry.registerConfiguration({
       type: "boolean",
       default: false,
       tags: ["experimental"],
-      description: localize(
-        "workbench.accounts.showEntitlements",
-        "When enabled, available entitlements for the account will be show in the accounts menu."
-      )
+      description: localize("workbench.accounts.showEntitlements", "When enabled, available entitlements for the account will be show in the accounts menu.")
     }
   }
 });
-registerWorkbenchContribution2(
-  "workbench.contrib.entitlements",
-  EntitlementsContribution,
-  WorkbenchPhase.BlockRestore
-);
+registerWorkbenchContribution2("workbench.contrib.entitlements", EntitlementsContribution, WorkbenchPhase.BlockRestore);
 //# sourceMappingURL=accountsEntitlements.contribution.js.map

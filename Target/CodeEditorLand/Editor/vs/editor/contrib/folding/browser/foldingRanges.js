@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { SelectedLines } from "./folding.js";
 var FoldSource = /* @__PURE__ */ ((FoldSource2) => {
   FoldSource2[FoldSource2["provider"] = 0] = "provider";
   FoldSource2[FoldSource2["userDefined"] = 1] = "userDefined";
@@ -74,9 +75,7 @@ class FoldingRegions {
         const startLineNumber = this._startIndexes[i];
         const endLineNumber = this._endIndexes[i];
         if (startLineNumber > MAX_LINE_NUMBER || endLineNumber > MAX_LINE_NUMBER) {
-          throw new Error(
-            "startLineNumber or endLineNumber must not exceed " + MAX_LINE_NUMBER
-          );
+          throw new Error("startLineNumber or endLineNumber must not exceed " + MAX_LINE_NUMBER);
         }
         while (parentIndexes.length > 0 && !isInsideLast(startLineNumber, endLineNumber)) {
           parentIndexes.pop();
@@ -275,17 +274,14 @@ class FoldingRegions {
     let prevLineNumber = 0;
     const resultRanges = [];
     while (nextA || nextB) {
-      let useRange;
+      let useRange = void 0;
       if (nextB && (!nextA || nextA.startLineNumber >= nextB.startLineNumber)) {
         if (nextA && nextA.startLineNumber === nextB.startLineNumber) {
           if (nextB.source === 1 /* userDefined */) {
             useRange = nextB;
           } else {
             useRange = nextA;
-            useRange.isCollapsed = nextB.isCollapsed && (nextA.endLineNumber === nextB.endLineNumber || !selection?.startsInside(
-              nextA.startLineNumber + 1,
-              nextA.endLineNumber + 1
-            ));
+            useRange.isCollapsed = nextB.isCollapsed && (nextA.endLineNumber === nextB.endLineNumber || !selection?.startsInside(nextA.startLineNumber + 1, nextA.endLineNumber + 1));
             useRange.source = 0 /* provider */;
           }
           nextA = getA(++indexA);

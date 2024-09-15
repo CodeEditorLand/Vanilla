@@ -2,9 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
-import {
-  HeartbeatConstants
-} from "../common/terminal.js";
+import { HeartbeatConstants, IHeartbeatService } from "../common/terminal.js";
 class HeartbeatService extends Disposable {
   static {
     __name(this, "HeartbeatService");

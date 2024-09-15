@@ -1,11 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createWriteStream, promises } from "fs";
-import * as nls from "../../nls.js";
-import { Sequencer, createCancelablePromise } from "../common/async.js";
+import { createWriteStream, WriteStream, promises } from "fs";
+import { Readable } from "stream";
+import { createCancelablePromise, Sequencer } from "../common/async.js";
+import { CancellationToken } from "../common/cancellation.js";
 import * as path from "../common/path.js";
 import { assertIsDefined } from "../common/types.js";
 import { Promises } from "./pfs.js";
+import * as nls from "../../nls.js";
 const CorruptZipMessage = "end of central directory record signature not found";
 const CORRUPT_ZIP_PATTERN = new RegExp(CorruptZipMessage);
 class ExtractError extends Error {
@@ -43,7 +45,7 @@ function toExtractError(err) {
   if (err instanceof ExtractError) {
     return err;
   }
-  let type;
+  let type = void 0;
   if (CORRUPT_ZIP_PATTERN.test(err.message)) {
     type = "CorruptZip";
   }
@@ -54,39 +56,27 @@ function extractEntry(stream, fileName, mode, targetPath, options, token) {
   const dirName = path.dirname(fileName);
   const targetDirName = path.join(targetPath, dirName);
   if (!targetDirName.startsWith(targetPath)) {
-    return Promise.reject(
-      new Error(
-        nls.localize(
-          "invalid file",
-          "Error extracting {0}. Invalid file.",
-          fileName
-        )
-      )
-    );
+    return Promise.reject(new Error(nls.localize("invalid file", "Error extracting {0}. Invalid file.", fileName)));
   }
   const targetFileName = path.join(targetPath, fileName);
   let istream;
   token.onCancellationRequested(() => {
     istream?.destroy();
   });
-  return Promise.resolve(
-    promises.mkdir(targetDirName, { recursive: true })
-  ).then(
-    () => new Promise((c, e) => {
-      if (token.isCancellationRequested) {
-        return;
-      }
-      try {
-        istream = createWriteStream(targetFileName, { mode });
-        istream.once("close", () => c());
-        istream.once("error", e);
-        stream.once("error", e);
-        stream.pipe(istream);
-      } catch (error) {
-        e(error);
-      }
-    })
-  );
+  return Promise.resolve(promises.mkdir(targetDirName, { recursive: true })).then(() => new Promise((c, e) => {
+    if (token.isCancellationRequested) {
+      return;
+    }
+    try {
+      istream = createWriteStream(targetFileName, { mode });
+      istream.once("close", () => c());
+      istream.once("error", e);
+      stream.once("error", e);
+      stream.pipe(istream);
+    } catch (error) {
+      e(error);
+    }
+  }));
 }
 __name(extractEntry, "extractEntry");
 function extractZip(zipfile, targetPath, options, token) {
@@ -106,28 +96,13 @@ function extractZip(zipfile, targetPath, options, token) {
       zipfile.readEntry();
     }, "readNextEntry");
     zipfile.once("error", e);
-    zipfile.once(
-      "close",
-      () => last.then(() => {
-        if (token.isCancellationRequested || zipfile.entryCount === extractedEntriesCount) {
-          c();
-        } else {
-          e(
-            new ExtractError(
-              "Incomplete",
-              new Error(
-                nls.localize(
-                  "incompleteExtract",
-                  "Incomplete. Found {0} of {1} entries",
-                  extractedEntriesCount,
-                  zipfile.entryCount
-                )
-              )
-            )
-          );
-        }
-      }, e)
-    );
+    zipfile.once("close", () => last.then(() => {
+      if (token.isCancellationRequested || zipfile.entryCount === extractedEntriesCount) {
+        c();
+      } else {
+        e(new ExtractError("Incomplete", new Error(nls.localize("incompleteExtract", "Incomplete. Found {0} of {1} entries", extractedEntriesCount, zipfile.entryCount))));
+      }
+    }, e));
     zipfile.readEntry();
     zipfile.on("entry", (entry) => {
       if (token.isCancellationRequested) {
@@ -137,33 +112,15 @@ function extractZip(zipfile, targetPath, options, token) {
         readNextEntry(token);
         return;
       }
-      const fileName = entry.fileName.replace(
-        options.sourcePathRegex,
-        ""
-      );
+      const fileName = entry.fileName.replace(options.sourcePathRegex, "");
       if (/\/$/.test(fileName)) {
         const targetFileName = path.join(targetPath, fileName);
-        last = createCancelablePromise(
-          (token2) => promises.mkdir(targetFileName, { recursive: true }).then(() => readNextEntry(token2)).then(void 0, e)
-        );
+        last = createCancelablePromise((token2) => promises.mkdir(targetFileName, { recursive: true }).then(() => readNextEntry(token2)).then(void 0, e));
         return;
       }
       const stream = openZipStream(zipfile, entry);
       const mode = modeFromEntry(entry);
-      last = createCancelablePromise(
-        (token2) => throttler.queue(
-          () => stream.then(
-            (stream2) => extractEntry(
-              stream2,
-              fileName,
-              mode,
-              targetPath,
-              options,
-              token2
-            ).then(() => readNextEntry(token2))
-          )
-        ).then(null, e)
-      );
+      last = createCancelablePromise((token2) => throttler.queue(() => stream.then((stream2) => extractEntry(stream2, fileName, mode, targetPath, options, token2).then(() => readNextEntry(token2)))).then(null, e));
     });
   }).finally(() => listener.dispose());
 }
@@ -171,32 +128,25 @@ __name(extractZip, "extractZip");
 async function openZip(zipFile, lazy = false) {
   const { open } = await import("yauzl");
   return new Promise((resolve, reject) => {
-    open(
-      zipFile,
-      lazy ? { lazyEntries: true } : void 0,
-      (error, zipfile) => {
-        if (error) {
-          reject(toExtractError(error));
-        } else {
-          resolve(assertIsDefined(zipfile));
-        }
+    open(zipFile, lazy ? { lazyEntries: true } : void 0, (error, zipfile) => {
+      if (error) {
+        reject(toExtractError(error));
+      } else {
+        resolve(assertIsDefined(zipfile));
       }
-    );
+    });
   });
 }
 __name(openZip, "openZip");
 function openZipStream(zipFile, entry) {
   return new Promise((resolve, reject) => {
-    zipFile.openReadStream(
-      entry,
-      (error, stream) => {
-        if (error) {
-          reject(toExtractError(error));
-        } else {
-          resolve(assertIsDefined(stream));
-        }
+    zipFile.openReadStream(entry, (error, stream) => {
+      if (error) {
+        reject(toExtractError(error));
+      } else {
+        resolve(assertIsDefined(stream));
       }
-    );
+    });
   });
 }
 __name(openZipStream, "openZipStream");
@@ -206,10 +156,7 @@ async function zip(zipPath, files) {
     const zip2 = new ZipFile();
     files.forEach((f) => {
       if (f.contents) {
-        zip2.addBuffer(
-          typeof f.contents === "string" ? Buffer.from(f.contents, "utf8") : f.contents,
-          f.path
-        );
+        zip2.addBuffer(typeof f.contents === "string" ? Buffer.from(f.contents, "utf8") : f.contents, f.path);
       } else if (f.localPath) {
         zip2.addFile(f.localPath, f.path);
       }
@@ -224,18 +171,12 @@ async function zip(zipPath, files) {
 }
 __name(zip, "zip");
 function extract(zipPath, targetPath, options = {}, token) {
-  const sourcePathRegex = new RegExp(
-    options.sourcePath ? `^${options.sourcePath}` : ""
-  );
+  const sourcePathRegex = new RegExp(options.sourcePath ? `^${options.sourcePath}` : "");
   let promise = openZip(zipPath, true);
   if (options.overwrite) {
-    promise = promise.then(
-      (zipfile) => Promises.rm(targetPath).then(() => zipfile)
-    );
+    promise = promise.then((zipfile) => Promises.rm(targetPath).then(() => zipfile));
   }
-  return promise.then(
-    (zipfile) => extractZip(zipfile, targetPath, { sourcePathRegex }, token)
-  );
+  return promise.then((zipfile) => extractZip(zipfile, targetPath, { sourcePathRegex }, token));
 }
 __name(extract, "extract");
 function read(zipPath, filePath) {
@@ -243,24 +184,10 @@ function read(zipPath, filePath) {
     return new Promise((c, e) => {
       zipfile.on("entry", (entry) => {
         if (entry.fileName === filePath) {
-          openZipStream(zipfile, entry).then(
-            (stream) => c(stream),
-            (err) => e(err)
-          );
+          openZipStream(zipfile, entry).then((stream) => c(stream), (err) => e(err));
         }
       });
-      zipfile.once(
-        "close",
-        () => e(
-          new Error(
-            nls.localize(
-              "notFound",
-              "{0} not found inside zip.",
-              filePath
-            )
-          )
-        )
-      );
+      zipfile.once("close", () => e(new Error(nls.localize("notFound", "{0} not found inside zip.", filePath))));
     });
   });
 }

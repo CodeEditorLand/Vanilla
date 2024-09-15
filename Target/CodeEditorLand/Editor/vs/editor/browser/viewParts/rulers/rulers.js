@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./rulers.css";
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
-import {
-  EditorOption
-} from "../../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
 import { ViewPart } from "../../view/viewPart.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { EditorOption, IRulerOption } from "../../../common/config/editorOptions.js";
 class Rulers extends ViewPart {
   static {
     __name(this, "Rulers");
@@ -18,18 +17,14 @@ class Rulers extends ViewPart {
   _typicalHalfwidthCharacterWidth;
   constructor(context) {
     super(context);
-    this.domNode = createFastDomNode(
-      document.createElement("div")
-    );
+    this.domNode = createFastDomNode(document.createElement("div"));
     this.domNode.setAttribute("role", "presentation");
     this.domNode.setAttribute("aria-hidden", "true");
     this.domNode.setClassName("view-rulers");
     this._renderedRulers = [];
     const options = this._context.configuration.options;
     this._rulers = options.get(EditorOption.rulers);
-    this._typicalHalfwidthCharacterWidth = options.get(
-      EditorOption.fontInfo
-    ).typicalHalfwidthCharacterWidth;
+    this._typicalHalfwidthCharacterWidth = options.get(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
   }
   dispose() {
     super.dispose();
@@ -38,9 +33,7 @@ class Rulers extends ViewPart {
   onConfigurationChanged(e) {
     const options = this._context.configuration.options;
     this._rulers = options.get(EditorOption.rulers);
-    this._typicalHalfwidthCharacterWidth = options.get(
-      EditorOption.fontInfo
-    ).typicalHalfwidthCharacterWidth;
+    this._typicalHalfwidthCharacterWidth = options.get(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
     return true;
   }
   onScrollChanged(e) {
@@ -81,9 +74,7 @@ class Rulers extends ViewPart {
     for (let i = 0, len = this._rulers.length; i < len; i++) {
       const node = this._renderedRulers[i];
       const ruler = this._rulers[i];
-      node.setBoxShadow(
-        ruler.color ? `1px 0 0 0 ${ruler.color} inset` : ``
-      );
+      node.setBoxShadow(ruler.color ? `1px 0 0 0 ${ruler.color} inset` : ``);
       node.setHeight(Math.min(ctx.scrollHeight, 1e6));
       node.setLeft(ruler.column * this._typicalHalfwidthCharacterWidth);
     }

@@ -1,15 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { IPager } from "../../../base/common/paging.js";
 import { Platform } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
 import { localize2 } from "../../../nls.js";
-import {
-  TargetPlatform
-} from "../../extensions/common/extensions.js";
+import { ExtensionType, IExtension, IExtensionManifest, TargetPlatform } from "../../extensions/common/extensions.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
-const EXTENSION_IDENTIFIER_REGEX = new RegExp(
-  EXTENSION_IDENTIFIER_PATTERN
-);
+const EXTENSION_IDENTIFIER_REGEX = new RegExp(EXTENSION_IDENTIFIER_PATTERN);
 const WEB_EXTENSION_TAG = "__web_extension";
 const EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT = "skipWalkthrough";
 const EXTENSION_INSTALL_SOURCE_CONTEXT = "extensionInstallSource";
@@ -127,10 +128,7 @@ function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms, productTargetP
 }
 __name(isNotWebExtensionInWebTargetPlatform, "isNotWebExtensionInWebTargetPlatform");
 function isTargetPlatformCompatible(extensionTargetPlatform, allTargetPlatforms, productTargetPlatform) {
-  if (isNotWebExtensionInWebTargetPlatform(
-    allTargetPlatforms,
-    productTargetPlatform
-  )) {
+  if (isNotWebExtensionInWebTargetPlatform(allTargetPlatforms, productTargetPlatform)) {
     return false;
   }
   if (extensionTargetPlatform === TargetPlatform.UNDEFINED) {
@@ -278,17 +276,10 @@ class ExtensionManagementError extends Error {
 const IExtensionManagementService = createDecorator("extensionManagementService");
 const DISABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/disabled";
 const ENABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/enabled";
-const IGlobalExtensionEnablementService = createDecorator(
-  "IGlobalExtensionEnablementService"
-);
-const IExtensionTipsService = createDecorator(
-  "IExtensionTipsService"
-);
+const IGlobalExtensionEnablementService = createDecorator("IGlobalExtensionEnablementService");
+const IExtensionTipsService = createDecorator("IExtensionTipsService");
 const ExtensionsLocalizedLabel = localize2("extensions", "Extensions");
-const PreferencesLocalizedLabel = localize2(
-  "preferences",
-  "Preferences"
-);
+const PreferencesLocalizedLabel = localize2("preferences", "Preferences");
 export {
   DISABLED_EXTENSIONS_STORAGE_PATH,
   ENABLED_EXTENSIONS_STORAGE_PATH,

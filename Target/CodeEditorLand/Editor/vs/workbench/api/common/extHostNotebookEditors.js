@@ -12,6 +12,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../base/common/event.js";
 import { ILogService } from "../../../platform/log/common/log.js";
+import { ExtHostNotebookEditorsShape, INotebookEditorPropertiesChangeData, INotebookEditorViewColumnInfo } from "./extHost.protocol.js";
+import { ExtHostNotebookController } from "./extHostNotebook.js";
 import * as typeConverters from "./extHostTypeConverters.js";
 let ExtHostNotebookEditors = class {
   constructor(_logService, _notebooksAndEditors) {
@@ -26,21 +28,13 @@ let ExtHostNotebookEditors = class {
   onDidChangeNotebookEditorSelection = this._onDidChangeNotebookEditorSelection.event;
   onDidChangeNotebookEditorVisibleRanges = this._onDidChangeNotebookEditorVisibleRanges.event;
   $acceptEditorPropertiesChanged(id, data) {
-    this._logService.debug(
-      "ExtHostNotebook#$acceptEditorPropertiesChanged",
-      id,
-      data
-    );
+    this._logService.debug("ExtHostNotebook#$acceptEditorPropertiesChanged", id, data);
     const editor = this._notebooksAndEditors.getEditorById(id);
     if (data.visibleRanges) {
-      editor._acceptVisibleRanges(
-        data.visibleRanges.ranges.map(typeConverters.NotebookRange.to)
-      );
+      editor._acceptVisibleRanges(data.visibleRanges.ranges.map(typeConverters.NotebookRange.to));
     }
     if (data.selections) {
-      editor._acceptSelections(
-        data.selections.selections.map(typeConverters.NotebookRange.to)
-      );
+      editor._acceptSelections(data.selections.selections.map(typeConverters.NotebookRange.to));
     }
     if (data.visibleRanges) {
       this._onDidChangeNotebookEditorVisibleRanges.fire({
@@ -49,12 +43,10 @@ let ExtHostNotebookEditors = class {
       });
     }
     if (data.selections) {
-      this._onDidChangeNotebookEditorSelection.fire(
-        Object.freeze({
-          notebookEditor: editor.apiEditor,
-          selections: editor.apiEditor.selections
-        })
-      );
+      this._onDidChangeNotebookEditorSelection.fire(Object.freeze({
+        notebookEditor: editor.apiEditor,
+        selections: editor.apiEditor.selections
+      }));
     }
   }
   $acceptEditorViewColumns(data) {

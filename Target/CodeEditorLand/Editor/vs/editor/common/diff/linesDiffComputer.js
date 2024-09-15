@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DetailedLineRangeMapping, LineRangeMapping } from "./rangeMapping.js";
 class LinesDiff {
   constructor(changes, moves, hitTimeout) {
     this.changes = changes;
@@ -26,10 +27,7 @@ class MovedText {
     this.changes = changes;
   }
   flip() {
-    return new MovedText(
-      this.lineRangeMapping.flip(),
-      this.changes.map((c) => c.flip())
-    );
+    return new MovedText(this.lineRangeMapping.flip(), this.changes.map((c) => c.flip()));
   }
 }
 export {

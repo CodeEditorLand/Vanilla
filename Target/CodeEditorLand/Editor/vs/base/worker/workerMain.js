@@ -1,15 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(() => {
+(function() {
   const monacoEnvironment = globalThis.MonacoEnvironment;
   const monacoBaseUrl = monacoEnvironment && monacoEnvironment.baseUrl ? monacoEnvironment.baseUrl : "../../../";
   function createTrustedTypesPolicy(policyName, policyOptions) {
     if (monacoEnvironment?.createTrustedTypesPolicy) {
       try {
-        return monacoEnvironment.createTrustedTypesPolicy(
-          policyName,
-          policyOptions
-        );
+        return monacoEnvironment.createTrustedTypesPolicy(policyName, policyOptions);
       } catch (err) {
         console.warn(err);
         return void 0;
@@ -35,9 +32,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
   });
   function canUseEval() {
     try {
-      const func = trustedTypesPolicy ? globalThis.eval(
-        trustedTypesPolicy.createScript("", "true")
-      ) : new Function("true");
+      const func = trustedTypesPolicy ? globalThis.eval(trustedTypesPolicy.createScript("", "true")) : new Function("true");
       func.call(globalThis);
       return true;
     } catch (err) {
@@ -61,23 +56,14 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
         }).then((text) => {
           text = `${text}
 //# sourceURL=${loaderSrc}`;
-          const func = trustedTypesPolicy ? globalThis.eval(
-            trustedTypesPolicy.createScript(
-              "",
-              text
-            )
-          ) : new Function(text);
+          const func = trustedTypesPolicy ? globalThis.eval(trustedTypesPolicy.createScript("", text)) : new Function(text);
           func.call(globalThis);
           resolve();
         }).then(void 0, reject);
         return;
       }
       if (trustedTypesPolicy) {
-        importScripts(
-          trustedTypesPolicy.createScriptURL(
-            loaderSrc
-          )
-        );
+        importScripts(trustedTypesPolicy.createScriptURL(loaderSrc));
       } else {
         importScripts(loaderSrc);
       }
@@ -88,20 +74,15 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
   function loadCode(moduleId) {
     if (typeof loadAMDLoader === "function") {
     }
-    const moduleUrl = new URL(
-      `${moduleId}.js`,
-      globalThis._VSCODE_FILE_ROOT
-    );
+    const moduleUrl = new URL(`${moduleId}.js`, globalThis._VSCODE_FILE_ROOT);
     return import(moduleUrl.href);
   }
   __name(loadCode, "loadCode");
   function setupWorkerServer(ws) {
-    setTimeout(() => {
-      const messageHandler = ws.create(
-        (msg, transfer) => {
-          globalThis.postMessage(msg, transfer);
-        }
-      );
+    setTimeout(function() {
+      const messageHandler = ws.create((msg, transfer) => {
+        globalThis.postMessage(msg, transfer);
+      });
       self.onmessage = (e) => messageHandler.onmessage(e.data, e.ports);
       while (beforeReadyMessages.length > 0) {
         self.onmessage(beforeReadyMessages.shift());
@@ -117,14 +98,11 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       return;
     }
     isFirstMessage = false;
-    loadCode(message.data).then(
-      (ws) => {
-        setupWorkerServer(ws);
-      },
-      (err) => {
-        console.error(err);
-      }
-    );
+    loadCode(message.data).then((ws) => {
+      setupWorkerServer(ws);
+    }, (err) => {
+      console.error(err);
+    });
   };
 })();
 //# sourceMappingURL=workerMain.js.map

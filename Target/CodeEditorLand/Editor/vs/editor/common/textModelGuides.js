@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IPosition } from "./core/position.js";
 var HorizontalGuidesState = /* @__PURE__ */ ((HorizontalGuidesState2) => {
   HorizontalGuidesState2[HorizontalGuidesState2["Disabled"] = 0] = "Disabled";
   HorizontalGuidesState2[HorizontalGuidesState2["EnabledForActive"] = 1] = "EnabledForActive";

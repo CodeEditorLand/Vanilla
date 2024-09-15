@@ -1,9 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Button } from "../../../../base/browser/ui/button/button.js";
-import {
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IMenu } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { CommentCommandId } from "../common/commentCommandIds.js";
 class CommentFormActions {
@@ -32,29 +34,18 @@ class CommentFormActions {
       for (const action of actions) {
         let keybinding = this.keybindingService.lookupKeybinding(action.id, this.contextKeyService)?.getLabel();
         if (!keybinding && isPrimary) {
-          keybinding = this.keybindingService.lookupKeybinding(
-            CommentCommandId.Submit,
-            this.contextKeyService
-          )?.getLabel();
+          keybinding = this.keybindingService.lookupKeybinding(CommentCommandId.Submit, this.contextKeyService)?.getLabel();
         }
         const title = keybinding ? `${action.label} (${keybinding})` : action.label;
-        const button = new Button(this.container, {
-          secondary: !isPrimary,
-          title,
-          ...defaultButtonStyles
-        });
+        const button = new Button(this.container, { secondary: !isPrimary, title, ...defaultButtonStyles });
         isPrimary = false;
         this._buttonElements.push(button.element);
         this._toDispose.add(button);
-        this._toDispose.add(
-          button.onDidClick(() => this.actionHandler(action))
-        );
+        this._toDispose.add(button.onDidClick(() => this.actionHandler(action)));
         button.enabled = action.enabled;
         button.label = action.label;
         if (this.maxActions !== void 0 && this._buttonElements.length >= this.maxActions) {
-          console.warn(
-            `An extension has contributed more than the allowable number of actions to a comments menu.`
-          );
+          console.warn(`An extension has contributed more than the allowable number of actions to a comments menu.`);
           return;
         }
       }

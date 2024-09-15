@@ -10,73 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { distinct } from "../../../../../base/common/arrays.js";
 import { onUnexpectedError } from "../../../../../base/common/errors.js";
 import { Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
-import {
-  IExtensionManagementService,
-  InstallOperation
-} from "../../../../../platform/extensionManagement/common/extensionManagement.js";
-import { areSameExtensions } from "../../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import {
-  IInstantiationService
-} from "../../../../../platform/instantiation/common/instantiation.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../../platform/notification/common/notification.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../../platform/storage/common/storage.js";
-import { Memento } from "../../../../common/memento.js";
-import {
-  EnablementState,
-  IWorkbenchExtensionEnablementService
-} from "../../../../services/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { getInstalledExtensions, IExtensionStatus } from "../../../extensions/common/extensionsUtils.js";
+import { INotebookKeymapService } from "../../common/notebookKeymapService.js";
+import { EnablementState, IWorkbenchExtensionEnablementService } from "../../../../services/extensionManagement/common/extensionManagement.js";
 import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
-import {
-  getInstalledExtensions
-} from "../../../extensions/common/extensionsUtils.js";
+import { IExtensionIdentifier, IExtensionManagementService, InstallOperation } from "../../../../../platform/extensionManagement/common/extensionManagement.js";
+import { areSameExtensions } from "../../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../../platform/storage/common/storage.js";
+import { Memento, MementoObject } from "../../../../common/memento.js";
+import { distinct } from "../../../../../base/common/arrays.js";
 function onExtensionChanged(accessor) {
   const extensionService = accessor.get(IExtensionManagementService);
-  const extensionEnablementService = accessor.get(
-    IWorkbenchExtensionEnablementService
-  );
+  const extensionEnablementService = accessor.get(IWorkbenchExtensionEnablementService);
   const onDidInstallExtensions = Event.chain(
     extensionService.onDidInstallExtensions,
-    ($) => $.filter(
-      (e) => e.some(
-        ({ operation }) => operation === InstallOperation.Install
-      )
-    ).map((e) => e.map(({ identifier }) => identifier))
+    ($) => $.filter((e) => e.some(({ operation }) => operation === InstallOperation.Install)).map((e) => e.map(({ identifier }) => identifier))
   );
-  return Event.debounce(
-    Event.any(
-      Event.any(
-        onDidInstallExtensions,
-        Event.map(extensionService.onDidUninstallExtension, (e) => [
-          e.identifier
-        ])
-      ),
-      Event.map(
-        extensionEnablementService.onEnablementChanged,
-        (extensions) => extensions.map((e) => e.identifier)
-      )
-    ),
-    (result, identifiers) => {
-      result = result || (identifiers.length ? [identifiers[0]] : []);
-      for (const identifier of identifiers) {
-        if (result.some((l) => !areSameExtensions(l, identifier))) {
-          result.push(identifier);
-        }
+  return Event.debounce(Event.any(
+    Event.any(onDidInstallExtensions, Event.map(extensionService.onDidUninstallExtension, (e) => [e.identifier])),
+    Event.map(extensionEnablementService.onEnablementChanged, (extensions) => extensions.map((e) => e.identifier))
+  ), (result, identifiers) => {
+    result = result || (identifiers.length ? [identifiers[0]] : []);
+    for (const identifier of identifiers) {
+      if (result.some((l) => !areSameExtensions(l, identifier))) {
+        result.push(identifier);
       }
-      return result;
     }
-  );
+    return result;
+  });
 }
 __name(onExtensionChanged, "onExtensionChanged");
 const hasRecommendedKeymapKey = "hasRecommendedKeymap";
@@ -86,26 +53,12 @@ let NotebookKeymapService = class extends Disposable {
     this.instantiationService = instantiationService;
     this.extensionEnablementService = extensionEnablementService;
     this.notificationService = notificationService;
-    this.notebookKeymapMemento = new Memento(
-      "notebookKeymap",
-      storageService
-    );
-    this.notebookKeymap = this.notebookKeymapMemento.getMemento(
-      StorageScope.PROFILE,
-      StorageTarget.USER
-    );
+    this.notebookKeymapMemento = new Memento("notebookKeymap", storageService);
+    this.notebookKeymap = this.notebookKeymapMemento.getMemento(StorageScope.PROFILE, StorageTarget.USER);
     this._register(lifecycleService.onDidShutdown(() => this.dispose()));
-    this._register(
-      this.instantiationService.invokeFunction(onExtensionChanged)(
-        (identifiers) => {
-          Promise.all(
-            identifiers.map(
-              (identifier) => this.checkForOtherKeymaps(identifier)
-            )
-          ).then(void 0, onUnexpectedError);
-        }
-      )
-    );
+    this._register(this.instantiationService.invokeFunction(onExtensionChanged)((identifiers) => {
+      Promise.all(identifiers.map((identifier) => this.checkForOtherKeymaps(identifier))).then(void 0, onUnexpectedError);
+    }));
   }
   static {
     __name(this, "NotebookKeymapService");
@@ -115,29 +68,14 @@ let NotebookKeymapService = class extends Disposable {
   notebookKeymap;
   checkForOtherKeymaps(extensionIdentifier) {
     return this.instantiationService.invokeFunction(getInstalledExtensions).then((extensions) => {
-      const keymaps = extensions.filter(
-        (extension2) => isNotebookKeymapExtension(extension2)
-      );
-      const extension = keymaps.find(
-        (extension2) => areSameExtensions(
-          extension2.identifier,
-          extensionIdentifier
-        )
-      );
+      const keymaps = extensions.filter((extension2) => isNotebookKeymapExtension(extension2));
+      const extension = keymaps.find((extension2) => areSameExtensions(extension2.identifier, extensionIdentifier));
       if (extension && extension.globallyEnabled) {
         this.notebookKeymap[hasRecommendedKeymapKey] = true;
         this.notebookKeymapMemento.saveMemento();
-        const otherKeymaps = keymaps.filter(
-          (extension2) => !areSameExtensions(
-            extension2.identifier,
-            extensionIdentifier
-          ) && extension2.globallyEnabled
-        );
+        const otherKeymaps = keymaps.filter((extension2) => !areSameExtensions(extension2.identifier, extensionIdentifier) && extension2.globallyEnabled);
         if (otherKeymaps.length) {
-          return this.promptForDisablingOtherKeymaps(
-            extension,
-            otherKeymaps
-          );
+          return this.promptForDisablingOtherKeymaps(extension, otherKeymaps);
         }
       }
       return void 0;
@@ -146,29 +84,19 @@ let NotebookKeymapService = class extends Disposable {
   promptForDisablingOtherKeymaps(newKeymap, oldKeymaps) {
     const onPrompt = /* @__PURE__ */ __name((confirmed) => {
       if (confirmed) {
-        this.extensionEnablementService.setEnablement(
-          oldKeymaps.map((keymap) => keymap.local),
-          EnablementState.DisabledGlobally
-        );
+        this.extensionEnablementService.setEnablement(oldKeymaps.map((keymap) => keymap.local), EnablementState.DisabledGlobally);
       }
     }, "onPrompt");
     this.notificationService.prompt(
       Severity.Info,
-      localize(
-        "disableOtherKeymapsConfirmation",
-        "Disable other keymaps ({0}) to avoid conflicts between keybindings?",
-        distinct(oldKeymaps.map((k) => k.local.manifest.displayName)).map((name) => `'${name}'`).join(", ")
-      ),
-      [
-        {
-          label: localize("yes", "Yes"),
-          run: /* @__PURE__ */ __name(() => onPrompt(true), "run")
-        },
-        {
-          label: localize("no", "No"),
-          run: /* @__PURE__ */ __name(() => onPrompt(false), "run")
-        }
-      ]
+      localize("disableOtherKeymapsConfirmation", "Disable other keymaps ({0}) to avoid conflicts between keybindings?", distinct(oldKeymaps.map((k) => k.local.manifest.displayName)).map((name) => `'${name}'`).join(", ")),
+      [{
+        label: localize("yes", "Yes"),
+        run: /* @__PURE__ */ __name(() => onPrompt(true), "run")
+      }, {
+        label: localize("no", "No"),
+        run: /* @__PURE__ */ __name(() => onPrompt(false), "run")
+      }]
     );
   }
 };

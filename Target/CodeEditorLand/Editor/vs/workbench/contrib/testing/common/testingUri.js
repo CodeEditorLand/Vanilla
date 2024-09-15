@@ -31,29 +31,11 @@ const parseTestUri = /* @__PURE__ */ __name((uri) => {
     if (type === "results" /* Results */) {
       switch (part) {
         case "TestFailureMessage" /* Text */:
-          return {
-            resultId,
-            taskIndex,
-            testExtId,
-            messageIndex: index,
-            type: 2 /* ResultMessage */
-          };
+          return { resultId, taskIndex, testExtId, messageIndex: index, type: 2 /* ResultMessage */ };
         case "ActualOutput" /* ActualOutput */:
-          return {
-            resultId,
-            taskIndex,
-            testExtId,
-            messageIndex: index,
-            type: 3 /* ResultActualOutput */
-          };
+          return { resultId, taskIndex, testExtId, messageIndex: index, type: 3 /* ResultActualOutput */ };
         case "ExpectedOutput" /* ExpectedOutput */:
-          return {
-            resultId,
-            taskIndex,
-            testExtId,
-            messageIndex: index,
-            type: 4 /* ResultExpectedOutput */
-          };
+          return { resultId, taskIndex, testExtId, messageIndex: index, type: 4 /* ResultExpectedOutput */ };
         case "message" /* Messages */:
       }
     }
@@ -73,12 +55,7 @@ const buildTestUri = /* @__PURE__ */ __name((parsed) => {
   if (parsed.type === 0 /* TaskOutput */) {
     return URI.from({
       ...uriParts,
-      path: [
-        "",
-        parsed.resultId,
-        "output" /* AllOutput */,
-        parsed.taskIndex
-      ].join("/")
+      path: ["", parsed.resultId, "output" /* AllOutput */, parsed.taskIndex].join("/")
     });
   }
   const msgRef = /* @__PURE__ */ __name((resultId, ...remaining) => URI.from({
@@ -88,36 +65,16 @@ const buildTestUri = /* @__PURE__ */ __name((parsed) => {
   }), "msgRef");
   switch (parsed.type) {
     case 3 /* ResultActualOutput */:
-      return msgRef(
-        parsed.resultId,
-        parsed.taskIndex,
-        parsed.messageIndex,
-        "ActualOutput" /* ActualOutput */
-      );
+      return msgRef(parsed.resultId, parsed.taskIndex, parsed.messageIndex, "ActualOutput" /* ActualOutput */);
     case 4 /* ResultExpectedOutput */:
-      return msgRef(
-        parsed.resultId,
-        parsed.taskIndex,
-        parsed.messageIndex,
-        "ExpectedOutput" /* ExpectedOutput */
-      );
+      return msgRef(parsed.resultId, parsed.taskIndex, parsed.messageIndex, "ExpectedOutput" /* ExpectedOutput */);
     case 2 /* ResultMessage */:
-      return msgRef(
-        parsed.resultId,
-        parsed.taskIndex,
-        parsed.messageIndex,
-        "TestFailureMessage" /* Text */
-      );
+      return msgRef(parsed.resultId, parsed.taskIndex, parsed.messageIndex, "TestFailureMessage" /* Text */);
     case 1 /* TestOutput */:
       return URI.from({
         ...uriParts,
         query: parsed.testExtId,
-        path: [
-          "",
-          parsed.resultId,
-          "output" /* AllOutput */,
-          parsed.taskIndex
-        ].join("/")
+        path: ["", parsed.resultId, "output" /* AllOutput */, parsed.taskIndex].join("/")
       });
     default:
       assertNever(parsed, "Invalid test uri");

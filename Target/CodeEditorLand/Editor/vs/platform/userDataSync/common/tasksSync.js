@@ -11,28 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { URI } from "../../../base/common/uri.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
 import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
 import { IStorageService } from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  IUserDataProfilesService
-} from "../../userDataProfile/common/userDataProfile.js";
-import {
-  AbstractFileSynchroniser,
-  AbstractInitializer
-} from "./abstractSynchronizer.js";
-import {
-  Change,
-  IUserDataSyncEnablementService,
-  IUserDataSyncLocalStoreService,
-  IUserDataSyncLogService,
-  IUserDataSyncStoreService,
-  SyncResource,
-  USER_DATA_SYNC_SCHEME
-} from "./userDataSync.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractFileSynchroniser, AbstractInitializer, IAcceptResult, IFileResourcePreview, IMergeResult } from "./abstractSynchronizer.js";
+import { Change, IRemoteUserData, IUserDataSyncLocalStoreService, IUserDataSyncConfiguration, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, SyncResource, USER_DATA_SYNC_SCHEME } from "./userDataSync.js";
 function getTasksContentFromSyncContent(syncContent, logService) {
   try {
     const parsed = JSON.parse(syncContent);
@@ -48,53 +38,18 @@ let TasksSynchroniser = class extends AbstractFileSynchroniser {
     __name(this, "TasksSynchroniser");
   }
   version = 1;
-  previewResource = this.extUri.joinPath(
-    this.syncPreviewFolder,
-    "tasks.json"
-  );
-  baseResource = this.previewResource.with({
-    scheme: USER_DATA_SYNC_SCHEME,
-    authority: "base"
-  });
-  localResource = this.previewResource.with({
-    scheme: USER_DATA_SYNC_SCHEME,
-    authority: "local"
-  });
-  remoteResource = this.previewResource.with({
-    scheme: USER_DATA_SYNC_SCHEME,
-    authority: "remote"
-  });
-  acceptedResource = this.previewResource.with({
-    scheme: USER_DATA_SYNC_SCHEME,
-    authority: "accepted"
-  });
+  previewResource = this.extUri.joinPath(this.syncPreviewFolder, "tasks.json");
+  baseResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" });
+  localResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" });
+  remoteResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" });
+  acceptedResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" });
   constructor(profile, collection, userDataSyncStoreService, userDataSyncLocalStoreService, logService, configurationService, userDataSyncEnablementService, fileService, environmentService, storageService, telemetryService, uriIdentityService) {
-    super(
-      profile.tasksResource,
-      { syncResource: SyncResource.Tasks, profile },
-      collection,
-      fileService,
-      environmentService,
-      storageService,
-      userDataSyncStoreService,
-      userDataSyncLocalStoreService,
-      userDataSyncEnablementService,
-      telemetryService,
-      logService,
-      configurationService,
-      uriIdentityService
-    );
+    super(profile.tasksResource, { syncResource: SyncResource.Tasks, profile }, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
   }
   async generateSyncPreview(remoteUserData, lastSyncUserData, isRemoteDataFromCurrentMachine, userDataSyncConfiguration) {
-    const remoteContent = remoteUserData.syncData ? getTasksContentFromSyncContent(
-      remoteUserData.syncData.content,
-      this.logService
-    ) : null;
+    const remoteContent = remoteUserData.syncData ? getTasksContentFromSyncContent(remoteUserData.syncData.content, this.logService) : null;
     lastSyncUserData = lastSyncUserData === null && isRemoteDataFromCurrentMachine ? remoteUserData : lastSyncUserData;
-    const lastSyncContent = lastSyncUserData?.syncData ? getTasksContentFromSyncContent(
-      lastSyncUserData.syncData.content,
-      this.logService
-    ) : null;
+    const lastSyncContent = lastSyncUserData?.syncData ? getTasksContentFromSyncContent(lastSyncUserData.syncData.content, this.logService) : null;
     const fileContent = await this.getLocalFileContent();
     let content = null;
     let hasLocalChanged = false;
@@ -102,26 +57,16 @@ let TasksSynchroniser = class extends AbstractFileSynchroniser {
     let hasConflicts = false;
     if (remoteUserData.syncData) {
       const localContent2 = fileContent ? fileContent.value.toString() : null;
-      if (!lastSyncContent || // First time sync
-      lastSyncContent !== localContent2 || // Local has forwarded
-      lastSyncContent !== remoteContent) {
-        this.logService.trace(
-          `${this.syncResourceLogLabel}: Merging remote tasks with local tasks...`
-        );
-        const result = merge(
-          localContent2,
-          remoteContent,
-          lastSyncContent
-        );
+      if (!lastSyncContent || lastSyncContent !== localContent2 || lastSyncContent !== remoteContent) {
+        this.logService.trace(`${this.syncResourceLogLabel}: Merging remote tasks with local tasks...`);
+        const result = merge(localContent2, remoteContent, lastSyncContent);
         content = result.content;
         hasConflicts = result.hasConflicts;
         hasLocalChanged = result.hasLocalChanged;
         hasRemoteChanged = result.hasRemoteChanged;
       }
     } else if (fileContent) {
-      this.logService.trace(
-        `${this.syncResourceLogLabel}: Remote tasks does not exist. Synchronizing tasks for the first time.`
-      );
+      this.logService.trace(`${this.syncResourceLogLabel}: Remote tasks does not exist. Synchronizing tasks for the first time.`);
       content = fileContent.value.toString();
       hasRemoteChanged = true;
     }
@@ -132,28 +77,23 @@ let TasksSynchroniser = class extends AbstractFileSynchroniser {
       hasConflicts
     };
     const localContent = fileContent ? fileContent.value.toString() : null;
-    return [
-      {
-        fileContent,
-        baseResource: this.baseResource,
-        baseContent: lastSyncContent,
-        localResource: this.localResource,
-        localContent,
-        localChange: previewResult.localChange,
-        remoteResource: this.remoteResource,
-        remoteContent,
-        remoteChange: previewResult.remoteChange,
-        previewResource: this.previewResource,
-        previewResult,
-        acceptedResource: this.acceptedResource
-      }
-    ];
+    return [{
+      fileContent,
+      baseResource: this.baseResource,
+      baseContent: lastSyncContent,
+      localResource: this.localResource,
+      localContent,
+      localChange: previewResult.localChange,
+      remoteResource: this.remoteResource,
+      remoteContent,
+      remoteChange: previewResult.remoteChange,
+      previewResource: this.previewResource,
+      previewResult,
+      acceptedResource: this.acceptedResource
+    }];
   }
   async hasRemoteChanged(lastSyncUserData) {
-    const lastSyncContent = lastSyncUserData?.syncData ? getTasksContentFromSyncContent(
-      lastSyncUserData.syncData.content,
-      this.logService
-    ) : null;
+    const lastSyncContent = lastSyncUserData?.syncData ? getTasksContentFromSyncContent(lastSyncUserData.syncData.content, this.logService) : null;
     if (lastSyncContent === null) {
       return true;
     }
@@ -201,57 +141,34 @@ let TasksSynchroniser = class extends AbstractFileSynchroniser {
     const { fileContent } = resourcePreviews[0][0];
     const { content, localChange, remoteChange } = resourcePreviews[0][1];
     if (localChange === Change.None && remoteChange === Change.None) {
-      this.logService.info(
-        `${this.syncResourceLogLabel}: No changes found during synchronizing tasks.`
-      );
+      this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing tasks.`);
     }
     if (localChange !== Change.None) {
-      this.logService.trace(
-        `${this.syncResourceLogLabel}: Updating local tasks...`
-      );
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating local tasks...`);
       if (fileContent) {
-        await this.backupLocal(
-          JSON.stringify(
-            this.toTasksSyncContent(fileContent.value.toString())
-          )
-        );
+        await this.backupLocal(JSON.stringify(this.toTasksSyncContent(fileContent.value.toString())));
       }
       if (content) {
         await this.updateLocalFileContent(content, fileContent, force);
       } else {
         await this.deleteLocalFile();
       }
-      this.logService.info(
-        `${this.syncResourceLogLabel}: Updated local tasks`
-      );
+      this.logService.info(`${this.syncResourceLogLabel}: Updated local tasks`);
     }
     if (remoteChange !== Change.None) {
-      this.logService.trace(
-        `${this.syncResourceLogLabel}: Updating remote tasks...`
-      );
-      const remoteContents = JSON.stringify(
-        this.toTasksSyncContent(content)
-      );
-      remoteUserData = await this.updateRemoteUserData(
-        remoteContents,
-        force ? null : remoteUserData.ref
-      );
-      this.logService.info(
-        `${this.syncResourceLogLabel}: Updated remote tasks`
-      );
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating remote tasks...`);
+      const remoteContents = JSON.stringify(this.toTasksSyncContent(content));
+      remoteUserData = await this.updateRemoteUserData(remoteContents, force ? null : remoteUserData.ref);
+      this.logService.info(`${this.syncResourceLogLabel}: Updated remote tasks`);
     }
     try {
       await this.fileService.del(this.previewResource);
     } catch (e) {
     }
     if (lastSyncUserData?.ref !== remoteUserData.ref) {
-      this.logService.trace(
-        `${this.syncResourceLogLabel}: Updating last synchronized tasks...`
-      );
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized tasks...`);
       await this.updateLastSyncUserData(remoteUserData);
-      this.logService.info(
-        `${this.syncResourceLogLabel}: Updated last synchronized tasks`
-      );
+      this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized tasks`);
     }
   }
   async hasLocalData() {
@@ -285,38 +202,20 @@ let TasksInitializer = class extends AbstractInitializer {
   }
   tasksResource = this.userDataProfilesService.defaultProfile.tasksResource;
   constructor(fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService) {
-    super(
-      SyncResource.Tasks,
-      userDataProfilesService,
-      environmentService,
-      logService,
-      fileService,
-      storageService,
-      uriIdentityService
-    );
+    super(SyncResource.Tasks, userDataProfilesService, environmentService, logService, fileService, storageService, uriIdentityService);
   }
   async doInitialize(remoteUserData) {
-    const tasksContent = remoteUserData.syncData ? getTasksContentFromSyncContent(
-      remoteUserData.syncData.content,
-      this.logService
-    ) : null;
+    const tasksContent = remoteUserData.syncData ? getTasksContentFromSyncContent(remoteUserData.syncData.content, this.logService) : null;
     if (!tasksContent) {
-      this.logService.info(
-        "Skipping initializing tasks because remote tasks does not exist."
-      );
+      this.logService.info("Skipping initializing tasks because remote tasks does not exist.");
       return;
     }
     const isEmpty = await this.isEmpty();
     if (!isEmpty) {
-      this.logService.info(
-        "Skipping initializing tasks because local tasks exist."
-      );
+      this.logService.info("Skipping initializing tasks because local tasks exist.");
       return;
     }
-    await this.fileService.writeFile(
-      this.tasksResource,
-      VSBuffer.fromString(tasksContent)
-    );
+    await this.fileService.writeFile(this.tasksResource, VSBuffer.fromString(tasksContent));
     await this.updateLastSyncUserData(remoteUserData);
   }
   async isEmpty() {
@@ -333,53 +232,23 @@ TasksInitializer = __decorateClass([
 ], TasksInitializer);
 function merge(originalLocalContent, originalRemoteContent, baseContent) {
   if (originalLocalContent === null && originalRemoteContent === null && baseContent === null) {
-    return {
-      content: null,
-      hasLocalChanged: false,
-      hasRemoteChanged: false,
-      hasConflicts: false
-    };
+    return { content: null, hasLocalChanged: false, hasRemoteChanged: false, hasConflicts: false };
   }
   if (originalLocalContent === originalRemoteContent) {
-    return {
-      content: null,
-      hasLocalChanged: false,
-      hasRemoteChanged: false,
-      hasConflicts: false
-    };
+    return { content: null, hasLocalChanged: false, hasRemoteChanged: false, hasConflicts: false };
   }
   const localForwarded = baseContent !== originalLocalContent;
   const remoteForwarded = baseContent !== originalRemoteContent;
   if (!localForwarded && !remoteForwarded) {
-    return {
-      content: null,
-      hasLocalChanged: false,
-      hasRemoteChanged: false,
-      hasConflicts: false
-    };
+    return { content: null, hasLocalChanged: false, hasRemoteChanged: false, hasConflicts: false };
   }
   if (localForwarded && !remoteForwarded) {
-    return {
-      content: originalLocalContent,
-      hasRemoteChanged: true,
-      hasLocalChanged: false,
-      hasConflicts: false
-    };
+    return { content: originalLocalContent, hasRemoteChanged: true, hasLocalChanged: false, hasConflicts: false };
   }
   if (remoteForwarded && !localForwarded) {
-    return {
-      content: originalRemoteContent,
-      hasLocalChanged: true,
-      hasRemoteChanged: false,
-      hasConflicts: false
-    };
+    return { content: originalRemoteContent, hasLocalChanged: true, hasRemoteChanged: false, hasConflicts: false };
   }
-  return {
-    content: originalLocalContent,
-    hasLocalChanged: true,
-    hasRemoteChanged: true,
-    hasConflicts: true
-  };
+  return { content: originalLocalContent, hasLocalChanged: true, hasRemoteChanged: true, hasConflicts: true };
 }
 __name(merge, "merge");
 export {

@@ -11,36 +11,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { equals } from "../../../base/common/arrays.js";
-import {
-  RunOnceScheduler,
-  createCancelablePromise
-} from "../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
+import { CancelablePromise, createCancelablePromise, RunOnceScheduler } from "../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { isEqual } from "../../../base/common/resources.js";
 import { isBoolean, isUndefined } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IExtensionGalleryService } from "../../extensionManagement/common/extensionManagement.js";
 import { IFileService } from "../../files/common/files.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import {
-  IUserDataProfilesService
-} from "../../userDataProfile/common/userDataProfile.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 import { ExtensionsSynchroniser } from "./extensionsSync.js";
 import { GlobalStateSynchroniser } from "./globalStateSync.js";
 import { KeybindingsSynchroniser } from "./keybindingsSync.js";
@@ -51,20 +37,33 @@ import { UserDataProfilesManifestSynchroniser } from "./userDataProfilesManifest
 import {
   ALL_SYNC_RESOURCES,
   Change,
+  createSyncHeaders,
+  IUserDataManualSyncTask,
+  IUserDataSyncResourceConflicts,
+  IUserDataSyncResourceError,
+  IUserDataSyncResource,
+  ISyncResourceHandle,
+  IUserDataSyncTask,
+  ISyncUserDataProfile,
+  IUserDataManifest,
+  IUserDataResourceManifest,
+  IUserDataSyncConfiguration,
   IUserDataSyncEnablementService,
-  IUserDataSyncLocalStoreService,
+  IUserDataSynchroniser,
   IUserDataSyncLogService,
-  IUserDataSyncResourceProviderService,
+  IUserDataSyncService,
   IUserDataSyncStoreManagementService,
   IUserDataSyncStoreService,
   MergeState,
   SyncResource,
   SyncStatus,
-  USER_DATA_SYNC_CONFIGURATION_SCOPE,
   UserDataSyncError,
   UserDataSyncErrorCode,
   UserDataSyncStoreError,
-  createSyncHeaders
+  USER_DATA_SYNC_CONFIGURATION_SCOPE,
+  IUserDataSyncResourceProviderService,
+  IUserDataActivityData,
+  IUserDataSyncLocalStoreService
 } from "./userDataSync.js";
 const LAST_SYNC_TIME_KEY = "sync.lastSyncTime";
 let UserDataSyncService = class extends Disposable {
@@ -82,20 +81,13 @@ let UserDataSyncService = class extends Disposable {
     this.userDataSyncResourceProviderService = userDataSyncResourceProviderService;
     this.userDataSyncLocalStoreService = userDataSyncLocalStoreService;
     this._status = userDataSyncStoreManagementService.userDataSyncStore ? SyncStatus.Idle : SyncStatus.Uninitialized;
-    this._lastSyncTime = this.storageService.getNumber(
-      LAST_SYNC_TIME_KEY,
-      StorageScope.APPLICATION,
-      void 0
-    );
-    this._register(
-      toDisposable(() => this.clearActiveProfileSynchronizers())
-    );
-    this._register(
-      new RunOnceScheduler(
-        () => this.cleanUpStaleStorageData(),
-        5 * 1e3
-      )
-    ).schedule();
+    this._lastSyncTime = this.storageService.getNumber(LAST_SYNC_TIME_KEY, StorageScope.APPLICATION, void 0);
+    this._register(toDisposable(() => this.clearActiveProfileSynchronizers()));
+    this._register(new RunOnceScheduler(
+      () => this.cleanUpStaleStorageData(),
+      5 * 1e3
+      /* after 5s */
+    )).schedule();
   }
   static {
     __name(this, "UserDataSyncService");
@@ -105,9 +97,7 @@ let UserDataSyncService = class extends Disposable {
   get status() {
     return this._status;
   }
-  _onDidChangeStatus = this._register(
-    new Emitter()
-  );
+  _onDidChangeStatus = this._register(new Emitter());
   onDidChangeStatus = this._onDidChangeStatus.event;
   _onDidChangeLocal = this._register(new Emitter());
   onDidChangeLocal = this._onDidChangeLocal.event;
@@ -115,22 +105,16 @@ let UserDataSyncService = class extends Disposable {
   get conflicts() {
     return this._conflicts;
   }
-  _onDidChangeConflicts = this._register(
-    new Emitter()
-  );
+  _onDidChangeConflicts = this._register(new Emitter());
   onDidChangeConflicts = this._onDidChangeConflicts.event;
   _syncErrors = [];
-  _onSyncErrors = this._register(
-    new Emitter()
-  );
+  _onSyncErrors = this._register(new Emitter());
   onSyncErrors = this._onSyncErrors.event;
   _lastSyncTime = void 0;
   get lastSyncTime() {
     return this._lastSyncTime;
   }
-  _onDidChangeLastSyncTime = this._register(
-    new Emitter()
-  );
+  _onDidChangeLastSyncTime = this._register(new Emitter());
   onDidChangeLastSyncTime = this._onDidChangeLastSyncTime.event;
   _onDidResetLocal = this._register(new Emitter());
   onDidResetLocal = this._onDidResetLocal.event;
@@ -147,18 +131,10 @@ let UserDataSyncService = class extends Disposable {
       if (disableCache) {
         syncHeaders["Cache-Control"] = "no-cache";
       }
-      manifest = await this.userDataSyncStoreService.manifest(
-        manifest,
-        syncHeaders
-      );
+      manifest = await this.userDataSyncStoreService.manifest(manifest, syncHeaders);
     } catch (error) {
       const userDataSyncError = UserDataSyncError.toUserDataSyncError(error);
-      reportUserDataSyncError(
-        userDataSyncError,
-        executionId,
-        this.userDataSyncStoreManagementService,
-        this.telemetryService
-      );
+      reportUserDataSyncError(userDataSyncError, executionId, this.userDataSyncStoreManagementService, this.telemetryService);
       throw userDataSyncError;
     }
     const executed = false;
@@ -170,15 +146,9 @@ let UserDataSyncService = class extends Disposable {
         if (executed) {
           throw new Error("Can run a task only once");
         }
-        cancellablePromise = createCancelablePromise(
-          (token) => that.sync(manifest, false, executionId, token)
-        );
-        await cancellablePromise.finally(
-          () => cancellablePromise = void 0
-        );
-        that.logService.info(
-          `Sync done. Took ${(/* @__PURE__ */ new Date()).getTime() - startTime}ms`
-        );
+        cancellablePromise = createCancelablePromise((token) => that.sync(manifest, false, executionId, token));
+        await cancellablePromise.finally(() => cancellablePromise = void 0);
+        that.logService.info(`Sync done. Took ${(/* @__PURE__ */ new Date()).getTime() - startTime}ms`);
         that.updateLastSyncTime();
       },
       stop() {
@@ -190,10 +160,7 @@ let UserDataSyncService = class extends Disposable {
   async createManualSyncTask() {
     this.checkEnablement();
     if (this.userDataSyncEnablementService.isEnabled()) {
-      throw new UserDataSyncError(
-        "Cannot start manual sync when sync is enabled",
-        UserDataSyncErrorCode.LocalError
-      );
+      throw new UserDataSyncError("Cannot start manual sync when sync is enabled", UserDataSyncErrorCode.LocalError);
     }
     this.logService.info("Sync started.");
     const startTime = (/* @__PURE__ */ new Date()).getTime();
@@ -201,18 +168,10 @@ let UserDataSyncService = class extends Disposable {
     const syncHeaders = createSyncHeaders(executionId);
     let manifest;
     try {
-      manifest = await this.userDataSyncStoreService.manifest(
-        null,
-        syncHeaders
-      );
+      manifest = await this.userDataSyncStoreService.manifest(null, syncHeaders);
     } catch (error) {
       const userDataSyncError = UserDataSyncError.toUserDataSyncError(error);
-      reportUserDataSyncError(
-        userDataSyncError,
-        executionId,
-        this.userDataSyncStoreManagementService,
-        this.telemetryService
-      );
+      reportUserDataSyncError(userDataSyncError, executionId, this.userDataSyncStoreManagementService, this.telemetryService);
       throw userDataSyncError;
     }
     await this.resetLocal();
@@ -221,35 +180,18 @@ let UserDataSyncService = class extends Disposable {
     return {
       id: executionId,
       async merge() {
-        return that.sync(
-          manifest,
-          true,
-          executionId,
-          cancellableToken.token
-        );
+        return that.sync(manifest, true, executionId, cancellableToken.token);
       },
       async apply() {
         try {
           try {
-            await that.applyManualSync(
-              manifest,
-              executionId,
-              cancellableToken.token
-            );
+            await that.applyManualSync(manifest, executionId, cancellableToken.token);
           } catch (error) {
             if (UserDataSyncError.toUserDataSyncError(error).code === UserDataSyncErrorCode.MethodNotFound) {
-              that.logService.info(
-                "Client is making invalid requests. Cleaning up data..."
-              );
+              that.logService.info("Client is making invalid requests. Cleaning up data...");
               await that.cleanUpRemoteData();
-              that.logService.info(
-                "Applying manual sync again..."
-              );
-              await that.applyManualSync(
-                manifest,
-                executionId,
-                cancellableToken.token
-              );
+              that.logService.info("Applying manual sync again...");
+              await that.applyManualSync(manifest, executionId, cancellableToken.token);
             } else {
               throw error;
             }
@@ -258,9 +200,7 @@ let UserDataSyncService = class extends Disposable {
           that.logService.error(error);
           throw error;
         }
-        that.logService.info(
-          `Sync done. Took ${(/* @__PURE__ */ new Date()).getTime() - startTime}ms`
-        );
+        that.logService.info(`Sync done. Took ${(/* @__PURE__ */ new Date()).getTime() - startTime}ms`);
         that.updateLastSyncTime();
       },
       async stop() {
@@ -276,34 +216,15 @@ let UserDataSyncService = class extends Disposable {
       if (this.status !== SyncStatus.HasConflicts) {
         this.setStatus(SyncStatus.Syncing);
       }
-      const defaultProfileSynchronizer = this.getOrCreateActiveProfileSynchronizer(
-        this.userDataProfilesService.defaultProfile,
-        void 0
-      );
-      this._syncErrors.push(
-        ...await this.syncProfile(
-          defaultProfileSynchronizer,
-          manifest,
-          merge,
-          executionId,
-          token
-        )
-      );
-      const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find(
-        (s) => s.resource === SyncResource.Profiles
-      );
+      const defaultProfileSynchronizer = this.getOrCreateActiveProfileSynchronizer(this.userDataProfilesService.defaultProfile, void 0);
+      this._syncErrors.push(...await this.syncProfile(defaultProfileSynchronizer, manifest, merge, executionId, token));
+      const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find((s) => s.resource === SyncResource.Profiles);
       if (userDataProfileManifestSynchronizer) {
         const syncProfiles = await userDataProfileManifestSynchronizer.getLastSyncedProfiles() || [];
         if (token.isCancellationRequested) {
           return;
         }
-        await this.syncRemoteProfiles(
-          syncProfiles,
-          manifest,
-          merge,
-          executionId,
-          token
-        );
+        await this.syncRemoteProfiles(syncProfiles, manifest, merge, executionId, token);
       }
     } finally {
       if (this.status !== SyncStatus.HasConflicts) {
@@ -317,34 +238,17 @@ let UserDataSyncService = class extends Disposable {
       if (token.isCancellationRequested) {
         return;
       }
-      const profile = this.userDataProfilesService.profiles.find(
-        (p) => p.id === syncProfile.id
-      );
+      const profile = this.userDataProfilesService.profiles.find((p) => p.id === syncProfile.id);
       if (!profile) {
-        this.logService.error(
-          `Profile with id:${syncProfile.id} and name: ${syncProfile.name} does not exist locally to sync.`
-        );
+        this.logService.error(`Profile with id:${syncProfile.id} and name: ${syncProfile.name} does not exist locally to sync.`);
         continue;
       }
       this.logService.info("Syncing profile.", syncProfile.name);
       const profileSynchronizer = this.getOrCreateActiveProfileSynchronizer(profile, syncProfile);
-      this._syncErrors.push(
-        ...await this.syncProfile(
-          profileSynchronizer,
-          manifest,
-          merge,
-          executionId,
-          token
-        )
-      );
+      this._syncErrors.push(...await this.syncProfile(profileSynchronizer, manifest, merge, executionId, token));
     }
-    for (const [
-      key,
-      profileSynchronizerItem
-    ] of this.activeProfileSynchronizers.entries()) {
-      if (this.userDataProfilesService.profiles.some(
-        (p) => p.id === profileSynchronizerItem[0].profile.id
-      )) {
+    for (const [key, profileSynchronizerItem] of this.activeProfileSynchronizers.entries()) {
+      if (this.userDataProfilesService.profiles.some((p) => p.id === profileSynchronizerItem[0].profile.id)) {
         continue;
       }
       await profileSynchronizerItem[0].resetLocal();
@@ -360,60 +264,31 @@ let UserDataSyncService = class extends Disposable {
       }
       await profileSynchronizer.apply(executionId, token);
     }
-    const defaultProfileSynchronizer = profileSynchronizers.find(
-      (s) => s.profile.isDefault
-    );
+    const defaultProfileSynchronizer = profileSynchronizers.find((s) => s.profile.isDefault);
     if (!defaultProfileSynchronizer) {
       return;
     }
-    const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find(
-      (s) => s.resource === SyncResource.Profiles
-    );
+    const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find((s) => s.resource === SyncResource.Profiles);
     if (!userDataProfileManifestSynchronizer) {
       return;
     }
     const remoteProfiles = await userDataProfileManifestSynchronizer.getRemoteSyncedProfiles(manifest?.latest ?? null) || [];
-    const remoteProfilesToSync = remoteProfiles.filter(
-      (remoteProfile) => profileSynchronizers.every(
-        (s) => s.profile.id !== remoteProfile.id
-      )
-    );
+    const remoteProfilesToSync = remoteProfiles.filter((remoteProfile) => profileSynchronizers.every((s) => s.profile.id !== remoteProfile.id));
     if (remoteProfilesToSync.length) {
-      await this.syncRemoteProfiles(
-        remoteProfilesToSync,
-        manifest,
-        false,
-        executionId,
-        token
-      );
+      await this.syncRemoteProfiles(remoteProfilesToSync, manifest, false, executionId, token);
     }
   }
   async syncProfile(profileSynchronizer, manifest, merge, executionId, token) {
-    const errors = await profileSynchronizer.sync(
-      manifest,
-      merge,
-      executionId,
-      token
-    );
-    return errors.map(([syncResource, error]) => ({
-      profile: profileSynchronizer.profile,
-      syncResource,
-      error
-    }));
+    const errors = await profileSynchronizer.sync(manifest, merge, executionId, token);
+    return errors.map(([syncResource, error]) => ({ profile: profileSynchronizer.profile, syncResource, error }));
   }
   async stop() {
     if (this.status !== SyncStatus.Idle) {
-      await Promise.allSettled(
-        this.getActiveProfileSynchronizers().map(
-          (profileSynchronizer) => profileSynchronizer.stop()
-        )
-      );
+      await Promise.allSettled(this.getActiveProfileSynchronizers().map((profileSynchronizer) => profileSynchronizer.stop()));
     }
   }
   async resolveContent(resource) {
-    const content = await this.userDataSyncResourceProviderService.resolveContent(
-      resource
-    );
+    const content = await this.userDataSyncResourceProviderService.resolveContent(resource);
     if (content) {
       return content;
     }
@@ -429,9 +304,7 @@ let UserDataSyncService = class extends Disposable {
   }
   async replace(syncResourceHandle) {
     this.checkEnablement();
-    const profileSyncResource = this.userDataSyncResourceProviderService.resolveUserDataSyncResource(
-      syncResourceHandle
-    );
+    const profileSyncResource = this.userDataSyncResourceProviderService.resolveUserDataSyncResource(syncResourceHandle);
     if (!profileSyncResource) {
       return;
     }
@@ -439,16 +312,13 @@ let UserDataSyncService = class extends Disposable {
     if (!content) {
       return;
     }
-    await this.performAction(
-      profileSyncResource.profile,
-      async (synchronizer) => {
-        if (profileSyncResource.syncResource === synchronizer.resource) {
-          await synchronizer.replace(content);
-          return true;
-        }
-        return void 0;
+    await this.performAction(profileSyncResource.profile, async (synchronizer) => {
+      if (profileSyncResource.syncResource === synchronizer.resource) {
+        await synchronizer.replace(content);
+        return true;
       }
-    );
+      return void 0;
+    });
     return;
   }
   async accept(syncResource, resource, content, apply) {
@@ -457,10 +327,7 @@ let UserDataSyncService = class extends Disposable {
       if (syncResource.syncResource === synchronizer.resource) {
         await synchronizer.accept(resource, content);
         if (apply) {
-          await synchronizer.apply(
-            isBoolean(apply) ? false : apply.force,
-            createSyncHeaders(generateUuid())
-          );
+          await synchronizer.apply(isBoolean(apply) ? false : apply.force, createSyncHeaders(generateUuid()));
         }
         return true;
       }
@@ -468,27 +335,21 @@ let UserDataSyncService = class extends Disposable {
     });
   }
   async hasLocalData() {
-    const result = await this.performAction(
-      this.userDataProfilesService.defaultProfile,
-      async (synchronizer) => {
-        if (synchronizer.resource !== SyncResource.GlobalState && await synchronizer.hasLocalData()) {
-          return true;
-        }
-        return void 0;
+    const result = await this.performAction(this.userDataProfilesService.defaultProfile, async (synchronizer) => {
+      if (synchronizer.resource !== SyncResource.GlobalState && await synchronizer.hasLocalData()) {
+        return true;
       }
-    );
+      return void 0;
+    });
     return !!result;
   }
   async hasPreviouslySynced() {
-    const result = await this.performAction(
-      this.userDataProfilesService.defaultProfile,
-      async (synchronizer) => {
-        if (await synchronizer.hasPreviouslySynced()) {
-          return true;
-        }
-        return void 0;
+    const result = await this.performAction(this.userDataProfilesService.defaultProfile, async (synchronizer) => {
+      if (await synchronizer.hasPreviouslySynced()) {
+        return true;
       }
-    );
+      return void 0;
+    });
     return !!result;
   }
   async reset() {
@@ -509,10 +370,7 @@ let UserDataSyncService = class extends Disposable {
   async resetLocal() {
     this.checkEnablement();
     this._lastSyncTime = void 0;
-    this.storageService.remove(
-      LAST_SYNC_TIME_KEY,
-      StorageScope.APPLICATION
-    );
+    this.storageService.remove(LAST_SYNC_TIME_KEY, StorageScope.APPLICATION);
     for (const [synchronizer] of this.activeProfileSynchronizers.values()) {
       try {
         await synchronizer.resetLocal();
@@ -525,10 +383,7 @@ let UserDataSyncService = class extends Disposable {
     this.logService.info("Did reset the local sync state.");
   }
   async cleanUpStaleStorageData() {
-    const allKeys = this.storageService.keys(
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    const allKeys = this.storageService.keys(StorageScope.APPLICATION, StorageTarget.MACHINE);
     const lastSyncProfileKeys = [];
     for (const key of allKeys) {
       if (!key.endsWith(".lastSyncUserData")) {
@@ -544,21 +399,11 @@ let UserDataSyncService = class extends Disposable {
     }
     const disposables = new DisposableStore();
     try {
-      let defaultProfileSynchronizer = this.activeProfileSynchronizers.get(
-        this.userDataProfilesService.defaultProfile.id
-      )?.[0];
+      let defaultProfileSynchronizer = this.activeProfileSynchronizers.get(this.userDataProfilesService.defaultProfile.id)?.[0];
       if (!defaultProfileSynchronizer) {
-        defaultProfileSynchronizer = disposables.add(
-          this.instantiationService.createInstance(
-            ProfileSynchronizer,
-            this.userDataProfilesService.defaultProfile,
-            void 0
-          )
-        );
+        defaultProfileSynchronizer = disposables.add(this.instantiationService.createInstance(ProfileSynchronizer, this.userDataProfilesService.defaultProfile, void 0));
       }
-      const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find(
-        (s) => s.resource === SyncResource.Profiles
-      );
+      const userDataProfileManifestSynchronizer = defaultProfileSynchronizer.enabled.find((s) => s.resource === SyncResource.Profiles);
       if (!userDataProfileManifestSynchronizer) {
         return;
       }
@@ -566,9 +411,7 @@ let UserDataSyncService = class extends Disposable {
       const lastSyncedCollections = lastSyncedProfiles?.map((p) => p.collection) ?? [];
       for (const [key, collection] of lastSyncProfileKeys) {
         if (!lastSyncedCollections.includes(collection)) {
-          this.logService.info(
-            `Removing last sync state for stale profile: ${collection}`
-          );
+          this.logService.info(`Removing last sync state for stale profile: ${collection}`);
           this.storageService.remove(key, StorageScope.APPLICATION);
         }
       }
@@ -578,50 +421,23 @@ let UserDataSyncService = class extends Disposable {
   }
   async cleanUpRemoteData() {
     const remoteProfiles = await this.userDataSyncResourceProviderService.getRemoteSyncedProfiles();
-    const remoteProfileCollections = remoteProfiles.map(
-      (profile) => profile.collection
-    );
+    const remoteProfileCollections = remoteProfiles.map((profile) => profile.collection);
     const allCollections = await this.userDataSyncStoreService.getAllCollections();
-    const redundantCollections = allCollections.filter(
-      (c) => !remoteProfileCollections.includes(c)
-    );
+    const redundantCollections = allCollections.filter((c) => !remoteProfileCollections.includes(c));
     if (redundantCollections.length) {
-      this.logService.info(
-        `Deleting ${redundantCollections.length} redundant collections on server`
-      );
-      await Promise.allSettled(
-        redundantCollections.map(
-          (collectionId) => this.userDataSyncStoreService.deleteCollection(
-            collectionId
-          )
-        )
-      );
+      this.logService.info(`Deleting ${redundantCollections.length} redundant collections on server`);
+      await Promise.allSettled(redundantCollections.map((collectionId) => this.userDataSyncStoreService.deleteCollection(collectionId)));
       this.logService.info(`Deleted redundant collections on server`);
     }
-    const updatedRemoteProfiles = remoteProfiles.filter(
-      (profile) => allCollections.includes(profile.collection)
-    );
+    const updatedRemoteProfiles = remoteProfiles.filter((profile) => allCollections.includes(profile.collection));
     if (updatedRemoteProfiles.length !== remoteProfiles.length) {
-      const profileManifestSynchronizer = this.instantiationService.createInstance(
-        UserDataProfilesManifestSynchroniser,
-        this.userDataProfilesService.defaultProfile,
-        void 0
-      );
+      const profileManifestSynchronizer = this.instantiationService.createInstance(UserDataProfilesManifestSynchroniser, this.userDataProfilesService.defaultProfile, void 0);
       try {
-        this.logService.info(
-          "Resetting the last synced state of profiles"
-        );
+        this.logService.info("Resetting the last synced state of profiles");
         await profileManifestSynchronizer.resetLocal();
-        this.logService.info(
-          "Did reset the last synced state of profiles"
-        );
-        this.logService.info(
-          `Updating remote profiles with invalid collections on server`
-        );
-        await profileManifestSynchronizer.updateRemoteProfiles(
-          updatedRemoteProfiles,
-          null
-        );
+        this.logService.info("Did reset the last synced state of profiles");
+        this.logService.info(`Updating remote profiles with invalid collections on server`);
+        await profileManifestSynchronizer.updateRemoteProfiles(updatedRemoteProfiles, null);
         this.logService.info(`Updated remote profiles on server`);
       } finally {
         profileManifestSynchronizer.dispose();
@@ -639,13 +455,7 @@ let UserDataSyncService = class extends Disposable {
     if (activityData.resources) {
       for (const resource in activityData.resources) {
         for (const version of activityData.resources[resource]) {
-          await this.userDataSyncLocalStoreService.writeResource(
-            resource,
-            version.content,
-            new Date(version.created * 1e3),
-            void 0,
-            location
-          );
+          await this.userDataSyncLocalStoreService.writeResource(resource, version.content, new Date(version.created * 1e3), void 0, location);
         }
       }
     }
@@ -653,13 +463,7 @@ let UserDataSyncService = class extends Disposable {
       for (const collection in activityData.collections) {
         for (const resource in activityData.collections[collection].resources) {
           for (const version of activityData.collections[collection].resources?.[resource] ?? []) {
-            await this.userDataSyncLocalStoreService.writeResource(
-              resource,
-              version.content,
-              new Date(version.created * 1e3),
-              collection,
-              location
-            );
+            await this.userDataSyncLocalStoreService.writeResource(resource, version.content, new Date(version.created * 1e3), collection, location);
           }
         }
       }
@@ -670,58 +474,24 @@ let UserDataSyncService = class extends Disposable {
     try {
       const activeProfileSyncronizer = this.activeProfileSynchronizers.get(profile.id);
       if (activeProfileSyncronizer) {
-        const result = await this.performActionWithProfileSynchronizer(
-          activeProfileSyncronizer[0],
-          action,
-          disposables
-        );
+        const result = await this.performActionWithProfileSynchronizer(activeProfileSyncronizer[0], action, disposables);
         return isUndefined(result) ? null : result;
       }
       if (profile.isDefault) {
-        const defaultProfileSynchronizer = disposables.add(
-          this.instantiationService.createInstance(
-            ProfileSynchronizer,
-            profile,
-            void 0
-          )
-        );
-        const result = await this.performActionWithProfileSynchronizer(
-          defaultProfileSynchronizer,
-          action,
-          disposables
-        );
+        const defaultProfileSynchronizer = disposables.add(this.instantiationService.createInstance(ProfileSynchronizer, profile, void 0));
+        const result = await this.performActionWithProfileSynchronizer(defaultProfileSynchronizer, action, disposables);
         return isUndefined(result) ? null : result;
       }
       if (this.userDataProfilesService.isEnabled()) {
         return null;
       }
-      const userDataProfileManifestSynchronizer = disposables.add(
-        this.instantiationService.createInstance(
-          UserDataProfilesManifestSynchroniser,
-          profile,
-          void 0
-        )
-      );
+      const userDataProfileManifestSynchronizer = disposables.add(this.instantiationService.createInstance(UserDataProfilesManifestSynchroniser, profile, void 0));
       const manifest = await this.userDataSyncStoreService.manifest(null);
-      const syncProfiles = await userDataProfileManifestSynchronizer.getRemoteSyncedProfiles(
-        manifest?.latest ?? null
-      ) || [];
-      const syncProfile = syncProfiles.find(
-        (syncProfile2) => syncProfile2.id === profile.id
-      );
+      const syncProfiles = await userDataProfileManifestSynchronizer.getRemoteSyncedProfiles(manifest?.latest ?? null) || [];
+      const syncProfile = syncProfiles.find((syncProfile2) => syncProfile2.id === profile.id);
       if (syncProfile) {
-        const profileSynchronizer = disposables.add(
-          this.instantiationService.createInstance(
-            ProfileSynchronizer,
-            profile,
-            syncProfile.collection
-          )
-        );
-        const result = await this.performActionWithProfileSynchronizer(
-          profileSynchronizer,
-          action,
-          disposables
-        );
+        const profileSynchronizer = disposables.add(this.instantiationService.createInstance(ProfileSynchronizer, profile, syncProfile.collection));
+        const result = await this.performActionWithProfileSynchronizer(profileSynchronizer, action, disposables);
         return isUndefined(result) ? null : result;
       }
       return null;
@@ -730,21 +500,12 @@ let UserDataSyncService = class extends Disposable {
     }
   }
   async performActionWithProfileSynchronizer(profileSynchronizer, action, disposables) {
-    const allSynchronizers = [
-      ...profileSynchronizer.enabled,
-      ...profileSynchronizer.disabled.reduce((synchronizers, syncResource) => {
-        if (syncResource !== SyncResource.WorkspaceState) {
-          synchronizers.push(
-            disposables.add(
-              profileSynchronizer.createSynchronizer(
-                syncResource
-              )
-            )
-          );
-        }
-        return synchronizers;
-      }, [])
-    ];
+    const allSynchronizers = [...profileSynchronizer.enabled, ...profileSynchronizer.disabled.reduce((synchronizers, syncResource) => {
+      if (syncResource !== SyncResource.WorkspaceState) {
+        synchronizers.push(disposables.add(profileSynchronizer.createSynchronizer(syncResource)));
+      }
+      return synchronizers;
+    }, [])];
     for (const synchronizer of allSynchronizers) {
       const result = await action(synchronizer);
       if (!isUndefined(result)) {
@@ -764,18 +525,8 @@ let UserDataSyncService = class extends Disposable {
     }
   }
   updateConflicts() {
-    const conflicts = this.getActiveProfileSynchronizers().flatMap(
-      (synchronizer) => synchronizer.conflicts
-    );
-    if (!equals(
-      this._conflicts,
-      conflicts,
-      (a, b) => a.profile.id === b.profile.id && a.syncResource === b.syncResource && equals(
-        a.conflicts,
-        b.conflicts,
-        (a2, b2) => isEqual(a2.previewResource, b2.previewResource)
-      )
-    )) {
+    const conflicts = this.getActiveProfileSynchronizers().map((synchronizer) => synchronizer.conflicts).flat();
+    if (!equals(this._conflicts, conflicts, (a, b) => a.profile.id === b.profile.id && a.syncResource === b.syncResource && equals(a.conflicts, b.conflicts, (a2, b2) => isEqual(a2.previewResource, b2.previewResource)))) {
       this._conflicts = conflicts;
       this._onDidChangeConflicts.fire(conflicts);
     }
@@ -783,72 +534,37 @@ let UserDataSyncService = class extends Disposable {
   updateLastSyncTime() {
     if (this.status === SyncStatus.Idle) {
       this._lastSyncTime = (/* @__PURE__ */ new Date()).getTime();
-      this.storageService.store(
-        LAST_SYNC_TIME_KEY,
-        this._lastSyncTime,
-        StorageScope.APPLICATION,
-        StorageTarget.MACHINE
-      );
+      this.storageService.store(LAST_SYNC_TIME_KEY, this._lastSyncTime, StorageScope.APPLICATION, StorageTarget.MACHINE);
       this._onDidChangeLastSyncTime.fire(this._lastSyncTime);
     }
   }
   getOrCreateActiveProfileSynchronizer(profile, syncProfile) {
-    let activeProfileSynchronizer = this.activeProfileSynchronizers.get(
-      profile.id
-    );
+    let activeProfileSynchronizer = this.activeProfileSynchronizers.get(profile.id);
     if (activeProfileSynchronizer && activeProfileSynchronizer[0].collection !== syncProfile?.collection) {
-      this.logService.error(
-        "Profile synchronizer collection does not match with the remote sync profile collection"
-      );
+      this.logService.error("Profile synchronizer collection does not match with the remote sync profile collection");
       activeProfileSynchronizer[1].dispose();
       activeProfileSynchronizer = void 0;
       this.activeProfileSynchronizers.delete(profile.id);
     }
     if (!activeProfileSynchronizer) {
       const disposables = new DisposableStore();
-      const profileSynchronizer = disposables.add(
-        this.instantiationService.createInstance(
-          ProfileSynchronizer,
-          profile,
-          syncProfile?.collection
-        )
-      );
-      disposables.add(
-        profileSynchronizer.onDidChangeStatus((e) => this.setStatus(e))
-      );
-      disposables.add(
-        profileSynchronizer.onDidChangeConflicts(
-          (conflicts) => this.updateConflicts()
-        )
-      );
-      disposables.add(
-        profileSynchronizer.onDidChangeLocal(
-          (e) => this._onDidChangeLocal.fire(e)
-        )
-      );
-      this.activeProfileSynchronizers.set(
-        profile.id,
-        activeProfileSynchronizer = [
-          profileSynchronizer,
-          disposables
-        ]
-      );
+      const profileSynchronizer = disposables.add(this.instantiationService.createInstance(ProfileSynchronizer, profile, syncProfile?.collection));
+      disposables.add(profileSynchronizer.onDidChangeStatus((e) => this.setStatus(e)));
+      disposables.add(profileSynchronizer.onDidChangeConflicts((conflicts) => this.updateConflicts()));
+      disposables.add(profileSynchronizer.onDidChangeLocal((e) => this._onDidChangeLocal.fire(e)));
+      this.activeProfileSynchronizers.set(profile.id, activeProfileSynchronizer = [profileSynchronizer, disposables]);
     }
     return activeProfileSynchronizer[0];
   }
   getActiveProfileSynchronizers() {
     const profileSynchronizers = [];
-    for (const [
-      profileSynchronizer
-    ] of this.activeProfileSynchronizers.values()) {
+    for (const [profileSynchronizer] of this.activeProfileSynchronizers.values()) {
       profileSynchronizers.push(profileSynchronizer);
     }
     return profileSynchronizers;
   }
   clearActiveProfileSynchronizers() {
-    this.activeProfileSynchronizers.forEach(
-      ([, disposable]) => disposable.dispose()
-    );
+    this.activeProfileSynchronizers.forEach(([, disposable]) => disposable.dispose());
     this.activeProfileSynchronizers.clear();
   }
   checkEnablement() {
@@ -883,19 +599,8 @@ let ProfileSynchronizer = class extends Disposable {
     this.logService = logService;
     this.userDataProfilesService = userDataProfilesService;
     this.configurationService = configurationService;
-    this._register(
-      userDataSyncEnablementService.onDidChangeResourceEnablement(
-        ([syncResource, enablement]) => this.onDidChangeResourceEnablement(
-          syncResource,
-          enablement
-        )
-      )
-    );
-    this._register(
-      toDisposable(
-        () => this._enabled.splice(0, this._enabled.length).forEach(([, , disposable]) => disposable.dispose())
-      )
-    );
+    this._register(userDataSyncEnablementService.onDidChangeResourceEnablement(([syncResource, enablement]) => this.onDidChangeResourceEnablement(syncResource, enablement)));
+    this._register(toDisposable(() => this._enabled.splice(0, this._enabled.length).forEach(([, , disposable]) => disposable.dispose())));
     for (const syncResource of ALL_SYNC_RESOURCES) {
       if (userDataSyncEnablementService.isResourceEnabled(syncResource)) {
         this.registerSynchronizer(syncResource);
@@ -910,19 +615,13 @@ let ProfileSynchronizer = class extends Disposable {
     return this._enabled.sort((a, b) => a[1] - b[1]).map(([synchronizer]) => synchronizer);
   }
   get disabled() {
-    return ALL_SYNC_RESOURCES.filter(
-      (syncResource) => !this.userDataSyncEnablementService.isResourceEnabled(
-        syncResource
-      )
-    );
+    return ALL_SYNC_RESOURCES.filter((syncResource) => !this.userDataSyncEnablementService.isResourceEnabled(syncResource));
   }
   _status = SyncStatus.Idle;
   get status() {
     return this._status;
   }
-  _onDidChangeStatus = this._register(
-    new Emitter()
-  );
+  _onDidChangeStatus = this._register(new Emitter());
   onDidChangeStatus = this._onDidChangeStatus.event;
   _onDidChangeLocal = this._register(new Emitter());
   onDidChangeLocal = this._onDidChangeLocal.event;
@@ -930,9 +629,7 @@ let ProfileSynchronizer = class extends Disposable {
   get conflicts() {
     return this._conflicts;
   }
-  _onDidChangeConflicts = this._register(
-    new Emitter()
-  );
+  _onDidChangeConflicts = this._register(new Emitter());
   onDidChangeConflicts = this._onDidChangeConflicts.event;
   onDidChangeResourceEnablement(syncResource, enabled) {
     if (enabled) {
@@ -942,15 +639,11 @@ let ProfileSynchronizer = class extends Disposable {
     }
   }
   registerSynchronizer(syncResource) {
-    if (this._enabled.some(
-      ([synchronizer2]) => synchronizer2.resource === syncResource
-    )) {
+    if (this._enabled.some(([synchronizer2]) => synchronizer2.resource === syncResource)) {
       return;
     }
     if (syncResource === SyncResource.Extensions && !this.extensionGalleryService.isEnabled()) {
-      this.logService.info(
-        "Skipping extensions sync because gallery is not configured"
-      );
+      this.logService.info("Skipping extensions sync because gallery is not configured");
       return;
     }
     if (syncResource === SyncResource.Profiles) {
@@ -965,38 +658,21 @@ let ProfileSynchronizer = class extends Disposable {
       return;
     }
     if (syncResource !== SyncResource.Profiles && this.profile.useDefaultFlags?.[syncResource]) {
-      this.logService.debug(
-        `Skipping syncing ${syncResource} in ${this.profile.name} because it is already synced by default profile`
-      );
+      this.logService.debug(`Skipping syncing ${syncResource} in ${this.profile.name} because it is already synced by default profile`);
       return;
     }
     const disposables = new DisposableStore();
-    const synchronizer = disposables.add(
-      this.createSynchronizer(syncResource)
-    );
-    disposables.add(
-      synchronizer.onDidChangeStatus(() => this.updateStatus())
-    );
-    disposables.add(
-      synchronizer.onDidChangeConflicts(() => this.updateConflicts())
-    );
-    disposables.add(
-      synchronizer.onDidChangeLocal(
-        () => this._onDidChangeLocal.fire(syncResource)
-      )
-    );
+    const synchronizer = disposables.add(this.createSynchronizer(syncResource));
+    disposables.add(synchronizer.onDidChangeStatus(() => this.updateStatus()));
+    disposables.add(synchronizer.onDidChangeConflicts(() => this.updateConflicts()));
+    disposables.add(synchronizer.onDidChangeLocal(() => this._onDidChangeLocal.fire(syncResource)));
     const order = this.getOrder(syncResource);
     this._enabled.push([synchronizer, order, disposables]);
   }
   deRegisterSynchronizer(syncResource) {
-    const index = this._enabled.findIndex(
-      ([synchronizer]) => synchronizer.resource === syncResource
-    );
+    const index = this._enabled.findIndex(([synchronizer]) => synchronizer.resource === syncResource);
     if (index !== -1) {
-      const [[synchronizer, , disposable]] = this._enabled.splice(
-        index,
-        1
-      );
+      const [[synchronizer, , disposable]] = this._enabled.splice(index, 1);
       disposable.dispose();
       this.updateStatus();
       synchronizer.stop().then(null, (error) => this.logService.error(error));
@@ -1005,47 +681,19 @@ let ProfileSynchronizer = class extends Disposable {
   createSynchronizer(syncResource) {
     switch (syncResource) {
       case SyncResource.Settings:
-        return this.instantiationService.createInstance(
-          SettingsSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(SettingsSynchroniser, this.profile, this.collection);
       case SyncResource.Keybindings:
-        return this.instantiationService.createInstance(
-          KeybindingsSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(KeybindingsSynchroniser, this.profile, this.collection);
       case SyncResource.Snippets:
-        return this.instantiationService.createInstance(
-          SnippetsSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(SnippetsSynchroniser, this.profile, this.collection);
       case SyncResource.Tasks:
-        return this.instantiationService.createInstance(
-          TasksSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(TasksSynchroniser, this.profile, this.collection);
       case SyncResource.GlobalState:
-        return this.instantiationService.createInstance(
-          GlobalStateSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(GlobalStateSynchroniser, this.profile, this.collection);
       case SyncResource.Extensions:
-        return this.instantiationService.createInstance(
-          ExtensionsSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(ExtensionsSynchroniser, this.profile, this.collection);
       case SyncResource.Profiles:
-        return this.instantiationService.createInstance(
-          UserDataProfilesManifestSynchroniser,
-          this.profile,
-          this.collection
-        );
+        return this.instantiationService.createInstance(UserDataProfilesManifestSynchroniser, this.profile, this.collection);
     }
   }
   async sync(manifest, merge, executionId, token) {
@@ -1065,24 +713,16 @@ let ProfileSynchronizer = class extends Disposable {
         if (token.isCancellationRequested) {
           return [];
         }
-        if (!this.userDataSyncEnablementService.isResourceEnabled(
-          synchroniser.resource
-        )) {
+        if (!this.userDataSyncEnablementService.isResourceEnabled(synchroniser.resource)) {
           return [];
         }
         try {
           if (merge) {
-            const preview = await synchroniser.preview(
-              resourceManifest,
-              userDataSyncConfiguration,
-              syncHeaders
-            );
+            const preview = await synchroniser.preview(resourceManifest, userDataSyncConfiguration, syncHeaders);
             if (preview) {
               for (const resourcePreview of preview.resourcePreviews) {
                 if ((resourcePreview.localChange !== Change.None || resourcePreview.remoteChange !== Change.None) && resourcePreview.mergeState === MergeState.Preview) {
-                  await synchroniser.merge(
-                    resourcePreview.previewResource
-                  );
+                  await synchroniser.merge(resourcePreview.previewResource);
                 }
               }
             }
@@ -1091,19 +731,12 @@ let ProfileSynchronizer = class extends Disposable {
           }
         } catch (e) {
           const userDataSyncError = UserDataSyncError.toUserDataSyncError(e);
-          reportUserDataSyncError(
-            userDataSyncError,
-            executionId,
-            this.userDataSyncStoreManagementService,
-            this.telemetryService
-          );
+          reportUserDataSyncError(userDataSyncError, executionId, this.userDataSyncStoreManagementService, this.telemetryService);
           if (canBailout(e)) {
             throw userDataSyncError;
           }
           this.logService.error(e);
-          this.logService.error(
-            `${synchroniser.resource}: ${toErrorMessage(e)}`
-          );
+          this.logService.error(`${synchroniser.resource}: ${toErrorMessage(e)}`);
           syncErrors.push([synchroniser.resource, userDataSyncError]);
         }
       }
@@ -1122,19 +755,12 @@ let ProfileSynchronizer = class extends Disposable {
         await synchroniser.apply(false, syncHeaders);
       } catch (e) {
         const userDataSyncError = UserDataSyncError.toUserDataSyncError(e);
-        reportUserDataSyncError(
-          userDataSyncError,
-          executionId,
-          this.userDataSyncStoreManagementService,
-          this.telemetryService
-        );
+        reportUserDataSyncError(userDataSyncError, executionId, this.userDataSyncStoreManagementService, this.telemetryService);
         if (canBailout(e)) {
           throw userDataSyncError;
         }
         this.logService.error(e);
-        this.logService.error(
-          `${synchroniser.resource}: ${toErrorMessage(e)}`
-        );
+        this.logService.error(`${synchroniser.resource}: ${toErrorMessage(e)}`);
       }
     }
   }
@@ -1154,9 +780,7 @@ let ProfileSynchronizer = class extends Disposable {
       try {
         await synchroniser.resetLocal();
       } catch (e) {
-        this.logService.error(
-          `${synchroniser.resource}: ${toErrorMessage(e)}`
-        );
+        this.logService.error(`${synchroniser.resource}: ${toErrorMessage(e)}`);
         this.logService.error(e);
       }
     }
@@ -1165,12 +789,8 @@ let ProfileSynchronizer = class extends Disposable {
     if (!this.profile.isDefault) {
       return {};
     }
-    const local = this.configurationService.getValue(
-      USER_DATA_SYNC_CONFIGURATION_SCOPE
-    );
-    const settingsSynchronizer = this.enabled.find(
-      (synchronizer) => synchronizer instanceof SettingsSynchroniser
-    );
+    const local = this.configurationService.getValue(USER_DATA_SYNC_CONFIGURATION_SCOPE);
+    const settingsSynchronizer = this.enabled.find((synchronizer) => synchronizer instanceof SettingsSynchroniser);
     if (settingsSynchronizer) {
       const remote = await settingsSynchronizer.getRemoteUserDataSyncConfiguration(manifest);
       return { ...local, ...remote };
@@ -1195,15 +815,7 @@ let ProfileSynchronizer = class extends Disposable {
   }
   updateConflicts() {
     const conflicts = this.enabled.filter((s) => s.status === SyncStatus.HasConflicts).filter((s) => s.conflicts.conflicts.length > 0).map((s) => s.conflicts);
-    if (!equals(
-      this._conflicts,
-      conflicts,
-      (a, b) => a.syncResource === b.syncResource && equals(
-        a.conflicts,
-        b.conflicts,
-        (a2, b2) => isEqual(a2.previewResource, b2.previewResource)
-      )
-    )) {
+    if (!equals(this._conflicts, conflicts, (a, b) => a.syncResource === b.syncResource && equals(a.conflicts, b.conflicts, (a2, b2) => isEqual(a2.previewResource, b2.previewResource)))) {
       this._conflicts = conflicts;
       this._onDidChangeConflicts.fire(conflicts);
     }
@@ -1259,14 +871,17 @@ function canBailout(e) {
 }
 __name(canBailout, "canBailout");
 function reportUserDataSyncError(userDataSyncError, executionId, userDataSyncStoreManagementService, telemetryService) {
-  telemetryService.publicLog2("sync/error", {
-    code: userDataSyncError.code,
-    serverCode: userDataSyncError instanceof UserDataSyncStoreError ? String(userDataSyncError.serverCode) : void 0,
-    url: userDataSyncError instanceof UserDataSyncStoreError ? userDataSyncError.url : void 0,
-    resource: userDataSyncError.resource,
-    executionId,
-    service: userDataSyncStoreManagementService.userDataSyncStore.url.toString()
-  });
+  telemetryService.publicLog2(
+    "sync/error",
+    {
+      code: userDataSyncError.code,
+      serverCode: userDataSyncError instanceof UserDataSyncStoreError ? String(userDataSyncError.serverCode) : void 0,
+      url: userDataSyncError instanceof UserDataSyncStoreError ? userDataSyncError.url : void 0,
+      resource: userDataSyncError.resource,
+      executionId,
+      service: userDataSyncStoreManagementService.userDataSyncStore.url.toString()
+    }
+  );
 }
 __name(reportUserDataSyncError, "reportUserDataSyncError");
 export {

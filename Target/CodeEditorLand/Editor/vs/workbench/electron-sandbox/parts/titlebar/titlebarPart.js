@@ -10,87 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  getZoomFactor,
-  isWCOEnabled
-} from "../../../../base/browser/browser.js";
-import {
-  $,
-  EventType,
-  addDisposableListener,
-  append,
-  getWindow,
-  getWindowId,
-  hide,
-  show
-} from "../../../../base/browser/dom.js";
-import {
-  mainWindow
-} from "../../../../base/browser/window.js";
-import { Codicon } from "../../../../base/common/codicons.js";
 import { Event } from "../../../../base/common/event.js";
-import {
-  isBigSurOrNewer,
-  isLinux,
-  isMacintosh,
-  isNative,
-  isWindows
-} from "../../../../base/common/platform.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
-import {
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
+import { getZoomFactor, isWCOEnabled } from "../../../../base/browser/browser.js";
+import { $, addDisposableListener, append, EventType, getWindow, getWindowId, hide, show } from "../../../../base/browser/dom.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IConfigurationService, IConfigurationChangeEvent } from "../../../../platform/configuration/common/configuration.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import {
-  DEFAULT_CUSTOM_TITLEBAR_HEIGHT,
-  hasNativeTitlebar,
-  useWindowControlsOverlay
-} from "../../../../platform/window/common/window.js";
-import {
-  BrowserTitleService,
-  BrowserTitlebarPart
-} from "../../../browser/parts/titlebar/titlebarPart.js";
-import {
-  IEditorGroupsService
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
-import {
-  IWorkbenchLayoutService,
-  Parts
-} from "../../../services/layout/browser/layoutService.js";
+import { isMacintosh, isWindows, isLinux, isNative, isBigSurOrNewer } from "../../../../base/common/platform.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { BrowserTitlebarPart, BrowserTitleService, IAuxiliaryTitlebarPart } from "../../../browser/parts/titlebar/titlebarPart.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkbenchLayoutService, Parts } from "../../../services/layout/browser/layoutService.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { hasNativeTitlebar, useWindowControlsOverlay, DEFAULT_CUSTOM_TITLEBAR_HEIGHT } from "../../../../platform/window/common/window.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { NativeMenubarControl } from "./menubarControl.js";
+import { IEditorGroupsContainer, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { CodeWindow, mainWindow } from "../../../../base/browser/window.js";
 let NativeTitlebarPart = class extends BrowserTitlebarPart {
   constructor(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
-    super(
-      id,
-      targetWindow,
-      editorGroupsContainer,
-      contextMenuService,
-      configurationService,
-      environmentService,
-      instantiationService,
-      themeService,
-      storageService,
-      layoutService,
-      contextKeyService,
-      hostService,
-      editorGroupService,
-      editorService,
-      menuService,
-      keybindingService
-    );
+    super(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorGroupService, editorService, menuService, keybindingService);
     this.nativeHostService = nativeHostService;
     this.bigSurOrNewer = isBigSurOrNewer(environmentService.os.release);
   }
@@ -137,9 +83,7 @@ let NativeTitlebarPart = class extends BrowserTitlebarPart {
     }
   }
   onUpdateAppIconDragBehavior() {
-    const setting = this.configurationService.getValue(
-      "window.doubleClickIconToClose"
-    );
+    const setting = this.configurationService.getValue("window.doubleClickIconToClose");
     if (setting && this.appIcon) {
       this.appIcon.style["-webkit-app-region"] = "no-drag";
     } else if (this.appIcon) {
@@ -152,11 +96,7 @@ let NativeTitlebarPart = class extends BrowserTitlebarPart {
       return;
     }
     if (this.customMenubar) {
-      this._register(
-        this.customMenubar.onFocusStateChange(
-          (e) => this.onMenubarFocusChanged(e)
-        )
-      );
+      this._register(this.customMenubar.onFocusStateChange((e) => this.onMenubarFocusChanged(e)));
     }
   }
   onMenubarFocusChanged(focused) {
@@ -173,119 +113,57 @@ let NativeTitlebarPart = class extends BrowserTitlebarPart {
     const targetWindow = getWindow(parent);
     const targetWindowId = getWindowId(targetWindow);
     if (isMacintosh || hasNativeTitlebar(this.configurationService)) {
-      this._register(
-        this.instantiationService.createInstance(NativeMenubarControl)
-      );
+      this._register(this.instantiationService.createInstance(NativeMenubarControl));
     }
     if (this.appIcon) {
       this.onUpdateAppIconDragBehavior();
-      this._register(
-        addDisposableListener(this.appIcon, EventType.DBLCLICK, () => {
-          this.nativeHostService.closeWindow({ targetWindowId });
-        })
-      );
+      this._register(addDisposableListener(this.appIcon, EventType.DBLCLICK, () => {
+        this.nativeHostService.closeWindow({ targetWindowId });
+      }));
     }
     if (isLinux && !hasNativeTitlebar(this.configurationService) && !isWCOEnabled() && this.windowControlsContainer) {
-      const minimizeIcon = append(
-        this.windowControlsContainer,
-        $(
-          "div.window-icon.window-minimize" + ThemeIcon.asCSSSelector(Codicon.chromeMinimize)
-        )
-      );
-      this._register(
-        addDisposableListener(minimizeIcon, EventType.CLICK, () => {
-          this.nativeHostService.minimizeWindow({ targetWindowId });
-        })
-      );
-      this.maxRestoreControl = append(
-        this.windowControlsContainer,
-        $("div.window-icon.window-max-restore")
-      );
-      this._register(
-        addDisposableListener(
-          this.maxRestoreControl,
-          EventType.CLICK,
-          async () => {
-            const maximized = await this.nativeHostService.isMaximized({
-              targetWindowId
-            });
-            if (maximized) {
-              return this.nativeHostService.unmaximizeWindow({
-                targetWindowId
-              });
-            }
-            return this.nativeHostService.maximizeWindow({
-              targetWindowId
-            });
-          }
-        )
-      );
-      const closeIcon = append(
-        this.windowControlsContainer,
-        $(
-          "div.window-icon.window-close" + ThemeIcon.asCSSSelector(Codicon.chromeClose)
-        )
-      );
-      this._register(
-        addDisposableListener(closeIcon, EventType.CLICK, () => {
-          this.nativeHostService.closeWindow({ targetWindowId });
-        })
-      );
+      const minimizeIcon = append(this.windowControlsContainer, $("div.window-icon.window-minimize" + ThemeIcon.asCSSSelector(Codicon.chromeMinimize)));
+      this._register(addDisposableListener(minimizeIcon, EventType.CLICK, () => {
+        this.nativeHostService.minimizeWindow({ targetWindowId });
+      }));
+      this.maxRestoreControl = append(this.windowControlsContainer, $("div.window-icon.window-max-restore"));
+      this._register(addDisposableListener(this.maxRestoreControl, EventType.CLICK, async () => {
+        const maximized = await this.nativeHostService.isMaximized({ targetWindowId });
+        if (maximized) {
+          return this.nativeHostService.unmaximizeWindow({ targetWindowId });
+        }
+        return this.nativeHostService.maximizeWindow({ targetWindowId });
+      }));
+      const closeIcon = append(this.windowControlsContainer, $("div.window-icon.window-close" + ThemeIcon.asCSSSelector(Codicon.chromeClose)));
+      this._register(addDisposableListener(closeIcon, EventType.CLICK, () => {
+        this.nativeHostService.closeWindow({ targetWindowId });
+      }));
       this.resizer = append(this.rootContainer, $("div.resizer"));
-      this._register(
-        Event.runAndSubscribe(
-          this.layoutService.onDidChangeWindowMaximized,
-          ({ windowId, maximized }) => {
-            if (windowId === targetWindowId) {
-              this.onDidChangeWindowMaximized(maximized);
-            }
-          },
-          {
-            windowId: targetWindowId,
-            maximized: this.layoutService.isWindowMaximized(targetWindow)
-          }
-        )
-      );
+      this._register(Event.runAndSubscribe(this.layoutService.onDidChangeWindowMaximized, ({ windowId, maximized }) => {
+        if (windowId === targetWindowId) {
+          this.onDidChangeWindowMaximized(maximized);
+        }
+      }, { windowId: targetWindowId, maximized: this.layoutService.isWindowMaximized(targetWindow) }));
     }
     if (isWindows && !hasNativeTitlebar(this.configurationService)) {
-      this._register(
-        this.nativeHostService.onDidTriggerWindowSystemContextMenu(
-          ({ windowId, x, y }) => {
-            if (targetWindowId !== windowId) {
-              return;
-            }
-            const zoomFactor = getZoomFactor(
-              getWindow(this.element)
-            );
-            this.onContextMenu(
-              new MouseEvent("mouseup", {
-                clientX: x / zoomFactor,
-                clientY: y / zoomFactor
-              }),
-              MenuId.TitleBarContext
-            );
-          }
-        )
-      );
+      this._register(this.nativeHostService.onDidTriggerWindowSystemContextMenu(({ windowId, x, y }) => {
+        if (targetWindowId !== windowId) {
+          return;
+        }
+        const zoomFactor = getZoomFactor(getWindow(this.element));
+        this.onContextMenu(new MouseEvent("mouseup", { clientX: x / zoomFactor, clientY: y / zoomFactor }), MenuId.TitleBarContext);
+      }));
     }
     return result;
   }
   onDidChangeWindowMaximized(maximized) {
     if (this.maxRestoreControl) {
       if (maximized) {
-        this.maxRestoreControl.classList.remove(
-          ...ThemeIcon.asClassNameArray(Codicon.chromeMaximize)
-        );
-        this.maxRestoreControl.classList.add(
-          ...ThemeIcon.asClassNameArray(Codicon.chromeRestore)
-        );
+        this.maxRestoreControl.classList.remove(...ThemeIcon.asClassNameArray(Codicon.chromeMaximize));
+        this.maxRestoreControl.classList.add(...ThemeIcon.asClassNameArray(Codicon.chromeRestore));
       } else {
-        this.maxRestoreControl.classList.remove(
-          ...ThemeIcon.asClassNameArray(Codicon.chromeRestore)
-        );
-        this.maxRestoreControl.classList.add(
-          ...ThemeIcon.asClassNameArray(Codicon.chromeMaximize)
-        );
+        this.maxRestoreControl.classList.remove(...ThemeIcon.asClassNameArray(Codicon.chromeRestore));
+        this.maxRestoreControl.classList.add(...ThemeIcon.asClassNameArray(Codicon.chromeMaximize));
       }
     }
     if (this.resizer) {
@@ -311,9 +189,7 @@ let NativeTitlebarPart = class extends BrowserTitlebarPart {
   layout(width, height) {
     super.layout(width, height);
     if (useWindowControlsOverlay(this.configurationService) || isMacintosh && isNative && !hasNativeTitlebar(this.configurationService)) {
-      const newHeight = height > 0 || this.bigSurOrNewer ? Math.round(
-        height * getZoomFactor(getWindow(this.element))
-      ) : this.macTitlebarSize;
+      const newHeight = height > 0 || this.bigSurOrNewer ? Math.round(height * getZoomFactor(getWindow(this.element))) : this.macTitlebarSize;
       if (newHeight !== this.cachedWindowControlHeight) {
         this.cachedWindowControlHeight = newHeight;
         this.nativeHostService.updateWindowControls({
@@ -345,25 +221,7 @@ let MainNativeTitlebarPart = class extends NativeTitlebarPart {
     __name(this, "MainNativeTitlebarPart");
   }
   constructor(contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
-    super(
-      Parts.TITLEBAR_PART,
-      mainWindow,
-      "main",
-      contextMenuService,
-      configurationService,
-      environmentService,
-      instantiationService,
-      themeService,
-      storageService,
-      layoutService,
-      contextKeyService,
-      hostService,
-      nativeHostService,
-      editorGroupService,
-      editorService,
-      menuService,
-      keybindingService
-    );
+    super(Parts.TITLEBAR_PART, mainWindow, "main", contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService);
   }
 };
 MainNativeTitlebarPart = __decorateClass([
@@ -385,25 +243,7 @@ MainNativeTitlebarPart = __decorateClass([
 let AuxiliaryNativeTitlebarPart = class extends NativeTitlebarPart {
   constructor(container, editorGroupsContainer, mainTitlebar, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService) {
     const id = AuxiliaryNativeTitlebarPart.COUNTER++;
-    super(
-      `workbench.parts.auxiliaryTitle.${id}`,
-      getWindow(container),
-      editorGroupsContainer,
-      contextMenuService,
-      configurationService,
-      environmentService,
-      instantiationService,
-      themeService,
-      storageService,
-      layoutService,
-      contextKeyService,
-      hostService,
-      nativeHostService,
-      editorGroupService,
-      editorService,
-      menuService,
-      keybindingService
-    );
+    super(`workbench.parts.auxiliaryTitle.${id}`, getWindow(container), editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService, editorGroupService, editorService, menuService, keybindingService);
     this.container = container;
     this.mainTitlebar = mainTitlebar;
   }
@@ -442,12 +282,7 @@ class NativeTitleService extends BrowserTitleService {
     return this.instantiationService.createInstance(MainNativeTitlebarPart);
   }
   doCreateAuxiliaryTitlebarPart(container, editorGroupsContainer) {
-    return this.instantiationService.createInstance(
-      AuxiliaryNativeTitlebarPart,
-      container,
-      editorGroupsContainer,
-      this.mainPart
-    );
+    return this.instantiationService.createInstance(AuxiliaryNativeTitlebarPart, container, editorGroupsContainer, this.mainPart);
   }
 }
 export {

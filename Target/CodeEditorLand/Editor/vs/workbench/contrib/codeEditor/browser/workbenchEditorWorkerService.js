@@ -22,18 +22,8 @@ let WorkbenchEditorWorkerService = class extends EditorWorkerService {
     __name(this, "WorkbenchEditorWorkerService");
   }
   constructor(modelService, configurationService, logService, languageConfigurationService, languageFeaturesService) {
-    const workerDescriptor = new WorkerDescriptor(
-      "vs/editor/common/services/editorSimpleWorker",
-      "TextEditorWorker"
-    );
-    super(
-      workerDescriptor,
-      modelService,
-      configurationService,
-      logService,
-      languageConfigurationService,
-      languageFeaturesService
-    );
+    const workerDescriptor = new WorkerDescriptor("vs/editor/common/services/editorSimpleWorker", "TextEditorWorker");
+    super(workerDescriptor, modelService, configurationService, logService, languageConfigurationService, languageFeaturesService);
   }
 };
 WorkbenchEditorWorkerService = __decorateClass([

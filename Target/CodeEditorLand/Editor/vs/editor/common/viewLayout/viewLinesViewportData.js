@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { IPartialViewLinesViewportData, IViewModel, IViewWhitespaceViewportData, ViewLineRenderingData, ViewModelDecoration } from "../viewModel.js";
 class ViewportData {
   static {
     __name(this, "ViewportData");
@@ -49,10 +51,7 @@ class ViewportData {
     );
   }
   getViewLineRenderingData(lineNumber) {
-    return this._model.getViewportViewLineRenderingData(
-      this.visibleRange,
-      lineNumber
-    );
+    return this._model.getViewportViewLineRenderingData(this.visibleRange, lineNumber);
   }
   getDecorationsInViewport() {
     return this._model.getDecorationsInViewport(this.visibleRange);

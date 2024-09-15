@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/chat/test/browser/mockChatWidget.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { URI } from '../../../../../base/common/uri.js';\nimport { IChatWidget, IChatWidgetService } from '../../browser/chat.js';\n\nexport class MockChatWidgetService implements IChatWidgetService {\n\treadonly _serviceBrand: undefined;\n\n\t/**\n\t * Returns the most recently focused widget if any.\n\t */\n\treadonly lastFocusedWidget: IChatWidget | undefined;\n\n\tgetWidgetByInputUri(uri: URI): IChatWidget | undefined {\n\t\treturn undefined;\n\t}\n\n\tgetWidgetBySessionId(sessionId: string): IChatWidget | undefined {\n\t\treturn undefined;\n\t}\n}\n"],
+  "mappings": ";;AAKA,SAAS,WAAW;AACpB,SAAS,aAAa,0BAA0B;AAEzC,MAAM,sBAAoD;AAAA,EARjE,OAQiE;AAAA;AAAA;AAAA,EACvD;AAAA;AAAA;AAAA;AAAA,EAKA;AAAA,EAET,oBAAoB,KAAmC;AACtD,WAAO;AAAA,EACR;AAAA,EAEA,qBAAqB,WAA4C;AAChE,WAAO;AAAA,EACR;AACD;",
+  "names": []
+}

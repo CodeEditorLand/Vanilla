@@ -85,7 +85,7 @@
   display: inline-flex;
   align-items: center;
   margin-left: 5px;
-  opacity: 0.8;
+  opacity: .8;
   font-size: 0.9em;
 }
 .profile-edit-widget > .profile-type-container > .profile-type-select-container {

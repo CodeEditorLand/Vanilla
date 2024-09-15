@@ -8,9 +8,7 @@ function createWaitMarkerFileSync(verbose) {
   try {
     writeFileSync(randomWaitMarkerPath, "");
     if (verbose) {
-      console.log(
-        `Marker file for --wait created: ${randomWaitMarkerPath}`
-      );
+      console.log(`Marker file for --wait created: ${randomWaitMarkerPath}`);
     }
     return randomWaitMarkerPath;
   } catch (err) {

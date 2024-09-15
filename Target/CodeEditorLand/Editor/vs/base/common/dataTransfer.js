@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "./arrays.js";
 import { Iterable } from "./iterator.js";
+import { URI } from "./uri.js";
 import { generateUuid } from "./uuid.js";
 function createStringDataTransferItem(stringOrPromise) {
   return {

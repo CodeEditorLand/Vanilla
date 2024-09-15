@@ -11,12 +11,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { generateUuid } from "../../../base/common/uuid.js";
-import { IExtHostCommands } from "../common/extHostCommands.js";
 import { IExtHostRpcService } from "../common/extHostRpcService.js";
-import {
-  BaseExtHostTerminalService,
-  ExtHostTerminal
-} from "../common/extHostTerminalService.js";
+import { BaseExtHostTerminalService, ExtHostTerminal, ITerminalInternalOptions } from "../common/extHostTerminalService.js";
+import { IExtHostCommands } from "../common/extHostCommands.js";
 let ExtHostTerminalService = class extends BaseExtHostTerminalService {
   static {
     __name(this, "ExtHostTerminalService");
@@ -28,17 +25,9 @@ let ExtHostTerminalService = class extends BaseExtHostTerminalService {
     return this.createTerminalFromOptions({ name, shellPath, shellArgs });
   }
   createTerminalFromOptions(options, internalOptions) {
-    const terminal = new ExtHostTerminal(
-      this._proxy,
-      generateUuid(),
-      options,
-      options.name
-    );
+    const terminal = new ExtHostTerminal(this._proxy, generateUuid(), options, options.name);
     this._terminals.push(terminal);
-    terminal.create(
-      options,
-      this._serializeParentTerminal(options, internalOptions)
-    );
+    terminal.create(options, this._serializeParentTerminal(options, internalOptions));
     return terminal.value;
   }
 };

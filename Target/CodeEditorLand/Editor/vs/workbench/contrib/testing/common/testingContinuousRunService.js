@@ -10,60 +10,43 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as arrays from "../../../../base/common/arrays.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { StoredValue } from "./storedValue.js";
-import { TestId } from "./testId.js";
-import { ITestProfileService } from "./testProfileService.js";
-import { ITestService } from "./testService.js";
 import { TestingContextKeys } from "./testingContextKeys.js";
-const ITestingContinuousRunService = createDecorator(
-  "testingContinuousRunService"
-);
+import { ITestService } from "./testService.js";
+import { TestService } from "./testServiceImpl.js";
+import { ITestRunProfile, TestRunProfileBitset } from "./testTypes.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { TestId } from "./testId.js";
+import { WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
+import { ITestProfileService } from "./testProfileService.js";
+import * as arrays from "../../../../base/common/arrays.js";
+const ITestingContinuousRunService = createDecorator("testingContinuousRunService");
 let TestingContinuousRunService = class extends Disposable {
   constructor(testService, storageService, contextKeyService, testProfileService) {
     super();
     this.testService = testService;
     this.testProfileService = testProfileService;
     this.isGloballyOn = TestingContextKeys.isContinuousModeOn.bindTo(contextKeyService);
-    this.lastRun = this._register(
-      new StoredValue(
-        {
-          key: "lastContinuousRunProfileIds",
-          scope: StorageScope.WORKSPACE,
-          target: StorageTarget.MACHINE,
-          serialization: {
-            deserialize: /* @__PURE__ */ __name((v) => new Set(JSON.parse(v)), "deserialize"),
-            serialize: /* @__PURE__ */ __name((v) => JSON.stringify([...v]), "serialize")
-          }
-        },
-        storageService
-      )
-    );
-    this._register(
-      toDisposable(() => {
-        this.globallyRunning?.dispose();
-        for (const cts of this.running.values()) {
-          cts.dispose();
-        }
-      })
-    );
+    this.lastRun = this._register(new StoredValue({
+      key: "lastContinuousRunProfileIds",
+      scope: StorageScope.WORKSPACE,
+      target: StorageTarget.MACHINE,
+      serialization: {
+        deserialize: /* @__PURE__ */ __name((v) => new Set(JSON.parse(v)), "deserialize"),
+        serialize: /* @__PURE__ */ __name((v) => JSON.stringify([...v]), "serialize")
+      }
+    }, storageService));
+    this._register(toDisposable(() => {
+      this.globallyRunning?.dispose();
+      for (const cts of this.running.values()) {
+        cts.dispose();
+      }
+    }));
   }
   static {
     __name(this, "TestingContinuousRunService");
@@ -104,60 +87,51 @@ let TestingContinuousRunService = class extends Disposable {
     if (testId === void 0) {
       this.isGloballyOn.set(true);
     }
-    if (testId) {
+    if (!testId) {
+      this.globallyRunning?.dispose();
+      this.globallyRunning = store;
+    } else {
       this.running.mutate(TestId.fromString(testId).path, (c) => {
         c?.dispose();
         return store;
       });
-    } else {
-      this.globallyRunning?.dispose();
-      this.globallyRunning = store;
     }
     let actualProfiles;
     if (profiles instanceof Array) {
       actualProfiles = profiles;
     } else {
-      const getRelevant = /* @__PURE__ */ __name(() => this.testProfileService.getGroupDefaultProfiles(profiles).filter(
-        (p) => p.supportsContinuousRun && (!testId || TestId.root(testId) === p.controllerId)
-      ), "getRelevant");
+      const getRelevant = /* @__PURE__ */ __name(() => this.testProfileService.getGroupDefaultProfiles(profiles).filter((p) => p.supportsContinuousRun && (!testId || TestId.root(testId) === p.controllerId)), "getRelevant");
       actualProfiles = getRelevant();
-      store.add(
-        this.testProfileService.onDidChange(() => {
-          if (!arrays.equals(getRelevant(), actualProfiles)) {
-            this.start(profiles, testId);
-          }
-        })
-      );
+      store.add(this.testProfileService.onDidChange(() => {
+        if (!arrays.equals(getRelevant(), actualProfiles)) {
+          this.start(profiles, testId);
+        }
+      }));
     }
     this.lastRun.store(new Set(actualProfiles.map((p) => p.profileId)));
     if (actualProfiles.length) {
-      this.testService.startContinuousRun(
-        {
-          continuous: true,
-          group: actualProfiles[0].group,
-          targets: actualProfiles.map((p) => ({
-            testIds: [testId ?? p.controllerId],
-            controllerId: p.controllerId,
-            profileId: p.profileId
-          }))
-        },
-        cts.token
-      );
+      this.testService.startContinuousRun({
+        continuous: true,
+        group: actualProfiles[0].group,
+        targets: actualProfiles.map((p) => ({
+          testIds: [testId ?? p.controllerId],
+          controllerId: p.controllerId,
+          profileId: p.profileId
+        }))
+      }, cts.token);
     }
     this.changeEmitter.fire(testId);
   }
   /** @inheritdoc */
   stop(testId) {
-    if (testId) {
-      const cancellations = [
-        ...this.running.deleteRecursive(TestId.fromString(testId).path)
-      ];
+    if (!testId) {
+      this.globallyRunning?.dispose();
+      this.globallyRunning = void 0;
+    } else {
+      const cancellations = [...this.running.deleteRecursive(TestId.fromString(testId).path)];
       for (let i = cancellations.length - 1; i >= 0; i--) {
         cancellations[i].dispose();
       }
-    } else {
-      this.globallyRunning?.dispose();
-      this.globallyRunning = void 0;
     }
     if (testId === void 0) {
       this.isGloballyOn.set(false);

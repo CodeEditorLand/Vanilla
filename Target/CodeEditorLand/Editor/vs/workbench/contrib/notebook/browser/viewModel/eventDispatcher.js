@@ -2,24 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import {
-  NotebookViewEventType
-} from "../notebookViewEvents.js";
+import { NotebookCellStateChangedEvent, NotebookLayoutChangedEvent, NotebookMetadataChangedEvent, NotebookViewEvent, NotebookViewEventType } from "../notebookViewEvents.js";
 class NotebookEventDispatcher extends Disposable {
   static {
     __name(this, "NotebookEventDispatcher");
   }
-  _onDidChangeLayout = this._register(
-    new Emitter()
-  );
+  _onDidChangeLayout = this._register(new Emitter());
   onDidChangeLayout = this._onDidChangeLayout.event;
-  _onDidChangeMetadata = this._register(
-    new Emitter()
-  );
+  _onDidChangeMetadata = this._register(new Emitter());
   onDidChangeMetadata = this._onDidChangeMetadata.event;
-  _onDidChangeCellState = this._register(
-    new Emitter()
-  );
+  _onDidChangeCellState = this._register(new Emitter());
   onDidChangeCellState = this._onDidChangeCellState.event;
   emit(events) {
     for (let i = 0, len = events.length; i < len; i++) {

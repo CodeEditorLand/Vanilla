@@ -12,13 +12,7 @@ var TerminalZoomSettingId = /* @__PURE__ */ ((TerminalZoomSettingId2) => {
 })(TerminalZoomSettingId || {});
 const terminalZoomConfiguration = {
   ["terminal.integrated.mouseWheelZoom" /* MouseWheelZoom */]: {
-    markdownDescription: isMacintosh ? localize(
-      "terminal.integrated.mouseWheelZoom.mac",
-      "Zoom the font of the terminal when using mouse wheel and holding `Cmd`."
-    ) : localize(
-      "terminal.integrated.mouseWheelZoom",
-      "Zoom the font of the terminal when using mouse wheel and holding `Ctrl`."
-    ),
+    markdownDescription: isMacintosh ? localize("terminal.integrated.mouseWheelZoom.mac", "Zoom the font of the terminal when using mouse wheel and holding `Cmd`.") : localize("terminal.integrated.mouseWheelZoom", "Zoom the font of the terminal when using mouse wheel and holding `Ctrl`."),
     type: "boolean",
     default: false
   }

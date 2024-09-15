@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BugIndicatingError } from "../../../../base/common/errors.js";
-import {
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { IValueWithChangeEvent } from "../../../../base/common/event.js";
+import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IMultiDiffSourceResolverService = createDecorator(
-  "multiDiffSourceResolverService"
-);
+const IMultiDiffSourceResolverService = createDecorator("multiDiffSourceResolverService");
 class MultiDiffEditorItem {
   constructor(originalUri, modifiedUri, goToFileUri, contextKeys) {
     this.originalUri = originalUri;
@@ -22,10 +21,7 @@ class MultiDiffEditorItem {
     __name(this, "MultiDiffEditorItem");
   }
   getKey() {
-    return JSON.stringify([
-      this.modifiedUri?.toString(),
-      this.originalUri?.toString()
-    ]);
+    return JSON.stringify([this.modifiedUri?.toString(), this.originalUri?.toString()]);
   }
 }
 class MultiDiffSourceResolverService {

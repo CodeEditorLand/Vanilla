@@ -10,24 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  StatusbarAlignment
-} from "../../services/statusbar/browser/statusbar.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
-import {
-  IExtensionStatusBarItemService,
-  StatusBarUpdateKind
-} from "./statusBarExtensionPoint.js";
+import { MainThreadStatusBarShape, MainContext, ExtHostContext, StatusBarItemDto } from "../common/extHost.protocol.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { Command } from "../../../editor/common/languages.js";
+import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IExtensionStatusBarItemService, StatusBarUpdateKind } from "./statusBarExtensionPoint.js";
+import { IStatusbarEntry, StatusbarAlignment } from "../../services/statusbar/browser/statusbar.js";
 let MainThreadStatusBar = class {
   constructor(extHostContext, statusbarService) {
     this.statusbarService = statusbarService;
@@ -37,13 +28,11 @@ let MainThreadStatusBar = class {
       entries.push(asDto(entryId, item));
     }
     proxy.$acceptStaticEntries(entries);
-    this._store.add(
-      statusbarService.onDidChange((e) => {
-        if (e.added) {
-          proxy.$acceptStaticEntries([asDto(e.added[0], e.added[1])]);
-        }
-      })
-    );
+    this._store.add(statusbarService.onDidChange((e) => {
+      if (e.added) {
+        proxy.$acceptStaticEntries([asDto(e.added[0], e.added[1])]);
+      }
+    }));
     function asDto(entryId, item) {
       return {
         entryId,
@@ -63,24 +52,9 @@ let MainThreadStatusBar = class {
     this._store.dispose();
   }
   $setEntry(entryId, id, extensionId, name, text, tooltip, command, color, backgroundColor, alignLeft, priority, accessibilityInformation) {
-    const kind = this.statusbarService.setOrUpdateEntry(
-      entryId,
-      id,
-      extensionId,
-      name,
-      text,
-      tooltip,
-      command,
-      color,
-      backgroundColor,
-      alignLeft,
-      priority,
-      accessibilityInformation
-    );
+    const kind = this.statusbarService.setOrUpdateEntry(entryId, id, extensionId, name, text, tooltip, command, color, backgroundColor, alignLeft, priority, accessibilityInformation);
     if (kind === StatusBarUpdateKind.DidDefine) {
-      this._store.add(
-        toDisposable(() => this.statusbarService.unsetEntry(entryId))
-      );
+      this._store.add(toDisposable(() => this.statusbarService.unsetEntry(entryId)));
     }
   }
   $disposeEntry(entryId) {

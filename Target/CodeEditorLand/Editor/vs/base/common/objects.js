@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isObject, isTypedArray, isUndefinedOrNull } from "./types.js";
+import { isTypedArray, isObject, isUndefinedOrNull } from "./types.js";
 function deepClone(obj) {
   if (!obj || typeof obj !== "object") {
     return obj;
@@ -179,9 +179,7 @@ function distinct(base, target) {
 __name(distinct, "distinct");
 function getCaseInsensitive(target, key) {
   const lowercaseKey = key.toLowerCase();
-  const equivalentKey = Object.keys(target).find(
-    (k) => k.toLowerCase() === lowercaseKey
-  );
+  const equivalentKey = Object.keys(target).find((k) => k.toLowerCase() === lowercaseKey);
   return equivalentKey ? target[equivalentKey] : target[key];
 }
 __name(getCaseInsensitive, "getCaseInsensitive");
@@ -216,7 +214,7 @@ function getAllMethodNames(obj) {
 __name(getAllMethodNames, "getAllMethodNames");
 function createProxyObject(methodNames, invoke) {
   const createProxyMethod = /* @__PURE__ */ __name((method) => {
-    return () => {
+    return function() {
       const args = Array.prototype.slice.call(arguments, 0);
       return invoke(method, args);
     };

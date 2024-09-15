@@ -13,7 +13,7 @@
   visibility: hidden;
 }
 .monaco-workbench .part.panel .pane-body.integrated-terminal .terminal-outer-container {
-  background-color: var( --vscode-terminal-background, var(--vscode-panel-background) );
+  background-color: var(--vscode-terminal-background, var(--vscode-panel-background));
 }
 .monaco-workbench .pane-body.integrated-terminal .terminal-outer-container,
 .monaco-workbench .pane-body.integrated-terminal .terminal-groups-container,
@@ -25,14 +25,14 @@
 }
 .monaco-workbench .part.sidebar .pane-body.integrated-terminal .terminal-outer-container,
 .monaco-workbench .part.auxiliarybar .pane-body.integrated-terminal .terminal-outer-container {
-  background-color: var( --vscode-terminal-background, var(--vscode-sideBar-background) );
+  background-color: var(--vscode-terminal-background, var(--vscode-sideBar-background));
 }
 .monaco-workbench .pane-body.integrated-terminal .split-view-view:not(:first-child),
 .monaco-workbench .pane-body.integrated-terminal .tabs-container {
   border-color: var(--vscode-terminal-border);
 }
 .monaco-workbench .pane-body.integrated-terminal .terminal-drop-overlay {
-  background-color: var( --vscode-terminal-dropBackground, var(--vscode-editorGroup-dropBackground) );
+  background-color: var(--vscode-terminal-dropBackground, var(--vscode-editorGroup-dropBackground));
 }
 .monaco-workbench .pane-body.integrated-terminal .terminal-tabs-entry.is-active::before {
   background-color: var(--vscode-terminal-tab-activeBorder);
@@ -48,7 +48,7 @@
   background-image: none !important;
 }
 .monaco-workbench .terminal-editor .terminal-wrapper {
-  background-color: var( --vscode-terminal-background, var(--vscode-editorPane-background) );
+  background-color: var(--vscode-terminal-background, var(--vscode-editorPane-background));
 }
 .monaco-workbench .terminal-editor .terminal-wrapper,
 .monaco-workbench .pane-body.integrated-terminal .terminal-wrapper {

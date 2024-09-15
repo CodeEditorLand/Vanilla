@@ -13,26 +13,19 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { isEqual } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
-import {
-  IWorkingCopyEditorService
-} from "../../../services/workingCopy/common/workingCopyEditorService.js";
-import { NotebookEditorInput } from "../../notebook/common/notebookEditorInput.js";
-import {
-  IWebviewService,
-  WebviewContentPurpose
-} from "../../webview/browser/webview.js";
-import {
-  WebviewEditorInputSerializer,
-  restoreWebviewContentOptions,
-  restoreWebviewOptions,
-  reviveWebviewExtensionDescription
-} from "../../webviewPanel/browser/webviewEditorInputSerializer.js";
-import { IWebviewWorkbenchService } from "../../webviewPanel/browser/webviewWorkbenchService.js";
-import { ICustomEditorService } from "../common/customEditor.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 import { CustomEditorInput } from "./customEditorInput.js";
+import { ICustomEditorService } from "../common/customEditor.js";
+import { NotebookEditorInput } from "../../notebook/common/notebookEditorInput.js";
+import { IWebviewService, WebviewContentOptions, WebviewContentPurpose, WebviewExtensionDescription, WebviewOptions } from "../../webview/browser/webview.js";
+import { DeserializedWebview, restoreWebviewContentOptions, restoreWebviewOptions, reviveWebviewExtensionDescription, SerializedWebview, SerializedWebviewOptions, WebviewEditorInputSerializer } from "../../webviewPanel/browser/webviewEditorInputSerializer.js";
+import { IWebviewWorkbenchService } from "../../webviewPanel/browser/webviewWorkbenchService.js";
+import { IWorkingCopyBackupMeta, IWorkingCopyIdentifier } from "../../../services/workingCopy/common/workingCopy.js";
+import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
+import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from "../../../services/workingCopy/common/workingCopyEditorService.js";
 let CustomEditorInputSerializer = class extends WebviewEditorInputSerializer {
   constructor(webviewWorkbenchService, _instantiationService, _webviewService) {
     super(webviewWorkbenchService);
@@ -67,12 +60,7 @@ let CustomEditorInputSerializer = class extends WebviewEditorInputSerializer {
   deserialize(_instantiationService, serializedEditorInput) {
     const data = this.fromJson(JSON.parse(serializedEditorInput));
     const webview = reviveWebview(this._webviewService, data);
-    const customInput = this._instantiationService.createInstance(
-      CustomEditorInput,
-      { resource: data.editorResource, viewType: data.viewType },
-      webview,
-      { startsDirty: data.dirty, backupId: data.backupId }
-    );
+    const customInput = this._instantiationService.createInstance(CustomEditorInput, { resource: data.editorResource, viewType: data.viewType }, webview, { startsDirty: data.dirty, backupId: data.backupId });
     if (typeof data.group === "number") {
       customInput.updateGroup(data.group);
     }
@@ -144,38 +132,21 @@ let ComplexCustomWorkingCopyEditorHandler = class extends Disposable {
     }
   }
   async createEditor(workingCopy) {
-    const backup = await this._workingCopyBackupService.resolve(
-      workingCopy
-    );
+    const backup = await this._workingCopyBackupService.resolve(workingCopy);
     if (!backup?.meta) {
-      throw new Error(
-        `No backup found for custom editor: ${workingCopy.resource}`
-      );
+      throw new Error(`No backup found for custom editor: ${workingCopy.resource}`);
     }
     const backupData = backup.meta;
-    const extension = reviveWebviewExtensionDescription(
-      backupData.extension?.id,
-      backupData.extension?.location
-    );
+    const extension = reviveWebviewExtensionDescription(backupData.extension?.id, backupData.extension?.location);
     const webview = reviveWebview(this._webviewService, {
       viewType: backupData.viewType,
       origin: backupData.webview.origin,
       webviewOptions: restoreWebviewOptions(backupData.webview.options),
-      contentOptions: restoreWebviewContentOptions(
-        backupData.webview.options
-      ),
+      contentOptions: restoreWebviewContentOptions(backupData.webview.options),
       state: backupData.webview.state,
       extension
     });
-    const editor = this._instantiationService.createInstance(
-      CustomEditorInput,
-      {
-        resource: URI.revive(backupData.editorResource),
-        viewType: backupData.viewType
-      },
-      webview,
-      { backupId: backupData.backupId }
-    );
+    const editor = this._instantiationService.createInstance(CustomEditorInput, { resource: URI.revive(backupData.editorResource), viewType: backupData.viewType }, webview, { backupId: backupData.backupId });
     editor.updateGroup(0);
     return editor;
   }

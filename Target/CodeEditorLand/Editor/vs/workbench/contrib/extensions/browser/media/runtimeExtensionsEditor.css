@@ -23,7 +23,7 @@
 .runtime-extensions-editor .extension .desc > .msg > span:not(:last-child)::after {
   content: "\2022";
   padding: 0 4px;
-  opacity: 0.8;
+  opacity: .8;
 }
 .runtime-extensions-editor .monaco-action-bar {
   height: unset;

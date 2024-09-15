@@ -1,20 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/sidebarpart.css";
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { localize2 } from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IWorkbenchLayoutService, Parts } from "../../../services/layout/browser/layoutService.js";
+import { KeyMod, KeyCode } from "../../../../base/common/keyCodes.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ViewContainerLocation } from "../../../common/views.js";
-import {
-  IWorkbenchLayoutService,
-  Parts
-} from "../../../services/layout/browser/layoutService.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
 import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { ViewContainerLocation } from "../../../common/views.js";
 class FocusSideBarAction extends Action2 {
   static {
     __name(this, "FocusSideBarAction");
@@ -38,9 +33,7 @@ class FocusSideBarAction extends Action2 {
     if (!layoutService.isVisible(Parts.SIDEBAR_PART)) {
       layoutService.setPartHidden(false, Parts.SIDEBAR_PART);
     }
-    const viewlet = paneCompositeService.getActivePaneComposite(
-      ViewContainerLocation.Sidebar
-    );
+    const viewlet = paneCompositeService.getActivePaneComposite(ViewContainerLocation.Sidebar);
     viewlet?.focus();
   }
 }

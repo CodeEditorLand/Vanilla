@@ -10,41 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as DOM from "../../../../base/browser/dom.js";
-import { DomEmitter } from "../../../../base/browser/event.js";
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
-import { Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import Severity from "../../../../base/common/severity.js";
-import { isUndefinedOrNull } from "../../../../base/common/types.js";
-import { Range } from "../../../../editor/common/core/range.js";
 import { localize } from "../../../../nls.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import * as DOM from "../../../../base/browser/dom.js";
+import { Event } from "../../../../base/common/event.js";
+import { ITableContextMenuEvent, ITableEvent, ITableRenderer, ITableVirtualDelegate } from "../../../../base/browser/ui/table/table.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import {
-  WorkbenchTable
-} from "../../../../platform/list/browser/listService.js";
-import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
+import { IOpenEvent, IWorkbenchTableOptions, WorkbenchTable } from "../../../../platform/list/browser/listService.js";
+import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { compareMarkersByUri, Marker, MarkerTableItem, ResourceMarkers } from "./markersModel.js";
 import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { SeverityIcon } from "../../../../platform/severityIcon/browser/severityIcon.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { FilterOptions } from "./markersFilterOptions.js";
 import { Link } from "../../../../platform/opener/browser/link.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { SeverityIcon } from "../../../../platform/severityIcon/browser/severityIcon.js";
-import { FilterOptions } from "./markersFilterOptions.js";
-import {
-  Marker,
-  MarkerTableItem,
-  compareMarkersByUri
-} from "./markersModel.js";
-import {
-  QuickFixAction,
-  QuickFixActionViewItem
-} from "./markersViewActions.js";
+import { MarkersViewModel } from "./markersTreeViewer.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { QuickFixAction, QuickFixActionViewItem } from "./markersViewActions.js";
+import { DomEmitter } from "../../../../base/browser/event.js";
 import Messages from "./messages.js";
+import { isUndefinedOrNull } from "../../../../base/common/types.js";
+import { IProblemsWidget } from "./markersView.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { unsupportedSchemas } from "../../../../platform/markers/common/markerService.js";
+import Severity from "../../../../base/common/severity.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 const $ = DOM.$;
 let MarkerSeverityColumnRenderer = class {
   constructor(markersViewModel, instantiationService) {
@@ -61,40 +54,26 @@ let MarkerSeverityColumnRenderer = class {
     const icon = DOM.append(severityColumn, $(""));
     const actionBarColumn = DOM.append(container, $(".actions"));
     const actionBar = new ActionBar(actionBarColumn, {
-      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => action.id === QuickFixAction.ID ? this.instantiationService.createInstance(
-        QuickFixActionViewItem,
-        action,
-        options
-      ) : void 0, "actionViewItemProvider")
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => action.id === QuickFixAction.ID ? this.instantiationService.createInstance(QuickFixActionViewItem, action, options) : void 0, "actionViewItemProvider")
     });
     return { actionBar, icon };
   }
   renderElement(element, index, templateData, height) {
     const toggleQuickFix = /* @__PURE__ */ __name((enabled) => {
       if (!isUndefinedOrNull(enabled)) {
-        const container = DOM.findParentWithClass(
-          templateData.icon,
-          "monaco-table-td"
-        );
+        const container = DOM.findParentWithClass(templateData.icon, "monaco-table-td");
         container.classList.toggle("quickFix", enabled);
       }
     }, "toggleQuickFix");
-    templateData.icon.title = MarkerSeverity.toString(
-      element.marker.severity
-    );
+    templateData.icon.title = MarkerSeverity.toString(element.marker.severity);
     templateData.icon.className = `marker-icon ${Severity.toString(MarkerSeverity.toSeverity(element.marker.severity))} codicon ${SeverityIcon.className(MarkerSeverity.toSeverity(element.marker.severity))}`;
     templateData.actionBar.clear();
     const viewModel = this.markersViewModel.getViewModel(element);
     if (viewModel) {
       const quickFixAction = viewModel.quickFixAction;
-      templateData.actionBar.push([quickFixAction], {
-        icon: true,
-        label: false
-      });
+      templateData.actionBar.push([quickFixAction], { icon: true, label: false });
       toggleQuickFix(viewModel.quickFixAction.enabled);
-      quickFixAction.onDidChange(
-        ({ enabled }) => toggleQuickFix(enabled)
-      );
+      quickFixAction.onDidChange(({ enabled }) => toggleQuickFix(enabled));
       quickFixAction.onShowQuickFixes(() => {
         const quickFixActionViewItem = templateData.actionBar.viewItems[0];
         if (quickFixActionViewItem) {
@@ -122,30 +101,12 @@ let MarkerCodeColumnRenderer = class {
   renderTemplate(container) {
     const templateDisposable = new DisposableStore();
     const codeColumn = DOM.append(container, $(".code"));
-    const sourceLabel = templateDisposable.add(
-      new HighlightedLabel(codeColumn)
-    );
+    const sourceLabel = templateDisposable.add(new HighlightedLabel(codeColumn));
     sourceLabel.element.classList.add("source-label");
-    const codeLabel = templateDisposable.add(
-      new HighlightedLabel(codeColumn)
-    );
+    const codeLabel = templateDisposable.add(new HighlightedLabel(codeColumn));
     codeLabel.element.classList.add("code-label");
-    const codeLink = templateDisposable.add(
-      new Link(
-        codeColumn,
-        { href: "", label: "" },
-        {},
-        this.hoverService,
-        this.openerService
-      )
-    );
-    return {
-      codeColumn,
-      sourceLabel,
-      codeLabel,
-      codeLink,
-      templateDisposable
-    };
+    const codeLink = templateDisposable.add(new Link(codeColumn, { href: "", label: "" }, {}, this.hoverService, this.openerService));
+    return { codeColumn, sourceLabel, codeLabel, codeLink, templateDisposable };
   }
   renderElement(element, index, templateData, height) {
     templateData.codeColumn.classList.remove("code-label");
@@ -154,28 +115,14 @@ let MarkerCodeColumnRenderer = class {
       if (typeof element.marker.code === "string") {
         templateData.codeColumn.classList.add("code-label");
         templateData.codeColumn.title = `${element.marker.source} (${element.marker.code})`;
-        templateData.sourceLabel.set(
-          element.marker.source,
-          element.sourceMatches
-        );
-        templateData.codeLabel.set(
-          element.marker.code,
-          element.codeMatches
-        );
+        templateData.sourceLabel.set(element.marker.source, element.sourceMatches);
+        templateData.codeLabel.set(element.marker.code, element.codeMatches);
       } else {
         templateData.codeColumn.classList.add("code-link");
         templateData.codeColumn.title = `${element.marker.source} (${element.marker.code.value})`;
-        templateData.sourceLabel.set(
-          element.marker.source,
-          element.sourceMatches
-        );
-        const codeLinkLabel = templateData.templateDisposable.add(
-          new HighlightedLabel($(".code-link-label"))
-        );
-        codeLinkLabel.set(
-          element.marker.code.value,
-          element.codeMatches
-        );
+        templateData.sourceLabel.set(element.marker.source, element.sourceMatches);
+        const codeLinkLabel = templateData.templateDisposable.add(new HighlightedLabel($(".code-link-label")));
+        codeLinkLabel.set(element.marker.code.value, element.codeMatches);
         templateData.codeLink.link = {
           href: element.marker.code.target.toString(true),
           title: element.marker.code.target.toString(true),
@@ -208,10 +155,7 @@ class MarkerMessageColumnRenderer {
   }
   renderElement(element, index, templateData, height) {
     templateData.columnElement.title = element.marker.message;
-    templateData.highlightedLabel.set(
-      element.marker.message,
-      element.messageMatches
-    );
+    templateData.highlightedLabel.set(element.marker.message, element.messageMatches);
   }
   disposeTemplate(templateData) {
     templateData.highlightedLabel.dispose();
@@ -235,17 +179,9 @@ let MarkerFileColumnRenderer = class {
     return { columnElement, fileLabel, positionLabel };
   }
   renderElement(element, index, templateData, height) {
-    const positionLabel = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(
-      element.marker.startLineNumber,
-      element.marker.startColumn
-    );
+    const positionLabel = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(element.marker.startLineNumber, element.marker.startColumn);
     templateData.columnElement.title = `${this.labelService.getUriLabel(element.marker.resource, { relative: false })} ${positionLabel}`;
-    templateData.fileLabel.set(
-      this.labelService.getUriLabel(element.marker.resource, {
-        relative: true
-      }),
-      element.fileMatches
-    );
+    templateData.fileLabel.set(this.labelService.getUriLabel(element.marker.resource, { relative: true }), element.fileMatches);
     templateData.positionLabel.set(positionLabel, void 0);
   }
   disposeTemplate(templateData) {
@@ -269,10 +205,7 @@ class MarkerOwnerColumnRenderer {
   }
   renderElement(element, index, templateData, height) {
     templateData.columnElement.title = element.marker.owner;
-    templateData.highlightedLabel.set(
-      element.marker.owner,
-      element.ownerMatches
-    );
+    templateData.highlightedLabel.set(element.marker.owner, element.ownerMatches);
   }
   disposeTemplate(templateData) {
     templateData.highlightedLabel.dispose();
@@ -357,51 +290,27 @@ let MarkersTable = class extends Disposable {
         }
       ],
       [
-        this.instantiationService.createInstance(
-          MarkerSeverityColumnRenderer,
-          this.markersViewModel
-        ),
-        this.instantiationService.createInstance(
-          MarkerCodeColumnRenderer
-        ),
-        this.instantiationService.createInstance(
-          MarkerMessageColumnRenderer
-        ),
-        this.instantiationService.createInstance(
-          MarkerFileColumnRenderer
-        ),
-        this.instantiationService.createInstance(
-          MarkerOwnerColumnRenderer
-        )
+        this.instantiationService.createInstance(MarkerSeverityColumnRenderer, this.markersViewModel),
+        this.instantiationService.createInstance(MarkerCodeColumnRenderer),
+        this.instantiationService.createInstance(MarkerMessageColumnRenderer),
+        this.instantiationService.createInstance(MarkerFileColumnRenderer),
+        this.instantiationService.createInstance(MarkerOwnerColumnRenderer)
       ],
       options
     );
-    const list = this.table.domNode.querySelector(
-      ".monaco-list-rows"
-    );
+    const list = this.table.domNode.querySelector(".monaco-list-rows");
     const onRowHover = Event.chain(
       this._register(new DomEmitter(list, "mouseover")).event,
-      ($2) => $2.map((e) => DOM.findParentWithClass(e.target, "monaco-list-row", "monaco-list-rows")).filter((e) => !!e).map((e) => Number.parseInt(e.getAttribute("data-index")))
+      ($2) => $2.map((e) => DOM.findParentWithClass(e.target, "monaco-list-row", "monaco-list-rows")).filter((e) => !!e).map((e) => parseInt(e.getAttribute("data-index")))
     );
-    const onListLeave = Event.map(
-      this._register(new DomEmitter(list, "mouseleave")).event,
-      () => -1
-    );
-    const onRowHoverOrLeave = Event.latch(
-      Event.any(onRowHover, onListLeave)
-    );
-    const onRowPermanentHover = Event.debounce(
-      onRowHoverOrLeave,
-      (_, e) => e,
-      500
-    );
-    this._register(
-      onRowPermanentHover((e) => {
-        if (e !== -1 && this.table.row(e)) {
-          this.markersViewModel.onMarkerMouseHover(this.table.row(e));
-        }
-      })
-    );
+    const onListLeave = Event.map(this._register(new DomEmitter(list, "mouseleave")).event, () => -1);
+    const onRowHoverOrLeave = Event.latch(Event.any(onRowHover, onListLeave));
+    const onRowPermanentHover = Event.debounce(onRowHoverOrLeave, (_, e) => e, 500);
+    this._register(onRowPermanentHover((e) => {
+      if (e !== -1 && this.table.row(e)) {
+        this.markersViewModel.onMarkerMouseHover(this.table.row(e));
+      }
+    }));
   }
   static {
     __name(this, "MarkersTable");
@@ -476,40 +385,14 @@ let MarkersTable = class extends Disposable {
           continue;
         }
         if (this.filterOptions.textFilter.text) {
-          const sourceMatches = marker.marker.source ? FilterOptions._filter(
-            this.filterOptions.textFilter.text,
-            marker.marker.source
-          ) ?? void 0 : void 0;
-          const codeMatches = marker.marker.code ? FilterOptions._filter(
-            this.filterOptions.textFilter.text,
-            typeof marker.marker.code === "string" ? marker.marker.code : marker.marker.code.value
-          ) ?? void 0 : void 0;
-          const messageMatches = FilterOptions._messageFilter(
-            this.filterOptions.textFilter.text,
-            marker.marker.message
-          ) ?? void 0;
-          const fileMatches = FilterOptions._messageFilter(
-            this.filterOptions.textFilter.text,
-            this.labelService.getUriLabel(marker.resource, {
-              relative: true
-            })
-          ) ?? void 0;
-          const ownerMatches = FilterOptions._messageFilter(
-            this.filterOptions.textFilter.text,
-            marker.marker.owner
-          ) ?? void 0;
+          const sourceMatches = marker.marker.source ? FilterOptions._filter(this.filterOptions.textFilter.text, marker.marker.source) ?? void 0 : void 0;
+          const codeMatches = marker.marker.code ? FilterOptions._filter(this.filterOptions.textFilter.text, typeof marker.marker.code === "string" ? marker.marker.code : marker.marker.code.value) ?? void 0 : void 0;
+          const messageMatches = FilterOptions._messageFilter(this.filterOptions.textFilter.text, marker.marker.message) ?? void 0;
+          const fileMatches = FilterOptions._messageFilter(this.filterOptions.textFilter.text, this.labelService.getUriLabel(marker.resource, { relative: true })) ?? void 0;
+          const ownerMatches = FilterOptions._messageFilter(this.filterOptions.textFilter.text, marker.marker.owner) ?? void 0;
           const matched = sourceMatches || codeMatches || messageMatches || fileMatches || ownerMatches;
           if (matched && !this.filterOptions.textFilter.negate || !matched && this.filterOptions.textFilter.negate) {
-            items.push(
-              new MarkerTableItem(
-                marker,
-                sourceMatches,
-                codeMatches,
-                messageMatches,
-                fileMatches,
-                ownerMatches
-              )
-            );
+            items.push(new MarkerTableItem(marker, sourceMatches, codeMatches, messageMatches, fileMatches, ownerMatches));
           }
           continue;
         }
@@ -517,23 +400,16 @@ let MarkersTable = class extends Disposable {
       }
     }
     this._itemCount = items.length;
-    this.table.splice(
-      0,
-      Number.POSITIVE_INFINITY,
-      items.sort((a, b) => {
-        let result = MarkerSeverity.compare(
-          a.marker.severity,
-          b.marker.severity
-        );
-        if (result === 0) {
-          result = compareMarkersByUri(a.marker, b.marker);
-        }
-        if (result === 0) {
-          result = Range.compareRangesUsingStarts(a.marker, b.marker);
-        }
-        return result;
-      })
-    );
+    this.table.splice(0, Number.POSITIVE_INFINITY, items.sort((a, b) => {
+      let result = MarkerSeverity.compare(a.marker.severity, b.marker.severity);
+      if (result === 0) {
+        result = compareMarkersByUri(a.marker, b.marker);
+      }
+      if (result === 0) {
+        result = Range.compareRangesUsingStarts(a.marker, b.marker);
+      }
+      return result;
+    }));
   }
   revealMarkers(activeResource, focus, lastSelectedRelativeTop) {
     if (activeResource) {
@@ -541,10 +417,7 @@ let MarkersTable = class extends Disposable {
       if (activeResourceIndex !== -1) {
         if (this.hasSelectedMarkerFor(activeResource)) {
           const tableSelection = this.table.getSelection();
-          this.table.reveal(
-            tableSelection[0],
-            lastSelectedRelativeTop
-          );
+          this.table.reveal(tableSelection[0], lastSelectedRelativeTop);
           if (focus) {
             this.table.setFocus(tableSelection);
           }
@@ -567,13 +440,9 @@ let MarkersTable = class extends Disposable {
   setMarkerSelection(selection, focus) {
     if (this.isVisible()) {
       if (selection && selection.length > 0) {
-        this.table.setSelection(
-          selection.map((m) => this.findMarkerIndex(m))
-        );
+        this.table.setSelection(selection.map((m) => this.findMarkerIndex(m)));
         if (focus && focus.length > 0) {
-          this.table.setFocus(
-            focus.map((f) => this.findMarkerIndex(f))
-          );
+          this.table.setFocus(focus.map((f) => this.findMarkerIndex(f)));
         } else {
           this.table.setFocus([this.findMarkerIndex(selection[0])]);
         }

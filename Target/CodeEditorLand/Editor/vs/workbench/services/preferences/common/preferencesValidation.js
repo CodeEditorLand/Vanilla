@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Color } from "../../../../base/common/color.js";
-import {
-  isObject,
-  isString,
-  isStringArray,
-  isUndefinedOrNull
-} from "../../../../base/common/types.js";
 import * as nls from "../../../../nls.js";
+import { JSONSchemaType } from "../../../../base/common/jsonSchema.js";
+import { Color } from "../../../../base/common/color.js";
+import { isObject, isUndefinedOrNull, isString, isStringArray } from "../../../../base/common/types.js";
+import { IConfigurationPropertySchema } from "../../../../platform/configuration/common/configurationRegistry.js";
 function canBeType(propTypes, ...types) {
   return types.some((t) => propTypes.includes(t));
 }
@@ -42,46 +39,22 @@ function createValidator(prop) {
       }
     }
     if (prop.type === "boolean" && value !== true && value !== false) {
-      errors.push(
-        nls.localize(
-          "validations.booleanIncorrectType",
-          'Incorrect type. Expected "boolean".'
-        )
-      );
+      errors.push(nls.localize("validations.booleanIncorrectType", 'Incorrect type. Expected "boolean".'));
     }
     if (isNumeric) {
       if (isNullOrEmpty(value) || typeof value === "boolean" || Array.isArray(value) || isNaN(+value)) {
-        errors.push(
-          nls.localize(
-            "validations.expectedNumeric",
-            "Value must be a number."
-          )
-        );
+        errors.push(nls.localize("validations.expectedNumeric", "Value must be a number."));
       } else {
-        errors.push(
-          ...numericValidations.filter((validator) => !validator.isValid(+value)).map((validator) => validator.message)
-        );
+        errors.push(...numericValidations.filter((validator) => !validator.isValid(+value)).map((validator) => validator.message));
       }
     }
     if (prop.type === "string") {
       if (prop.enum && !isStringArray(prop.enum)) {
-        errors.push(
-          nls.localize(
-            "validations.stringIncorrectEnumOptions",
-            "The enum options should be strings, but there is a non-string option. Please file an issue with the extension author."
-          )
-        );
-      } else if (isString(value)) {
-        errors.push(
-          ...stringValidations.filter((validator) => !validator.isValid(value)).map((validator) => validator.message)
-        );
+        errors.push(nls.localize("validations.stringIncorrectEnumOptions", "The enum options should be strings, but there is a non-string option. Please file an issue with the extension author."));
+      } else if (!isString(value)) {
+        errors.push(nls.localize("validations.stringIncorrectType", 'Incorrect type. Expected "string".'));
       } else {
-        errors.push(
-          nls.localize(
-            "validations.stringIncorrectType",
-            'Incorrect type. Expected "string".'
-          )
-        );
+        errors.push(...stringValidations.filter((validator) => !validator.isValid(value)).map((validator) => validator.message));
       }
     }
     if (errors.length) {
@@ -97,11 +70,7 @@ function getInvalidTypeError(value, type) {
   }
   const typeArr = Array.isArray(type) ? type : [type];
   if (!typeArr.some((_type) => valueValidatesAsType(value, _type))) {
-    return nls.localize(
-      "invalidTypeError",
-      "Setting has an invalid type, expected {0}. Fix in JSON.",
-      JSON.stringify(type)
-    );
+    return nls.localize("invalidTypeError", "Setting has an invalid type, expected {0}. Fix in JSON.", JSON.stringify(type));
   }
   return;
 }
@@ -131,13 +100,7 @@ function toRegExp(pattern) {
     try {
       return new RegExp(pattern);
     } catch (e2) {
-      console.error(
-        nls.localize(
-          "regexParsingError",
-          "Error parsing the following regex both with and without the u flag:"
-        ),
-        pattern
-      );
+      console.error(nls.localize("regexParsingError", "Error parsing the following regex both with and without the u flag:"), pattern);
       return /.*/;
     }
   }
@@ -153,37 +116,22 @@ function getStringValidators(prop) {
     {
       enabled: prop.maxLength !== void 0,
       isValid: /* @__PURE__ */ __name((value) => value.length <= prop.maxLength, "isValid"),
-      message: nls.localize(
-        "validations.maxLength",
-        "Value must be {0} or fewer characters long.",
-        prop.maxLength
-      )
+      message: nls.localize("validations.maxLength", "Value must be {0} or fewer characters long.", prop.maxLength)
     },
     {
       enabled: prop.minLength !== void 0,
       isValid: /* @__PURE__ */ __name((value) => value.length >= prop.minLength, "isValid"),
-      message: nls.localize(
-        "validations.minLength",
-        "Value must be {0} or more characters long.",
-        prop.minLength
-      )
+      message: nls.localize("validations.minLength", "Value must be {0} or more characters long.", prop.minLength)
     },
     {
       enabled: patternRegex !== void 0,
       isValid: /* @__PURE__ */ __name((value) => patternRegex.test(value), "isValid"),
-      message: prop.patternErrorMessage || nls.localize(
-        "validations.regex",
-        "Value must match regex `{0}`.",
-        prop.pattern
-      )
+      message: prop.patternErrorMessage || nls.localize("validations.regex", "Value must match regex `{0}`.", prop.pattern)
     },
     {
       enabled: prop.format === "color-hex",
       isValid: /* @__PURE__ */ __name((value) => Color.Format.CSS.parseHex(value), "isValid"),
-      message: nls.localize(
-        "validations.colorFormat",
-        "Invalid color format. Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA."
-      )
+      message: nls.localize("validations.colorFormat", "Invalid color format. Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA.")
     },
     {
       enabled: prop.format === "uri" || prop.format === "uri-reference",
@@ -201,10 +149,7 @@ function getStringValidators(prop) {
         const matches = value.match(uriRegex);
         return !!(matches && matches[2]);
       }, "isValid"),
-      message: nls.localize(
-        "validations.uriSchemeMissing",
-        "URI with a scheme is expected."
-      )
+      message: nls.localize("validations.uriSchemeMissing", "URI with a scheme is expected.")
     },
     {
       enabled: prop.enum !== void 0,
@@ -244,55 +189,32 @@ function getNumericValidators(prop) {
     {
       enabled: exclusiveMax !== void 0 && (prop.maximum === void 0 || exclusiveMax <= prop.maximum),
       isValid: /* @__PURE__ */ __name((value) => value < exclusiveMax, "isValid"),
-      message: nls.localize(
-        "validations.exclusiveMax",
-        "Value must be strictly less than {0}.",
-        exclusiveMax
-      )
+      message: nls.localize("validations.exclusiveMax", "Value must be strictly less than {0}.", exclusiveMax)
     },
     {
       enabled: exclusiveMin !== void 0 && (prop.minimum === void 0 || exclusiveMin >= prop.minimum),
       isValid: /* @__PURE__ */ __name((value) => value > exclusiveMin, "isValid"),
-      message: nls.localize(
-        "validations.exclusiveMin",
-        "Value must be strictly greater than {0}.",
-        exclusiveMin
-      )
+      message: nls.localize("validations.exclusiveMin", "Value must be strictly greater than {0}.", exclusiveMin)
     },
     {
       enabled: prop.maximum !== void 0 && (exclusiveMax === void 0 || exclusiveMax > prop.maximum),
       isValid: /* @__PURE__ */ __name((value) => value <= prop.maximum, "isValid"),
-      message: nls.localize(
-        "validations.max",
-        "Value must be less than or equal to {0}.",
-        prop.maximum
-      )
+      message: nls.localize("validations.max", "Value must be less than or equal to {0}.", prop.maximum)
     },
     {
       enabled: prop.minimum !== void 0 && (exclusiveMin === void 0 || exclusiveMin < prop.minimum),
       isValid: /* @__PURE__ */ __name((value) => value >= prop.minimum, "isValid"),
-      message: nls.localize(
-        "validations.min",
-        "Value must be greater than or equal to {0}.",
-        prop.minimum
-      )
+      message: nls.localize("validations.min", "Value must be greater than or equal to {0}.", prop.minimum)
     },
     {
       enabled: prop.multipleOf !== void 0,
       isValid: /* @__PURE__ */ __name((value) => value % prop.multipleOf === 0, "isValid"),
-      message: nls.localize(
-        "validations.multipleOf",
-        "Value must be a multiple of {0}.",
-        prop.multipleOf
-      )
+      message: nls.localize("validations.multipleOf", "Value must be a multiple of {0}.", prop.multipleOf)
     },
     {
       enabled: isIntegral,
       isValid: /* @__PURE__ */ __name((value) => value % 1 === 0, "isValid"),
-      message: nls.localize(
-        "validations.expectedInteger",
-        "Value must be an integer."
-      )
+      message: nls.localize("validations.expectedInteger", "Value must be an integer.")
     }
   ].filter((validation) => validation.enabled);
 }
@@ -308,45 +230,28 @@ function getArrayValidator(prop) {
         }
         let message = "";
         if (!Array.isArray(value)) {
-          message += nls.localize(
-            "validations.arrayIncorrectType",
-            "Incorrect type. Expected an array."
-          );
+          message += nls.localize("validations.arrayIncorrectType", "Incorrect type. Expected an array.");
           message += "\n";
           return message;
         }
         const arrayValue = value;
         if (prop.uniqueItems) {
           if (new Set(arrayValue).size < arrayValue.length) {
-            message += nls.localize(
-              "validations.stringArrayUniqueItems",
-              "Array has duplicate items"
-            );
+            message += nls.localize("validations.stringArrayUniqueItems", "Array has duplicate items");
             message += "\n";
           }
         }
         if (prop.minItems && arrayValue.length < prop.minItems) {
-          message += nls.localize(
-            "validations.stringArrayMinItem",
-            "Array must have at least {0} items",
-            prop.minItems
-          );
+          message += nls.localize("validations.stringArrayMinItem", "Array must have at least {0} items", prop.minItems);
           message += "\n";
         }
         if (prop.maxItems && arrayValue.length > prop.maxItems) {
-          message += nls.localize(
-            "validations.stringArrayMaxItem",
-            "Array must have at most {0} items",
-            prop.maxItems
-          );
+          message += nls.localize("validations.stringArrayMaxItem", "Array must have at most {0} items", prop.maxItems);
           message += "\n";
         }
         if (propItems.type === "string") {
           if (!isStringArray(arrayValue)) {
-            message += nls.localize(
-              "validations.stringArrayIncorrectType",
-              "Incorrect type. Expected a string array."
-            );
+            message += nls.localize("validations.stringArrayIncorrectType", "Incorrect type. Expected a string array.");
             message += "\n";
             return message;
           }
@@ -401,14 +306,13 @@ function getObjectValidator(prop) {
         return null;
       }
       const errors = [];
-      if (isObject(value)) {
+      if (!isObject(value)) {
+        errors.push(nls.localize("validations.objectIncorrectType", "Incorrect type. Expected an object."));
+      } else {
         Object.keys(value).forEach((key) => {
           const data = value[key];
           if (properties && key in properties) {
-            const errorMessage = getErrorsForSchema(
-              properties[key],
-              data
-            );
+            const errorMessage = getErrorsForSchema(properties[key], data);
             if (errorMessage) {
               errors.push(`${key}: ${errorMessage}
 `);
@@ -418,10 +322,7 @@ function getObjectValidator(prop) {
           if (patternProperties) {
             for (const pattern in patternProperties) {
               if (RegExp(pattern).test(key)) {
-                const errorMessage = getErrorsForSchema(
-                  patternProperties[pattern],
-                  data
-                );
+                const errorMessage = getErrorsForSchema(patternProperties[pattern], data);
                 if (errorMessage) {
                   errors.push(`${key}: ${errorMessage}
 `);
@@ -431,31 +332,15 @@ function getObjectValidator(prop) {
             }
           }
           if (additionalProperties === false) {
-            errors.push(
-              nls.localize(
-                "validations.objectPattern",
-                "Property {0} is not allowed.\n",
-                key
-              )
-            );
+            errors.push(nls.localize("validations.objectPattern", "Property {0} is not allowed.\n", key));
           } else if (typeof additionalProperties === "object") {
-            const errorMessage = getErrorsForSchema(
-              additionalProperties,
-              data
-            );
+            const errorMessage = getErrorsForSchema(additionalProperties, data);
             if (errorMessage) {
               errors.push(`${key}: ${errorMessage}
 `);
             }
           }
         });
-      } else {
-        errors.push(
-          nls.localize(
-            "validations.objectIncorrectType",
-            "Incorrect type. Expected an object."
-          )
-        );
       }
       if (errors.length) {
         return prop.errorMessage ? [prop.errorMessage, ...errors].join(" ") : errors.join(" ");

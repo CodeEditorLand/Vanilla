@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { coalesce } from "../../../base/common/arrays.js";
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ItemActivation, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, QuickPickItem } from "./quickInput.js";
 import { Registry } from "../../registry/common/platform.js";
 var DefaultQuickAccessFilterValue = /* @__PURE__ */ ((DefaultQuickAccessFilterValue2) => {
   DefaultQuickAccessFilterValue2[DefaultQuickAccessFilterValue2["PRESERVE"] = 0] = "PRESERVE";
@@ -25,9 +25,7 @@ class QuickAccessRegistry {
     } else {
       this.providers.push(provider);
     }
-    this.providers.sort(
-      (providerA, providerB) => providerB.prefix.length - providerA.prefix.length
-    );
+    this.providers.sort((providerA, providerB) => providerB.prefix.length - providerA.prefix.length);
     return toDisposable(() => {
       this.providers.splice(this.providers.indexOf(provider), 1);
       if (this.defaultProvider === provider) {
@@ -39,9 +37,7 @@ class QuickAccessRegistry {
     return coalesce([this.defaultProvider, ...this.providers]);
   }
   getQuickAccessProvider(prefix) {
-    const result = prefix ? this.providers.find(
-      (provider) => prefix.startsWith(provider.prefix)
-    ) || void 0 : void 0;
+    const result = prefix ? this.providers.find((provider) => prefix.startsWith(provider.prefix)) || void 0 : void 0;
     return result || this.defaultProvider;
   }
   clear() {

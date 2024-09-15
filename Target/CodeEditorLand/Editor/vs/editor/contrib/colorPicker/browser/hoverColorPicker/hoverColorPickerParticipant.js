@@ -11,17 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { AsyncIterableObject } from "../../../../../base/common/async.js";
-import * as nls from "../../../../../nls.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import {
-  HoverAnchorType,
-  RenderedHoverParts
-} from "../../../hover/browser/hoverTypes.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { Range } from "../../../../common/core/range.js";
+import { IModelDecoration } from "../../../../common/model.js";
+import { DocumentColorProvider } from "../../../../common/languages.js";
 import { ColorDetector } from "../colorDetector.js";
-import {
-  createColorHover,
-  renderHoverParts
-} from "../colorPickerParticipantUtils.js";
+import { ColorPickerModel } from "../colorPickerModel.js";
+import { ColorPickerWidget } from "./hoverColorPickerWidget.js";
+import { HoverAnchor, HoverAnchorType, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverPart, IRenderedHoverParts, RenderedHoverParts } from "../../../hover/browser/hoverTypes.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import * as nls from "../../../../../nls.js";
+import { createColorHover, renderHoverParts } from "../colorPickerParticipantUtils.js";
 class ColorHover {
   constructor(owner, range, model, provider) {
     this.owner = owner;
@@ -55,9 +56,7 @@ let HoverColorPickerParticipant = class {
     return [];
   }
   computeAsync(anchor, lineDecorations, token) {
-    return AsyncIterableObject.fromPromise(
-      this._computeAsync(anchor, lineDecorations, token)
-    );
+    return AsyncIterableObject.fromPromise(this._computeAsync(anchor, lineDecorations, token));
   }
   async _computeAsync(_anchor, lineDecorations, _token) {
     if (!this._editor.hasModel()) {
@@ -71,29 +70,16 @@ let HoverColorPickerParticipant = class {
       if (!colorDetector.isColorDecoration(d)) {
         continue;
       }
-      const colorData = colorDetector.getColorData(
-        d.range.getStartPosition()
-      );
+      const colorData = colorDetector.getColorData(d.range.getStartPosition());
       if (colorData) {
-        const colorHover = await createColorHover(
-          this,
-          this._editor.getModel(),
-          colorData.colorInfo,
-          colorData.provider
-        );
+        const colorHover = await createColorHover(this, this._editor.getModel(), colorData.colorInfo, colorData.provider);
         return [colorHover];
       }
     }
     return [];
   }
   renderHoverParts(context, hoverParts) {
-    const renderedPart = renderHoverParts(
-      this,
-      this._editor,
-      this._themeService,
-      hoverParts,
-      context
-    );
+    const renderedPart = renderHoverParts(this, this._editor, this._themeService, hoverParts, context);
     if (!renderedPart) {
       return new RenderedHoverParts([]);
     }
@@ -108,10 +94,7 @@ let HoverColorPickerParticipant = class {
     return new RenderedHoverParts([renderedHoverPart]);
   }
   getAccessibleContent(hoverPart) {
-    return nls.localize(
-      "hoverAccessibilityColorParticipant",
-      "There is a color picker here."
-    );
+    return nls.localize("hoverAccessibilityColorParticipant", "There is a color picker here.");
   }
   handleResize() {
     this._colorPicker?.layout();

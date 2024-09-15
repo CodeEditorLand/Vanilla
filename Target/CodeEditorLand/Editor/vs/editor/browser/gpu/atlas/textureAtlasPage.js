@@ -25,35 +25,22 @@ let TextureAtlasPage = class extends Disposable {
     this._canvas = new OffscreenCanvas(pageSize, pageSize);
     switch (allocatorType) {
       case "shelf":
-        this._allocator = new TextureAtlasShelfAllocator(
-          this._canvas,
-          textureIndex
-        );
+        this._allocator = new TextureAtlasShelfAllocator(this._canvas, textureIndex);
         break;
       case "slab":
-        this._allocator = new TextureAtlasSlabAllocator(
-          this._canvas,
-          textureIndex
-        );
+        this._allocator = new TextureAtlasSlabAllocator(this._canvas, textureIndex);
         break;
       default:
         this._allocator = allocatorType(this._canvas, textureIndex);
         break;
     }
-    this._register(
-      Event.runAndSubscribe(
-        this._themeService.onDidColorThemeChange,
-        () => {
-          this._colorMap = this._themeService.getColorTheme().tokenColorMap;
-        }
-      )
-    );
-    this._register(
-      toDisposable(() => {
-        this._canvas.width = 1;
-        this._canvas.height = 1;
-      })
-    );
+    this._register(Event.runAndSubscribe(this._themeService.onDidColorThemeChange, () => {
+      this._colorMap = this._themeService.getColorTheme().tokenColorMap;
+    }));
+    this._register(toDisposable(() => {
+      this._canvas.width = 1;
+      this._canvas.height = 1;
+    }));
   }
   static {
     __name(this, "TextureAtlasPage");
@@ -89,11 +76,7 @@ let TextureAtlasPage = class extends Disposable {
     if (this._glyphInOrderSet.size >= TextureAtlasPage.maximumGlyphCount) {
       return void 0;
     }
-    const rasterizedGlyph = rasterizer.rasterizeGlyph(
-      chars,
-      metadata,
-      this._colorMap
-    );
+    const rasterizedGlyph = rasterizer.rasterizeGlyph(chars, metadata, this._colorMap);
     const glyph = this._allocator.allocate(rasterizedGlyph);
     if (glyph === void 0) {
       return void 0;
@@ -101,14 +84,8 @@ let TextureAtlasPage = class extends Disposable {
     this._glyphMap.set(chars, metadata, rasterizer.cacheKey, glyph);
     this._glyphInOrderSet.add(glyph);
     this._version++;
-    this._usedArea.right = Math.max(
-      this._usedArea.right,
-      glyph.x + glyph.w - 1
-    );
-    this._usedArea.bottom = Math.max(
-      this._usedArea.bottom,
-      glyph.y + glyph.h - 1
-    );
+    this._usedArea.right = Math.max(this._usedArea.right, glyph.x + glyph.w - 1);
+    this._usedArea.bottom = Math.max(this._usedArea.bottom, glyph.y + glyph.h - 1);
     if (this._logService.getLevel() === LogLevel.Trace) {
       this._logService.trace("New glyph", {
         chars,

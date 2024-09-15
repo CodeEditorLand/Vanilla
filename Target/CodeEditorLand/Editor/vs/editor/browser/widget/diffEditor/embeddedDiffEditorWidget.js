@@ -11,14 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as objects from "../../../../base/common/objects.js";
+import { ICodeEditor, IDiffEditorConstructionOptions } from "../../editorBrowser.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { DiffEditorWidget, IDiffCodeEditorWidgetOptions } from "./diffEditorWidget.js";
+import { ConfigurationChangedEvent, IDiffEditorOptions, IEditorOptions } from "../../../common/config/editorOptions.js";
 import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
-import { ICodeEditorService } from "../../services/codeEditorService.js";
-import {
-  DiffEditorWidget
-} from "./diffEditorWidget.js";
 let EmbeddedDiffEditorWidget = class extends DiffEditorWidget {
   static {
     __name(this, "EmbeddedDiffEditorWidget");
@@ -26,24 +26,11 @@ let EmbeddedDiffEditorWidget = class extends DiffEditorWidget {
   _parentEditor;
   _overwriteOptions;
   constructor(domElement, options, codeEditorWidgetOptions, parentEditor, contextKeyService, instantiationService, codeEditorService, accessibilitySignalService, editorProgressService) {
-    super(
-      domElement,
-      parentEditor.getRawOptions(),
-      codeEditorWidgetOptions,
-      contextKeyService,
-      instantiationService,
-      codeEditorService,
-      accessibilitySignalService,
-      editorProgressService
-    );
+    super(domElement, parentEditor.getRawOptions(), codeEditorWidgetOptions, contextKeyService, instantiationService, codeEditorService, accessibilitySignalService, editorProgressService);
     this._parentEditor = parentEditor;
     this._overwriteOptions = options;
     super.updateOptions(this._overwriteOptions);
-    this._register(
-      parentEditor.onDidChangeConfiguration(
-        (e) => this._onParentConfigurationChanged(e)
-      )
-    );
+    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
   }
   getParentEditor() {
     return this._parentEditor;

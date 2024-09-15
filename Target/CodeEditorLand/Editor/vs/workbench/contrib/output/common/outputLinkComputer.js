@@ -1,15 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ILink } from "../../../../editor/common/languages.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as extpath from "../../../../base/common/extpath.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { isWindows } from "../../../../base/common/platform.js";
 import * as resources from "../../../../base/common/resources.js";
 import * as strings from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  WorkerTextModelSyncServer
-} from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IRequestHandler, IWorkerServer } from "../../../../base/common/worker/simpleWorker.js";
+import { WorkerTextModelSyncServer, ICommonModel } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
 class OutputLinkComputer {
   static {
     __name(this, "OutputLinkComputer");
@@ -24,9 +24,7 @@ class OutputLinkComputer {
     this.computePatterns(workspaceFolders);
   }
   computePatterns(_workspaceFolders) {
-    const workspaceFolders = _workspaceFolders.sort(
-      (resourceStrA, resourceStrB) => resourceStrB.length - resourceStrA.length
-    ).map((resourceStr) => URI.parse(resourceStr));
+    const workspaceFolders = _workspaceFolders.sort((resourceStrA, resourceStrB) => resourceStrB.length - resourceStrA.length).map((resourceStr) => URI.parse(resourceStr));
     for (const workspaceFolder of workspaceFolders) {
       const patterns = OutputLinkComputer.createPatterns(workspaceFolder);
       this.patterns.set(workspaceFolder, patterns);
@@ -46,23 +44,13 @@ class OutputLinkComputer {
       const resourceCreator = {
         toResource: /* @__PURE__ */ __name((folderRelativePath) => {
           if (typeof folderRelativePath === "string") {
-            return resources.joinPath(
-              folderUri,
-              folderRelativePath
-            );
+            return resources.joinPath(folderUri, folderRelativePath);
           }
           return null;
         }, "toResource")
       };
       for (let i = 0, len = lines.length; i < len; i++) {
-        links.push(
-          ...OutputLinkComputer.detectLinks(
-            lines[i],
-            i + 1,
-            folderPatterns,
-            resourceCreator
-          )
-        );
+        links.push(...OutputLinkComputer.detectLinks(lines[i], i + 1, folderPatterns, resourceCreator));
       }
     }
     return links;
@@ -72,39 +60,17 @@ class OutputLinkComputer {
     const workspaceFolderPath = workspaceFolder.scheme === Schemas.file ? workspaceFolder.fsPath : workspaceFolder.path;
     const workspaceFolderVariants = [workspaceFolderPath];
     if (isWindows && workspaceFolder.scheme === Schemas.file) {
-      workspaceFolderVariants.push(
-        extpath.toSlashes(workspaceFolderPath)
-      );
+      workspaceFolderVariants.push(extpath.toSlashes(workspaceFolderPath));
     }
     for (const workspaceFolderVariant of workspaceFolderVariants) {
       const validPathCharacterPattern = `[^\\s\\(\\):<>'"]`;
       const validPathCharacterOrSpacePattern = `(?:${validPathCharacterPattern}| ${validPathCharacterPattern})`;
       const pathPattern = `${validPathCharacterOrSpacePattern}+\\.${validPathCharacterPattern}+`;
       const strictPathPattern = `${validPathCharacterPattern}+`;
-      patterns.push(
-        new RegExp(
-          strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern}) on line ((\\d+)(, column (\\d+))?)`,
-          "gi"
-        )
-      );
-      patterns.push(
-        new RegExp(
-          strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern}):line ((\\d+)(, column (\\d+))?)`,
-          "gi"
-        )
-      );
-      patterns.push(
-        new RegExp(
-          strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern})(\\s?\\((\\d+)(,(\\d+))?)\\)`,
-          "gi"
-        )
-      );
-      patterns.push(
-        new RegExp(
-          strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${strictPathPattern})(:(\\d+))?(:(\\d+))?`,
-          "gi"
-        )
-      );
+      patterns.push(new RegExp(strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern}) on line ((\\d+)(, column (\\d+))?)`, "gi"));
+      patterns.push(new RegExp(strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern}):line ((\\d+)(, column (\\d+))?)`, "gi"));
+      patterns.push(new RegExp(strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${pathPattern})(\\s?\\((\\d+)(,(\\d+))?)\\)`, "gi"));
+      patterns.push(new RegExp(strings.escapeRegExpCharacters(workspaceFolderVariant) + `(${strictPathPattern})(:(\\d+))?(:(\\d+))?`, "gi"));
     }
     return patterns;
   }
@@ -132,18 +98,9 @@ class OutputLinkComputer {
           const lineNumber = match[3];
           if (match[5]) {
             const columnNumber = match[5];
-            resourceString = strings.format(
-              "{0}#{1},{2}",
-              resourceString,
-              lineNumber,
-              columnNumber
-            );
+            resourceString = strings.format("{0}#{1},{2}", resourceString, lineNumber, columnNumber);
           } else {
-            resourceString = strings.format(
-              "{0}#{1}",
-              resourceString,
-              lineNumber
-            );
+            resourceString = strings.format("{0}#{1}", resourceString, lineNumber);
           }
         }
         const fullMatch = strings.rtrim(match[0], ".");
@@ -155,9 +112,7 @@ class OutputLinkComputer {
           endColumn: index + 1 + fullMatch.length,
           endLineNumber: lineIndex
         };
-        if (links.some(
-          (link) => Range.areIntersectingOrTouching(link.range, linkRange)
-        )) {
+        if (links.some((link) => Range.areIntersectingOrTouching(link.range, linkRange))) {
           return;
         }
         links.push({

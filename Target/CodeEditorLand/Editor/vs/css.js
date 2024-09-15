@@ -8,18 +8,13 @@ function load(name, req, load2, config) {
     return;
   }
   const cssUrl = req.toUrl(name + ".css");
-  loadCSS(
-    name,
-    cssUrl,
-    () => {
-      load2({});
-    },
-    (err) => {
-      if (typeof load2.error === "function") {
-        load2.error("Could not find " + cssUrl + ".");
-      }
+  loadCSS(name, cssUrl, () => {
+    load2({});
+  }, (err) => {
+    if (typeof load2.error === "function") {
+      load2.error("Could not find " + cssUrl + ".");
     }
-  );
+  });
 }
 __name(load, "load");
 function loadCSS(name, cssUrl, callback, errorback) {

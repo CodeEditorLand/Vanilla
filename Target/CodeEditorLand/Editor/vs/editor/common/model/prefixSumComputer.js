@@ -37,19 +37,14 @@ class PrefixSumComputer {
     }
     this.values = new Uint32Array(oldValues.length + insertValuesLen);
     this.values.set(oldValues.subarray(0, insertIndex), 0);
-    this.values.set(
-      oldValues.subarray(insertIndex),
-      insertIndex + insertValuesLen
-    );
+    this.values.set(oldValues.subarray(insertIndex), insertIndex + insertValuesLen);
     this.values.set(insertValues, insertIndex);
     if (insertIndex - 1 < this.prefixSumValidIndex[0]) {
       this.prefixSumValidIndex[0] = insertIndex - 1;
     }
     this.prefixSum = new Uint32Array(this.values.length);
     if (this.prefixSumValidIndex[0] >= 0) {
-      this.prefixSum.set(
-        oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1)
-      );
+      this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
     }
     return true;
   }
@@ -88,9 +83,7 @@ class PrefixSumComputer {
       this.prefixSumValidIndex[0] = startIndex - 1;
     }
     if (this.prefixSumValidIndex[0] >= 0) {
-      this.prefixSum.set(
-        oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1)
-      );
+      this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
     }
     return true;
   }
@@ -126,10 +119,7 @@ class PrefixSumComputer {
     for (let i = startIndex; i <= index; i++) {
       this.prefixSum[i] = this.prefixSum[i - 1] + this.values[i];
     }
-    this.prefixSumValidIndex[0] = Math.max(
-      this.prefixSumValidIndex[0],
-      index
-    );
+    this.prefixSumValidIndex[0] = Math.max(this.prefixSumValidIndex[0], index);
     return this.prefixSum[index];
   }
   getIndexOf(sum) {
@@ -168,7 +158,7 @@ class ConstantTimePrefixSumComputer {
   _prefixSum;
   /**
    * _indexBySum[sum] = idx => _prefixSum[idx - 1] <= sum < _prefixSum[idx]
-   */
+  */
   _indexBySum;
   constructor(values) {
     this._values = values;

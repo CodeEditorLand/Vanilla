@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  BaseObservable,
-  TransactionImpl
-} from "./base.js";
+import { EqualityComparer } from "./commonFacade/deps.js";
+import { BaseObservable, IObserver, ISettableObservable, ITransaction, TransactionImpl } from "./base.js";
+import { DebugNameData } from "./debugName.js";
 class LazyObservableValue extends BaseObservable {
   constructor(_debugNameData, initialValue, _equalityComparator) {
     super();
@@ -81,11 +80,8 @@ class LazyObservableValue extends BaseObservable {
     }
     let _tx;
     if (!tx) {
-      tx = _tx = new TransactionImpl(
-        () => {
-        },
-        () => `Setting ${this.debugName}`
-      );
+      tx = _tx = new TransactionImpl(() => {
+      }, () => `Setting ${this.debugName}`);
     }
     try {
       this._isUpToDate = false;
@@ -93,17 +89,14 @@ class LazyObservableValue extends BaseObservable {
       if (change !== void 0) {
         this._deltas.push(change);
       }
-      tx.updateObserver(
-        {
-          beginUpdate: /* @__PURE__ */ __name(() => this._beginUpdate(), "beginUpdate"),
-          endUpdate: /* @__PURE__ */ __name(() => this._endUpdate(), "endUpdate"),
-          handleChange: /* @__PURE__ */ __name((observable, change2) => {
-          }, "handleChange"),
-          handlePossibleChange: /* @__PURE__ */ __name((observable) => {
-          }, "handlePossibleChange")
-        },
-        this
-      );
+      tx.updateObserver({
+        beginUpdate: /* @__PURE__ */ __name(() => this._beginUpdate(), "beginUpdate"),
+        endUpdate: /* @__PURE__ */ __name(() => this._endUpdate(), "endUpdate"),
+        handleChange: /* @__PURE__ */ __name((observable, change2) => {
+        }, "handleChange"),
+        handlePossibleChange: /* @__PURE__ */ __name((observable) => {
+        }, "handlePossibleChange")
+      }, this);
       if (this._updateCounter > 1) {
         for (const observer of this.observers) {
           observer.handlePossibleChange(this);

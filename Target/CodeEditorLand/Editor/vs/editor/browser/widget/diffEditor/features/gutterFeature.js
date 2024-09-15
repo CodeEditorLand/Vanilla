@@ -10,31 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  EventType,
-  addDisposableListener,
-  h
-} from "../../../../../base/browser/dom.js";
+import { EventType, addDisposableListener, h } from "../../../../../base/browser/dom.js";
+import { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
 import { ActionsOrientation } from "../../../../../base/browser/ui/actionbar/actionbar.js";
 import { HoverPosition } from "../../../../../base/browser/ui/hover/hoverWidget.js";
+import { IBoundarySashes } from "../../../../../base/browser/ui/sash/sash.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import {
-  autorun,
-  autorunWithStore,
-  derived,
-  derivedDisposable,
-  derivedWithSetter,
-  observableFromEvent,
-  observableValue
-} from "../../../../../base/common/observable.js";
-import {
-  HiddenItemStrategy,
-  MenuWorkbenchToolBar
-} from "../../../../../platform/actions/browser/toolbar.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../../platform/actions/common/actions.js";
+import { IObservable, autorun, autorunWithStore, derived, derivedDisposable, derivedWithSetter, observableFromEvent, observableValue } from "../../../../../base/common/observable.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { HiddenItemStrategy, MenuWorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
@@ -46,17 +31,12 @@ import { TextEdit } from "../../../../common/core/textEdit.js";
 import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
 import { TextModelText } from "../../../../common/model/textModelText.js";
 import { ActionRunnerWithContext } from "../../multiDiffEditor/utils.js";
-import {
-  DiffEditorSash
-} from "../components/diffEditorSash.js";
-import {
-  appendRemoveOnDispose,
-  applyStyle,
-  prependRemoveOnDispose
-} from "../utils.js";
-import {
-  EditorGutter
-} from "../utils/editorGutter.js";
+import { DiffEditorEditors } from "../components/diffEditorEditors.js";
+import { DiffEditorSash, SashLayout } from "../components/diffEditorSash.js";
+import { DiffEditorOptions } from "../diffEditorOptions.js";
+import { DiffEditorViewModel } from "../diffEditorViewModel.js";
+import { appendRemoveOnDispose, applyStyle, prependRemoveOnDispose } from "../utils.js";
+import { EditorGutter, IGutterItemInfo, IGutterItemView } from "../utils/editorGutter.js";
 const emptyArr = [];
 const width = 35;
 let DiffEditorGutter = class extends Disposable {
@@ -70,22 +50,14 @@ let DiffEditorGutter = class extends Disposable {
     this._instantiationService = _instantiationService;
     this._contextKeyService = _contextKeyService;
     this._menuService = _menuService;
-    this._register(
-      prependRemoveOnDispose(diffEditorRoot, this.elements.root)
-    );
-    this._register(
-      addDisposableListener(this.elements.root, "click", () => {
-        this._editors.modified.focus();
-      })
-    );
-    this._register(
-      applyStyle(this.elements.root, {
-        display: this._hasActions.map((a) => a ? "block" : "none")
-      })
-    );
+    this._register(prependRemoveOnDispose(diffEditorRoot, this.elements.root));
+    this._register(addDisposableListener(this.elements.root, "click", () => {
+      this._editors.modified.focus();
+    }));
+    this._register(applyStyle(this.elements.root, { display: this._hasActions.map((a) => a ? "block" : "none") }));
     derivedDisposable(this, (reader) => {
       const showSash = this._showSash.read(reader);
-      return showSash ? new DiffEditorSash(
+      return !showSash ? void 0 : new DiffEditorSash(
         diffEditorRoot,
         this._sashLayout.dimensions,
         this._options.enableSplitViewResizing,
@@ -96,7 +68,7 @@ let DiffEditorGutter = class extends Disposable {
           (v, tx) => this._sashLayout.sashLeft.set(v + width, tx)
         ),
         () => this._sashLayout.resetSash()
-      ) : void 0;
+      );
     }).recomputeInitiallyAndOnChange(this._store);
     const gutterItems = derived(this, (reader) => {
       const model = this._diffModel.read(reader);
@@ -109,9 +81,7 @@ let DiffEditorGutter = class extends Disposable {
       }
       const selection = this._selectedDiffs.read(reader);
       if (selection.length > 0) {
-        const m = DetailedLineRangeMapping.fromRangeMappings(
-          selection.flatMap((s) => s.rangeMappings)
-        );
+        const m = DetailedLineRangeMapping.fromRangeMappings(selection.flatMap((s) => s.rangeMappings));
         return [
           new DiffGutterItem(
             m,
@@ -124,83 +94,36 @@ let DiffEditorGutter = class extends Disposable {
         ];
       }
       const currentDiff = this._currentDiff.read(reader);
-      return diffs.mappings.map(
-        (m) => new DiffGutterItem(
-          m.lineRangeMapping.withInnerChangesFromLineRanges(),
-          m.lineRangeMapping === currentDiff?.lineRangeMapping,
-          MenuId.DiffEditorHunkToolbar,
-          void 0,
-          model.model.original.uri,
-          model.model.modified.uri
-        )
-      );
+      return diffs.mappings.map((m) => new DiffGutterItem(
+        m.lineRangeMapping.withInnerChangesFromLineRanges(),
+        m.lineRangeMapping === currentDiff?.lineRangeMapping,
+        MenuId.DiffEditorHunkToolbar,
+        void 0,
+        model.model.original.uri,
+        model.model.modified.uri
+      ));
     });
-    this._register(
-      new EditorGutter(
-        this._editors.modified,
-        this.elements.root,
-        {
-          getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader) => gutterItems.read(reader), "getIntersectingGutterItems"),
-          createView: /* @__PURE__ */ __name((item, target) => {
-            return this._instantiationService.createInstance(
-              DiffToolBar,
-              item,
-              target,
-              this
-            );
-          }, "createView")
-        }
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.elements.gutter,
-        EventType.MOUSE_WHEEL,
-        (e) => {
-          if (this._editors.modified.getOption(EditorOption.scrollbar).handleMouseWheel) {
-            this._editors.modified.delegateScrollFromMouseWheelEvent(
-              e
-            );
-          }
-        },
-        { passive: false }
-      )
-    );
+    this._register(new EditorGutter(this._editors.modified, this.elements.root, {
+      getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader) => gutterItems.read(reader), "getIntersectingGutterItems"),
+      createView: /* @__PURE__ */ __name((item, target) => {
+        return this._instantiationService.createInstance(DiffToolBar, item, target, this);
+      }, "createView")
+    }));
+    this._register(addDisposableListener(this.elements.gutter, EventType.MOUSE_WHEEL, (e) => {
+      if (this._editors.modified.getOption(EditorOption.scrollbar).handleMouseWheel) {
+        this._editors.modified.delegateScrollFromMouseWheelEvent(e);
+      }
+    }, { passive: false }));
   }
   static {
     __name(this, "DiffEditorGutter");
   }
-  _menu = this._register(
-    this._menuService.createMenu(
-      MenuId.DiffEditorHunkToolbar,
-      this._contextKeyService
-    )
-  );
-  _actions = observableFromEvent(
-    this,
-    this._menu.onDidChange,
-    () => this._menu.getActions()
-  );
+  _menu = this._register(this._menuService.createMenu(MenuId.DiffEditorHunkToolbar, this._contextKeyService));
+  _actions = observableFromEvent(this, this._menu.onDidChange, () => this._menu.getActions());
   _hasActions = this._actions.map((a) => a.length > 0);
-  _showSash = derived(
-    this,
-    (reader) => this._options.renderSideBySide.read(reader) && this._hasActions.read(reader)
-  );
-  width = derived(
-    this,
-    (reader) => this._hasActions.read(reader) ? width : 0
-  );
-  elements = h(
-    "div.gutter@gutter",
-    {
-      style: {
-        position: "absolute",
-        height: "100%",
-        width: width + "px"
-      }
-    },
-    []
-  );
+  _showSash = derived(this, (reader) => this._options.renderSideBySide.read(reader) && this._hasActions.read(reader));
+  width = derived(this, (reader) => this._hasActions.read(reader) ? width : 0);
+  elements = h("div.gutter@gutter", { style: { position: "absolute", height: "100%", width: width + "px" } }, []);
   computeStagedValue(mapping) {
     const c = mapping.innerChanges ?? [];
     const modified = new TextModelText(this._editors.modifiedModel.get());
@@ -219,9 +142,7 @@ let DiffEditorGutter = class extends Disposable {
     if (!cursorPosition) {
       return void 0;
     }
-    return mappings?.find(
-      (m) => m.lineRangeMapping.modified.contains(cursorPosition.lineNumber)
-    );
+    return mappings?.find((m) => m.lineRangeMapping.modified.contains(cursorPosition.lineNumber));
   });
   _selectedDiffs = derived(this, (reader) => {
     const model = this._diffModel.read(reader);
@@ -233,18 +154,14 @@ let DiffEditorGutter = class extends Disposable {
     if (selections.every((s) => s.isEmpty())) {
       return emptyArr;
     }
-    const selectedLineNumbers = new LineRangeSet(
-      selections.map((s) => LineRange.fromRangeInclusive(s))
-    );
+    const selectedLineNumbers = new LineRangeSet(selections.map((s) => LineRange.fromRangeInclusive(s)));
     const selectedMappings = diff.mappings.filter(
       (m) => m.lineRangeMapping.innerChanges && selectedLineNumbers.intersects(m.lineRangeMapping.modified)
     );
     const result = selectedMappings.map((mapping) => ({
       mapping,
       rangeMappings: mapping.lineRangeMapping.innerChanges.filter(
-        (c) => selections.some(
-          (s) => Range.areIntersecting(c.modifiedRange, s)
-        )
+        (c) => selections.some((s) => Range.areIntersecting(c.modifiedRange, s))
       )
     }));
     if (result.length === 0 || result.every((r) => r.rangeMappings.length === 0)) {
@@ -284,87 +201,60 @@ let DiffToolBar = class extends Disposable {
   constructor(_item, target, gutter, instantiationService) {
     super();
     this._item = _item;
-    const hoverDelegate = this._register(
-      instantiationService.createInstance(
-        WorkbenchHoverDelegate,
-        "element",
-        true,
-        { position: { hoverPosition: HoverPosition.RIGHT } }
-      )
-    );
+    const hoverDelegate = this._register(instantiationService.createInstance(
+      WorkbenchHoverDelegate,
+      "element",
+      true,
+      { position: { hoverPosition: HoverPosition.RIGHT } }
+    ));
     this._register(appendRemoveOnDispose(target, this._elements.root));
-    this._register(
-      autorun((reader) => {
-        const showAlways = this._showAlways.read(reader);
-        this._elements.root.classList.toggle("noTransition", true);
-        this._elements.root.classList.toggle("showAlways", showAlways);
-        setTimeout(() => {
-          this._elements.root.classList.toggle("noTransition", false);
-        }, 0);
-      })
-    );
-    this._register(
-      autorunWithStore((reader, store) => {
-        this._elements.buttons.replaceChildren();
-        const i = store.add(
-          instantiationService.createInstance(
-            MenuWorkbenchToolBar,
-            this._elements.buttons,
-            this._menuId.read(reader),
-            {
-              orientation: ActionsOrientation.VERTICAL,
-              hoverDelegate,
-              toolbarOptions: {
-                primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
-              },
-              overflowBehavior: {
-                maxItems: this._isSmall.read(reader) ? 1 : 3
-              },
-              hiddenItemStrategy: HiddenItemStrategy.Ignore,
-              actionRunner: new ActionRunnerWithContext(() => {
-                const item = this._item.get();
-                const mapping = item.mapping;
-                return {
-                  mapping,
-                  originalWithModifiedChanges: gutter.computeStagedValue(mapping),
-                  originalUri: item.originalUri,
-                  modifiedUri: item.modifiedUri
-                };
-              }),
-              menuOptions: {
-                shouldForwardArgs: true
-              }
-            }
-          )
-        );
-        store.add(
-          i.onDidChangeMenuItems(() => {
-            if (this._lastItemRange) {
-              this.layout(
-                this._lastItemRange,
-                this._lastViewRange
-              );
-            }
-          })
-        );
-      })
-    );
+    this._register(autorun((reader) => {
+      const showAlways = this._showAlways.read(reader);
+      this._elements.root.classList.toggle("noTransition", true);
+      this._elements.root.classList.toggle("showAlways", showAlways);
+      setTimeout(() => {
+        this._elements.root.classList.toggle("noTransition", false);
+      }, 0);
+    }));
+    this._register(autorunWithStore((reader, store) => {
+      this._elements.buttons.replaceChildren();
+      const i = store.add(instantiationService.createInstance(MenuWorkbenchToolBar, this._elements.buttons, this._menuId.read(reader), {
+        orientation: ActionsOrientation.VERTICAL,
+        hoverDelegate,
+        toolbarOptions: {
+          primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
+        },
+        overflowBehavior: { maxItems: this._isSmall.read(reader) ? 1 : 3 },
+        hiddenItemStrategy: HiddenItemStrategy.Ignore,
+        actionRunner: new ActionRunnerWithContext(() => {
+          const item = this._item.get();
+          const mapping = item.mapping;
+          return {
+            mapping,
+            originalWithModifiedChanges: gutter.computeStagedValue(mapping),
+            originalUri: item.originalUri,
+            modifiedUri: item.modifiedUri
+          };
+        }),
+        menuOptions: {
+          shouldForwardArgs: true
+        }
+      }));
+      store.add(i.onDidChangeMenuItems(() => {
+        if (this._lastItemRange) {
+          this.layout(this._lastItemRange, this._lastViewRange);
+        }
+      }));
+    }));
   }
   static {
     __name(this, "DiffToolBar");
   }
-  _elements = h(
-    "div.gutterItem",
-    { style: { height: "20px", width: "34px" } },
-    [
-      h("div.background@background", {}, []),
-      h("div.buttons@buttons", {}, [])
-    ]
-  );
-  _showAlways = this._item.map(
-    this,
-    (item) => item.showAlways
-  );
+  _elements = h("div.gutterItem", { style: { height: "20px", width: "34px" } }, [
+    h("div.background@background", {}, []),
+    h("div.buttons@buttons", {}, [])
+  ]);
+  _showAlways = this._item.map(this, (item) => item.showAlways);
   _menuId = this._item.map(this, (item) => item.menuId);
   _isSmall = observableValue(this, false);
   _lastItemRange = void 0;
@@ -373,10 +263,7 @@ let DiffToolBar = class extends Disposable {
     this._lastItemRange = itemRange;
     this._lastViewRange = viewRange;
     let itemHeight = this._elements.buttons.clientHeight;
-    this._isSmall.set(
-      this._item.get().mapping.original.startLineNumber === 1 && itemRange.length < 30,
-      void 0
-    );
+    this._isSmall.set(this._item.get().mapping.original.startLineNumber === 1 && itemRange.length < 30, void 0);
     itemHeight = this._elements.buttons.clientHeight;
     const middleHeight = itemRange.length / 2 - itemHeight / 2;
     const margin = itemHeight;

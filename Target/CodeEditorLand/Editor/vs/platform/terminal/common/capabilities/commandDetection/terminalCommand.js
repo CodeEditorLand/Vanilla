@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IMarkProperties, IMarker, ISerializedTerminalCommand, ITerminalCommand, IXtermMarker } from "../capabilities.js";
+import { ITerminalOutputMatcher, ITerminalOutputMatch } from "../../terminal.js";
 class TerminalCommand {
   constructor(_xterm, _properties) {
     this._xterm = _xterm;
@@ -64,21 +66,13 @@ class TerminalCommand {
   }
   static deserialize(xterm, serialized, isCommandStorageDisabled) {
     const buffer = xterm.buffer.normal;
-    const marker = serialized.startLine !== void 0 ? xterm.registerMarker(
-      serialized.startLine - (buffer.baseY + buffer.cursorY)
-    ) : void 0;
+    const marker = serialized.startLine !== void 0 ? xterm.registerMarker(serialized.startLine - (buffer.baseY + buffer.cursorY)) : void 0;
     if (!marker) {
       return void 0;
     }
-    const promptStartMarker = serialized.promptStartLine !== void 0 ? xterm.registerMarker(
-      serialized.promptStartLine - (buffer.baseY + buffer.cursorY)
-    ) : void 0;
-    const endMarker = serialized.endLine !== void 0 ? xterm.registerMarker(
-      serialized.endLine - (buffer.baseY + buffer.cursorY)
-    ) : void 0;
-    const executedMarker = serialized.executedLine !== void 0 ? xterm.registerMarker(
-      serialized.executedLine - (buffer.baseY + buffer.cursorY)
-    ) : void 0;
+    const promptStartMarker = serialized.promptStartLine !== void 0 ? xterm.registerMarker(serialized.promptStartLine - (buffer.baseY + buffer.cursorY)) : void 0;
+    const endMarker = serialized.endLine !== void 0 ? xterm.registerMarker(serialized.endLine - (buffer.baseY + buffer.cursorY)) : void 0;
+    const executedMarker = serialized.executedLine !== void 0 ? xterm.registerMarker(serialized.executedLine - (buffer.baseY + buffer.cursorY)) : void 0;
     const newCommand = new TerminalCommand(xterm, {
       command: isCommandStorageDisabled ? "" : serialized.command,
       commandLineConfidence: serialized.commandLineConfidence ?? "low",
@@ -120,14 +114,7 @@ class TerminalCommand {
     };
   }
   extractCommandLine() {
-    return extractCommandLine(
-      this._xterm.buffer.active,
-      this._xterm.cols,
-      this.marker,
-      this.startX,
-      this.executedMarker,
-      this.executedX
-    );
+    return extractCommandLine(this._xterm.buffer.active, this._xterm.cols, this.marker, this.startX, this.executedMarker, this.executedX);
   }
   getOutput() {
     if (!this.executedMarker || !this.endMarker) {
@@ -171,14 +158,7 @@ class TerminalCommand {
           wrappedLineStart--;
         }
         i = wrappedLineStart;
-        lines.unshift(
-          getXtermLineContent(
-            buffer,
-            wrappedLineStart,
-            wrappedLineEnd,
-            this._xterm.cols
-          )
-        );
+        lines.unshift(getXtermLineContent(buffer, wrappedLineStart, wrappedLineEnd, this._xterm.cols));
         if (!match) {
           match = lines[0].match(matcher);
         }
@@ -194,14 +174,7 @@ class TerminalCommand {
           wrappedLineEnd++;
         }
         i = wrappedLineEnd;
-        lines.push(
-          getXtermLineContent(
-            buffer,
-            wrappedLineStart,
-            wrappedLineEnd,
-            this._xterm.cols
-          )
-        );
+        lines.push(getXtermLineContent(buffer, wrappedLineStart, wrappedLineEnd, this._xterm.cols));
         if (!match) {
           match = lines[lines.length - 1].match(matcher);
         }
@@ -306,14 +279,7 @@ class PartialTerminalCommand {
     }
   }
   extractCommandLine() {
-    return extractCommandLine(
-      this._xterm.buffer.active,
-      this._xterm.cols,
-      this.commandStartMarker,
-      this.commandStartX,
-      this.commandExecutedMarker,
-      this.commandExecutedX
-    );
+    return extractCommandLine(this._xterm.buffer.active, this._xterm.cols, this.commandStartMarker, this.commandStartX, this.commandExecutedMarker, this.commandExecutedX);
   }
   getPromptRowCount() {
     return getPromptRowCount(this, this._xterm.buffer.active);
@@ -330,11 +296,7 @@ function extractCommandLine(buffer, cols, commandStartMarker, commandStartX, com
   for (let i = commandStartMarker.line; i <= commandExecutedMarker.line; i++) {
     const line = buffer.getLine(i);
     if (line) {
-      content += line.translateToString(
-        true,
-        i === commandStartMarker.line ? commandStartX : 0,
-        i === commandExecutedMarker.line ? commandExecutedX : cols
-      );
+      content += line.translateToString(true, i === commandStartMarker.line ? commandStartX : 0, i === commandExecutedMarker.line ? commandExecutedX : cols);
     }
   }
   return content;

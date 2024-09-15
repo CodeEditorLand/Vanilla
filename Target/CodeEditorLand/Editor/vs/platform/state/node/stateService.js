@@ -14,12 +14,11 @@ import { ThrottledDelayer } from "../../../base/common/async.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { isUndefined, isUndefinedOrNull } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  FileOperationResult,
-  IFileService
-} from "../../files/common/files.js";
+import { FileOperationError, FileOperationResult, IFileService } from "../../files/common/files.js";
 import { ILogService } from "../../log/common/log.js";
+import { IStateReadService, IStateService } from "./state.js";
 var SaveStrategy = /* @__PURE__ */ ((SaveStrategy2) => {
   SaveStrategy2[SaveStrategy2["IMMEDIATE"] = 0] = "IMMEDIATE";
   SaveStrategy2[SaveStrategy2["DELAYED"] = 1] = "DELAYED";
@@ -38,11 +37,10 @@ class FileStorage extends Disposable {
   }
   storage = /* @__PURE__ */ Object.create(null);
   lastSavedStorageContents = "";
-  flushDelayer = this._register(
-    new ThrottledDelayer(
-      this.saveStrategy === 0 /* IMMEDIATE */ ? 0 : 100
-    )
-  );
+  flushDelayer = this._register(new ThrottledDelayer(
+    this.saveStrategy === 0 /* IMMEDIATE */ ? 0 : 100
+    /* buffer saves over a short time */
+  ));
   initializing = void 0;
   closing = void 0;
   init() {
@@ -113,11 +111,7 @@ class FileStorage extends Disposable {
       return;
     }
     try {
-      await this.fileService.writeFile(
-        this.storagePath,
-        VSBuffer.fromString(serializedDatabase),
-        { atomic: { postfix: ".vsctmp" } }
-      );
+      await this.fileService.writeFile(this.storagePath, VSBuffer.fromString(serializedDatabase), { atomic: { postfix: ".vsctmp" } });
       this.lastSavedStorageContents = serializedDatabase;
     } catch (error) {
       this.logService.error(error);
@@ -128,6 +122,7 @@ class FileStorage extends Disposable {
       this.closing = this.flushDelayer.trigger(
         () => this.doSave(),
         0
+        /* as soon as possible */
       );
     }
     return this.closing;
@@ -140,14 +135,7 @@ let StateReadonlyService = class extends Disposable {
   fileStorage;
   constructor(saveStrategy, environmentService, logService, fileService) {
     super();
-    this.fileStorage = this._register(
-      new FileStorage(
-        environmentService.stateResource,
-        saveStrategy,
-        logService,
-        fileService
-      )
-    );
+    this.fileStorage = this._register(new FileStorage(environmentService.stateResource, saveStrategy, logService, fileService));
   }
   async init() {
     await this.fileStorage.init();

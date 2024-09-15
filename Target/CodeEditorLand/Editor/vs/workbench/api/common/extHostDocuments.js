@@ -1,17 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { deepFreeze } from "../../../base/common/objects.js";
-import { assertIsDefined } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
-import {
-  setWordDefinitionFor
-} from "./extHostDocumentData.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IModelChangedEvent } from "../../../editor/common/model/mirrorTextModel.js";
+import { ExtHostDocumentsShape, IMainContext, MainContext, MainThreadDocumentsShape } from "./extHost.protocol.js";
+import { ExtHostDocumentData, setWordDefinitionFor } from "./extHostDocumentData.js";
+import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 import * as TypeConverters from "./extHostTypeConverters.js";
+import { assertIsDefined } from "../../../base/common/types.js";
+import { deepFreeze } from "../../../base/common/objects.js";
 import { TextDocumentChangeReason } from "./extHostTypes.js";
 class ExtHostDocuments {
   static {
@@ -32,24 +30,16 @@ class ExtHostDocuments {
   constructor(mainContext, documentsAndEditors) {
     this._proxy = mainContext.getProxy(MainContext.MainThreadDocuments);
     this._documentsAndEditors = documentsAndEditors;
-    this._documentsAndEditors.onDidRemoveDocuments(
-      (documents) => {
-        for (const data of documents) {
-          this._onDidRemoveDocument.fire(data.document);
-        }
-      },
-      void 0,
-      this._toDispose
-    );
-    this._documentsAndEditors.onDidAddDocuments(
-      (documents) => {
-        for (const data of documents) {
-          this._onDidAddDocument.fire(data.document);
-        }
-      },
-      void 0,
-      this._toDispose
-    );
+    this._documentsAndEditors.onDidRemoveDocuments((documents) => {
+      for (const data of documents) {
+        this._onDidRemoveDocument.fire(data.document);
+      }
+    }, void 0, this._toDispose);
+    this._documentsAndEditors.onDidAddDocuments((documents) => {
+      for (const data of documents) {
+        this._onDidAddDocument.fire(data.document);
+      }
+    }, void 0, this._toDispose);
   }
   dispose() {
     this._toDispose.dispose();
@@ -70,9 +60,7 @@ class ExtHostDocuments {
   getDocument(resource) {
     const data = this.getDocumentData(resource);
     if (!data?.document) {
-      throw new Error(
-        `Unable to retrieve document from URI '${resource}'`
-      );
+      throw new Error(`Unable to retrieve document from URI '${resource}'`);
     }
     return data.document;
   }
@@ -83,19 +71,14 @@ class ExtHostDocuments {
     }
     let promise = this._documentLoader.get(uri.toString());
     if (!promise) {
-      promise = this._proxy.$tryOpenDocument(uri).then(
-        (uriData) => {
-          this._documentLoader.delete(uri.toString());
-          const canonicalUri = URI.revive(uriData);
-          return assertIsDefined(
-            this._documentsAndEditors.getDocument(canonicalUri)
-          );
-        },
-        (err) => {
-          this._documentLoader.delete(uri.toString());
-          return Promise.reject(err);
-        }
-      );
+      promise = this._proxy.$tryOpenDocument(uri).then((uriData) => {
+        this._documentLoader.delete(uri.toString());
+        const canonicalUri = URI.revive(uriData);
+        return assertIsDefined(this._documentsAndEditors.getDocument(canonicalUri));
+      }, (err) => {
+        this._documentLoader.delete(uri.toString());
+        return Promise.reject(err);
+      });
       this._documentLoader.set(uri.toString(), promise);
     }
     return promise;
@@ -143,26 +126,24 @@ class ExtHostDocuments {
     }
     data._acceptIsDirty(isDirty);
     data.onEvents(events);
-    let reason;
+    let reason = void 0;
     if (events.isUndoing) {
       reason = TextDocumentChangeReason.Undo;
     } else if (events.isRedoing) {
       reason = TextDocumentChangeReason.Redo;
     }
-    this._onDidChangeDocument.fire(
-      deepFreeze({
-        document: data.document,
-        contentChanges: events.changes.map((change) => {
-          return {
-            range: TypeConverters.Range.to(change.range),
-            rangeOffset: change.rangeOffset,
-            rangeLength: change.rangeLength,
-            text: change.text
-          };
-        }),
-        reason
-      })
-    );
+    this._onDidChangeDocument.fire(deepFreeze({
+      document: data.document,
+      contentChanges: events.changes.map((change) => {
+        return {
+          range: TypeConverters.Range.to(change.range),
+          rangeOffset: change.rangeOffset,
+          rangeLength: change.rangeLength,
+          text: change.text
+        };
+      }),
+      reason
+    }));
   }
   setWordDefinitionFor(languageId, wordDefinition) {
     setWordDefinitionFor(languageId, wordDefinition);

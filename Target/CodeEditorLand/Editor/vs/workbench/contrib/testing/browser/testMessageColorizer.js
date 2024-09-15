@@ -1,15 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { renderStringAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
-import {
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  GraphemeIterator,
-  forAnsiStringParts,
-  removeAnsiEscapeCodes
-} from "../../../../base/common/strings.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { GraphemeIterator, forAnsiStringParts, removeAnsiEscapeCodes } from "../../../../base/common/strings.js";
 import "./media/testMessageColorizer.css";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
 import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
 const colorAttrRe = /^\x1b\[([0-9]+)m$/;
@@ -39,22 +35,16 @@ const colorizeTestMessageInEditor = /* @__PURE__ */ __name((message, editor) => 
         if (n === 0) {
           cls.length = 0;
         } else if (n === 22) {
-          cls = cls.filter(
-            (c) => c !== "tstm-ansidec-1" /* Bold */ && c !== "tstm-ansidec-3" /* Italic */
-          );
+          cls = cls.filter((c) => c !== "tstm-ansidec-1" /* Bold */ && c !== "tstm-ansidec-3" /* Italic */);
         } else if (n === 23) {
           cls = cls.filter((c) => c !== "tstm-ansidec-3" /* Italic */);
         } else if (n === 24) {
           cls = cls.filter((c) => c !== "tstm-ansidec-4" /* Underline */);
         } else if (n >= 30 && n <= 39 || n >= 90 && n <= 99) {
-          cls = cls.filter(
-            (c) => !c.startsWith("tstm-ansidec-fg" /* ForegroundPrefix */)
-          );
+          cls = cls.filter((c) => !c.startsWith("tstm-ansidec-fg" /* ForegroundPrefix */));
           cls.push("tstm-ansidec-fg" /* ForegroundPrefix */ + colorAttr);
         } else if (n >= 40 && n <= 49 || n >= 100 && n <= 109) {
-          cls = cls.filter(
-            (c) => !c.startsWith("tstm-ansidec-bg" /* BackgroundPrefix */)
-          );
+          cls = cls.filter((c) => !c.startsWith("tstm-ansidec-bg" /* BackgroundPrefix */));
           cls.push("tstm-ansidec-bg" /* BackgroundPrefix */ + colorAttr);
         } else {
           cls.push("tstm-ansidec-" /* Prefix */ + colorAttr);
@@ -73,15 +63,10 @@ const colorizeTestMessageInEditor = /* @__PURE__ */ __name((message, editor) => 
         }
         const end = new Position(line, col);
         if (cls.length) {
-          decos.push(
-            changeAccessor.addDecoration(
-              Range.fromPositions(start, end),
-              {
-                inlineClassName: cls.join(" "),
-                description: "test-message-colorized"
-              }
-            )
-          );
+          decos.push(changeAccessor.addDecoration(Range.fromPositions(start, end), {
+            inlineClassName: cls.join(" "),
+            description: "test-message-colorized"
+          }));
         }
         start = end;
       }

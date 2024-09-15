@@ -10,20 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../base/common/cancellation.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { Emitter } from "../../../base/common/event.js";
-import { dispose } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  IDecorationsService
-} from "../../services/decorations/common/decorations.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { IDisposable, dispose } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, MainContext, MainThreadDecorationsShape, ExtHostDecorationsShape, DecorationData, DecorationRequest } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDecorationsService, IDecorationData } from "../../services/decorations/common/decorations.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
 class DecorationRequestsQueue {
   constructor(_proxy, _handle) {
     this._proxy = _proxy;
@@ -56,11 +49,7 @@ class DecorationRequestsQueue {
     this._timer = setTimeout(() => {
       const requests = this._requests;
       const resolver = this._resolver;
-      this._proxy.$provideDecorations(
-        this._handle,
-        [...requests.values()],
-        CancellationToken.None
-      ).then((data) => {
+      this._proxy.$provideDecorations(this._handle, [...requests.values()], CancellationToken.None).then((data) => {
         for (const [id, resolve] of resolver) {
           resolve(data[id]);
         }

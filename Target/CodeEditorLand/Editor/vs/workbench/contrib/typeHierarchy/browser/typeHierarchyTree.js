@@ -1,19 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IAsyncDataSource, ITreeRenderer, ITreeNode, ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
+import { TypeHierarchyDirection, TypeHierarchyItem, TypeHierarchyModel } from "../common/typeHierarchy.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import {
-  createMatches
-} from "../../../../base/common/filters.js";
-import { compare } from "../../../../base/common/strings.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { Range } from "../../../../editor/common/core/range.js";
+import { IIdentityProvider, IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { FuzzyScore, createMatches } from "../../../../base/common/filters.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
 import { SymbolKinds, SymbolTag } from "../../../../editor/common/languages.js";
+import { compare } from "../../../../base/common/strings.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
 import { localize } from "../../../../nls.js";
-import {
-  TypeHierarchyDirection,
-  TypeHierarchyModel
-} from "../common/typeHierarchy.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 class Type {
   constructor(item, model, parent) {
     this.item = item;
@@ -43,18 +41,24 @@ class DataSource {
   }
   async getChildren(element) {
     if (element instanceof TypeHierarchyModel) {
-      return element.roots.map(
-        (root) => new Type(root, element, void 0)
-      );
+      return element.roots.map((root) => new Type(root, element, void 0));
     }
     const { model, item } = element;
     if (this.getDirection() === TypeHierarchyDirection.Supertypes) {
       return (await model.provideSupertypes(item, CancellationToken.None)).map((item2) => {
-        return new Type(item2, model, element);
+        return new Type(
+          item2,
+          model,
+          element
+        );
       });
     } else {
       return (await model.provideSubtypes(item, CancellationToken.None)).map((item2) => {
-        return new Type(item2, model, element);
+        return new Type(
+          item2,
+          model,
+          element
+        );
       });
     }
   }
@@ -107,17 +111,12 @@ class TypeRenderer {
   renderElement(node, _index, template) {
     const { element, filterData } = node;
     const deprecated = element.item.tags?.includes(SymbolTag.Deprecated);
-    template.icon.classList.add(
-      "inline",
-      ...ThemeIcon.asClassNameArray(
-        SymbolKinds.toIcon(element.item.kind)
-      )
+    template.icon.classList.add("inline", ...ThemeIcon.asClassNameArray(SymbolKinds.toIcon(element.item.kind)));
+    template.label.setLabel(
+      element.item.name,
+      element.item.detail,
+      { labelEscapeNewLines: true, matches: createMatches(filterData), strikethrough: deprecated }
     );
-    template.label.setLabel(element.item.name, element.item.detail, {
-      labelEscapeNewLines: true,
-      matches: createMatches(filterData),
-      strikethrough: deprecated
-    });
   }
   disposeTemplate(template) {
     template.label.dispose();
@@ -146,11 +145,7 @@ class AccessibilityProvider {
   }
   getAriaLabel(element) {
     if (this.getDirection() === TypeHierarchyDirection.Supertypes) {
-      return localize(
-        "supertypes",
-        "supertypes of {0}",
-        element.item.name
-      );
+      return localize("supertypes", "supertypes of {0}", element.item.name);
     } else {
       return localize("subtypes", "subtypes of {0}", element.item.name);
     }

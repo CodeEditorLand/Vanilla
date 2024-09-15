@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ResourceLabelFormatter } from "../../../platform/label/common/label.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { MainThreadLabelServiceShape, ExtHostLabelServiceShape, MainContext, IMainContext } from "./extHost.protocol.js";
 class ExtHostLabelService {
   static {
     __name(this, "ExtHostLabelService");

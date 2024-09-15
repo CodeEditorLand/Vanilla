@@ -10,19 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IDisposable, Disposable } from "../../../base/common/lifecycle.js";
 import { OperatingSystem } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
+import { IAddressProvider } from "../../remote/common/remoteAgentConnection.js";
+import { TunnelPrivacy } from "../../remote/common/remoteAuthorityResolver.js";
 const ITunnelService = createDecorator("tunnelService");
-const ISharedTunnelsService = createDecorator(
-  "sharedTunnelsService"
-);
+const ISharedTunnelsService = createDecorator("sharedTunnelsService");
 var TunnelProtocol = /* @__PURE__ */ ((TunnelProtocol2) => {
   TunnelProtocol2["Http"] = "http";
   TunnelProtocol2["Https"] = "https";
@@ -51,9 +50,7 @@ function extractLocalHostUriMetaDataForPortMapping(uri) {
   if (uri.scheme !== "http" && uri.scheme !== "https") {
     return void 0;
   }
-  const localhostMatch = /^(localhost|127\.0\.0\.1|0\.0\.0\.0):(\d+)$/.exec(
-    uri.authority
-  );
+  const localhostMatch = /^(localhost|127\.0\.0\.1|0\.0\.0\.0):(\d+)$/.exec(uri.authority);
   if (!localhostMatch) {
     return void 0;
   }
@@ -71,9 +68,7 @@ function extractQueryLocalHostUriMetaDataForPortMapping(uri) {
   for (const keyvalue of keyvalues) {
     const value = keyvalue.split("=")[1];
     if (/^https?:/.exec(value)) {
-      const result = extractLocalHostUriMetaDataForPortMapping(
-        URI.parse(value)
-      );
+      const result = extractLocalHostUriMetaDataForPortMapping(URI.parse(value));
       if (result) {
         return result;
       }
@@ -82,12 +77,7 @@ function extractQueryLocalHostUriMetaDataForPortMapping(uri) {
   return void 0;
 }
 __name(extractQueryLocalHostUriMetaDataForPortMapping, "extractQueryLocalHostUriMetaDataForPortMapping");
-const LOCALHOST_ADDRESSES = [
-  "localhost",
-  "127.0.0.1",
-  "0:0:0:0:0:0:0:1",
-  "::1"
-];
+const LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0:0:0:0:0:0:0:1", "::1"];
 function isLocalhost(host) {
   return LOCALHOST_ADDRESSES.indexOf(host) >= 0;
 }
@@ -105,7 +95,7 @@ function isPortPrivileged(port, host, os, osRelease) {
     if (isAllInterfaces(host)) {
       const osVersion = /(\d+)\.(\d+)\.(\d+)/g.exec(osRelease);
       if (osVersion?.length === 4) {
-        const major = Number.parseInt(osVersion[1]);
+        const major = parseInt(osVersion[1]);
         if (major >= 18) {
           return false;
         }
@@ -156,9 +146,7 @@ let AbstractTunnelService = class extends Disposable {
     return !!this._tunnelProvider;
   }
   get defaultTunnelHost() {
-    const settingValue = this.configurationService.getValue(
-      "remote.localPortHost"
-    );
+    const settingValue = this.configurationService.getValue("remote.localPortHost");
     return !settingValue || settingValue === "localhost" ? "127.0.0.1" : "0.0.0.0";
   }
   setTunnelProvider(provider) {
@@ -219,27 +207,21 @@ let AbstractTunnelService = class extends Disposable {
     super.dispose();
     for (const portMap of this._tunnels.values()) {
       for (const { value } of portMap.values()) {
-        await value.then(
-          (tunnel) => typeof tunnel !== "string" ? tunnel?.dispose() : void 0
-        );
+        await value.then((tunnel) => typeof tunnel !== "string" ? tunnel?.dispose() : void 0);
       }
       portMap.clear();
     }
     this._tunnels.clear();
   }
   setEnvironmentTunnel(remoteHost, remotePort, localAddress, privacy, protocol) {
-    this.addTunnelToMap(
-      remoteHost,
-      remotePort,
-      Promise.resolve({
-        tunnelRemoteHost: remoteHost,
-        tunnelRemotePort: remotePort,
-        localAddress,
-        privacy,
-        protocol,
-        dispose: /* @__PURE__ */ __name(() => Promise.resolve(), "dispose")
-      })
-    );
+    this.addTunnelToMap(remoteHost, remotePort, Promise.resolve({
+      tunnelRemoteHost: remoteHost,
+      tunnelRemotePort: remotePort,
+      localAddress,
+      privacy,
+      protocol,
+      dispose: /* @__PURE__ */ __name(() => Promise.resolve(), "dispose")
+    }));
   }
   async getExistingTunnel(remoteHost, remotePort) {
     if (isAllInterfaces(remoteHost) || isLocalhost(remoteHost)) {
@@ -253,9 +235,7 @@ let AbstractTunnelService = class extends Disposable {
     return void 0;
   }
   openTunnel(addressProvider, remoteHost, remotePort, localHost, localPort, elevateIfNeeded = false, privacy, protocol) {
-    this.logService.trace(
-      `ForwardedPorts: (TunnelService) openTunnel request for ${remoteHost}:${remotePort} on local port ${localPort}.`
-    );
+    this.logService.trace(`ForwardedPorts: (TunnelService) openTunnel request for ${remoteHost}:${remotePort} on local port ${localPort}.`);
     const addressOrTunnelProvider = this._tunnelProvider ?? addressProvider;
     if (!addressOrTunnelProvider) {
       return void 0;
@@ -267,54 +247,31 @@ let AbstractTunnelService = class extends Disposable {
       localHost = this.defaultTunnelHost;
     }
     if (this._tunnelProvider && this._factoryInProgress.has(remotePort)) {
-      this.logService.debug(
-        `ForwardedPorts: (TunnelService) Another call to create a tunnel with the same address has occurred before the last one completed. This call will be ignored.`
-      );
+      this.logService.debug(`ForwardedPorts: (TunnelService) Another call to create a tunnel with the same address has occurred before the last one completed. This call will be ignored.`);
       return;
     }
-    const resolvedTunnel = this.retainOrCreateTunnel(
-      addressOrTunnelProvider,
-      remoteHost,
-      remotePort,
-      localHost,
-      localPort,
-      elevateIfNeeded,
-      privacy,
-      protocol
-    );
+    const resolvedTunnel = this.retainOrCreateTunnel(addressOrTunnelProvider, remoteHost, remotePort, localHost, localPort, elevateIfNeeded, privacy, protocol);
     if (!resolvedTunnel) {
-      this.logService.trace(
-        `ForwardedPorts: (TunnelService) Tunnel was not created.`
-      );
+      this.logService.trace(`ForwardedPorts: (TunnelService) Tunnel was not created.`);
       return resolvedTunnel;
     }
     return resolvedTunnel.then((tunnel) => {
       if (!tunnel) {
-        this.logService.trace(
-          "ForwardedPorts: (TunnelService) New tunnel is undefined."
-        );
+        this.logService.trace("ForwardedPorts: (TunnelService) New tunnel is undefined.");
         this.removeEmptyOrErrorTunnelFromMap(remoteHost, remotePort);
         return void 0;
       } else if (typeof tunnel === "string") {
-        this.logService.trace(
-          "ForwardedPorts: (TunnelService) The tunnel provider returned an error when creating the tunnel."
-        );
+        this.logService.trace("ForwardedPorts: (TunnelService) The tunnel provider returned an error when creating the tunnel.");
         this.removeEmptyOrErrorTunnelFromMap(remoteHost, remotePort);
         return tunnel;
       }
-      this.logService.trace(
-        "ForwardedPorts: (TunnelService) New tunnel established."
-      );
+      this.logService.trace("ForwardedPorts: (TunnelService) New tunnel established.");
       const newTunnel = this.makeTunnel(tunnel);
       if (tunnel.tunnelRemoteHost !== remoteHost || tunnel.tunnelRemotePort !== remotePort) {
-        this.logService.warn(
-          "ForwardedPorts: (TunnelService) Created tunnel does not match requirements of requested tunnel. Host or port mismatch."
-        );
+        this.logService.warn("ForwardedPorts: (TunnelService) Created tunnel does not match requirements of requested tunnel. Host or port mismatch.");
       }
       if (privacy && tunnel.privacy !== privacy) {
-        this.logService.warn(
-          "ForwardedPorts: (TunnelService) Created tunnel does not match requirements of requested tunnel. Privacy mismatch."
-        );
+        this.logService.warn("ForwardedPorts: (TunnelService) Created tunnel does not match requirements of requested tunnel. Privacy mismatch.");
       }
       this._onTunnelOpened.fire(newTunnel);
       return newTunnel;
@@ -329,19 +286,13 @@ let AbstractTunnelService = class extends Disposable {
       privacy: tunnel.privacy,
       protocol: tunnel.protocol,
       dispose: /* @__PURE__ */ __name(async () => {
-        this.logService.trace(
-          `ForwardedPorts: (TunnelService) dispose request for ${tunnel.tunnelRemoteHost}:${tunnel.tunnelRemotePort} `
-        );
+        this.logService.trace(`ForwardedPorts: (TunnelService) dispose request for ${tunnel.tunnelRemoteHost}:${tunnel.tunnelRemotePort} `);
         const existingHost = this._tunnels.get(tunnel.tunnelRemoteHost);
         if (existingHost) {
           const existing = existingHost.get(tunnel.tunnelRemotePort);
           if (existing) {
             existing.refcount--;
-            await this.tryDisposeTunnel(
-              tunnel.tunnelRemoteHost,
-              tunnel.tunnelRemotePort,
-              existing
-            );
+            await this.tryDisposeTunnel(tunnel.tunnelRemoteHost, tunnel.tunnelRemotePort, existing);
           }
         }
       }, "dispose")
@@ -349,20 +300,13 @@ let AbstractTunnelService = class extends Disposable {
   }
   async tryDisposeTunnel(remoteHost, remotePort, tunnel) {
     if (tunnel.refcount <= 0) {
-      this.logService.trace(
-        `ForwardedPorts: (TunnelService) Tunnel is being disposed ${remoteHost}:${remotePort}.`
-      );
-      const disposePromise = tunnel.value.then(
-        async (tunnel2) => {
-          if (tunnel2 && typeof tunnel2 !== "string") {
-            await tunnel2.dispose(true);
-            this._onTunnelClosed.fire({
-              host: tunnel2.tunnelRemoteHost,
-              port: tunnel2.tunnelRemotePort
-            });
-          }
+      this.logService.trace(`ForwardedPorts: (TunnelService) Tunnel is being disposed ${remoteHost}:${remotePort}.`);
+      const disposePromise = tunnel.value.then(async (tunnel2) => {
+        if (tunnel2 && typeof tunnel2 !== "string") {
+          await tunnel2.dispose(true);
+          this._onTunnelClosed.fire({ host: tunnel2.tunnelRemoteHost, port: tunnel2.tunnelRemotePort });
         }
-      );
+      });
       if (this._tunnels.has(remoteHost)) {
         this._tunnels.get(remoteHost).delete(remotePort);
       }
@@ -370,9 +314,7 @@ let AbstractTunnelService = class extends Disposable {
     }
   }
   async closeTunnel(remoteHost, remotePort) {
-    this.logService.trace(
-      `ForwardedPorts: (TunnelService) close request for ${remoteHost}:${remotePort} `
-    );
+    this.logService.trace(`ForwardedPorts: (TunnelService) close request for ${remoteHost}:${remotePort} `);
     const portMap = this._tunnels.get(remoteHost);
     if (portMap && portMap.has(remotePort)) {
       const value = portMap.get(remotePort);
@@ -420,29 +362,17 @@ let AbstractTunnelService = class extends Disposable {
     return !!extractLocalHostUriMetaDataForPortMapping(uri);
   }
   createWithProvider(tunnelProvider, remoteHost, remotePort, localPort, elevateIfNeeded, privacy, protocol) {
-    this.logService.trace(
-      `ForwardedPorts: (TunnelService) Creating tunnel with provider ${remoteHost}:${remotePort} on local port ${localPort}.`
-    );
+    this.logService.trace(`ForwardedPorts: (TunnelService) Creating tunnel with provider ${remoteHost}:${remotePort} on local port ${localPort}.`);
     const key = remotePort;
     this._factoryInProgress.add(key);
     const preferredLocalPort = localPort === void 0 ? remotePort : localPort;
-    const creationInfo = {
-      elevationRequired: elevateIfNeeded ? this.isPortPrivileged(preferredLocalPort) : false
-    };
-    const tunnelOptions = {
-      remoteAddress: { host: remoteHost, port: remotePort },
-      localAddressPort: localPort,
-      privacy,
-      public: privacy ? privacy !== "private" /* Private */ : void 0,
-      protocol
-    };
+    const creationInfo = { elevationRequired: elevateIfNeeded ? this.isPortPrivileged(preferredLocalPort) : false };
+    const tunnelOptions = { remoteAddress: { host: remoteHost, port: remotePort }, localAddressPort: localPort, privacy, public: privacy ? privacy !== "private" /* Private */ : void 0, protocol };
     const tunnel = tunnelProvider.forwardPort(tunnelOptions, creationInfo);
     if (tunnel) {
       this.addTunnelToMap(remoteHost, remotePort, tunnel);
       tunnel.finally(() => {
-        this.logService.trace(
-          "ForwardedPorts: (TunnelService) Tunnel created by provider."
-        );
+        this.logService.trace("ForwardedPorts: (TunnelService) Tunnel created by provider.");
         this._factoryInProgress.delete(key);
       });
     } else {

@@ -10,40 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../base/common/observable.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import {
-  AutoOpenTesting,
-  TestingConfigKeys,
-  getTestingConfiguration
-} from "../common/configuration.js";
+import { ExplorerTestCoverageBars } from "./testCoverageBars.js";
+import { AutoOpenTesting, getTestingConfiguration, TestingConfigKeys } from "../common/configuration.js";
 import { Testing } from "../common/constants.js";
 import { ITestCoverageService } from "../common/testCoverageService.js";
-import {
-  TestResultItemChangeReason
-} from "../common/testResult.js";
+import { isFailedState } from "../common/testingStates.js";
+import { ITestResult, LiveTestResult, TestResultItemChangeReason } from "../common/testResult.js";
 import { ITestResultService } from "../common/testResultService.js";
 import { TestResultState } from "../common/testTypes.js";
-import { isFailedState } from "../common/testingStates.js";
-import { ExplorerTestCoverageBars } from "./testCoverageBars.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
 let TestingProgressTrigger = class extends Disposable {
   constructor(resultService, testCoverageService, configurationService, viewsService) {
     super();
     this.configurationService = configurationService;
     this.viewsService = viewsService;
-    this._register(
-      resultService.onResultsChanged((e) => {
-        if ("started" in e) {
-          this.attachAutoOpenForNewResults(e.started);
-        }
-      })
-    );
+    this._register(resultService.onResultsChanged((e) => {
+      if ("started" in e) {
+        this.attachAutoOpenForNewResults(e.started);
+      }
+    }));
     const barContributionRegistration = autorun((reader) => {
       const hasCoverage = !!testCoverageService.selected.read(reader);
       if (!hasCoverage) {
@@ -61,10 +50,7 @@ let TestingProgressTrigger = class extends Disposable {
     if (result.request.preserveFocus === true) {
       return;
     }
-    const cfg = getTestingConfiguration(
-      this.configurationService,
-      TestingConfigKeys.OpenTesting
-    );
+    const cfg = getTestingConfiguration(this.configurationService, TestingConfigKeys.OpenTesting);
     if (cfg === AutoOpenTesting.NeverOpen) {
       return;
     }
@@ -76,14 +62,12 @@ let TestingProgressTrigger = class extends Disposable {
     }
     const disposable = new DisposableStore();
     disposable.add(result.onComplete(() => disposable.dispose()));
-    disposable.add(
-      result.onChange((e) => {
-        if (e.reason === TestResultItemChangeReason.OwnStateChange && isFailedState(e.item.ownComputedState)) {
-          this.openResultsView();
-          disposable.dispose();
-        }
-      })
-    );
+    disposable.add(result.onChange((e) => {
+      if (e.reason === TestResultItemChangeReason.OwnStateChange && isFailedState(e.item.ownComputedState)) {
+        this.openResultsView();
+        disposable.dispose();
+      }
+    }));
   }
   openExplorerView() {
     this.viewsService.openView(Testing.ExplorerViewId, false);
@@ -121,14 +105,7 @@ const collectTestStateCounts = /* @__PURE__ */ __name((isRunning, results) => {
     skipped
   };
 }, "collectTestStateCounts");
-const getTestProgressText = /* @__PURE__ */ __name(({
-  isRunning,
-  passed,
-  runSoFar,
-  totalWillBeRun,
-  skipped,
-  failed
-}) => {
+const getTestProgressText = /* @__PURE__ */ __name(({ isRunning, passed, runSoFar, totalWillBeRun, skipped, failed }) => {
   let percent = passed / runSoFar * 100;
   if (failed > 0) {
     percent = Math.min(percent, 99.9);
@@ -139,40 +116,16 @@ const getTestProgressText = /* @__PURE__ */ __name(({
     if (runSoFar === 0) {
       return localize("testProgress.runningInitial", "Running tests...");
     } else if (skipped === 0) {
-      return localize(
-        "testProgress.running",
-        "Running tests, {0}/{1} passed ({2}%)",
-        passed,
-        totalWillBeRun,
-        percent.toPrecision(3)
-      );
+      return localize("testProgress.running", "Running tests, {0}/{1} passed ({2}%)", passed, totalWillBeRun, percent.toPrecision(3));
     } else {
-      return localize(
-        "testProgressWithSkip.running",
-        "Running tests, {0}/{1} tests passed ({2}%, {3} skipped)",
-        passed,
-        totalWillBeRun,
-        percent.toPrecision(3),
-        skipped
-      );
+      return localize("testProgressWithSkip.running", "Running tests, {0}/{1} tests passed ({2}%, {3} skipped)", passed, totalWillBeRun, percent.toPrecision(3), skipped);
     }
-  } else if (skipped === 0) {
-    return localize(
-      "testProgress.completed",
-      "{0}/{1} tests passed ({2}%)",
-      passed,
-      runSoFar,
-      percent.toPrecision(3)
-    );
   } else {
-    return localize(
-      "testProgressWithSkip.completed",
-      "{0}/{1} tests passed ({2}%, {3} skipped)",
-      passed,
-      runSoFar,
-      percent.toPrecision(3),
-      skipped
-    );
+    if (skipped === 0) {
+      return localize("testProgress.completed", "{0}/{1} tests passed ({2}%)", passed, runSoFar, percent.toPrecision(3));
+    } else {
+      return localize("testProgressWithSkip.completed", "{0}/{1} tests passed ({2}%, {3} skipped)", passed, runSoFar, percent.toPrecision(3), skipped);
+    }
   }
 }, "getTestProgressText");
 export {

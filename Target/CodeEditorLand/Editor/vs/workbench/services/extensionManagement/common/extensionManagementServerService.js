@@ -10,22 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas } from "../../../../base/common/network.js";
-import { isWeb } from "../../../../base/common/platform.js";
 import { localize } from "../../../../nls.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ExtensionInstallLocation, IExtensionManagementServer, IExtensionManagementServerService } from "./extensionManagement.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import {
-  ExtensionInstallLocation,
-  IExtensionManagementServerService
-} from "./extensionManagement.js";
-import { RemoteExtensionManagementService } from "./remoteExtensionManagementService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { WebExtensionManagementService } from "./webExtensionManagementService.js";
+import { IExtension } from "../../../../platform/extensions/common/extensions.js";
+import { RemoteExtensionManagementService } from "./remoteExtensionManagementService.js";
 let ExtensionManagementServerService = class {
   static {
     __name(this, "ExtensionManagementServerService");
@@ -36,25 +32,17 @@ let ExtensionManagementServerService = class {
   constructor(remoteAgentService, labelService, instantiationService) {
     const remoteAgentConnection = remoteAgentService.getConnection();
     if (remoteAgentConnection) {
-      const extensionManagementService = instantiationService.createInstance(
-        RemoteExtensionManagementService,
-        remoteAgentConnection.getChannel("extensions")
-      );
+      const extensionManagementService = instantiationService.createInstance(RemoteExtensionManagementService, remoteAgentConnection.getChannel("extensions"));
       this.remoteExtensionManagementServer = {
         id: "remote",
         extensionManagementService,
         get label() {
-          return labelService.getHostLabel(
-            Schemas.vscodeRemote,
-            remoteAgentConnection.remoteAuthority
-          ) || localize("remote", "Remote");
+          return labelService.getHostLabel(Schemas.vscodeRemote, remoteAgentConnection.remoteAuthority) || localize("remote", "Remote");
         }
       };
     }
     if (isWeb) {
-      const extensionManagementService = instantiationService.createInstance(
-        WebExtensionManagementService
-      );
+      const extensionManagementService = instantiationService.createInstance(WebExtensionManagementService);
       this.webExtensionManagementServer = {
         id: "web",
         extensionManagementService,
@@ -81,11 +69,7 @@ ExtensionManagementServerService = __decorateClass([
   __decorateParam(1, ILabelService),
   __decorateParam(2, IInstantiationService)
 ], ExtensionManagementServerService);
-registerSingleton(
-  IExtensionManagementServerService,
-  ExtensionManagementServerService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionManagementServerService, ExtensionManagementServerService, InstantiationType.Delayed);
 export {
   ExtensionManagementServerService
 };

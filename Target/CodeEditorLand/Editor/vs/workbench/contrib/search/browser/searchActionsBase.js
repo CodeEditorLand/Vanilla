@@ -1,16 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as DOM from "../../../../base/browser/dom.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
 import * as nls from "../../../../nls.js";
-import {
-  VIEW_ID
-} from "../../../services/search/common/search.js";
-import {
-  FileMatch,
-  FolderMatch,
-  Match,
-  searchComparer
-} from "./searchModel.js";
+import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { SearchView } from "./searchView.js";
+import { FileMatch, FolderMatch, Match, RenderableMatch, searchComparer } from "./searchModel.js";
+import { ISearchConfigurationProperties, VIEW_ID } from "../../../services/search/common/search.js";
 const category = nls.localize2("search", "Search");
 function isSearchViewFocused(viewsService) {
   const searchView = getSearchView(viewsService);
@@ -42,9 +39,7 @@ function shouldRefocus(elements, focusElement) {
 __name(shouldRefocus, "shouldRefocus");
 function hasDownstreamMatch(elements, focusElement) {
   for (const elem of elements) {
-    if (elem instanceof FileMatch && focusElement instanceof Match && elem.matches().includes(focusElement) || elem instanceof FolderMatch && (focusElement instanceof FileMatch && elem.getDownstreamFileMatch(focusElement.resource) || focusElement instanceof Match && elem.getDownstreamFileMatch(
-      focusElement.parent().resource
-    ))) {
+    if (elem instanceof FileMatch && focusElement instanceof Match && elem.matches().includes(focusElement) || elem instanceof FolderMatch && (focusElement instanceof FileMatch && elem.getDownstreamFileMatch(focusElement.resource) || focusElement instanceof Match && elem.getDownstreamFileMatch(focusElement.parent().resource))) {
       return true;
     }
   }

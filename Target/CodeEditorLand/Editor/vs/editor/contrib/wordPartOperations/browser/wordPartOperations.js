@@ -1,19 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { registerEditorCommand } from "../../../browser/editorExtensions.js";
+import { DeleteWordContext, WordNavigationType, WordPartOperations } from "../../../common/cursor/cursorWordOperations.js";
+import { WordCharacterClassifier } from "../../../common/core/wordCharacterClassifier.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { ITextModel } from "../../../common/model.js";
+import { DeleteWordCommand, MoveWordCommand } from "../../wordOperations/browser/wordOperations.js";
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { registerEditorCommand } from "../../../browser/editorExtensions.js";
-import { Range } from "../../../common/core/range.js";
-import {
-  WordNavigationType,
-  WordPartOperations
-} from "../../../common/cursor/cursorWordOperations.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import {
-  DeleteWordCommand,
-  MoveWordCommand
-} from "../../wordOperations/browser/wordOperations.js";
 class DeleteWordPartLeft extends DeleteWordCommand {
   static {
     __name(this, "DeleteWordPartLeft");
@@ -27,9 +24,7 @@ class DeleteWordPartLeft extends DeleteWordCommand {
       kbOpts: {
         kbExpr: EditorContextKeys.textInputFocus,
         primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.Backspace
-        },
+        mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.Backspace },
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -75,12 +70,7 @@ class WordPartLeftCommand extends MoveWordCommand {
     __name(this, "WordPartLeftCommand");
   }
   _move(wordSeparators, model, position, wordNavigationType, hasMulticursor) {
-    return WordPartOperations.moveWordPartLeft(
-      wordSeparators,
-      model,
-      position,
-      hasMulticursor
-    );
+    return WordPartOperations.moveWordPartLeft(wordSeparators, model, position, hasMulticursor);
   }
 }
 class CursorWordPartLeft extends WordPartLeftCommand {
@@ -96,18 +86,13 @@ class CursorWordPartLeft extends WordPartLeftCommand {
       kbOpts: {
         kbExpr: EditorContextKeys.textInputFocus,
         primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.LeftArrow
-        },
+        mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.LeftArrow },
         weight: KeybindingWeight.EditorContrib
       }
     });
   }
 }
-CommandsRegistry.registerCommandAlias(
-  "cursorWordPartStartLeft",
-  "cursorWordPartLeft"
-);
+CommandsRegistry.registerCommandAlias("cursorWordPartStartLeft", "cursorWordPartLeft");
 class CursorWordPartLeftSelect extends WordPartLeftCommand {
   static {
     __name(this, "CursorWordPartLeftSelect");
@@ -121,28 +106,19 @@ class CursorWordPartLeftSelect extends WordPartLeftCommand {
       kbOpts: {
         kbExpr: EditorContextKeys.textInputFocus,
         primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Alt | KeyMod.Shift | KeyCode.LeftArrow
-        },
+        mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyMod.Shift | KeyCode.LeftArrow },
         weight: KeybindingWeight.EditorContrib
       }
     });
   }
 }
-CommandsRegistry.registerCommandAlias(
-  "cursorWordPartStartLeftSelect",
-  "cursorWordPartLeftSelect"
-);
+CommandsRegistry.registerCommandAlias("cursorWordPartStartLeftSelect", "cursorWordPartLeftSelect");
 class WordPartRightCommand extends MoveWordCommand {
   static {
     __name(this, "WordPartRightCommand");
   }
   _move(wordSeparators, model, position, wordNavigationType, hasMulticursor) {
-    return WordPartOperations.moveWordPartRight(
-      wordSeparators,
-      model,
-      position
-    );
+    return WordPartOperations.moveWordPartRight(wordSeparators, model, position);
   }
 }
 class CursorWordPartRight extends WordPartRightCommand {
@@ -158,9 +134,7 @@ class CursorWordPartRight extends WordPartRightCommand {
       kbOpts: {
         kbExpr: EditorContextKeys.textInputFocus,
         primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.RightArrow
-        },
+        mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.RightArrow },
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -179,9 +153,7 @@ class CursorWordPartRightSelect extends WordPartRightCommand {
       kbOpts: {
         kbExpr: EditorContextKeys.textInputFocus,
         primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Alt | KeyMod.Shift | KeyCode.RightArrow
-        },
+        mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyMod.Shift | KeyCode.RightArrow },
         weight: KeybindingWeight.EditorContrib
       }
     });

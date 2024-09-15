@@ -42,11 +42,11 @@
   opacity: 0.5;
 }
 .monaco-icon-label > .monaco-icon-label-container > .monaco-icon-suffix-container > .label-suffix {
-  opacity: 0.7;
+  opacity: .7;
   white-space: pre;
 }
 .monaco-icon-label > .monaco-icon-label-container > .monaco-icon-description-container > .label-description {
-  opacity: 0.7;
+  opacity: .7;
   margin-left: 0.5em;
   font-size: 0.9em;
   white-space: pre;
@@ -55,7 +55,7 @@
   white-space: nowrap;
 }
 .vs .monaco-icon-label > .monaco-icon-label-container > .monaco-icon-description-container > .label-description {
-  opacity: 0.95;
+  opacity: .95;
 }
 .monaco-icon-label.italic > .monaco-icon-label-container > .monaco-icon-name-container > .label-name,
 .monaco-icon-label.italic > .monaco-icon-label-container > .monaco-icon-description-container > .label-description {
@@ -85,6 +85,6 @@
 }
 .monaco-list-row.focused.selected .label-description,
 .monaco-list-row.selected .label-description {
-  opacity: 0.8;
+  opacity: .8;
 }
 /*# sourceMappingURL=iconlabel.css.map */

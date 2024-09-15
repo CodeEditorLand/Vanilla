@@ -10,27 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IAction } from "../../base/common/actions.js";
 import { Emitter } from "../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../base/common/lifecycle.js";
 import { isEqual } from "../../base/common/resources.js";
-import {
-  OverlayWidgetPositionPreference,
-  isCodeEditor,
-  isCompositeEditor
-} from "../../editor/browser/editorBrowser.js";
+import { URI } from "../../base/common/uri.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference, isCodeEditor, isCompositeEditor } from "../../editor/browser/editorBrowser.js";
 import { EmbeddedCodeEditorWidget } from "../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EditorOption } from "../../editor/common/config/editorOptions.js";
-import {
-  CursorChangeReason
-} from "../../editor/common/cursorEvents.js";
-import {
-  TrackedRangeStickiness
-} from "../../editor/common/model.js";
+import { IRange } from "../../editor/common/core/range.js";
+import { CursorChangeReason, ICursorPositionChangedEvent } from "../../editor/common/cursorEvents.js";
+import { IEditorContribution } from "../../editor/common/editorCommon.js";
+import { IModelDecorationsChangeAccessor, TrackedRangeStickiness } from "../../editor/common/model.js";
 import { ModelDecorationOptions } from "../../editor/common/model/textModel.js";
-import {
-  AbstractFloatingClickMenu,
-  FloatingClickWidget
-} from "../../platform/actions/browser/floatingMenu.js";
+import { AbstractFloatingClickMenu, FloatingClickWidget } from "../../platform/actions/browser/floatingMenu.js";
 import { IMenuService, MenuId } from "../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
@@ -69,16 +62,9 @@ let RangeHighlightDecorations = class extends Disposable {
   }
   doHighlightRange(editor, selectionRange) {
     this.removeHighlightRange();
-    editor.changeDecorations(
-      (changeAccessor) => {
-        this.rangeHighlightDecorationId = changeAccessor.addDecoration(
-          selectionRange.range,
-          this.createRangeHighlightDecoration(
-            selectionRange.isWholeLine
-          )
-        );
-      }
-    );
+    editor.changeDecorations((changeAccessor) => {
+      this.rangeHighlightDecorationId = changeAccessor.addDecoration(selectionRange.range, this.createRangeHighlightDecoration(selectionRange.isWholeLine));
+    });
     this.setEditor(editor);
   }
   getEditor(resourceRange) {
@@ -92,26 +78,18 @@ let RangeHighlightDecorations = class extends Disposable {
     if (this.editor !== editor) {
       this.editorDisposables.clear();
       this.editor = editor;
-      this.editorDisposables.add(
-        this.editor.onDidChangeCursorPosition(
-          (e) => {
-            if (e.reason === CursorChangeReason.NotSet || e.reason === CursorChangeReason.Explicit || e.reason === CursorChangeReason.Undo || e.reason === CursorChangeReason.Redo) {
-              this.removeHighlightRange();
-            }
-          }
-        )
-      );
-      this.editorDisposables.add(
-        this.editor.onDidChangeModel(() => {
+      this.editorDisposables.add(this.editor.onDidChangeCursorPosition((e) => {
+        if (e.reason === CursorChangeReason.NotSet || e.reason === CursorChangeReason.Explicit || e.reason === CursorChangeReason.Undo || e.reason === CursorChangeReason.Redo) {
           this.removeHighlightRange();
-        })
-      );
-      this.editorDisposables.add(
-        this.editor.onDidDispose(() => {
-          this.removeHighlightRange();
-          this.editor = null;
-        })
-      );
+        }
+      }));
+      this.editorDisposables.add(this.editor.onDidChangeModel(() => {
+        this.removeHighlightRange();
+      }));
+      this.editorDisposables.add(this.editor.onDidDispose(() => {
+        this.removeHighlightRange();
+        this.editor = null;
+      }));
     }
   }
   static _WHOLE_LINE_RANGE_HIGHLIGHT = ModelDecorationOptions.register({
@@ -181,12 +159,7 @@ let FloatingEditorClickMenu = class extends AbstractFloatingClickMenu {
   }
   static ID = "editor.contrib.floatingClickMenu";
   createWidget(action) {
-    return this.instantiationService.createInstance(
-      FloatingEditorClickWidget,
-      this.editor,
-      action.label,
-      action.id
-    );
+    return this.instantiationService.createInstance(FloatingEditorClickWidget, this.editor, action.label, action.id);
   }
   isVisible() {
     return !(this.editor instanceof EmbeddedCodeEditorWidget) && this.editor?.hasModel() && !this.editor.getOption(EditorOption.inDiffEditor);

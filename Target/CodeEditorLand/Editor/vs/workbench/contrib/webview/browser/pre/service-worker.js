@@ -10,9 +10,7 @@ const resourceCacheName = `vscode-resource-cache-${VERSION}`;
 const rootPath = sw.location.pathname.replace(/\/service-worker.js$/, "");
 const searchParams = new URL(location.toString()).searchParams;
 const remoteAuthority = searchParams.get("remoteAuthority");
-const resourceBaseAuthority = searchParams.get(
-  "vscode-resource-base-authority"
-);
+const resourceBaseAuthority = searchParams.get("vscode-resource-base-authority");
 const resolveTimeout = 3e4;
 class RequestStore {
   static {
@@ -29,13 +27,10 @@ class RequestStore {
     const requestId = ++this.requestPool;
     let resolve;
     const promise = new Promise((r) => resolve = r);
-    const entry = {
-      resolve: (
-        /** @type {(x: RequestStoreResult<T>) => void} */
-        resolve
-      ),
-      promise
-    };
+    const entry = { resolve: (
+      /** @type {(x: RequestStoreResult<T>) => void} */
+      resolve
+    ), promise };
     this.map.set(requestId, entry);
     const dispose = /* @__PURE__ */ __name(() => {
       clearTimeout(timeout);
@@ -90,10 +85,7 @@ sw.addEventListener("message", async (event) => {
     case "did-load-resource": {
       const response = event.data.data;
       if (!resourceRequestStore.resolve(response.id, response)) {
-        console.log(
-          "Could not resolve unknown resource",
-          response.path
-        );
+        console.log("Could not resolve unknown resource", response.path);
       }
       return;
     }
@@ -116,20 +108,15 @@ sw.addEventListener("fetch", (event) => {
     switch (event.request.method) {
       case "GET":
       case "HEAD": {
-        const firstHostSegment = requestUrl.hostname.slice(
-          0,
-          requestUrl.hostname.length - (resourceBaseAuthority.length + 1)
-        );
+        const firstHostSegment = requestUrl.hostname.slice(0, requestUrl.hostname.length - (resourceBaseAuthority.length + 1));
         const scheme = firstHostSegment.split("+", 1)[0];
         const authority = firstHostSegment.slice(scheme.length + 1);
-        return event.respondWith(
-          processResourceRequest(event, {
-            scheme,
-            authority,
-            path: requestUrl.pathname,
-            query: requestUrl.search.replace(/^\?/, "")
-          })
-        );
+        return event.respondWith(processResourceRequest(event, {
+          scheme,
+          authority,
+          path: requestUrl.pathname,
+          query: requestUrl.search.replace(/^\?/, "")
+        }));
       }
       default: {
         return event.respondWith(methodNotAllowed());
@@ -140,17 +127,12 @@ sw.addEventListener("fetch", (event) => {
     switch (event.request.method) {
       case "GET":
       case "HEAD": {
-        return event.respondWith(
-          processResourceRequest(event, {
-            path: requestUrl.pathname,
-            scheme: requestUrl.protocol.slice(
-              0,
-              requestUrl.protocol.length - 1
-            ),
-            authority: requestUrl.host,
-            query: requestUrl.search.replace(/^\?/, "")
-          })
-        );
+        return event.respondWith(processResourceRequest(event, {
+          path: requestUrl.pathname,
+          scheme: requestUrl.protocol.slice(0, requestUrl.protocol.length - 1),
+          authority: requestUrl.host,
+          query: requestUrl.search.replace(/^\?/, "")
+        }));
       }
       default: {
         return event.respondWith(methodNotAllowed());
@@ -203,7 +185,7 @@ async function processResourceRequest(event, requestUrlComponents) {
     const byteLength = entry.data.byteLength;
     const range = event.request.headers.get("range");
     if (range) {
-      const bytes = range.match(/^bytes=(\d+)-(\d+)?$/g);
+      const bytes = range.match(/^bytes\=(\d+)\-(\d+)?$/g);
       if (bytes) {
         const start = Number(bytes[1]);
         const end = Number(bytes[2]) || byteLength - 1;
@@ -236,9 +218,7 @@ async function processResourceRequest(event, requestUrlComponents) {
     if (entry.mtime) {
       headers["Last-Modified"] = new Date(entry.mtime).toUTCString();
     }
-    const coiRequest = new URL(event.request.url).searchParams.get(
-      "vscode-coi"
-    );
+    const coiRequest = new URL(event.request.url).searchParams.get("vscode-coi");
     if (coiRequest === "3") {
       headers["Cross-Origin-Opener-Policy"] = "same-origin";
       headers["Cross-Origin-Embedder-Policy"] = "require-corp";
@@ -299,10 +279,7 @@ async function processLocalhostRequest(event, requestUrl) {
       return fetch(event.request);
     }
     const redirectOrigin = result.value;
-    const location2 = event.request.url.replace(
-      new RegExp(`^${requestUrl.origin}(/|$)`),
-      `${redirectOrigin}$1`
-    );
+    const location2 = event.request.url.replace(new RegExp(`^${requestUrl.origin}(/|$)`), `${redirectOrigin}$1`);
     return new Response(null, {
       status: 302,
       headers: {

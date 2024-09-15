@@ -12,22 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { timeout } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import {
-  ILifecycleMainService,
-  LifecycleMainPhase
-} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILifecycleMainService, LifecycleMainPhase } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IRequestService } from "../../request/common/request.js";
-import {
-  DisablementReason,
-  State,
-  StateType,
-  UpdateType
-} from "../common/update.js";
+import { AvailableForDownload, DisablementReason, IUpdateService, State, StateType, UpdateType } from "../common/update.js";
 function createUpdateURL(platform, quality, productService) {
   return `${productService.updateUrl}/api/update/${platform}/${quality}/${productService.commit}`;
 }
@@ -68,40 +60,26 @@ let AbstractUpdateService = class {
       return;
     }
     if (this.environmentMainService.disableUpdates) {
-      this.setState(
-        State.Disabled(DisablementReason.DisabledByEnvironment)
-      );
-      this.logService.info(
-        "update#ctor - updates are disabled by the environment"
-      );
+      this.setState(State.Disabled(DisablementReason.DisabledByEnvironment));
+      this.logService.info("update#ctor - updates are disabled by the environment");
       return;
     }
     if (!this.productService.updateUrl || !this.productService.commit) {
-      this.setState(
-        State.Disabled(DisablementReason.MissingConfiguration)
-      );
-      this.logService.info(
-        "update#ctor - updates are disabled as there is no update URL"
-      );
+      this.setState(State.Disabled(DisablementReason.MissingConfiguration));
+      this.logService.info("update#ctor - updates are disabled as there is no update URL");
       return;
     }
     const updateMode = this.configurationService.getValue("update.mode");
     const quality = this.getProductQuality(updateMode);
     if (!quality) {
       this.setState(State.Disabled(DisablementReason.ManuallyDisabled));
-      this.logService.info(
-        "update#ctor - updates are disabled by user preference"
-      );
+      this.logService.info("update#ctor - updates are disabled by user preference");
       return;
     }
     this.url = this.buildUpdateFeedUrl(quality);
     if (!this.url) {
-      this.setState(
-        State.Disabled(DisablementReason.InvalidConfiguration)
-      );
-      this.logService.info(
-        "update#ctor - updates are disabled as the update URL is badly formed"
-      );
+      this.setState(State.Disabled(DisablementReason.InvalidConfiguration));
+      this.logService.info("update#ctor - updates are disabled as the update URL is badly formed");
       return;
     }
     if (this.configurationService.getValue("_update.prss")) {
@@ -111,21 +89,14 @@ let AbstractUpdateService = class {
     }
     this.setState(State.Idle(this.getUpdateType()));
     if (updateMode === "manual") {
-      this.logService.info(
-        "update#ctor - manual checks only; automatic updates are disabled by user preference"
-      );
+      this.logService.info("update#ctor - manual checks only; automatic updates are disabled by user preference");
       return;
     }
     if (updateMode === "start") {
-      this.logService.info(
-        "update#ctor - startup checks only; automatic updates are disabled by user preference"
-      );
+      this.logService.info("update#ctor - startup checks only; automatic updates are disabled by user preference");
       setTimeout(() => this.checkForUpdates(false), 30 * 1e3);
     } else {
-      this.scheduleCheckForUpdates(30 * 1e3).then(
-        void 0,
-        (err) => this.logService.error(err)
-      );
+      this.scheduleCheckForUpdates(30 * 1e3).then(void 0, (err) => this.logService.error(err));
     }
   }
   getProductQuality(updateMode) {
@@ -137,20 +108,14 @@ let AbstractUpdateService = class {
     });
   }
   async checkForUpdates(explicit) {
-    this.logService.trace(
-      "update#checkForUpdates, state = ",
-      this.state.type
-    );
+    this.logService.trace("update#checkForUpdates, state = ", this.state.type);
     if (this.state.type !== StateType.Idle) {
       return;
     }
     this.doCheckForUpdates(explicit);
   }
   async downloadUpdate() {
-    this.logService.trace(
-      "update#downloadUpdate, state = ",
-      this.state.type
-    );
+    this.logService.trace("update#downloadUpdate, state = ", this.state.type);
     if (this.state.type !== StateType.AvailableForDownload) {
       return;
     }
@@ -168,29 +133,20 @@ let AbstractUpdateService = class {
   async doApplyUpdate() {
   }
   quitAndInstall() {
-    this.logService.trace(
-      "update#quitAndInstall, state = ",
-      this.state.type
-    );
+    this.logService.trace("update#quitAndInstall, state = ", this.state.type);
     if (this.state.type !== StateType.Ready) {
       return Promise.resolve(void 0);
     }
-    this.logService.trace(
-      "update#quitAndInstall(): before lifecycle quit()"
-    );
+    this.logService.trace("update#quitAndInstall(): before lifecycle quit()");
     this.lifecycleMainService.quit(
       true
       /* will restart */
     ).then((vetod) => {
-      this.logService.trace(
-        `update#quitAndInstall(): after lifecycle quit() with veto: ${vetod}`
-      );
+      this.logService.trace(`update#quitAndInstall(): after lifecycle quit() with veto: ${vetod}`);
       if (vetod) {
         return;
       }
-      this.logService.trace(
-        "update#quitAndInstall(): running raw#quitAndInstall()"
-      );
+      this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()");
       this.doQuitAndInstall();
     });
     return Promise.resolve(void 0);
@@ -204,15 +160,10 @@ let AbstractUpdateService = class {
       return false;
     }
     try {
-      const context = await this.requestService.request(
-        { url: this.url },
-        CancellationToken.None
-      );
+      const context = await this.requestService.request({ url: this.url }, CancellationToken.None);
       return context.res.statusCode === 204;
     } catch (error) {
-      this.logService.error(
-        "update#isLatestVersion(): failed to check for updates"
-      );
+      this.logService.error("update#isLatestVersion(): failed to check for updates");
       this.logService.error(error);
       return void 0;
     }

@@ -1,134 +1,103 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Queue } from "../../../../base/common/async.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
 import { LRUCache } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { IProcessEnvironment } from "../../../../base/common/platform.js";
 import * as Types from "../../../../base/common/types.js";
-import {
-  isCodeEditor,
-  isDiffEditor
-} from "../../../../editor/browser/editorBrowser.js";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { ICodeEditor, isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
 import * as nls from "../../../../nls.js";
-import {
-  ConfigurationTarget
-} from "../../../../platform/configuration/common/configuration.js";
-import {
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  EditorResourceAccessor,
-  SideBySideEditor
-} from "../../../common/editor.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ConfigurationTarget, IConfigurationOverrides, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IInputOptions, IPickOptions, IQuickInputService, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService, IWorkspaceFolder, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { ConfiguredInput } from "../common/configurationResolver.js";
 import { AbstractVariableResolverService } from "../common/variableResolver.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IPathService } from "../../path/common/pathService.js";
 const LAST_INPUT_STORAGE_KEY = "configResolveInputLru";
 const LAST_INPUT_CACHE_SIZE = 5;
 class BaseConfigurationResolverService extends AbstractVariableResolverService {
   constructor(context, envVariablesPromise, editorService, configurationService, commandService, workspaceContextService, quickInputService, labelService, pathService, extensionService, storageService) {
-    super(
-      {
-        getFolderUri: /* @__PURE__ */ __name((folderName) => {
-          const folder = workspaceContextService.getWorkspace().folders.filter((f) => f.name === folderName).pop();
-          return folder ? folder.uri : void 0;
-        }, "getFolderUri"),
-        getWorkspaceFolderCount: /* @__PURE__ */ __name(() => {
-          return workspaceContextService.getWorkspace().folders.length;
-        }, "getWorkspaceFolderCount"),
-        getConfigurationValue: /* @__PURE__ */ __name((folderUri, suffix) => {
-          return configurationService.getValue(
-            suffix,
-            folderUri ? { resource: folderUri } : {}
-          );
-        }, "getConfigurationValue"),
-        getAppRoot: /* @__PURE__ */ __name(() => {
-          return context.getAppRoot();
-        }, "getAppRoot"),
-        getExecPath: /* @__PURE__ */ __name(() => {
-          return context.getExecPath();
-        }, "getExecPath"),
-        getFilePath: /* @__PURE__ */ __name(() => {
-          const fileResource = EditorResourceAccessor.getOriginalUri(
-            editorService.activeEditor,
-            {
-              supportSideBySide: SideBySideEditor.PRIMARY,
-              filterByScheme: [
-                Schemas.file,
-                Schemas.vscodeUserData,
-                this.pathService.defaultUriScheme
-              ]
-            }
-          );
-          if (!fileResource) {
-            return void 0;
-          }
-          return this.labelService.getUriLabel(fileResource, {
-            noPrefix: true
-          });
-        }, "getFilePath"),
-        getWorkspaceFolderPathForFile: /* @__PURE__ */ __name(() => {
-          const fileResource = EditorResourceAccessor.getOriginalUri(
-            editorService.activeEditor,
-            {
-              supportSideBySide: SideBySideEditor.PRIMARY,
-              filterByScheme: [
-                Schemas.file,
-                Schemas.vscodeUserData,
-                this.pathService.defaultUriScheme
-              ]
-            }
-          );
-          if (!fileResource) {
-            return void 0;
-          }
-          const wsFolder = workspaceContextService.getWorkspaceFolder(
-            fileResource
-          );
-          if (!wsFolder) {
-            return void 0;
-          }
-          return this.labelService.getUriLabel(wsFolder.uri, {
-            noPrefix: true
-          });
-        }, "getWorkspaceFolderPathForFile"),
-        getSelectedText: /* @__PURE__ */ __name(() => {
-          const activeTextEditorControl = editorService.activeTextEditorControl;
-          let activeControl = null;
-          if (isCodeEditor(activeTextEditorControl)) {
-            activeControl = activeTextEditorControl;
-          } else if (isDiffEditor(activeTextEditorControl)) {
-            const original = activeTextEditorControl.getOriginalEditor();
-            const modified = activeTextEditorControl.getModifiedEditor();
-            activeControl = original.hasWidgetFocus() ? original : modified;
-          }
-          const activeModel = activeControl?.getModel();
-          const activeSelection = activeControl?.getSelection();
-          if (activeModel && activeSelection) {
-            return activeModel.getValueInRange(activeSelection);
-          }
+    super({
+      getFolderUri: /* @__PURE__ */ __name((folderName) => {
+        const folder = workspaceContextService.getWorkspace().folders.filter((f) => f.name === folderName).pop();
+        return folder ? folder.uri : void 0;
+      }, "getFolderUri"),
+      getWorkspaceFolderCount: /* @__PURE__ */ __name(() => {
+        return workspaceContextService.getWorkspace().folders.length;
+      }, "getWorkspaceFolderCount"),
+      getConfigurationValue: /* @__PURE__ */ __name((folderUri, suffix) => {
+        return configurationService.getValue(suffix, folderUri ? { resource: folderUri } : {});
+      }, "getConfigurationValue"),
+      getAppRoot: /* @__PURE__ */ __name(() => {
+        return context.getAppRoot();
+      }, "getAppRoot"),
+      getExecPath: /* @__PURE__ */ __name(() => {
+        return context.getExecPath();
+      }, "getExecPath"),
+      getFilePath: /* @__PURE__ */ __name(() => {
+        const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, {
+          supportSideBySide: SideBySideEditor.PRIMARY,
+          filterByScheme: [Schemas.file, Schemas.vscodeUserData, this.pathService.defaultUriScheme]
+        });
+        if (!fileResource) {
           return void 0;
-        }, "getSelectedText"),
-        getLineNumber: /* @__PURE__ */ __name(() => {
-          const activeTextEditorControl = editorService.activeTextEditorControl;
-          if (isCodeEditor(activeTextEditorControl)) {
-            const selection = activeTextEditorControl.getSelection();
-            if (selection) {
-              const lineNumber = selection.positionLineNumber;
-              return String(lineNumber);
-            }
-          }
+        }
+        return this.labelService.getUriLabel(fileResource, { noPrefix: true });
+      }, "getFilePath"),
+      getWorkspaceFolderPathForFile: /* @__PURE__ */ __name(() => {
+        const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, {
+          supportSideBySide: SideBySideEditor.PRIMARY,
+          filterByScheme: [Schemas.file, Schemas.vscodeUserData, this.pathService.defaultUriScheme]
+        });
+        if (!fileResource) {
           return void 0;
-        }, "getLineNumber"),
-        getExtension: /* @__PURE__ */ __name((id) => {
-          return extensionService.getExtension(id);
-        }, "getExtension")
-      },
-      labelService,
-      pathService.userHome().then((home) => home.path),
-      envVariablesPromise
-    );
+        }
+        const wsFolder = workspaceContextService.getWorkspaceFolder(fileResource);
+        if (!wsFolder) {
+          return void 0;
+        }
+        return this.labelService.getUriLabel(wsFolder.uri, { noPrefix: true });
+      }, "getWorkspaceFolderPathForFile"),
+      getSelectedText: /* @__PURE__ */ __name(() => {
+        const activeTextEditorControl = editorService.activeTextEditorControl;
+        let activeControl = null;
+        if (isCodeEditor(activeTextEditorControl)) {
+          activeControl = activeTextEditorControl;
+        } else if (isDiffEditor(activeTextEditorControl)) {
+          const original = activeTextEditorControl.getOriginalEditor();
+          const modified = activeTextEditorControl.getModifiedEditor();
+          activeControl = original.hasWidgetFocus() ? original : modified;
+        }
+        const activeModel = activeControl?.getModel();
+        const activeSelection = activeControl?.getSelection();
+        if (activeModel && activeSelection) {
+          return activeModel.getValueInRange(activeSelection);
+        }
+        return void 0;
+      }, "getSelectedText"),
+      getLineNumber: /* @__PURE__ */ __name(() => {
+        const activeTextEditorControl = editorService.activeTextEditorControl;
+        if (isCodeEditor(activeTextEditorControl)) {
+          const selection = activeTextEditorControl.getSelection();
+          if (selection) {
+            const lineNumber = selection.positionLineNumber;
+            return String(lineNumber);
+          }
+        }
+        return void 0;
+      }, "getLineNumber"),
+      getExtension: /* @__PURE__ */ __name((id) => {
+        return extensionService.getExtension(id);
+      }, "getExtension")
+    }, labelService, pathService.userHome().then((home) => home.path), envVariablesPromise);
     this.configurationService = configurationService;
     this.commandService = commandService;
     this.workspaceContextService = workspaceContextService;
@@ -144,21 +113,11 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
   userInputAccessQueue = new Queue();
   async resolveWithInteractionReplace(folder, config, section, variables, target) {
     config = await this.resolveAnyAsync(folder, config);
-    return this.resolveWithInteraction(
-      folder,
-      config,
-      section,
-      variables,
-      target
-    ).then((mapping) => {
+    return this.resolveWithInteraction(folder, config, section, variables, target).then((mapping) => {
       if (!mapping) {
         return null;
       } else if (mapping.size > 0) {
-        return this.resolveAnyAsync(
-          folder,
-          config,
-          Object.fromEntries(mapping)
-        );
+        return this.resolveAnyAsync(folder, config, Object.fromEntries(mapping));
       } else {
         return config;
       }
@@ -168,13 +127,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
     const resolved = await this.resolveAnyMap(folder, config);
     config = resolved.newConfig;
     const allVariableMapping = resolved.resolvedVariables;
-    return this.resolveWithInputAndCommands(
-      folder,
-      config,
-      variables,
-      section,
-      target
-    ).then((inputOrCommandMapping) => {
+    return this.resolveWithInputAndCommands(folder, config, variables, section, target).then((inputOrCommandMapping) => {
       if (this.updateMapping(inputOrCommandMapping, allVariableMapping)) {
         return allVariableMapping;
       }
@@ -208,10 +161,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
     let inputs = [];
     if (this.workspaceContextService.getWorkbenchState() !== WorkbenchState.EMPTY && section) {
       const overrides = folder ? { resource: folder.uri } : {};
-      const result = this.configurationService.inspect(
-        section,
-        overrides
-      );
+      const result = this.configurationService.inspect(section, overrides);
       if (result && (result.userValue || result.workspaceValue || result.workspaceFolderValue)) {
         switch (target) {
           case ConfigurationTarget.USER:
@@ -224,10 +174,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
             inputs = result.workspaceFolderValue?.inputs;
         }
       } else {
-        const valueResult = this.configurationService.getValue(
-          section,
-          overrides
-        );
+        const valueResult = this.configurationService.getValue(section, overrides);
         if (valueResult) {
           inputs = valueResult.inputs;
         }
@@ -245,18 +192,9 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
           break;
         case "command": {
           const commandId = (variableToCommandMap ? variableToCommandMap[name] : void 0) || name;
-          result = await this.commandService.executeCommand(
-            commandId,
-            configuration
-          );
+          result = await this.commandService.executeCommand(commandId, configuration);
           if (typeof result !== "string" && !Types.isUndefinedOrNull(result)) {
-            throw new Error(
-              nls.localize(
-                "commandVariable.noStringType",
-                "Cannot substitute command variable '{0}' because command did not return a result of type string.",
-                commandId
-              )
-            );
+            throw new Error(nls.localize("commandVariable.noStringType", "Cannot substitute command variable '{0}' because command did not return a result of type string.", commandId));
           }
           break;
         }
@@ -281,9 +219,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
   findVariables(object, variables) {
     if (typeof object === "string") {
       let matches;
-      while ((matches = BaseConfigurationResolverService.INPUT_OR_COMMAND_VARIABLES_PATTERN.exec(
-        object
-      )) !== null) {
+      while ((matches = BaseConfigurationResolverService.INPUT_OR_COMMAND_VARIABLES_PATTERN.exec(object)) !== null) {
         if (matches.length === 4) {
           const command = matches[1];
           if (variables.indexOf(command) < 0) {
@@ -313,29 +249,12 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
    */
   showUserInput(section, variable, inputInfos) {
     if (!inputInfos) {
-      return Promise.reject(
-        new Error(
-          nls.localize(
-            "inputVariable.noInputSection",
-            "Variable '{0}' must be defined in an '{1}' section of the debug or task configuration.",
-            variable,
-            "inputs"
-          )
-        )
-      );
+      return Promise.reject(new Error(nls.localize("inputVariable.noInputSection", "Variable '{0}' must be defined in an '{1}' section of the debug or task configuration.", variable, "inputs")));
     }
     const info = inputInfos.filter((item) => item.id === variable).pop();
     if (info) {
       const missingAttribute = /* @__PURE__ */ __name((attrName) => {
-        throw new Error(
-          nls.localize(
-            "inputVariable.missingAttribute",
-            "Input variable '{0}' is of type '{1}' and must include '{2}'.",
-            variable,
-            info.type,
-            attrName
-          )
-        );
+        throw new Error(nls.localize("inputVariable.missingAttribute", "Input variable '{0}' is of type '{1}' and must include '{2}'.", variable, info.type, attrName));
       }, "missingAttribute");
       const defaultValueMap = this.readInputLru();
       const defaultValueKey = `${section}.${variable}`;
@@ -345,11 +264,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
           if (!Types.isString(info.description)) {
             missingAttribute("description");
           }
-          const inputOptions = {
-            prompt: info.description,
-            ignoreFocusLost: true,
-            value: previousPickedValue
-          };
+          const inputOptions = { prompt: info.description, ignoreFocusLost: true, value: previousPickedValue };
           if (info.default) {
             inputOptions.value = info.default;
           }
@@ -358,12 +273,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
           }
           return this.userInputAccessQueue.queue(() => this.quickInputService.input(inputOptions)).then((resolvedInput) => {
             if (typeof resolvedInput === "string") {
-              this.storeInputLru(
-                defaultValueMap.set(
-                  defaultValueKey,
-                  resolvedInput
-                )
-              );
+              this.storeInputLru(defaultValueMap.set(defaultValueKey, resolvedInput));
             }
             return resolvedInput;
           });
@@ -390,10 +300,7 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
               value
             };
             if (value === info.default) {
-              item.description = nls.localize(
-                "inputVariable.defaultInputValue",
-                "(Default)"
-              );
+              item.description = nls.localize("inputVariable.defaultInputValue", "(Default)");
               picks.unshift(item);
             } else if (!info.default && value === previousPickedValue) {
               picks.unshift(item);
@@ -401,23 +308,11 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
               picks.push(item);
             }
           }
-          const pickOptions = {
-            placeHolder: info.description,
-            matchOnDetail: true,
-            ignoreFocusLost: true
-          };
-          return this.userInputAccessQueue.queue(
-            () => this.quickInputService.pick(
-              picks,
-              pickOptions,
-              void 0
-            )
-          ).then((resolvedInput) => {
+          const pickOptions = { placeHolder: info.description, matchOnDetail: true, ignoreFocusLost: true };
+          return this.userInputAccessQueue.queue(() => this.quickInputService.pick(picks, pickOptions, void 0)).then((resolvedInput) => {
             if (resolvedInput) {
               const value = resolvedInput.value;
-              this.storeInputLru(
-                defaultValueMap.set(defaultValueKey, value)
-              );
+              this.storeInputLru(defaultValueMap.set(defaultValueKey, value));
               return value;
             }
             return void 0;
@@ -427,58 +322,24 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
           if (!Types.isString(info.command)) {
             missingAttribute("command");
           }
-          return this.userInputAccessQueue.queue(
-            () => this.commandService.executeCommand(
-              info.command,
-              info.args
-            )
-          ).then((result) => {
+          return this.userInputAccessQueue.queue(() => this.commandService.executeCommand(info.command, info.args)).then((result) => {
             if (typeof result === "string" || Types.isUndefinedOrNull(result)) {
               return result;
             }
-            throw new Error(
-              nls.localize(
-                "inputVariable.command.noStringType",
-                "Cannot substitute input variable '{0}' because command '{1}' did not return a result of type string.",
-                variable,
-                info.command
-              )
-            );
+            throw new Error(nls.localize("inputVariable.command.noStringType", "Cannot substitute input variable '{0}' because command '{1}' did not return a result of type string.", variable, info.command));
           });
         }
         default:
-          throw new Error(
-            nls.localize(
-              "inputVariable.unknownType",
-              "Input variable '{0}' can only be of type 'promptString', 'pickString', or 'command'.",
-              variable
-            )
-          );
+          throw new Error(nls.localize("inputVariable.unknownType", "Input variable '{0}' can only be of type 'promptString', 'pickString', or 'command'.", variable));
       }
     }
-    return Promise.reject(
-      new Error(
-        nls.localize(
-          "inputVariable.undefinedVariable",
-          "Undefined input variable '{0}' encountered. Remove or define '{0}' to continue.",
-          variable
-        )
-      )
-    );
+    return Promise.reject(new Error(nls.localize("inputVariable.undefinedVariable", "Undefined input variable '{0}' encountered. Remove or define '{0}' to continue.", variable)));
   }
   storeInputLru(lru) {
-    this.storageService.store(
-      LAST_INPUT_STORAGE_KEY,
-      JSON.stringify(lru.toJSON()),
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(LAST_INPUT_STORAGE_KEY, JSON.stringify(lru.toJSON()), StorageScope.WORKSPACE, StorageTarget.MACHINE);
   }
   readInputLru() {
-    const contents = this.storageService.get(
-      LAST_INPUT_STORAGE_KEY,
-      StorageScope.WORKSPACE
-    );
+    const contents = this.storageService.get(LAST_INPUT_STORAGE_KEY, StorageScope.WORKSPACE);
     const lru = new LRUCache(LAST_INPUT_CACHE_SIZE);
     try {
       if (contents) {

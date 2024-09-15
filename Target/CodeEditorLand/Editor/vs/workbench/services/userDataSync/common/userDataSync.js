@@ -1,21 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Codicon } from "../../../../base/common/codicons.js";
-import { localize, localize2 } from "../../../../nls.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  ContextKeyExpr,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IAuthenticationProvider, SyncStatus, SyncResource, IUserDataSyncResource, IResourcePreview } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { Event } from "../../../../base/common/event.js";
+import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import {
-  SyncResource,
-  SyncStatus
-} from "../../../../platform/userDataSync/common/userDataSync.js";
-const IUserDataSyncWorkbenchService = createDecorator(
-  "IUserDataSyncWorkbenchService"
-);
+import { IView } from "../../../common/views.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IAction2Options } from "../../../../platform/actions/common/actions.js";
+import { ILocalizedString } from "../../../../platform/action/common/action.js";
+const IUserDataSyncWorkbenchService = createDecorator("IUserDataSyncWorkbenchService");
 function getSyncAreaLabel(source) {
   switch (source) {
     case SyncResource.Settings:
@@ -42,55 +39,24 @@ var AccountStatus = /* @__PURE__ */ ((AccountStatus2) => {
   AccountStatus2["Available"] = "available";
   return AccountStatus2;
 })(AccountStatus || {});
-const SYNC_TITLE = localize2(
-  "sync category",
-  "Settings Sync"
-);
-const SYNC_VIEW_ICON = registerIcon(
-  "settings-sync-view-icon",
-  Codicon.sync,
-  localize("syncViewIcon", "View icon of the Settings Sync view.")
-);
-const CONTEXT_SYNC_STATE = new RawContextKey(
-  "syncStatus",
-  SyncStatus.Uninitialized
-);
-const CONTEXT_SYNC_ENABLEMENT = new RawContextKey(
-  "syncEnabled",
-  false
-);
-const CONTEXT_ACCOUNT_STATE = new RawContextKey(
-  "userDataSyncAccountStatus",
-  "unavailable" /* Unavailable */
-);
-const CONTEXT_ENABLE_ACTIVITY_VIEWS = new RawContextKey(
-  `enableSyncActivityViews`,
-  false
-);
-const CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW = new RawContextKey(
-  `enableSyncConflictsView`,
-  false
-);
-const CONTEXT_HAS_CONFLICTS = new RawContextKey(
-  "hasConflicts",
-  false
-);
+const SYNC_TITLE = localize2("sync category", "Settings Sync");
+const SYNC_VIEW_ICON = registerIcon("settings-sync-view-icon", Codicon.sync, localize("syncViewIcon", "View icon of the Settings Sync view."));
+const CONTEXT_SYNC_STATE = new RawContextKey("syncStatus", SyncStatus.Uninitialized);
+const CONTEXT_SYNC_ENABLEMENT = new RawContextKey("syncEnabled", false);
+const CONTEXT_ACCOUNT_STATE = new RawContextKey("userDataSyncAccountStatus", "unavailable" /* Unavailable */);
+const CONTEXT_ENABLE_ACTIVITY_VIEWS = new RawContextKey(`enableSyncActivityViews`, false);
+const CONTEXT_ENABLE_SYNC_CONFLICTS_VIEW = new RawContextKey(`enableSyncConflictsView`, false);
+const CONTEXT_HAS_CONFLICTS = new RawContextKey("hasConflicts", false);
 const CONFIGURE_SYNC_COMMAND_ID = "workbench.userDataSync.actions.configure";
 const SHOW_SYNC_LOG_COMMAND_ID = "workbench.userDataSync.actions.showLog";
 const SYNC_VIEW_CONTAINER_ID = "workbench.view.sync";
 const SYNC_CONFLICTS_VIEW_ID = "workbench.views.sync.conflicts";
 const DOWNLOAD_ACTIVITY_ACTION_DESCRIPTOR = {
   id: "workbench.userDataSync.actions.downloadSyncActivity",
-  title: localize2(
-    "download sync activity title",
-    "Download Settings Sync Activity"
-  ),
+  title: localize2("download sync activity title", "Download Settings Sync Activity"),
   category: Categories.Developer,
   f1: true,
-  precondition: ContextKeyExpr.and(
-    CONTEXT_ACCOUNT_STATE.isEqualTo("available" /* Available */),
-    CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized)
-  )
+  precondition: ContextKeyExpr.and(CONTEXT_ACCOUNT_STATE.isEqualTo("available" /* Available */), CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized))
 };
 export {
   AccountStatus,

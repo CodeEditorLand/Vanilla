@@ -10,49 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { toLocalISOString } from "../../../../base/common/date.js";
 import { joinPath } from "../../../../base/common/resources.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IInstantiationService,
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import {
-  DelegatedOutputChannelModel,
-  FileOutputChannelModel
-} from "./outputChannelModel.js";
+import { DelegatedOutputChannelModel, FileOutputChannelModel, IOutputChannelModel } from "./outputChannelModel.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageSelection } from "../../../../editor/common/languages/language.js";
 const IOutputChannelModelService = createDecorator("outputChannelModelService");
 let OutputChannelModelService = class {
   constructor(fileService, instantiationService, environmentService) {
     this.fileService = fileService;
     this.instantiationService = instantiationService;
-    this.outputLocation = joinPath(
-      environmentService.windowLogsPath,
-      `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`
-    );
+    this.outputLocation = joinPath(environmentService.windowLogsPath, `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`);
   }
   static {
     __name(this, "OutputChannelModelService");
   }
   outputLocation;
   createOutputChannelModel(id, modelUri, language, file) {
-    return file ? this.instantiationService.createInstance(
-      FileOutputChannelModel,
-      modelUri,
-      language,
-      file
-    ) : this.instantiationService.createInstance(
-      DelegatedOutputChannelModel,
-      id,
-      modelUri,
-      language,
-      this.outputDir
-    );
+    return file ? this.instantiationService.createInstance(FileOutputChannelModel, modelUri, language, file) : this.instantiationService.createInstance(DelegatedOutputChannelModel, id, modelUri, language, this.outputDir);
   }
   _outputDir = null;
   get outputDir() {
@@ -67,11 +46,7 @@ OutputChannelModelService = __decorateClass([
   __decorateParam(1, IInstantiationService),
   __decorateParam(2, IWorkbenchEnvironmentService)
 ], OutputChannelModelService);
-registerSingleton(
-  IOutputChannelModelService,
-  OutputChannelModelService,
-  InstantiationType.Delayed
-);
+registerSingleton(IOutputChannelModelService, OutputChannelModelService, InstantiationType.Delayed);
 export {
   IOutputChannelModelService,
   OutputChannelModelService

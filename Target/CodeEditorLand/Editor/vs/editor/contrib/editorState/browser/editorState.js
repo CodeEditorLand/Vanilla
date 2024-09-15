@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
-import {
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
 import * as strings from "../../../../base/common/strings.js";
-import { Range } from "../../../common/core/range.js";
+import { ICodeEditor, IActiveCodeEditor } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { Range, IRange } from "../../../common/core/range.js";
+import { CancellationTokenSource, CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ITextModel } from "../../../common/model.js";
 import { EditorKeybindingCancellationTokenSource } from "./keybindingCancellation.js";
 var CodeEditorStateFlag = /* @__PURE__ */ ((CodeEditorStateFlag2) => {
   CodeEditorStateFlag2[CodeEditorStateFlag2["Value"] = 1] = "Value";
@@ -30,11 +29,7 @@ class EditorState {
     this.flags = flags;
     if ((this.flags & 1 /* Value */) !== 0) {
       const model = editor.getModel();
-      this.modelVersionId = model ? strings.format(
-        "{0}#{1}",
-        model.uri.toString(),
-        model.getVersionId()
-      ) : null;
+      this.modelVersionId = model ? strings.format("{0}#{1}", model.uri.toString(), model.getVersionId()) : null;
     } else {
       this.modelVersionId = null;
     }
@@ -87,31 +82,25 @@ class EditorStateCancellationTokenSource extends EditorKeybindingCancellationTok
   constructor(editor, flags, range, parent) {
     super(editor, parent);
     if (flags & 4 /* Position */) {
-      this._listener.add(
-        editor.onDidChangeCursorPosition((e) => {
-          if (!range || !Range.containsPosition(range, e.position)) {
-            this.cancel();
-          }
-        })
-      );
+      this._listener.add(editor.onDidChangeCursorPosition((e) => {
+        if (!range || !Range.containsPosition(range, e.position)) {
+          this.cancel();
+        }
+      }));
     }
     if (flags & 2 /* Selection */) {
-      this._listener.add(
-        editor.onDidChangeCursorSelection((e) => {
-          if (!range || !Range.containsRange(range, e.selection)) {
-            this.cancel();
-          }
-        })
-      );
+      this._listener.add(editor.onDidChangeCursorSelection((e) => {
+        if (!range || !Range.containsRange(range, e.selection)) {
+          this.cancel();
+        }
+      }));
     }
     if (flags & 8 /* Scroll */) {
       this._listener.add(editor.onDidScrollChange((_) => this.cancel()));
     }
     if (flags & 1 /* Value */) {
       this._listener.add(editor.onDidChangeModel((_) => this.cancel()));
-      this._listener.add(
-        editor.onDidChangeModelContent((_) => this.cancel())
-      );
+      this._listener.add(editor.onDidChangeModelContent((_) => this.cancel()));
     }
   }
   dispose() {

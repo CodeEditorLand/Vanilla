@@ -11,17 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IRange, Range } from "../../../../editor/common/core/range.js";
 import { Selection } from "../../../../editor/common/core/selection.js";
+import { CodeAction, CodeActionList, CodeActionProvider, WorkspaceEdit } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { CodeActionKind } from "../../../../editor/contrib/codeAction/common/types.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { ApplyFileSnippetAction } from "./commands/fileTemplateSnippets.js";
-import {
-  SurroundWithSnippetEditorAction,
-  getSurroundableSnippets
-} from "./commands/surroundWithSnippet.js";
+import { getSurroundableSnippets, SurroundWithSnippetEditorAction } from "./commands/surroundWithSnippet.js";
+import { Snippet } from "./snippetsFile.js";
 import { ISnippetsService } from "./snippets.js";
 let SurroundWithSnippetCodeActionProvider = class {
   constructor(_snippetService) {
@@ -44,21 +46,14 @@ let SurroundWithSnippetCodeActionProvider = class {
       return void 0;
     }
     const position = Selection.isISelection(range) ? range.getPosition() : range.getStartPosition();
-    const snippets = await getSurroundableSnippets(
-      this._snippetService,
-      model,
-      position,
-      false
-    );
+    const snippets = await getSurroundableSnippets(this._snippetService, model, position, false);
     if (!snippets.length) {
       return void 0;
     }
     const actions = [];
     for (const snippet of snippets) {
       if (actions.length >= SurroundWithSnippetCodeActionProvider._MAX_CODE_ACTIONS) {
-        actions.push(
-          SurroundWithSnippetCodeActionProvider._overflowCommandCodeAction
-        );
+        actions.push(SurroundWithSnippetCodeActionProvider._overflowCommandCodeAction);
         break;
       }
       actions.push({
@@ -93,33 +88,22 @@ let FileTemplateCodeActionProvider = class {
       title: ""
     }
   };
-  providedCodeActionKinds = [
-    CodeActionKind.SurroundWith.value
-  ];
+  providedCodeActionKinds = [CodeActionKind.SurroundWith.value];
   async provideCodeActions(model) {
     if (model.getValueLength() !== 0) {
       return void 0;
     }
-    const snippets = await this._snippetService.getSnippets(
-      model.getLanguageId(),
-      { fileTemplateSnippets: true, includeNoPrefixSnippets: true }
-    );
+    const snippets = await this._snippetService.getSnippets(model.getLanguageId(), { fileTemplateSnippets: true, includeNoPrefixSnippets: true });
     const actions = [];
     for (const snippet of snippets) {
       if (actions.length >= FileTemplateCodeActionProvider._MAX_CODE_ACTIONS) {
-        actions.push(
-          FileTemplateCodeActionProvider._overflowCommandCodeAction
-        );
+        actions.push(FileTemplateCodeActionProvider._overflowCommandCodeAction);
         break;
       }
       actions.push({
         title: localize("title", "Start with: {0}", snippet.name),
         kind: CodeActionKind.SurroundWith.value,
-        edit: asWorkspaceEdit(
-          model,
-          model.getFullModelRange(),
-          snippet
-        )
+        edit: asWorkspaceEdit(model, model.getFullModelRange(), snippet)
       });
     }
     return {
@@ -134,17 +118,15 @@ FileTemplateCodeActionProvider = __decorateClass([
 ], FileTemplateCodeActionProvider);
 function asWorkspaceEdit(model, range, snippet) {
   return {
-    edits: [
-      {
-        versionId: model.getVersionId(),
-        resource: model.uri,
-        textEdit: {
-          range,
-          text: snippet.body,
-          insertAsSnippet: true
-        }
+    edits: [{
+      versionId: model.getVersionId(),
+      resource: model.uri,
+      textEdit: {
+        range,
+        text: snippet.body,
+        insertAsSnippet: true
       }
-    ]
+    }]
   };
 }
 __name(asWorkspaceEdit, "asWorkspaceEdit");
@@ -159,30 +141,12 @@ let SnippetCodeActions = class {
     const update = /* @__PURE__ */ __name(() => {
       sessionStore.clear();
       if (configService.getValue(setting)) {
-        sessionStore.add(
-          languageFeaturesService.codeActionProvider.register(
-            "*",
-            instantiationService.createInstance(
-              SurroundWithSnippetCodeActionProvider
-            )
-          )
-        );
-        sessionStore.add(
-          languageFeaturesService.codeActionProvider.register(
-            "*",
-            instantiationService.createInstance(
-              FileTemplateCodeActionProvider
-            )
-          )
-        );
+        sessionStore.add(languageFeaturesService.codeActionProvider.register("*", instantiationService.createInstance(SurroundWithSnippetCodeActionProvider)));
+        sessionStore.add(languageFeaturesService.codeActionProvider.register("*", instantiationService.createInstance(FileTemplateCodeActionProvider)));
       }
     }, "update");
     update();
-    this._store.add(
-      configService.onDidChangeConfiguration(
-        (e) => e.affectsConfiguration(setting) && update()
-      )
-    );
+    this._store.add(configService.onDidChangeConfiguration((e) => e.affectsConfiguration(setting) && update()));
     this._store.add(sessionStore);
   }
   dispose() {

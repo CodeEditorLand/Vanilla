@@ -10,20 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { VSBuffer } from "../../../base/common/buffer.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { ExtHostManagedSocketsShape, MainContext, MainThreadManagedSocketsShape } from "./extHost.protocol.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import * as vscode from "vscode";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
-const IExtHostManagedSockets = createDecorator(
-  "IExtHostManagedSockets"
-);
+import { VSBuffer } from "../../../base/common/buffer.js";
+const IExtHostManagedSockets = createDecorator("IExtHostManagedSockets");
 let ExtHostManagedSockets = class {
   static {
     __name(this, "ExtHostManagedSockets");
@@ -42,10 +35,7 @@ let ExtHostManagedSockets = class {
     if (this._factory) {
       this._proxy.$unregisterSocketFactory(this._factory.socketFactoryId);
     }
-    this._factory = new ManagedSocketFactory(
-      socketFactoryId,
-      makeConnection
-    );
+    this._factory = new ManagedSocketFactory(socketFactoryId, makeConnection);
     this._proxy.$registerSocketFactory(this._factory.socketFactoryId);
   }
   async $openRemoteSocket(socketFactoryId) {
@@ -55,33 +45,17 @@ let ExtHostManagedSockets = class {
     const id = ++this._remoteSocketIdCounter;
     const socket = await this._factory.makeConnection();
     const disposable = new DisposableStore();
-    this._managedRemoteSockets.set(
-      id,
-      new ManagedSocket(id, socket, disposable)
-    );
-    disposable.add(
-      toDisposable(() => this._managedRemoteSockets.delete(id))
-    );
-    disposable.add(
-      socket.onDidEnd(() => {
-        this._proxy.$onDidManagedSocketEnd(id);
-        disposable.dispose();
-      })
-    );
-    disposable.add(
-      socket.onDidClose((e) => {
-        this._proxy.$onDidManagedSocketClose(
-          id,
-          e?.stack ?? e?.message
-        );
-        disposable.dispose();
-      })
-    );
-    disposable.add(
-      socket.onDidReceiveMessage(
-        (e) => this._proxy.$onDidManagedSocketHaveData(id, VSBuffer.wrap(e))
-      )
-    );
+    this._managedRemoteSockets.set(id, new ManagedSocket(id, socket, disposable));
+    disposable.add(toDisposable(() => this._managedRemoteSockets.delete(id)));
+    disposable.add(socket.onDidEnd(() => {
+      this._proxy.$onDidManagedSocketEnd(id);
+      disposable.dispose();
+    }));
+    disposable.add(socket.onDidClose((e) => {
+      this._proxy.$onDidManagedSocketClose(id, e?.stack ?? e?.message);
+      disposable.dispose();
+    }));
+    disposable.add(socket.onDidReceiveMessage((e) => this._proxy.$onDidManagedSocketHaveData(id, VSBuffer.wrap(e))));
     return id;
   }
   $remoteSocketWrite(socketId, buffer) {

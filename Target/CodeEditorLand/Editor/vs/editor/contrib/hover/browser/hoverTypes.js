@@ -1,5 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Dimension } from "../../../../base/browser/dom.js";
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, IEditorMouseEvent } from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { BrandedService, IConstructorSignature } from "../../../../platform/instantiation/common/instantiation.js";
 var HoverAnchorType = /* @__PURE__ */ ((HoverAnchorType2) => {
   HoverAnchorType2[HoverAnchorType2["Range"] = 1] = "Range";
   HoverAnchorType2[HoverAnchorType2["ForeignElement"] = 2] = "ForeignElement";

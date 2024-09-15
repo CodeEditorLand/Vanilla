@@ -1,5 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { AccessibleViewType, AccessibleContentProvider, ExtensionContentProvider } from "./accessibleView.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../instantiation/common/instantiation.js";
 const AccessibleViewRegistry = new class AccessibleViewRegistry2 {
   static {
     __name(this, "AccessibleViewRegistry");

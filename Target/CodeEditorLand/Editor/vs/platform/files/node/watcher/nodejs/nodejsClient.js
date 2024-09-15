@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AbstractNonRecursiveWatcherClient
-} from "../../../common/watcher.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IFileChange } from "../../../common/files.js";
+import { ILogMessage, AbstractNonRecursiveWatcherClient, INonRecursiveWatcher } from "../../../common/watcher.js";
 import { NodeJSWatcher } from "./nodejsWatcher.js";
 class NodeJSWatcherClient extends AbstractNonRecursiveWatcherClient {
   static {
@@ -13,11 +13,10 @@ class NodeJSWatcherClient extends AbstractNonRecursiveWatcherClient {
     this.init();
   }
   createWatcher(disposables) {
-    return disposables.add(
-      new NodeJSWatcher(
-        void 0
-      )
-    );
+    return disposables.add(new NodeJSWatcher(
+      void 0
+      /* no recursive watching support here */
+    ));
   }
 }
 export {

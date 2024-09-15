@@ -1,25 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
 import { isUNC, toSlashes } from "../../../base/common/extpath.js";
 import * as json from "../../../base/common/json.js";
 import * as jsonEdit from "../../../base/common/jsonEdit.js";
+import { FormattingOptions } from "../../../base/common/jsonFormatter.js";
 import { normalizeDriveLetter } from "../../../base/common/labels.js";
 import { Schemas } from "../../../base/common/network.js";
 import { isAbsolute, posix } from "../../../base/common/path.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
-import {
-  isEqualAuthority
-} from "../../../base/common/resources.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { IExtUri, isEqualAuthority } from "../../../base/common/resources.js";
 import { URI } from "../../../base/common/uri.js";
+import { IWorkspaceBackupInfo, IFolderBackupInfo } from "../../backup/common/backup.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
 import { getRemoteAuthority } from "../../remote/common/remoteHosts.js";
-import {
-  WorkspaceFolder
-} from "../../workspace/common/workspace.js";
+import { IBaseWorkspace, IRawFileWorkspaceFolder, IRawUriWorkspaceFolder, IWorkspaceIdentifier, WorkspaceFolder } from "../../workspace/common/workspace.js";
 const IWorkspacesService = createDecorator("workspacesService");
 function isRecentWorkspace(curr) {
   return curr.hasOwnProperty("workspace");
@@ -51,12 +47,14 @@ function getStoredWorkspaceFolder(folderURI, forceAbsolute, folderName, targetCo
   if (folderURI.scheme !== targetConfigFolderURI.scheme) {
     return { name: folderName, uri: folderURI.toString(true) };
   }
-  let folderPath = forceAbsolute ? void 0 : extUri.relativePath(targetConfigFolderURI, folderURI);
+  let folderPath = !forceAbsolute ? extUri.relativePath(targetConfigFolderURI, folderURI) : void 0;
   if (folderPath !== void 0) {
     if (folderPath.length === 0) {
       folderPath = ".";
-    } else if (isWindows) {
-      folderPath = massagePathForWindows(folderPath);
+    } else {
+      if (isWindows) {
+        folderPath = massagePathForWindows(folderPath);
+      }
     }
   } else {
     if (folderURI.scheme === Schemas.file) {
@@ -64,13 +62,10 @@ function getStoredWorkspaceFolder(folderURI, forceAbsolute, folderName, targetCo
       if (isWindows) {
         folderPath = massagePathForWindows(folderPath);
       }
-    } else if (extUri.isEqualAuthority(
-      folderURI.authority,
-      targetConfigFolderURI.authority
-    )) {
-      folderPath = folderURI.path;
-    } else {
+    } else if (!extUri.isEqualAuthority(folderURI.authority, targetConfigFolderURI.authority)) {
       return { name: folderName, uri: folderURI.toString(true) };
+    } else {
+      folderPath = folderURI.path;
     }
   }
   return { name: folderName, path: folderPath };
@@ -89,7 +84,7 @@ function toWorkspaceFolders(configuredFolders, workspaceConfigFile, extUri) {
   const seen = /* @__PURE__ */ new Set();
   const relativeTo = extUri.dirname(workspaceConfigFile);
   for (const configuredFolder of configuredFolders) {
-    let uri;
+    let uri = void 0;
     if (isRawFileWorkspaceFolder(configuredFolder)) {
       if (configuredFolder.path) {
         uri = extUri.resolvePath(relativeTo, configuredFolder.path);
@@ -109,12 +104,7 @@ function toWorkspaceFolders(configuredFolders, workspaceConfigFile, extUri) {
       if (!seen.has(comparisonKey)) {
         seen.add(comparisonKey);
         const name = configuredFolder.name || extUri.basenameOrAuthority(uri);
-        result.push(
-          new WorkspaceFolder(
-            { uri, name, index: result.length },
-            configuredFolder
-          )
-        );
+        result.push(new WorkspaceFolder({ uri, name, index: result.length }, configuredFolder));
       }
     }
   }
@@ -122,10 +112,7 @@ function toWorkspaceFolders(configuredFolders, workspaceConfigFile, extUri) {
 }
 __name(toWorkspaceFolders, "toWorkspaceFolders");
 function rewriteWorkspaceFileForNewLocation(rawWorkspaceContents, configPathURI, isFromUntitledWorkspace, targetConfigPathURI, extUri) {
-  const storedWorkspace = doParseStoredWorkspace(
-    configPathURI,
-    rawWorkspaceContents
-  );
+  const storedWorkspace = doParseStoredWorkspace(configPathURI, rawWorkspaceContents);
   const sourceConfigFolder = extUri.dirname(configPathURI);
   const targetConfigFolder = extUri.dirname(targetConfigPathURI);
   const rewrittenFolders = [];
@@ -137,40 +124,13 @@ function rewriteWorkspaceFileForNewLocation(rawWorkspaceContents, configPathURI,
     } else {
       absolute = !isRawFileWorkspaceFolder(folder) || isAbsolute(folder.path);
     }
-    rewrittenFolders.push(
-      getStoredWorkspaceFolder(
-        folderURI,
-        absolute,
-        folder.name,
-        targetConfigFolder,
-        extUri
-      )
-    );
+    rewrittenFolders.push(getStoredWorkspaceFolder(folderURI, absolute, folder.name, targetConfigFolder, extUri));
   }
-  const formattingOptions = {
-    insertSpaces: false,
-    tabSize: 4,
-    eol: isLinux || isMacintosh ? "\n" : "\r\n"
-  };
-  const edits = jsonEdit.setProperty(
-    rawWorkspaceContents,
-    ["folders"],
-    rewrittenFolders,
-    formattingOptions
-  );
+  const formattingOptions = { insertSpaces: false, tabSize: 4, eol: isLinux || isMacintosh ? "\n" : "\r\n" };
+  const edits = jsonEdit.setProperty(rawWorkspaceContents, ["folders"], rewrittenFolders, formattingOptions);
   let newContent = jsonEdit.applyEdits(rawWorkspaceContents, edits);
-  if (isEqualAuthority(
-    storedWorkspace.remoteAuthority,
-    getRemoteAuthority(targetConfigPathURI)
-  )) {
-    newContent = jsonEdit.applyEdits(
-      newContent,
-      jsonEdit.removeProperty(
-        newContent,
-        ["remoteAuthority"],
-        formattingOptions
-      )
-    );
+  if (isEqualAuthority(storedWorkspace.remoteAuthority, getRemoteAuthority(targetConfigPathURI))) {
+    newContent = jsonEdit.applyEdits(newContent, jsonEdit.removeProperty(newContent, ["remoteAuthority"], formattingOptions));
   }
   return newContent;
 }
@@ -178,9 +138,7 @@ __name(rewriteWorkspaceFileForNewLocation, "rewriteWorkspaceFileForNewLocation")
 function doParseStoredWorkspace(path, contents) {
   const storedWorkspace = json.parse(contents);
   if (storedWorkspace && Array.isArray(storedWorkspace.folders)) {
-    storedWorkspace.folders = storedWorkspace.folders.filter(
-      (folder) => isStoredWorkspaceFolder(folder)
-    );
+    storedWorkspace.folders = storedWorkspace.folders.filter((folder) => isStoredWorkspaceFolder(folder));
   } else {
     throw new Error(`${path} looks like an invalid workspace file.`);
   }
@@ -202,14 +160,12 @@ __name(isSerializedRecentFile, "isSerializedRecentFile");
 function restoreRecentlyOpened(data, logService) {
   const result = { workspaces: [], files: [] };
   if (data) {
-    const restoreGracefully = /* @__PURE__ */ __name((entries, onEntry) => {
+    const restoreGracefully = /* @__PURE__ */ __name(function(entries, onEntry) {
       for (let i = 0; i < entries.length; i++) {
         try {
           onEntry(entries[i], i);
         } catch (e) {
-          logService.warn(
-            `Error restoring recent entry ${JSON.stringify(entries[i])}: ${e.toString()}. Skip entry.`
-          );
+          logService.warn(`Error restoring recent entry ${JSON.stringify(entries[i])}: ${e.toString()}. Skip entry.`);
         }
       }
     }, "restoreGracefully");
@@ -219,26 +175,11 @@ function restoreRecentlyOpened(data, logService) {
         const label = entry.label;
         const remoteAuthority = entry.remoteAuthority;
         if (isSerializedRecentWorkspace(entry)) {
-          result.workspaces.push({
-            label,
-            remoteAuthority,
-            workspace: {
-              id: entry.workspace.id,
-              configPath: URI.parse(entry.workspace.configPath)
-            }
-          });
+          result.workspaces.push({ label, remoteAuthority, workspace: { id: entry.workspace.id, configPath: URI.parse(entry.workspace.configPath) } });
         } else if (isSerializedRecentFolder(entry)) {
-          result.workspaces.push({
-            label,
-            remoteAuthority,
-            folderUri: URI.parse(entry.folderUri)
-          });
+          result.workspaces.push({ label, remoteAuthority, folderUri: URI.parse(entry.folderUri) });
         } else if (isSerializedRecentFile(entry)) {
-          result.files.push({
-            label,
-            remoteAuthority,
-            fileUri: URI.parse(entry.fileUri)
-          });
+          result.files.push({ label, remoteAuthority, fileUri: URI.parse(entry.fileUri) });
         }
       });
     }
@@ -250,28 +191,13 @@ function toStoreData(recents) {
   const serialized = { entries: [] };
   for (const recent of recents.workspaces) {
     if (isRecentFolder(recent)) {
-      serialized.entries.push({
-        folderUri: recent.folderUri.toString(),
-        label: recent.label,
-        remoteAuthority: recent.remoteAuthority
-      });
+      serialized.entries.push({ folderUri: recent.folderUri.toString(), label: recent.label, remoteAuthority: recent.remoteAuthority });
     } else {
-      serialized.entries.push({
-        workspace: {
-          id: recent.workspace.id,
-          configPath: recent.workspace.configPath.toString()
-        },
-        label: recent.label,
-        remoteAuthority: recent.remoteAuthority
-      });
+      serialized.entries.push({ workspace: { id: recent.workspace.id, configPath: recent.workspace.configPath.toString() }, label: recent.label, remoteAuthority: recent.remoteAuthority });
     }
   }
   for (const recent of recents.files) {
-    serialized.entries.push({
-      fileUri: recent.fileUri.toString(),
-      label: recent.label,
-      remoteAuthority: recent.remoteAuthority
-    });
+    serialized.entries.push({ fileUri: recent.fileUri.toString(), label: recent.label, remoteAuthority: recent.remoteAuthority });
   }
   return serialized;
 }

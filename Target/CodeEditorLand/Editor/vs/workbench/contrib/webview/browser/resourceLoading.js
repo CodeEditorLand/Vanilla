@@ -1,13 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { isUNC } from "../../../../base/common/extpath.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { normalize, sep } from "../../../../base/common/path.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  FileOperationError,
-  FileOperationResult
-} from "../../../../platform/files/common/files.js";
+import { FileOperationError, FileOperationResult, IFileService, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { getWebviewContentMimeType } from "../../../../platform/webview/common/mimeTypes.js";
 var WebviewResourceResponse;
 ((WebviewResourceResponse2) => {
@@ -48,38 +48,22 @@ var WebviewResourceResponse;
 async function loadLocalResource(requestUri, options, fileService, logService, token) {
   logService.debug(`loadLocalResource - begin. requestUri=${requestUri}`);
   const resourceToLoad = getResourceToLoad(requestUri, options.roots);
-  logService.debug(
-    `loadLocalResource - found resource to load. requestUri=${requestUri}, resourceToLoad=${resourceToLoad}`
-  );
+  logService.debug(`loadLocalResource - found resource to load. requestUri=${requestUri}, resourceToLoad=${resourceToLoad}`);
   if (!resourceToLoad) {
     return WebviewResourceResponse.AccessDenied;
   }
   const mime = getWebviewContentMimeType(requestUri);
   try {
-    const result = await fileService.readFileStream(
-      resourceToLoad,
-      { etag: options.ifNoneMatch },
-      token
-    );
-    return new WebviewResourceResponse.StreamSuccess(
-      result.value,
-      result.etag,
-      result.mtime,
-      mime
-    );
+    const result = await fileService.readFileStream(resourceToLoad, { etag: options.ifNoneMatch }, token);
+    return new WebviewResourceResponse.StreamSuccess(result.value, result.etag, result.mtime, mime);
   } catch (err) {
     if (err instanceof FileOperationError) {
       const result = err.fileOperationResult;
       if (result === FileOperationResult.FILE_NOT_MODIFIED_SINCE) {
-        return new WebviewResourceResponse.NotModified(
-          mime,
-          err.options?.mtime
-        );
+        return new WebviewResourceResponse.NotModified(mime, err.options?.mtime);
       }
     }
-    logService.debug(
-      `loadLocalResource - Error using fileReader. requestUri=${requestUri}`
-    );
+    logService.debug(`loadLocalResource - Error using fileReader. requestUri=${requestUri}`);
     console.log(err);
     return WebviewResourceResponse.Failed;
   }
@@ -99,9 +83,7 @@ function containsResource(root, resource) {
     return false;
   }
   let resourceFsPath = normalize(resource.fsPath);
-  let rootPath = normalize(
-    root.fsPath + (root.fsPath.endsWith(sep) ? "" : sep)
-  );
+  let rootPath = normalize(root.fsPath + (root.fsPath.endsWith(sep) ? "" : sep));
   if (isUNC(root.fsPath) && isUNC(resource.fsPath)) {
     rootPath = rootPath.toLowerCase();
     resourceFsPath = resourceFsPath.toLowerCase();

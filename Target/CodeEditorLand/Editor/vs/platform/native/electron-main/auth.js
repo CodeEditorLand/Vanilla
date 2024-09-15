@@ -10,9 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  app
-} from "electron";
+import { app, AuthenticationResponseDetails, AuthInfo as ElectronAuthInfo, Event as ElectronEvent, WebContents } from "electron";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Event } from "../../../base/common/event.js";
 import { hash } from "../../../base/common/hash.js";
@@ -24,6 +22,7 @@ import { IEncryptionMainService } from "../../encryption/common/encryptionServic
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { ILogService } from "../../log/common/log.js";
+import { AuthInfo, Credentials } from "../../request/common/request.js";
 import { StorageScope, StorageTarget } from "../../storage/common/storage.js";
 import { IApplicationStorageMainService } from "../../storage/electron-main/storageMainService.js";
 import { IWindowsMainService } from "../../windows/electron-main/windows.js";
@@ -48,60 +47,32 @@ let ProxyAuthService = class extends Disposable {
   cancelledAuthInfoHashes = /* @__PURE__ */ new Set();
   sessionCredentials = /* @__PURE__ */ new Map();
   registerListeners() {
-    const onLogin = Event.fromNodeEventEmitter(
-      app,
-      "login",
-      (event, _webContents, req, authInfo, callback) => ({
-        event,
-        authInfo: {
-          ...authInfo,
-          attempt: req.firstAuthAttempt ? 1 : 2
-        },
-        callback
-      })
-    );
+    const onLogin = Event.fromNodeEventEmitter(app, "login", (event, _webContents, req, authInfo, callback) => ({ event, authInfo: { ...authInfo, attempt: req.firstAuthAttempt ? 1 : 2 }, callback }));
     this._register(onLogin(this.onLogin, this));
   }
   async lookupAuthorization(authInfo) {
     return this.onLogin({ authInfo });
   }
-  async onLogin({
-    event,
-    authInfo,
-    callback
-  }) {
+  async onLogin({ event, authInfo, callback }) {
     if (!authInfo.isProxy) {
       return;
     }
     event?.preventDefault();
-    const authInfoHash = String(
-      hash({
-        scheme: authInfo.scheme,
-        host: authInfo.host,
-        port: authInfo.port
-      })
-    );
-    let credentials;
+    const authInfoHash = String(hash({ scheme: authInfo.scheme, host: authInfo.host, port: authInfo.port }));
+    let credentials = void 0;
     let pendingProxyResolve = this.pendingProxyResolves.get(authInfoHash);
-    if (pendingProxyResolve) {
-      this.logService.trace(
-        "auth#onLogin (proxy) - pending proxy handling found"
-      );
-      credentials = await pendingProxyResolve;
-    } else {
-      this.logService.trace(
-        "auth#onLogin (proxy) - no pending proxy handling found, starting new"
-      );
-      pendingProxyResolve = this.resolveProxyCredentials(
-        authInfo,
-        authInfoHash
-      );
+    if (!pendingProxyResolve) {
+      this.logService.trace("auth#onLogin (proxy) - no pending proxy handling found, starting new");
+      pendingProxyResolve = this.resolveProxyCredentials(authInfo, authInfoHash);
       this.pendingProxyResolves.set(authInfoHash, pendingProxyResolve);
       try {
         credentials = await pendingProxyResolve;
       } finally {
         this.pendingProxyResolves.delete(authInfoHash);
       }
+    } else {
+      this.logService.trace("auth#onLogin (proxy) - pending proxy handling found");
+      credentials = await pendingProxyResolve;
     }
     callback?.(credentials?.username, credentials?.password);
     return credentials;
@@ -109,36 +80,22 @@ let ProxyAuthService = class extends Disposable {
   async resolveProxyCredentials(authInfo, authInfoHash) {
     this.logService.trace("auth#resolveProxyCredentials (proxy) - enter");
     try {
-      const credentials = await this.doResolveProxyCredentials(
-        authInfo,
-        authInfoHash
-      );
+      const credentials = await this.doResolveProxyCredentials(authInfo, authInfoHash);
       if (credentials) {
-        this.logService.trace(
-          "auth#resolveProxyCredentials (proxy) - got credentials"
-        );
+        this.logService.trace("auth#resolveProxyCredentials (proxy) - got credentials");
         return credentials;
       } else {
-        this.logService.trace(
-          "auth#resolveProxyCredentials (proxy) - did not get credentials"
-        );
+        this.logService.trace("auth#resolveProxyCredentials (proxy) - did not get credentials");
       }
     } finally {
-      this.logService.trace(
-        "auth#resolveProxyCredentials (proxy) - exit"
-      );
+      this.logService.trace("auth#resolveProxyCredentials (proxy) - exit");
     }
     return void 0;
   }
   async doResolveProxyCredentials(authInfo, authInfoHash) {
-    this.logService.trace(
-      "auth#doResolveProxyCredentials - enter",
-      authInfo
-    );
+    this.logService.trace("auth#doResolveProxyCredentials - enter", authInfo);
     if (this.environmentMainService.extensionTestsLocationURI) {
-      const credentials = this.configurationService.getValue(
-        "integration-test.http.proxyAuth"
-      );
+      const credentials = this.configurationService.getValue("integration-test.http.proxyAuth");
       if (credentials) {
         const j = credentials.indexOf(":");
         if (j !== -1) {
@@ -161,14 +118,10 @@ let ProxyAuthService = class extends Disposable {
       const i = uri.authority.indexOf("@");
       if (i !== -1) {
         if (authInfo.attempt > 1) {
-          this.logService.trace(
-            "auth#doResolveProxyCredentials (proxy) - exit - ignoring previously used config/envvar credentials"
-          );
+          this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - ignoring previously used config/envvar credentials");
           return void 0;
         }
-        this.logService.trace(
-          "auth#doResolveProxyCredentials (proxy) - exit - found config/envvar credentials to use"
-        );
+        this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - found config/envvar credentials to use");
         const credentials = uri.authority.substring(0, i);
         const j = credentials.indexOf(":");
         if (j !== -1) {
@@ -186,23 +139,16 @@ let ProxyAuthService = class extends Disposable {
     }
     const sessionCredentials = authInfo.attempt === 1 && this.sessionCredentials.get(authInfoHash);
     if (sessionCredentials) {
-      this.logService.trace(
-        "auth#doResolveProxyCredentials (proxy) - exit - found session credentials to use"
-      );
+      this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - found session credentials to use");
       const { username, password } = sessionCredentials;
       return { username, password };
     }
     let storedUsername;
     let storedPassword;
     try {
-      const encryptedValue = this.applicationStorageMainService.get(
-        this.PROXY_CREDENTIALS_SERVICE_KEY + authInfoHash,
-        StorageScope.APPLICATION
-      );
+      const encryptedValue = this.applicationStorageMainService.get(this.PROXY_CREDENTIALS_SERVICE_KEY + authInfoHash, StorageScope.APPLICATION);
       if (encryptedValue) {
-        const credentials = JSON.parse(
-          await this.encryptionMainService.decrypt(encryptedValue)
-        );
+        const credentials = JSON.parse(await this.encryptionMainService.decrypt(encryptedValue));
         storedUsername = credentials.username;
         storedPassword = credentials.password;
       }
@@ -210,24 +156,14 @@ let ProxyAuthService = class extends Disposable {
       this.logService.error(error);
     }
     if (authInfo.attempt === 1 && typeof storedUsername === "string" && typeof storedPassword === "string") {
-      this.logService.trace(
-        "auth#doResolveProxyCredentials (proxy) - exit - found stored credentials to use"
-      );
-      this.sessionCredentials.set(authInfoHash, {
-        username: storedUsername,
-        password: storedPassword
-      });
+      this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - found stored credentials to use");
+      this.sessionCredentials.set(authInfoHash, { username: storedUsername, password: storedPassword });
       return { username: storedUsername, password: storedPassword };
     }
     const previousDialog = this.currentDialog;
     const currentDialog = this.currentDialog = (async () => {
       await previousDialog;
-      const credentials = await this.showProxyCredentialsDialog(
-        authInfo,
-        authInfoHash,
-        storedUsername,
-        storedPassword
-      );
+      const credentials = await this.showProxyCredentialsDialog(authInfo, authInfoHash, storedUsername, storedPassword);
       if (this.currentDialog === currentDialog) {
         this.currentDialog = void 0;
       }
@@ -237,21 +173,15 @@ let ProxyAuthService = class extends Disposable {
   }
   async showProxyCredentialsDialog(authInfo, authInfoHash, storedUsername, storedPassword) {
     if (this.cancelledAuthInfoHashes.has(authInfoHash)) {
-      this.logService.trace(
-        "auth#doResolveProxyCredentials (proxy) - exit - login dialog was cancelled before, not showing again"
-      );
+      this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - login dialog was cancelled before, not showing again");
       return void 0;
     }
     const window = this.windowsMainService.getFocusedWindow() || this.windowsMainService.getLastActiveWindow();
     if (!window) {
-      this.logService.trace(
-        "auth#doResolveProxyCredentials (proxy) - exit - no opened window found to show dialog in"
-      );
+      this.logService.trace("auth#doResolveProxyCredentials (proxy) - exit - no opened window found to show dialog in");
       return void 0;
     }
-    this.logService.trace(
-      `auth#doResolveProxyCredentials (proxy) - asking window ${window.id} to handle proxy login`
-    );
+    this.logService.trace(`auth#doResolveProxyCredentials (proxy) - asking window ${window.id} to handle proxy login`);
     const sessionCredentials = this.sessionCredentials.get(authInfoHash);
     const payload = {
       authInfo,
@@ -261,31 +191,17 @@ let ProxyAuthService = class extends Disposable {
       // prefer to show already used password (if any) over stored
       replyChannel: `vscode:proxyAuthResponse:${generateUuid()}`
     };
-    window.sendWhenReady(
-      "vscode:openProxyAuthenticationDialog",
-      CancellationToken.None,
-      payload
-    );
+    window.sendWhenReady("vscode:openProxyAuthenticationDialog", CancellationToken.None, payload);
     const loginDialogCredentials = await new Promise((resolve) => {
       const proxyAuthResponseHandler = /* @__PURE__ */ __name(async (event, channel, reply) => {
         if (channel === payload.replyChannel) {
-          this.logService.trace(
-            `auth#doResolveProxyCredentials - exit - received credentials from window ${window.id}`
-          );
-          window.win?.webContents.off(
-            "ipc-message",
-            proxyAuthResponseHandler
-          );
+          this.logService.trace(`auth#doResolveProxyCredentials - exit - received credentials from window ${window.id}`);
+          window.win?.webContents.off("ipc-message", proxyAuthResponseHandler);
           if (reply) {
-            const credentials = {
-              username: reply.username,
-              password: reply.password
-            };
+            const credentials = { username: reply.username, password: reply.password };
             try {
               if (reply.remember) {
-                const encryptedSerializedCredentials = await this.encryptionMainService.encrypt(
-                  JSON.stringify(credentials)
-                );
+                const encryptedSerializedCredentials = await this.encryptionMainService.encrypt(JSON.stringify(credentials));
                 this.applicationStorageMainService.store(
                   this.PROXY_CREDENTIALS_SERVICE_KEY + authInfoHash,
                   encryptedSerializedCredentials,
@@ -294,18 +210,12 @@ let ProxyAuthService = class extends Disposable {
                   StorageTarget.MACHINE
                 );
               } else {
-                this.applicationStorageMainService.remove(
-                  this.PROXY_CREDENTIALS_SERVICE_KEY + authInfoHash,
-                  StorageScope.APPLICATION
-                );
+                this.applicationStorageMainService.remove(this.PROXY_CREDENTIALS_SERVICE_KEY + authInfoHash, StorageScope.APPLICATION);
               }
             } catch (error) {
               this.logService.error(error);
             }
-            resolve({
-              username: credentials.username,
-              password: credentials.password
-            });
+            resolve({ username: credentials.username, password: credentials.password });
           } else {
             this.cancelledAuthInfoHashes.add(authInfoHash);
             resolve(void 0);

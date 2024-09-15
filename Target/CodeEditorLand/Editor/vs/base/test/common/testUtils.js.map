@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/test/common/testUtils.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nexport function flakySuite(title: string, fn: () => void) /* Suite */ {\n\treturn suite(title, function () {\n\n\t\t// Flaky suites need retries and timeout to complete\n\t\t// e.g. because they access browser features which can\n\t\t// be unreliable depending on the environment.\n\t\tthis.retries(3);\n\t\tthis.timeout(1000 * 20);\n\n\t\t// Invoke suite ensuring that `this` is\n\t\t// properly wired in.\n\t\tfn.call(this);\n\t});\n}\n"],
+  "mappings": ";;AAKO,SAAS,WAAW,OAAe,IAA4B;AACrE,SAAO,MAAM,OAAO,WAAY;AAK/B,SAAK,QAAQ,CAAC;AACd,SAAK,QAAQ,MAAO,EAAE;AAItB,OAAG,KAAK,IAAI;AAAA,EACb,CAAC;AACF;AAbgB;",
+  "names": []
+}

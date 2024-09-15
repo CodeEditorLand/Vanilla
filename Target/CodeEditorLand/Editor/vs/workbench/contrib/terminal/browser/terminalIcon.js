@@ -1,18 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createStyleSheet } from "../../../../base/browser/dom.js";
 import { hash } from "../../../../base/common/hash.js";
-import {
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IExtensionTerminalProfile, ITerminalProfile } from "../../../../platform/terminal/common/terminal.js";
 import { getIconRegistry } from "../../../../platform/theme/common/iconRegistry.js";
 import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ITerminalInstance } from "./terminal.js";
 import { ITerminalProfileResolverService } from "../common/terminal.js";
 import { ansiColorMap } from "../common/terminalColorRegistry.js";
+import { createStyleSheet } from "../../../../base/browser/dom.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
 function getColorClass(terminalOrColorKey) {
-  let color;
+  let color = void 0;
   if (typeof terminalOrColorKey === "string") {
     color = terminalOrColorKey;
   } else if (terminalOrColorKey.color) {
@@ -76,7 +78,7 @@ function getUriClasses(terminal, colorScheme, extensionContributed) {
     return void 0;
   }
   const iconClasses = [];
-  let uri;
+  let uri = void 0;
   if (extensionContributed) {
     if (typeof icon === "string" && (icon.startsWith("$(") || getIconRegistry().getIcon(icon))) {
       return iconClasses;

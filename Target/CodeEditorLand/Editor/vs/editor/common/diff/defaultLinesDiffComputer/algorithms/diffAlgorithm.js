@@ -12,26 +12,10 @@ class DiffAlgorithmResult {
     __name(this, "DiffAlgorithmResult");
   }
   static trivial(seq1, seq2) {
-    return new DiffAlgorithmResult(
-      [
-        new SequenceDiff(
-          OffsetRange.ofLength(seq1.length),
-          OffsetRange.ofLength(seq2.length)
-        )
-      ],
-      false
-    );
+    return new DiffAlgorithmResult([new SequenceDiff(OffsetRange.ofLength(seq1.length), OffsetRange.ofLength(seq2.length))], false);
   }
   static trivialTimedOut(seq1, seq2) {
-    return new DiffAlgorithmResult(
-      [
-        new SequenceDiff(
-          OffsetRange.ofLength(seq1.length),
-          OffsetRange.ofLength(seq2.length)
-        )
-      ],
-      true
-    );
+    return new DiffAlgorithmResult([new SequenceDiff(OffsetRange.ofLength(seq1.length), OffsetRange.ofLength(seq2.length))], true);
   }
 }
 class SequenceDiff {
@@ -45,15 +29,10 @@ class SequenceDiff {
   static invert(sequenceDiffs, doc1Length) {
     const result = [];
     forEachAdjacent(sequenceDiffs, (a, b) => {
-      result.push(
-        SequenceDiff.fromOffsetPairs(
-          a ? a.getEndExclusives() : OffsetPair.zero,
-          b ? b.getStarts() : new OffsetPair(
-            doc1Length,
-            (a ? a.seq2Range.endExclusive - a.seq1Range.endExclusive : 0) + doc1Length
-          )
-        )
-      );
+      result.push(SequenceDiff.fromOffsetPairs(
+        a ? a.getEndExclusives() : OffsetPair.zero,
+        b ? b.getStarts() : new OffsetPair(doc1Length, (a ? a.seq2Range.endExclusive - a.seq1Range.endExclusive : 0) + doc1Length)
+      ));
     });
     return result;
   }
@@ -64,13 +43,11 @@ class SequenceDiff {
     );
   }
   static assertSorted(sequenceDiffs) {
-    let last;
+    let last = void 0;
     for (const cur of sequenceDiffs) {
       if (last) {
         if (!(last.seq1Range.endExclusive <= cur.seq1Range.start && last.seq2Range.endExclusive <= cur.seq2Range.start)) {
-          throw new BugIndicatingError(
-            "Sequence diffs must be sorted"
-          );
+          throw new BugIndicatingError("Sequence diffs must be sorted");
         }
       }
       last = cur;
@@ -83,37 +60,25 @@ class SequenceDiff {
     return `${this.seq1Range} <-> ${this.seq2Range}`;
   }
   join(other) {
-    return new SequenceDiff(
-      this.seq1Range.join(other.seq1Range),
-      this.seq2Range.join(other.seq2Range)
-    );
+    return new SequenceDiff(this.seq1Range.join(other.seq1Range), this.seq2Range.join(other.seq2Range));
   }
   delta(offset) {
     if (offset === 0) {
       return this;
     }
-    return new SequenceDiff(
-      this.seq1Range.delta(offset),
-      this.seq2Range.delta(offset)
-    );
+    return new SequenceDiff(this.seq1Range.delta(offset), this.seq2Range.delta(offset));
   }
   deltaStart(offset) {
     if (offset === 0) {
       return this;
     }
-    return new SequenceDiff(
-      this.seq1Range.deltaStart(offset),
-      this.seq2Range.deltaStart(offset)
-    );
+    return new SequenceDiff(this.seq1Range.deltaStart(offset), this.seq2Range.deltaStart(offset));
   }
   deltaEnd(offset) {
     if (offset === 0) {
       return this;
     }
-    return new SequenceDiff(
-      this.seq1Range.deltaEnd(offset),
-      this.seq2Range.deltaEnd(offset)
-    );
+    return new SequenceDiff(this.seq1Range.deltaEnd(offset), this.seq2Range.deltaEnd(offset));
   }
   intersectsOrTouches(other) {
     return this.seq1Range.intersectsOrTouches(other.seq1Range) || this.seq2Range.intersectsOrTouches(other.seq2Range);
@@ -130,10 +95,7 @@ class SequenceDiff {
     return new OffsetPair(this.seq1Range.start, this.seq2Range.start);
   }
   getEndExclusives() {
-    return new OffsetPair(
-      this.seq1Range.endExclusive,
-      this.seq2Range.endExclusive
-    );
+    return new OffsetPair(this.seq1Range.endExclusive, this.seq2Range.endExclusive);
   }
 }
 class OffsetPair {
@@ -145,10 +107,7 @@ class OffsetPair {
     __name(this, "OffsetPair");
   }
   static zero = new OffsetPair(0, 0);
-  static max = new OffsetPair(
-    Number.MAX_SAFE_INTEGER,
-    Number.MAX_SAFE_INTEGER
-  );
+  static max = new OffsetPair(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
   toString() {
     return `${this.offset1} <-> ${this.offset2}`;
   }

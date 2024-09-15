@@ -2,38 +2,25 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
 import * as strings from "../../../base/common/strings.js";
+import { IViewLineTokens, LineTokens } from "../tokens/lineTokens.js";
+import { ILanguageIdCodec, IState, ITokenizationSupport, TokenizationRegistry } from "../languages.js";
 import { LanguageId } from "../encodedTokenAttributes.js";
-import {
-  TokenizationRegistry
-} from "../languages.js";
-import { LineTokens } from "../tokens/lineTokens.js";
 import { NullState, nullTokenizeEncoded } from "./nullTokenize.js";
+import { ILanguageService } from "./language.js";
 const fallback = {
   getInitialState: /* @__PURE__ */ __name(() => NullState, "getInitialState"),
   tokenizeEncoded: /* @__PURE__ */ __name((buffer, hasEOL, state) => nullTokenizeEncoded(LanguageId.Null, state), "tokenizeEncoded")
 };
 function tokenizeToStringSync(languageService, text, languageId) {
-  return _tokenizeToString(
-    text,
-    languageService.languageIdCodec,
-    TokenizationRegistry.get(languageId) || fallback
-  );
+  return _tokenizeToString(text, languageService.languageIdCodec, TokenizationRegistry.get(languageId) || fallback);
 }
 __name(tokenizeToStringSync, "tokenizeToStringSync");
 async function tokenizeToString(languageService, text, languageId) {
   if (!languageId) {
-    return _tokenizeToString(
-      text,
-      languageService.languageIdCodec,
-      fallback
-    );
+    return _tokenizeToString(text, languageService.languageIdCodec, fallback);
   }
   const tokenizationSupport = await TokenizationRegistry.getOrCreate(languageId);
-  return _tokenizeToString(
-    text,
-    languageService.languageIdCodec,
-    tokenizationSupport || fallback
-  );
+  return _tokenizeToString(text, languageService.languageIdCodec, tokenizationSupport || fallback);
 }
 __name(tokenizeToString, "tokenizeToString");
 function tokenizeLineToHTML(text, viewLineTokens, colorMap, startOffset, endOffset, tabSize, useNbsp) {
@@ -124,17 +111,9 @@ function _tokenizeToString(text, languageIdCodec, tokenizationSupport) {
     if (i > 0) {
       result += `<br/>`;
     }
-    const tokenizationResult = tokenizationSupport.tokenizeEncoded(
-      line,
-      true,
-      currentState
-    );
+    const tokenizationResult = tokenizationSupport.tokenizeEncoded(line, true, currentState);
     LineTokens.convertToEndOffset(tokenizationResult.tokens, line.length);
-    const lineTokens = new LineTokens(
-      tokenizationResult.tokens,
-      line,
-      languageIdCodec
-    );
+    const lineTokens = new LineTokens(tokenizationResult.tokens, line, languageIdCodec);
     const viewLineTokens = lineTokens.inflate();
     let startOffset = 0;
     for (let j = 0, lenJ = viewLineTokens.getCount(); j < lenJ; j++) {

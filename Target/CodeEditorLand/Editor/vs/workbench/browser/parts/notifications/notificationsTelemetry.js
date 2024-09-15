@@ -10,13 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { hash } from "../../../../base/common/hash.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  INotificationService,
-  NotificationPriority
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, NotificationMessage, NotificationPriority } from "../../../../platform/notification/common/notification.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { hash } from "../../../../base/common/hash.js";
 function notificationToMetrics(message, source, silent) {
   return {
     id: hash(message.toString()).toString(),
@@ -36,32 +34,14 @@ let NotificationsTelemetry = class extends Disposable {
     __name(this, "NotificationsTelemetry");
   }
   registerListeners() {
-    this._register(
-      this.notificationService.onDidAddNotification((notification) => {
-        const source = notification.source && typeof notification.source !== "string" ? notification.source.id : notification.source;
-        this.telemetryService.publicLog2(
-          "notification:show",
-          notificationToMetrics(
-            notification.message,
-            source,
-            notification.priority === NotificationPriority.SILENT
-          )
-        );
-      })
-    );
-    this._register(
-      this.notificationService.onDidRemoveNotification((notification) => {
-        const source = notification.source && typeof notification.source !== "string" ? notification.source.id : notification.source;
-        this.telemetryService.publicLog2(
-          "notification:close",
-          notificationToMetrics(
-            notification.message,
-            source,
-            notification.priority === NotificationPriority.SILENT
-          )
-        );
-      })
-    );
+    this._register(this.notificationService.onDidAddNotification((notification) => {
+      const source = notification.source && typeof notification.source !== "string" ? notification.source.id : notification.source;
+      this.telemetryService.publicLog2("notification:show", notificationToMetrics(notification.message, source, notification.priority === NotificationPriority.SILENT));
+    }));
+    this._register(this.notificationService.onDidRemoveNotification((notification) => {
+      const source = notification.source && typeof notification.source !== "string" ? notification.source.id : notification.source;
+      this.telemetryService.publicLog2("notification:close", notificationToMetrics(notification.message, source, notification.priority === NotificationPriority.SILENT));
+    }));
   }
 };
 NotificationsTelemetry = __decorateClass([

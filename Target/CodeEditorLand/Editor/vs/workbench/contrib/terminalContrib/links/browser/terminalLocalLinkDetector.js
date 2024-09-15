@@ -12,25 +12,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { OS } from "../../../../../base/common/platform.js";
 import { URI } from "../../../../../base/common/uri.js";
-import {
-  TerminalCapability
-} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import {
-  ITerminalLogService
-} from "../../../../../platform/terminal/common/terminal.js";
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import {
-  TerminalBuiltinLinkType
-} from "./links.js";
-import {
-  convertLinkRangeToBuffer,
-  getXtermLineContent,
-  getXtermRangesByAttr,
-  osPathModule,
-  updateLinkWithRelativeCwd
-} from "./terminalLinkHelpers.js";
+import { ITerminalLinkDetector, ITerminalLinkResolver, ITerminalSimpleLink, ResolvedLink, TerminalBuiltinLinkType } from "./links.js";
+import { convertLinkRangeToBuffer, getXtermLineContent, getXtermRangesByAttr, osPathModule, updateLinkWithRelativeCwd } from "./terminalLinkHelpers.js";
+import { ITerminalCapabilityStore, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
 import { detectLinks } from "./terminalLinkParsing.js";
+import { ITerminalBackend, ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["MaxLineLength"] = 2e3] = "MaxLineLength";
   Constants2[Constants2["MaxResolvedLinksInLine"] = 10] = "MaxResolvedLinksInLine";
@@ -81,12 +70,7 @@ let TerminalLocalLinkDetector = class {
   maxLinkLength = 500;
   async detect(lines, startLine, endLine) {
     const links = [];
-    const text = getXtermLineContent(
-      this.xterm.buffer.active,
-      startLine,
-      endLine,
-      this.xterm.cols
-    );
+    const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
     if (text === "" || text.length > 2e3 /* MaxLineLength */) {
       return [];
     }
@@ -95,25 +79,17 @@ let TerminalLocalLinkDetector = class {
     const os = this._processManager.os || OS;
     const parsedLinks = detectLinks(text, os);
     this._logService.trace("terminalLocalLinkDetector#detect text", text);
-    this._logService.trace(
-      "terminalLocalLinkDetector#detect parsedLinks",
-      parsedLinks
-    );
+    this._logService.trace("terminalLocalLinkDetector#detect parsedLinks", parsedLinks);
     for (const parsedLink of parsedLinks) {
       if (parsedLink.path.text.length > 1024 /* MaxResolvedLinkLength */) {
         continue;
       }
-      const bufferRange = convertLinkRangeToBuffer(
-        lines,
-        this.xterm.cols,
-        {
-          startColumn: (parsedLink.prefix?.index ?? parsedLink.path.index) + 1,
-          startLineNumber: 1,
-          endColumn: parsedLink.path.index + parsedLink.path.text.length + (parsedLink.suffix?.suffix.text.length ?? 0) + 1,
-          endLineNumber: 1
-        },
-        startLine
-      );
+      const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+        startColumn: (parsedLink.prefix?.index ?? parsedLink.path.index) + 1,
+        startLineNumber: 1,
+        endColumn: parsedLink.path.index + parsedLink.path.text.length + (parsedLink.suffix?.suffix.text.length ?? 0) + 1,
+        endLineNumber: 1
+      }, startLine);
       const linkCandidates = [];
       const osPath = osPathModule(os);
       const isUri = parsedLink.path.text.startsWith("file://");
@@ -121,27 +97,19 @@ let TerminalLocalLinkDetector = class {
         linkCandidates.push(parsedLink.path.text);
       } else {
         if (this._capabilities.has(TerminalCapability.CommandDetection)) {
-          const absolutePath = updateLinkWithRelativeCwd(
-            this._capabilities,
-            bufferRange.start.y,
-            parsedLink.path.text,
-            osPath,
-            this._logService
-          );
+          const absolutePath = updateLinkWithRelativeCwd(this._capabilities, bufferRange.start.y, parsedLink.path.text, osPath, this._logService);
           if (absolutePath) {
             linkCandidates.push(...absolutePath);
           }
         }
         if (linkCandidates.length === 0) {
           linkCandidates.push(parsedLink.path.text);
-          if (parsedLink.path.text.match(/^(\.\.[/\\])+/)) {
-            linkCandidates.push(
-              parsedLink.path.text.replace(/^(\.\.[/\\])+/, "")
-            );
+          if (parsedLink.path.text.match(/^(\.\.[\/\\])+/)) {
+            linkCandidates.push(parsedLink.path.text.replace(/^(\.\.[\/\\])+/, ""));
           }
         }
       }
-      const specialEndCharRegex = /[[\]"'.]$/;
+      const specialEndCharRegex = /[\[\]"'\.]$/;
       const trimRangeMap = /* @__PURE__ */ new Map();
       const specialEndLinkCandidates = [];
       for (const candidate of linkCandidates) {
@@ -159,26 +127,15 @@ let TerminalLocalLinkDetector = class {
         }
       }
       linkCandidates.push(...specialEndLinkCandidates);
-      this._logService.trace(
-        "terminalLocalLinkDetector#detect linkCandidates",
-        linkCandidates
-      );
-      const simpleLink = await this._validateAndGetLink(
-        void 0,
-        bufferRange,
-        linkCandidates,
-        trimRangeMap
-      );
+      this._logService.trace("terminalLocalLinkDetector#detect linkCandidates", linkCandidates);
+      const simpleLink = await this._validateAndGetLink(void 0, bufferRange, linkCandidates, trimRangeMap);
       if (simpleLink) {
         simpleLink.parsedLink = parsedLink;
         simpleLink.text = text.substring(
           parsedLink.prefix?.index ?? parsedLink.path.index,
           parsedLink.suffix ? parsedLink.suffix.suffix.index + parsedLink.suffix.suffix.text.length : parsedLink.path.index + parsedLink.path.text.length
         );
-        this._logService.trace(
-          "terminalLocalLinkDetector#detect verified link",
-          simpleLink
-        );
+        this._logService.trace("terminalLocalLinkDetector#detect verified link", simpleLink);
         links.push(simpleLink);
       }
       if (++resolvedLinkCount >= 10 /* MaxResolvedLinksInLine */) {
@@ -203,23 +160,14 @@ let TerminalLocalLinkDetector = class {
           continue;
         }
         stringIndex = text.indexOf(link);
-        const bufferRange = convertLinkRangeToBuffer(
-          lines,
-          this.xterm.cols,
-          {
-            startColumn: stringIndex + 1,
-            startLineNumber: 1,
-            endColumn: stringIndex + link.length + 1,
-            endLineNumber: 1
-          },
-          startLine
-        );
+        const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+          startColumn: stringIndex + 1,
+          startLineNumber: 1,
+          endColumn: stringIndex + link.length + 1,
+          endLineNumber: 1
+        }, startLine);
         const suffix = line ? `:${line}${col ? `:${col}` : ""}` : "";
-        const simpleLink = await this._validateAndGetLink(
-          `${path}${suffix}`,
-          bufferRange,
-          [path]
-        );
+        const simpleLink = await this._validateAndGetLink(`${path}${suffix}`, bufferRange, [path]);
         if (simpleLink) {
           links.push(simpleLink);
         }
@@ -227,12 +175,7 @@ let TerminalLocalLinkDetector = class {
       }
     }
     if (links.length === 0) {
-      const rangeCandidates = getXtermRangesByAttr(
-        this.xterm.buffer.active,
-        startLine,
-        endLine,
-        this.xterm.cols
-      );
+      const rangeCandidates = getXtermRangesByAttr(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
       for (const rangeCandidate of rangeCandidates) {
         let text2 = "";
         for (let y = rangeCandidate.start.y; y <= rangeCandidate.end.y; y++) {
@@ -247,11 +190,7 @@ let TerminalLocalLinkDetector = class {
         rangeCandidate.start.x++;
         rangeCandidate.start.y++;
         rangeCandidate.end.y++;
-        const simpleLink = await this._validateAndGetLink(
-          text2,
-          rangeCandidate,
-          [text2]
-        );
+        const simpleLink = await this._validateAndGetLink(text2, rangeCandidate, [text2]);
         if (simpleLink) {
           links.push(simpleLink);
         }
@@ -265,10 +204,7 @@ let TerminalLocalLinkDetector = class {
   _isDirectoryInsideWorkspace(uri) {
     const folders = this._workspaceContextService.getWorkspace().folders;
     for (let i = 0; i < folders.length; i++) {
-      if (this._uriIdentityService.extUri.isEqualOrParent(
-        uri,
-        folders[i].uri
-      )) {
+      if (this._uriIdentityService.extUri.isEqualOrParent(uri, folders[i].uri)) {
         return true;
       }
     }
@@ -280,11 +216,7 @@ let TerminalLocalLinkDetector = class {
       if (link.startsWith("file://")) {
         uri = URI.parse(link);
       }
-      const result = await this._linkResolver.resolveLink(
-        this._processManager,
-        link,
-        uri
-      );
+      const result = await this._linkResolver.resolveLink(this._processManager, link, uri);
       if (result) {
         return result;
       }

@@ -7,7 +7,7 @@ const invalidMacAddresses = /* @__PURE__ */ new Set([
   "ac:de:48:00:11:22"
 ]);
 function validateMacAddress(candidate) {
-  const tempCandidate = candidate.replace(/-/g, ":").toLowerCase();
+  const tempCandidate = candidate.replace(/\-/g, ":").toLowerCase();
   return !invalidMacAddresses.has(tempCandidate);
 }
 __name(validateMacAddress, "validateMacAddress");

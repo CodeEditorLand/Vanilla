@@ -10,18 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { raceCancellationError } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { localize } from "../../../nls.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import {
-  IEditSessionIdentityService
-} from "../../../platform/workspace/common/editSessions.js";
-import {
-  extHostCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext
-} from "../common/extHost.protocol.js";
+import { extHostCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { raceCancellationError } from "../../../base/common/async.js";
+import { IEditSessionIdentityCreateParticipant, IEditSessionIdentityService } from "../../../platform/workspace/common/editSessions.js";
+import { ExtHostContext, ExtHostWorkspaceShape } from "../common/extHost.protocol.js";
+import { WorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
 class ExtHostEditSessionIdentityCreateParticipant {
   static {
     __name(this, "ExtHostEditSessionIdentityCreateParticipant");
@@ -34,21 +31,10 @@ class ExtHostEditSessionIdentityCreateParticipant {
   async participate(workspaceFolder, token) {
     const p = new Promise((resolve, reject) => {
       setTimeout(
-        () => reject(
-          new Error(
-            localize(
-              "timeout.onWillCreateEditSessionIdentity",
-              "Aborted onWillCreateEditSessionIdentity-event after 10000ms"
-            )
-          )
-        ),
+        () => reject(new Error(localize("timeout.onWillCreateEditSessionIdentity", "Aborted onWillCreateEditSessionIdentity-event after 10000ms"))),
         this.timeout
       );
-      this._proxy.$onWillCreateEditSessionIdentity(
-        workspaceFolder.uri,
-        token,
-        this.timeout
-      ).then(resolve, reject);
+      this._proxy.$onWillCreateEditSessionIdentity(workspaceFolder.uri, token, this.timeout).then(resolve, reject);
     });
     return raceCancellationError(p, token);
   }
@@ -56,12 +42,7 @@ class ExtHostEditSessionIdentityCreateParticipant {
 let EditSessionIdentityCreateParticipant = class {
   constructor(extHostContext, instantiationService, _editSessionIdentityService) {
     this._editSessionIdentityService = _editSessionIdentityService;
-    this._saveParticipantDisposable = this._editSessionIdentityService.addEditSessionIdentityCreateParticipant(
-      instantiationService.createInstance(
-        ExtHostEditSessionIdentityCreateParticipant,
-        extHostContext
-      )
-    );
+    this._saveParticipantDisposable = this._editSessionIdentityService.addEditSessionIdentityCreateParticipant(instantiationService.createInstance(ExtHostEditSessionIdentityCreateParticipant, extHostContext));
   }
   _saveParticipantDisposable;
   dispose() {

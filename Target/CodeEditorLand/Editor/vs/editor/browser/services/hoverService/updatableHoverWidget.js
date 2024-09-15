@@ -3,9 +3,8 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { isHTMLElement } from "../../../../base/browser/dom.js";
 import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import {
-  isMarkdownString
-} from "../../../../base/common/htmlContent.js";
+import { isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { isFunction, isString } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
 class ManagedHoverWidget {
@@ -30,13 +29,11 @@ class ManagedHoverWidget {
     let resolvedContent;
     if (content === void 0 || isString(content) || isHTMLElement(content)) {
       resolvedContent = content;
-    } else if (isFunction(content.markdown)) {
+    } else if (!isFunction(content.markdown)) {
+      resolvedContent = content.markdown ?? content.markdownNotSupportedFallback;
+    } else {
       if (!this._hoverWidget) {
-        this.show(
-          localize("iconLabel.loading", "Loading..."),
-          focus,
-          options
-        );
+        this.show(localize("iconLabel.loading", "Loading..."), focus, options);
       }
       this._cancellationTokenSource = new CancellationTokenSource();
       const token = this._cancellationTokenSource.token;
@@ -47,8 +44,6 @@ class ManagedHoverWidget {
       if (this.isDisposed || token.isCancellationRequested) {
         return;
       }
-    } else {
-      resolvedContent = content.markdown ?? content.markdownNotSupportedFallback;
     }
     this.show(resolvedContent, focus, options);
   }
@@ -71,10 +66,7 @@ class ManagedHoverWidget {
           hoverPosition: HoverPosition.BELOW
         }
       };
-      this._hoverWidget = this.hoverDelegate.showHover(
-        hoverOptions,
-        focus
-      );
+      this._hoverWidget = this.hoverDelegate.showHover(hoverOptions, focus);
     }
     oldHoverWidget?.dispose();
   }

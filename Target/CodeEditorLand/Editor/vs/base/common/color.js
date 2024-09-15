@@ -139,12 +139,7 @@ class HSLA {
       g = HSLA._hue2rgb(p, q, h);
       b = HSLA._hue2rgb(p, q, h - 1 / 3);
     }
-    return new RGBA(
-      Math.round(r * 255),
-      Math.round(g * 255),
-      Math.round(b * 255),
-      a
-    );
+    return new RGBA(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), a);
   }
 }
 class HSVA {
@@ -331,24 +326,10 @@ class Color {
     return lum1 < lum2;
   }
   lighten(factor) {
-    return new Color(
-      new HSLA(
-        this.hsla.h,
-        this.hsla.s,
-        this.hsla.l + this.hsla.l * factor,
-        this.hsla.a
-      )
-    );
+    return new Color(new HSLA(this.hsla.h, this.hsla.s, this.hsla.l + this.hsla.l * factor, this.hsla.a));
   }
   darken(factor) {
-    return new Color(
-      new HSLA(
-        this.hsla.h,
-        this.hsla.s,
-        this.hsla.l - this.hsla.l * factor,
-        this.hsla.a
-      )
-    );
+    return new Color(new HSLA(this.hsla.h, this.hsla.s, this.hsla.l - this.hsla.l * factor, this.hsla.a));
   }
   transparent(factor) {
     const { r, g, b, a } = this.rgba;
@@ -361,14 +342,7 @@ class Color {
     return this.rgba.a === 1;
   }
   opposite() {
-    return new Color(
-      new RGBA(
-        255 - this.rgba.r,
-        255 - this.rgba.g,
-        255 - this.rgba.b,
-        this.rgba.a
-      )
-    );
+    return new Color(new RGBA(255 - this.rgba.r, 255 - this.rgba.g, 255 - this.rgba.b, this.rgba.a));
   }
   blend(c) {
     const rgba = c.rgba;
@@ -388,14 +362,12 @@ class Color {
       return this;
     }
     const { r, g, b, a } = this.rgba;
-    return new Color(
-      new RGBA(
-        opaqueBackground.rgba.r - a * (opaqueBackground.rgba.r - r),
-        opaqueBackground.rgba.g - a * (opaqueBackground.rgba.g - g),
-        opaqueBackground.rgba.b - a * (opaqueBackground.rgba.b - b),
-        1
-      )
-    );
+    return new Color(new RGBA(
+      opaqueBackground.rgba.r - a * (opaqueBackground.rgba.r - r),
+      opaqueBackground.rgba.g - a * (opaqueBackground.rgba.g - g),
+      opaqueBackground.rgba.b - a * (opaqueBackground.rgba.b - b),
+      1
+    ));
   }
   flatten(...backgrounds) {
     const background = backgrounds.reduceRight((accumulator, color) => {
@@ -405,13 +377,11 @@ class Color {
   }
   static _flatten(foreground, background) {
     const backgroundAlpha = 1 - foreground.rgba.a;
-    return new Color(
-      new RGBA(
-        backgroundAlpha * background.rgba.r + foreground.rgba.a * foreground.rgba.r,
-        backgroundAlpha * background.rgba.g + foreground.rgba.a * foreground.rgba.g,
-        backgroundAlpha * background.rgba.b + foreground.rgba.a * foreground.rgba.b
-      )
-    );
+    return new Color(new RGBA(
+      backgroundAlpha * background.rgba.r + foreground.rgba.a * foreground.rgba.r,
+      backgroundAlpha * background.rgba.g + foreground.rgba.a * foreground.rgba.g,
+      backgroundAlpha * background.rgba.b + foreground.rgba.a * foreground.rgba.b
+    ));
   }
   _toString;
   toString() {
@@ -531,23 +501,14 @@ class Color {
           const r = _parseHexDigit(hex.charCodeAt(1));
           const g = _parseHexDigit(hex.charCodeAt(2));
           const b = _parseHexDigit(hex.charCodeAt(3));
-          return new Color2(
-            new RGBA(16 * r + r, 16 * g + g, 16 * b + b)
-          );
+          return new Color2(new RGBA(16 * r + r, 16 * g + g, 16 * b + b));
         }
         if (length === 5) {
           const r = _parseHexDigit(hex.charCodeAt(1));
           const g = _parseHexDigit(hex.charCodeAt(2));
           const b = _parseHexDigit(hex.charCodeAt(3));
           const a = _parseHexDigit(hex.charCodeAt(4));
-          return new Color2(
-            new RGBA(
-              16 * r + r,
-              16 * g + g,
-              16 * b + b,
-              (16 * a + a) / 255
-            )
-          );
+          return new Color2(new RGBA(16 * r + r, 16 * g + g, 16 * b + b, (16 * a + a) / 255));
         }
         return null;
       }

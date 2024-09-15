@@ -11,20 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { isSafari, isWebkitWebView } from "../../../base/browser/browser.js";
-import {
-  $,
-  addDisposableListener,
-  getActiveDocument,
-  getActiveWindow,
-  isHTMLElement,
-  onDidRegisterWindow
-} from "../../../base/browser/dom.js";
+import { $, addDisposableListener, getActiveDocument, getActiveWindow, isHTMLElement, onDidRegisterWindow } from "../../../base/browser/dom.js";
 import { mainWindow } from "../../../base/browser/window.js";
 import { DeferredPromise } from "../../../base/common/async.js";
 import { Event } from "../../../base/common/event.js";
 import { hash } from "../../../base/common/hash.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { URI } from "../../../base/common/uri.js";
+import { IClipboardService } from "../common/clipboardService.js";
 import { ILayoutService } from "../../layout/browser/layoutService.js";
 import { ILogService } from "../../log/common/log.js";
 const vscodeResourcesMime = "application/vnd.code.resources";
@@ -36,21 +30,9 @@ let BrowserClipboardService = class extends Disposable {
     if (isSafari || isWebkitWebView) {
       this.installWebKitWriteTextWorkaround();
     }
-    this._register(
-      Event.runAndSubscribe(
-        onDidRegisterWindow,
-        ({ window, disposables }) => {
-          disposables.add(
-            addDisposableListener(
-              window.document,
-              "copy",
-              () => this.clearResourcesState()
-            )
-          );
-        },
-        { window: mainWindow, disposables: this._store }
-      )
-    );
+    this._register(Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(addDisposableListener(window.document, "copy", () => this.clearResourcesState()));
+    }, { window: mainWindow, disposables: this._store }));
   }
   static {
     __name(this, "BrowserClipboardService");
@@ -75,33 +57,18 @@ let BrowserClipboardService = class extends Disposable {
         this.webKitPendingClipboardWritePromise.cancel();
       }
       this.webKitPendingClipboardWritePromise = currentWritePromise;
-      getActiveWindow().navigator.clipboard.write([
-        new ClipboardItem({
-          "text/plain": currentWritePromise.p
-        })
-      ]).catch(async (err) => {
+      getActiveWindow().navigator.clipboard.write([new ClipboardItem({
+        "text/plain": currentWritePromise.p
+      })]).catch(async (err) => {
         if (!(err instanceof Error) || err.name !== "NotAllowedError" || !currentWritePromise.isRejected) {
           this.logService.error(err);
         }
       });
     }, "handler");
-    this._register(
-      Event.runAndSubscribe(
-        this.layoutService.onDidAddContainer,
-        ({ container, disposables }) => {
-          disposables.add(
-            addDisposableListener(container, "click", handler)
-          );
-          disposables.add(
-            addDisposableListener(container, "keydown", handler)
-          );
-        },
-        {
-          container: this.layoutService.mainContainer,
-          disposables: this._store
-        }
-      )
-    );
+    this._register(Event.runAndSubscribe(this.layoutService.onDidAddContainer, ({ container, disposables }) => {
+      disposables.add(addDisposableListener(container, "click", handler));
+      disposables.add(addDisposableListener(container, "keydown", handler));
+    }, { container: this.layoutService.mainContainer, disposables: this._store }));
   }
   mapTextToType = /* @__PURE__ */ new Map();
   // unsupported in web (only in-memory)
@@ -124,9 +91,7 @@ let BrowserClipboardService = class extends Disposable {
   fallbackWriteText(text) {
     const activeDocument = getActiveDocument();
     const activeElement = activeDocument.activeElement;
-    const textArea = activeDocument.body.appendChild(
-      $("textarea", { "aria-hidden": true })
-    );
+    const textArea = activeDocument.body.appendChild($("textarea", { "aria-hidden": true }));
     textArea.style.height = "1px";
     textArea.style.width = "1px";
     textArea.style.position = "absolute";
@@ -166,12 +131,11 @@ let BrowserClipboardService = class extends Disposable {
     try {
       await getActiveWindow().navigator.clipboard.write([
         new ClipboardItem({
-          [`web ${vscodeResourcesMime}`]: new Blob(
-            [JSON.stringify(resources.map((x) => x.toJSON()))],
-            {
-              type: vscodeResourcesMime
-            }
-          )
+          [`web ${vscodeResourcesMime}`]: new Blob([
+            JSON.stringify(resources.map((x) => x.toJSON()))
+          ], {
+            type: vscodeResourcesMime
+          })
         })
       ]);
     } catch (error) {
@@ -188,9 +152,7 @@ let BrowserClipboardService = class extends Disposable {
       const items = await getActiveWindow().navigator.clipboard.read();
       for (const item of items) {
         if (item.types.includes(`web ${vscodeResourcesMime}`)) {
-          const blob = await item.getType(
-            `web ${vscodeResourcesMime}`
-          );
+          const blob = await item.getType(`web ${vscodeResourcesMime}`);
           const resources = JSON.parse(await blob.text()).map((x) => URI.from(x));
           return resources;
         }
@@ -208,12 +170,7 @@ let BrowserClipboardService = class extends Disposable {
       return void 0;
     }
     const clipboardText = await this.readText();
-    return hash(
-      clipboardText.substring(
-        0,
-        BrowserClipboardService.MAX_RESOURCE_STATE_SOURCE_LENGTH
-      )
-    );
+    return hash(clipboardText.substring(0, BrowserClipboardService.MAX_RESOURCE_STATE_SOURCE_LENGTH));
   }
   async hasResources() {
     try {

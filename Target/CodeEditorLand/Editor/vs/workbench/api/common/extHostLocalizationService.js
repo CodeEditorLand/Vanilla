@@ -13,11 +13,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { LANGUAGE_DEFAULT } from "../../../base/common/platform.js";
 import { format2 } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ExtHostLocalizationShape, IStringDetails, MainContext, MainThreadLocalizationShape } from "./extHost.protocol.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 let ExtHostLocalizationService = class {
@@ -46,9 +45,7 @@ let ExtHostLocalizationService = class {
     }
     const str = this.bundleCache.get(extensionId)?.contents[key];
     if (!str) {
-      this.logService.warn(
-        `Using default string since no string found in i18n bundle that has the key: ${key}`
-      );
+      this.logService.warn(`Using default string since no string found in i18n bundle that has the key: ${key}`);
     }
     return format2(str ?? message, args ?? {});
   }
@@ -68,9 +65,7 @@ let ExtHostLocalizationService = class {
     let contents;
     const bundleUri = await this.getBundleLocation(extension);
     if (!bundleUri) {
-      this.logService.error(
-        `No bundle location found for extension ${extension.identifier.value}`
-      );
+      this.logService.error(`No bundle location found for extension ${extension.identifier.value}`);
       return;
     }
     try {
@@ -78,9 +73,7 @@ let ExtHostLocalizationService = class {
       const result = JSON.parse(response);
       contents = extension.isBuiltin ? result.contents?.bundle : result;
     } catch (e) {
-      this.logService.error(
-        `Failed to load translations for ${extension.identifier.value} from ${bundleUri}: ${e.message}`
-      );
+      this.logService.error(`Failed to load translations for ${extension.identifier.value} from ${bundleUri}: ${e.message}`);
       return;
     }
     if (contents) {
@@ -92,17 +85,10 @@ let ExtHostLocalizationService = class {
   }
   async getBundleLocation(extension) {
     if (extension.isBuiltin) {
-      const uri = await this._proxy.$fetchBuiltInBundleUri(
-        extension.identifier.value,
-        this.currentLanguage
-      );
+      const uri = await this._proxy.$fetchBuiltInBundleUri(extension.identifier.value, this.currentLanguage);
       return URI.revive(uri);
     }
-    return extension.l10n ? URI.joinPath(
-      extension.extensionLocation,
-      extension.l10n,
-      `bundle.l10n.${this.currentLanguage}.json`
-    ) : void 0;
+    return extension.l10n ? URI.joinPath(extension.extensionLocation, extension.l10n, `bundle.l10n.${this.currentLanguage}.json`) : void 0;
   }
 };
 ExtHostLocalizationService = __decorateClass([

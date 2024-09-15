@@ -11,50 +11,37 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { $, append, hide, show } from "../../../../base/browser/dom.js";
-import {
-  IconLabel
-} from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IconLabel, IIconLabelValueOptions } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { createMatches } from "../../../../base/common/filters.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { CompletionItemKind, CompletionItemKinds, CompletionItemTag } from "../../../common/languages.js";
+import { getIconClasses } from "../../../common/services/getIconClasses.js";
+import { IModelService } from "../../../common/services/model.js";
+import { ILanguageService } from "../../../common/languages/language.js";
 import * as nls from "../../../../nls.js";
 import { FileKind } from "../../../../platform/files/common/files.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import {
-  CompletionItemKind,
-  CompletionItemKinds,
-  CompletionItemTag
-} from "../../../common/languages.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import { getIconClasses } from "../../../common/services/getIconClasses.js";
-import { IModelService } from "../../../common/services/model.js";
+import { CompletionItem } from "./suggest.js";
 import { canExpandCompletionItem } from "./suggestWidgetDetails.js";
 function getAriaId(index) {
   return `suggest-aria-id:${index}`;
 }
 __name(getAriaId, "getAriaId");
-const suggestMoreInfoIcon = registerIcon(
-  "suggest-more-info",
-  Codicon.chevronRight,
-  nls.localize(
-    "suggestMoreInfoIcon",
-    "Icon for more information in the suggest widget."
-  )
-);
+const suggestMoreInfoIcon = registerIcon("suggest-more-info", Codicon.chevronRight, nls.localize("suggestMoreInfoIcon", "Icon for more information in the suggest widget."));
 const _completionItemColor = new class ColorExtractor {
   static {
     __name(this, "ColorExtractor");
   }
   static _regexRelaxed = /(#([\da-fA-F]{3}){1,2}|(rgb|hsl)a\(\s*(\d{1,3}%?\s*,\s*){3}(1|0?\.\d+)\)|(rgb|hsl)\(\s*\d{1,3}%?(\s*,\s*\d{1,3}%?){2}\s*\))/;
-  static _regexStrict = new RegExp(
-    `^${ColorExtractor._regexRelaxed.source}$`,
-    "i"
-  );
+  static _regexStrict = new RegExp(`^${ColorExtractor._regexRelaxed.source}$`, "i");
   extract(item, out) {
     if (item.textLabel.match(ColorExtractor._regexStrict)) {
       out[0] = item.textLabel;
@@ -102,18 +89,12 @@ let ItemRenderer = class {
     const iconContainer = append(main, $(".icon-label.codicon"));
     const left = append(main, $("span.left"));
     const right = append(main, $("span.right"));
-    const iconLabel = new IconLabel(left, {
-      supportHighlights: true,
-      supportIcons: true
-    });
+    const iconLabel = new IconLabel(left, { supportHighlights: true, supportIcons: true });
     disposables.add(iconLabel);
     const parametersLabel = append(left, $("span.signature-label"));
     const qualifierLabel = append(left, $("span.qualifier-label"));
     const detailsLabel = append(right, $("span.details-label"));
-    const readMore = append(
-      right,
-      $("span.readMore" + ThemeIcon.asCSSSelector(suggestMoreInfoIcon))
-    );
+    const readMore = append(right, $("span.readMore" + ThemeIcon.asCSSSelector(suggestMoreInfoIcon)));
     readMore.title = nls.localize("readMore", "Read More");
     const configureFont = /* @__PURE__ */ __name(() => {
       const options = this._editor.getOptions();
@@ -138,21 +119,7 @@ let ItemRenderer = class {
       readMore.style.height = lineHeightPx;
       readMore.style.width = lineHeightPx;
     }, "configureFont");
-    return {
-      root,
-      left,
-      right,
-      icon,
-      colorspan,
-      iconLabel,
-      iconContainer,
-      parametersLabel,
-      qualifierLabel,
-      detailsLabel,
-      readMore,
-      disposables,
-      configureFont
-    };
+    return { root, left, right, icon, colorspan, iconLabel, iconContainer, parametersLabel, qualifierLabel, detailsLabel, readMore, disposables, configureFont };
   }
   renderElement(element, index, data) {
     data.configureFont();
@@ -171,45 +138,20 @@ let ItemRenderer = class {
     } else if (completion.kind === CompletionItemKind.File && this._themeService.getFileIconTheme().hasFileIcons) {
       data.icon.className = "icon hide";
       data.iconContainer.className = "icon hide";
-      const labelClasses = getIconClasses(
-        this._modelService,
-        this._languageService,
-        URI.from({ scheme: "fake", path: element.textLabel }),
-        FileKind.FILE
-      );
-      const detailClasses = getIconClasses(
-        this._modelService,
-        this._languageService,
-        URI.from({ scheme: "fake", path: completion.detail }),
-        FileKind.FILE
-      );
+      const labelClasses = getIconClasses(this._modelService, this._languageService, URI.from({ scheme: "fake", path: element.textLabel }), FileKind.FILE);
+      const detailClasses = getIconClasses(this._modelService, this._languageService, URI.from({ scheme: "fake", path: completion.detail }), FileKind.FILE);
       labelOptions.extraClasses = labelClasses.length > detailClasses.length ? labelClasses : detailClasses;
     } else if (completion.kind === CompletionItemKind.Folder && this._themeService.getFileIconTheme().hasFolderIcons) {
       data.icon.className = "icon hide";
       data.iconContainer.className = "icon hide";
       labelOptions.extraClasses = [
-        getIconClasses(
-          this._modelService,
-          this._languageService,
-          URI.from({ scheme: "fake", path: element.textLabel }),
-          FileKind.FOLDER
-        ),
-        getIconClasses(
-          this._modelService,
-          this._languageService,
-          URI.from({ scheme: "fake", path: completion.detail }),
-          FileKind.FOLDER
-        )
+        getIconClasses(this._modelService, this._languageService, URI.from({ scheme: "fake", path: element.textLabel }), FileKind.FOLDER),
+        getIconClasses(this._modelService, this._languageService, URI.from({ scheme: "fake", path: completion.detail }), FileKind.FOLDER)
       ].flat();
     } else {
       data.icon.className = "icon hide";
       data.iconContainer.className = "";
-      data.iconContainer.classList.add(
-        "suggest-icon",
-        ...ThemeIcon.asClassNameArray(
-          CompletionItemKinds.toIcon(completion.kind)
-        )
-      );
+      data.iconContainer.classList.add("suggest-icon", ...ThemeIcon.asClassNameArray(CompletionItemKinds.toIcon(completion.kind)));
     }
     if (completion.tags && completion.tags.indexOf(CompletionItemTag.Deprecated) >= 0) {
       labelOptions.extraClasses = (labelOptions.extraClasses || []).concat(["deprecated"]);
@@ -218,17 +160,11 @@ let ItemRenderer = class {
     data.iconLabel.setLabel(element.textLabel, void 0, labelOptions);
     if (typeof completion.label === "string") {
       data.parametersLabel.textContent = "";
-      data.detailsLabel.textContent = stripNewLines(
-        completion.detail || ""
-      );
+      data.detailsLabel.textContent = stripNewLines(completion.detail || "");
       data.root.classList.add("string-label");
     } else {
-      data.parametersLabel.textContent = stripNewLines(
-        completion.label.detail || ""
-      );
-      data.detailsLabel.textContent = stripNewLines(
-        completion.label.description || ""
-      );
+      data.parametersLabel.textContent = stripNewLines(completion.label.detail || "");
+      data.detailsLabel.textContent = stripNewLines(completion.label.description || "");
       data.root.classList.remove("string-label");
     }
     if (this._editor.getOption(EditorOption.suggest).showInlineDetails) {

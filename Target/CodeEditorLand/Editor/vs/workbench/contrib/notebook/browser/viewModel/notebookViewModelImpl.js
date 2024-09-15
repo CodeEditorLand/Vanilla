@@ -12,59 +12,35 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { groupBy } from "../../../../../base/common/collections.js";
 import { onUnexpectedError } from "../../../../../base/common/errors.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../../base/common/numbers.js";
 import * as strings from "../../../../../base/common/strings.js";
-import {
-  IBulkEditService,
-  ResourceTextEdit
-} from "../../../../../editor/browser/services/bulkEditService.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import {
-  TrackedRangeStickiness
-} from "../../../../../editor/common/model.js";
-import {
-  MultiModelEditStackElement,
-  SingleModelEditStackElement
-} from "../../../../../editor/common/model/editStack.js";
-import {
-  IntervalNode,
-  IntervalTree
-} from "../../../../../editor/common/model/intervalTree.js";
+import * as editorCommon from "../../../../../editor/common/editorCommon.js";
+import { IWorkspaceTextEdit } from "../../../../../editor/common/languages.js";
+import { FindMatch, IModelDecorationOptions, IModelDeltaDecoration, TrackedRangeStickiness } from "../../../../../editor/common/model.js";
+import { MultiModelEditStackElement, SingleModelEditStackElement } from "../../../../../editor/common/model/editStack.js";
+import { IntervalNode, IntervalTree } from "../../../../../editor/common/model/intervalTree.js";
 import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { FoldingRegions } from "../../../../../editor/contrib/folding/browser/foldingRanges.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import {
-  CellKind,
-  NotebookCellsChangeType,
-  NotebookFindScopeType,
-  SelectionStateType
-} from "../../common/notebookCommon.js";
-import {
-  INotebookExecutionStateService,
-  NotebookExecutionType
-} from "../../common/notebookExecutionStateService.js";
-import {
-  cellIndexesToRanges,
-  cellRangesToIndexes,
-  reduceCellRanges
-} from "../../common/notebookRange.js";
 import { CellFindMatchModel } from "../contrib/find/findModel.js";
-import {
-  CellEditState,
-  CellFoldingState
-} from "../notebookBrowser.js";
-import {
-  NotebookMetadataChangedEvent
-} from "../notebookViewEvents.js";
+import { CellEditState, CellFindMatchWithIndex, CellFoldingState, EditorFoldingStateDelegate, ICellModelDecorations, ICellModelDeltaDecorations, ICellViewModel, IModelDecorationsChangeAccessor, INotebookDeltaCellStatusBarItems, INotebookDeltaDecoration, INotebookEditorViewState, INotebookViewCellsUpdateEvent, INotebookViewModel } from "../notebookBrowser.js";
+import { NotebookLayoutInfo, NotebookMetadataChangedEvent } from "../notebookViewEvents.js";
 import { NotebookCellSelectionCollection } from "./cellSelectionCollection.js";
 import { CodeCellViewModel } from "./codeCellViewModel.js";
 import { MarkupCellViewModel } from "./markupCellViewModel.js";
+import { ViewContext } from "./viewContext.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
+import { CellKind, ICell, INotebookFindOptions, ISelectionState, NotebookCellsChangeType, NotebookCellTextModelSplice, NotebookFindScopeType, SelectionStateType } from "../../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../common/notebookExecutionStateService.js";
+import { cellIndexesToRanges, cellRangesToIndexes, ICellRange, reduceCellRanges } from "../../common/notebookRange.js";
 const invalidFunc = /* @__PURE__ */ __name(() => {
   throw new Error(`Invalid change accessor`);
 }, "invalidFunc");
@@ -77,23 +53,11 @@ class DecorationsTree {
     this._decorationsTree = new IntervalTree();
   }
   intervalSearch(start, end, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations = false) {
-    const r1 = this._decorationsTree.intervalSearch(
-      start,
-      end,
-      filterOwnerId,
-      filterOutValidation,
-      cachedVersionId,
-      onlyMarginDecorations
-    );
+    const r1 = this._decorationsTree.intervalSearch(start, end, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
     return r1;
   }
   search(filterOwnerId, filterOutValidation, overviewRulerOnly, cachedVersionId, onlyMarginDecorations) {
-    return this._decorationsTree.search(
-      filterOwnerId,
-      filterOutValidation,
-      cachedVersionId,
-      onlyMarginDecorations
-    );
+    return this._decorationsTree.search(filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
   }
   collectNodesFromOwner(ownerId) {
     const r1 = this._decorationsTree.collectNodesFromOwner(ownerId);
@@ -113,31 +77,14 @@ class DecorationsTree {
     this._decorationsTree.resolveNode(node, cachedVersionId);
   }
   acceptReplace(offset, length, textLength, forceMoveMarkers) {
-    this._decorationsTree.acceptReplace(
-      offset,
-      length,
-      textLength,
-      forceMoveMarkers
-    );
+    this._decorationsTree.acceptReplace(offset, length, textLength, forceMoveMarkers);
   }
 }
 const TRACKED_RANGE_OPTIONS = [
-  ModelDecorationOptions.register({
-    description: "notebook-view-model-tracked-range-always-grows-when-typing-at-edges",
-    stickiness: TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges
-  }),
-  ModelDecorationOptions.register({
-    description: "notebook-view-model-tracked-range-never-grows-when-typing-at-edges",
-    stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-  }),
-  ModelDecorationOptions.register({
-    description: "notebook-view-model-tracked-range-grows-only-when-typing-before",
-    stickiness: TrackedRangeStickiness.GrowsOnlyWhenTypingBefore
-  }),
-  ModelDecorationOptions.register({
-    description: "notebook-view-model-tracked-range-grows-only-when-typing-after",
-    stickiness: TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
-  })
+  ModelDecorationOptions.register({ description: "notebook-view-model-tracked-range-always-grows-when-typing-at-edges", stickiness: TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges }),
+  ModelDecorationOptions.register({ description: "notebook-view-model-tracked-range-never-grows-when-typing-at-edges", stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges }),
+  ModelDecorationOptions.register({ description: "notebook-view-model-tracked-range-grows-only-when-typing-before", stickiness: TrackedRangeStickiness.GrowsOnlyWhenTypingBefore }),
+  ModelDecorationOptions.register({ description: "notebook-view-model-tracked-range-grows-only-when-typing-after", stickiness: TrackedRangeStickiness.GrowsOnlyWhenTypingAfter })
 ];
 function _normalizeOptions(options) {
   if (options instanceof ModelDecorationOptions) {
@@ -165,31 +112,13 @@ let NotebookViewModel = class extends Disposable {
     this.replView = !!this.options.inRepl;
     const compute = /* @__PURE__ */ __name((changes, synchronous) => {
       const diffs = changes.map((splice) => {
-        return [
-          splice[0],
-          splice[1],
-          splice[2].map((cell) => {
-            return createCellViewModel(
-              this._instantiationService,
-              this,
-              cell,
-              this._viewContext
-            );
-          })
-        ];
+        return [splice[0], splice[1], splice[2].map((cell) => {
+          return createCellViewModel(this._instantiationService, this, cell, this._viewContext);
+        })];
       });
       diffs.reverse().forEach((diff) => {
-        const deletedCells = this._viewCells.splice(
-          diff[0],
-          diff[1],
-          ...diff[2]
-        );
-        this._decorationsTree.acceptReplace(
-          diff[0],
-          diff[1],
-          diff[2].length,
-          true
-        );
+        const deletedCells = this._viewCells.splice(diff[0], diff[1], ...diff[2]);
+        this._decorationsTree.acceptReplace(diff[0], diff[1], diff[2].length, true);
         deletedCells.forEach((cell) => {
           this._handleToViewCellMapping.delete(cell.handle);
           cell.dispose();
@@ -207,9 +136,7 @@ let NotebookViewModel = class extends Disposable {
       let endSelectionHandles = [];
       if (selectionHandles.length) {
         const primaryHandle = selectionHandles[0];
-        const primarySelectionIndex = this._viewCells.indexOf(
-          this.getCellByHandle(primaryHandle)
-        );
+        const primarySelectionIndex = this._viewCells.indexOf(this.getCellByHandle(primaryHandle));
         endSelectionHandles = [primaryHandle];
         let delta = 0;
         for (let i = 0; i < diffs.length; i++) {
@@ -223,120 +150,76 @@ let NotebookViewModel = class extends Disposable {
             break;
           }
           if (diff[0] + diff[1] > primarySelectionIndex) {
-            endSelectionHandles = [
-              this._viewCells[diff[0] + delta].handle
-            ];
+            endSelectionHandles = [this._viewCells[diff[0] + delta].handle];
             break;
           }
         }
       }
-      const selectionIndexes = endSelectionHandles.map(
-        (handle) => this._viewCells.findIndex((cell) => cell.handle === handle)
-      );
-      this._selectionCollection.setState(
-        cellIndexesToRanges([selectionIndexes[0]])[0],
-        cellIndexesToRanges(selectionIndexes),
-        true,
-        "model"
-      );
+      const selectionIndexes = endSelectionHandles.map((handle) => this._viewCells.findIndex((cell) => cell.handle === handle));
+      this._selectionCollection.setState(cellIndexesToRanges([selectionIndexes[0]])[0], cellIndexesToRanges(selectionIndexes), true, "model");
     }, "compute");
-    this._register(
-      this._notebook.onDidChangeContent((e) => {
-        for (let i = 0; i < e.rawEvents.length; i++) {
-          const change = e.rawEvents[i];
-          let changes = [];
-          const synchronous = e.synchronous ?? true;
-          if (change.kind === NotebookCellsChangeType.ModelChange || change.kind === NotebookCellsChangeType.Initialize) {
-            changes = change.changes;
-            compute(changes, synchronous);
-            continue;
-          } else if (change.kind === NotebookCellsChangeType.Move) {
-            compute(
-              [[change.index, change.length, []]],
-              synchronous
-            );
-            compute(
-              [[change.newIdx, 0, change.cells]],
-              synchronous
-            );
-          } else {
-            continue;
+    this._register(this._notebook.onDidChangeContent((e) => {
+      for (let i = 0; i < e.rawEvents.length; i++) {
+        const change = e.rawEvents[i];
+        let changes = [];
+        const synchronous = e.synchronous ?? true;
+        if (change.kind === NotebookCellsChangeType.ModelChange || change.kind === NotebookCellsChangeType.Initialize) {
+          changes = change.changes;
+          compute(changes, synchronous);
+          continue;
+        } else if (change.kind === NotebookCellsChangeType.Move) {
+          compute([[change.index, change.length, []]], synchronous);
+          compute([[change.newIdx, 0, change.cells]], synchronous);
+        } else {
+          continue;
+        }
+      }
+    }));
+    this._register(this._notebook.onDidChangeContent((contentChanges) => {
+      contentChanges.rawEvents.forEach((e) => {
+        if (e.kind === NotebookCellsChangeType.ChangeDocumentMetadata) {
+          this._viewContext.eventDispatcher.emit([new NotebookMetadataChangedEvent(this._notebook.metadata)]);
+        }
+      });
+      if (contentChanges.endSelectionState) {
+        this.updateSelectionsState(contentChanges.endSelectionState);
+      }
+    }));
+    this._register(this._viewContext.eventDispatcher.onDidChangeLayout((e) => {
+      this._layoutInfo = e.value;
+      this._viewCells.forEach((cell) => {
+        if (cell.cellKind === CellKind.Markup) {
+          if (e.source.width || e.source.fontInfo) {
+            cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
+          }
+        } else {
+          if (e.source.width !== void 0) {
+            cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
           }
         }
-      })
-    );
-    this._register(
-      this._notebook.onDidChangeContent((contentChanges) => {
-        contentChanges.rawEvents.forEach((e) => {
-          if (e.kind === NotebookCellsChangeType.ChangeDocumentMetadata) {
-            this._viewContext.eventDispatcher.emit([
-              new NotebookMetadataChangedEvent(
-                this._notebook.metadata
-              )
-            ]);
-          }
-        });
-        if (contentChanges.endSelectionState) {
-          this.updateSelectionsState(
-            contentChanges.endSelectionState
-          );
-        }
-      })
-    );
-    this._register(
-      this._viewContext.eventDispatcher.onDidChangeLayout((e) => {
-        this._layoutInfo = e.value;
-        this._viewCells.forEach((cell) => {
-          if (cell.cellKind === CellKind.Markup) {
-            if (e.source.width || e.source.fontInfo) {
-              cell.layoutChange({
-                outerWidth: e.value.width,
-                font: e.value.fontInfo
-              });
-            }
-          } else if (e.source.width !== void 0) {
-            cell.layoutChange({
-              outerWidth: e.value.width,
-              font: e.value.fontInfo
-            });
-          }
-        });
-      })
-    );
-    this._register(
-      this._viewContext.notebookOptions.onDidChangeOptions((e) => {
-        for (let i = 0; i < this.length; i++) {
-          const cell = this._viewCells[i];
-          cell.updateOptions(e);
-        }
-      })
-    );
-    this._register(
-      notebookExecutionStateService.onDidChangeExecution((e) => {
-        if (e.type !== NotebookExecutionType.cell) {
-          return;
-        }
-        const cell = this.getCellByHandle(e.cellHandle);
-        if (cell instanceof CodeCellViewModel) {
-          cell.updateExecutionState(e);
-        }
-      })
-    );
-    this._register(
-      this._selectionCollection.onDidChangeSelection((e) => {
-        this._onDidChangeSelection.fire(e);
-      })
-    );
+      });
+    }));
+    this._register(this._viewContext.notebookOptions.onDidChangeOptions((e) => {
+      for (let i = 0; i < this.length; i++) {
+        const cell = this._viewCells[i];
+        cell.updateOptions(e);
+      }
+    }));
+    this._register(notebookExecutionStateService.onDidChangeExecution((e) => {
+      if (e.type !== NotebookExecutionType.cell) {
+        return;
+      }
+      const cell = this.getCellByHandle(e.cellHandle);
+      if (cell instanceof CodeCellViewModel) {
+        cell.updateExecutionState(e);
+      }
+    }));
+    this._register(this._selectionCollection.onDidChangeSelection((e) => {
+      this._onDidChangeSelection.fire(e);
+    }));
     const viewCellCount = this.replView ? this._notebook.cells.length - 1 : this._notebook.cells.length;
     for (let i = 0; i < viewCellCount; i++) {
-      this._viewCells.push(
-        createCellViewModel(
-          this._instantiationService,
-          this,
-          this._notebook.cells[i],
-          this._viewContext
-        )
-      );
+      this._viewCells.push(createCellViewModel(this._instantiationService, this, this._notebook.cells[i], this._viewContext));
     }
     this._viewCells.forEach((cell) => {
       this._handleToViewCellMapping.set(cell.handle, cell);
@@ -371,9 +254,7 @@ let NotebookViewModel = class extends Disposable {
   get metadata() {
     return this._notebook.metadata;
   }
-  _onDidChangeViewCells = this._register(
-    new Emitter()
-  );
+  _onDidChangeViewCells = this._register(new Emitter());
   get onDidChangeViewCells() {
     return this._onDidChangeViewCells.event;
   }
@@ -387,21 +268,15 @@ let NotebookViewModel = class extends Disposable {
   get layoutInfo() {
     return this._layoutInfo;
   }
-  _onDidChangeSelection = this._register(
-    new Emitter()
-  );
+  _onDidChangeSelection = this._register(new Emitter());
   get onDidChangeSelection() {
     return this._onDidChangeSelection.event;
   }
-  _selectionCollection = this._register(
-    new NotebookCellSelectionCollection()
-  );
+  _selectionCollection = this._register(new NotebookCellSelectionCollection());
   get selectionHandles() {
     const handlesSet = /* @__PURE__ */ new Set();
     const handles = [];
-    cellRangesToIndexes(this._selectionCollection.selections).map(
-      (index) => index < this.length ? this.cellAt(index) : void 0
-    ).forEach((cell) => {
+    cellRangesToIndexes(this._selectionCollection.selections).map((index) => index < this.length ? this.cellAt(index) : void 0).forEach((cell) => {
       if (cell && !handlesSet.has(cell.handle)) {
         handles.push(cell.handle);
       }
@@ -409,14 +284,8 @@ let NotebookViewModel = class extends Disposable {
     return handles;
   }
   set selectionHandles(selectionHandles) {
-    const indexes = selectionHandles.map(
-      (handle) => this._viewCells.findIndex((cell) => cell.handle === handle)
-    );
-    this._selectionCollection.setSelections(
-      cellIndexesToRanges(indexes),
-      true,
-      "model"
-    );
+    const indexes = selectionHandles.map((handle) => this._viewCells.findIndex((cell) => cell.handle === handle));
+    this._selectionCollection.setSelections(cellIndexesToRanges(indexes), true, "model");
   }
   _decorationsTree = new DecorationsTree();
   _decorations = /* @__PURE__ */ Object.create(null);
@@ -463,30 +332,13 @@ let NotebookViewModel = class extends Disposable {
     if (this._focused || source === "model") {
       if (state.kind === SelectionStateType.Handle) {
         const primaryIndex = state.primary !== null ? this.getCellIndexByHandle(state.primary) : null;
-        const primarySelection = primaryIndex !== null ? this.validateRange({
-          start: primaryIndex,
-          end: primaryIndex + 1
-        }) : null;
-        const selections = cellIndexesToRanges(
-          state.selections.map(
-            (sel) => this.getCellIndexByHandle(sel)
-          )
-        ).map((range) => this.validateRange(range)).filter((range) => range !== null);
-        this._selectionCollection.setState(
-          primarySelection,
-          reduceCellRanges(selections),
-          true,
-          source
-        );
+        const primarySelection = primaryIndex !== null ? this.validateRange({ start: primaryIndex, end: primaryIndex + 1 }) : null;
+        const selections = cellIndexesToRanges(state.selections.map((sel) => this.getCellIndexByHandle(sel))).map((range) => this.validateRange(range)).filter((range) => range !== null);
+        this._selectionCollection.setState(primarySelection, reduceCellRanges(selections), true, source);
       } else {
         const primarySelection = this.validateRange(state.focus);
         const selections = state.selections.map((range) => this.validateRange(range)).filter((range) => range !== null);
-        this._selectionCollection.setState(
-          primarySelection,
-          reduceCellRanges(selections),
-          true,
-          source
-        );
+        this._selectionCollection.setState(primarySelection, reduceCellRanges(selections), true, source);
       }
     }
   }
@@ -540,10 +392,7 @@ let NotebookViewModel = class extends Disposable {
         k++;
       } else {
         updateHiddenAreas = true;
-        newHiddenAreas.push({
-          start: startLineNumber - 1,
-          end: endLineNumber - 1
-        });
+        newHiddenAreas.push({ start: startLineNumber - 1, end: endLineNumber - 1 });
       }
       lastCollapsedStart = startLineNumber;
       lastCollapsedEnd = endLineNumber;
@@ -656,15 +505,9 @@ let NotebookViewModel = class extends Disposable {
       this._decorationsTree.resolveNode(node, versionId);
     }
     if (node.range === null) {
-      return {
-        start: node.cachedAbsoluteStart - 1,
-        end: node.cachedAbsoluteEnd - 1
-      };
+      return { start: node.cachedAbsoluteStart - 1, end: node.cachedAbsoluteEnd - 1 };
     }
-    return {
-      start: node.range.startLineNumber - 1,
-      end: node.range.endLineNumber - 1
-    };
+    return { start: node.range.startLineNumber - 1, end: node.range.endLineNumber - 1 };
   }
   setTrackedRange(id, newRange, newStickiness) {
     const node = id ? this._decorations[id] : null;
@@ -672,21 +515,7 @@ let NotebookViewModel = class extends Disposable {
       if (!newRange) {
         return null;
       }
-      return this._deltaCellDecorationsImpl(
-        0,
-        [],
-        [
-          {
-            range: new Range(
-              newRange.start + 1,
-              1,
-              newRange.end + 1,
-              1
-            ),
-            options: TRACKED_RANGE_OPTIONS[newStickiness]
-          }
-        ]
-      )[0];
+      return this._deltaCellDecorationsImpl(0, [], [{ range: new Range(newRange.start + 1, 1, newRange.end + 1, 1), options: TRACKED_RANGE_OPTIONS[newStickiness] }])[0];
     }
     if (!newRange) {
       this._decorationsTree.delete(node);
@@ -694,12 +523,7 @@ let NotebookViewModel = class extends Disposable {
       return null;
     }
     this._decorationsTree.delete(node);
-    node.reset(
-      this.getVersionId(),
-      newRange.start,
-      newRange.end + 1,
-      new Range(newRange.start + 1, 1, newRange.end + 1, 1)
-    );
+    node.reset(this.getVersionId(), newRange.start, newRange.end + 1, new Range(newRange.start + 1, 1, newRange.end + 1, 1));
     node.setOptions(TRACKED_RANGE_OPTIONS[newStickiness]);
     this._decorationsTree.insert(node);
     return node.id;
@@ -732,18 +556,15 @@ let NotebookViewModel = class extends Disposable {
         const range = newDecoration.range;
         const options = _normalizeOptions(newDecoration.options);
         node.ownerId = ownerId;
-        node.reset(
-          versionId,
-          range.startLineNumber,
-          range.endLineNumber,
-          Range.lift(range)
-        );
+        node.reset(versionId, range.startLineNumber, range.endLineNumber, Range.lift(range));
         node.setOptions(options);
         this._decorationsTree.insert(node);
         result[newDecorationIndex] = node.id;
         newDecorationIndex++;
-      } else if (node) {
-        delete this._decorations[node.id];
+      } else {
+        if (node) {
+          delete this._decorations[node.id];
+        }
       }
     }
     return result;
@@ -769,10 +590,7 @@ let NotebookViewModel = class extends Disposable {
     return result;
   }
   deltaCellStatusBarItems(oldItems, newItems) {
-    const deletesByHandle = groupBy(
-      oldItems,
-      (id) => this._statusBarItemIdToCellMap.get(id) ?? -1
-    );
+    const deletesByHandle = groupBy(oldItems, (id) => this._statusBarItemIdToCellMap.get(id) ?? -1);
     const result = [];
     newItems.forEach((itemDelta) => {
       const cell = this.getCellByHandle(itemDelta.handle);
@@ -786,7 +604,7 @@ let NotebookViewModel = class extends Disposable {
       result.push(...ret);
     });
     for (const _handle in deletesByHandle) {
-      const handle = Number.parseInt(_handle);
+      const handle = parseInt(_handle);
       const ids = deletesByHandle[handle];
       const cell = this.getCellByHandle(handle);
       cell?.deltaCellStatusBarItems(ids, []);
@@ -826,10 +644,7 @@ let NotebookViewModel = class extends Disposable {
       }
     });
     const editorViewStates = {};
-    this._viewCells.map((cell) => ({
-      handle: cell.model.handle,
-      state: cell.saveEditorViewState()
-    })).forEach((viewState, i) => {
+    this._viewCells.map((cell) => ({ handle: cell.model.handle, state: cell.saveEditorViewState() })).forEach((viewState, i) => {
       if (viewState.state) {
         editorViewStates[i] = viewState.state;
       }
@@ -849,10 +664,7 @@ let NotebookViewModel = class extends Disposable {
     this._viewCells.forEach((cell, index) => {
       const isEditing = viewState.editingCells && viewState.editingCells[index];
       const editorViewState = viewState.editorViewStates && viewState.editorViewStates[index];
-      cell.updateEditState(
-        isEditing ? CellEditState.Editing : CellEditState.Preview,
-        "viewState"
-      );
+      cell.updateEditState(isEditing ? CellEditState.Editing : CellEditState.Preview, "viewState");
       const cellHeight = viewState.cellTotalHeights ? viewState.cellTotalHeights[index] : void 0;
       cell.restoreEditorViewState(editorViewState, cellHeight);
       if (viewState.collapsedInputCells && viewState.collapsedInputCells[index]) {
@@ -873,10 +685,7 @@ let NotebookViewModel = class extends Disposable {
   changeModelDecorations(callback) {
     const changeAccessor = {
       deltaDecorations: /* @__PURE__ */ __name((oldDecorations, newDecorations) => {
-        return this._deltaModelDecorationsImpl(
-          oldDecorations,
-          newDecorations
-        );
+        return this._deltaModelDecorationsImpl(oldDecorations, newDecorations);
       }, "deltaDecorations")
     };
     let result = null;
@@ -893,15 +702,9 @@ let NotebookViewModel = class extends Disposable {
     oldDecorations.forEach((oldDecoration) => {
       const ownerId = oldDecoration.ownerId;
       if (!mapping.has(ownerId)) {
-        const cell = this._viewCells.find(
-          (cell2) => cell2.handle === ownerId
-        );
+        const cell = this._viewCells.find((cell2) => cell2.handle === ownerId);
         if (cell) {
-          mapping.set(ownerId, {
-            cell,
-            oldDecorations: [],
-            newDecorations: []
-          });
+          mapping.set(ownerId, { cell, oldDecorations: [], newDecorations: [] });
         }
       }
       const data = mapping.get(ownerId);
@@ -912,15 +715,9 @@ let NotebookViewModel = class extends Disposable {
     newDecorations.forEach((newDecoration) => {
       const ownerId = newDecoration.ownerId;
       if (!mapping.has(ownerId)) {
-        const cell = this._viewCells.find(
-          (cell2) => cell2.handle === ownerId
-        );
+        const cell = this._viewCells.find((cell2) => cell2.handle === ownerId);
         if (cell) {
-          mapping.set(ownerId, {
-            cell,
-            oldDecorations: [],
-            newDecorations: []
-          });
+          mapping.set(ownerId, { cell, oldDecorations: [], newDecorations: [] });
         }
       }
       const data = mapping.get(ownerId);
@@ -930,10 +727,7 @@ let NotebookViewModel = class extends Disposable {
     });
     const ret = [];
     mapping.forEach((value, ownerId) => {
-      const cellRet = value.cell.deltaModelDecorations(
-        value.oldDecorations,
-        value.newDecorations
-      );
+      const cellRet = value.cell.deltaModelDecorations(value.oldDecorations, value.newDecorations);
       ret.push({
         ownerId,
         decorations: cellRet
@@ -955,26 +749,26 @@ let NotebookViewModel = class extends Disposable {
     findCells.forEach((cell, index) => {
       const cellMatches = cell.startFind(value, options);
       if (cellMatches) {
-        matches.push(
-          new CellFindMatchModel(
-            cellMatches.cell,
-            index,
-            cellMatches.contentMatches,
-            []
-          )
-        );
+        matches.push(new CellFindMatchModel(
+          cellMatches.cell,
+          index,
+          cellMatches.contentMatches,
+          []
+        ));
       }
     });
-    return matches.filter((match) => {
-      if (match.cell.cellKind === CellKind.Code) {
-        return options.includeCodeInput;
+    return matches.filter(
+      (match) => {
+        if (match.cell.cellKind === CellKind.Code) {
+          return options.includeCodeInput;
+        }
+        if (match.cell.getEditState() === CellEditState.Editing) {
+          return options.includeMarkupInput;
+        } else {
+          return !options.includeMarkupPreview && options.includeMarkupInput;
+        }
       }
-      if (match.cell.getEditState() === CellEditState.Editing) {
-        return options.includeMarkupInput;
-      } else {
-        return !options.includeMarkupPreview && options.includeMarkupInput;
-      }
-    });
+    );
   }
   replaceOne(cell, range, text) {
     const viewCell = cell;
@@ -996,37 +790,23 @@ let NotebookViewModel = class extends Disposable {
       match.contentMatches.forEach((singleMatch, index) => {
         textEdits.push({
           versionId: void 0,
-          textEdit: {
-            range: singleMatch.range,
-            text: texts[index]
-          },
+          textEdit: { range: singleMatch.range, text: texts[index] },
           resource: match.cell.uri
         });
       });
     });
-    return Promise.all(
-      matches.map((match) => {
-        return match.cell.resolveTextModel();
-      })
-    ).then(async () => {
-      this._bulkEditService.apply(
-        { edits: textEdits },
-        { quotableLabel: "Notebook Replace All" }
-      );
+    return Promise.all(matches.map((match) => {
+      return match.cell.resolveTextModel();
+    })).then(async () => {
+      this._bulkEditService.apply({ edits: textEdits }, { quotableLabel: "Notebook Replace All" });
       return;
     });
   }
   //#endregion
   //#region Undo/Redo
   async _withElement(element, callback) {
-    const viewCells = this._viewCells.filter(
-      (cell) => element.matchesResource(cell.uri)
-    );
-    const refs = await Promise.all(
-      viewCells.map(
-        (cell) => this._textModelService.createModelReference(cell.uri)
-      )
-    );
+    const viewCells = this._viewCells.filter((cell) => element.matchesResource(cell.uri));
+    const refs = await Promise.all(viewCells.map((cell) => this._textModelService.createModelReference(cell.uri)));
     await callback();
     refs.forEach((ref) => ref.dispose());
   }
@@ -1075,22 +855,9 @@ NotebookViewModel = __decorateClass([
 ], NotebookViewModel);
 function createCellViewModel(instantiationService, notebookViewModel, cell, viewContext) {
   if (cell.cellKind === CellKind.Code) {
-    return instantiationService.createInstance(
-      CodeCellViewModel,
-      notebookViewModel.viewType,
-      cell,
-      notebookViewModel.layoutInfo,
-      viewContext
-    );
+    return instantiationService.createInstance(CodeCellViewModel, notebookViewModel.viewType, cell, notebookViewModel.layoutInfo, viewContext);
   } else {
-    return instantiationService.createInstance(
-      MarkupCellViewModel,
-      notebookViewModel.viewType,
-      cell,
-      notebookViewModel.layoutInfo,
-      notebookViewModel,
-      viewContext
-    );
+    return instantiationService.createInstance(MarkupCellViewModel, notebookViewModel.viewType, cell, notebookViewModel.layoutInfo, notebookViewModel, viewContext);
   }
 }
 __name(createCellViewModel, "createCellViewModel");

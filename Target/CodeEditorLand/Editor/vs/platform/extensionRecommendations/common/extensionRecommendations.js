@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 var RecommendationSource = /* @__PURE__ */ ((RecommendationSource2) => {
   RecommendationSource2[RecommendationSource2["FILE"] = 1] = "FILE";
@@ -26,9 +27,7 @@ var RecommendationsNotificationResult = /* @__PURE__ */ ((RecommendationsNotific
   RecommendationsNotificationResult2["Accepted"] = "reacted";
   return RecommendationsNotificationResult2;
 })(RecommendationsNotificationResult || {});
-const IExtensionRecommendationNotificationService = createDecorator(
-  "IExtensionRecommendationNotificationService"
-);
+const IExtensionRecommendationNotificationService = createDecorator("IExtensionRecommendationNotificationService");
 export {
   IExtensionRecommendationNotificationService,
   RecommendationSource,

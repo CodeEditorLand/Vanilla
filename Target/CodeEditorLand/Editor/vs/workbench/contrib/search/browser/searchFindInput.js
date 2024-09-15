@@ -1,12 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IFindInputOptions } from "../../../../base/browser/ui/findinput/findInput.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ContextScopedFindInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { NotebookFindFilters } from "../../notebook/browser/contrib/find/findFilters.js";
+import { NotebookFindInputFilterButton } from "../../notebook/browser/contrib/find/notebookFindReplaceWidget.js";
+import * as nls from "../../../../nls.js";
+import { IFindInputToggleOpts } from "../../../../base/browser/ui/findinput/findInputToggles.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { Toggle } from "../../../../base/browser/ui/toggle/toggle.js";
-import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
-import * as nls from "../../../../nls.js";
-import { ContextScopedFindInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
-import { NotebookFindInputFilterButton } from "../../notebook/browser/contrib/find/notebookFindReplaceWidget.js";
 const NLS_AI_TOGGLE_LABEL = nls.localize("aiDescription", "Use AI");
 class SearchFindInput extends ContextScopedFindInput {
   // followed, but overriden by the whether aiToggle is visible
@@ -21,10 +28,7 @@ class SearchFindInput extends ContextScopedFindInput {
         contextMenuService,
         instantiationService,
         options,
-        nls.localize(
-          "searchFindInputNotebookFilter.label",
-          "Notebook Find Filters"
-        )
+        nls.localize("searchFindInputNotebookFilter.label", "Notebook Find Filters")
       )
     );
     this._aiButton = this._register(
@@ -40,25 +44,23 @@ class SearchFindInput extends ContextScopedFindInput {
     this._findFilter.container.classList.add("monaco-custom-toggle");
     this.filterVisible = filterStartVisiblitity;
     this.sparkleVisible = shouldShowAIButton;
-    this._register(
-      this._aiButton.onChange(() => {
-        if (this.regex) {
-          this.regex.visible = !this._aiButton.checked;
-        }
-        if (this.wholeWords) {
-          this.wholeWords.visible = !this._aiButton.checked;
-        }
-        if (this.caseSensitive) {
-          this.caseSensitive.visible = !this._aiButton.checked;
-        }
-        if (this._aiButton.checked) {
-          this._findFilter.visible = false;
-        } else {
-          this.filterVisible = this.shouldNotebookFilterBeVisible;
-        }
-        this._updatePadding();
-      })
-    );
+    this._register(this._aiButton.onChange(() => {
+      if (this.regex) {
+        this.regex.visible = !this._aiButton.checked;
+      }
+      if (this.wholeWords) {
+        this.wholeWords.visible = !this._aiButton.checked;
+      }
+      if (this.caseSensitive) {
+        this.caseSensitive.visible = !this._aiButton.checked;
+      }
+      if (this._aiButton.checked) {
+        this._findFilter.visible = false;
+      } else {
+        this.filterVisible = this.shouldNotebookFilterBeVisible;
+      }
+      this._updatePadding();
+    }));
   }
   static {
     __name(this, "SearchFindInput");
@@ -66,9 +68,7 @@ class SearchFindInput extends ContextScopedFindInput {
   _findFilter;
   _aiButton;
   _filterChecked = false;
-  _onDidChangeAIToggle = this._register(
-    new Emitter()
-  );
+  _onDidChangeAIToggle = this._register(new Emitter());
   onDidChangeAIToggle = this._onDidChangeAIToggle.event;
   shouldNotebookFilterBeVisible = false;
   _updatePadding() {

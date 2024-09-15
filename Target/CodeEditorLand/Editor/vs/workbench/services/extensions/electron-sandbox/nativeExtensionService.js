@@ -16,108 +16,59 @@ import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as performance from "../../../../base/common/performance.js";
 import { isCI } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
 import { IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import {
-  INotificationService,
-  NotificationPriority,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, IPromptChoice, NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { PersistentConnectionEventType } from "../../../../platform/remote/common/remoteAgentConnection.js";
-import {
-  IRemoteAuthorityResolverService,
-  RemoteAuthorityResolverError,
-  RemoteConnectionType,
-  getRemoteAuthorityPrefix
-} from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
+import { IRemoteAuthorityResolverService, RemoteAuthorityResolverError, RemoteConnectionType, ResolverResult, getRemoteAuthorityPrefix } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { IRemoteExtensionsScannerService } from "../../../../platform/remote/common/remoteExtensionsScanner.js";
-import {
-  getRemoteName,
-  parseAuthorityWithPort
-} from "../../../../platform/remote/common/remoteHosts.js";
+import { getRemoteName, parseAuthorityWithPort } from "../../../../platform/remote/common/remoteHosts.js";
 import { updateProxyConfigurationsScope } from "../../../../platform/request/common/request.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import {
-  EnablementState,
-  IWorkbenchExtensionEnablementService,
-  IWorkbenchExtensionManagementService
-} from "../../extensionManagement/common/extensionManagement.js";
-import { IHostService } from "../../host/browser/host.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { IRemoteExplorerService } from "../../remote/common/remoteExplorerService.js";
-import {
-  WebWorkerExtensionHost
-} from "../browser/webWorkerExtensionHost.js";
-import {
-  AbstractExtensionService,
-  ExtensionHostCrashTracker,
-  ResolvedExtensions,
-  checkEnabledAndProposedAPI,
-  extensionIsEnabled
-} from "../common/abstractExtensionService.js";
+import { EnablementState, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { IWebWorkerExtensionHostDataProvider, IWebWorkerExtensionHostInitData, WebWorkerExtensionHost } from "../browser/webWorkerExtensionHost.js";
+import { AbstractExtensionService, ExtensionHostCrashTracker, IExtensionHostFactory, ResolvedExtensions, checkEnabledAndProposedAPI, extensionIsEnabled } from "../common/abstractExtensionService.js";
+import { ExtensionDescriptionRegistrySnapshot } from "../common/extensionDescriptionRegistry.js";
 import { parseExtensionDevOptions } from "../common/extensionDevOptions.js";
-import {
-  ExtensionHostKind,
-  ExtensionRunningPreference,
-  extensionHostKindToString,
-  extensionRunningPreferenceToString
-} from "../common/extensionHostKind.js";
+import { ExtensionHostKind, ExtensionRunningPreference, IExtensionHostKindPicker, extensionHostKindToString, extensionRunningPreferenceToString } from "../common/extensionHostKind.js";
+import { IExtensionHostManager } from "../common/extensionHostManagers.js";
 import { ExtensionHostExitCode } from "../common/extensionHostProtocol.js";
 import { IExtensionManifestPropertiesService } from "../common/extensionManifestPropertiesService.js";
-import {
-  filterExtensionDescriptions
-} from "../common/extensionRunningLocationTracker.js";
-import {
-  ExtensionHostExtensions,
-  ExtensionHostStartup,
-  IExtensionService,
-  toExtension,
-  webWorkerExtHostConfig
-} from "../common/extensions.js";
+import { ExtensionRunningLocation, LocalProcessRunningLocation, LocalWebWorkerRunningLocation } from "../common/extensionRunningLocation.js";
+import { ExtensionRunningLocationTracker, filterExtensionDescriptions } from "../common/extensionRunningLocationTracker.js";
+import { ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost, IExtensionService, WebWorkerExtHostConfigValue, toExtension, webWorkerExtHostConfig } from "../common/extensions.js";
 import { ExtensionsProposedApi } from "../common/extensionsProposedApi.js";
-import {
-  RemoteExtensionHost
-} from "../common/remoteExtensionHost.js";
+import { IRemoteExtensionHostDataProvider, IRemoteExtensionHostInitData, RemoteExtensionHost } from "../common/remoteExtensionHost.js";
 import { CachedExtensionScanner } from "./cachedExtensionScanner.js";
-import {
-  NativeLocalProcessExtensionHost
-} from "./localProcessExtensionHost.js";
+import { ILocalProcessExtensionHostDataProvider, ILocalProcessExtensionHostInitData, NativeLocalProcessExtensionHost } from "./localProcessExtensionHost.js";
+import { IHostService } from "../../host/browser/host.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IRemoteExplorerService } from "../../remote/common/remoteExplorerService.js";
 let NativeExtensionService = class extends AbstractExtensionService {
   constructor(instantiationService, notificationService, environmentService, telemetryService, extensionEnablementService, fileService, productService, extensionManagementService, contextService, configurationService, extensionManifestPropertiesService, logService, remoteAgentService, remoteExtensionsScannerService, lifecycleService, remoteAuthorityResolverService, _nativeHostService, _hostService, _remoteExplorerService, _extensionGalleryService, _workspaceTrustManagementService, dialogService) {
-    const extensionsProposedApi = instantiationService.createInstance(
-      ExtensionsProposedApi
-    );
-    const extensionScanner = instantiationService.createInstance(
-      CachedExtensionScanner
-    );
+    const extensionsProposedApi = instantiationService.createInstance(ExtensionsProposedApi);
+    const extensionScanner = instantiationService.createInstance(CachedExtensionScanner);
     const extensionHostFactory = new NativeExtensionHostFactory(
       extensionsProposedApi,
       extensionScanner,
@@ -133,11 +84,7 @@ let NativeExtensionService = class extends AbstractExtensionService {
     super(
       extensionsProposedApi,
       extensionHostFactory,
-      new NativeExtensionHostKindPicker(
-        environmentService,
-        configurationService,
-        logService
-      ),
+      new NativeExtensionHostKindPicker(environmentService, configurationService, logService),
       instantiationService,
       notificationService,
       environmentService,
@@ -169,6 +116,7 @@ let NativeExtensionService = class extends AbstractExtensionService {
           this._initialize();
         },
         50
+        /*max delay*/
       );
     });
   }
@@ -194,62 +142,36 @@ let NativeExtensionService = class extends AbstractExtensionService {
       if (code === ExtensionHostExitCode.VersionMismatch) {
         this._notificationService.prompt(
           Severity.Error,
-          nls.localize(
-            "extensionService.versionMismatchCrash",
-            "Extension host cannot start: version mismatch."
-          ),
-          [
-            {
-              label: nls.localize("relaunch", "Relaunch VS Code"),
-              run: /* @__PURE__ */ __name(() => {
-                this._instantiationService.invokeFunction(
-                  (accessor) => {
-                    const hostService = accessor.get(IHostService);
-                    hostService.restart();
-                  }
-                );
-              }, "run")
-            }
-          ]
+          nls.localize("extensionService.versionMismatchCrash", "Extension host cannot start: version mismatch."),
+          [{
+            label: nls.localize("relaunch", "Relaunch VS Code"),
+            run: /* @__PURE__ */ __name(() => {
+              this._instantiationService.invokeFunction((accessor) => {
+                const hostService = accessor.get(IHostService);
+                hostService.restart();
+              });
+            }, "run")
+          }]
         );
         return;
       }
       this._logExtensionHostCrash(extensionHost);
-      this._sendExtensionHostCrashTelemetry(
-        code,
-        signal,
-        activatedExtensions
-      );
+      this._sendExtensionHostCrashTelemetry(code, signal, activatedExtensions);
       this._localCrashTracker.registerCrash();
       if (this._localCrashTracker.shouldAutomaticallyRestart()) {
-        this._logService.info(
-          `Automatically restarting the extension host.`
-        );
-        this._notificationService.status(
-          nls.localize(
-            "extensionService.autoRestart",
-            "The extension host terminated unexpectedly. Restarting..."
-          ),
-          { hideAfter: 5e3 }
-        );
+        this._logService.info(`Automatically restarting the extension host.`);
+        this._notificationService.status(nls.localize("extensionService.autoRestart", "The extension host terminated unexpectedly. Restarting..."), { hideAfter: 5e3 });
         this.startExtensionHosts();
       } else {
         const choices = [];
         if (this._environmentService.isBuilt) {
           choices.push({
-            label: nls.localize(
-              "startBisect",
-              "Start Extension Bisect"
-            ),
+            label: nls.localize("startBisect", "Start Extension Bisect"),
             run: /* @__PURE__ */ __name(() => {
-              this._instantiationService.invokeFunction(
-                (accessor) => {
-                  const commandService = accessor.get(ICommandService);
-                  commandService.executeCommand(
-                    "extension.bisect.start"
-                  );
-                }
-              );
+              this._instantiationService.invokeFunction((accessor) => {
+                const commandService = accessor.get(ICommandService);
+                commandService.executeCommand("extension.bisect.start");
+              });
             }, "run")
           });
         } else {
@@ -266,25 +188,14 @@ let NativeExtensionService = class extends AbstractExtensionService {
           choices.push({
             label: nls.localize("learnMore", "Learn More"),
             run: /* @__PURE__ */ __name(() => {
-              this._instantiationService.invokeFunction(
-                (accessor) => {
-                  const openerService = accessor.get(IOpenerService);
-                  openerService.open(
-                    "https://aka.ms/vscode-extension-bisect"
-                  );
-                }
-              );
+              this._instantiationService.invokeFunction((accessor) => {
+                const openerService = accessor.get(IOpenerService);
+                openerService.open("https://aka.ms/vscode-extension-bisect");
+              });
             }, "run")
           });
         }
-        this._notificationService.prompt(
-          Severity.Error,
-          nls.localize(
-            "extensionService.crash",
-            "Extension host terminated unexpectedly 3 times within the last 5 minutes."
-          ),
-          choices
-        );
+        this._notificationService.prompt(Severity.Error, nls.localize("extensionService.crash", "Extension host terminated unexpectedly 3 times within the last 5 minutes."), choices);
       }
     }
   }
@@ -319,35 +230,24 @@ let NativeExtensionService = class extends AbstractExtensionService {
         }
       };
     }
-    return this._resolveAuthorityOnExtensionHosts(
-      ExtensionHostKind.LocalProcess,
-      remoteAuthority
-    );
+    return this._resolveAuthorityOnExtensionHosts(ExtensionHostKind.LocalProcess, remoteAuthority);
   }
   async _getCanonicalURI(remoteAuthority, uri) {
     const authorityPlusIndex = remoteAuthority.indexOf("+");
     if (authorityPlusIndex === -1) {
       return uri;
     }
-    const localProcessExtensionHosts = this._getExtensionHostManagers(
-      ExtensionHostKind.LocalProcess
-    );
+    const localProcessExtensionHosts = this._getExtensionHostManagers(ExtensionHostKind.LocalProcess);
     if (localProcessExtensionHosts.length === 0) {
       throw new Error(`Cannot resolve canonical URI`);
     }
-    const results = await Promise.all(
-      localProcessExtensionHosts.map(
-        (extHost) => extHost.getCanonicalURI(remoteAuthority, uri)
-      )
-    );
+    const results = await Promise.all(localProcessExtensionHosts.map((extHost) => extHost.getCanonicalURI(remoteAuthority, uri)));
     for (const result of results) {
       if (result) {
         return result;
       }
     }
-    throw new Error(
-      `Cannot get canonical URI because no extension is installed to resolve ${getRemoteAuthorityPrefix(remoteAuthority)}`
-    );
+    throw new Error(`Cannot get canonical URI because no extension is installed to resolve ${getRemoteAuthorityPrefix(remoteAuthority)}`);
   }
   async _resolveExtensions() {
     this._extensionScanner.startScanningExtensions();
@@ -355,43 +255,29 @@ let NativeExtensionService = class extends AbstractExtensionService {
     let remoteEnv = null;
     let remoteExtensions = [];
     if (remoteAuthority) {
-      this._remoteAuthorityResolverService._setCanonicalURIProvider(
-        async (uri) => {
-          if (uri.scheme !== Schemas.vscodeRemote || uri.authority !== remoteAuthority) {
-            return uri;
-          }
-          performance.mark(
-            `code/willGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`
-          );
+      this._remoteAuthorityResolverService._setCanonicalURIProvider(async (uri) => {
+        if (uri.scheme !== Schemas.vscodeRemote || uri.authority !== remoteAuthority) {
+          return uri;
+        }
+        performance.mark(`code/willGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`);
+        if (isCI) {
+          this._logService.info(`Invoking getCanonicalURI for authority ${getRemoteAuthorityPrefix(remoteAuthority)}...`);
+        }
+        try {
+          return this._getCanonicalURI(remoteAuthority, uri);
+        } finally {
+          performance.mark(`code/didGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`);
           if (isCI) {
-            this._logService.info(
-              `Invoking getCanonicalURI for authority ${getRemoteAuthorityPrefix(remoteAuthority)}...`
-            );
-          }
-          try {
-            return this._getCanonicalURI(remoteAuthority, uri);
-          } finally {
-            performance.mark(
-              `code/didGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`
-            );
-            if (isCI) {
-              this._logService.info(
-                `getCanonicalURI returned for authority ${getRemoteAuthorityPrefix(remoteAuthority)}.`
-              );
-            }
+            this._logService.info(`getCanonicalURI returned for authority ${getRemoteAuthorityPrefix(remoteAuthority)}.`);
           }
         }
-      );
+      });
       if (isCI) {
-        this._logService.info(
-          `Starting to wait on IWorkspaceTrustManagementService.workspaceResolved...`
-        );
+        this._logService.info(`Starting to wait on IWorkspaceTrustManagementService.workspaceResolved...`);
       }
       await this._workspaceTrustManagementService.workspaceResolved;
       if (isCI) {
-        this._logService.info(
-          `Finished waiting on IWorkspaceTrustManagementService.workspaceResolved.`
-        );
+        this._logService.info(`Finished waiting on IWorkspaceTrustManagementService.workspaceResolved.`);
       }
       let resolverResult;
       try {
@@ -399,31 +285,21 @@ let NativeExtensionService = class extends AbstractExtensionService {
       } catch (err) {
         if (RemoteAuthorityResolverError.isNoResolverFound(err)) {
           err.isHandled = await this._handleNoResolverFound(remoteAuthority);
-        } else if (RemoteAuthorityResolverError.isHandled(err)) {
-          console.log(
-            `Error handled: Not showing a notification for the error`
-          );
+        } else {
+          if (RemoteAuthorityResolverError.isHandled(err)) {
+            console.log(`Error handled: Not showing a notification for the error`);
+          }
         }
-        this._remoteAuthorityResolverService._setResolvedAuthorityError(
-          remoteAuthority,
-          err
-        );
+        this._remoteAuthorityResolverService._setResolvedAuthorityError(remoteAuthority, err);
         return this._startLocalExtensionHost();
       }
-      this._remoteAuthorityResolverService._setResolvedAuthority(
-        resolverResult.authority,
-        resolverResult.options
-      );
-      this._remoteExplorerService.setTunnelInformation(
-        resolverResult.tunnelInformation
-      );
+      this._remoteAuthorityResolverService._setResolvedAuthority(resolverResult.authority, resolverResult.options);
+      this._remoteExplorerService.setTunnelInformation(resolverResult.tunnelInformation);
       const connection = this._remoteAgentService.getConnection();
       if (connection) {
         connection.onDidStateChange(async (e) => {
           if (e.type === PersistentConnectionEventType.ConnectionLost) {
-            this._remoteAuthorityResolverService._clearResolvedAuthority(
-              remoteAuthority
-            );
+            this._remoteAuthorityResolverService._clearResolvedAuthority(remoteAuthority);
           }
         });
         connection.onReconnecting(() => this._resolveAuthorityAgain());
@@ -433,22 +309,12 @@ let NativeExtensionService = class extends AbstractExtensionService {
         this._remoteExtensionsScannerService.scanExtensions()
       ]);
       if (!remoteEnv) {
-        this._notificationService.notify({
-          severity: Severity.Error,
-          message: nls.localize(
-            "getEnvironmentFailure",
-            "Could not fetch remote environment"
-          )
-        });
+        this._notificationService.notify({ severity: Severity.Error, message: nls.localize("getEnvironmentFailure", "Could not fetch remote environment") });
         return this._startLocalExtensionHost();
       }
-      updateProxyConfigurationsScope(
-        remoteEnv.useHostProxy ? ConfigurationScope.APPLICATION : ConfigurationScope.MACHINE
-      );
+      updateProxyConfigurationsScope(remoteEnv.useHostProxy ? ConfigurationScope.APPLICATION : ConfigurationScope.MACHINE);
     } else {
-      this._remoteAuthorityResolverService._setCanonicalURIProvider(
-        async (uri) => uri
-      );
+      this._remoteAuthorityResolverService._setCanonicalURIProvider(async (uri) => uri);
     }
     return this._startLocalExtensionHost(remoteExtensions);
   }
@@ -469,9 +335,7 @@ let NativeExtensionService = class extends AbstractExtensionService {
     connection?.dispose();
     if (parseExtensionDevOptions(this._environmentService).isExtensionDevTestFromCli) {
       if (isCI) {
-        this._logService.info(
-          `Asking native host service to exit with code ${code}.`
-        );
+        this._logService.info(`Asking native host service to exit with code ${code}.`);
       }
       this._nativeHostService.exit(code);
     } else {
@@ -485,44 +349,25 @@ let NativeExtensionService = class extends AbstractExtensionService {
       return false;
     }
     const sendTelemetry = /* @__PURE__ */ __name((userReaction) => {
-      this._telemetryService.publicLog(
-        "remoteExtensionRecommendations:popup",
-        { userReaction, extensionId: resolverExtensionId }
-      );
+      this._telemetryService.publicLog("remoteExtensionRecommendations:popup", { userReaction, extensionId: resolverExtensionId });
     }, "sendTelemetry");
     const resolverExtensionId = recommendation.extensionId;
     const allExtensions = await this._scanAllLocalExtensions();
-    const extension = allExtensions.filter(
-      (e) => e.identifier.value === resolverExtensionId
-    )[0];
+    const extension = allExtensions.filter((e) => e.identifier.value === resolverExtensionId)[0];
     if (extension) {
-      if (!extensionIsEnabled(
-        this._logService,
-        this._extensionEnablementService,
-        extension,
-        false
-      )) {
-        const message = nls.localize(
-          "enableResolver",
-          "Extension '{0}' is required to open the remote window.\nOK to enable?",
-          recommendation.friendlyName
-        );
+      if (!extensionIsEnabled(this._logService, this._extensionEnablementService, extension, false)) {
+        const message = nls.localize("enableResolver", "Extension '{0}' is required to open the remote window.\nOK to enable?", recommendation.friendlyName);
         this._notificationService.prompt(
           Severity.Info,
           message,
-          [
-            {
-              label: nls.localize("enable", "Enable and Reload"),
-              run: /* @__PURE__ */ __name(async () => {
-                sendTelemetry("enable");
-                await this._extensionEnablementService.setEnablement(
-                  [toExtension(extension)],
-                  EnablementState.EnabledGlobally
-                );
-                await this._hostService.reload();
-              }, "run")
-            }
-          ],
+          [{
+            label: nls.localize("enable", "Enable and Reload"),
+            run: /* @__PURE__ */ __name(async () => {
+              sendTelemetry("enable");
+              await this._extensionEnablementService.setEnablement([toExtension(extension)], EnablementState.EnabledGlobally);
+              await this._hostService.reload();
+            }, "run")
+          }],
           {
             sticky: true,
             priority: NotificationPriority.URGENT
@@ -530,39 +375,23 @@ let NativeExtensionService = class extends AbstractExtensionService {
         );
       }
     } else {
-      const message = nls.localize(
-        "installResolver",
-        "Extension '{0}' is required to open the remote window.\nDo you want to install the extension?",
-        recommendation.friendlyName
-      );
+      const message = nls.localize("installResolver", "Extension '{0}' is required to open the remote window.\nDo you want to install the extension?", recommendation.friendlyName);
       this._notificationService.prompt(
         Severity.Info,
         message,
-        [
-          {
-            label: nls.localize("install", "Install and Reload"),
-            run: /* @__PURE__ */ __name(async () => {
-              sendTelemetry("install");
-              const [galleryExtension] = await this._extensionGalleryService.getExtensions(
-                [{ id: resolverExtensionId }],
-                CancellationToken.None
-              );
-              if (galleryExtension) {
-                await this._extensionManagementService.installFromGallery(
-                  galleryExtension
-                );
-                await this._hostService.reload();
-              } else {
-                this._notificationService.error(
-                  nls.localize(
-                    "resolverExtensionNotFound",
-                    "`{0}` not found on marketplace"
-                  )
-                );
-              }
-            }, "run")
-          }
-        ],
+        [{
+          label: nls.localize("install", "Install and Reload"),
+          run: /* @__PURE__ */ __name(async () => {
+            sendTelemetry("install");
+            const [galleryExtension] = await this._extensionGalleryService.getExtensions([{ id: resolverExtensionId }], CancellationToken.None);
+            if (galleryExtension) {
+              await this._extensionManagementService.installFromGallery(galleryExtension);
+              await this._hostService.reload();
+            } else {
+              this._notificationService.error(nls.localize("resolverExtensionNotFound", "`{0}` not found on marketplace"));
+            }
+          }, "run")
+        }],
         {
           sticky: true,
           priority: NotificationPriority.URGENT,
@@ -607,10 +436,7 @@ let NativeExtensionHostFactory = class {
     this._remoteAgentService = _remoteAgentService;
     this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
     this._logService = _logService;
-    this._webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(
-      environmentService,
-      configurationService
-    );
+    this._webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
   }
   static {
     __name(this, "NativeExtensionHostFactory");
@@ -620,43 +446,19 @@ let NativeExtensionHostFactory = class {
     switch (runningLocation.kind) {
       case ExtensionHostKind.LocalProcess: {
         const startup = isInitialStart ? ExtensionHostStartup.EagerManualStart : ExtensionHostStartup.EagerAutoStart;
-        return this._instantiationService.createInstance(
-          NativeLocalProcessExtensionHost,
-          runningLocation,
-          startup,
-          this._createLocalProcessExtensionHostDataProvider(
-            runningLocations,
-            isInitialStart,
-            runningLocation
-          )
-        );
+        return this._instantiationService.createInstance(NativeLocalProcessExtensionHost, runningLocation, startup, this._createLocalProcessExtensionHostDataProvider(runningLocations, isInitialStart, runningLocation));
       }
       case ExtensionHostKind.LocalWebWorker: {
         if (this._webWorkerExtHostEnablement !== 0 /* Disabled */) {
           const startup = isInitialStart ? this._webWorkerExtHostEnablement === 2 /* Lazy */ ? ExtensionHostStartup.Lazy : ExtensionHostStartup.EagerManualStart : ExtensionHostStartup.EagerAutoStart;
-          return this._instantiationService.createInstance(
-            WebWorkerExtensionHost,
-            runningLocation,
-            startup,
-            this._createWebWorkerExtensionHostDataProvider(
-              runningLocations,
-              runningLocation
-            )
-          );
+          return this._instantiationService.createInstance(WebWorkerExtensionHost, runningLocation, startup, this._createWebWorkerExtensionHostDataProvider(runningLocations, runningLocation));
         }
         return null;
       }
       case ExtensionHostKind.Remote: {
         const remoteAgentConnection = this._remoteAgentService.getConnection();
         if (remoteAgentConnection) {
-          return this._instantiationService.createInstance(
-            RemoteExtensionHost,
-            runningLocation,
-            this._createRemoteExtensionHostDataProvider(
-              runningLocations,
-              remoteAgentConnection.remoteAuthority
-            )
-          );
+          return this._instantiationService.createInstance(RemoteExtensionHost, runningLocation, this._createRemoteExtensionHostDataProvider(runningLocations, remoteAgentConnection.remoteAuthority));
         }
         return null;
       }
@@ -668,9 +470,7 @@ let NativeExtensionHostFactory = class {
         if (isInitialStart) {
           const scannedExtensions = await this._extensionScanner.scannedExtensions;
           if (isCI) {
-            this._logService.info(
-              `NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.scannedExtensions: ${scannedExtensions.map((ext) => ext.identifier.value).join(",")}`
-            );
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.scannedExtensions: ${scannedExtensions.map((ext) => ext.identifier.value).join(",")}`);
           }
           const localExtensions = checkEnabledAndProposedAPI(
             this._logService,
@@ -681,48 +481,19 @@ let NativeExtensionHostFactory = class {
             true
           );
           if (isCI) {
-            this._logService.info(
-              `NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.localExtensions: ${localExtensions.map((ext) => ext.identifier.value).join(",")}`
-            );
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.localExtensions: ${localExtensions.map((ext) => ext.identifier.value).join(",")}`);
           }
-          const runningLocation = runningLocations.computeRunningLocation(
-            localExtensions,
-            [],
-            false
-          );
-          const myExtensions = filterExtensionDescriptions(
-            localExtensions,
-            runningLocation,
-            (extRunningLocation) => desiredRunningLocation.equals(
-              extRunningLocation
-            )
-          );
-          const extensions = new ExtensionHostExtensions(
-            0,
-            localExtensions,
-            myExtensions.map(
-              (extension) => extension.identifier
-            )
-          );
+          const runningLocation = runningLocations.computeRunningLocation(localExtensions, [], false);
+          const myExtensions = filterExtensionDescriptions(localExtensions, runningLocation, (extRunningLocation) => desiredRunningLocation.equals(extRunningLocation));
+          const extensions = new ExtensionHostExtensions(0, localExtensions, myExtensions.map((extension) => extension.identifier));
           if (isCI) {
-            this._logService.info(
-              `NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.myExtensions: ${myExtensions.map((ext) => ext.identifier.value).join(",")}`
-            );
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.myExtensions: ${myExtensions.map((ext) => ext.identifier.value).join(",")}`);
           }
           return { extensions };
         } else {
           const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
-          const myExtensions = runningLocations.filterByRunningLocation(
-            snapshot.extensions,
-            desiredRunningLocation
-          );
-          const extensions = new ExtensionHostExtensions(
-            snapshot.versionId,
-            snapshot.extensions,
-            myExtensions.map(
-              (extension) => extension.identifier
-            )
-          );
+          const myExtensions = runningLocations.filterByRunningLocation(snapshot.extensions, desiredRunningLocation);
+          const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
           return { extensions };
         }
       }, "getInitData")
@@ -732,15 +503,8 @@ let NativeExtensionHostFactory = class {
     return {
       getInitData: /* @__PURE__ */ __name(async () => {
         const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
-        const myExtensions = runningLocations.filterByRunningLocation(
-          snapshot.extensions,
-          desiredRunningLocation
-        );
-        const extensions = new ExtensionHostExtensions(
-          snapshot.versionId,
-          snapshot.extensions,
-          myExtensions.map((extension) => extension.identifier)
-        );
+        const myExtensions = runningLocations.filterByRunningLocation(snapshot.extensions, desiredRunningLocation);
+        const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
         return { extensions };
       }, "getInitData")
     };
@@ -752,23 +516,12 @@ let NativeExtensionHostFactory = class {
         const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
         const remoteEnv = await this._remoteAgentService.getEnvironment();
         if (!remoteEnv) {
-          throw new Error(
-            "Cannot provide init data for remote extension host!"
-          );
+          throw new Error("Cannot provide init data for remote extension host!");
         }
-        const myExtensions = runningLocations.filterByExtensionHostKind(
-          snapshot.extensions,
-          ExtensionHostKind.Remote
-        );
-        const extensions = new ExtensionHostExtensions(
-          snapshot.versionId,
-          snapshot.extensions,
-          myExtensions.map((extension) => extension.identifier)
-        );
+        const myExtensions = runningLocations.filterByExtensionHostKind(snapshot.extensions, ExtensionHostKind.Remote);
+        const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
         return {
-          connectionData: this._remoteAuthorityResolverService.getConnectionData(
-            remoteAuthority
-          ),
+          connectionData: this._remoteAuthorityResolverService.getConnectionData(remoteAuthority),
           pid: remoteEnv.pid,
           appRoot: remoteEnv.appRoot,
           extensionHostLogsPath: remoteEnv.extensionHostLogsPath,
@@ -793,9 +546,7 @@ function determineLocalWebWorkerExtHostEnablement(environmentService, configurat
   if (environmentService.isExtensionDevelopment && environmentService.extensionDevelopmentKind?.some((k) => k === "web")) {
     return 1 /* Eager */;
   } else {
-    const config = configurationService.getValue(
-      webWorkerExtHostConfig
-    );
+    const config = configurationService.getValue(webWorkerExtHostConfig);
     if (config === true) {
       return 1 /* Eager */;
     } else if (config === "auto") {
@@ -816,10 +567,7 @@ let NativeExtensionHostKindPicker = class {
   constructor(environmentService, configurationService, _logService) {
     this._logService = _logService;
     this._hasRemoteExtHost = Boolean(environmentService.remoteAuthority);
-    const webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(
-      environmentService,
-      configurationService
-    );
+    const webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
     this._hasWebWorkerExtHost = webWorkerExtHostEnablement !== 0 /* Disabled */;
   }
   static {
@@ -828,17 +576,8 @@ let NativeExtensionHostKindPicker = class {
   _hasRemoteExtHost;
   _hasWebWorkerExtHost;
   pickExtensionHostKind(extensionId, extensionKinds, isInstalledLocally, isInstalledRemotely, preference) {
-    const result = NativeExtensionHostKindPicker.pickExtensionHostKind(
-      extensionKinds,
-      isInstalledLocally,
-      isInstalledRemotely,
-      preference,
-      this._hasRemoteExtHost,
-      this._hasWebWorkerExtHost
-    );
-    this._logService.trace(
-      `pickRunningLocation for ${extensionId.value}, extension kinds: [${extensionKinds.join(", ")}], isInstalledLocally: ${isInstalledLocally}, isInstalledRemotely: ${isInstalledRemotely}, preference: ${extensionRunningPreferenceToString(preference)} => ${extensionHostKindToString(result)}`
-    );
+    const result = NativeExtensionHostKindPicker.pickExtensionHostKind(extensionKinds, isInstalledLocally, isInstalledRemotely, preference, this._hasRemoteExtHost, this._hasWebWorkerExtHost);
+    this._logService.trace(`pickRunningLocation for ${extensionId.value}, extension kinds: [${extensionKinds.join(", ")}], isInstalledLocally: ${isInstalledLocally}, isInstalledRemotely: ${isInstalledRemotely}, preference: ${extensionRunningPreferenceToString(preference)} => ${extensionHostKindToString(result)}`);
     return result;
   }
   static pickExtensionHostKind(extensionKinds, isInstalledLocally, isInstalledRemotely, preference, hasRemoteExtHost, hasWebWorkerExtHost) {
@@ -888,33 +627,21 @@ class RestartExtensionHostAction extends Action2 {
   constructor() {
     super({
       id: "workbench.action.restartExtensionHost",
-      title: nls.localize2(
-        "restartExtensionHost",
-        "Restart Extension Host"
-      ),
+      title: nls.localize2("restartExtensionHost", "Restart Extension Host"),
       category: Categories.Developer,
       f1: true
     });
   }
   async run(accessor) {
     const extensionService = accessor.get(IExtensionService);
-    const stopped = await extensionService.stopExtensionHosts(
-      nls.localize(
-        "restartExtensionHost.reason",
-        "Restarting extension host on explicit request."
-      )
-    );
+    const stopped = await extensionService.stopExtensionHosts(nls.localize("restartExtensionHost.reason", "Restarting extension host on explicit request."));
     if (stopped) {
       extensionService.startExtensionHosts();
     }
   }
 }
 registerAction2(RestartExtensionHostAction);
-registerSingleton(
-  IExtensionService,
-  NativeExtensionService,
-  InstantiationType.Eager
-);
+registerSingleton(IExtensionService, NativeExtensionService, InstantiationType.Eager);
 export {
   NativeExtensionHostKindPicker,
   NativeExtensionService

@@ -1,37 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./viewCursors.css";
-import {
-  WindowIntervalTimer,
-  getWindow
-} from "../../../../base/browser/dom.js";
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
-import {
-  TimeoutTimer
-} from "../../../../base/common/async.js";
-import { isHighContrast } from "../../../../platform/theme/common/theme.js";
-import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
-import {
-  EditorOption,
-  TextEditorCursorBlinkingStyle,
-  TextEditorCursorStyle
-} from "../../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { IntervalTimer, TimeoutTimer } from "../../../../base/common/async.js";
+import { ViewPart } from "../../view/viewPart.js";
+import { IViewCursorRenderData, ViewCursor, CursorPlurality } from "./viewCursor.js";
+import { TextEditorCursorBlinkingStyle, TextEditorCursorStyle, EditorOption } from "../../../common/config/editorOptions.js";
+import { Position } from "../../../common/core/position.js";
 import {
   editorCursorBackground,
   editorCursorForeground,
-  editorMultiCursorPrimaryBackground,
   editorMultiCursorPrimaryForeground,
-  editorMultiCursorSecondaryBackground,
-  editorMultiCursorSecondaryForeground
+  editorMultiCursorPrimaryBackground,
+  editorMultiCursorSecondaryForeground,
+  editorMultiCursorSecondaryBackground
 } from "../../../common/core/editorColorRegistry.js";
+import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { isHighContrast } from "../../../../platform/theme/common/theme.js";
 import { CursorChangeReason } from "../../../common/cursorEvents.js";
-import { ViewPart } from "../../view/viewPart.js";
-import {
-  CursorPlurality,
-  ViewCursor
-} from "./viewCursor.js";
+import { WindowIntervalTimer, getWindow } from "../../../../base/browser/dom.js";
 class ViewCursors extends ViewPart {
   static {
     __name(this, "ViewCursors");
@@ -58,16 +48,11 @@ class ViewCursors extends ViewPart {
     this._readOnly = options.get(EditorOption.readOnly);
     this._cursorBlinking = options.get(EditorOption.cursorBlinking);
     this._cursorStyle = options.get(EditorOption.cursorStyle);
-    this._cursorSmoothCaretAnimation = options.get(
-      EditorOption.cursorSmoothCaretAnimation
-    );
+    this._cursorSmoothCaretAnimation = options.get(EditorOption.cursorSmoothCaretAnimation);
     this._selectionIsEmpty = true;
     this._isComposingInput = false;
     this._isVisible = false;
-    this._primaryCursor = new ViewCursor(
-      this._context,
-      CursorPlurality.Single
-    );
+    this._primaryCursor = new ViewCursor(this._context, CursorPlurality.Single);
     this._secondaryCursors = [];
     this._renderData = [];
     this._domNode = createFastDomNode(document.createElement("div"));
@@ -105,9 +90,7 @@ class ViewCursors extends ViewPart {
     this._readOnly = options.get(EditorOption.readOnly);
     this._cursorBlinking = options.get(EditorOption.cursorBlinking);
     this._cursorStyle = options.get(EditorOption.cursorStyle);
-    this._cursorSmoothCaretAnimation = options.get(
-      EditorOption.cursorSmoothCaretAnimation
-    );
+    this._cursorSmoothCaretAnimation = options.get(EditorOption.cursorSmoothCaretAnimation);
     this._updateBlinking();
     this._updateDomClassName();
     this._primaryCursor.onConfigurationChanged(e);
@@ -118,38 +101,25 @@ class ViewCursors extends ViewPart {
   }
   _onCursorPositionChanged(position, secondaryPositions, reason) {
     const pauseAnimation = this._secondaryCursors.length !== secondaryPositions.length || this._cursorSmoothCaretAnimation === "explicit" && reason !== CursorChangeReason.Explicit;
-    this._primaryCursor.setPlurality(
-      secondaryPositions.length ? CursorPlurality.MultiPrimary : CursorPlurality.Single
-    );
+    this._primaryCursor.setPlurality(secondaryPositions.length ? CursorPlurality.MultiPrimary : CursorPlurality.Single);
     this._primaryCursor.onCursorPositionChanged(position, pauseAnimation);
     this._updateBlinking();
     if (this._secondaryCursors.length < secondaryPositions.length) {
       const addCnt = secondaryPositions.length - this._secondaryCursors.length;
       for (let i = 0; i < addCnt; i++) {
-        const newCursor = new ViewCursor(
-          this._context,
-          CursorPlurality.MultiSecondary
-        );
-        this._domNode.domNode.insertBefore(
-          newCursor.getDomNode().domNode,
-          this._primaryCursor.getDomNode().domNode.nextSibling
-        );
+        const newCursor = new ViewCursor(this._context, CursorPlurality.MultiSecondary);
+        this._domNode.domNode.insertBefore(newCursor.getDomNode().domNode, this._primaryCursor.getDomNode().domNode.nextSibling);
         this._secondaryCursors.push(newCursor);
       }
     } else if (this._secondaryCursors.length > secondaryPositions.length) {
       const removeCnt = this._secondaryCursors.length - secondaryPositions.length;
       for (let i = 0; i < removeCnt; i++) {
-        this._domNode.removeChild(
-          this._secondaryCursors[0].getDomNode()
-        );
+        this._domNode.removeChild(this._secondaryCursors[0].getDomNode());
         this._secondaryCursors.splice(0, 1);
       }
     }
     for (let i = 0; i < secondaryPositions.length; i++) {
-      this._secondaryCursors[i].onCursorPositionChanged(
-        secondaryPositions[i],
-        pauseAnimation
-      );
+      this._secondaryCursors[i].onCursorPositionChanged(secondaryPositions[i], pauseAnimation);
     }
   }
   onCursorStateChanged(e) {
@@ -157,11 +127,7 @@ class ViewCursors extends ViewPart {
     for (let i = 0, len = e.selections.length; i < len; i++) {
       positions[i] = e.selections[i].getPosition();
     }
-    this._onCursorPositionChanged(
-      positions[0],
-      positions.slice(1),
-      e.reason
-    );
+    this._onCursorPositionChanged(positions[0], positions.slice(1), e.reason);
     const selectionIsEmpty = e.selections[0].isEmpty();
     if (this._selectionIsEmpty !== selectionIsEmpty) {
       this._selectionIsEmpty = selectionIsEmpty;
@@ -243,17 +209,13 @@ class ViewCursors extends ViewPart {
     this._updateDomClassName();
     if (!isHidden && !isSolid) {
       if (blinkingStyle === TextEditorCursorBlinkingStyle.Blink) {
-        this._cursorFlatBlinkInterval.cancelAndSet(
-          () => {
-            if (this._isVisible) {
-              this._hide();
-            } else {
-              this._show();
-            }
-          },
-          ViewCursors.BLINK_INTERVAL,
-          getWindow(this._domNode.domNode)
-        );
+        this._cursorFlatBlinkInterval.cancelAndSet(() => {
+          if (this._isVisible) {
+            this._hide();
+          } else {
+            this._show();
+          }
+        }, ViewCursors.BLINK_INTERVAL, getWindow(this._domNode.domNode));
       } else {
         this._startCursorBlinkAnimation.setIfNotSet(() => {
           this._blinkingEnabled = true;
@@ -363,21 +325,9 @@ class ViewCursors extends ViewPart {
 }
 registerThemingParticipant((theme, collector) => {
   const cursorThemes = [
-    {
-      class: ".cursor",
-      foreground: editorCursorForeground,
-      background: editorCursorBackground
-    },
-    {
-      class: ".cursor-primary",
-      foreground: editorMultiCursorPrimaryForeground,
-      background: editorMultiCursorPrimaryBackground
-    },
-    {
-      class: ".cursor-secondary",
-      foreground: editorMultiCursorSecondaryForeground,
-      background: editorMultiCursorSecondaryBackground
-    }
+    { class: ".cursor", foreground: editorCursorForeground, background: editorCursorBackground },
+    { class: ".cursor-primary", foreground: editorMultiCursorPrimaryForeground, background: editorMultiCursorPrimaryBackground },
+    { class: ".cursor-secondary", foreground: editorMultiCursorSecondaryForeground, background: editorMultiCursorSecondaryBackground }
   ];
   for (const cursorTheme of cursorThemes) {
     const caret = theme.getColor(cursorTheme.foreground);
@@ -386,13 +336,9 @@ registerThemingParticipant((theme, collector) => {
       if (!caretBackground) {
         caretBackground = caret.opposite();
       }
-      collector.addRule(
-        `.monaco-editor .cursors-layer ${cursorTheme.class} { background-color: ${caret}; border-color: ${caret}; color: ${caretBackground}; }`
-      );
+      collector.addRule(`.monaco-editor .cursors-layer ${cursorTheme.class} { background-color: ${caret}; border-color: ${caret}; color: ${caretBackground}; }`);
       if (isHighContrast(theme.type)) {
-        collector.addRule(
-          `.monaco-editor .cursors-layer.has-selection ${cursorTheme.class} { border-left: 1px solid ${caretBackground}; border-right: 1px solid ${caretBackground}; }`
-        );
+        collector.addRule(`.monaco-editor .cursors-layer.has-selection ${cursorTheme.class} { border-left: 1px solid ${caretBackground}; border-right: 1px solid ${caretBackground}; }`);
       }
     }
   }

@@ -13,13 +13,10 @@ const statePriority = {
 };
 const isFailedState = /* @__PURE__ */ __name((s) => s === TestResultState.Errored || s === TestResultState.Failed, "isFailedState");
 const isStateWithResult = /* @__PURE__ */ __name((s) => s === TestResultState.Errored || s === TestResultState.Failed || s === TestResultState.Passed, "isStateWithResult");
-const stateNodes = mapValues(
-  statePriority,
-  (priority, stateStr) => {
-    const state = Number(stateStr);
-    return { statusNode: true, state, priority };
-  }
-);
+const stateNodes = mapValues(statePriority, (priority, stateStr) => {
+  const state = Number(stateStr);
+  return { statusNode: true, state, priority };
+});
 const cmpPriority = /* @__PURE__ */ __name((a, b) => statePriority[b] - statePriority[a], "cmpPriority");
 const maxPriority = /* @__PURE__ */ __name((...states) => {
   switch (states.length) {

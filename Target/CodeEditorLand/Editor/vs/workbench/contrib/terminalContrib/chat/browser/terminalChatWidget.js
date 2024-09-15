@@ -10,33 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Dimension,
-  getActiveWindow,
-  trackFocus
-} from "../../../../../base/browser/dom.js";
+import { Dimension, getActiveWindow, IFocusTracker, trackFocus } from "../../../../../base/browser/dom.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
 import "./media/terminalChatWidget.css";
 import { localize } from "../../../../../nls.js";
-import {
-  IContextKeyService
-} from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ChatAgentLocation } from "../../../chat/common/chatAgents.js";
 import { InlineChatWidget } from "../../../inlineChat/browser/inlineChatWidget.js";
+import { ITerminalInstance } from "../../../terminal/browser/terminal.js";
+import { MENU_TERMINAL_CHAT_INPUT, MENU_TERMINAL_CHAT_WIDGET, MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatCommandId, TerminalChatContextKeys } from "./terminalChat.js";
 import { TerminalStickyScrollContribution } from "../../stickyScroll/browser/terminalStickyScrollContribution.js";
-import {
-  MENU_TERMINAL_CHAT_INPUT,
-  MENU_TERMINAL_CHAT_WIDGET,
-  MENU_TERMINAL_CHAT_WIDGET_STATUS,
-  TerminalChatCommandId,
-  TerminalChatContextKeys
-} from "./terminalChat.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["HorizontalMargin"] = 10] = "HorizontalMargin";
   Constants2[Constants2["VerticalMargin"] = 30] = "VerticalMargin";
@@ -50,12 +36,8 @@ let TerminalChatWidget = class extends Disposable {
     this._xterm = _xterm;
     this._instantiationService = _instantiationService;
     this._contextKeyService = _contextKeyService;
-    this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(
-      this._contextKeyService
-    );
-    this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(
-      this._contextKeyService
-    );
+    this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(this._contextKeyService);
+    this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(this._contextKeyService);
     this._container = document.createElement("div");
     this._container.classList.add("terminal-inline-chat");
     _terminalElement.appendChild(this._container);
@@ -90,37 +72,25 @@ let TerminalChatWidget = class extends Disposable {
         }
       }
     );
-    this._register(
-      Event.any(
-        this._inlineChatWidget.onDidChangeHeight,
-        this._instance.onDimensionsChanged,
-        this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
-        Event.debounce(
-          this._xterm.raw.onCursorMove,
-          () => void 0,
-          MicrotaskDelay
-        )
-      )(() => this._relayout())
-    );
+    this._register(Event.any(
+      this._inlineChatWidget.onDidChangeHeight,
+      this._instance.onDimensionsChanged,
+      this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
+      Event.debounce(this._xterm.raw.onCursorMove, () => void 0, MicrotaskDelay)
+    )(() => this._relayout()));
     const observer = new ResizeObserver(() => this._relayout());
     observer.observe(this._terminalElement);
     this._register(toDisposable(() => observer.disconnect()));
     this._reset();
     this._container.appendChild(this._inlineChatWidget.domNode);
     this._focusTracker = this._register(trackFocus(this._container));
-    this._register(
-      this._focusTracker.onDidFocus(
-        () => this._focusedContextKey.set(true)
-      )
-    );
-    this._register(
-      this._focusTracker.onDidBlur(() => {
-        this._focusedContextKey.set(false);
-        if (!this.inlineChatWidget.responseContent) {
-          this.hide();
-        }
-      })
-    );
+    this._register(this._focusTracker.onDidFocus(() => this._focusedContextKey.set(true)));
+    this._register(this._focusTracker.onDidBlur(() => {
+      this._focusedContextKey.set(false);
+      if (!this.inlineChatWidget.responseContent) {
+        this.hide();
+      }
+    }));
     this.hide();
   }
   static {
@@ -148,18 +118,15 @@ let TerminalChatWidget = class extends Disposable {
       return;
     }
     const style = getActiveWindow().getComputedStyle(xtermElement);
-    const xtermPadding = Number.parseInt(style.paddingLeft) + Number.parseInt(style.paddingRight);
-    const width = Math.min(
-      640,
-      xtermElement.clientWidth - 12 - 2 - 10 /* HorizontalMargin */ - xtermPadding
-    );
+    const xtermPadding = parseInt(style.paddingLeft) + parseInt(style.paddingRight);
+    const width = Math.min(640, xtermElement.clientWidth - 12 - 2 - 10 /* HorizontalMargin */ - xtermPadding);
     const terminalWrapperHeight = this._getTerminalWrapperHeight() ?? Number.MAX_SAFE_INTEGER;
     let height = Math.min(480, heightInPixel, terminalWrapperHeight);
     const top = this._getTop() ?? 0;
     if (width === 0 || height === 0) {
       return;
     }
-    let adjustedHeight;
+    let adjustedHeight = void 0;
     if (height < this._inlineChatWidget.contentHeight) {
       if (height - top > 0) {
         height = height - top - 30 /* VerticalMargin */;
@@ -174,13 +141,8 @@ let TerminalChatWidget = class extends Disposable {
     this._updateVerticalPosition(adjustedHeight);
   }
   _reset() {
-    this._inlineChatWidget.placeholder = localize(
-      "default.placeholder",
-      "Ask how to do something in the terminal"
-    );
-    this._inlineChatWidget.updateInfo(
-      localize("welcome.1", "AI-generated commands may be incorrect")
-    );
+    this._inlineChatWidget.placeholder = localize("default.placeholder", "Ask how to do something in the terminal");
+    this._inlineChatWidget.updateInfo(localize("welcome.1", "AI-generated commands may be incorrect"));
   }
   reveal() {
     this._doLayout(this._inlineChatWidget.contentHeight);
@@ -212,9 +174,7 @@ let TerminalChatWidget = class extends Disposable {
       return;
     }
     if (top > terminalWrapperHeight - widgetHeight && terminalWrapperHeight - widgetHeight > 0) {
-      this._setTerminalOffset(
-        top - (terminalWrapperHeight - widgetHeight)
-      );
+      this._setTerminalOffset(top - (terminalWrapperHeight - widgetHeight));
     } else if (adjustedHeight) {
       this._setTerminalOffset(adjustedHeight);
     } else {

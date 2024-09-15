@@ -115,32 +115,9 @@ function traverseNodes(root, visit) {
   while (next) {
     const visitChildern = visit(next);
     if (visitChildern) {
-      collectEntries(
-        next.additionalItems,
-        next.additionalProperties,
-        next.not,
-        next.contains,
-        next.propertyNames,
-        next.if,
-        next.then,
-        next.else,
-        next.unevaluatedItems,
-        next.unevaluatedProperties
-      );
-      collectMapEntries(
-        next.definitions,
-        next.$defs,
-        next.properties,
-        next.patternProperties,
-        next.dependencies,
-        next.dependentSchemas
-      );
-      collectArrayEntries(
-        next.anyOf,
-        next.allOf,
-        next.oneOf,
-        next.prefixItems
-      );
+      collectEntries(next.additionalItems, next.additionalProperties, next.not, next.contains, next.propertyNames, next.if, next.then, next.else, next.unevaluatedItems, next.unevaluatedProperties);
+      collectMapEntries(next.definitions, next.$defs, next.properties, next.patternProperties, next.dependencies, next.dependentSchemas);
+      collectArrayEntries(next.anyOf, next.allOf, next.oneOf, next.prefixItems);
       collectEntryOrArrayEntries(next.items);
     }
     next = toWalk.pop();

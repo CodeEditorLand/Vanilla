@@ -1,37 +1,30 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/welcomeWidget.css";
-import { $, append, hide } from "../../../../base/browser/dom.js";
-import { renderFormattedText } from "../../../../base/browser/formattedTextRenderer.js";
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { ButtonBar } from "../../../../base/browser/ui/button/button.js";
-import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
-import {
-  Action
-} from "../../../../base/common/actions.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import { mnemonicButtonLabel } from "../../../../base/common/labels.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  parseLinkedText
-} from "../../../../base/common/linkedText.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import {
-  OverlayWidgetPositionPreference
-} from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference } from "../../../../editor/browser/editorBrowser.js";
+import { $, append, hide } from "../../../../base/browser/dom.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { localize } from "../../../../nls.js";
-import { Link } from "../../../../platform/opener/browser/link.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ButtonBar } from "../../../../base/browser/ui/button/button.js";
+import { mnemonicButtonLabel } from "../../../../base/common/labels.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  contrastBorder,
-  editorWidgetBackground,
-  editorWidgetForeground,
-  widgetBorder,
-  widgetShadow
-} from "../../../../platform/theme/common/colorRegistry.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { Action, WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from "../../../../base/common/actions.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { localize } from "../../../../nls.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { LinkedText, parseLinkedText } from "../../../../base/common/linkedText.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { renderFormattedText } from "../../../../base/browser/formattedTextRenderer.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { Color } from "../../../../base/common/color.js";
+import { contrastBorder, editorWidgetBackground, editorWidgetForeground, widgetBorder, widgetShadow } from "../../../../platform/theme/common/colorRegistry.js";
 class WelcomeWidget extends Disposable {
   constructor(_editor, instantiationService, commandService, telemetryService, openerService) {
     super();
@@ -45,9 +38,7 @@ class WelcomeWidget extends Disposable {
     this.element = this._rootDomNode.appendChild($(".monaco-dialog-box"));
     this.element.setAttribute("role", "dialog");
     hide(this._rootDomNode);
-    this.messageContainer = this.element.appendChild(
-      $(".dialog-message-container")
-    );
+    this.messageContainer = this.element.appendChild($(".dialog-message-container"));
   }
   static {
     __name(this, "WelcomeWidget");
@@ -80,58 +71,28 @@ class WelcomeWidget extends Disposable {
   }
   async buildWidgetContent(title, message, buttonText, buttonAction) {
     const actionBar = this._register(new ActionBar(this.element, {}));
-    const action = this._register(
-      new Action(
-        "dialog.close",
-        localize("dialogClose", "Close Dialog"),
-        ThemeIcon.asClassName(Codicon.dialogClose),
-        true,
-        async () => {
-          this._hide();
-        }
-      )
-    );
+    const action = this._register(new Action("dialog.close", localize("dialogClose", "Close Dialog"), ThemeIcon.asClassName(Codicon.dialogClose), true, async () => {
+      this._hide();
+    }));
     actionBar.push(action, { icon: true, label: false });
     const renderBody = /* @__PURE__ */ __name((message2, icon) => {
-      const mds = new MarkdownString(void 0, {
-        supportThemeIcons: true,
-        supportHtml: true
-      });
+      const mds = new MarkdownString(void 0, { supportThemeIcons: true, supportHtml: true });
       mds.appendMarkdown(`<a class="copilot">$(${icon})</a>`);
       mds.appendMarkdown(message2);
       return mds;
     }, "renderBody");
-    const titleElement = this.messageContainer.appendChild(
-      $("#monaco-dialog-message-detail.dialog-message-detail-title")
-    );
-    const titleElementMdt = this.markdownRenderer.render(
-      renderBody(title, "zap")
-    );
+    const titleElement = this.messageContainer.appendChild($("#monaco-dialog-message-detail.dialog-message-detail-title"));
+    const titleElementMdt = this.markdownRenderer.render(renderBody(title, "zap"));
     titleElement.appendChild(titleElementMdt.element);
-    this.buildStepMarkdownDescription(
-      this.messageContainer,
-      message.split("\n").filter((x) => x).map((text) => parseLinkedText(text))
-    );
-    const buttonsRowElement = this.messageContainer.appendChild(
-      $(".dialog-buttons-row")
-    );
-    const buttonContainer = buttonsRowElement.appendChild(
-      $(".dialog-buttons")
-    );
+    this.buildStepMarkdownDescription(this.messageContainer, message.split("\n").filter((x) => x).map((text) => parseLinkedText(text)));
+    const buttonsRowElement = this.messageContainer.appendChild($(".dialog-buttons-row"));
+    const buttonContainer = buttonsRowElement.appendChild($(".dialog-buttons"));
     const buttonBar = this._register(new ButtonBar(buttonContainer));
-    const primaryButton = this._register(
-      buttonBar.addButtonWithDescription({
-        title: true,
-        secondary: false,
-        ...defaultButtonStyles
-      })
-    );
+    const primaryButton = this._register(buttonBar.addButtonWithDescription({ title: true, secondary: false, ...defaultButtonStyles }));
     primaryButton.label = mnemonicButtonLabel(buttonText, true);
-    this._register(
-      primaryButton.onDidClick(async () => {
-        await this.executeCommand(buttonAction);
-      })
-    );
+    this._register(primaryButton.onDidClick(async () => {
+      await this.executeCommand(buttonAction);
+    }));
     buttonBar.buttons[0].focus();
   }
   buildStepMarkdownDescription(container, text) {
@@ -142,33 +103,21 @@ class WelcomeWidget extends Disposable {
           const labelWithIcon = renderLabelWithIcons(node);
           for (const element of labelWithIcon) {
             if (typeof element === "string") {
-              p.appendChild(
-                renderFormattedText(element, {
-                  inline: true,
-                  renderCodeSegments: true
-                })
-              );
+              p.appendChild(renderFormattedText(element, { inline: true, renderCodeSegments: true }));
             } else {
               p.appendChild(element);
             }
           }
         } else {
-          const link = this.instantiationService.createInstance(
-            Link,
-            p,
-            node,
-            {
-              opener: /* @__PURE__ */ __name((href) => {
-                this.telemetryService.publicLog2("workbenchActionExecuted", {
-                  id: "welcomeWidetLinkAction",
-                  from: "welcomeWidget"
-                });
-                this.openerService.open(href, {
-                  allowCommands: true
-                });
-              }, "opener")
-            }
-          );
+          const link = this.instantiationService.createInstance(Link, p, node, {
+            opener: /* @__PURE__ */ __name((href) => {
+              this.telemetryService.publicLog2("workbenchActionExecuted", {
+                id: "welcomeWidetLinkAction",
+                from: "welcomeWidget"
+              });
+              this.openerService.open(href, { allowCommands: true });
+            }, "opener")
+          });
           this._register(link);
         }
       }
@@ -210,24 +159,18 @@ class WelcomeWidget extends Disposable {
 registerThemingParticipant((theme, collector) => {
   const addBackgroundColorRule = /* @__PURE__ */ __name((selector, color) => {
     if (color) {
-      collector.addRule(
-        `.monaco-editor ${selector} { background-color: ${color}; }`
-      );
+      collector.addRule(`.monaco-editor ${selector} { background-color: ${color}; }`);
     }
   }, "addBackgroundColorRule");
   const widgetBackground = theme.getColor(editorWidgetBackground);
   addBackgroundColorRule(".welcome-widget", widgetBackground);
   const widgetShadowColor = theme.getColor(widgetShadow);
   if (widgetShadowColor) {
-    collector.addRule(
-      `.welcome-widget { box-shadow: 0 0 8px 2px ${widgetShadowColor}; }`
-    );
+    collector.addRule(`.welcome-widget { box-shadow: 0 0 8px 2px ${widgetShadowColor}; }`);
   }
   const widgetBorderColor = theme.getColor(widgetBorder);
   if (widgetBorderColor) {
-    collector.addRule(
-      `.welcome-widget { border-left: 1px solid ${widgetBorderColor}; border-right: 1px solid ${widgetBorderColor}; border-bottom: 1px solid ${widgetBorderColor}; }`
-    );
+    collector.addRule(`.welcome-widget { border-left: 1px solid ${widgetBorderColor}; border-right: 1px solid ${widgetBorderColor}; border-bottom: 1px solid ${widgetBorderColor}; }`);
   }
   const hcBorder = theme.getColor(contrastBorder);
   if (hcBorder) {

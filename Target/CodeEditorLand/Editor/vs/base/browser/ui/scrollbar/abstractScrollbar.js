@@ -1,14 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as platform from "../../../common/platform.js";
 import * as dom from "../../dom.js";
-import { createFastDomNode } from "../../fastDomNode.js";
+import { createFastDomNode, FastDomNode } from "../../fastDomNode.js";
 import { GlobalPointerMoveMonitor } from "../../globalPointerMoveMonitor.js";
-import { Widget } from "../widget.js";
-import {
-  ScrollbarArrow
-} from "./scrollbarArrow.js";
+import { StandardWheelEvent } from "../../mouseEvent.js";
+import { ScrollbarArrow, ScrollbarArrowOptions } from "./scrollbarArrow.js";
+import { ScrollbarState } from "./scrollbarState.js";
 import { ScrollbarVisibilityController } from "./scrollbarVisibilityController.js";
+import { Widget } from "../widget.js";
+import * as platform from "../../../common/platform.js";
+import { INewScrollPosition, Scrollable, ScrollbarVisibility } from "../../../common/scrollable.js";
 const POINTER_DRAG_RESET_DISTANCE = 140;
 class AbstractScrollbar extends Widget {
   static {
@@ -31,30 +32,16 @@ class AbstractScrollbar extends Widget {
     this._scrollable = opts.scrollable;
     this._scrollByPage = opts.scrollByPage;
     this._scrollbarState = opts.scrollbarState;
-    this._visibilityController = this._register(
-      new ScrollbarVisibilityController(
-        opts.visibility,
-        "visible scrollbar " + opts.extraScrollbarClassName,
-        "invisible scrollbar " + opts.extraScrollbarClassName
-      )
-    );
+    this._visibilityController = this._register(new ScrollbarVisibilityController(opts.visibility, "visible scrollbar " + opts.extraScrollbarClassName, "invisible scrollbar " + opts.extraScrollbarClassName));
     this._visibilityController.setIsNeeded(this._scrollbarState.isNeeded());
-    this._pointerMoveMonitor = this._register(
-      new GlobalPointerMoveMonitor()
-    );
+    this._pointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
     this._shouldRender = true;
     this.domNode = createFastDomNode(document.createElement("div"));
     this.domNode.setAttribute("role", "presentation");
     this.domNode.setAttribute("aria-hidden", "true");
     this._visibilityController.setDomNode(this.domNode);
     this.domNode.setPosition("absolute");
-    this._register(
-      dom.addDisposableListener(
-        this.domNode.domNode,
-        dom.EventType.POINTER_DOWN,
-        (e) => this._domNodePointerDown(e)
-      )
-    );
+    this._register(dom.addDisposableListener(this.domNode.domNode, dom.EventType.POINTER_DOWN, (e) => this._domNodePointerDown(e)));
   }
   // ----------------- creation
   /**
@@ -83,18 +70,16 @@ class AbstractScrollbar extends Widget {
     this.slider.setLayerHinting(true);
     this.slider.setContain("strict");
     this.domNode.domNode.appendChild(this.slider.domNode);
-    this._register(
-      dom.addDisposableListener(
-        this.slider.domNode,
-        dom.EventType.POINTER_DOWN,
-        (e) => {
-          if (e.button === 0) {
-            e.preventDefault();
-            this._sliderPointerDown(e);
-          }
+    this._register(dom.addDisposableListener(
+      this.slider.domNode,
+      dom.EventType.POINTER_DOWN,
+      (e) => {
+        if (e.button === 0) {
+          e.preventDefault();
+          this._sliderPointerDown(e);
         }
-      )
-    );
+      }
+    ));
     this.onclick(this.slider.domNode, (e) => {
       if (e.leftButton) {
         e.stopPropagation();
@@ -104,9 +89,7 @@ class AbstractScrollbar extends Widget {
   // ----------------- Update state
   _onElementSize(visibleSize) {
     if (this._scrollbarState.setVisibleSize(visibleSize)) {
-      this._visibilityController.setIsNeeded(
-        this._scrollbarState.isNeeded()
-      );
+      this._visibilityController.setIsNeeded(this._scrollbarState.isNeeded());
       this._shouldRender = true;
       if (!this._lazyRender) {
         this.render();
@@ -116,9 +99,7 @@ class AbstractScrollbar extends Widget {
   }
   _onElementScrollSize(elementScrollSize) {
     if (this._scrollbarState.setScrollSize(elementScrollSize)) {
-      this._visibilityController.setIsNeeded(
-        this._scrollbarState.isNeeded()
-      );
+      this._visibilityController.setIsNeeded(this._scrollbarState.isNeeded());
       this._shouldRender = true;
       if (!this._lazyRender) {
         this.render();
@@ -128,9 +109,7 @@ class AbstractScrollbar extends Widget {
   }
   _onElementScrollPosition(elementScrollPosition) {
     if (this._scrollbarState.setScrollPosition(elementScrollPosition)) {
-      this._visibilityController.setIsNeeded(
-        this._scrollbarState.isNeeded()
-      );
+      this._visibilityController.setIsNeeded(this._scrollbarState.isNeeded());
       this._shouldRender = true;
       if (!this._lazyRender) {
         this.render();
@@ -150,14 +129,8 @@ class AbstractScrollbar extends Widget {
       return;
     }
     this._shouldRender = false;
-    this._renderDomNode(
-      this._scrollbarState.getRectangleLargeSize(),
-      this._scrollbarState.getRectangleSmallSize()
-    );
-    this._updateSlider(
-      this._scrollbarState.getSliderSize(),
-      this._scrollbarState.getArrowSize() + this._scrollbarState.getSliderPosition()
-    );
+    this._renderDomNode(this._scrollbarState.getRectangleLargeSize(), this._scrollbarState.getRectangleSmallSize());
+    this._updateSlider(this._scrollbarState.getSliderSize(), this._scrollbarState.getArrowSize() + this._scrollbarState.getSliderPosition());
   }
   // ----------------- DOM events
   _domNodePointerDown(e) {
@@ -187,19 +160,13 @@ class AbstractScrollbar extends Widget {
       offsetX = e.offsetX;
       offsetY = e.offsetY;
     } else {
-      const domNodePosition = dom.getDomNodePagePosition(
-        this.domNode.domNode
-      );
+      const domNodePosition = dom.getDomNodePagePosition(this.domNode.domNode);
       offsetX = e.pageX - domNodePosition.left;
       offsetY = e.pageY - domNodePosition.top;
     }
     const offset = this._pointerDownRelativePosition(offsetX, offsetY);
     this._setDesiredScrollPositionNow(
-      this._scrollByPage ? this._scrollbarState.getDesiredScrollPositionFromOffsetPaged(
-        offset
-      ) : this._scrollbarState.getDesiredScrollPositionFromOffset(
-        offset
-      )
+      this._scrollByPage ? this._scrollbarState.getDesiredScrollPositionFromOffsetPaged(offset) : this._scrollbarState.getDesiredScrollPositionFromOffset(offset)
     );
     if (e.button === 0) {
       e.preventDefault();
@@ -220,22 +187,14 @@ class AbstractScrollbar extends Widget {
       e.buttons,
       (pointerMoveData) => {
         const pointerOrthogonalPosition = this._sliderOrthogonalPointerPosition(pointerMoveData);
-        const pointerOrthogonalDelta = Math.abs(
-          pointerOrthogonalPosition - initialPointerOrthogonalPosition
-        );
+        const pointerOrthogonalDelta = Math.abs(pointerOrthogonalPosition - initialPointerOrthogonalPosition);
         if (platform.isWindows && pointerOrthogonalDelta > POINTER_DRAG_RESET_DISTANCE) {
-          this._setDesiredScrollPositionNow(
-            initialScrollbarState.getScrollPosition()
-          );
+          this._setDesiredScrollPositionNow(initialScrollbarState.getScrollPosition());
           return;
         }
         const pointerPosition = this._sliderPointerPosition(pointerMoveData);
         const pointerDelta = pointerPosition - initialPointerPosition;
-        this._setDesiredScrollPositionNow(
-          initialScrollbarState.getDesiredScrollPositionFromDelta(
-            pointerDelta
-          )
-        );
+        this._setDesiredScrollPositionNow(initialScrollbarState.getDesiredScrollPositionFromDelta(pointerDelta));
       },
       () => {
         this.slider.toggleClassName("active", false);

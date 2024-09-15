@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IViewLineTokens, LineTokens } from "../tokens/lineTokens.js";
 import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
 function createScopedLineTokens(context, offset) {
   const tokenCount = context.getCount();
   const tokenIndex = context.findTokenIndexAtOffset(offset);
@@ -46,10 +48,7 @@ class ScopedLineTokens {
   }
   getLineContent() {
     const actualLineContent = this._actual.getLineContent();
-    return actualLineContent.substring(
-      this.firstCharOffset,
-      this._lastCharOffset
-    );
+    return actualLineContent.substring(this.firstCharOffset, this._lastCharOffset);
   }
   getLineLength() {
     return this._lastCharOffset - this.firstCharOffset;
@@ -65,16 +64,10 @@ class ScopedLineTokens {
     return this._actual.findTokenIndexAtOffset(offset + this.firstCharOffset) - this._firstTokenIndex;
   }
   getStandardTokenType(tokenIndex) {
-    return this._actual.getStandardTokenType(
-      tokenIndex + this._firstTokenIndex
-    );
+    return this._actual.getStandardTokenType(tokenIndex + this._firstTokenIndex);
   }
   toIViewLineTokens() {
-    return this._actual.sliceAndInflate(
-      this.firstCharOffset,
-      this._lastCharOffset,
-      0
-    );
+    return this._actual.sliceAndInflate(this.firstCharOffset, this._lastCharOffset, 0);
   }
 }
 var IgnoreBracketsInTokens = ((IgnoreBracketsInTokens2) => {

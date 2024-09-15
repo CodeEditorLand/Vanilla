@@ -10,16 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
+import { MainContext, MainThreadLocalizationShape } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { IFileService } from "../../../platform/files/common/files.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
 import { ILanguagePackService } from "../../../platform/languagePacks/common/languagePacks.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadLocalization = class extends Disposable {
   constructor(extHostContext, fileService, languagePackService) {
     super();
@@ -28,19 +24,14 @@ let MainThreadLocalization = class extends Disposable {
   }
   async $fetchBuiltInBundleUri(id, language) {
     try {
-      const uri = await this.languagePackService.getBuiltInExtensionTranslationsUri(
-        id,
-        language
-      );
+      const uri = await this.languagePackService.getBuiltInExtensionTranslationsUri(id, language);
       return uri;
     } catch (e) {
       return void 0;
     }
   }
   async $fetchBundleContents(uriComponents) {
-    const contents = await this.fileService.readFile(
-      URI.revive(uriComponents)
-    );
+    const contents = await this.fileService.readFile(URI.revive(uriComponents));
     return contents.value.toString();
   }
 };

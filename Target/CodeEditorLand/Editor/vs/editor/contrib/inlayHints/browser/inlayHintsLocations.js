@@ -1,37 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as dom from "../../../../base/browser/dom.js";
-import {
-  Action,
-  Separator
-} from "../../../../base/common/actions.js";
+import { Action, IAction, Separator } from "../../../../base/common/actions.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  MenuId,
-  MenuItemAction,
-  MenuRegistry,
-  isIMenuItem
-} from "../../../../platform/actions/common/actions.js";
+import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import { Location } from "../../../common/languages.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import { DefinitionAction, SymbolNavigationAction, SymbolNavigationAnchor } from "../../gotoSymbol/browser/goToCommands.js";
+import { ClickLinkMouseEvent } from "../../gotoSymbol/browser/link/clickLinkGesture.js";
+import { RenderedInlayHintLabelPart } from "./inlayHintsController.js";
+import { PeekContext } from "../../peekView/browser/peekView.js";
+import { isIMenuItem, MenuId, MenuItemAction, MenuRegistry } from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { Range } from "../../../common/core/range.js";
-import { ITextModelService } from "../../../common/services/resolverService.js";
-import {
-  DefinitionAction,
-  SymbolNavigationAction,
-  SymbolNavigationAnchor
-} from "../../gotoSymbol/browser/goToCommands.js";
-import { PeekContext } from "../../peekView/browser/peekView.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
 async function showGoToContextMenu(accessor, editor, anchor, part) {
   const resolverService = accessor.get(ITextModelService);
   const contextMenuService = accessor.get(IContextMenuService);
@@ -44,64 +31,35 @@ async function showGoToContextMenu(accessor, editor, anchor, part) {
   }
   const location = part.part.location;
   const menuActions = [];
-  const filter = new Set(
-    MenuRegistry.getMenuItems(MenuId.EditorContext).map(
-      (item) => isIMenuItem(item) ? item.command.id : generateUuid()
-    )
-  );
+  const filter = new Set(MenuRegistry.getMenuItems(MenuId.EditorContext).map((item) => isIMenuItem(item) ? item.command.id : generateUuid()));
   for (const delegate of SymbolNavigationAction.all()) {
     if (filter.has(delegate.desc.id)) {
-      menuActions.push(
-        new Action(
-          delegate.desc.id,
-          MenuItemAction.label(delegate.desc, {
-            renderShortTitle: true
-          }),
-          void 0,
-          true,
-          async () => {
-            const ref = await resolverService.createModelReference(
-              location.uri
-            );
-            try {
-              const symbolAnchor = new SymbolNavigationAnchor(
-                ref.object.textEditorModel,
-                Range.getStartPosition(location.range)
-              );
-              const range = part.item.anchor.range;
-              await instaService.invokeFunction(
-                delegate.runEditorCommand.bind(delegate),
-                editor,
-                symbolAnchor,
-                range
-              );
-            } finally {
-              ref.dispose();
-            }
-          }
-        )
-      );
+      menuActions.push(new Action(delegate.desc.id, MenuItemAction.label(delegate.desc, { renderShortTitle: true }), void 0, true, async () => {
+        const ref = await resolverService.createModelReference(location.uri);
+        try {
+          const symbolAnchor = new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range));
+          const range = part.item.anchor.range;
+          await instaService.invokeFunction(delegate.runEditorCommand.bind(delegate), editor, symbolAnchor, range);
+        } finally {
+          ref.dispose();
+        }
+      }));
     }
   }
   if (part.part.command) {
     const { command } = part.part;
     menuActions.push(new Separator());
-    menuActions.push(
-      new Action(command.id, command.title, void 0, true, async () => {
-        try {
-          await commandService.executeCommand(
-            command.id,
-            ...command.arguments ?? []
-          );
-        } catch (err) {
-          notificationService.notify({
-            severity: Severity.Error,
-            source: part.item.provider.displayName,
-            message: err
-          });
-        }
-      })
-    );
+    menuActions.push(new Action(command.id, command.title, void 0, true, async () => {
+      try {
+        await commandService.executeCommand(command.id, ...command.arguments ?? []);
+      } catch (err) {
+        notificationService.notify({
+          severity: Severity.Error,
+          source: part.item.provider.displayName,
+          message: err
+        });
+      }
+    }));
   }
   const useShadowDOM = editor.getOption(EditorOption.useShadowDOM);
   contextMenuService.showContextMenu({
@@ -126,22 +84,8 @@ async function goToDefinitionWithLocation(accessor, event, editor, location) {
     const contextKeyService = accessor2.get(IContextKeyService);
     const isInPeek = PeekContext.inPeekEditor.getValue(contextKeyService);
     const canPeek = !openToSide && editor.getOption(EditorOption.definitionLinkOpensInPeek) && !isInPeek;
-    const action = new DefinitionAction(
-      { openToSide, openInPeek: canPeek, muteMessage: true },
-      {
-        title: { value: "", original: "" },
-        id: "",
-        precondition: void 0
-      }
-    );
-    return action.run(
-      accessor2,
-      new SymbolNavigationAnchor(
-        ref.object.textEditorModel,
-        Range.getStartPosition(location.range)
-      ),
-      Range.lift(location.range)
-    );
+    const action = new DefinitionAction({ openToSide, openInPeek: canPeek, muteMessage: true }, { title: { value: "", original: "" }, id: "", precondition: void 0 });
+    return action.run(accessor2, new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range)), Range.lift(location.range));
   });
   ref.dispose();
 }

@@ -11,41 +11,63 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as nls from "../../../nls.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
-import * as Platform from "../../../base/common/platform.js";
-import * as Types from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
+import * as Types from "../../../base/common/types.js";
+import * as Platform from "../../../base/common/platform.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IWorkspace, IWorkspaceContextService, IWorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
 import {
-  IWorkspaceContextService
-} from "../../../platform/workspace/common/workspace.js";
-import {
-  CommandOptions,
-  ConfiguringTask,
   ContributedTask,
-  CustomTask,
-  PresentationOptions,
-  RunOptions,
-  RuntimeType,
-  TaskDefinition,
+  ConfiguringTask,
+  KeyedTaskIdentifier,
+  ITaskExecution,
+  Task,
+  ITaskEvent,
   TaskEventKind,
+  IPresentationOptions,
+  CommandOptions,
+  ICommandConfiguration,
+  RuntimeType,
+  CustomTask,
   TaskScope,
-  TaskSourceKind
+  TaskSource,
+  TaskSourceKind,
+  IExtensionTaskSource,
+  IRunOptions,
+  ITaskSet,
+  TaskGroup,
+  TaskDefinition,
+  PresentationOptions,
+  RunOptions
 } from "../../contrib/tasks/common/tasks.js";
+import { IResolveSet, IResolvedVariables } from "../../contrib/tasks/common/taskSystem.js";
+import { ITaskService, ITaskFilter, ITaskProvider } from "../../contrib/tasks/common/taskService.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainThreadTaskShape, ExtHostTaskShape, MainContext } from "../common/extHost.protocol.js";
 import {
-  ITaskService
-} from "../../contrib/tasks/common/taskService.js";
-import { ErrorNoTelemetry } from "../../../base/common/errors.js";
+  ITaskDefinitionDTO,
+  ITaskExecutionDTO,
+  IProcessExecutionOptionsDTO,
+  ITaskPresentationOptionsDTO,
+  IProcessExecutionDTO,
+  IShellExecutionDTO,
+  IShellExecutionOptionsDTO,
+  ICustomExecutionDTO,
+  ITaskDTO,
+  ITaskSourceDTO,
+  ITaskHandleDTO,
+  ITaskFilterDTO,
+  ITaskProcessStartedDTO,
+  ITaskProcessEndedDTO,
+  ITaskSystemInfoDTO,
+  IRunOptionsDTO,
+  ITaskGroupDTO
+} from "../common/shared/tasks.js";
 import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ConfigurationTarget } from "../../../platform/configuration/common/configuration.js";
+import { ErrorNoTelemetry } from "../../../base/common/errors.js";
 var TaskExecutionDTO;
 ((TaskExecutionDTO2) => {
   function from(value) {
@@ -115,11 +137,7 @@ var TaskPresentationOptionsDTO;
     if (value === void 0 || value === null) {
       return PresentationOptions.defaults;
     }
-    return Object.assign(
-      /* @__PURE__ */ Object.create(null),
-      PresentationOptions.defaults,
-      value
-    );
+    return Object.assign(/* @__PURE__ */ Object.create(null), PresentationOptions.defaults, value);
   }
   TaskPresentationOptionsDTO2.to = to;
   __name(to, "to");
@@ -178,9 +196,7 @@ var ProcessExecutionDTO;
   __name(is, "is");
   function from(value) {
     const process = Types.isString(value.name) ? value.name : value.name.value;
-    const args = value.args ? value.args.map(
-      (value2) => Types.isString(value2) ? value2 : value2.value
-    ) : [];
+    const args = value.args ? value.args.map((value2) => Types.isString(value2) ? value2 : value2.value) : [];
     const result = {
       process,
       args
@@ -432,16 +448,9 @@ var TaskDTO;
     if (!command) {
       return void 0;
     }
-    command.presentation = TaskPresentationOptionsDTO.to(
-      task.presentationOptions
-    );
+    command.presentation = TaskPresentationOptionsDTO.to(task.presentationOptions);
     const source = TaskSourceDTO.to(task.source, workspace);
-    const label = nls.localize(
-      "task.label",
-      "{0}: {1}",
-      source.label,
-      task.name
-    );
+    const label = nls.localize("task.label", "{0}: {1}", source.label, task.name);
     const definition = TaskDefinitionDTO.to(task.definition, executeOnly);
     const id = CustomExecutionDTO.is(task.execution) && task._id ? task._id : `${task.source.extensionId}.${definition._key}`;
     const result = new ContributedTask(
@@ -505,57 +514,34 @@ let MainThreadTask = class extends Disposable {
     this._configurationResolverService = _configurationResolverService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTask);
     this._providers = /* @__PURE__ */ new Map();
-    this._register(
-      this._taskService.onDidStateChange(async (event) => {
-        if (event.kind === TaskEventKind.Changed) {
-          return;
-        }
-        const task = event.__task;
-        if (event.kind === TaskEventKind.Start) {
-          const execution = TaskExecutionDTO.from(
-            task.getTaskExecution()
-          );
-          let resolvedDefinition = execution.task.definition;
-          if (execution.task?.execution && CustomExecutionDTO.is(execution.task.execution) && event.resolvedVariables) {
-            const dictionary = {};
-            for (const [
-              key,
-              value
-            ] of event.resolvedVariables.entries()) {
-              dictionary[key] = value;
-            }
-            resolvedDefinition = await this._configurationResolverService.resolveAnyAsync(
-              task.getWorkspaceFolder(),
-              execution.task.definition,
-              dictionary
-            );
+    this._register(this._taskService.onDidStateChange(async (event) => {
+      if (event.kind === TaskEventKind.Changed) {
+        return;
+      }
+      const task = event.__task;
+      if (event.kind === TaskEventKind.Start) {
+        const execution = TaskExecutionDTO.from(task.getTaskExecution());
+        let resolvedDefinition = execution.task.definition;
+        if (execution.task?.execution && CustomExecutionDTO.is(execution.task.execution) && event.resolvedVariables) {
+          const dictionary = {};
+          for (const [key, value] of event.resolvedVariables.entries()) {
+            dictionary[key] = value;
           }
-          this._proxy.$onDidStartTask(
-            execution,
-            event.terminalId,
-            resolvedDefinition
-          );
-        } else if (event.kind === TaskEventKind.ProcessStarted) {
-          this._proxy.$onDidStartTaskProcess(
-            TaskProcessStartedDTO.from(
-              task.getTaskExecution(),
-              event.processId
-            )
-          );
-        } else if (event.kind === TaskEventKind.ProcessEnded) {
-          this._proxy.$onDidEndTaskProcess(
-            TaskProcessEndedDTO.from(
-              task.getTaskExecution(),
-              event.exitCode
-            )
-          );
-        } else if (event.kind === TaskEventKind.End) {
-          this._proxy.$OnDidEndTask(
-            TaskExecutionDTO.from(task.getTaskExecution())
+          resolvedDefinition = await this._configurationResolverService.resolveAnyAsync(
+            task.getWorkspaceFolder(),
+            execution.task.definition,
+            dictionary
           );
         }
-      })
-    );
+        this._proxy.$onDidStartTask(execution, event.terminalId, resolvedDefinition);
+      } else if (event.kind === TaskEventKind.ProcessStarted) {
+        this._proxy.$onDidStartTaskProcess(TaskProcessStartedDTO.from(task.getTaskExecution(), event.processId));
+      } else if (event.kind === TaskEventKind.ProcessEnded) {
+        this._proxy.$onDidEndTaskProcess(TaskProcessEndedDTO.from(task.getTaskExecution(), event.exitCode));
+      } else if (event.kind === TaskEventKind.End) {
+        this._proxy.$OnDidEndTask(TaskExecutionDTO.from(task.getTaskExecution()));
+      }
+    }));
   }
   _extHostContext;
   _proxy;
@@ -569,11 +555,7 @@ let MainThreadTask = class extends Disposable {
   }
   $createTaskId(taskDTO) {
     return new Promise((resolve, reject) => {
-      const task = TaskDTO.to(
-        taskDTO,
-        this._workspaceContextServer,
-        true
-      );
+      const task = TaskDTO.to(taskDTO, this._workspaceContextServer, true);
       if (task) {
         resolve(task._id);
       } else {
@@ -584,22 +566,14 @@ let MainThreadTask = class extends Disposable {
   $registerTaskProvider(handle, type) {
     const provider = {
       provideTasks: /* @__PURE__ */ __name((validTypes) => {
-        return Promise.resolve(
-          this._proxy.$provideTasks(handle, validTypes)
-        ).then((value) => {
+        return Promise.resolve(this._proxy.$provideTasks(handle, validTypes)).then((value) => {
           const tasks = [];
           for (const dto of value.tasks) {
-            const task = TaskDTO.to(
-              dto,
-              this._workspaceContextServer,
-              true
-            );
+            const task = TaskDTO.to(dto, this._workspaceContextServer, true);
             if (task) {
               tasks.push(task);
             } else {
-              console.error(
-                `Task System: can not convert task: ${JSON.stringify(dto.definition, void 0, 0)}. Task will be dropped`
-              );
+              console.error(`Task System: can not convert task: ${JSON.stringify(dto.definition, void 0, 0)}. Task will be dropped`);
             }
           }
           return {
@@ -612,17 +586,9 @@ let MainThreadTask = class extends Disposable {
         const dto = TaskDTO.from(task);
         if (dto) {
           dto.name = dto.name === void 0 ? "" : dto.name;
-          return Promise.resolve(
-            this._proxy.$resolveTask(handle, dto)
-          ).then((resolvedTask) => {
+          return Promise.resolve(this._proxy.$resolveTask(handle, dto)).then((resolvedTask) => {
             if (resolvedTask) {
-              return TaskDTO.to(
-                resolvedTask,
-                this._workspaceContextServer,
-                true,
-                task.configurationProperties.icon,
-                task.configurationProperties.hide
-              );
+              return TaskDTO.to(resolvedTask, this._workspaceContextServer, true, task.configurationProperties.icon, task.configurationProperties.hide);
             }
             return void 0;
           });
@@ -630,10 +596,7 @@ let MainThreadTask = class extends Disposable {
         return Promise.resolve(void 0);
       }, "resolveTask")
     };
-    const disposable = this._taskService.registerTaskProvider(
-      provider,
-      type
-    );
+    const disposable = this._taskService.registerTaskProvider(provider, type);
     this._providers.set(handle, { disposable, provider });
     return Promise.resolve(void 0);
   }
@@ -676,11 +639,7 @@ let MainThreadTask = class extends Disposable {
     if (TaskHandleDTO.is(value)) {
       const workspace = this.getWorkspace(value.workspaceFolder);
       if (workspace) {
-        const task = await this._taskService.getTask(
-          workspace,
-          value.id,
-          true
-        );
+        const task = await this._taskService.getTask(workspace, value.id, true);
         if (task) {
           return {
             id: task._id,
@@ -706,40 +665,30 @@ let MainThreadTask = class extends Disposable {
       if (TaskHandleDTO.is(value)) {
         const workspace = this.getWorkspace(value.workspaceFolder);
         if (workspace) {
-          this._taskService.getTask(workspace, value.id, true).then(
-            (task) => {
-              if (task) {
-                const result = {
-                  id: value.id,
-                  task: TaskDTO.from(task)
-                };
-                this._taskService.run(task).then(
-                  (summary) => {
-                    if (summary?.exitCode === void 0 || summary.exitCode !== 0) {
-                      this._proxy.$OnDidEndTask(result);
-                    }
-                  },
-                  (reason) => {
-                  }
-                );
-                resolve(result);
-              } else {
-                reject(new Error("Task not found"));
-              }
-            },
-            (_error) => {
+          this._taskService.getTask(workspace, value.id, true).then((task) => {
+            if (!task) {
               reject(new Error("Task not found"));
+            } else {
+              const result = {
+                id: value.id,
+                task: TaskDTO.from(task)
+              };
+              this._taskService.run(task).then((summary) => {
+                if (summary?.exitCode === void 0 || summary.exitCode !== 0) {
+                  this._proxy.$OnDidEndTask(result);
+                }
+              }, (reason) => {
+              });
+              resolve(result);
             }
-          );
+          }, (_error) => {
+            reject(new Error("Task not found"));
+          });
         } else {
           reject(new Error("No workspace folder"));
         }
       } else {
-        const task = TaskDTO.to(
-          value,
-          this._workspaceContextServer,
-          true
-        );
+        const task = TaskDTO.to(value, this._workspaceContextServer, true);
         this._taskService.run(task).then(void 0, (reason) => {
         });
         const result = {
@@ -755,14 +704,11 @@ let MainThreadTask = class extends Disposable {
       this._taskService.getActiveTasks().then((tasks) => {
         for (const task of tasks) {
           if (id === task._id) {
-            this._taskService.extensionCallbackTaskComplete(task, result).then(
-              (value) => {
-                resolve(void 0);
-              },
-              (error) => {
-                reject(error);
-              }
-            );
+            this._taskService.extensionCallbackTaskComplete(task, result).then((value) => {
+              resolve(void 0);
+            }, (error) => {
+              reject(error);
+            });
             return;
           }
         }
@@ -775,14 +721,11 @@ let MainThreadTask = class extends Disposable {
       this._taskService.getActiveTasks().then((tasks) => {
         for (const task of tasks) {
           if (id === task._id) {
-            this._taskService.terminate(task).then(
-              (value) => {
-                resolve(void 0);
-              },
-              (error) => {
-                reject(void 0);
-              }
-            );
+            this._taskService.terminate(task).then((value) => {
+              resolve(void 0);
+            }, (error) => {
+              reject(void 0);
+            });
             return;
           }
         }
@@ -811,72 +754,42 @@ let MainThreadTask = class extends Disposable {
     this._taskService.registerTaskSystem(key, {
       platform,
       uriProvider: /* @__PURE__ */ __name((path) => {
-        return URI.from({
-          scheme: info.scheme,
-          authority: info.authority,
-          path
-        });
+        return URI.from({ scheme: info.scheme, authority: info.authority, path });
       }, "uriProvider"),
       context: this._extHostContext,
       resolveVariables: /* @__PURE__ */ __name((workspaceFolder, toResolve, target) => {
         const vars = [];
         toResolve.variables.forEach((item) => vars.push(item));
-        return Promise.resolve(
-          this._proxy.$resolveVariables(workspaceFolder.uri, {
-            process: toResolve.process,
-            variables: vars
-          })
-        ).then((values) => {
-          const partiallyResolvedVars = Array.from(
-            Object.values(values.variables)
-          );
-          return new Promise(
-            (resolve, reject) => {
-              this._configurationResolverService.resolveWithInteraction(
-                workspaceFolder,
-                partiallyResolvedVars,
-                "tasks",
-                void 0,
-                target
-              ).then(
-                (resolvedVars) => {
-                  if (!resolvedVars) {
-                    resolve(void 0);
+        return Promise.resolve(this._proxy.$resolveVariables(workspaceFolder.uri, { process: toResolve.process, variables: vars })).then((values) => {
+          const partiallyResolvedVars = Array.from(Object.values(values.variables));
+          return new Promise((resolve, reject) => {
+            this._configurationResolverService.resolveWithInteraction(workspaceFolder, partiallyResolvedVars, "tasks", void 0, target).then((resolvedVars) => {
+              if (!resolvedVars) {
+                resolve(void 0);
+              }
+              const result = {
+                process: void 0,
+                variables: /* @__PURE__ */ new Map()
+              };
+              for (let i = 0; i < partiallyResolvedVars.length; i++) {
+                const variableName = vars[i].substring(2, vars[i].length - 1);
+                if (resolvedVars && values.variables[vars[i]] === vars[i]) {
+                  const resolved = resolvedVars.get(variableName);
+                  if (typeof resolved === "string") {
+                    result.variables.set(variableName, resolved);
                   }
-                  const result = {
-                    process: void 0,
-                    variables: /* @__PURE__ */ new Map()
-                  };
-                  for (let i = 0; i < partiallyResolvedVars.length; i++) {
-                    const variableName = vars[i].substring(2, vars[i].length - 1);
-                    if (resolvedVars && values.variables[vars[i]] === vars[i]) {
-                      const resolved = resolvedVars.get(
-                        variableName
-                      );
-                      if (typeof resolved === "string") {
-                        result.variables.set(
-                          variableName,
-                          resolved
-                        );
-                      }
-                    } else {
-                      result.variables.set(
-                        variableName,
-                        partiallyResolvedVars[i]
-                      );
-                    }
-                  }
-                  if (Types.isString(values.process)) {
-                    result.process = values.process;
-                  }
-                  resolve(result);
-                },
-                (reason) => {
-                  reject(reason);
+                } else {
+                  result.variables.set(variableName, partiallyResolvedVars[i]);
                 }
-              );
-            }
-          );
+              }
+              if (Types.isString(values.process)) {
+                result.process = values.process;
+              }
+              resolve(result);
+            }, (reason) => {
+              reject(reason);
+            });
+          });
         });
       }, "resolveVariables"),
       findExecutable: /* @__PURE__ */ __name((command, cwd, paths) => {
@@ -885,11 +798,7 @@ let MainThreadTask = class extends Disposable {
     });
   }
   async $registerSupportedExecutions(custom, shell, process) {
-    return this._taskService.registerSupportedExecutions(
-      custom,
-      shell,
-      process
-    );
+    return this._taskService.registerSupportedExecutions(custom, shell, process);
   }
 };
 __name(MainThreadTask, "MainThreadTask");

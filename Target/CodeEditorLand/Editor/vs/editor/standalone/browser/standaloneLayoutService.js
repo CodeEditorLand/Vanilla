@@ -14,14 +14,9 @@ import * as dom from "../../../base/browser/dom.js";
 import { mainWindow } from "../../../base/browser/window.js";
 import { coalesce } from "../../../base/common/arrays.js";
 import { Event } from "../../../base/common/event.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../platform/instantiation/common/extensions.js";
-import {
-  ILayoutService
-} from "../../../platform/layout/browser/layoutService.js";
 import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
+import { InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { ILayoutOffsetInfo, ILayoutService } from "../../../platform/layout/browser/layoutService.js";
 let StandaloneLayoutService = class {
   constructor(_codeEditorService) {
     this._codeEditorService = _codeEditorService;
@@ -47,18 +42,10 @@ let StandaloneLayoutService = class {
   get activeContainerDimension() {
     return dom.getClientArea(this.activeContainer);
   }
-  mainContainerOffset = {
-    top: 0,
-    quickPickTop: 0
-  };
-  activeContainerOffset = {
-    top: 0,
-    quickPickTop: 0
-  };
+  mainContainerOffset = { top: 0, quickPickTop: 0 };
+  activeContainerOffset = { top: 0, quickPickTop: 0 };
   get containers() {
-    return coalesce(
-      this._codeEditorService.listCodeEditors().map((codeEditor) => codeEditor.getContainerDomNode())
-    );
+    return coalesce(this._codeEditorService.listCodeEditors().map((codeEditor) => codeEditor.getContainerDomNode()));
   }
   getContainer() {
     return this.activeContainer;
@@ -88,11 +75,7 @@ let EditorScopedLayoutService = class extends StandaloneLayoutService {
 EditorScopedLayoutService = __decorateClass([
   __decorateParam(1, ICodeEditorService)
 ], EditorScopedLayoutService);
-registerSingleton(
-  ILayoutService,
-  StandaloneLayoutService,
-  InstantiationType.Delayed
-);
+registerSingleton(ILayoutService, StandaloneLayoutService, InstantiationType.Delayed);
 export {
   EditorScopedLayoutService
 };

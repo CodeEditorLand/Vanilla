@@ -10,28 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ReentrancyBarrier } from "../../../../base/common/controlFlow.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { SideBySideEditor } from "../../../browser/parts/editor/sideBySideEditor.js";
-import {
-  isEditorPaneWithScrolling
-} from "../../../common/editor.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorPane, IEditorPaneScrollPosition, isEditorPaneWithScrolling } from "../../../common/editor.js";
+import { ReentrancyBarrier } from "../../../../base/common/controlFlow.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  IStatusbarService,
-  StatusbarAlignment
-} from "../../../services/statusbar/browser/statusbar.js";
+import { IStatusbarEntryAccessor, IStatusbarService, StatusbarAlignment } from "../../../services/statusbar/browser/statusbar.js";
 let SyncScroll = class extends Disposable {
   constructor(editorService, statusbarService) {
     super();
@@ -44,20 +34,12 @@ let SyncScroll = class extends Disposable {
   }
   static ID = "workbench.contrib.syncScrolling";
   paneInitialScrollTop = /* @__PURE__ */ new Map();
-  syncScrollDispoasbles = this._register(
-    new DisposableStore()
-  );
+  syncScrollDispoasbles = this._register(new DisposableStore());
   paneDisposables = new DisposableStore();
-  statusBarEntry = this._register(
-    new MutableDisposable()
-  );
+  statusBarEntry = this._register(new MutableDisposable());
   isActive = false;
   registerActiveListeners() {
-    this.syncScrollDispoasbles.add(
-      this.editorService.onDidVisibleEditorsChange(
-        () => this.trackVisiblePanes()
-      )
-    );
+    this.syncScrollDispoasbles.add(this.editorService.onDidVisibleEditorsChange(() => this.trackVisiblePanes()));
   }
   activate() {
     this.registerActiveListeners();
@@ -82,13 +64,11 @@ let SyncScroll = class extends Disposable {
         continue;
       }
       this.paneInitialScrollTop.set(pane, pane.getScrollPosition());
-      this.paneDisposables.add(
-        pane.onDidChangeScroll(
-          () => this._reentrancyBarrier.runExclusivelyOrSkip(() => {
-            this.onDidEditorPaneScroll(pane);
-          })
-        )
-      );
+      this.paneDisposables.add(pane.onDidChangeScroll(
+        () => this._reentrancyBarrier.runExclusivelyOrSkip(() => {
+          this.onDidEditorPaneScroll(pane);
+        })
+      ));
     }
   }
   onDidEditorPaneScroll(scrolledPane) {
@@ -153,31 +133,20 @@ let SyncScroll = class extends Disposable {
   toggleStatusbarItem(active) {
     if (active) {
       if (!this.statusBarEntry.value) {
-        const text = localize(
-          "mouseScrolllingLocked",
-          "Scrolling Locked"
-        );
-        const tooltip = localize(
-          "mouseLockScrollingEnabled",
-          "Lock Scrolling Enabled"
-        );
-        this.statusBarEntry.value = this.statusbarService.addEntry(
-          {
-            name: text,
-            text,
-            tooltip,
-            ariaLabel: text,
-            command: {
-              id: "workbench.action.toggleLockedScrolling",
-              title: ""
-            },
-            kind: "prominent",
-            showInAllWindows: true
+        const text = localize("mouseScrolllingLocked", "Scrolling Locked");
+        const tooltip = localize("mouseLockScrollingEnabled", "Lock Scrolling Enabled");
+        this.statusBarEntry.value = this.statusbarService.addEntry({
+          name: text,
+          text,
+          tooltip,
+          ariaLabel: text,
+          command: {
+            id: "workbench.action.toggleLockedScrolling",
+            title: ""
           },
-          "status.scrollLockingEnabled",
-          StatusbarAlignment.RIGHT,
-          102
-        );
+          kind: "prominent",
+          showInAllWindows: true
+        }, "status.scrollLockingEnabled", StatusbarAlignment.RIGHT, 102);
       }
     } else {
       this.statusBarEntry.clear();
@@ -185,79 +154,48 @@ let SyncScroll = class extends Disposable {
   }
   registerActions() {
     const $this = this;
-    this._register(
-      registerAction2(
-        class extends Action2 {
-          constructor() {
-            super({
-              id: "workbench.action.toggleLockedScrolling",
-              title: {
-                ...localize2(
-                  "toggleLockedScrolling",
-                  "Toggle Locked Scrolling Across Editors"
-                ),
-                mnemonicTitle: localize(
-                  {
-                    key: "miToggleLockedScrolling",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "Locked Scrolling"
-                )
-              },
-              category: Categories.View,
-              f1: true,
-              metadata: {
-                description: localize(
-                  "synchronizeScrolling",
-                  "Synchronize Scrolling Editors"
-                )
-              }
-            });
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.toggleLockedScrolling",
+          title: {
+            ...localize2("toggleLockedScrolling", "Toggle Locked Scrolling Across Editors"),
+            mnemonicTitle: localize({ key: "miToggleLockedScrolling", comment: ["&& denotes a mnemonic"] }, "Locked Scrolling")
+          },
+          category: Categories.View,
+          f1: true,
+          metadata: {
+            description: localize("synchronizeScrolling", "Synchronize Scrolling Editors")
           }
-          run() {
-            $this.toggle();
-          }
+        });
+      }
+      run() {
+        $this.toggle();
+      }
+    }));
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.holdLockedScrolling",
+          title: {
+            ...localize2("holdLockedScrolling", "Hold Locked Scrolling Across Editors"),
+            mnemonicTitle: localize({ key: "miHoldLockedScrolling", comment: ["&& denotes a mnemonic"] }, "Locked Scrolling")
+          },
+          category: Categories.View
+        });
+      }
+      run(accessor) {
+        const keybindingService = accessor.get(IKeybindingService);
+        $this.toggle();
+        const holdMode = keybindingService.enableKeybindingHoldMode("workbench.action.holdLockedScrolling");
+        if (!holdMode) {
+          return;
         }
-      )
-    );
-    this._register(
-      registerAction2(
-        class extends Action2 {
-          constructor() {
-            super({
-              id: "workbench.action.holdLockedScrolling",
-              title: {
-                ...localize2(
-                  "holdLockedScrolling",
-                  "Hold Locked Scrolling Across Editors"
-                ),
-                mnemonicTitle: localize(
-                  {
-                    key: "miHoldLockedScrolling",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "Locked Scrolling"
-                )
-              },
-              category: Categories.View
-            });
-          }
-          run(accessor) {
-            const keybindingService = accessor.get(IKeybindingService);
-            $this.toggle();
-            const holdMode = keybindingService.enableKeybindingHoldMode(
-              "workbench.action.holdLockedScrolling"
-            );
-            if (!holdMode) {
-              return;
-            }
-            holdMode.finally(() => {
-              $this.toggle();
-            });
-          }
-        }
-      )
-    );
+        holdMode.finally(() => {
+          $this.toggle();
+        });
+      }
+    }));
   }
   dispose() {
     this.deactivate();

@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
 import * as fs from "fs";
 import * as os from "os";
+import * as cp from "child_process";
 import * as path from "path";
 let hasWSLFeaturePromise;
 async function hasWSLFeatureInstalled(refresh = false) {
@@ -45,7 +45,7 @@ __name(testWSLFeatureInstalled, "testWSLFeatureInstalled");
 function getWindowsBuildNumber() {
   const osVersion = /(\d+)\.(\d+)\.(\d+)/g.exec(os.release());
   if (osVersion) {
-    return Number.parseInt(osVersion[3]);
+    return parseInt(osVersion[3]);
   }
   return void 0;
 }
@@ -53,14 +53,8 @@ __name(getWindowsBuildNumber, "getWindowsBuildNumber");
 function getSystem32Path(subPath) {
   const systemRoot = process.env["SystemRoot"];
   if (systemRoot) {
-    const is32ProcessOn64Windows = process.env.hasOwnProperty(
-      "PROCESSOR_ARCHITEW6432"
-    );
-    return path.join(
-      systemRoot,
-      is32ProcessOn64Windows ? "Sysnative" : "System32",
-      subPath
-    );
+    const is32ProcessOn64Windows = process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
+    return path.join(systemRoot, is32ProcessOn64Windows ? "Sysnative" : "System32", subPath);
   }
   return void 0;
 }

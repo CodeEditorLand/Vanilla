@@ -10,37 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
 import * as nls from "../../../nls.js";
+import Severity from "../../../base/common/severity.js";
+import { IAction, toAction } from "../../../base/common/actions.js";
+import { MainThreadMessageServiceShape, MainContext, MainThreadMessageOptions } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDialogService, IPromptButton } from "../../../platform/dialogs/common/dialogs.js";
+import { INotificationService, INotificationSource } from "../../../platform/notification/common/notification.js";
+import { Event } from "../../../base/common/event.js";
 import { ICommandService } from "../../../platform/commands/common/commands.js";
-import {
-  IDialogService
-} from "../../../platform/dialogs/common/dialogs.js";
-import {
-  INotificationService
-} from "../../../platform/notification/common/notification.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
 import { IExtensionService } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "../common/extHost.protocol.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 let MainThreadMessageService = class {
   constructor(extHostContext, _notificationService, _commandService, _dialogService, extensionService) {
     this._notificationService = _notificationService;
     this._commandService = _commandService;
     this._dialogService = _dialogService;
-    this.extensionsListener = extensionService.onDidChangeExtensions(
-      (e) => {
-        for (const extension of e.removed) {
-          this._notificationService.removeFilter(
-            extension.identifier.value
-          );
-        }
+    this.extensionsListener = extensionService.onDidChangeExtensions((e) => {
+      for (const extension of e.removed) {
+        this._notificationService.removeFilter(extension.identifier.value);
       }
-    );
+    });
   }
   extensionsListener;
   dispose() {
@@ -48,30 +38,22 @@ let MainThreadMessageService = class {
   }
   $showMessage(severity, message, options, commands) {
     if (options.modal) {
-      return this._showModalMessage(
-        severity,
-        message,
-        options.detail,
-        commands,
-        options.useCustom
-      );
+      return this._showModalMessage(severity, message, options.detail, commands, options.useCustom);
     } else {
       return this._showMessage(severity, message, commands, options);
     }
   }
   _showMessage(severity, message, commands, options) {
     return new Promise((resolve) => {
-      const primaryActions = commands.map(
-        (command) => toAction({
-          id: `_extension_message_handle_${command.handle}`,
-          label: command.title,
-          enabled: true,
-          run: /* @__PURE__ */ __name(() => {
-            resolve(command.handle);
-            return Promise.resolve();
-          }, "run")
-        })
-      );
+      const primaryActions = commands.map((command) => toAction({
+        id: `_extension_message_handle_${command.handle}`,
+        label: command.title,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => {
+          resolve(command.handle);
+          return Promise.resolve();
+        }, "run")
+      }));
       let source;
       if (options.source) {
         source = {
@@ -84,29 +66,18 @@ let MainThreadMessageService = class {
       }
       const secondaryActions = [];
       if (options.source) {
-        secondaryActions.push(
-          toAction({
-            id: options.source.identifier.value,
-            label: nls.localize(
-              "manageExtension",
-              "Manage Extension"
-            ),
-            run: /* @__PURE__ */ __name(() => {
-              return this._commandService.executeCommand(
-                "_extensions.manage",
-                options.source.identifier.value
-              );
-            }, "run")
-          })
-        );
+        secondaryActions.push(toAction({
+          id: options.source.identifier.value,
+          label: nls.localize("manageExtension", "Manage Extension"),
+          run: /* @__PURE__ */ __name(() => {
+            return this._commandService.executeCommand("_extensions.manage", options.source.identifier.value);
+          }, "run")
+        }));
       }
       const messageHandle = this._notificationService.notify({
         severity,
         message,
-        actions: {
-          primary: primaryActions,
-          secondary: secondaryActions
-        },
+        actions: { primary: primaryActions, secondary: secondaryActions },
         source
       });
       Event.once(messageHandle.onDidClose)(() => {
@@ -116,7 +87,7 @@ let MainThreadMessageService = class {
   }
   async _showModalMessage(severity, message, detail, commands, useCustom) {
     const buttons = [];
-    let cancelButton;
+    let cancelButton = void 0;
     for (const command of commands) {
       const button = {
         label: command.title,
@@ -136,10 +107,7 @@ let MainThreadMessageService = class {
         };
       } else {
         cancelButton = {
-          label: nls.localize(
-            { key: "ok", comment: ["&& denotes a mnemonic"] },
-            "&&OK"
-          ),
+          label: nls.localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
           run: /* @__PURE__ */ __name(() => void 0, "run")
         };
       }

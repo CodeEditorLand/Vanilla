@@ -10,29 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Dimension,
-  WindowIntervalTimer,
-  getWindow,
-  scheduleAtNextAnimationFrame,
-  trackFocus
-} from "../../../../../../base/browser/dom.js";
-import {
-  DeferredPromise,
-  Queue,
-  createCancelablePromise,
-  disposableTimeout
-} from "../../../../../../base/common/async.js";
-import {
-  CancellationTokenSource
-} from "../../../../../../base/common/cancellation.js";
+import { Dimension, IFocusTracker, WindowIntervalTimer, getWindow, scheduleAtNextAnimationFrame, trackFocus } from "../../../../../../base/browser/dom.js";
+import { CancelablePromise, DeferredPromise, Queue, createCancelablePromise, disposableTimeout } from "../../../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { Emitter } from "../../../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable,
-  toDisposable
-} from "../../../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../../../base/common/map.js";
 import { Schemas } from "../../../../../../base/common/network.js";
 import { MovingAverage } from "../../../../../../base/common/numbers.js";
@@ -40,44 +22,33 @@ import { isEqual } from "../../../../../../base/common/resources.js";
 import { StopWatch } from "../../../../../../base/common/stopwatch.js";
 import { assertType } from "../../../../../../base/common/types.js";
 import { URI } from "../../../../../../base/common/uri.js";
+import { IActiveCodeEditor } from "../../../../../../editor/browser/editorBrowser.js";
 import { CodeEditorWidget } from "../../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { ISingleEditOperation } from "../../../../../../editor/common/core/editOperation.js";
+import { Position } from "../../../../../../editor/common/core/position.js";
 import { Selection } from "../../../../../../editor/common/core/selection.js";
 import { TextEdit } from "../../../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { ICursorStateComputer, ITextModel } from "../../../../../../editor/common/model.js";
 import { IEditorWorkerService } from "../../../../../../editor/common/services/editorWorker.js";
 import { IModelService } from "../../../../../../editor/common/services/model.js";
 import { localize } from "../../../../../../nls.js";
-import {
-  IContextKeyService
-} from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../../../platform/storage/common/storage.js";
 import { ChatAgentLocation } from "../../../../chat/common/chatAgents.js";
+import { ChatModel, IChatModel } from "../../../../chat/common/chatModel.js";
 import { IChatService } from "../../../../chat/common/chatService.js";
 import { countWords } from "../../../../chat/common/chatWordCounter.js";
+import { ProgressingEditsOptions } from "../../../../inlineChat/browser/inlineChatStrategies.js";
 import { InlineChatWidget } from "../../../../inlineChat/browser/inlineChatWidget.js";
-import {
-  asProgressiveEdit,
-  performAsyncTextEdit
-} from "../../../../inlineChat/browser/utils.js";
-import { CellKind } from "../../../common/notebookCommon.js";
-import {
-  INotebookExecutionStateService,
-  NotebookExecutionType
-} from "../../../common/notebookExecutionStateService.js";
-import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { asProgressiveEdit, performAsyncTextEdit } from "../../../../inlineChat/browser/utils.js";
 import { insertCell, runDeleteAction } from "../cellOperations.js";
-import {
-  CTX_NOTEBOOK_CELL_CHAT_FOCUSED,
-  CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST,
-  CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION,
-  CTX_NOTEBOOK_CHAT_USER_DID_EDIT,
-  MENU_CELL_CHAT_WIDGET_STATUS
-} from "./notebookChatContext.js";
+import { CTX_NOTEBOOK_CELL_CHAT_FOCUSED, CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST, CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION, CTX_NOTEBOOK_CHAT_USER_DID_EDIT, MENU_CELL_CHAT_WIDGET_STATUS } from "./notebookChatContext.js";
+import { ICellViewModel, INotebookEditor, INotebookEditorContribution, INotebookViewZone } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
 class NotebookChatWidget extends Disposable {
   constructor(_notebookEditor, id, notebookViewZone, domNode, widgetContainer, inlineChatWidget, parentEditor, _languageService) {
     super();
@@ -99,16 +70,12 @@ class NotebookChatWidget extends Disposable {
       });
       this._layoutWidget(inlineChatWidget, widgetContainer);
     }, "updateHeight");
-    this._register(
-      inlineChatWidget.onDidChangeHeight(() => {
-        updateHeight();
-      })
-    );
-    this._register(
-      inlineChatWidget.chatWidget.onDidChangeHeight(() => {
-        updateHeight();
-      })
-    );
+    this._register(inlineChatWidget.onDidChangeHeight(() => {
+      updateHeight();
+    }));
+    this._register(inlineChatWidget.chatWidget.onDidChangeHeight(() => {
+      updateHeight();
+    }));
     this.heightInPx = inlineChatWidget.contentHeight;
     this._layoutWidget(inlineChatWidget, widgetContainer);
   }
@@ -136,23 +103,13 @@ class NotebookChatWidget extends Disposable {
   }
   restoreEditingCell(initEditingCell) {
     this._editingCell = initEditingCell;
-    const decorationIds = this._notebookEditor.deltaCellDecorations(
-      [],
-      [
-        {
-          handle: this._editingCell.handle,
-          options: {
-            className: "nb-chatGenerationHighlight",
-            outputClassName: "nb-chatGenerationHighlight"
-          }
-        }
-      ]
-    );
-    this._register(
-      toDisposable(() => {
-        this._notebookEditor.deltaCellDecorations(decorationIds, []);
-      })
-    );
+    const decorationIds = this._notebookEditor.deltaCellDecorations([], [{
+      handle: this._editingCell.handle,
+      options: { className: "nb-chatGenerationHighlight", outputClassName: "nb-chatGenerationHighlight" }
+    }]);
+    this._register(toDisposable(() => {
+      this._notebookEditor.deltaCellDecorations(decorationIds, []);
+    }));
   }
   hasFocus() {
     return this.inlineChatWidget.hasFocus();
@@ -163,25 +120,18 @@ class NotebookChatWidget extends Disposable {
   }
   updateNotebookEditorFocusNSelections() {
     this._notebookEditor.focusContainer(true);
-    this._notebookEditor.setFocus({
+    this._notebookEditor.setFocus({ start: this.afterModelPosition, end: this.afterModelPosition });
+    this._notebookEditor.setSelections([{
       start: this.afterModelPosition,
       end: this.afterModelPosition
-    });
-    this._notebookEditor.setSelections([
-      {
-        start: this.afterModelPosition,
-        end: this.afterModelPosition
-      }
-    ]);
+    }]);
   }
   getEditingCell() {
     return this._editingCell;
   }
   async getOrCreateEditingCell() {
     if (this._editingCell) {
-      const codeEditor2 = this._notebookEditor.codeEditors.find(
-        (ce) => ce[0] === this._editingCell
-      )?.[1];
+      const codeEditor2 = this._notebookEditor.codeEditors.find((ce) => ce[0] === this._editingCell)?.[1];
       if (codeEditor2?.hasModel()) {
         return {
           cell: this._editingCell,
@@ -195,42 +145,22 @@ class NotebookChatWidget extends Disposable {
       return void 0;
     }
     const widgetHasFocus = this.inlineChatWidget.hasFocus();
-    this._editingCell = insertCell(
-      this._languageService,
-      this._notebookEditor,
-      this.afterModelPosition,
-      CellKind.Code,
-      "above"
-    );
+    this._editingCell = insertCell(this._languageService, this._notebookEditor, this.afterModelPosition, CellKind.Code, "above");
     if (!this._editingCell) {
       return void 0;
     }
-    await this._notebookEditor.revealFirstLineIfOutsideViewport(
-      this._editingCell
-    );
-    const decorationIds = this._notebookEditor.deltaCellDecorations(
-      [],
-      [
-        {
-          handle: this._editingCell.handle,
-          options: {
-            className: "nb-chatGenerationHighlight",
-            outputClassName: "nb-chatGenerationHighlight"
-          }
-        }
-      ]
-    );
-    this._register(
-      toDisposable(() => {
-        this._notebookEditor.deltaCellDecorations(decorationIds, []);
-      })
-    );
+    await this._notebookEditor.revealFirstLineIfOutsideViewport(this._editingCell);
+    const decorationIds = this._notebookEditor.deltaCellDecorations([], [{
+      handle: this._editingCell.handle,
+      options: { className: "nb-chatGenerationHighlight", outputClassName: "nb-chatGenerationHighlight" }
+    }]);
+    this._register(toDisposable(() => {
+      this._notebookEditor.deltaCellDecorations(decorationIds, []);
+    }));
     if (widgetHasFocus) {
       this.focus();
     }
-    const codeEditor = this._notebookEditor.codeEditors.find(
-      (ce) => ce[0] === this._editingCell
-    )?.[1];
+    const codeEditor = this._notebookEditor.codeEditors.find((ce) => ce[0] === this._editingCell)?.[1];
     if (codeEditor?.hasModel()) {
       return {
         cell: this._editingCell,
@@ -249,10 +179,7 @@ class NotebookChatWidget extends Disposable {
     const rightMargin = layoutConfiguration.cellRightMargin;
     const leftMargin = this._notebookEditor.notebookOptions.getCellEditorContainerLeftMargin();
     const maxWidth = 640;
-    const width = Math.min(
-      maxWidth,
-      this._notebookEditor.getLayoutInfo().width - leftMargin - rightMargin
-    );
+    const width = Math.min(maxWidth, this._notebookEditor.getLayoutInfo().width - leftMargin - rightMargin);
     inlineChatWidget.layout(new Dimension(width, this.heightInPx));
     inlineChatWidget.domNode.style.width = `${width}px`;
     widgetContainer.style.left = `${leftMargin}px`;
@@ -292,26 +219,12 @@ let NotebookChatController = class extends Disposable {
     this._executionStateService = _executionStateService;
     this._storageService = _storageService;
     this._chatService = _chatService;
-    this._ctxHasActiveRequest = CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST.bindTo(
-      this._contextKeyService
-    );
-    this._ctxCellWidgetFocused = CTX_NOTEBOOK_CELL_CHAT_FOCUSED.bindTo(
-      this._contextKeyService
-    );
-    this._ctxUserDidEdit = CTX_NOTEBOOK_CHAT_USER_DID_EDIT.bindTo(
-      this._contextKeyService
-    );
-    this._ctxOuterFocusPosition = CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION.bindTo(
-      this._contextKeyService
-    );
+    this._ctxHasActiveRequest = CTX_NOTEBOOK_CHAT_HAS_ACTIVE_REQUEST.bindTo(this._contextKeyService);
+    this._ctxCellWidgetFocused = CTX_NOTEBOOK_CELL_CHAT_FOCUSED.bindTo(this._contextKeyService);
+    this._ctxUserDidEdit = CTX_NOTEBOOK_CHAT_USER_DID_EDIT.bindTo(this._contextKeyService);
+    this._ctxOuterFocusPosition = CTX_NOTEBOOK_CHAT_OUTER_FOCUS_POSITION.bindTo(this._contextKeyService);
     this._registerFocusTracker();
-    NotebookChatController._promptHistory = JSON.parse(
-      this._storageService.get(
-        NotebookChatController._storageKey,
-        StorageScope.PROFILE,
-        "[]"
-      )
-    );
+    NotebookChatController._promptHistory = JSON.parse(this._storageService.get(NotebookChatController._storageKey, StorageScope.PROFILE, "[]"));
     this._historyUpdate = (prompt) => {
       const idx = NotebookChatController._promptHistory.indexOf(prompt);
       if (idx >= 0) {
@@ -320,12 +233,7 @@ let NotebookChatController = class extends Disposable {
       NotebookChatController._promptHistory.unshift(prompt);
       this._historyOffset = -1;
       this._historyCandidate = "";
-      this._storageService.store(
-        NotebookChatController._storageKey,
-        JSON.stringify(NotebookChatController._promptHistory),
-        StorageScope.PROFILE,
-        StorageTarget.USER
-      );
+      this._storageService.store(NotebookChatController._storageKey, JSON.stringify(NotebookChatController._promptHistory), StorageScope.PROFILE, StorageTarget.USER);
     };
   }
   static {
@@ -334,9 +242,7 @@ let NotebookChatController = class extends Disposable {
   static id = "workbench.notebook.chatController";
   static counter = 0;
   static get(editor) {
-    return editor.getContribution(
-      NotebookChatController.id
-    );
+    return editor.getContribution(NotebookChatController.id);
   }
   // History
   static _storageKey = "inline-chat-history";
@@ -345,9 +251,7 @@ let NotebookChatController = class extends Disposable {
   _historyCandidate = "";
   _historyUpdate;
   _promptCache = new LRUCache(1e3, 0.7);
-  _onDidChangePromptCache = this._register(
-    new Emitter()
-  );
+  _onDidChangePromptCache = this._register(new Emitter());
   onDidChangePromptCache = this._onDidChangePromptCache.event;
   _strategy;
   _sessionCtor;
@@ -357,35 +261,27 @@ let NotebookChatController = class extends Disposable {
   _ctxCellWidgetFocused;
   _ctxUserDidEdit;
   _ctxOuterFocusPosition;
-  _userEditingDisposables = this._register(
-    new DisposableStore()
-  );
-  _widgetDisposableStore = this._register(
-    new DisposableStore()
-  );
+  _userEditingDisposables = this._register(new DisposableStore());
+  _widgetDisposableStore = this._register(new DisposableStore());
   _focusTracker;
   _widget;
-  _model = this._register(
-    new MutableDisposable()
-  );
+  _model = this._register(new MutableDisposable());
   _registerFocusTracker() {
-    this._register(
-      this._notebookEditor.onDidChangeFocus(() => {
-        if (!this._widget) {
-          this._ctxOuterFocusPosition.set("");
-          return;
-        }
-        const widgetIndex = this._widget.afterModelPosition;
-        const focus = this._notebookEditor.getFocus().start;
-        if (focus + 1 === widgetIndex) {
-          this._ctxOuterFocusPosition.set("above");
-        } else if (focus === widgetIndex) {
-          this._ctxOuterFocusPosition.set("below");
-        } else {
-          this._ctxOuterFocusPosition.set("");
-        }
-      })
-    );
+    this._register(this._notebookEditor.onDidChangeFocus(() => {
+      if (!this._widget) {
+        this._ctxOuterFocusPosition.set("");
+        return;
+      }
+      const widgetIndex = this._widget.afterModelPosition;
+      const focus = this._notebookEditor.getFocus().start;
+      if (focus + 1 === widgetIndex) {
+        this._ctxOuterFocusPosition.set("above");
+      } else if (focus === widgetIndex) {
+        this._ctxOuterFocusPosition.set("below");
+      } else {
+        this._ctxOuterFocusPosition.set("");
+      }
+    }));
   }
   run(index, input, autoSend) {
     if (this._widget) {
@@ -404,9 +300,7 @@ let NotebookChatController = class extends Disposable {
     if (!this._notebookEditor.hasModel()) {
       return;
     }
-    const index = this._notebookEditor.textModel.cells.indexOf(
-      editingCell.model
-    );
+    const index = this._notebookEditor.textModel.cells.indexOf(editingCell.model);
     if (index < 0) {
       return;
     }
@@ -439,87 +333,58 @@ let NotebookChatController = class extends Disposable {
     const widgetContainer = document.createElement("div");
     widgetContainer.style.position = "absolute";
     viewZoneContainer.appendChild(widgetContainer);
-    this._focusTracker = this._widgetDisposableStore.add(
-      trackFocus(viewZoneContainer)
-    );
-    this._widgetDisposableStore.add(
-      this._focusTracker.onDidFocus(() => {
-        this._updateNotebookEditorFocusNSelections();
-      })
-    );
+    this._focusTracker = this._widgetDisposableStore.add(trackFocus(viewZoneContainer));
+    this._widgetDisposableStore.add(this._focusTracker.onDidFocus(() => {
+      this._updateNotebookEditorFocusNSelections();
+    }));
     const fakeParentEditorElement = document.createElement("div");
-    const fakeParentEditor = this._widgetDisposableStore.add(
-      this._instantiationService.createInstance(
-        CodeEditorWidget,
-        fakeParentEditorElement,
-        {},
-        { isSimpleWidget: true }
-      )
-    );
+    const fakeParentEditor = this._widgetDisposableStore.add(this._instantiationService.createInstance(
+      CodeEditorWidget,
+      fakeParentEditorElement,
+      {},
+      { isSimpleWidget: true }
+    ));
     const inputBoxFragment = `notebook-chat-input-${NotebookChatController.counter++}`;
     const notebookUri = this._notebookEditor.textModel.uri;
-    const inputUri = notebookUri.with({
-      scheme: Schemas.untitled,
-      fragment: inputBoxFragment
-    });
-    const result = this._modelService.createModel(
-      "",
-      null,
-      inputUri,
-      false
-    );
+    const inputUri = notebookUri.with({ scheme: Schemas.untitled, fragment: inputBoxFragment });
+    const result = this._modelService.createModel("", null, inputUri, false);
     fakeParentEditor.setModel(result);
-    const inlineChatWidget = this._widgetDisposableStore.add(
-      this._instantiationService.createInstance(
-        InlineChatWidget,
-        {
-          location: ChatAgentLocation.Notebook,
-          resolveData: /* @__PURE__ */ __name(() => {
-            const sessionInputUri = this.getSessionInputUri();
-            if (!sessionInputUri) {
-              return void 0;
-            }
-            return {
-              type: ChatAgentLocation.Notebook,
-              sessionInputUri
-            };
-          }, "resolveData")
-        },
-        {
-          statusMenuId: MENU_CELL_CHAT_WIDGET_STATUS,
-          chatWidgetViewOptions: {
-            rendererOptions: {
-              renderTextEditsAsSummary: /* @__PURE__ */ __name((uri) => {
-                return isEqual(
-                  uri,
-                  this._widget?.parentEditor.getModel()?.uri
-                ) || isEqual(
-                  uri,
-                  this._notebookEditor.textModel?.uri
-                );
-              }, "renderTextEditsAsSummary")
-            },
-            menus: {
-              telemetrySource: "notebook-generate-cell"
-            }
+    const inlineChatWidget = this._widgetDisposableStore.add(this._instantiationService.createInstance(
+      InlineChatWidget,
+      {
+        location: ChatAgentLocation.Notebook,
+        resolveData: /* @__PURE__ */ __name(() => {
+          const sessionInputUri = this.getSessionInputUri();
+          if (!sessionInputUri) {
+            return void 0;
+          }
+          return {
+            type: ChatAgentLocation.Notebook,
+            sessionInputUri
+          };
+        }, "resolveData")
+      },
+      {
+        statusMenuId: MENU_CELL_CHAT_WIDGET_STATUS,
+        chatWidgetViewOptions: {
+          rendererOptions: {
+            renderTextEditsAsSummary: /* @__PURE__ */ __name((uri) => {
+              return isEqual(uri, this._widget?.parentEditor.getModel()?.uri) || isEqual(uri, this._notebookEditor.textModel?.uri);
+            }, "renderTextEditsAsSummary")
+          },
+          menus: {
+            telemetrySource: "notebook-generate-cell"
           }
         }
-      )
-    );
-    inlineChatWidget.placeholder = localize(
-      "default.placeholder",
-      "Ask a question"
-    );
-    inlineChatWidget.updateInfo(
-      localize("welcome.1", "AI-generated code may be incorrect")
-    );
+      }
+    ));
+    inlineChatWidget.placeholder = localize("default.placeholder", "Ask a question");
+    inlineChatWidget.updateInfo(localize("welcome.1", "AI-generated code may be incorrect"));
     widgetContainer.appendChild(inlineChatWidget.domNode);
-    this._widgetDisposableStore.add(
-      inlineChatWidget.onDidChangeInput(() => {
-        this._warmupRequestCts?.dispose(true);
-        this._warmupRequestCts = void 0;
-      })
-    );
+    this._widgetDisposableStore.add(inlineChatWidget.onDidChangeInput(() => {
+      this._warmupRequestCts?.dispose(true);
+      this._warmupRequestCts = void 0;
+    }));
     this._notebookEditor.changeViewZones((accessor) => {
       const notebookViewZone = {
         afterModelPosition: index,
@@ -543,13 +408,9 @@ let NotebookChatController = class extends Disposable {
         this._updateUserEditingState();
       }
       this._ctxCellWidgetFocused.set(true);
-      disposableTimeout(
-        () => {
-          this._focusWidget();
-        },
-        0,
-        this._store
-      );
+      disposableTimeout(() => {
+        this._focusWidget();
+      }, 0, this._store);
       this._sessionCtor = createCancelablePromise(async (token) => {
         await this._startSession(token);
         assertType(this._model.value);
@@ -571,10 +432,7 @@ let NotebookChatController = class extends Disposable {
   }
   async _startSession(token) {
     if (!this._model.value) {
-      this._model.value = this._chatService.startSession(
-        ChatAgentLocation.Editor,
-        token
-      );
+      this._model.value = this._chatService.startSession(ChatAgentLocation.Editor, token);
       if (!this._model.value) {
         throw new Error("Failed to start chat session");
       }
@@ -585,14 +443,13 @@ let NotebookChatController = class extends Disposable {
     if (index === 0 || this._notebookEditor.getLength() === 0) {
       this._notebookEditor.revealOffsetInCenterIfOutsideViewport(0);
     } else {
-      const previousCell = this._notebookEditor.cellAt(
-        Math.min(index - 1, this._notebookEditor.getLength() - 1)
-      );
+      const previousCell = this._notebookEditor.cellAt(Math.min(index - 1, this._notebookEditor.getLength() - 1));
       if (previousCell) {
         const cellTop = this._notebookEditor.getAbsoluteTopOfElement(previousCell);
         const cellHeight = this._notebookEditor.getHeightOfElement(previousCell);
         this._notebookEditor.revealOffsetInCenterIfOutsideViewport(
           cellTop + cellHeight + 48
+          /** center of the dialog */
         );
       }
     }
@@ -634,19 +491,15 @@ let NotebookChatController = class extends Disposable {
     }
     const editingCellIndex = this._widget.editingCell ? this._notebookEditor.getCellIndex(this._widget.editingCell) : void 0;
     if (editingCellIndex !== void 0) {
-      this._notebookEditor.setSelections([
-        {
-          start: editingCellIndex,
-          end: editingCellIndex + 1
-        }
-      ]);
+      this._notebookEditor.setSelections([{
+        start: editingCellIndex,
+        end: editingCellIndex + 1
+      }]);
     } else {
-      this._notebookEditor.setSelections([
-        {
-          start: this._widget.afterModelPosition,
-          end: this._widget.afterModelPosition
-        }
-      ]);
+      this._notebookEditor.setSelections([{
+        start: this._widget.afterModelPosition,
+        end: this._widget.afterModelPosition
+      }]);
     }
     this._ctxHasActiveRequest.set(true);
     this._activeRequestCts?.cancel();
@@ -657,90 +510,60 @@ let NotebookChatController = class extends Disposable {
       const progressiveEditsQueue = new Queue();
       const progressiveEditsClock = StopWatch.create();
       const progressiveEditsAvgDuration = new MovingAverage();
-      const progressiveEditsCts = new CancellationTokenSource(
-        this._activeRequestCts.token
-      );
+      const progressiveEditsCts = new CancellationTokenSource(this._activeRequestCts.token);
       const responsePromise = new DeferredPromise();
       const response = await this._widget.inlineChatWidget.chatWidget.acceptInput();
       if (response) {
         let lastLength = 0;
-        store.add(
-          response.onDidChange((e) => {
-            if (response.isCanceled) {
-              progressiveEditsCts.cancel();
-              responsePromise.complete();
-              return;
+        store.add(response.onDidChange((e) => {
+          if (response.isCanceled) {
+            progressiveEditsCts.cancel();
+            responsePromise.complete();
+            return;
+          }
+          if (response.isComplete) {
+            responsePromise.complete();
+            return;
+          }
+          const edits = response.response.value.map((part) => {
+            if (part.kind === "textEditGroup") {
+              return part.edits;
+            } else {
+              return [];
             }
-            if (response.isComplete) {
-              responsePromise.complete();
-              return;
+          }).flat();
+          const newEdits = edits.slice(lastLength);
+          if (newEdits.length === 0) {
+            return;
+          }
+          lastLength = edits.length;
+          progressiveEditsAvgDuration.update(progressiveEditsClock.elapsed());
+          progressiveEditsClock.reset();
+          progressiveEditsQueue.queue(async () => {
+            for (const edits2 of newEdits) {
+              await this._makeChanges(edits2, {
+                duration: progressiveEditsAvgDuration.value,
+                token: progressiveEditsCts.token
+              });
             }
-            const edits = response.response.value.flatMap(
-              (part) => {
-                if (part.kind === "textEditGroup") {
-                  return part.edits;
-                } else {
-                  return [];
-                }
-              }
-            );
-            const newEdits = edits.slice(lastLength);
-            if (newEdits.length === 0) {
-              return;
-            }
-            lastLength = edits.length;
-            progressiveEditsAvgDuration.update(
-              progressiveEditsClock.elapsed()
-            );
-            progressiveEditsClock.reset();
-            progressiveEditsQueue.queue(async () => {
-              for (const edits2 of newEdits) {
-                await this._makeChanges(edits2, {
-                  duration: progressiveEditsAvgDuration.value,
-                  token: progressiveEditsCts.token
-                });
-              }
-            });
-          })
-        );
+          });
+        }));
       }
       await responsePromise.p;
       await progressiveEditsQueue.whenIdle();
       this._userEditingDisposables.clear();
       const editingCell = this._widget.getEditingCell();
       if (editingCell) {
-        this._userEditingDisposables.add(
-          editingCell.model.onDidChangeContent(
-            () => this._updateUserEditingState()
-          )
-        );
-        this._userEditingDisposables.add(
-          editingCell.model.onDidChangeLanguage(
-            () => this._updateUserEditingState()
-          )
-        );
-        this._userEditingDisposables.add(
-          editingCell.model.onDidChangeMetadata(
-            () => this._updateUserEditingState()
-          )
-        );
-        this._userEditingDisposables.add(
-          editingCell.model.onDidChangeInternalMetadata(
-            () => this._updateUserEditingState()
-          )
-        );
-        this._userEditingDisposables.add(
-          editingCell.model.onDidChangeOutputs(
-            () => this._updateUserEditingState()
-          )
-        );
-        this._userEditingDisposables.add(
-          this._executionStateService.onDidChangeExecution((e) => {
-            if (e.type === NotebookExecutionType.cell && e.affectsCell(editingCell.uri)) {
-              this._updateUserEditingState();
-            }
-          })
-        );
+        this._userEditingDisposables.add(editingCell.model.onDidChangeContent(() => this._updateUserEditingState()));
+        this._userEditingDisposables.add(editingCell.model.onDidChangeLanguage(() => this._updateUserEditingState()));
+        this._userEditingDisposables.add(editingCell.model.onDidChangeMetadata(() => this._updateUserEditingState()));
+        this._userEditingDisposables.add(editingCell.model.onDidChangeInternalMetadata(() => this._updateUserEditingState()));
+        this._userEditingDisposables.add(editingCell.model.onDidChangeOutputs(() => this._updateUserEditingState()));
+        this._userEditingDisposables.add(this._executionStateService.onDidChangeExecution((e) => {
+          if (e.type === NotebookExecutionType.cell && e.affectsCell(editingCell.uri)) {
+            this._updateUserEditingState();
+          }
+        }));
       }
     } catch (e) {
     } finally {
@@ -758,10 +581,7 @@ let NotebookChatController = class extends Disposable {
       return;
     }
     const editor = editingCell.editor;
-    const moreMinimalEdits = await this._editorWorkerService.computeMoreMinimalEdits(
-      editor.getModel().uri,
-      edits
-    );
+    const moreMinimalEdits = await this._editorWorkerService.computeMoreMinimalEdits(editor.getModel().uri, edits);
     if (moreMinimalEdits?.length === 0) {
       return;
     }
@@ -769,11 +589,7 @@ let NotebookChatController = class extends Disposable {
     const editOperations = actualEdits.map(TextEdit.asEditOperation);
     try {
       if (opts) {
-        await this._strategy.makeProgressiveChanges(
-          editor,
-          editOperations,
-          opts
-        );
+        await this._strategy.makeProgressiveChanges(editor, editOperations, opts);
       } else {
         await this._strategy.makeChanges(editor, editOperations);
       }
@@ -792,15 +608,9 @@ let NotebookChatController = class extends Disposable {
     }
     const editingCell = this._widget?.getEditingCell();
     if (editingCell && this._notebookEditor.hasModel()) {
-      const cellId = NotebookCellTextModelLikeId.str({
-        uri: editingCell.uri,
-        viewType: this._notebookEditor.textModel.viewType
-      });
+      const cellId = NotebookCellTextModelLikeId.str({ uri: editingCell.uri, viewType: this._notebookEditor.textModel.viewType });
       if (this._widget?.inlineChatWidget.value) {
-        this._promptCache.set(
-          cellId,
-          this._widget.inlineChatWidget.value
-        );
+        this._promptCache.set(cellId, this._widget.inlineChatWidget.value);
       }
       this._onDidChangePromptCache.fire({ cell: editingCell.uri });
     }
@@ -906,20 +716,11 @@ let NotebookChatController = class extends Disposable {
       const shouldFocusTopCell = widgetIndex === 0 && this._notebookEditor.getLength() > 0;
       const shouldFocusAboveCell = widgetIndex !== 0 && this._notebookEditor.cellAt(widgetIndex - 1);
       if (shouldFocusEditingCell) {
-        this._notebookEditor.focusNotebookCell(
-          editingCell,
-          "container"
-        );
+        this._notebookEditor.focusNotebookCell(editingCell, "container");
       } else if (shouldFocusTopCell) {
-        this._notebookEditor.focusNotebookCell(
-          this._notebookEditor.cellAt(0),
-          "container"
-        );
+        this._notebookEditor.focusNotebookCell(this._notebookEditor.cellAt(0), "container");
       } else if (shouldFocusAboveCell) {
-        this._notebookEditor.focusNotebookCell(
-          this._notebookEditor.cellAt(widgetIndex - 1),
-          "container"
-        );
+        this._notebookEditor.focusNotebookCell(this._notebookEditor.cellAt(widgetIndex - 1), "container");
       }
     }
     this._ctxCellWidgetFocused.set(false);
@@ -936,10 +737,7 @@ let NotebookChatController = class extends Disposable {
     if (!this._notebookEditor.hasModel()) {
       return false;
     }
-    const cellId = NotebookCellTextModelLikeId.str({
-      uri: cell.uri,
-      viewType: this._notebookEditor.textModel.viewType
-    });
+    const cellId = NotebookCellTextModelLikeId.str({ uri: cell.uri, viewType: this._notebookEditor.textModel.viewType });
     return this._promptCache.has(cellId);
   }
   // get prompt from cache
@@ -947,10 +745,7 @@ let NotebookChatController = class extends Disposable {
     if (!this._notebookEditor.hasModel()) {
       return void 0;
     }
-    const cellId = NotebookCellTextModelLikeId.str({
-      uri: cell.uri,
-      viewType: this._notebookEditor.textModel.viewType
-    });
+    const cellId = NotebookCellTextModelLikeId.str({ uri: cell.uri, viewType: this._notebookEditor.textModel.viewType });
     return this._promptCache.get(cellId);
   }
   dispose() {
@@ -983,15 +778,7 @@ class EditStrategy {
     for (const edit of edits) {
       const wordCount = countWords(edit.text ?? "");
       const speed = wordCount / durationInSec;
-      await performAsyncTextEdit(
-        editor.getModel(),
-        asProgressiveEdit(
-          new WindowIntervalTimer(),
-          edit,
-          speed,
-          opts.token
-        )
-      );
+      await performAsyncTextEdit(editor.getModel(), asProgressiveEdit(new WindowIntervalTimer(), edit, speed, opts.token));
     }
   }
   async makeChanges(editor, edits) {
@@ -1005,11 +792,7 @@ class EditStrategy {
     if (++this._editCount === 1) {
       editor.pushUndoStop();
     }
-    editor.executeEdits(
-      "inline-chat-live",
-      edits,
-      cursorStateComputerAndInlineDiffCollection
-    );
+    editor.executeEdits("inline-chat-live", edits, cursorStateComputerAndInlineDiffCollection);
   }
 }
 registerNotebookContribution(NotebookChatController.id, NotebookChatController);

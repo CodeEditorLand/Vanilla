@@ -11,25 +11,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { findFirstIdxMonotonousOrArrLen } from "../../../../../../base/common/arraysFind.js";
-import {
-  Delayer,
-  createCancelablePromise
-} from "../../../../../../base/common/async.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../../../base/common/lifecycle.js";
+import { CancelablePromise, createCancelablePromise, Delayer } from "../../../../../../base/common/async.js";
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
 import { Range } from "../../../../../../editor/common/core/range.js";
+import { FindMatch } from "../../../../../../editor/common/model.js";
 import { PrefixSumComputer } from "../../../../../../editor/common/model/prefixSumComputer.js";
+import { FindReplaceState, FindReplaceStateChangedEvent } from "../../../../../../editor/contrib/find/browser/findState.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import {
-  CellKind,
-  NotebookCellsChangeType
-} from "../../../common/notebookCommon.js";
-import {
-  CellEditState
-} from "../../notebookBrowser.js";
+import { NotebookFindFilters } from "./findFilters.js";
 import { FindMatchDecorationModel } from "./findMatchDecorationModel.js";
+import { CellEditState, CellFindMatchWithIndex, CellWebviewFindMatch, ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
+import { NotebookViewModel } from "../../viewModel/notebookViewModelImpl.js";
+import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
+import { CellKind, INotebookFindOptions, NotebookCellsChangeType } from "../../../common/notebookCommon.js";
 class CellFindMatchModel {
   static {
     __name(this, "CellFindMatchModel");
@@ -71,36 +66,27 @@ let FindModel = class extends Disposable {
     this._configurationService = _configurationService;
     this._throttledDelayer = new Delayer(20);
     this._computePromise = null;
-    this._register(
-      _state.onFindReplaceStateChange((e) => {
-        this._updateCellStates(e);
-        if (e.searchString || e.isRegex || e.matchCase || e.searchScope || e.wholeWord || e.isRevealed && this._state.isRevealed || e.filters || e.isReplaceRevealed) {
-          this.research();
-        }
-        if (e.isRevealed && !this._state.isRevealed) {
-          this.clear();
-        }
-      })
-    );
-    this._register(
-      this._notebookEditor.onDidChangeModel((e) => {
-        this._registerModelListener(e);
-      })
-    );
-    this._register(
-      this._notebookEditor.onDidChangeCellState((e) => {
-        if (e.cell.cellKind === CellKind.Markup && e.source.editStateChanged) {
-          this.research();
-        }
-      })
-    );
+    this._register(_state.onFindReplaceStateChange((e) => {
+      this._updateCellStates(e);
+      if (e.searchString || e.isRegex || e.matchCase || e.searchScope || e.wholeWord || e.isRevealed && this._state.isRevealed || e.filters || e.isReplaceRevealed) {
+        this.research();
+      }
+      if (e.isRevealed && !this._state.isRevealed) {
+        this.clear();
+      }
+    }));
+    this._register(this._notebookEditor.onDidChangeModel((e) => {
+      this._registerModelListener(e);
+    }));
+    this._register(this._notebookEditor.onDidChangeCellState((e) => {
+      if (e.cell.cellKind === CellKind.Markup && e.source.editStateChanged) {
+        this.research();
+      }
+    }));
     if (this._notebookEditor.hasModel()) {
       this._registerModelListener(this._notebookEditor.textModel);
     }
-    this._findMatchDecorationModel = new FindMatchDecorationModel(
-      this._notebookEditor,
-      this._notebookEditor.getId()
-    );
+    this._findMatchDecorationModel = new FindMatchDecorationModel(this._notebookEditor, this._notebookEditor.getId());
   }
   static {
     __name(this, "FindModel");
@@ -127,9 +113,7 @@ let FindModel = class extends Disposable {
       if (!viewModel) {
         return;
       }
-      const wordSeparators = this._configurationService.inspect(
-        "editor.wordSeparators"
-      ).value;
+      const wordSeparators = this._configurationService.inspect("editor.wordSeparators").value;
       const options = {
         regex: this._state.isRegex,
         wholeWord: this._state.wholeWord,
@@ -141,16 +125,11 @@ let FindModel = class extends Disposable {
         includeOutput: false,
         findScope: this._state.filters?.findScope
       };
-      const contentMatches = viewModel.find(
-        this._state.searchString,
-        options
-      );
+      const contentMatches = viewModel.find(this._state.searchString, options);
       for (let i = 0; i < viewModel.length; i++) {
         const cell = viewModel.cellAt(i);
         if (cell && cell.cellKind === CellKind.Markup) {
-          const foundContentMatch = contentMatches.find(
-            (m) => m.cell.handle === cell.handle && m.contentMatches.length > 0
-          );
+          const foundContentMatch = contentMatches.find((m) => m.cell.handle === cell.handle && m.contentMatches.length > 0);
           const targetState = foundContentMatch ? CellEditState.Editing : CellEditState.Preview;
           const currentEditingState = cell.getEditState();
           if (currentEditingState === CellEditState.Editing && cell.editStateSource !== "find") {
@@ -189,13 +168,9 @@ let FindModel = class extends Disposable {
     }
   }
   getCurrentMatch() {
-    const nextIndex = this._findMatchesStarts.getIndexOf(
-      this._currentMatch
-    );
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
     const cell = this._findMatches[nextIndex.index].cell;
-    const match = this._findMatches[nextIndex.index].getMatch(
-      nextIndex.remainder
-    );
+    const match = this._findMatches[nextIndex.index].getMatch(nextIndex.remainder);
     return {
       cell,
       match,
@@ -203,37 +178,36 @@ let FindModel = class extends Disposable {
     };
   }
   refreshCurrentMatch(focus) {
-    const findMatchIndex = this.findMatches.findIndex(
-      (match) => match.cell === focus.cell
-    );
+    const findMatchIndex = this.findMatches.findIndex((match) => match.cell === focus.cell);
     if (findMatchIndex === -1) {
       return;
     }
     const findMatch = this.findMatches[findMatchIndex];
-    const index = findMatch.contentMatches.findIndex(
-      (match) => match.range.intersectRanges(focus.range) !== null
-    );
+    const index = findMatch.contentMatches.findIndex((match) => match.range.intersectRanges(focus.range) !== null);
     if (index === void 0) {
       return;
     }
     const matchesBefore = findMatchIndex === 0 ? 0 : this._findMatchesStarts?.getPrefixSum(findMatchIndex - 1) ?? 0;
     this._currentMatch = matchesBefore + index;
-    this.highlightCurrentFindMatchDecoration(findMatchIndex, index).then(
-      (offset) => {
-        this.revealCellRange(findMatchIndex, index, offset);
-        this._state.changeMatchInfo(
-          this._currentMatch,
-          this._findMatches.reduce((p, c) => p + c.length, 0),
-          void 0
-        );
-      }
-    );
+    this.highlightCurrentFindMatchDecoration(findMatchIndex, index).then((offset) => {
+      this.revealCellRange(findMatchIndex, index, offset);
+      this._state.changeMatchInfo(
+        this._currentMatch,
+        this._findMatches.reduce((p, c) => p + c.length, 0),
+        void 0
+      );
+    });
   }
   find(option) {
     if (!this.findMatches.length) {
       return;
     }
-    if (this._findMatchesStarts) {
+    if (!this._findMatchesStarts) {
+      this.set(this._findMatches, true);
+      if ("index" in option) {
+        this._currentMatch = option.index;
+      }
+    } else {
       const totalVal = this._findMatchesStarts.getTotalSum();
       if ("index" in option) {
         this._currentMatch = option.index;
@@ -243,19 +217,9 @@ let FindModel = class extends Disposable {
         const nextVal = (this._currentMatch + (option.previous ? -1 : 1) + totalVal) % totalVal;
         this._currentMatch = nextVal;
       }
-    } else {
-      this.set(this._findMatches, true);
-      if ("index" in option) {
-        this._currentMatch = option.index;
-      }
     }
-    const nextIndex = this._findMatchesStarts.getIndexOf(
-      this._currentMatch
-    );
-    this.highlightCurrentFindMatchDecoration(
-      nextIndex.index,
-      nextIndex.remainder
-    ).then((offset) => {
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    this.highlightCurrentFindMatchDecoration(nextIndex.index, nextIndex.remainder).then((offset) => {
       this.revealCellRange(nextIndex.index, nextIndex.remainder, offset);
       this._state.changeMatchInfo(
         this._currentMatch,
@@ -270,10 +234,7 @@ let FindModel = class extends Disposable {
       this._notebookEditor.focusElement(findMatch.cell);
       const index = this._notebookEditor.getCellIndex(findMatch.cell);
       if (index !== void 0) {
-        this._notebookEditor.revealCellOffsetInCenter(
-          findMatch.cell,
-          outputOffset ?? 0
-        );
+        this._notebookEditor.revealCellOffsetInCenter(findMatch.cell, outputOffset ?? 0);
       }
     } else {
       const match = findMatch.getMatch(matchIndex);
@@ -282,29 +243,19 @@ let FindModel = class extends Disposable {
       }
       findMatch.cell.isInputCollapsed = false;
       this._notebookEditor.focusElement(findMatch.cell);
-      this._notebookEditor.setCellEditorSelection(
-        findMatch.cell,
-        match.range
-      );
-      this._notebookEditor.revealRangeInCenterIfOutsideViewportAsync(
-        findMatch.cell,
-        match.range
-      );
+      this._notebookEditor.setCellEditorSelection(findMatch.cell, match.range);
+      this._notebookEditor.revealRangeInCenterIfOutsideViewportAsync(findMatch.cell, match.range);
     }
   }
   _registerModelListener(notebookTextModel) {
     this._modelDisposable.clear();
     if (notebookTextModel) {
-      this._modelDisposable.add(
-        notebookTextModel.onDidChangeContent((e) => {
-          if (!e.rawEvents.some(
-            (event) => event.kind === NotebookCellsChangeType.ChangeCellContent || event.kind === NotebookCellsChangeType.ModelChange
-          )) {
-            return;
-          }
-          this.research();
-        })
-      );
+      this._modelDisposable.add(notebookTextModel.onDidChangeContent((e) => {
+        if (!e.rawEvents.some((event) => event.kind === NotebookCellsChangeType.ChangeCellContent || event.kind === NotebookCellsChangeType.ModelChange)) {
+          return;
+        }
+        this.research();
+      }));
     }
     this.research();
   }
@@ -321,9 +272,7 @@ let FindModel = class extends Disposable {
       this.set([], false);
       return;
     }
-    this._computePromise = createCancelablePromise(
-      (token) => this._compute(token)
-    );
+    this._computePromise = createCancelablePromise((token) => this._compute(token));
     const findMatches = await this._computePromise;
     if (!findMatches) {
       this.set([], false);
@@ -334,14 +283,8 @@ let FindModel = class extends Disposable {
       return;
     }
     const findFirstMatchAfterCellIndex = /* @__PURE__ */ __name((cellIndex) => {
-      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(
-        findMatches.map((match) => match.index),
-        (index) => index >= cellIndex
-      );
-      this._updateCurrentMatch(
-        findMatches,
-        this._matchesCountBeforeIndex(findMatches, matchAfterSelection)
-      );
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches.map((match) => match.index), (index) => index >= cellIndex);
+      this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
     }, "findFirstMatchAfterCellIndex");
     if (this._currentMatch === -1) {
       if (this._notebookEditor.getLength() === 0) {
@@ -354,9 +297,7 @@ let FindModel = class extends Disposable {
         return;
       }
     }
-    const oldCurrIndex = this._findMatchesStarts.getIndexOf(
-      this._currentMatch
-    );
+    const oldCurrIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
     const oldCurrCell = this._findMatches[oldCurrIndex.index].cell;
     const oldCurrMatchCellIndex = this._notebookEditor.getCellIndex(oldCurrCell);
     if (oldCurrMatchCellIndex < 0) {
@@ -377,71 +318,32 @@ let FindModel = class extends Disposable {
       return;
     }
     if (this._findMatchDecorationModel.currentMatchDecorations.kind === "input") {
-      const currentMatchDecorationId = this._findMatchDecorationModel.currentMatchDecorations.decorations.find(
-        (decoration) => decoration.ownerId === cell.handle
-      );
+      const currentMatchDecorationId = this._findMatchDecorationModel.currentMatchDecorations.decorations.find((decoration) => decoration.ownerId === cell.handle);
       if (!currentMatchDecorationId) {
         findFirstMatchAfterCellIndex(oldCurrMatchCellIndex);
         return;
       }
-      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(
-        findMatches,
-        (match) => match.index >= oldCurrMatchCellIndex
-      ) % findMatches.length;
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches, (match) => match.index >= oldCurrMatchCellIndex) % findMatches.length;
       if (findMatches[matchAfterSelection].index > oldCurrMatchCellIndex) {
-        this._updateCurrentMatch(
-          findMatches,
-          this._matchesCountBeforeIndex(
-            findMatches,
-            matchAfterSelection
-          )
-        );
+        this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
         return;
       } else {
-        let currMatchRangeInEditor = cell.editorAttached && currentMatchDecorationId.decorations[0] ? cell.getCellDecorationRange(
-          currentMatchDecorationId.decorations[0]
-        ) : null;
+        let currMatchRangeInEditor = cell.editorAttached && currentMatchDecorationId.decorations[0] ? cell.getCellDecorationRange(currentMatchDecorationId.decorations[0]) : null;
         if (currMatchRangeInEditor === null && oldCurrIndex.remainder < this._findMatches[oldCurrIndex.index].contentMatches.length) {
-          currMatchRangeInEditor = this._findMatches[oldCurrIndex.index].getMatch(
-            oldCurrIndex.remainder
-          ).range;
+          currMatchRangeInEditor = this._findMatches[oldCurrIndex.index].getMatch(oldCurrIndex.remainder).range;
         }
         if (currMatchRangeInEditor !== null) {
           const cellMatch = findMatches[matchAfterSelection];
-          const matchAfterOldSelection = findFirstIdxMonotonousOrArrLen(
-            cellMatch.contentMatches,
-            (match) => Range.compareRangesUsingStarts(
-              match.range,
-              currMatchRangeInEditor
-            ) >= 0
-          );
-          this._updateCurrentMatch(
-            findMatches,
-            this._matchesCountBeforeIndex(
-              findMatches,
-              matchAfterSelection
-            ) + matchAfterOldSelection
-          );
+          const matchAfterOldSelection = findFirstIdxMonotonousOrArrLen(cellMatch.contentMatches, (match) => Range.compareRangesUsingStarts(match.range, currMatchRangeInEditor) >= 0);
+          this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection) + matchAfterOldSelection);
         } else {
-          this._updateCurrentMatch(
-            findMatches,
-            this._matchesCountBeforeIndex(
-              findMatches,
-              matchAfterSelection
-            )
-          );
+          this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
           return;
         }
       }
     } else {
-      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(
-        findMatches.map((match) => match.index),
-        (index) => index >= oldCurrMatchCellIndex
-      ) % findMatches.length;
-      this._updateCurrentMatch(
-        findMatches,
-        this._matchesCountBeforeIndex(findMatches, matchAfterSelection)
-      );
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches.map((match) => match.index), (index) => index >= oldCurrMatchCellIndex) % findMatches.length;
+      this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
     }
   }
   set(cellFindMatches, autoStart) {
@@ -459,9 +361,7 @@ let FindModel = class extends Disposable {
       return;
     }
     this._findMatches = cellFindMatches;
-    this._findMatchDecorationModel.setAllFindMatchesDecorations(
-      cellFindMatches || []
-    );
+    this._findMatchDecorationModel.setAllFindMatchesDecorations(cellFindMatches || []);
     this.constructFindMatchesStarts();
     if (autoStart) {
       this._currentMatch = 0;
@@ -479,9 +379,7 @@ let FindModel = class extends Disposable {
     }
     let ret = null;
     const val = this._state.searchString;
-    const wordSeparators = this._configurationService.inspect(
-      "editor.wordSeparators"
-    ).value;
+    const wordSeparators = this._configurationService.inspect("editor.wordSeparators").value;
     const options = {
       regex: this._state.isRegex,
       wholeWord: this._state.wholeWord,
@@ -502,13 +400,8 @@ let FindModel = class extends Disposable {
   _updateCurrentMatch(findMatches, currentMatchesPosition) {
     this._currentMatch = currentMatchesPosition % findMatches.length;
     this.set(findMatches, false);
-    const nextIndex = this._findMatchesStarts.getIndexOf(
-      this._currentMatch
-    );
-    this.highlightCurrentFindMatchDecoration(
-      nextIndex.index,
-      nextIndex.remainder
-    );
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    this.highlightCurrentFindMatchDecoration(nextIndex.index, nextIndex.remainder);
     this._state.changeMatchInfo(
       this._currentMatch,
       this._findMatches.reduce((p, c) => p + c.length, 0),
@@ -537,15 +430,9 @@ let FindModel = class extends Disposable {
     const cell = this._findMatches[cellIndex].cell;
     const match = this._findMatches[cellIndex].getMatch(matchIndex);
     if (matchIndex < this._findMatches[cellIndex].contentMatches.length) {
-      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInCell(
-        cell,
-        match.range
-      );
+      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInCell(cell, match.range);
     } else {
-      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInWebview(
-        cell,
-        match.index
-      );
+      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInWebview(cell, match.index);
     }
   }
   clear() {

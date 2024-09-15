@@ -11,52 +11,32 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Barrier } from "../../../base/common/async.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { IObservable, observableValue, observableValueOpts, transaction } from "../../../base/common/observable.js";
+import { IDisposable, DisposableStore, combinedDisposable, dispose, Disposable } from "../../../base/common/lifecycle.js";
+import { ISCMService, ISCMRepository, ISCMProvider, ISCMResource, ISCMResourceGroup, ISCMResourceDecorations, IInputValidation, ISCMViewService, InputValidationType, ISCMActionButtonDescriptor } from "../../contrib/scm/common/scm.js";
+import { ExtHostContext, MainThreadSCMShape, ExtHostSCMShape, SCMProviderFeatures, SCMRawResourceSplices, SCMGroupFeatures, MainContext, SCMHistoryItemDto, SCMHistoryItemRefsChangeEventDto, SCMHistoryItemRefDto } from "../common/extHost.protocol.js";
+import { Command } from "../../../editor/common/languages.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { structuralEquals } from "../../../base/common/equals.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  combinedDisposable,
-  dispose
-} from "../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../base/common/marshallingIds.js";
-import { Schemas } from "../../../base/common/network.js";
-import {
-  observableValue,
-  observableValueOpts,
-  transaction
-} from "../../../base/common/observable.js";
-import { ResourceTree } from "../../../base/common/resourceTree.js";
-import { basename } from "../../../base/common/resources.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
-import { IModelService } from "../../../editor/common/services/model.js";
-import {
-  ITextModelService
-} from "../../../editor/common/services/resolverService.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IQuickDiffService, QuickDiffProvider } from "../../contrib/scm/common/quickDiff.js";
+import { ISCMHistoryItem, ISCMHistoryItemChange, ISCMHistoryItemRef, ISCMHistoryItemRefsChangeEvent, ISCMHistoryOptions, ISCMHistoryProvider } from "../../contrib/scm/common/history.js";
+import { ResourceTree } from "../../../base/common/resourceTree.js";
 import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
-import {
-  historyItemBaseRefColor,
-  historyItemRefColor,
-  historyItemRemoteRefColor
-} from "../../contrib/scm/browser/scmHistory.js";
-import {
-  IQuickDiffService
-} from "../../contrib/scm/common/quickDiff.js";
-import {
-  ISCMService,
-  ISCMViewService
-} from "../../contrib/scm/common/scm.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { basename } from "../../../base/common/resources.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../editor/common/services/resolverService.js";
+import { Schemas } from "../../../base/common/network.js";
+import { ITextModel } from "../../../editor/common/model.js";
+import { structuralEquals } from "../../../base/common/equals.js";
+import { historyItemBaseRefColor, historyItemRefColor, historyItemRemoteRefColor } from "../../contrib/scm/browser/scmHistory.js";
+import { ColorIdentifier } from "../../../platform/theme/common/colorUtils.js";
 function getIconFromIconDto(iconDto) {
   if (iconDto === void 0) {
     return void 0;
@@ -81,11 +61,7 @@ function toISCMHistoryItem(historyItemDto) {
 }
 __name(toISCMHistoryItem, "toISCMHistoryItem");
 function toISCMHistoryItemRef(historyItemRefDto, color) {
-  return historyItemRefDto ? {
-    ...historyItemRefDto,
-    icon: getIconFromIconDto(historyItemRefDto.icon),
-    color
-  } : void 0;
+  return historyItemRefDto ? { ...historyItemRefDto, icon: getIconFromIconDto(historyItemRefDto.icon), color } : void 0;
 }
 __name(toISCMHistoryItemRef, "toISCMHistoryItemRef");
 class SCMInputBoxContentProvider extends Disposable {
@@ -93,12 +69,7 @@ class SCMInputBoxContentProvider extends Disposable {
     super();
     this.modelService = modelService;
     this.languageService = languageService;
-    this._register(
-      textModelService.registerTextModelContentProvider(
-        Schemas.vscodeSourceControl,
-        this
-      )
-    );
+    this._register(textModelService.registerTextModelContentProvider(Schemas.vscodeSourceControl, this));
   }
   static {
     __name(this, "SCMInputBoxContentProvider");
@@ -108,11 +79,7 @@ class SCMInputBoxContentProvider extends Disposable {
     if (existing) {
       return existing;
     }
-    return this.modelService.createModel(
-      "",
-      this.languageService.createById("scminput"),
-      resource
-    );
+    return this.modelService.createModel("", this.languageService.createById("scminput"), resource);
   }
 }
 class MainThreadSCMResourceGroup {
@@ -187,12 +154,7 @@ class MainThreadSCMResource {
     __name(this, "MainThreadSCMResource");
   }
   open(preserveFocus) {
-    return this.proxy.$executeResourceCommand(
-      this.sourceControlHandle,
-      this.groupHandle,
-      this.handle,
-      preserveFocus
-    );
+    return this.proxy.$executeResourceCommand(this.sourceControlHandle, this.groupHandle, this.handle, preserveFocus);
   }
   toJSON() {
     return {
@@ -211,79 +173,44 @@ class MainThreadSCMHistoryProvider {
   static {
     __name(this, "MainThreadSCMHistoryProvider");
   }
-  _historyItemRef = observableValueOpts(
-    {
-      owner: this,
-      equalsFn: structuralEquals
-    },
-    void 0
-  );
+  _historyItemRef = observableValueOpts({
+    owner: this,
+    equalsFn: structuralEquals
+  }, void 0);
   get historyItemRef() {
     return this._historyItemRef;
   }
-  _historyItemRemoteRef = observableValueOpts(
-    {
-      owner: this,
-      equalsFn: structuralEquals
-    },
-    void 0
-  );
+  _historyItemRemoteRef = observableValueOpts({
+    owner: this,
+    equalsFn: structuralEquals
+  }, void 0);
   get historyItemRemoteRef() {
     return this._historyItemRemoteRef;
   }
-  _historyItemBaseRef = observableValueOpts(
-    {
-      owner: this,
-      equalsFn: structuralEquals
-    },
-    void 0
-  );
+  _historyItemBaseRef = observableValueOpts({
+    owner: this,
+    equalsFn: structuralEquals
+  }, void 0);
   get historyItemBaseRef() {
     return this._historyItemBaseRef;
   }
-  _historyItemRefChanges = observableValue(this, {
-    added: [],
-    modified: [],
-    removed: [],
-    silent: false
-  });
+  _historyItemRefChanges = observableValue(this, { added: [], modified: [], removed: [], silent: false });
   get historyItemRefChanges() {
     return this._historyItemRefChanges;
   }
   async resolveHistoryItemRefsCommonAncestor(historyItemRefs) {
-    return this.proxy.$resolveHistoryItemRefsCommonAncestor(
-      this.handle,
-      historyItemRefs,
-      CancellationToken.None
-    );
+    return this.proxy.$resolveHistoryItemRefsCommonAncestor(this.handle, historyItemRefs, CancellationToken.None);
   }
   async provideHistoryItemRefs() {
-    const historyItemRefs = await this.proxy.$provideHistoryItemRefs(
-      this.handle,
-      CancellationToken.None
-    );
-    return historyItemRefs?.map((ref) => ({
-      ...ref,
-      icon: getIconFromIconDto(ref.icon)
-    }));
+    const historyItemRefs = await this.proxy.$provideHistoryItemRefs(this.handle, CancellationToken.None);
+    return historyItemRefs?.map((ref) => ({ ...ref, icon: getIconFromIconDto(ref.icon) }));
   }
   async provideHistoryItems(options) {
-    const historyItems = await this.proxy.$provideHistoryItems(
-      this.handle,
-      options,
-      CancellationToken.None
-    );
-    return historyItems?.map(
-      (historyItem) => toISCMHistoryItem(historyItem)
-    );
+    const historyItems = await this.proxy.$provideHistoryItems(this.handle, options, CancellationToken.None);
+    return historyItems?.map((historyItem) => toISCMHistoryItem(historyItem));
   }
   async provideHistoryItemChanges(historyItemId, historyItemParentId) {
-    const changes = await this.proxy.$provideHistoryItemChanges(
-      this.handle,
-      historyItemId,
-      historyItemParentId,
-      CancellationToken.None
-    );
+    const changes = await this.proxy.$provideHistoryItemChanges(this.handle, historyItemId, historyItemParentId, CancellationToken.None);
     return changes?.map((change) => ({
       uri: URI.revive(change.uri),
       originalUri: change.originalUri && URI.revive(change.originalUri),
@@ -293,40 +220,16 @@ class MainThreadSCMHistoryProvider {
   }
   $onDidChangeCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef) {
     transaction((tx) => {
-      this._historyItemRef.set(
-        toISCMHistoryItemRef(historyItemRef, historyItemRefColor),
-        tx
-      );
-      this._historyItemRemoteRef.set(
-        toISCMHistoryItemRef(
-          historyItemRemoteRef,
-          historyItemRemoteRefColor
-        ),
-        tx
-      );
-      this._historyItemBaseRef.set(
-        toISCMHistoryItemRef(
-          historyItemBaseRef,
-          historyItemBaseRefColor
-        ),
-        tx
-      );
+      this._historyItemRef.set(toISCMHistoryItemRef(historyItemRef, historyItemRefColor), tx);
+      this._historyItemRemoteRef.set(toISCMHistoryItemRef(historyItemRemoteRef, historyItemRemoteRefColor), tx);
+      this._historyItemBaseRef.set(toISCMHistoryItemRef(historyItemBaseRef, historyItemBaseRefColor), tx);
     });
   }
   $onDidChangeHistoryItemRefs(historyItemRefs) {
-    const added = historyItemRefs.added.map(
-      (ref) => toISCMHistoryItemRef(ref)
-    );
-    const modified = historyItemRefs.modified.map(
-      (ref) => toISCMHistoryItemRef(ref)
-    );
-    const removed = historyItemRefs.removed.map(
-      (ref) => toISCMHistoryItemRef(ref)
-    );
-    this._historyItemRefChanges.set(
-      { added, modified, removed, silent: historyItemRefs.silent },
-      void 0
-    );
+    const added = historyItemRefs.added.map((ref) => toISCMHistoryItemRef(ref));
+    const modified = historyItemRefs.modified.map((ref) => toISCMHistoryItemRef(ref));
+    const removed = historyItemRefs.removed.map((ref) => toISCMHistoryItemRef(ref));
+    this._historyItemRefChanges.set({ added, modified, removed, silent: historyItemRefs.silent }, void 0);
   }
 }
 class MainThreadSCMProvider {
@@ -393,10 +296,7 @@ class MainThreadSCMProvider {
   get actionButton() {
     return this.features.actionButton ?? void 0;
   }
-  _count = observableValue(
-    this,
-    void 0
-  );
+  _count = observableValue(this, void 0);
   get count() {
     return this._count;
   }
@@ -444,38 +344,27 @@ class MainThreadSCMProvider {
       this._quickDiff = void 0;
     }
     if (features.hasHistoryProvider && !this.historyProvider.get()) {
-      const historyProvider = new MainThreadSCMHistoryProvider(
-        this.proxy,
-        this.handle
-      );
+      const historyProvider = new MainThreadSCMHistoryProvider(this.proxy, this.handle);
       this._historyProvider.set(historyProvider, void 0);
     } else if (features.hasHistoryProvider === false && this.historyProvider.get()) {
       this._historyProvider.set(void 0, void 0);
     }
   }
   $registerGroups(_groups) {
-    const groups = _groups.map(
-      ([
+    const groups = _groups.map(([handle, id, label, features, multiDiffEditorEnableViewChanges]) => {
+      const group = new MainThreadSCMResourceGroup(
+        this.handle,
         handle,
-        id,
-        label,
+        this,
         features,
-        multiDiffEditorEnableViewChanges
-      ]) => {
-        const group = new MainThreadSCMResourceGroup(
-          this.handle,
-          handle,
-          this,
-          features,
-          label,
-          id,
-          multiDiffEditorEnableViewChanges,
-          this._uriIdentService
-        );
-        this._groupsByHandle[handle] = group;
-        return group;
-      }
-    );
+        label,
+        id,
+        multiDiffEditorEnableViewChanges,
+        this._uriIdentService
+      );
+      this._groupsByHandle[handle] = group;
+      return group;
+    });
     this.groups.splice(this.groups.length, 0, ...groups);
     this._onDidChangeResourceGroups.fire();
   }
@@ -497,26 +386,13 @@ class MainThreadSCMProvider {
     for (const [groupHandle, groupSlices] of splices) {
       const group = this._groupsByHandle[groupHandle];
       if (!group) {
-        console.warn(
-          `SCM group ${groupHandle} not found in provider ${this.label}`
-        );
+        console.warn(`SCM group ${groupHandle} not found in provider ${this.label}`);
         continue;
       }
       groupSlices.reverse();
       for (const [start, deleteCount, rawResources] of groupSlices) {
         const resources = rawResources.map((rawResource) => {
-          const [
-            handle,
-            sourceUri,
-            icons,
-            tooltip,
-            strikeThrough,
-            faded,
-            contextValue,
-            command,
-            multiDiffEditorOriginalUri,
-            multiDiffEditorModifiedUri
-          ] = rawResource;
+          const [handle, sourceUri, icons, tooltip, strikeThrough, faded, contextValue, command, multiDiffEditorOriginalUri, multiDiffEditorModifiedUri] = rawResource;
           const [light, dark] = icons;
           const icon = ThemeIcon.isThemeIcon(light) ? light : URI.revive(light);
           const iconDark = (ThemeIcon.isThemeIcon(dark) ? dark : URI.revive(dark)) || icon;
@@ -559,22 +435,14 @@ class MainThreadSCMProvider {
     if (!this.features.hasQuickDiffProvider) {
       return null;
     }
-    const result = await this.proxy.$provideOriginalResource(
-      this.handle,
-      uri,
-      CancellationToken.None
-    );
+    const result = await this.proxy.$provideOriginalResource(this.handle, uri, CancellationToken.None);
     return result && URI.revive(result);
   }
   $onDidChangeHistoryProviderCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef) {
     if (!this.historyProvider.get()) {
       return;
     }
-    this._historyProvider.get()?.$onDidChangeCurrentHistoryItemRefs(
-      historyItemRef,
-      historyItemRemoteRef,
-      historyItemBaseRef
-    );
+    this._historyProvider.get()?.$onDidChangeCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef);
   }
   $onDidChangeHistoryProviderHistoryItemRefs(historyItemRefs) {
     if (!this.historyProvider.get()) {
@@ -603,13 +471,7 @@ let MainThreadSCM = class {
     this._uriIdentService = _uriIdentService;
     this.workspaceContextService = workspaceContextService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostSCM);
-    this._disposables.add(
-      new SCMInputBoxContentProvider(
-        this.textModelService,
-        this.modelService,
-        this.languageService
-      )
-    );
+    this._disposables.add(new SCMInputBoxContentProvider(this.textModelService, this.modelService, this.languageService));
   }
   _proxy;
   _repositories = /* @__PURE__ */ new Map();
@@ -625,44 +487,21 @@ let MainThreadSCM = class {
   }
   async $registerSourceControl(handle, id, label, rootUri, inputBoxDocumentUri) {
     this._repositoryBarriers.set(handle, new Barrier());
-    const inputBoxTextModelRef = await this.textModelService.createModelReference(
-      URI.revive(inputBoxDocumentUri)
-    );
-    const provider = new MainThreadSCMProvider(
-      this._proxy,
-      handle,
-      id,
-      label,
-      rootUri ? URI.revive(rootUri) : void 0,
-      inputBoxTextModelRef.object.textEditorModel,
-      this.quickDiffService,
-      this._uriIdentService,
-      this.workspaceContextService
-    );
+    const inputBoxTextModelRef = await this.textModelService.createModelReference(URI.revive(inputBoxDocumentUri));
+    const provider = new MainThreadSCMProvider(this._proxy, handle, id, label, rootUri ? URI.revive(rootUri) : void 0, inputBoxTextModelRef.object.textEditorModel, this.quickDiffService, this._uriIdentService, this.workspaceContextService);
     const repository = this.scmService.registerSCMProvider(provider);
     this._repositories.set(handle, repository);
     const disposable = combinedDisposable(
       inputBoxTextModelRef,
-      Event.filter(
-        this.scmViewService.onDidFocusRepository,
-        (r) => r === repository
-      )((_) => this._proxy.$setSelectedSourceControl(handle)),
-      repository.input.onDidChange(
-        ({ value }) => this._proxy.$onInputBoxValueChange(handle, value)
-      )
+      Event.filter(this.scmViewService.onDidFocusRepository, (r) => r === repository)((_) => this._proxy.$setSelectedSourceControl(handle)),
+      repository.input.onDidChange(({ value }) => this._proxy.$onInputBoxValueChange(handle, value))
     );
     this._repositoryDisposables.set(handle, disposable);
     if (this.scmViewService.focusedRepository === repository) {
       setTimeout(() => this._proxy.$setSelectedSourceControl(handle), 0);
     }
     if (repository.input.value) {
-      setTimeout(
-        () => this._proxy.$onInputBoxValueChange(
-          handle,
-          repository.input.value
-        ),
-        0
-      );
+      setTimeout(() => this._proxy.$onInputBoxValueChange(handle, repository.input.value), 0);
     }
     this._repositoryBarriers.get(handle)?.open();
   }
@@ -780,11 +619,7 @@ let MainThreadSCM = class {
     }
     if (enabled) {
       repository.input.validateInput = async (value, pos) => {
-        const result = await this._proxy.$validateInput(
-          sourceControlHandle,
-          value,
-          pos
-        );
+        const result = await this._proxy.$validateInput(sourceControlHandle, value, pos);
         return result && { message: result[0], type: result[1] };
       };
     } else {
@@ -798,11 +633,7 @@ let MainThreadSCM = class {
       return;
     }
     const provider = repository.provider;
-    provider.$onDidChangeHistoryProviderCurrentHistoryItemRefs(
-      historyItemRef,
-      historyItemRemoteRef,
-      historyItemBaseRef
-    );
+    provider.$onDidChangeHistoryProviderCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef);
   }
   async $onDidChangeHistoryProviderHistoryItemRefs(sourceControlHandle, historyItemRefs) {
     await this._repositoryBarriers.get(sourceControlHandle)?.wait();

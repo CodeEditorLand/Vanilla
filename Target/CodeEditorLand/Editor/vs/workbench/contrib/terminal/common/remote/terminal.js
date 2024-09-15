@@ -1,3 +1,7 @@
+import { UriComponents } from "../../../../../base/common/uri.js";
+import { IShellLaunchConfigDto, ITerminalProcessOptions } from "../../../../../platform/terminal/common/terminal.js";
+import { ICompleteTerminalConfiguration } from "../terminal.js";
+import { ISerializableEnvironmentDescriptionMap, ISerializableEnvironmentVariableCollection } from "../../../../../platform/terminal/common/environmentVariable.js";
 const REMOTE_TERMINAL_CHANNEL_NAME = "remoteterminal";
 var RemoteTerminalChannelEvent = /* @__PURE__ */ ((RemoteTerminalChannelEvent2) => {
   RemoteTerminalChannelEvent2["OnPtyHostExitEvent"] = "$onPtyHostExitEvent";

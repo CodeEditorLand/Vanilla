@@ -1,14 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { StopWatch } from "../../../../../base/common/stopwatch.js";
-import {
-  TokenMetadata
-} from "../../../../../editor/common/encodedTokenAttributes.js";
-import {
-  EncodedTokenizationResult
-} from "../../../../../editor/common/languages.js";
+import { LanguageId, TokenMetadata } from "../../../../../editor/common/encodedTokenAttributes.js";
+import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from "../../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 class TextMateTokenizationSupport extends Disposable {
   constructor(_grammar, _initialState, _containsEmbeddedLanguages, _createBackgroundTokenizer, _backgroundTokenizerShouldOnlyVerifyTokens, _reportTokenizationTime, _reportSlowTokenization) {
     super();
@@ -49,17 +46,11 @@ class TextMateTokenizationSupport extends Disposable {
     if (shouldMeasure) {
       const timeMS = sw.elapsed();
       if (isRandomSample || timeMS > 32) {
-        this._reportTokenizationTime(
-          timeMS,
-          line.length,
-          isRandomSample
-        );
+        this._reportTokenizationTime(timeMS, line.length, isRandomSample);
       }
     }
     if (textMateResult.stoppedEarly) {
-      console.warn(
-        `Time limit reached when tokenizing line: ${line.substring(0, 100)}`
-      );
+      console.warn(`Time limit reached when tokenizing line: ${line.substring(0, 100)}`);
       return new EncodedTokenizationResult(textMateResult.tokens, state);
     }
     if (this._containsEmbeddedLanguages) {

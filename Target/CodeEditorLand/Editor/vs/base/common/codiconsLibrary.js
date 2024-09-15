@@ -145,36 +145,15 @@ const codiconsLibrary = {
   bold: register("bold", 60067),
   book: register("book", 60068),
   bookmark: register("bookmark", 60069),
-  debugBreakpointConditionalUnverified: register(
-    "debug-breakpoint-conditional-unverified",
-    60070
-  ),
-  debugBreakpointConditional: register(
-    "debug-breakpoint-conditional",
-    60071
-  ),
-  debugBreakpointConditionalDisabled: register(
-    "debug-breakpoint-conditional-disabled",
-    60071
-  ),
-  debugBreakpointDataUnverified: register(
-    "debug-breakpoint-data-unverified",
-    60072
-  ),
+  debugBreakpointConditionalUnverified: register("debug-breakpoint-conditional-unverified", 60070),
+  debugBreakpointConditional: register("debug-breakpoint-conditional", 60071),
+  debugBreakpointConditionalDisabled: register("debug-breakpoint-conditional-disabled", 60071),
+  debugBreakpointDataUnverified: register("debug-breakpoint-data-unverified", 60072),
   debugBreakpointData: register("debug-breakpoint-data", 60073),
-  debugBreakpointDataDisabled: register(
-    "debug-breakpoint-data-disabled",
-    60073
-  ),
-  debugBreakpointLogUnverified: register(
-    "debug-breakpoint-log-unverified",
-    60074
-  ),
+  debugBreakpointDataDisabled: register("debug-breakpoint-data-disabled", 60073),
+  debugBreakpointLogUnverified: register("debug-breakpoint-log-unverified", 60074),
   debugBreakpointLog: register("debug-breakpoint-log", 60075),
-  debugBreakpointLogDisabled: register(
-    "debug-breakpoint-log-disabled",
-    60075
-  ),
+  debugBreakpointLogDisabled: register("debug-breakpoint-log-disabled", 60075),
   briefcase: register("briefcase", 60076),
   broadcast: register("broadcast", 60077),
   browser: register("browser", 60078),
@@ -194,10 +173,7 @@ const codiconsLibrary = {
   circleOutline: register("circle-outline", 60092),
   circle: register("circle", 60092),
   debugBreakpointUnverified: register("debug-breakpoint-unverified", 60092),
-  terminalDecorationIncomplete: register(
-    "terminal-decoration-incomplete",
-    60092
-  ),
+  terminalDecorationIncomplete: register("terminal-decoration-incomplete", 60092),
   circleSlash: register("circle-slash", 60093),
   circuitBoard: register("circuit-board", 60094),
   clearAll: register("clear-all", 60095),
@@ -402,25 +378,16 @@ const codiconsLibrary = {
   listSelection: register("list-selection", 60293),
   selection: register("selection", 60293),
   listTree: register("list-tree", 60294),
-  debugBreakpointFunctionUnverified: register(
-    "debug-breakpoint-function-unverified",
-    60295
-  ),
+  debugBreakpointFunctionUnverified: register("debug-breakpoint-function-unverified", 60295),
   debugBreakpointFunction: register("debug-breakpoint-function", 60296),
-  debugBreakpointFunctionDisabled: register(
-    "debug-breakpoint-function-disabled",
-    60296
-  ),
+  debugBreakpointFunctionDisabled: register("debug-breakpoint-function-disabled", 60296),
   debugStackframeActive: register("debug-stackframe-active", 60297),
   circleSmallFilled: register("circle-small-filled", 60298),
   debugStackframeDot: register("debug-stackframe-dot", 60298),
   terminalDecorationMark: register("terminal-decoration-mark", 60298),
   debugStackframe: register("debug-stackframe", 60299),
   debugStackframeFocused: register("debug-stackframe-focused", 60299),
-  debugBreakpointUnsupported: register(
-    "debug-breakpoint-unsupported",
-    60300
-  ),
+  debugBreakpointUnsupported: register("debug-breakpoint-unsupported", 60300),
   symbolString: register("symbol-string", 60301),
   debugReverseContinue: register("debug-reverse-continue", 60302),
   debugStepBack: register("debug-step-back", 60303),
@@ -558,10 +525,7 @@ const codiconsLibrary = {
   bellSlash: register("bell-slash", 60424),
   bellSlashDot: register("bell-slash-dot", 60425),
   commentUnresolved: register("comment-unresolved", 60426),
-  gitPullRequestGoToChanges: register(
-    "git-pull-request-go-to-changes",
-    60427
-  ),
+  gitPullRequestGoToChanges: register("git-pull-request-go-to-changes", 60427),
   gitPullRequestNewChanges: register("git-pull-request-new-changes", 60428),
   searchFuzzy: register("search-fuzzy", 60429),
   commentDraft: register("comment-draft", 60430),

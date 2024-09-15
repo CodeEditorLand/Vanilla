@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ScanError, SyntaxKind, createScanner } from "./json.js";
+import { createScanner, ScanError, SyntaxKind } from "./json.js";
 function format(documentText, range, options) {
   let initialIndentLevel;
   let formatText;
@@ -56,11 +56,7 @@ function format(documentText, range, options) {
   const editOperations = [];
   function addEdit(text, startOffset, endOffset) {
     if (!hasError && startOffset < rangeEnd && endOffset > rangeStart && documentText.substring(startOffset, endOffset) !== text) {
-      editOperations.push({
-        offset: startOffset,
-        length: endOffset - startOffset,
-        content: text
-      });
+      editOperations.push({ offset: startOffset, length: endOffset - startOffset, content: text });
     }
   }
   __name(addEdit, "addEdit");
@@ -146,11 +142,7 @@ function format(documentText, range, options) {
 }
 __name(format, "format");
 function toFormattedString(obj, options) {
-  const content = JSON.stringify(
-    obj,
-    void 0,
-    options.insertSpaces ? options.tabSize || 4 : "	"
-  );
+  const content = JSON.stringify(obj, void 0, options.insertSpaces ? options.tabSize || 4 : "	");
   if (options.eol !== void 0) {
     return content.replace(/\r\n|\r|\n/g, options.eol);
   }

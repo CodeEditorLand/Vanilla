@@ -10,70 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  $,
-  EventHelper,
-  EventType,
-  addDisposableListener,
-  clearNode,
-  isEventLike
-} from "../../../../base/browser/dom.js";
-import { DomEmitter } from "../../../../base/browser/event.js";
-import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
-import {
-  Gesture,
-  EventType as GestureEventType
-} from "../../../../base/browser/touch.js";
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import {
-  ButtonBar
-} from "../../../../base/browser/ui/button/button.js";
-import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import {
-  ActionRunner,
-  Separator,
-  toAction
-} from "../../../../base/common/actions.js";
-import { isNonEmptyArray } from "../../../../base/common/arrays.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Event } from "../../../../base/common/event.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IListVirtualDelegate, IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import { clearNode, addDisposableListener, EventType, EventHelper, $, isEventLike } from "../../../../base/browser/dom.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { ButtonBar, IButtonOptions } from "../../../../base/browser/ui/button/button.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionRunner, IAction, IActionRunner, Separator, toAction } from "../../../../base/common/actions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { dispose, DisposableStore, Disposable } from "../../../../base/common/lifecycle.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { INotificationViewItem, NotificationViewItem, NotificationViewItemContentChangeKind, INotificationMessage, ChoiceAction } from "../../../common/notifications.js";
+import { ClearNotificationAction, ExpandNotificationAction, CollapseNotificationAction, ConfigureNotificationAction } from "./notificationsActions.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import {
-  INotificationService,
-  NotificationsFilter,
-  Severity,
-  isNotificationSource
-} from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  defaultButtonStyles,
-  defaultProgressBarStyles
-} from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  ChoiceAction,
-  NotificationViewItem,
-  NotificationViewItemContentChangeKind
-} from "../../../common/notifications.js";
-import {
-  ClearNotificationAction,
-  CollapseNotificationAction,
-  ConfigureNotificationAction,
-  ExpandNotificationAction
-} from "./notificationsActions.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { INotificationService, NotificationsFilter, Severity, isNotificationSource } from "../../../../platform/notification/common/notification.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { DomEmitter } from "../../../../base/browser/event.js";
+import { Gesture, EventType as GestureEventType } from "../../../../base/browser/touch.js";
+import { Event } from "../../../../base/common/event.js";
+import { defaultButtonStyles, defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 class NotificationsListDelegate {
   static {
     __name(this, "NotificationsListDelegate");
@@ -101,9 +65,7 @@ class NotificationsListDelegate {
       const overflow = preferredMessageHeight - NotificationsListDelegate.LINE_HEIGHT;
       expandedHeight += overflow;
     }
-    if (notification.source || isNonEmptyArray(
-      notification.actions && notification.actions.primary
-    )) {
+    if (notification.source || isNonEmptyArray(notification.actions && notification.actions.primary)) {
       expandedHeight += NotificationsListDelegate.ROW_HEIGHT;
     }
     if (expandedHeight === NotificationsListDelegate.ROW_HEIGHT) {
@@ -122,20 +84,13 @@ class NotificationsListDelegate {
     if (notification.canCollapse) {
       actions++;
     }
-    if (isNonEmptyArray(
-      notification.actions && notification.actions.secondary
-    )) {
+    if (isNonEmptyArray(notification.actions && notification.actions.secondary)) {
       actions++;
     }
     this.offsetHelper.style.width = `${450 - (10 + 30 + actions * 30 - Math.max(actions - 1, 0) * 4)}px`;
-    const renderedMessage = NotificationMessageRenderer.render(
-      notification.message
-    );
+    const renderedMessage = NotificationMessageRenderer.render(notification.message);
     this.offsetHelper.appendChild(renderedMessage);
-    const preferredHeight = Math.max(
-      this.offsetHelper.offsetHeight,
-      this.offsetHelper.scrollHeight
-    );
+    const preferredHeight = Math.max(this.offsetHelper.offsetHeight, this.offsetHelper.scrollHeight);
     clearNode(this.offsetHelper);
     return preferredHeight;
   }
@@ -158,19 +113,11 @@ class NotificationMessageRenderer {
       } else {
         let title = node.title;
         if (!title && node.href.startsWith("command:")) {
-          title = localize(
-            "executeCommand",
-            "Click to execute command '{0}'",
-            node.href.substr("command:".length)
-          );
+          title = localize("executeCommand", "Click to execute command '{0}'", node.href.substr("command:".length));
         } else if (!title) {
           title = node.href;
         }
-        const anchor = $(
-          "a",
-          { href: node.href, title, tabIndex: 0 },
-          node.label
-        );
+        const anchor = $("a", { href: node.href, title, tabIndex: 0 }, node.label);
         if (actionHandler) {
           const handleOpen = /* @__PURE__ */ __name((e) => {
             if (isEventLike(e)) {
@@ -178,28 +125,15 @@ class NotificationMessageRenderer {
             }
             actionHandler.callback(node.href);
           }, "handleOpen");
-          const onClick = actionHandler.toDispose.add(
-            new DomEmitter(anchor, EventType.CLICK)
-          ).event;
-          const onKeydown = actionHandler.toDispose.add(
-            new DomEmitter(anchor, EventType.KEY_DOWN)
-          ).event;
-          const onSpaceOrEnter = Event.chain(
-            onKeydown,
-            ($2) => $2.filter((e) => {
-              const event = new StandardKeyboardEvent(e);
-              return event.equals(KeyCode.Space) || event.equals(KeyCode.Enter);
-            })
-          );
+          const onClick = actionHandler.toDispose.add(new DomEmitter(anchor, EventType.CLICK)).event;
+          const onKeydown = actionHandler.toDispose.add(new DomEmitter(anchor, EventType.KEY_DOWN)).event;
+          const onSpaceOrEnter = Event.chain(onKeydown, ($2) => $2.filter((e) => {
+            const event = new StandardKeyboardEvent(e);
+            return event.equals(KeyCode.Space) || event.equals(KeyCode.Enter);
+          }));
           actionHandler.toDispose.add(Gesture.addTarget(anchor));
-          const onTap = actionHandler.toDispose.add(
-            new DomEmitter(anchor, GestureEventType.Tap)
-          ).event;
-          Event.any(onClick, onTap, onSpaceOrEnter)(
-            handleOpen,
-            null,
-            actionHandler.toDispose
-          );
+          const onTap = actionHandler.toDispose.add(new DomEmitter(anchor, GestureEventType.Tap)).event;
+          Event.any(onClick, onTap, onSpaceOrEnter)(handleOpen, null, actionHandler.toDispose);
         }
         messageContainer.appendChild(anchor);
       }
@@ -234,83 +168,51 @@ let NotificationRenderer = class {
     data.message.classList.add("notification-list-item-message");
     const that = this;
     const toolbarContainer = document.createElement("div");
-    toolbarContainer.classList.add(
-      "notification-list-item-toolbar-container"
-    );
-    data.toolbar = new ActionBar(toolbarContainer, {
-      ariaLabel: localize("notificationActions", "Notification Actions"),
-      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
-        if (action instanceof ConfigureNotificationAction) {
-          return data.toDispose.add(
-            new DropdownMenuActionViewItem(
-              action,
-              {
-                getActions() {
-                  const actions = [];
-                  const source = {
-                    id: action.notification.sourceId,
-                    label: action.notification.source
-                  };
-                  if (isNotificationSource(source)) {
-                    const isSourceFiltered = that.notificationService.getFilter(
-                      source
-                    ) === NotificationsFilter.ERROR;
-                    actions.push(
-                      toAction({
-                        id: source.id,
-                        label: isSourceFiltered ? localize(
-                          "turnOnNotifications",
-                          "Turn On All Notifications from '{0}'",
-                          source.label
-                        ) : localize(
-                          "turnOffNotifications",
-                          "Turn Off Info and Warning Notifications from '{0}'",
-                          source.label
-                        ),
-                        run: /* @__PURE__ */ __name(() => that.notificationService.setFilter(
-                          {
-                            ...source,
-                            filter: isSourceFiltered ? NotificationsFilter.OFF : NotificationsFilter.ERROR
-                          }
-                        ), "run")
-                      })
-                    );
-                    if (action.notification.actions?.secondary?.length) {
-                      actions.push(new Separator());
-                    }
+    toolbarContainer.classList.add("notification-list-item-toolbar-container");
+    data.toolbar = new ActionBar(
+      toolbarContainer,
+      {
+        ariaLabel: localize("notificationActions", "Notification Actions"),
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          if (action instanceof ConfigureNotificationAction) {
+            return data.toDispose.add(new DropdownMenuActionViewItem(action, {
+              getActions() {
+                const actions = [];
+                const source = { id: action.notification.sourceId, label: action.notification.source };
+                if (isNotificationSource(source)) {
+                  const isSourceFiltered = that.notificationService.getFilter(source) === NotificationsFilter.ERROR;
+                  actions.push(toAction({
+                    id: source.id,
+                    label: isSourceFiltered ? localize("turnOnNotifications", "Turn On All Notifications from '{0}'", source.label) : localize("turnOffNotifications", "Turn Off Info and Warning Notifications from '{0}'", source.label),
+                    run: /* @__PURE__ */ __name(() => that.notificationService.setFilter({ ...source, filter: isSourceFiltered ? NotificationsFilter.OFF : NotificationsFilter.ERROR }), "run")
+                  }));
+                  if (action.notification.actions?.secondary?.length) {
+                    actions.push(new Separator());
                   }
-                  if (Array.isArray(
-                    action.notification.actions?.secondary
-                  )) {
-                    actions.push(
-                      ...action.notification.actions.secondary
-                    );
-                  }
-                  return actions;
                 }
-              },
-              this.contextMenuService,
-              {
-                ...options,
-                actionRunner: this.actionRunner,
-                classNames: action.class
+                if (Array.isArray(action.notification.actions?.secondary)) {
+                  actions.push(...action.notification.actions.secondary);
+                }
+                return actions;
               }
-            )
-          );
-        }
-        return void 0;
-      }, "actionViewItemProvider"),
-      actionRunner: this.actionRunner
-    });
+            }, this.contextMenuService, {
+              ...options,
+              actionRunner: this.actionRunner,
+              classNames: action.class
+            }));
+          }
+          return void 0;
+        }, "actionViewItemProvider"),
+        actionRunner: this.actionRunner
+      }
+    );
     data.toDispose.add(data.toolbar);
     data.detailsRow = document.createElement("div");
     data.detailsRow.classList.add("notification-list-item-details-row");
     data.source = document.createElement("div");
     data.source.classList.add("notification-list-item-source");
     data.buttonsContainer = document.createElement("div");
-    data.buttonsContainer.classList.add(
-      "notification-list-item-buttons-container"
-    );
+    data.buttonsContainer.classList.add("notification-list-item-buttons-container");
     container.appendChild(data.container);
     data.container.appendChild(data.detailsRow);
     data.detailsRow.appendChild(data.source);
@@ -321,11 +223,7 @@ let NotificationRenderer = class {
     data.mainRow.appendChild(toolbarContainer);
     data.progress = new ProgressBar(container, defaultProgressBarStyles);
     data.toDispose.add(data.progress);
-    data.renderer = this.instantiationService.createInstance(
-      NotificationTemplateRenderer,
-      data,
-      this.actionRunner
-    );
+    data.renderer = this.instantiationService.createInstance(NotificationTemplateRenderer, data, this.actionRunner);
     data.toDispose.add(data.renderer);
     return data;
   }
@@ -363,124 +261,69 @@ let NotificationTemplateRenderer = class extends Disposable {
   static closeNotificationAction;
   static expandNotificationAction;
   static collapseNotificationAction;
-  static SEVERITIES = [
-    Severity.Info,
-    Severity.Warning,
-    Severity.Error
-  ];
+  static SEVERITIES = [Severity.Info, Severity.Warning, Severity.Error];
   inputDisposables = this._register(new DisposableStore());
   setInput(notification) {
     this.inputDisposables.clear();
     this.render(notification);
   }
   render(notification) {
-    this.template.container.classList.toggle(
-      "expanded",
-      notification.expanded
-    );
-    this.inputDisposables.add(
-      addDisposableListener(
-        this.template.container,
-        EventType.MOUSE_UP,
-        (e) => {
-          if (e.button === 1) {
-            EventHelper.stop(e, true);
-          }
-        }
-      )
-    );
-    this.inputDisposables.add(
-      addDisposableListener(
-        this.template.container,
-        EventType.AUXCLICK,
-        (e) => {
-          if (!notification.hasProgress && e.button === 1) {
-            EventHelper.stop(e, true);
-            notification.close();
-          }
-        }
-      )
-    );
+    this.template.container.classList.toggle("expanded", notification.expanded);
+    this.inputDisposables.add(addDisposableListener(this.template.container, EventType.MOUSE_UP, (e) => {
+      if (e.button === 1) {
+        EventHelper.stop(e, true);
+      }
+    }));
+    this.inputDisposables.add(addDisposableListener(this.template.container, EventType.AUXCLICK, (e) => {
+      if (!notification.hasProgress && e.button === 1) {
+        EventHelper.stop(e, true);
+        notification.close();
+      }
+    }));
     this.renderSeverity(notification);
-    const messageCustomHover = this.inputDisposables.add(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this.template.message,
-        ""
-      )
-    );
-    const messageOverflows = this.renderMessage(
-      notification,
-      messageCustomHover
-    );
+    const messageCustomHover = this.inputDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.template.message, ""));
+    const messageOverflows = this.renderMessage(notification, messageCustomHover);
     this.renderSecondaryActions(notification, messageOverflows);
-    const sourceCustomHover = this.inputDisposables.add(
-      this.hoverService.setupManagedHover(
-        getDefaultHoverDelegate("mouse"),
-        this.template.source,
-        ""
-      )
-    );
+    const sourceCustomHover = this.inputDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.template.source, ""));
     this.renderSource(notification, sourceCustomHover);
     this.renderButtons(notification);
     this.renderProgress(notification);
-    this.inputDisposables.add(
-      notification.onDidChangeContent((event) => {
-        switch (event.kind) {
-          case NotificationViewItemContentChangeKind.SEVERITY:
-            this.renderSeverity(notification);
-            break;
-          case NotificationViewItemContentChangeKind.PROGRESS:
-            this.renderProgress(notification);
-            break;
-          case NotificationViewItemContentChangeKind.MESSAGE:
-            this.renderMessage(notification, messageCustomHover);
-            break;
-        }
-      })
-    );
+    this.inputDisposables.add(notification.onDidChangeContent((event) => {
+      switch (event.kind) {
+        case NotificationViewItemContentChangeKind.SEVERITY:
+          this.renderSeverity(notification);
+          break;
+        case NotificationViewItemContentChangeKind.PROGRESS:
+          this.renderProgress(notification);
+          break;
+        case NotificationViewItemContentChangeKind.MESSAGE:
+          this.renderMessage(notification, messageCustomHover);
+          break;
+      }
+    }));
   }
   renderSeverity(notification) {
     NotificationTemplateRenderer.SEVERITIES.forEach((severity) => {
       if (notification.severity !== severity) {
-        this.template.icon.classList.remove(
-          ...ThemeIcon.asClassNameArray(
-            this.toSeverityIcon(severity)
-          )
-        );
+        this.template.icon.classList.remove(...ThemeIcon.asClassNameArray(this.toSeverityIcon(severity)));
       }
     });
-    this.template.icon.classList.add(
-      ...ThemeIcon.asClassNameArray(
-        this.toSeverityIcon(notification.severity)
-      )
-    );
+    this.template.icon.classList.add(...ThemeIcon.asClassNameArray(this.toSeverityIcon(notification.severity)));
   }
   renderMessage(notification, customHover) {
     clearNode(this.template.message);
-    this.template.message.appendChild(
-      NotificationMessageRenderer.render(notification.message, {
-        callback: /* @__PURE__ */ __name((link) => this.openerService.open(URI.parse(link), {
-          allowCommands: true
-        }), "callback"),
-        toDispose: this.inputDisposables
-      })
-    );
+    this.template.message.appendChild(NotificationMessageRenderer.render(notification.message, {
+      callback: /* @__PURE__ */ __name((link) => this.openerService.open(URI.parse(link), { allowCommands: true }), "callback"),
+      toDispose: this.inputDisposables
+    }));
     const messageOverflows = notification.canCollapse && !notification.expanded && this.template.message.scrollWidth > this.template.message.clientWidth;
-    customHover.update(
-      messageOverflows ? this.template.message.textContent + "" : ""
-    );
+    customHover.update(messageOverflows ? this.template.message.textContent + "" : "");
     return messageOverflows;
   }
   renderSecondaryActions(notification, messageOverflows) {
     const actions = [];
     if (isNonEmptyArray(notification.actions?.secondary)) {
-      const configureNotificationAction = this.instantiationService.createInstance(
-        ConfigureNotificationAction,
-        ConfigureNotificationAction.ID,
-        ConfigureNotificationAction.LABEL,
-        notification
-      );
+      const configureNotificationAction = this.instantiationService.createInstance(ConfigureNotificationAction, ConfigureNotificationAction.ID, ConfigureNotificationAction.LABEL, notification);
       actions.push(configureNotificationAction);
       this.inputDisposables.add(configureNotificationAction);
     }
@@ -495,30 +338,18 @@ let NotificationTemplateRenderer = class extends Disposable {
       }
     }
     if (showExpandCollapseAction) {
-      actions.push(
-        notification.expanded ? NotificationTemplateRenderer.collapseNotificationAction : NotificationTemplateRenderer.expandNotificationAction
-      );
+      actions.push(notification.expanded ? NotificationTemplateRenderer.collapseNotificationAction : NotificationTemplateRenderer.expandNotificationAction);
     }
     if (!notification.hasProgress) {
       actions.push(NotificationTemplateRenderer.closeNotificationAction);
     }
     this.template.toolbar.clear();
     this.template.toolbar.context = notification;
-    actions.forEach(
-      (action) => this.template.toolbar.push(action, {
-        icon: true,
-        label: false,
-        keybinding: this.getKeybindingLabel(action)
-      })
-    );
+    actions.forEach((action) => this.template.toolbar.push(action, { icon: true, label: false, keybinding: this.getKeybindingLabel(action) }));
   }
   renderSource(notification, sourceCustomHover) {
     if (notification.expanded && notification.source) {
-      this.template.source.textContent = localize(
-        "notificationSource",
-        "Source: {0}",
-        notification.source
-      );
+      this.template.source.textContent = localize("notificationSource", "Source: {0}", notification.source);
       sourceCustomHover.update(notification.source);
     } else {
       this.template.source.textContent = "";
@@ -538,9 +369,7 @@ let NotificationTemplateRenderer = class extends Disposable {
           }
         }
       }();
-      const buttonToolbar = this.inputDisposables.add(
-        new ButtonBar(this.template.buttonsContainer)
-      );
+      const buttonToolbar = this.inputDisposables.add(new ButtonBar(this.template.buttonsContainer));
       for (let i = 0; i < primaryActions.length; i++) {
         const action = primaryActions[i];
         const options = {
@@ -559,14 +388,12 @@ let NotificationTemplateRenderer = class extends Disposable {
           }) : buttonToolbar.addButton(options)
         );
         button.label = action.label;
-        this.inputDisposables.add(
-          button.onDidClick((e) => {
-            if (e) {
-              EventHelper.stop(e, true);
-            }
-            actionRunner.run(action);
-          })
-        );
+        this.inputDisposables.add(button.onDidClick((e) => {
+          if (e) {
+            EventHelper.stop(e, true);
+          }
+          actionRunner.run(action);
+        }));
       }
     }
   }

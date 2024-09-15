@@ -11,60 +11,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getZoomLevel } from "../../../../base/browser/browser.js";
-import {
-  EventHelper,
-  EventType,
-  ModifierKeyEmitter,
-  addDisposableListener,
-  cloneGlobalStylesheets,
-  copyAttributes,
-  createLinkElement,
-  createMetaElement,
-  getActiveWindow,
-  getClientArea,
-  getWindowId,
-  isGlobalStylesheet,
-  isHTMLElement,
-  position,
-  registerWindow,
-  sharedMutationObserver,
-  trackAttributes
-} from "../../../../base/browser/dom.js";
-import {
-  ensureCodeWindow,
-  mainWindow
-} from "../../../../base/browser/window.js";
+import { Dimension, EventHelper, EventType, ModifierKeyEmitter, addDisposableListener, cloneGlobalStylesheets, copyAttributes, createLinkElement, createMetaElement, getActiveWindow, getClientArea, getWindowId, isGlobalStylesheet, isHTMLElement, position, registerWindow, sharedMutationObserver, trackAttributes } from "../../../../base/browser/dom.js";
+import { CodeWindow, ensureCodeWindow, mainWindow } from "../../../../base/browser/window.js";
 import { coalesce } from "../../../../base/common/arrays.js";
 import { Barrier } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { mark } from "../../../../base/common/performance.js";
 import { isFirefox, isWeb } from "../../../../base/common/platform.js";
 import Severity from "../../../../base/common/severity.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  WindowMinimumSize
-} from "../../../../platform/window/common/window.js";
+import { IRectangle, WindowMinimumSize } from "../../../../platform/window/common/window.js";
 import { BaseWindow } from "../../../browser/window.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 import { IHostService } from "../../host/browser/host.js";
 import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
-const IAuxiliaryWindowService = createDecorator(
-  "auxiliaryWindowService"
-);
+const IAuxiliaryWindowService = createDecorator("auxiliaryWindowService");
 var AuxiliaryWindowMode = /* @__PURE__ */ ((AuxiliaryWindowMode2) => {
   AuxiliaryWindowMode2[AuxiliaryWindowMode2["Maximized"] = 0] = "Maximized";
   AuxiliaryWindowMode2[AuxiliaryWindowMode2["Normal"] = 1] = "Normal";
@@ -87,9 +55,7 @@ let AuxiliaryWindow = class extends BaseWindow {
   onWillLayout = this._onWillLayout.event;
   _onDidLayout = this._register(new Emitter());
   onDidLayout = this._onDidLayout.event;
-  _onBeforeUnload = this._register(
-    new Emitter()
-  );
+  _onBeforeUnload = this._register(new Emitter());
   onBeforeUnload = this._onBeforeUnload.event;
   _onUnload = this._register(new Emitter());
   onUnload = this._onUnload.event;
@@ -97,78 +63,21 @@ let AuxiliaryWindow = class extends BaseWindow {
   onWillDispose = this._onWillDispose.event;
   whenStylesHaveLoaded;
   registerListeners() {
-    this._register(
-      addDisposableListener(
-        this.window,
-        EventType.BEFORE_UNLOAD,
-        (e) => this.handleBeforeUnload(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.window,
-        EventType.UNLOAD,
-        () => this.handleUnload()
-      )
-    );
-    this._register(
-      addDisposableListener(this.window, "unhandledrejection", (e) => {
-        onUnexpectedError(e.reason);
-        e.preventDefault();
-      })
-    );
-    this._register(
-      addDisposableListener(
-        this.window,
-        EventType.RESIZE,
-        () => this.layout()
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.container,
-        EventType.SCROLL,
-        () => this.container.scrollTop = 0
-      )
-    );
+    this._register(addDisposableListener(this.window, EventType.BEFORE_UNLOAD, (e) => this.handleBeforeUnload(e)));
+    this._register(addDisposableListener(this.window, EventType.UNLOAD, () => this.handleUnload()));
+    this._register(addDisposableListener(this.window, "unhandledrejection", (e) => {
+      onUnexpectedError(e.reason);
+      e.preventDefault();
+    }));
+    this._register(addDisposableListener(this.window, EventType.RESIZE, () => this.layout()));
+    this._register(addDisposableListener(this.container, EventType.SCROLL, () => this.container.scrollTop = 0));
     if (isWeb) {
-      this._register(
-        addDisposableListener(
-          this.container,
-          EventType.DROP,
-          (e) => EventHelper.stop(e, true)
-        )
-      );
-      this._register(
-        addDisposableListener(
-          this.container,
-          EventType.WHEEL,
-          (e) => e.preventDefault(),
-          { passive: false }
-        )
-      );
-      this._register(
-        addDisposableListener(
-          this.container,
-          EventType.CONTEXT_MENU,
-          (e) => EventHelper.stop(e, true)
-        )
-      );
+      this._register(addDisposableListener(this.container, EventType.DROP, (e) => EventHelper.stop(e, true)));
+      this._register(addDisposableListener(this.container, EventType.WHEEL, (e) => e.preventDefault(), { passive: false }));
+      this._register(addDisposableListener(this.container, EventType.CONTEXT_MENU, (e) => EventHelper.stop(e, true)));
     } else {
-      this._register(
-        addDisposableListener(
-          this.window.document.body,
-          EventType.DRAG_OVER,
-          (e) => EventHelper.stop(e)
-        )
-      );
-      this._register(
-        addDisposableListener(
-          this.window.document.body,
-          EventType.DROP,
-          (e) => EventHelper.stop(e)
-        )
-      );
+      this._register(addDisposableListener(this.window.document.body, EventType.DRAG_OVER, (e) => EventHelper.stop(e)));
+      this._register(addDisposableListener(this.window.document.body, EventType.DROP, (e) => EventHelper.stop(e)));
     }
   }
   handleBeforeUnload(e) {
@@ -195,10 +104,7 @@ let AuxiliaryWindow = class extends BaseWindow {
   }
   preventUnload(e) {
     e.preventDefault();
-    e.returnValue = localize(
-      "lifecycleVeto",
-      "Changes that you made may not be saved. Please check press 'Cancel' and try again."
-    );
+    e.returnValue = localize("lifecycleVeto", "Changes that you made may not be saved. Please check press 'Cancel' and try again.");
   }
   confirmBeforeClose(e) {
     this.preventUnload(e);
@@ -207,10 +113,7 @@ let AuxiliaryWindow = class extends BaseWindow {
     this._onUnload.fire();
   }
   layout() {
-    const dimension = getClientArea(
-      this.window.document.body,
-      this.container
-    );
+    const dimension = getClientArea(this.window.document.body, this.container);
     this._onWillLayout.fire(dimension);
     this._onDidLayout.fire(dimension);
   }
@@ -254,42 +157,23 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
   static DEFAULT_SIZE = { width: 800, height: 600 };
   static WINDOW_IDS = getWindowId(mainWindow) + 1;
   // start from the main window ID + 1
-  _onDidOpenAuxiliaryWindow = this._register(
-    new Emitter()
-  );
+  _onDidOpenAuxiliaryWindow = this._register(new Emitter());
   onDidOpenAuxiliaryWindow = this._onDidOpenAuxiliaryWindow.event;
   windows = /* @__PURE__ */ new Map();
   async open(options) {
     mark("code/auxiliaryWindow/willOpen");
     const targetWindow = await this.openWindow(options);
     if (!targetWindow) {
-      throw new Error(
-        localize(
-          "unableToOpenWindowError",
-          "Unable to open a new window."
-        )
-      );
+      throw new Error(localize("unableToOpenWindowError", "Unable to open a new window."));
     }
     const resolvedWindowId = await this.resolveWindowId(targetWindow);
     ensureCodeWindow(targetWindow, resolvedWindowId);
     const containerDisposables = new DisposableStore();
-    const { container, stylesLoaded } = this.createContainer(
-      targetWindow,
-      containerDisposables,
-      options
-    );
-    const auxiliaryWindow = this.createAuxiliaryWindow(
-      targetWindow,
-      container,
-      stylesLoaded
-    );
+    const { container, stylesLoaded } = this.createContainer(targetWindow, containerDisposables, options);
+    const auxiliaryWindow = this.createAuxiliaryWindow(targetWindow, container, stylesLoaded);
     const registryDisposables = new DisposableStore();
     this.windows.set(targetWindow.vscodeWindowId, auxiliaryWindow);
-    registryDisposables.add(
-      toDisposable(
-        () => this.windows.delete(targetWindow.vscodeWindowId)
-      )
-    );
+    registryDisposables.add(toDisposable(() => this.windows.delete(targetWindow.vscodeWindowId)));
     const eventDisposables = new DisposableStore();
     Event.once(auxiliaryWindow.onWillDispose)(() => {
       targetWindow.close();
@@ -298,23 +182,13 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
       eventDisposables.dispose();
     });
     registryDisposables.add(registerWindow(targetWindow));
-    this._onDidOpenAuxiliaryWindow.fire({
-      window: auxiliaryWindow,
-      disposables: eventDisposables
-    });
+    this._onDidOpenAuxiliaryWindow.fire({ window: auxiliaryWindow, disposables: eventDisposables });
     mark("code/auxiliaryWindow/didOpen");
     this.telemetryService.publicLog2("auxiliaryWindowOpen", { bounds: !!options?.bounds });
     return auxiliaryWindow;
   }
   createAuxiliaryWindow(targetWindow, container, stylesLoaded) {
-    return new AuxiliaryWindow(
-      targetWindow,
-      container,
-      stylesLoaded,
-      this.configurationService,
-      this.hostService,
-      this.environmentService
-    );
+    return new AuxiliaryWindow(targetWindow, container, stylesLoaded, this.configurationService, this.hostService, this.environmentService);
   }
   async openWindow(options) {
     const activeWindow = getActiveWindow();
@@ -324,23 +198,11 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
       width: activeWindow.outerWidth,
       height: activeWindow.outerHeight
     };
-    const width = Math.max(
-      options?.bounds?.width ?? BrowserAuxiliaryWindowService.DEFAULT_SIZE.width,
-      WindowMinimumSize.WIDTH
-    );
-    const height = Math.max(
-      options?.bounds?.height ?? BrowserAuxiliaryWindowService.DEFAULT_SIZE.height,
-      WindowMinimumSize.HEIGHT
-    );
+    const width = Math.max(options?.bounds?.width ?? BrowserAuxiliaryWindowService.DEFAULT_SIZE.width, WindowMinimumSize.WIDTH);
+    const height = Math.max(options?.bounds?.height ?? BrowserAuxiliaryWindowService.DEFAULT_SIZE.height, WindowMinimumSize.HEIGHT);
     let newWindowBounds = {
-      x: options?.bounds?.x ?? Math.max(
-        activeWindowBounds.x + activeWindowBounds.width / 2 - width / 2,
-        0
-      ),
-      y: options?.bounds?.y ?? Math.max(
-        activeWindowBounds.y + activeWindowBounds.height / 2 - height / 2,
-        0
-      ),
+      x: options?.bounds?.x ?? Math.max(activeWindowBounds.x + activeWindowBounds.width / 2 - width / 2, 0),
+      y: options?.bounds?.y ?? Math.max(activeWindowBounds.y + activeWindowBounds.height / 2 - height / 2, 0),
       width,
       height
     };
@@ -363,31 +225,15 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
       options?.mode === 0 /* Maximized */ ? "window-maximized=yes" : void 0,
       options?.mode === 2 /* Fullscreen */ ? "window-fullscreen=yes" : void 0
     ]);
-    const auxiliaryWindow = mainWindow.open(
-      isFirefox ? "" : "about:blank",
-      void 0,
-      features.join(",")
-    );
+    const auxiliaryWindow = mainWindow.open(isFirefox ? "" : "about:blank", void 0, features.join(","));
     if (!auxiliaryWindow && isWeb) {
       return (await this.dialogService.prompt({
         type: Severity.Warning,
-        message: localize(
-          "unableToOpenWindow",
-          "The browser interrupted the opening of a new window. Press 'Retry' to try again."
-        ),
-        detail: localize(
-          "unableToOpenWindowDetail",
-          "To avoid this problem in the future, please ensure to allow popups for this website."
-        ),
+        message: localize("unableToOpenWindow", "The browser interrupted the opening of a new window. Press 'Retry' to try again."),
+        detail: localize("unableToOpenWindowDetail", "To avoid this problem in the future, please ensure to allow popups for this website."),
         buttons: [
           {
-            label: localize(
-              {
-                key: "retry",
-                comment: ["&& denotes a mnemonic"]
-              },
-              "&&Retry"
-            ),
+            label: localize({ key: "retry", comment: ["&& denotes a mnemonic"] }, "&&Retry"),
             run: /* @__PURE__ */ __name(() => this.openWindow(options), "run")
           }
         ],
@@ -400,10 +246,8 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
     return BrowserAuxiliaryWindowService.WINDOW_IDS++;
   }
   createContainer(auxiliaryWindow, disposables, options) {
-    auxiliaryWindow.document.createElement = () => {
-      throw new Error(
-        'Not allowed to create elements in child window JavaScript context. Always use the main window so that "xyz instanceof HTMLElement" continues to work.'
-      );
+    auxiliaryWindow.document.createElement = function() {
+      throw new Error('Not allowed to create elements in child window JavaScript context. Always use the main window so that "xyz instanceof HTMLElement" continues to work.');
     };
     this.applyMeta(auxiliaryWindow);
     const { stylesLoaded } = this.applyCSS(auxiliaryWindow, disposables);
@@ -411,28 +255,15 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
     return { stylesLoaded, container };
   }
   applyMeta(auxiliaryWindow) {
-    for (const metaTag of [
-      'meta[charset="utf-8"]',
-      'meta[http-equiv="Content-Security-Policy"]',
-      'meta[name="viewport"]',
-      'meta[name="theme-color"]'
-    ]) {
+    for (const metaTag of ['meta[charset="utf-8"]', 'meta[http-equiv="Content-Security-Policy"]', 'meta[name="viewport"]', 'meta[name="theme-color"]']) {
       const metaElement = mainWindow.document.querySelector(metaTag);
       if (metaElement) {
-        const clonedMetaElement = createMetaElement(
-          auxiliaryWindow.document.head
-        );
+        const clonedMetaElement = createMetaElement(auxiliaryWindow.document.head);
         copyAttributes(metaElement, clonedMetaElement);
         if (metaTag === 'meta[http-equiv="Content-Security-Policy"]') {
           const content = clonedMetaElement.getAttribute("content");
           if (content) {
-            clonedMetaElement.setAttribute(
-              "content",
-              content.replace(
-                /(script-src[^;]*)/,
-                `script-src 'none'`
-              )
-            );
+            clonedMetaElement.setAttribute("content", content.replace(/(script-src[^\;]*)/, `script-src 'none'`));
           }
         }
       }
@@ -461,67 +292,51 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
       if (isGlobalStylesheet(originalNode)) {
         return;
       }
-      const clonedNode = auxiliaryWindow.document.head.appendChild(
-        originalNode.cloneNode(true)
-      );
+      const clonedNode = auxiliaryWindow.document.head.appendChild(originalNode.cloneNode(true));
       if (originalNode.tagName.toLowerCase() === "link") {
         pendingLinksToSettle++;
-        pendingLinksDisposables.add(
-          addDisposableListener(clonedNode, "load", onLinkSettled)
-        );
-        pendingLinksDisposables.add(
-          addDisposableListener(clonedNode, "error", onLinkSettled)
-        );
+        pendingLinksDisposables.add(addDisposableListener(clonedNode, "load", onLinkSettled));
+        pendingLinksDisposables.add(addDisposableListener(clonedNode, "error", onLinkSettled));
       }
       mapOriginalToClone.set(originalNode, clonedNode);
     }
     __name(cloneNode, "cloneNode");
     pendingLinksToSettle++;
     try {
-      for (const originalNode of mainWindow.document.head.querySelectorAll(
-        'link[rel="stylesheet"], style'
-      )) {
+      for (const originalNode of mainWindow.document.head.querySelectorAll('link[rel="stylesheet"], style')) {
         cloneNode(originalNode);
       }
     } finally {
       onLinkSettled();
     }
     disposables.add(cloneGlobalStylesheets(auxiliaryWindow));
-    disposables.add(
-      sharedMutationObserver.observe(
-        mainWindow.document.head,
-        disposables,
-        { childList: true, subtree: true }
-      )((mutations) => {
-        for (const mutation of mutations) {
-          if (mutation.type !== "childList" || // only interested in added/removed nodes
-          mutation.target.nodeName.toLowerCase() === "title" || // skip over title changes that happen frequently
-          mutation.target.nodeName.toLowerCase() === "script" || // block <script> changes that are unsupported anyway
-          mutation.target.nodeName.toLowerCase() === "meta") {
-            continue;
-          }
-          for (const node of mutation.addedNodes) {
-            if (isHTMLElement(node) && (node.tagName.toLowerCase() === "style" || node.tagName.toLowerCase() === "link")) {
-              cloneNode(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentNode) {
-              const clonedNode = mapOriginalToClone.get(
-                node.parentNode
-              );
-              if (clonedNode) {
-                clonedNode.textContent = node.textContent;
-              }
-            }
-          }
-          for (const node of mutation.removedNodes) {
-            const clonedNode = mapOriginalToClone.get(node);
+    disposables.add(sharedMutationObserver.observe(mainWindow.document.head, disposables, { childList: true, subtree: true })((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type !== "childList" || // only interested in added/removed nodes
+        mutation.target.nodeName.toLowerCase() === "title" || // skip over title changes that happen frequently
+        mutation.target.nodeName.toLowerCase() === "script" || // block <script> changes that are unsupported anyway
+        mutation.target.nodeName.toLowerCase() === "meta") {
+          continue;
+        }
+        for (const node of mutation.addedNodes) {
+          if (isHTMLElement(node) && (node.tagName.toLowerCase() === "style" || node.tagName.toLowerCase() === "link")) {
+            cloneNode(node);
+          } else if (node.nodeType === Node.TEXT_NODE && node.parentNode) {
+            const clonedNode = mapOriginalToClone.get(node.parentNode);
             if (clonedNode) {
-              clonedNode.parentNode?.removeChild(clonedNode);
-              mapOriginalToClone.delete(node);
+              clonedNode.textContent = node.textContent;
             }
           }
         }
-      })
-    );
+        for (const node of mutation.removedNodes) {
+          const clonedNode = mapOriginalToClone.get(node);
+          if (clonedNode) {
+            clonedNode.parentNode?.removeChild(clonedNode);
+            mapOriginalToClone.delete(node);
+          }
+        }
+      }
+    }));
     mark("code/auxiliaryWindow/didApplyCSS");
     return { stylesLoaded };
   }
@@ -534,23 +349,9 @@ let BrowserAuxiliaryWindowService = class extends Disposable {
     container.style.height = "100%";
     container.style.flexDirection = "column";
     auxiliaryWindow.document.body.append(container);
-    disposables.add(
-      trackAttributes(
-        mainWindow.document.documentElement,
-        auxiliaryWindow.document.documentElement
-      )
-    );
-    disposables.add(
-      trackAttributes(
-        mainWindow.document.body,
-        auxiliaryWindow.document.body
-      )
-    );
-    disposables.add(
-      trackAttributes(this.layoutService.mainContainer, container, [
-        "class"
-      ])
-    );
+    disposables.add(trackAttributes(mainWindow.document.documentElement, auxiliaryWindow.document.documentElement));
+    disposables.add(trackAttributes(mainWindow.document.body, auxiliaryWindow.document.body));
+    disposables.add(trackAttributes(this.layoutService.mainContainer, container, ["class"]));
     mark("code/auxiliaryWindow/didApplyHTML");
     return container;
   }
@@ -566,11 +367,7 @@ BrowserAuxiliaryWindowService = __decorateClass([
   __decorateParam(4, IHostService),
   __decorateParam(5, IWorkbenchEnvironmentService)
 ], BrowserAuxiliaryWindowService);
-registerSingleton(
-  IAuxiliaryWindowService,
-  BrowserAuxiliaryWindowService,
-  InstantiationType.Delayed
-);
+registerSingleton(IAuxiliaryWindowService, BrowserAuxiliaryWindowService, InstantiationType.Delayed);
 export {
   AuxiliaryWindow,
   AuxiliaryWindowMode,

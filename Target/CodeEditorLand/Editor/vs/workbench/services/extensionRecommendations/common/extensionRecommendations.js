@@ -1,4 +1,7 @@
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { Event } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
 var ExtensionRecommendationReason = /* @__PURE__ */ ((ExtensionRecommendationReason2) => {
   ExtensionRecommendationReason2[ExtensionRecommendationReason2["Workspace"] = 0] = "Workspace";
   ExtensionRecommendationReason2[ExtensionRecommendationReason2["File"] = 1] = "File";
@@ -9,12 +12,8 @@ var ExtensionRecommendationReason = /* @__PURE__ */ ((ExtensionRecommendationRea
   ExtensionRecommendationReason2[ExtensionRecommendationReason2["Application"] = 6] = "Application";
   return ExtensionRecommendationReason2;
 })(ExtensionRecommendationReason || {});
-const IExtensionRecommendationsService = createDecorator(
-  "extensionRecommendationsService"
-);
-const IExtensionIgnoredRecommendationsService = createDecorator(
-  "IExtensionIgnoredRecommendationsService"
-);
+const IExtensionRecommendationsService = createDecorator("extensionRecommendationsService");
+const IExtensionIgnoredRecommendationsService = createDecorator("IExtensionIgnoredRecommendationsService");
 export {
   ExtensionRecommendationReason,
   IExtensionIgnoredRecommendationsService,

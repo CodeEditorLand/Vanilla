@@ -10,53 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { isEqual, toLocalResource } from "../../../../base/common/resources.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import {
-  DEFAULT_EDITOR_ASSOCIATION,
-  Verbosity,
-  findViewStateForEditor,
-  isUntitledResourceEditorInput
-} from "../../../common/editor.js";
+import { URI } from "../../../../base/common/uri.js";
+import { DEFAULT_EDITOR_ASSOCIATION, findViewStateForEditor, isUntitledResourceEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput, Verbosity } from "../../../common/editor.js";
+import { EditorInput, IUntypedEditorOptions } from "../../../common/editor/editorInput.js";
 import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { ICustomEditorLabelService } from "../../editor/common/customEditorLabelService.js";
+import { IUntitledTextEditorModel } from "./untitledTextEditorModel.js";
+import { EncodingMode, IEncodingSupport, ILanguageSupport, ITextFileService } from "../../textfile/common/textfiles.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
 import { IEditorService } from "../../editor/common/editorService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { isEqual, toLocalResource } from "../../../../base/common/resources.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
 import { IPathService } from "../../path/common/pathService.js";
-import {
-  ITextFileService
-} from "../../textfile/common/textfiles.js";
+import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { DisposableStore, dispose, IReference } from "../../../../base/common/lifecycle.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { ICustomEditorLabelService } from "../../editor/common/customEditorLabelService.js";
 let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(model, textFileService, labelService, editorService, fileService, environmentService, pathService, filesConfigurationService, textModelService, textResourceConfigurationService, customEditorLabelService) {
-    super(
-      model.resource,
-      void 0,
-      editorService,
-      textFileService,
-      labelService,
-      fileService,
-      filesConfigurationService,
-      textResourceConfigurationService,
-      customEditorLabelService
-    );
+    super(model.resource, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
     this.model = model;
     this.environmentService = environmentService;
     this.pathService = pathService;
     this.textModelService = textModelService;
     this.registerModelListeners(model);
-    this._register(
-      this.textFileService.untitled.onDidCreate(
-        (model2) => this.onDidCreateUntitledModel(model2)
-      )
-    );
+    this._register(this.textFileService.untitled.onDidCreate((model2) => this.onDidCreateUntitledModel(model2)));
   }
   static {
     __name(this, "UntitledTextEditorInput");
@@ -73,12 +53,8 @@ let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
   cachedUntitledTextEditorModelReference = void 0;
   registerModelListeners(model) {
     this.modelDisposables.clear();
-    this.modelDisposables.add(
-      model.onDidChangeDirty(() => this._onDidChangeDirty.fire())
-    );
-    this.modelDisposables.add(
-      model.onDidChangeName(() => this._onDidChangeLabel.fire())
-    );
+    this.modelDisposables.add(model.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
+    this.modelDisposables.add(model.onDidChangeName(() => this._onDidChangeLabel.fire()));
     this.modelDisposables.add(model.onDidRevert(() => this.dispose()));
   }
   onDidCreateUntitledModel(model) {
@@ -135,9 +111,7 @@ let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
   async resolve() {
     if (!this.modelResolve) {
       this.modelResolve = (async () => {
-        this.cachedUntitledTextEditorModelReference = await this.textModelService.createModelReference(
-          this.resource
-        );
+        this.cachedUntitledTextEditorModelReference = await this.textModelService.createModelReference(this.resource);
       })();
     }
     await this.modelResolve;
@@ -148,11 +122,7 @@ let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
   }
   toUntyped(options) {
     const untypedInput = {
-      resource: this.model.hasAssociatedFilePath ? toLocalResource(
-        this.model.resource,
-        this.environmentService.remoteAuthority,
-        this.pathService.defaultUriScheme
-      ) : this.resource,
+      resource: this.model.hasAssociatedFilePath ? toLocalResource(this.model.resource, this.environmentService.remoteAuthority, this.pathService.defaultUriScheme) : this.resource,
       forceUntitled: true,
       options: {
         override: this.editorId
@@ -162,11 +132,7 @@ let UntitledTextEditorInput = class extends AbstractTextResourceEditorInput {
       untypedInput.encoding = this.getEncoding();
       untypedInput.languageId = this.getLanguageId();
       untypedInput.contents = this.model.isModified() ? this.model.textEditorModel?.getValue() : void 0;
-      untypedInput.options.viewState = findViewStateForEditor(
-        this,
-        options.preserveViewState,
-        this.editorService
-      );
+      untypedInput.options.viewState = findViewStateForEditor(this, options.preserveViewState, this.editorService);
       if (typeof untypedInput.contents === "string" && !this.model.hasAssociatedFilePath && !options.preserveResource) {
         untypedInput.resource = void 0;
       }

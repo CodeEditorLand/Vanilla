@@ -1,0 +1,167 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import assert from "assert";
+import { CharacterPair, IndentAction } from "../../../../common/languages/languageConfiguration.js";
+import { OnEnterSupport } from "../../../../common/languages/supports/onEnter.js";
+import { javascriptOnEnterRules } from "./onEnterRules.js";
+import { EditorAutoIndentStrategy } from "../../../../common/config/editorOptions.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../base/test/common/utils.js";
+suite("OnEnter", () => {
+  ensureNoDisposablesAreLeakedInTestSuite();
+  test("uses brackets", () => {
+    const brackets = [
+      ["(", ")"],
+      ["begin", "end"]
+    ];
+    const support = new OnEnterSupport({
+      brackets
+    });
+    const testIndentAction = /* @__PURE__ */ __name((beforeText, afterText, expected) => {
+      const actual = support.onEnter(EditorAutoIndentStrategy.Advanced, "", beforeText, afterText);
+      if (expected === IndentAction.None) {
+        assert.strictEqual(actual, null);
+      } else {
+        assert.strictEqual(actual.indentAction, expected);
+      }
+    }, "testIndentAction");
+    testIndentAction("a", "", IndentAction.None);
+    testIndentAction("", "b", IndentAction.None);
+    testIndentAction("(", "b", IndentAction.Indent);
+    testIndentAction("a", ")", IndentAction.None);
+    testIndentAction("begin", "ending", IndentAction.Indent);
+    testIndentAction("abegin", "end", IndentAction.None);
+    testIndentAction("begin", ")", IndentAction.Indent);
+    testIndentAction("begin", "end", IndentAction.IndentOutdent);
+    testIndentAction("begin ", " end", IndentAction.IndentOutdent);
+    testIndentAction(" begin", "end//as", IndentAction.IndentOutdent);
+    testIndentAction("(", ")", IndentAction.IndentOutdent);
+    testIndentAction("( ", ")", IndentAction.IndentOutdent);
+    testIndentAction("a(", ")b", IndentAction.IndentOutdent);
+    testIndentAction("(", "", IndentAction.Indent);
+    testIndentAction("(", "foo", IndentAction.Indent);
+    testIndentAction("begin", "foo", IndentAction.Indent);
+    testIndentAction("begin", "", IndentAction.Indent);
+  });
+  test("Issue #121125: onEnterRules with global modifier", () => {
+    const support = new OnEnterSupport({
+      onEnterRules: [
+        {
+          action: {
+            appendText: "/// ",
+            indentAction: IndentAction.Outdent
+          },
+          beforeText: /^\s*\/{3}.*$/gm
+        }
+      ]
+    });
+    const testIndentAction = /* @__PURE__ */ __name((previousLineText, beforeText, afterText, expectedIndentAction, expectedAppendText, removeText = 0) => {
+      const actual = support.onEnter(EditorAutoIndentStrategy.Advanced, previousLineText, beforeText, afterText);
+      if (expectedIndentAction === null) {
+        assert.strictEqual(actual, null, "isNull:" + beforeText);
+      } else {
+        assert.strictEqual(actual !== null, true, "isNotNull:" + beforeText);
+        assert.strictEqual(actual.indentAction, expectedIndentAction, "indentAction:" + beforeText);
+        if (expectedAppendText !== null) {
+          assert.strictEqual(actual.appendText, expectedAppendText, "appendText:" + beforeText);
+        }
+        if (removeText !== 0) {
+          assert.strictEqual(actual.removeText, removeText, "removeText:" + beforeText);
+        }
+      }
+    }, "testIndentAction");
+    testIndentAction("/// line", "/// line", "", IndentAction.Outdent, "/// ");
+    testIndentAction("/// line", "/// line", "", IndentAction.Outdent, "/// ");
+  });
+  test("uses regExpRules", () => {
+    const support = new OnEnterSupport({
+      onEnterRules: javascriptOnEnterRules
+    });
+    const testIndentAction = /* @__PURE__ */ __name((previousLineText, beforeText, afterText, expectedIndentAction, expectedAppendText, removeText = 0) => {
+      const actual = support.onEnter(EditorAutoIndentStrategy.Advanced, previousLineText, beforeText, afterText);
+      if (expectedIndentAction === null) {
+        assert.strictEqual(actual, null, "isNull:" + beforeText);
+      } else {
+        assert.strictEqual(actual !== null, true, "isNotNull:" + beforeText);
+        assert.strictEqual(actual.indentAction, expectedIndentAction, "indentAction:" + beforeText);
+        if (expectedAppendText !== null) {
+          assert.strictEqual(actual.appendText, expectedAppendText, "appendText:" + beforeText);
+        }
+        if (removeText !== 0) {
+          assert.strictEqual(actual.removeText, removeText, "removeText:" + beforeText);
+        }
+      }
+    }, "testIndentAction");
+    testIndentAction("", "	/**", " */", IndentAction.IndentOutdent, " * ");
+    testIndentAction("", "	/**", "", IndentAction.None, " * ");
+    testIndentAction("", "	/** * / * / * /", "", IndentAction.None, " * ");
+    testIndentAction("", "	/** /*", "", IndentAction.None, " * ");
+    testIndentAction("", "/**", "", IndentAction.None, " * ");
+    testIndentAction("", "	/**/", "", null, null);
+    testIndentAction("", "	/***/", "", null, null);
+    testIndentAction("", "	/*******/", "", null, null);
+    testIndentAction("", "	/** * * * * */", "", null, null);
+    testIndentAction("", "	/** */", "", null, null);
+    testIndentAction("", "	/** asdfg */", "", null, null);
+    testIndentAction("", "	/* asdfg */", "", null, null);
+    testIndentAction("", "	/* asdfg */", "", null, null);
+    testIndentAction("", "	/** asdfg */", "", null, null);
+    testIndentAction("", "*/", "", null, null);
+    testIndentAction("", "	/*", "", null, null);
+    testIndentAction("", "	*", "", null, null);
+    testIndentAction("	/**", "	 *", "", IndentAction.None, "* ");
+    testIndentAction("	 * something", "	 *", "", IndentAction.None, "* ");
+    testIndentAction("	 *", "	 *", "", IndentAction.None, "* ");
+    testIndentAction("", "	 */", "", IndentAction.None, null, 1);
+    testIndentAction("", "	 * */", "", IndentAction.None, null, 1);
+    testIndentAction("", "	 * * / * / * / */", "", null, null);
+    testIndentAction("	/**", "	 * ", "", IndentAction.None, "* ");
+    testIndentAction("	 * something", "	 * ", "", IndentAction.None, "* ");
+    testIndentAction("	 *", "	 * ", "", IndentAction.None, "* ");
+    testIndentAction("/**", " * ", "", IndentAction.None, "* ");
+    testIndentAction(" * something", " * ", "", IndentAction.None, "* ");
+    testIndentAction(" *", " * asdfsfagadfg", "", IndentAction.None, "* ");
+    testIndentAction("/**", " * asdfsfagadfg * * * ", "", IndentAction.None, "* ");
+    testIndentAction(" * something", " * asdfsfagadfg * * * ", "", IndentAction.None, "* ");
+    testIndentAction(" *", " * asdfsfagadfg * * * ", "", IndentAction.None, "* ");
+    testIndentAction("/**", " * /*", "", IndentAction.None, "* ");
+    testIndentAction(" * something", " * /*", "", IndentAction.None, "* ");
+    testIndentAction(" *", " * /*", "", IndentAction.None, "* ");
+    testIndentAction("/**", " * asdfsfagadfg * / * / * /", "", IndentAction.None, "* ");
+    testIndentAction(" * something", " * asdfsfagadfg * / * / * /", "", IndentAction.None, "* ");
+    testIndentAction(" *", " * asdfsfagadfg * / * / * /", "", IndentAction.None, "* ");
+    testIndentAction("/**", " * asdfsfagadfg * / * / * /*", "", IndentAction.None, "* ");
+    testIndentAction(" * something", " * asdfsfagadfg * / * / * /*", "", IndentAction.None, "* ");
+    testIndentAction(" *", " * asdfsfagadfg * / * / * /*", "", IndentAction.None, "* ");
+    testIndentAction("", " */", "", IndentAction.None, null, 1);
+    testIndentAction(" */", " * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("", "	 */", "", IndentAction.None, null, 1);
+    testIndentAction("", "		 */", "", IndentAction.None, null, 1);
+    testIndentAction("", "   */", "", IndentAction.None, null, 1);
+    testIndentAction("", "     */", "", IndentAction.None, null, 1);
+    testIndentAction("", "	     */", "", IndentAction.None, null, 1);
+    testIndentAction("", " *--------------------------------------------------------------------------------------------*/", "", IndentAction.None, null, 1);
+    testIndentAction("class A {", "    * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("", "    * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("    ", "    * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("class A {", "  * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("", "  * test() {", "", IndentAction.Indent, null, 0);
+    testIndentAction("  ", "  * test() {", "", IndentAction.Indent, null, 0);
+  });
+  test("issue #141816", () => {
+    const support = new OnEnterSupport({
+      onEnterRules: javascriptOnEnterRules
+    });
+    const testIndentAction = /* @__PURE__ */ __name((beforeText, afterText, expected) => {
+      const actual = support.onEnter(EditorAutoIndentStrategy.Advanced, "", beforeText, afterText);
+      if (expected === IndentAction.None) {
+        assert.strictEqual(actual, null);
+      } else {
+        assert.strictEqual(actual.indentAction, expected);
+      }
+    }, "testIndentAction");
+    testIndentAction("const r = /{/;", "", IndentAction.None);
+    testIndentAction("const r = /{[0-9]/;", "", IndentAction.None);
+    testIndentAction("const r = /[a-zA-Z]{/;", "", IndentAction.None);
+  });
+});
+//# sourceMappingURL=onEnter.test.js.map

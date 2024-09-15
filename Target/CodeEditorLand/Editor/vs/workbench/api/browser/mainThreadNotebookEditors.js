@@ -12,23 +12,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore, dispose } from "../../../base/common/lifecycle.js";
 import { equals } from "../../../base/common/objects.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 import { EditorActivation } from "../../../platform/editor/common/editor.js";
-import {
-  getNotebookEditorFromEditorPane
-} from "../../contrib/notebook/browser/notebookBrowser.js";
+import { getNotebookEditorFromEditorPane, INotebookEditor, INotebookEditorOptions } from "../../contrib/notebook/browser/notebookBrowser.js";
 import { INotebookEditorService } from "../../contrib/notebook/browser/services/notebookEditorService.js";
-import {
-  columnToEditorGroup,
-  editorGroupToColumn
-} from "../../services/editor/common/editorGroupColumn.js";
+import { ICellRange } from "../../contrib/notebook/common/notebookRange.js";
+import { columnToEditorGroup, editorGroupToColumn } from "../../services/editor/common/editorGroupColumn.js";
 import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../services/editor/common/editorService.js";
-import {
-  ExtHostContext,
-  NotebookEditorRevealType
-} from "../common/extHost.protocol.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, ExtHostNotebookEditorsShape, INotebookDocumentShowOptions, INotebookEditorViewColumnInfo, MainThreadNotebookEditorsShape, NotebookEditorRevealType } from "../common/extHost.protocol.js";
 class MainThreadNotebook {
   constructor(editor, disposables) {
     this.editor = editor;
@@ -47,24 +41,10 @@ let MainThreadNotebookEditors = class {
     this._notebookEditorService = _notebookEditorService;
     this._editorGroupService = _editorGroupService;
     this._configurationService = _configurationService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostNotebookEditors
-    );
-    this._editorService.onDidActiveEditorChange(
-      () => this._updateEditorViewColumns(),
-      this,
-      this._disposables
-    );
-    this._editorGroupService.onDidRemoveGroup(
-      () => this._updateEditorViewColumns(),
-      this,
-      this._disposables
-    );
-    this._editorGroupService.onDidMoveGroup(
-      () => this._updateEditorViewColumns(),
-      this,
-      this._disposables
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostNotebookEditors);
+    this._editorService.onDidActiveEditorChange(() => this._updateEditorViewColumns(), this, this._disposables);
+    this._editorGroupService.onDidRemoveGroup(() => this._updateEditorViewColumns(), this, this._disposables);
+    this._editorGroupService.onDidMoveGroup(() => this._updateEditorViewColumns(), this, this._disposables);
   }
   static {
     __name(this, "MainThreadNotebookEditors");
@@ -80,20 +60,12 @@ let MainThreadNotebookEditors = class {
   handleEditorsAdded(editors) {
     for (const editor of editors) {
       const editorDisposables = new DisposableStore();
-      editorDisposables.add(
-        editor.onDidChangeVisibleRanges(() => {
-          this._proxy.$acceptEditorPropertiesChanged(editor.getId(), {
-            visibleRanges: { ranges: editor.visibleRanges }
-          });
-        })
-      );
-      editorDisposables.add(
-        editor.onDidChangeSelection(() => {
-          this._proxy.$acceptEditorPropertiesChanged(editor.getId(), {
-            selections: { selections: editor.getSelections() }
-          });
-        })
-      );
+      editorDisposables.add(editor.onDidChangeVisibleRanges(() => {
+        this._proxy.$acceptEditorPropertiesChanged(editor.getId(), { visibleRanges: { ranges: editor.visibleRanges } });
+      }));
+      editorDisposables.add(editor.onDidChangeSelection(() => {
+        this._proxy.$acceptEditorPropertiesChanged(editor.getId(), { selections: { selections: editor.getSelections() } });
+      }));
       const wrapper = new MainThreadNotebook(editor, editorDisposables);
       this._mainThreadEditors.set(editor.getId(), wrapper);
     }
@@ -109,10 +81,7 @@ let MainThreadNotebookEditors = class {
     for (const editorPane of this._editorService.visibleEditorPanes) {
       const candidate = getNotebookEditorFromEditorPane(editorPane);
       if (candidate && this._mainThreadEditors.has(candidate.getId())) {
-        result[candidate.getId()] = editorGroupToColumn(
-          this._editorGroupService,
-          editorPane.group
-        );
+        result[candidate.getId()] = editorGroupToColumn(this._editorGroupService, editorPane.group);
       }
     }
     if (!equals(result, this._currentViewColumnInfo)) {
@@ -132,21 +101,12 @@ let MainThreadNotebookEditors = class {
       label: options.label,
       override: viewType
     };
-    const editorPane = await this._editorService.openEditor(
-      { resource: URI.revive(resource), options: editorOptions },
-      columnToEditorGroup(
-        this._editorGroupService,
-        this._configurationService,
-        options.position
-      )
-    );
+    const editorPane = await this._editorService.openEditor({ resource: URI.revive(resource), options: editorOptions }, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
     const notebookEditor = getNotebookEditorFromEditorPane(editorPane);
     if (notebookEditor) {
       return notebookEditor.getId();
     } else {
-      throw new Error(
-        `Notebook Editor creation failure for document ${JSON.stringify(resource)}`
-      );
+      throw new Error(`Notebook Editor creation failure for document ${JSON.stringify(resource)}`);
     }
   }
   async $tryRevealRange(id, range, revealType) {
@@ -180,10 +140,7 @@ let MainThreadNotebookEditors = class {
     }
     editor.setSelections(ranges);
     if (ranges.length) {
-      editor.setFocus({
-        start: ranges[0].start,
-        end: ranges[0].start + 1
-      });
+      editor.setFocus({ start: ranges[0].start, end: ranges[0].start + 1 });
     }
   }
 };

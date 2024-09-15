@@ -1,30 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getWindowById } from "../../../../base/browser/dom.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { indexOfPath } from "../../../../base/common/extpath.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import { LRUCache, Touch } from "../../../../base/common/map.js";
-import {
-  isEqual,
-  joinPath
-} from "../../../../base/common/resources.js";
-import { isEmptyObject } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  isEditorInput
-} from "../../../common/editor.js";
 import { Composite } from "../../composite.js";
-import {
-  DEFAULT_EDITOR_MAX_DIMENSIONS,
-  DEFAULT_EDITOR_MIN_DIMENSIONS
-} from "./editor.js";
+import { IEditorPane, GroupIdentifier, IEditorMemento, IEditorOpenContext, isEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { LRUCache, Touch } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { isEmptyObject } from "../../../../base/common/types.js";
+import { DEFAULT_EDITOR_MIN_DIMENSIONS, DEFAULT_EDITOR_MAX_DIMENSIONS } from "./editor.js";
+import { MementoObject } from "../../../common/memento.js";
+import { joinPath, IExtUri, isEqual } from "../../../../base/common/resources.js";
+import { indexOfPath } from "../../../../base/common/extpath.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { getWindowById } from "../../../../base/browser/dom.js";
 class EditorPane extends Composite {
   constructor(id, group, telemetryService, themeService, storageService) {
     super(id, telemetryService, themeService, storageService);
@@ -35,9 +32,7 @@ class EditorPane extends Composite {
   }
   //#region Events
   onDidChangeSizeConstraints = Event.None;
-  _onDidChangeControl = this._register(
-    new Emitter()
-  );
+  _onDidChangeControl = this._register(new Emitter());
   onDidChangeControl = this._onDidChangeControl.event;
   //#endregion
   static EDITOR_MEMENTOS = /* @__PURE__ */ new Map();
@@ -133,19 +128,7 @@ class EditorPane extends Composite {
     const mementoKey = `${this.getId()}${key}`;
     let editorMemento = EditorPane.EDITOR_MEMENTOS.get(mementoKey);
     if (!editorMemento) {
-      editorMemento = this._register(
-        new EditorMemento(
-          this.getId(),
-          key,
-          this.getMemento(
-            StorageScope.WORKSPACE,
-            StorageTarget.MACHINE
-          ),
-          limit,
-          editorGroupService,
-          configurationService
-        )
-      );
+      editorMemento = this._register(new EditorMemento(this.getId(), key, this.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE), limit, editorGroupService, configurationService));
       EditorPane.EDITOR_MEMENTOS.set(mementoKey, editorMemento);
     }
     return editorMemento;
@@ -189,21 +172,11 @@ class EditorMemento extends Disposable {
   editorDisposables;
   shareEditorState = false;
   registerListeners() {
-    this._register(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => this.updateConfiguration(e)
-      )
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.updateConfiguration(e)));
   }
   updateConfiguration(e) {
-    if (!e || e.affectsConfiguration(
-      void 0,
-      "workbench.editor.sharedViewState"
-    )) {
-      this.shareEditorState = this.configurationService.getValue(
-        void 0,
-        "workbench.editor.sharedViewState"
-      ) === true;
+    if (!e || e.affectsConfiguration(void 0, "workbench.editor.sharedViewState")) {
+      this.shareEditorState = this.configurationService.getValue(void 0, "workbench.editor.sharedViewState") === true;
     }
   }
   saveEditorState(group, resourceOrEditor, state) {
@@ -268,13 +241,10 @@ class EditorMemento extends Disposable {
       this.editorDisposables = /* @__PURE__ */ new Map();
     }
     if (!this.editorDisposables.has(editor)) {
-      this.editorDisposables.set(
-        editor,
-        Event.once(editor.onWillDispose)(() => {
-          this.clearEditorState(resource);
-          this.editorDisposables?.delete(editor);
-        })
-      );
+      this.editorDisposables.set(editor, Event.once(editor.onWillDispose)(() => {
+        this.clearEditorState(resource);
+        this.editorDisposables?.delete(editor);
+      }));
     }
   }
   moveEditorState(source, target, comparer) {
@@ -290,10 +260,7 @@ class EditorMemento extends Disposable {
         targetResource = target;
       } else {
         const index = indexOfPath(resource.path, source.path);
-        targetResource = joinPath(
-          target,
-          resource.path.substr(index + source.path.length + 1)
-        );
+        targetResource = joinPath(target, resource.path.substr(index + source.path.length + 1));
       }
       const value = cache.get(cacheKey, Touch.None);
       if (value) {

@@ -10,11 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../../base/common/lifecycle.js";
 import * as nls from "../../../../../nls.js";
-import {
-  ILoggerService
-} from "../../../../../platform/log/common/log.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { INotebookLoggingService } from "../../common/notebookLoggingService.js";
+import { ILogger, ILoggerService } from "../../../../../platform/log/common/log.js";
 const logChannelId = "notebook.rendering";
 let NotebookLoggingService = class extends Disposable {
   static {
@@ -25,11 +24,7 @@ let NotebookLoggingService = class extends Disposable {
   _logger;
   constructor(loggerService) {
     super();
-    this._logger = this._register(
-      loggerService.createLogger(logChannelId, {
-        name: nls.localize("renderChannelName", "Notebook")
-      })
-    );
+    this._logger = this._register(loggerService.createLogger(logChannelId, { name: nls.localize("renderChannelName", "Notebook") }));
   }
   debug(category, output) {
     this._logger.debug(`[${category}] ${output}`);

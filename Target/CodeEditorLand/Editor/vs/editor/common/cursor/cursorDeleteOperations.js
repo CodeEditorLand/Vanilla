@@ -2,15 +2,15 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as strings from "../../../base/common/strings.js";
 import { ReplaceCommand } from "../commands/replaceCommand.js";
+import { EditorAutoClosingEditStrategy, EditorAutoClosingStrategy } from "../config/editorOptions.js";
+import { CursorConfiguration, EditOperationResult, EditOperationType, ICursorSimpleModel, isQuote } from "../cursorCommon.js";
 import { CursorColumns } from "../core/cursorColumns.js";
-import { Position } from "../core/position.js";
-import { Range } from "../core/range.js";
-import {
-  EditOperationResult,
-  EditOperationType,
-  isQuote
-} from "../cursorCommon.js";
 import { MoveOperations } from "./cursorMoveOperations.js";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { ICommand } from "../editorCommon.js";
+import { StandardAutoClosingPairConditional } from "../languages/languageConfiguration.js";
+import { Position } from "../core/position.js";
 class DeleteOperations {
   static {
     __name(this, "DeleteOperations");
@@ -23,11 +23,7 @@ class DeleteOperations {
       let deleteSelection = selection;
       if (deleteSelection.isEmpty()) {
         const position = selection.getPosition();
-        const rightOfPosition = MoveOperations.right(
-          config,
-          model,
-          position
-        );
+        const rightOfPosition = MoveOperations.right(config, model, position);
         deleteSelection = new Range(
           rightOfPosition.lineNumber,
           rightOfPosition.column,
@@ -72,8 +68,10 @@ class DeleteOperations {
         if (autoClosingQuotes === "never") {
           return false;
         }
-      } else if (autoClosingBrackets === "never") {
-        return false;
+      } else {
+        if (autoClosingBrackets === "never") {
+          return false;
+        }
       }
       const afterCharacter = lineText.charAt(position.column - 1);
       let foundAutoClosingPair = false;
@@ -116,25 +114,13 @@ class DeleteOperations {
     return [true, commands];
   }
   static deleteLeft(prevEditOperationType, config, model, selections, autoClosedCharacters) {
-    if (this.isAutoClosingPairDelete(
-      config.autoClosingDelete,
-      config.autoClosingBrackets,
-      config.autoClosingQuotes,
-      config.autoClosingPairs.autoClosingPairsOpenByEnd,
-      model,
-      selections,
-      autoClosedCharacters
-    )) {
+    if (this.isAutoClosingPairDelete(config.autoClosingDelete, config.autoClosingBrackets, config.autoClosingQuotes, config.autoClosingPairs.autoClosingPairsOpenByEnd, model, selections, autoClosedCharacters)) {
       return this._runAutoClosingPairDelete(config, model, selections);
     }
     const commands = [];
     let shouldPushStackElementBefore = prevEditOperationType !== EditOperationType.DeletingLeft;
     for (let i = 0, len = selections.length; i < len; i++) {
-      const deleteRange = DeleteOperations.getDeleteRange(
-        selections[i],
-        model,
-        config
-      );
+      const deleteRange = DeleteOperations.getDeleteRange(selections[i], model, config);
       if (deleteRange.isEmpty()) {
         commands[i] = null;
         continue;
@@ -159,38 +145,17 @@ class DeleteOperations {
         lineContent.length + 1
       ) : firstNonWhitespaceIndex + 1;
       if (position.column <= lastIndentationColumn) {
-        const fromVisibleColumn = config.visibleColumnFromColumn(
-          model,
-          position
-        );
-        const toVisibleColumn = CursorColumns.prevIndentTabStop(
-          fromVisibleColumn,
-          config.indentSize
-        );
-        const toColumn = config.columnFromVisibleColumn(
-          model,
-          position.lineNumber,
-          toVisibleColumn
-        );
-        return new Range(
-          position.lineNumber,
-          toColumn,
-          position.lineNumber,
-          position.column
-        );
+        const fromVisibleColumn = config.visibleColumnFromColumn(model, position);
+        const toVisibleColumn = CursorColumns.prevIndentTabStop(fromVisibleColumn, config.indentSize);
+        const toColumn = config.columnFromVisibleColumn(model, position.lineNumber, toVisibleColumn);
+        return new Range(position.lineNumber, toColumn, position.lineNumber, position.column);
       }
     }
-    return Range.fromPositions(
-      DeleteOperations.getPositionAfterDeleteLeft(position, model),
-      position
-    );
+    return Range.fromPositions(DeleteOperations.getPositionAfterDeleteLeft(position, model), position);
   }
   static getPositionAfterDeleteLeft(position, model) {
     if (position.column > 1) {
-      const idx = strings.getLeftDeleteOffset(
-        position.column - 1,
-        model.getLineContent(position.lineNumber)
-      );
+      const idx = strings.getLeftDeleteOffset(position.column - 1, model.getLineContent(position.lineNumber));
       return position.with(void 0, idx + 1);
     } else if (position.lineNumber > 1) {
       const newLine = position.lineNumber - 1;
@@ -202,9 +167,7 @@ class DeleteOperations {
   static cut(config, model, selections) {
     const commands = [];
     let lastCutRange = null;
-    selections.sort(
-      (a, b) => Position.compare(a.getStartPosition(), b.getEndPosition())
-    );
+    selections.sort((a, b) => Position.compare(a.getStartPosition(), b.getEndPosition()));
     for (let i = 0, len = selections.length; i < len; i++) {
       const selection = selections[i];
       if (selection.isEmpty()) {
@@ -218,9 +181,7 @@ class DeleteOperations {
             endColumn = 1;
           } else if (position.lineNumber > 1 && lastCutRange?.endLineNumber !== position.lineNumber) {
             startLineNumber = position.lineNumber - 1;
-            startColumn = model.getLineMaxColumn(
-              position.lineNumber - 1
-            );
+            startColumn = model.getLineMaxColumn(position.lineNumber - 1);
             endLineNumber = position.lineNumber;
             endColumn = model.getLineMaxColumn(position.lineNumber);
           } else {
@@ -236,10 +197,10 @@ class DeleteOperations {
             endColumn
           );
           lastCutRange = deleteSelection;
-          if (deleteSelection.isEmpty()) {
-            commands[i] = null;
-          } else {
+          if (!deleteSelection.isEmpty()) {
             commands[i] = new ReplaceCommand(deleteSelection, "");
+          } else {
+            commands[i] = null;
           }
         } else {
           commands[i] = null;

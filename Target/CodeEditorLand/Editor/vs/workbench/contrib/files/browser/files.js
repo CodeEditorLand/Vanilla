@@ -1,20 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isActiveElement } from "../../../../base/browser/dom.js";
-import { List } from "../../../../base/browser/ui/list/listWidget.js";
-import { AsyncDataTree } from "../../../../base/browser/ui/tree/asyncDataTree.js";
-import { coalesce } from "../../../../base/common/arrays.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  createDecorator
-} from "../../../../platform/instantiation/common/instantiation.js";
 import { IListService } from "../../../../platform/list/browser/listService.js";
-import {
-  EditorResourceAccessor,
-  SideBySideEditor
-} from "../../../common/editor.js";
+import { OpenEditor, ISortOrderConfiguration } from "../common/files.js";
+import { EditorResourceAccessor, SideBySideEditor, IEditorIdentifier } from "../../../common/editor.js";
+import { List } from "../../../../base/browser/ui/list/listWidget.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { ExplorerItem } from "../common/explorerModel.js";
-import { OpenEditor } from "../common/files.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { AsyncDataTree } from "../../../../base/browser/ui/tree/asyncDataTree.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditableData } from "../../../common/views.js";
+import { createDecorator, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { ProgressLocation } from "../../../../platform/progress/common/progress.js";
+import { isActiveElement } from "../../../../base/browser/dom.js";
 const IExplorerService = createDecorator("explorerService");
 function getFocus(listService) {
   const list = listService.lastFocusedList;
@@ -47,9 +47,7 @@ function getResourceForCommand(commandArg, editorService, listService) {
   } else if (focus instanceof OpenEditor) {
     return focus.getResource();
   }
-  return EditorResourceAccessor.getOriginalUri(editorService.activeEditor, {
-    supportSideBySide: SideBySideEditor.PRIMARY
-  });
+  return EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
 }
 __name(getResourceForCommand, "getResourceForCommand");
 function getMultiSelectedResources(commandArg, listService, editorSerice, editorGroupService, explorerService) {
@@ -63,21 +61,17 @@ function getMultiSelectedResources(commandArg, listService, editorSerice, editor
       }
     }
     if (list instanceof List) {
-      const selection2 = coalesce(
-        list.getSelectedElements().filter((s) => s instanceof OpenEditor).map((oe) => oe.getResource())
-      );
+      const selection2 = coalesce(list.getSelectedElements().filter((s) => s instanceof OpenEditor).map((oe) => oe.getResource()));
       const focusedElements = list.getFocusedElements();
       const focus = focusedElements.length ? focusedElements[0] : void 0;
-      let mainUriStr;
+      let mainUriStr = void 0;
       if (URI.isUri(commandArg)) {
         mainUriStr = commandArg.toString();
       } else if (focus instanceof OpenEditor) {
         const focusedResource = focus.getResource();
         mainUriStr = focusedResource ? focusedResource.toString() : void 0;
       }
-      const mainIndex = selection2.findIndex(
-        (s) => s.toString() === mainUriStr
-      );
+      const mainIndex = selection2.findIndex((s) => s.toString() === mainUriStr);
       if (mainIndex !== -1) {
         const mainResource = selection2[mainIndex];
         selection2.splice(mainIndex, 1);
@@ -89,9 +83,7 @@ function getMultiSelectedResources(commandArg, listService, editorSerice, editor
   const activeGroup = editorGroupService.activeGroup;
   const selection = activeGroup.selectedEditors;
   if (selection.length > 1 && URI.isUri(commandArg)) {
-    const mainEditorSelectionIndex = selection.findIndex(
-      (e) => e.matches({ resource: commandArg })
-    );
+    const mainEditorSelectionIndex = selection.findIndex((e) => e.matches({ resource: commandArg }));
     if (mainEditorSelectionIndex !== -1) {
       const mainEditor = selection[mainEditorSelectionIndex];
       selection.splice(mainEditorSelectionIndex, 1);
@@ -108,12 +100,10 @@ function getOpenEditorsViewMultiSelection(accessor) {
   const element = list?.getHTMLElement();
   if (element && isActiveElement(element)) {
     if (list instanceof List) {
-      const selection = coalesce(
-        list.getSelectedElements().filter((s) => s instanceof OpenEditor)
-      );
+      const selection = coalesce(list.getSelectedElements().filter((s) => s instanceof OpenEditor));
       const focusedElements = list.getFocusedElements();
       const focus = focusedElements.length ? focusedElements[0] : void 0;
-      let mainEditor;
+      let mainEditor = void 0;
       if (focus instanceof OpenEditor) {
         mainEditor = focus;
       }

@@ -1,15 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Codicon } from "../../../common/codicons.js";
-import {
-  ScrollbarVisibility
-} from "../../../common/scrollable.js";
 import { StandardWheelEvent } from "../../mouseEvent.js";
-import {
-  AbstractScrollbar
-} from "./abstractScrollbar.js";
+import { AbstractScrollbar, ISimplifiedPointerEvent, ScrollbarHost } from "./abstractScrollbar.js";
+import { ScrollableElementResolvedOptions } from "./scrollableElementOptions.js";
 import { ARROW_IMG_SIZE } from "./scrollbarArrow.js";
 import { ScrollbarState } from "./scrollbarState.js";
+import { Codicon } from "../../../common/codicons.js";
+import { INewScrollPosition, Scrollable, ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
 class HorizontalScrollbar extends AbstractScrollbar {
   static {
     __name(this, "HorizontalScrollbar");
@@ -56,19 +53,10 @@ class HorizontalScrollbar extends AbstractScrollbar {
         right: arrowDelta,
         bgWidth: options.arrowSize,
         bgHeight: options.horizontalScrollbarSize,
-        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(
-          new StandardWheelEvent(null, -1, 0)
-        ), "onActivate")
+        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(new StandardWheelEvent(null, -1, 0)), "onActivate")
       });
     }
-    this._createSlider(
-      Math.floor(
-        (options.horizontalScrollbarSize - options.horizontalSliderSize) / 2
-      ),
-      0,
-      void 0,
-      options.horizontalSliderSize
-    );
+    this._createSlider(Math.floor((options.horizontalScrollbarSize - options.horizontalSliderSize) / 2), 0, void 0, options.horizontalSliderSize);
   }
   _updateSlider(sliderSize, sliderPosition) {
     this.slider.setWidth(sliderSize);
@@ -102,12 +90,8 @@ class HorizontalScrollbar extends AbstractScrollbar {
     target.scrollLeft = scrollPosition;
   }
   updateOptions(options) {
-    this.updateScrollbarSize(
-      options.horizontal === ScrollbarVisibility.Hidden ? 0 : options.horizontalScrollbarSize
-    );
-    this._scrollbarState.setOppositeScrollbarSize(
-      options.vertical === ScrollbarVisibility.Hidden ? 0 : options.verticalScrollbarSize
-    );
+    this.updateScrollbarSize(options.horizontal === ScrollbarVisibility.Hidden ? 0 : options.horizontalScrollbarSize);
+    this._scrollbarState.setOppositeScrollbarSize(options.vertical === ScrollbarVisibility.Hidden ? 0 : options.verticalScrollbarSize);
     this._visibilityController.setVisibility(options.horizontal);
     this._scrollByPage = options.scrollByPage;
   }

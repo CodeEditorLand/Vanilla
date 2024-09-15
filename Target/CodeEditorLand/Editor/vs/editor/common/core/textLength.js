@@ -18,27 +18,18 @@ class TextLength {
     if (start.lineCount === end.lineCount) {
       return new TextLength(0, end.columnCount - start.columnCount);
     } else {
-      return new TextLength(
-        end.lineCount - start.lineCount,
-        end.columnCount
-      );
+      return new TextLength(end.lineCount - start.lineCount, end.columnCount);
     }
   }
   static betweenPositions(position1, position2) {
     if (position1.lineNumber === position2.lineNumber) {
       return new TextLength(0, position2.column - position1.column);
     } else {
-      return new TextLength(
-        position2.lineNumber - position1.lineNumber,
-        position2.column - 1
-      );
+      return new TextLength(position2.lineNumber - position1.lineNumber, position2.column - 1);
     }
   }
   static ofRange(range) {
-    return TextLength.betweenPositions(
-      range.getStartPosition(),
-      range.getEndPosition()
-    );
+    return TextLength.betweenPositions(range.getStartPosition(), range.getEndPosition());
   }
   static ofText(text) {
     let line = 0;
@@ -85,32 +76,16 @@ class TextLength {
   }
   add(other) {
     if (other.lineCount === 0) {
-      return new TextLength(
-        this.lineCount,
-        this.columnCount + other.columnCount
-      );
+      return new TextLength(this.lineCount, this.columnCount + other.columnCount);
     } else {
-      return new TextLength(
-        this.lineCount + other.lineCount,
-        other.columnCount
-      );
+      return new TextLength(this.lineCount + other.lineCount, other.columnCount);
     }
   }
   createRange(startPosition) {
     if (this.lineCount === 0) {
-      return new Range(
-        startPosition.lineNumber,
-        startPosition.column,
-        startPosition.lineNumber,
-        startPosition.column + this.columnCount
-      );
+      return new Range(startPosition.lineNumber, startPosition.column, startPosition.lineNumber, startPosition.column + this.columnCount);
     } else {
-      return new Range(
-        startPosition.lineNumber,
-        startPosition.column,
-        startPosition.lineNumber + this.lineCount,
-        this.columnCount + 1
-      );
+      return new Range(startPosition.lineNumber, startPosition.column, startPosition.lineNumber + this.lineCount, this.columnCount + 1);
     }
   }
   toRange() {
@@ -118,15 +93,9 @@ class TextLength {
   }
   addToPosition(position) {
     if (this.lineCount === 0) {
-      return new Position(
-        position.lineNumber,
-        position.column + this.columnCount
-      );
+      return new Position(position.lineNumber, position.column + this.columnCount);
     } else {
-      return new Position(
-        position.lineNumber + this.lineCount,
-        this.columnCount + 1
-      );
+      return new Position(position.lineNumber + this.lineCount, this.columnCount + 1);
     }
   }
   toString() {

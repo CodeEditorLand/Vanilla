@@ -37,10 +37,7 @@ function encodeAuthority(authority) {
 }
 __name(encodeAuthority, "encodeAuthority");
 function decodeAuthority(authority) {
-  return authority.replace(
-    /-([0-9a-f]{4})/g,
-    (_, code) => String.fromCharCode(Number.parseInt(code, 16))
-  );
+  return authority.replace(/-([0-9a-f]{4})/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
 }
 __name(decodeAuthority, "decodeAuthority");
 export {

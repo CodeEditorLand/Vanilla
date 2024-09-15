@@ -13,9 +13,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { mainWindow } from "../../../../base/browser/window.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
 import { BrowserWindowDriver } from "../browser/driver.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
 let NativeWindowDriver = class extends BrowserWindowDriver {
   constructor(helper, fileService, environmentService, lifecycleService, logService) {
     super(fileService, environmentService, lifecycleService, logService);
@@ -35,9 +36,7 @@ NativeWindowDriver = __decorateClass([
   __decorateParam(4, ILogService)
 ], NativeWindowDriver);
 function registerWindowDriver(instantiationService, helper) {
-  Object.assign(mainWindow, {
-    driver: instantiationService.createInstance(NativeWindowDriver, helper)
-  });
+  Object.assign(mainWindow, { driver: instantiationService.createInstance(NativeWindowDriver, helper) });
 }
 __name(registerWindowDriver, "registerWindowDriver");
 export {

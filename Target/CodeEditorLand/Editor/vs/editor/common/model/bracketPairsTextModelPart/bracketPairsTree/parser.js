@@ -1,22 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AstNodeKind,
-  InvalidBracketAstNode,
-  ListAstNode,
-  PairAstNode,
-  TextAstNode
-} from "./ast.js";
-import {
-  BeforeEditPositionMapper
-} from "./beforeEditPositionMapper.js";
-import { concat23Trees, concat23TreesOfSameHeight } from "./concat23Trees.js";
-import { lengthIsZero, lengthLessThan } from "./length.js";
-import { NodeReader } from "./nodeReader.js";
+import { AstNode, AstNodeKind, BracketAstNode, InvalidBracketAstNode, ListAstNode, PairAstNode, TextAstNode } from "./ast.js";
+import { BeforeEditPositionMapper, TextEditInfo } from "./beforeEditPositionMapper.js";
 import { SmallImmutableSet } from "./smallImmutableSet.js";
-import {
-  TokenKind
-} from "./tokenizer.js";
+import { lengthIsZero, lengthLessThan } from "./length.js";
+import { concat23Trees, concat23TreesOfSameHeight } from "./concat23Trees.js";
+import { NodeReader } from "./nodeReader.js";
+import { OpeningBracketId, Tokenizer, TokenKind } from "./tokenizer.js";
 function parseDocument(tokenizer, edits, oldNode, createImmutableLists) {
   const parser = new Parser(tokenizer, edits, oldNode, createImmutableLists);
   return parser.parseDocument();
@@ -41,13 +31,13 @@ class Parser {
   _itemsFromCache = 0;
   /**
    * Reports how many nodes were constructed in the last parse operation.
-   */
+  */
   get nodesConstructed() {
     return this._itemsConstructed;
   }
   /**
    * Reports how many nodes were reused in the last parse operation.
-   */
+  */
   get nodesReused() {
     return this._itemsFromCache;
   }
@@ -81,22 +71,15 @@ class Parser {
   }
   tryReadChildFromCache(openedBracketIds) {
     if (this.oldNodeReader) {
-      const maxCacheableLength = this.positionMapper.getDistanceToNextChange(
-        this.tokenizer.offset
-      );
+      const maxCacheableLength = this.positionMapper.getDistanceToNextChange(this.tokenizer.offset);
       if (maxCacheableLength === null || !lengthIsZero(maxCacheableLength)) {
-        const cachedNode = this.oldNodeReader.readLongestNodeAt(
-          this.positionMapper.getOffsetBeforeChange(
-            this.tokenizer.offset
-          ),
-          (curNode) => {
-            if (maxCacheableLength !== null && !lengthLessThan(curNode.length, maxCacheableLength)) {
-              return false;
-            }
-            const canBeReused = curNode.canBeReused(openedBracketIds);
-            return canBeReused;
+        const cachedNode = this.oldNodeReader.readLongestNodeAt(this.positionMapper.getOffsetBeforeChange(this.tokenizer.offset), (curNode) => {
+          if (maxCacheableLength !== null && !lengthLessThan(curNode.length, maxCacheableLength)) {
+            return false;
           }
-        );
+          const canBeReused = curNode.canBeReused(openedBracketIds);
+          return canBeReused;
+        });
         if (cachedNode) {
           this._itemsFromCache++;
           this.tokenizer.skip(cachedNode.length);
@@ -111,10 +94,7 @@ class Parser {
     const token = this.tokenizer.read();
     switch (token.kind) {
       case TokenKind.ClosingBracket:
-        return new InvalidBracketAstNode(
-          token.bracketIds,
-          token.length
-        );
+        return new InvalidBracketAstNode(token.bracketIds, token.length);
       case TokenKind.Text:
         return token.astNode;
       case TokenKind.OpeningBracket: {

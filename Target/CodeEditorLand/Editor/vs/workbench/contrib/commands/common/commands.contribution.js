@@ -2,11 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { safeStringify } from "../../../../base/common/objects.js";
 import * as nls from "../../../../nls.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 class RunCommands extends Action2 {
@@ -19,10 +17,7 @@ class RunCommands extends Action2 {
       title: nls.localize2("runCommands", "Run Commands"),
       f1: false,
       metadata: {
-        description: nls.localize(
-          "runCommands.description",
-          "Run several commands"
-        ),
+        description: nls.localize("runCommands.description", "Run several commands"),
         args: [
           {
             name: "args",
@@ -32,10 +27,7 @@ class RunCommands extends Action2 {
               properties: {
                 commands: {
                   type: "array",
-                  description: nls.localize(
-                    "runCommands.commands",
-                    "Commands to run"
-                  ),
+                  description: nls.localize("runCommands.commands", "Commands to run"),
                   items: {
                     anyOf: [
                       {
@@ -49,7 +41,7 @@ class RunCommands extends Action2 {
                         required: ["command"],
                         properties: {
                           command: {
-                            anyOf: [
+                            "anyOf": [
                               {
                                 $ref: "vscode://schemas/keybindings#/definitions/commandNames"
                               },
@@ -78,21 +70,11 @@ class RunCommands extends Action2 {
   async run(accessor, args) {
     const notificationService = accessor.get(INotificationService);
     if (!this._isCommandArgs(args)) {
-      notificationService.error(
-        nls.localize(
-          "runCommands.invalidArgs",
-          "'runCommands' has received an argument with incorrect type. Please, review the argument passed to the command."
-        )
-      );
+      notificationService.error(nls.localize("runCommands.invalidArgs", "'runCommands' has received an argument with incorrect type. Please, review the argument passed to the command."));
       return;
     }
     if (args.commands.length === 0) {
-      notificationService.warn(
-        nls.localize(
-          "runCommands.noCommandsToRun",
-          "'runCommands' has not received commands to run. Did you forget to pass commands in the 'runCommands' argument?"
-        )
-      );
+      notificationService.warn(nls.localize("runCommands.noCommandsToRun", "'runCommands' has not received commands to run. Did you forget to pass commands in the 'runCommands' argument?"));
       return;
     }
     const commandService = accessor.get(ICommandService);
@@ -101,16 +83,12 @@ class RunCommands extends Action2 {
     try {
       for (; i < args.commands.length; ++i) {
         const cmd = args.commands[i];
-        logService.debug(
-          `runCommands: executing ${i}-th command: ${safeStringify(cmd)}`
-        );
+        logService.debug(`runCommands: executing ${i}-th command: ${safeStringify(cmd)}`);
         await this._runCommand(commandService, cmd);
         logService.debug(`runCommands: executed ${i}-th command`);
       }
     } catch (err) {
-      logService.debug(
-        `runCommands: executing ${i}-th command resulted in an error: ${err instanceof Error ? err.message : safeStringify(err)}`
-      );
+      logService.debug(`runCommands: executing ${i}-th command resulted in an error: ${err instanceof Error ? err.message : safeStringify(err)}`);
       notificationService.error(err);
     }
   }
@@ -142,10 +120,12 @@ class RunCommands extends Action2 {
     }
     if (commandArgs === void 0) {
       return commandService.executeCommand(commandID);
-    } else if (Array.isArray(commandArgs)) {
-      return commandService.executeCommand(commandID, ...commandArgs);
     } else {
-      return commandService.executeCommand(commandID, commandArgs);
+      if (Array.isArray(commandArgs)) {
+        return commandService.executeCommand(commandID, ...commandArgs);
+      } else {
+        return commandService.executeCommand(commandID, commandArgs);
+      }
     }
   }
 }

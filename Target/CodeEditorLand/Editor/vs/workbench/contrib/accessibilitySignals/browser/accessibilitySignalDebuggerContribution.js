@@ -10,66 +10,42 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  autorunWithStore,
-  observableFromEvent
-} from "../../../../base/common/observable.js";
-import {
-  AccessibilitySignal,
-  IAccessibilitySignalService
-} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IDebugService } from "../../debug/common/debug.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorunWithStore, observableFromEvent } from "../../../../base/common/observable.js";
+import { IAccessibilitySignalService, AccessibilitySignal, AccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IDebugService, IDebugSession } from "../../debug/common/debug.js";
 let AccessibilitySignalLineDebuggerContribution = class extends Disposable {
   constructor(debugService, accessibilitySignalService) {
     super();
     this.accessibilitySignalService = accessibilitySignalService;
     const isEnabled = observableFromEvent(
       this,
-      accessibilitySignalService.onSoundEnabledChanged(
-        AccessibilitySignal.onDebugBreak
-      ),
-      () => accessibilitySignalService.isSoundEnabled(
-        AccessibilitySignal.onDebugBreak
-      )
+      accessibilitySignalService.onSoundEnabledChanged(AccessibilitySignal.onDebugBreak),
+      () => accessibilitySignalService.isSoundEnabled(AccessibilitySignal.onDebugBreak)
     );
-    this._register(
-      autorunWithStore((reader, store) => {
-        if (!isEnabled.read(reader)) {
-          return;
-        }
-        const sessionDisposables = /* @__PURE__ */ new Map();
-        store.add(
-          toDisposable(() => {
-            sessionDisposables.forEach((d) => d.dispose());
-            sessionDisposables.clear();
-          })
-        );
-        store.add(
-          debugService.onDidNewSession(
-            (session) => sessionDisposables.set(
-              session,
-              this.handleSession(session)
-            )
-          )
-        );
-        store.add(
-          debugService.onDidEndSession(({ session }) => {
-            sessionDisposables.get(session)?.dispose();
-            sessionDisposables.delete(session);
-          })
-        );
-        debugService.getModel().getSessions().forEach(
-          (session) => sessionDisposables.set(
-            session,
-            this.handleSession(session)
-          )
-        );
-      })
-    );
+    this._register(autorunWithStore((reader, store) => {
+      if (!isEnabled.read(reader)) {
+        return;
+      }
+      const sessionDisposables = /* @__PURE__ */ new Map();
+      store.add(toDisposable(() => {
+        sessionDisposables.forEach((d) => d.dispose());
+        sessionDisposables.clear();
+      }));
+      store.add(
+        debugService.onDidNewSession(
+          (session) => sessionDisposables.set(session, this.handleSession(session))
+        )
+      );
+      store.add(debugService.onDidEndSession(({ session }) => {
+        sessionDisposables.get(session)?.dispose();
+        sessionDisposables.delete(session);
+      }));
+      debugService.getModel().getSessions().forEach(
+        (session) => sessionDisposables.set(session, this.handleSession(session))
+      );
+    }));
   }
   static {
     __name(this, "AccessibilitySignalLineDebuggerContribution");
@@ -79,9 +55,7 @@ let AccessibilitySignalLineDebuggerContribution = class extends Disposable {
       const stoppedDetails = session.getStoppedDetails();
       const BREAKPOINT_STOP_REASON = "breakpoint";
       if (stoppedDetails && stoppedDetails.reason === BREAKPOINT_STOP_REASON) {
-        this.accessibilitySignalService.playSignal(
-          AccessibilitySignal.onDebugBreak
-        );
+        this.accessibilitySignalService.playSignal(AccessibilitySignal.onDebugBreak);
       }
     });
   }

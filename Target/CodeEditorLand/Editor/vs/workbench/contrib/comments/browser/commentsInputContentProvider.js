@@ -12,15 +12,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import {
-  ScrollType
-} from "../../../../editor/common/editorCommon.js";
+import { IEditorContribution, ScrollType } from "../../../../editor/common/editorCommon.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
+import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
 import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
 import { SimpleCommentEditor } from "./simpleCommentEditor.js";
 let CommentsInputContentProvider = class extends Disposable {
@@ -28,32 +28,19 @@ let CommentsInputContentProvider = class extends Disposable {
     super();
     this._modelService = _modelService;
     this._languageService = _languageService;
-    this._register(
-      textModelService.registerTextModelContentProvider(
-        Schemas.commentsInput,
-        this
-      )
-    );
-    this._register(
-      codeEditorService.registerCodeEditorOpenHandler(
-        async (input, editor, _sideBySide) => {
-          if (!(editor instanceof SimpleCommentEditor)) {
-            return null;
-          }
-          if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
-            return null;
-          }
-          if (input.options) {
-            applyTextEditorOptions(
-              input.options,
-              editor,
-              ScrollType.Immediate
-            );
-          }
-          return editor;
-        }
-      )
-    );
+    this._register(textModelService.registerTextModelContentProvider(Schemas.commentsInput, this));
+    this._register(codeEditorService.registerCodeEditorOpenHandler(async (input, editor, _sideBySide) => {
+      if (!(editor instanceof SimpleCommentEditor)) {
+        return null;
+      }
+      if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
+        return null;
+      }
+      if (input.options) {
+        applyTextEditorOptions(input.options, editor, ScrollType.Immediate);
+      }
+      return editor;
+    }));
   }
   static {
     __name(this, "CommentsInputContentProvider");
@@ -61,11 +48,7 @@ let CommentsInputContentProvider = class extends Disposable {
   static ID = "comments.input.contentProvider";
   async provideTextContent(resource) {
     const existing = this._modelService.getModel(resource);
-    return existing ?? this._modelService.createModel(
-      "",
-      this._languageService.createById("markdown"),
-      resource
-    );
+    return existing ?? this._modelService.createModel("", this._languageService.createById("markdown"), resource);
   }
 };
 CommentsInputContentProvider = __decorateClass([

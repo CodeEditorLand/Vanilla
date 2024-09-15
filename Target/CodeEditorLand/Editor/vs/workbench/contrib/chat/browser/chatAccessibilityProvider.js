@@ -10,15 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { AriaRole } from "../../../../base/browser/ui/aria/aria.js";
+import { IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
 import { marked } from "../../../../base/common/marked/marked.js";
 import { localize } from "../../../../nls.js";
-import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import {
-  isRequestVM,
-  isResponseVM,
-  isWelcomeVM
-} from "../common/chatViewModel.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ChatTreeItem } from "./chat.js";
+import { isRequestVM, isResponseVM, isWelcomeVM, IChatResponseViewModel } from "../common/chatViewModel.js";
 let ChatAccessibilityProvider = class {
   constructor(_accessibleViewService) {
     this._accessibleViewService = _accessibleViewService;
@@ -43,16 +42,12 @@ let ChatAccessibilityProvider = class {
       return this._getLabelWithCodeBlockCount(element);
     }
     if (isWelcomeVM(element)) {
-      return element.content.map(
-        (c) => "value" in c ? c.value : c.map((followup) => followup.message).join("\n")
-      ).join("\n");
+      return element.content.map((c) => "value" in c ? c.value : c.map((followup) => followup.message).join("\n")).join("\n");
     }
     return "";
   }
   _getLabelWithCodeBlockCount(element) {
-    const accessibleViewHint = this._accessibleViewService.getOpenAriaHint(
-      AccessibilityVerbositySettingId.Chat
-    );
+    const accessibleViewHint = this._accessibleViewService.getOpenAriaHint(AccessibilityVerbositySettingId.Chat);
     let label = "";
     const fileTreeCount = element.response.value.filter((v) => !("value" in v))?.length ?? 0;
     let fileTreeCountHint = "";
@@ -60,64 +55,22 @@ let ChatAccessibilityProvider = class {
       case 0:
         break;
       case 1:
-        fileTreeCountHint = localize(
-          "singleFileTreeHint",
-          "1 file tree"
-        );
+        fileTreeCountHint = localize("singleFileTreeHint", "1 file tree");
         break;
       default:
-        fileTreeCountHint = localize(
-          "multiFileTreeHint",
-          "{0} file trees",
-          fileTreeCount
-        );
+        fileTreeCountHint = localize("multiFileTreeHint", "{0} file trees", fileTreeCount);
         break;
     }
     const codeBlockCount = marked.lexer(element.response.toString()).filter((token) => token.type === "code")?.length ?? 0;
     switch (codeBlockCount) {
       case 0:
-        label = accessibleViewHint ? localize(
-          "noCodeBlocksHint",
-          "{0} {1} {2}",
-          fileTreeCountHint,
-          element.response.toString(),
-          accessibleViewHint
-        ) : localize(
-          "noCodeBlocks",
-          "{0} {1}",
-          fileTreeCountHint,
-          element.response.toString()
-        );
+        label = accessibleViewHint ? localize("noCodeBlocksHint", "{0} {1} {2}", fileTreeCountHint, element.response.toString(), accessibleViewHint) : localize("noCodeBlocks", "{0} {1}", fileTreeCountHint, element.response.toString());
         break;
       case 1:
-        label = accessibleViewHint ? localize(
-          "singleCodeBlockHint",
-          "{0} 1 code block: {1} {2}",
-          fileTreeCountHint,
-          element.response.toString(),
-          accessibleViewHint
-        ) : localize(
-          "singleCodeBlock",
-          "{0} 1 code block: {1}",
-          fileTreeCountHint,
-          element.response.toString()
-        );
+        label = accessibleViewHint ? localize("singleCodeBlockHint", "{0} 1 code block: {1} {2}", fileTreeCountHint, element.response.toString(), accessibleViewHint) : localize("singleCodeBlock", "{0} 1 code block: {1}", fileTreeCountHint, element.response.toString());
         break;
       default:
-        label = accessibleViewHint ? localize(
-          "multiCodeBlockHint",
-          "{0} {1} code blocks: {2}",
-          fileTreeCountHint,
-          codeBlockCount,
-          element.response.toString(),
-          accessibleViewHint
-        ) : localize(
-          "multiCodeBlock",
-          "{0} {1} code blocks",
-          fileTreeCountHint,
-          codeBlockCount,
-          element.response.toString()
-        );
+        label = accessibleViewHint ? localize("multiCodeBlockHint", "{0} {1} code blocks: {2}", fileTreeCountHint, codeBlockCount, element.response.toString(), accessibleViewHint) : localize("multiCodeBlock", "{0} {1} code blocks", fileTreeCountHint, codeBlockCount, element.response.toString());
         break;
     }
     return label;

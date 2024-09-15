@@ -13,41 +13,30 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { IntervalTimer } from "../../../../base/common/async.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import * as errors from "../../../../base/common/errors.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IMessagePassingProtocol } from "../../../../base/parts/ipc/common/ipc.js";
 import * as nls from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  RemoteAuthorityResolverErrorCode,
-  getRemoteAuthorityPrefix
-} from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { RemoteAuthorityResolverErrorCode, getRemoteAuthorityPrefix } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import {
-  ExtHostCustomersRegistry
-} from "./extHostCustomers.js";
-import {
-  extensionHostKindToString
-} from "./extensionHostKind.js";
-import {
-  ActivationKind
-} from "./extensions.js";
-import {
-  RPCProtocol,
-  RequestInitiator
-} from "./rpcProtocol.js";
+import { ExtHostCustomersRegistry, IInternalExtHostContext } from "./extHostCustomers.js";
+import { ExtensionHostKind, extensionHostKindToString } from "./extensionHostKind.js";
+import { IExtensionHostManager } from "./extensionHostManagers.js";
+import { IExtensionDescriptionDelta } from "./extensionHostProtocol.js";
+import { IExtensionHostProxy, IResolveAuthorityResult } from "./extensionHostProxy.js";
+import { ExtensionRunningLocation } from "./extensionRunningLocation.js";
+import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IInternalExtensionService } from "./extensions.js";
+import { Proxied, ProxyIdentifier } from "./proxyIdentifier.js";
+import { IRPCProtocolLogger, RPCProtocol, RequestInitiator, ResponsiveState } from "./rpcProtocol.js";
 const LOG_EXTENSION_HOST_COMMUNICATION = false;
 const LOG_USE_COLORS = true;
 let ExtensionHostManager = class extends Disposable {
@@ -82,9 +71,7 @@ let ExtensionHostManager = class extends Disposable {
         return this._createExtensionHostCustomers(this.kind, protocol);
       },
       (err) => {
-        this._logService.error(
-          `Error received from starting extension host (kind: ${extensionHostKindToString(this.kind)})`
-        );
+        this._logService.error(`Error received from starting extension host (kind: ${extensionHostKindToString(this.kind)})`);
         this._logService.error(err);
         const failureTelemetryEvent = {
           time: Date.now(),
@@ -105,14 +92,10 @@ let ExtensionHostManager = class extends Disposable {
       }
     );
     this._proxy.then(() => {
-      initialActivationEvents.forEach(
-        (activationEvent) => this.activateByEvent(activationEvent, ActivationKind.Normal)
-      );
-      this._register(
-        registerLatencyTestProvider({
-          measure: /* @__PURE__ */ __name(() => this.measure(), "measure")
-        })
-      );
+      initialActivationEvents.forEach((activationEvent) => this.activateByEvent(activationEvent, ActivationKind.Normal));
+      this._register(registerLatencyTestProvider({
+        measure: /* @__PURE__ */ __name(() => this.measure(), "measure")
+      }));
     });
   }
   static {
@@ -219,11 +202,7 @@ let ExtensionHostManager = class extends Disposable {
       logger = new TelemetryRPCLogger(this._telemetryService);
     }
     this._rpcProtocol = new RPCProtocol(protocol, logger);
-    this._register(
-      this._rpcProtocol.onDidChangeResponsiveState(
-        (responsiveState) => this._onDidChangeResponsiveState.fire(responsiveState)
-      )
-    );
+    this._register(this._rpcProtocol.onDidChangeResponsiveState((responsiveState) => this._onDidChangeResponsiveState.fire(responsiveState)));
     let extensionHostProxy = null;
     let mainProxyIdentifiers = [];
     const extHostContext = {
@@ -248,16 +227,11 @@ let ExtensionHostManager = class extends Disposable {
     for (let i = 0, len = namedCustomers.length; i < len; i++) {
       const [id, ctor] = namedCustomers[i];
       try {
-        const instance = this._instantiationService.createInstance(
-          ctor,
-          extHostContext
-        );
+        const instance = this._instantiationService.createInstance(ctor, extHostContext);
         this._customers.push(instance);
         this._rpcProtocol.set(id, instance);
       } catch (err) {
-        this._logService.error(
-          `Cannot instantiate named customer: '${id.sid}'`
-        );
+        this._logService.error(`Cannot instantiate named customer: '${id.sid}'`);
         this._logService.error(err);
         errors.onUnexpectedError(err);
       }
@@ -265,10 +239,7 @@ let ExtensionHostManager = class extends Disposable {
     const customers = ExtHostCustomersRegistry.getCustomers();
     for (const ctor of customers) {
       try {
-        const instance = this._instantiationService.createInstance(
-          ctor,
-          extHostContext
-        );
+        const instance = this._instantiationService.createInstance(ctor, extHostContext);
         this._customers.push(instance);
       } catch (err) {
         this._logService.error(err);
@@ -293,10 +264,7 @@ let ExtensionHostManager = class extends Disposable {
       return Promise.resolve();
     }
     if (!this._cachedActivationEvents.has(activationEvent)) {
-      this._cachedActivationEvents.set(
-        activationEvent,
-        this._activateByEvent(activationEvent, activationKind)
-      );
+      this._cachedActivationEvents.set(activationEvent, this._activateByEvent(activationEvent, activationKind));
     }
     return this._cachedActivationEvents.get(activationEvent);
   }
@@ -311,9 +279,7 @@ let ExtensionHostManager = class extends Disposable {
     if (!proxy) {
       return;
     }
-    if (!this._extensionHost.extensions.containsActivationEvent(
-      activationEvent
-    )) {
+    if (!this._extensionHost.extensions.containsActivationEvent(activationEvent)) {
       this._resolvedActivationEvents.add(activationEvent);
       return;
     }
@@ -354,10 +320,7 @@ let ExtensionHostManager = class extends Disposable {
     const intervalLogger = new IntervalTimer();
     try {
       intervalLogger.cancelAndSet(() => logInfo("waiting..."), 1e3);
-      const resolverResult = await proxy.resolveAuthority(
-        remoteAuthority,
-        resolveAttempt
-      );
+      const resolverResult = await proxy.resolveAuthority(remoteAuthority, resolveAttempt);
       intervalLogger.dispose();
       if (resolverResult.type === "ok") {
         logInfo(`returned ${resolverResult.value.authority.connectTo}`);
@@ -390,11 +353,7 @@ let ExtensionHostManager = class extends Disposable {
     if (!proxy) {
       return;
     }
-    const deltaExtensions = this._extensionHost.extensions.set(
-      extensionRegistryVersionId,
-      allExtensions,
-      myExtensions
-    );
+    const deltaExtensions = this._extensionHost.extensions.set(extensionRegistryVersionId, allExtensions, myExtensions);
     return proxy.startExtensionHost(deltaExtensions);
   }
   async extensionTestsExecute() {
@@ -412,9 +371,7 @@ let ExtensionHostManager = class extends Disposable {
     if (!proxy) {
       return;
     }
-    const outgoingExtensionsDelta = this._extensionHost.extensions.delta(
-      incomingExtensionsDelta
-    );
+    const outgoingExtensionsDelta = this._extensionHost.extensions.delta(incomingExtensionsDelta);
     if (!outgoingExtensionsDelta) {
       return;
     }
@@ -481,13 +438,7 @@ class RPCLogger {
     data = pretty(data);
     const colorTable = colorTables[initiator];
     const color = LOG_USE_COLORS ? colorTable[req % colorTable.length] : "#000000";
-    let args = [
-      `%c[${extensionHostKindToString(this._kind)}][${direction}]%c[${String(totalLength).padStart(7)}]%c[len: ${String(msgLength).padStart(5)}]%c${String(req).padStart(5)} - ${str}`,
-      "color: darkgreen",
-      "color: grey",
-      "color: grey",
-      `color: ${color}`
-    ];
+    let args = [`%c[${extensionHostKindToString(this._kind)}][${direction}]%c[${String(totalLength).padStart(7)}]%c[len: ${String(msgLength).padStart(5)}]%c${String(req).padStart(5)} - ${str}`, "color: darkgreen", "color: grey", "color: grey", `color: ${color}`];
     if (/\($/.test(str)) {
       args = args.concat(data);
       args.push(")");
@@ -498,27 +449,11 @@ class RPCLogger {
   }
   logIncoming(msgLength, req, initiator, str, data) {
     this._totalIncoming += msgLength;
-    this._log(
-      "Ext \u2192 Win",
-      this._totalIncoming,
-      msgLength,
-      req,
-      initiator,
-      str,
-      data
-    );
+    this._log("Ext \u2192 Win", this._totalIncoming, msgLength, req, initiator, str, data);
   }
   logOutgoing(msgLength, req, initiator, str, data) {
     this._totalOutgoing += msgLength;
-    this._log(
-      "Win \u2192 Ext",
-      this._totalOutgoing,
-      msgLength,
-      req,
-      initiator,
-      str,
-      data
-    );
+    this._log("Win \u2192 Ext", this._totalOutgoing, msgLength, req, initiator, str, data);
   }
 }
 let TelemetryRPCLogger = class {
@@ -580,54 +515,43 @@ function getLatencyTestProviders() {
   return providers.slice(0);
 }
 __name(getLatencyTestProviders, "getLatencyTestProviders");
-registerAction2(
-  class MeasureExtHostLatencyAction extends Action2 {
-    static {
-      __name(this, "MeasureExtHostLatencyAction");
+registerAction2(class MeasureExtHostLatencyAction extends Action2 {
+  static {
+    __name(this, "MeasureExtHostLatencyAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.measureExtHostLatency",
+      title: nls.localize2("measureExtHostLatency", "Measure Extension Host Latency"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const measurements = await Promise.all(getLatencyTestProviders().map((provider) => provider.measure()));
+    editorService.openEditor({ resource: void 0, contents: measurements.map(MeasureExtHostLatencyAction._print).join("\n\n"), options: { pinned: true } });
+  }
+  static _print(m) {
+    if (!m) {
+      return "";
     }
-    constructor() {
-      super({
-        id: "editor.action.measureExtHostLatency",
-        title: nls.localize2(
-          "measureExtHostLatency",
-          "Measure Extension Host Latency"
-        ),
-        category: Categories.Developer,
-        f1: true
-      });
-    }
-    async run(accessor) {
-      const editorService = accessor.get(IEditorService);
-      const measurements = await Promise.all(
-        getLatencyTestProviders().map((provider) => provider.measure())
-      );
-      editorService.openEditor({
-        resource: void 0,
-        contents: measurements.map(MeasureExtHostLatencyAction._print).join("\n\n"),
-        options: { pinned: true }
-      });
-    }
-    static _print(m) {
-      if (!m) {
-        return "";
-      }
-      return `${m.remoteAuthority ? `Authority: ${m.remoteAuthority}
+    return `${m.remoteAuthority ? `Authority: ${m.remoteAuthority}
 ` : ``}Roundtrip latency: ${m.latency.toFixed(3)}ms
 Up: ${MeasureExtHostLatencyAction._printSpeed(m.up)}
 Down: ${MeasureExtHostLatencyAction._printSpeed(m.down)}
 `;
-    }
-    static _printSpeed(n) {
-      if (n <= 1024) {
-        return `${n} bps`;
-      }
-      if (n < 1024 * 1024) {
-        return `${(n / 1024).toFixed(1)} kbps`;
-      }
-      return `${(n / 1024 / 1024).toFixed(1)} Mbps`;
-    }
   }
-);
+  static _printSpeed(n) {
+    if (n <= 1024) {
+      return `${n} bps`;
+    }
+    if (n < 1024 * 1024) {
+      return `${(n / 1024).toFixed(1)} kbps`;
+    }
+    return `${(n / 1024 / 1024).toFixed(1)} Mbps`;
+  }
+});
 export {
   ExtensionHostManager,
   friendlyExtHostName

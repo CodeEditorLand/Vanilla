@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Range } from "../core/range.js";
 import { AbstractText } from "../core/textEdit.js";
 import { TextLength } from "../core/textLength.js";
+import { ITextModel } from "../model.js";
 class TextModelText extends AbstractText {
   constructor(_textModel) {
     super();

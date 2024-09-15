@@ -1,17 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  Delayer,
-  createCancelablePromise
-} from "../../../../base/common/async.js";
+import { CancelablePromise, createCancelablePromise, Delayer } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { CharacterSet } from "../../../common/core/characterClassifier.js";
+import { ICursorSelectionChangedEvent } from "../../../common/cursorEvents.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
 import * as languages from "../../../common/languages.js";
 import { provideSignatureHelp } from "./provideSignatureHelp.js";
 var ParameterHintState;
@@ -51,18 +48,14 @@ class ParameterHintsModel extends Disposable {
   }
   static DEFAULT_DELAY = 120;
   // ms
-  _onChangedHints = this._register(
-    new Emitter()
-  );
+  _onChangedHints = this._register(new Emitter());
   onChangedHints = this._onChangedHints.event;
   editor;
   providers;
   triggerOnType = false;
   _state = ParameterHintState.Default;
   _pendingTriggers = [];
-  _lastSignatureHelpResult = this._register(
-    new MutableDisposable()
-  );
+  _lastSignatureHelpResult = this._register(new MutableDisposable());
   triggerChars = new CharacterSet();
   retriggerChars = new CharacterSet();
   throttledDelayer;
@@ -73,27 +66,11 @@ class ParameterHintsModel extends Disposable {
     this.providers = providers;
     this.throttledDelayer = new Delayer(delay);
     this._register(this.editor.onDidBlurEditorWidget(() => this.cancel()));
-    this._register(
-      this.editor.onDidChangeConfiguration(
-        () => this.onEditorConfigurationChange()
-      )
-    );
-    this._register(
-      this.editor.onDidChangeModel((e) => this.onModelChanged())
-    );
-    this._register(
-      this.editor.onDidChangeModelLanguage((_) => this.onModelChanged())
-    );
-    this._register(
-      this.editor.onDidChangeCursorSelection(
-        (e) => this.onCursorChange(e)
-      )
-    );
-    this._register(
-      this.editor.onDidChangeModelContent(
-        (e) => this.onModelContentChange()
-      )
-    );
+    this._register(this.editor.onDidChangeConfiguration(() => this.onEditorConfigurationChange()));
+    this._register(this.editor.onDidChangeModel((e) => this.onModelChanged()));
+    this._register(this.editor.onDidChangeModelLanguage((_) => this.onModelChanged()));
+    this._register(this.editor.onDidChangeCursorSelection((e) => this.onCursorChange(e)));
+    this._register(this.editor.onDidChangeModelContent((e) => this.onModelContentChange()));
     this._register(this.providers.onDidChange(this.onModelChanged, this));
     this._register(this.editor.onDidType((text) => this.onDidType(text)));
     this.onEditorConfigurationChange();
@@ -152,18 +129,13 @@ class ParameterHintsModel extends Disposable {
       this.cancel();
       return;
     }
-    this.updateActiveSignature(
-      first && cycle ? length - 1 : activeSignature - 1
-    );
+    this.updateActiveSignature(first && cycle ? length - 1 : activeSignature - 1);
   }
   updateActiveSignature(activeSignature) {
     if (this.state.type !== 1 /* Active */) {
       return;
     }
-    this.state = new ParameterHintState.Active({
-      ...this.state.hints,
-      activeSignature
-    });
+    this.state = new ParameterHintState.Active({ ...this.state.hints, activeSignature });
     this._onChangedHints.fire(this.state.hints);
   }
   async doTrigger(triggerId) {
@@ -187,15 +159,7 @@ class ParameterHintsModel extends Disposable {
     const model = this.editor.getModel();
     const position = this.editor.getPosition();
     this.state = new ParameterHintState.Pending(
-      createCancelablePromise(
-        (token) => provideSignatureHelp(
-          this.providers,
-          model,
-          position,
-          triggerContext,
-          token
-        )
-      ),
+      createCancelablePromise((token) => provideSignatureHelp(this.providers, model, position, triggerContext, token)),
       activeSignatureHelp
     );
     try {
@@ -276,22 +240,16 @@ class ParameterHintsModel extends Disposable {
     if (e.source === "mouse") {
       this.cancel();
     } else if (this.isTriggered) {
-      this.trigger({
-        triggerKind: languages.SignatureHelpTriggerKind.ContentChange
-      });
+      this.trigger({ triggerKind: languages.SignatureHelpTriggerKind.ContentChange });
     }
   }
   onModelContentChange() {
     if (this.isTriggered) {
-      this.trigger({
-        triggerKind: languages.SignatureHelpTriggerKind.ContentChange
-      });
+      this.trigger({ triggerKind: languages.SignatureHelpTriggerKind.ContentChange });
     }
   }
   onEditorConfigurationChange() {
-    this.triggerOnType = this.editor.getOption(
-      EditorOption.parameterHints
-    ).enabled;
+    this.triggerOnType = this.editor.getOption(EditorOption.parameterHints).enabled;
     if (!this.triggerOnType) {
       this.cancel();
     }

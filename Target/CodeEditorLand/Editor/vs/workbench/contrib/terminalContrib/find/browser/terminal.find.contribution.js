@@ -10,6 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IDimension } from "../../../../../base/browser/dom.js";
 import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
 import { Lazy } from "../../../../../base/common/lazy.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
@@ -18,28 +19,21 @@ import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contex
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { findInFilesCommand } from "../../../search/browser/searchActionsFind.js";
-import {
-  ITerminalService,
-  isDetachedTerminalInstance
-} from "../../../terminal/browser/terminal.js";
-import {
-  registerActiveInstanceAction,
-  registerActiveXtermAction
-} from "../../../terminal/browser/terminalActions.js";
+import { IDetachedTerminalInstance, ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal, isDetachedTerminalInstance } from "../../../terminal/browser/terminal.js";
+import { registerActiveInstanceAction, registerActiveXtermAction } from "../../../terminal/browser/terminalActions.js";
 import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessInfo, ITerminalProcessManager } from "../../../terminal/common/terminal.js";
 import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
-import { TerminalFindCommandId } from "../common/terminal.find.js";
 import { TerminalFindWidget } from "./terminalFindWidget.js";
+import { TerminalFindCommandId } from "../common/terminal.find.js";
 import "./media/terminalFind.css";
 let TerminalFindContribution = class extends Disposable {
   constructor(_instance, processManager, widgetManager, instantiationService, terminalService) {
     super();
     this._instance = _instance;
     this._findWidget = new Lazy(() => {
-      const findWidget = instantiationService.createInstance(
-        TerminalFindWidget,
-        this._instance
-      );
+      const findWidget = instantiationService.createInstance(TerminalFindWidget, this._instance);
       findWidget.focusTracker.onDidFocus(() => {
         TerminalFindContribution.activeFindWidget = this;
         this._instance.forceScrollbarVisibility();
@@ -52,9 +46,7 @@ let TerminalFindContribution = class extends Disposable {
         this._instance.resetScrollbarVisibility();
       });
       if (!this._instance.domElement) {
-        throw new Error(
-          "FindWidget expected terminal DOM to be initialized"
-        );
+        throw new Error("FindWidget expected terminal DOM to be initialized");
       }
       this._instance.domElement?.appendChild(findWidget.getDomNode());
       if (this._lastLayoutDimensions) {
@@ -73,9 +65,7 @@ let TerminalFindContribution = class extends Disposable {
    */
   static activeFindWidget;
   static get(instance) {
-    return instance.getContribution(
-      TerminalFindContribution.ID
-    );
+    return instance.getContribution(TerminalFindContribution.ID);
   }
   _findWidget;
   _lastLayoutDimensions;
@@ -87,11 +77,7 @@ let TerminalFindContribution = class extends Disposable {
     this._findWidget.rawValue?.layout(dimension.width);
   }
   xtermReady(xterm) {
-    this._register(
-      xterm.onDidChangeFindResults(
-        () => this._findWidget.rawValue?.updateResultCount()
-      )
-    );
+    this._register(xterm.onDidChangeFindResults(() => this._findWidget.rawValue?.updateResultCount()));
   }
   dispose() {
     if (TerminalFindContribution.activeFindWidget === this) {
@@ -105,26 +91,16 @@ TerminalFindContribution = __decorateClass([
   __decorateParam(3, IInstantiationService),
   __decorateParam(4, ITerminalService)
 ], TerminalFindContribution);
-registerTerminalContribution(
-  TerminalFindContribution.ID,
-  TerminalFindContribution,
-  true
-);
+registerTerminalContribution(TerminalFindContribution.ID, TerminalFindContribution, true);
 registerActiveXtermAction({
   id: TerminalFindCommandId.FindFocus,
   title: localize2("workbench.action.terminal.focusFind", "Focus Find"),
   keybinding: {
     primary: KeyMod.CtrlCmd | KeyCode.KeyF,
-    when: ContextKeyExpr.or(
-      TerminalContextKeys.findFocus,
-      TerminalContextKeys.focusInAny
-    ),
+    when: ContextKeyExpr.or(TerminalContextKeys.findFocus, TerminalContextKeys.focusInAny),
     weight: KeybindingWeight.WorkbenchContrib
   },
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     contr?.findWidget.reveal();
@@ -136,16 +112,10 @@ registerActiveXtermAction({
   keybinding: {
     primary: KeyCode.Escape,
     secondary: [KeyMod.Shift | KeyCode.Escape],
-    when: ContextKeyExpr.and(
-      TerminalContextKeys.focusInAny,
-      TerminalContextKeys.findVisible
-    ),
+    when: ContextKeyExpr.and(TerminalContextKeys.focusInAny, TerminalContextKeys.findVisible),
     weight: KeybindingWeight.WorkbenchContrib
   },
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     contr?.findWidget.hide();
@@ -153,20 +123,14 @@ registerActiveXtermAction({
 });
 registerActiveXtermAction({
   id: TerminalFindCommandId.ToggleFindRegex,
-  title: localize2(
-    "workbench.action.terminal.toggleFindRegex",
-    "Toggle Find Using Regex"
-  ),
+  title: localize2("workbench.action.terminal.toggleFindRegex", "Toggle Find Using Regex"),
   keybinding: {
     primary: KeyMod.Alt | KeyCode.KeyR,
     mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyR },
     when: TerminalContextKeys.findVisible,
     weight: KeybindingWeight.WorkbenchContrib
   },
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     const state = contr?.findWidget.state;
@@ -175,20 +139,14 @@ registerActiveXtermAction({
 });
 registerActiveXtermAction({
   id: TerminalFindCommandId.ToggleFindWholeWord,
-  title: localize2(
-    "workbench.action.terminal.toggleFindWholeWord",
-    "Toggle Find Using Whole Word"
-  ),
+  title: localize2("workbench.action.terminal.toggleFindWholeWord", "Toggle Find Using Whole Word"),
   keybinding: {
     primary: KeyMod.Alt | KeyCode.KeyW,
     mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyW },
     when: TerminalContextKeys.findVisible,
     weight: KeybindingWeight.WorkbenchContrib
   },
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     const state = contr?.findWidget.state;
@@ -197,20 +155,14 @@ registerActiveXtermAction({
 });
 registerActiveXtermAction({
   id: TerminalFindCommandId.ToggleFindCaseSensitive,
-  title: localize2(
-    "workbench.action.terminal.toggleFindCaseSensitive",
-    "Toggle Find Using Case Sensitive"
-  ),
+  title: localize2("workbench.action.terminal.toggleFindCaseSensitive", "Toggle Find Using Case Sensitive"),
   keybinding: {
     primary: KeyMod.Alt | KeyCode.KeyC,
     mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyC },
     when: TerminalContextKeys.findVisible,
     weight: KeybindingWeight.WorkbenchContrib
   },
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     const state = contr?.findWidget.state;
@@ -223,14 +175,8 @@ registerActiveXtermAction({
   keybinding: [
     {
       primary: KeyCode.F3,
-      mac: {
-        primary: KeyMod.CtrlCmd | KeyCode.KeyG,
-        secondary: [KeyCode.F3]
-      },
-      when: ContextKeyExpr.or(
-        TerminalContextKeys.focusInAny,
-        TerminalContextKeys.findFocus
-      ),
+      mac: { primary: KeyMod.CtrlCmd | KeyCode.KeyG, secondary: [KeyCode.F3] },
+      when: ContextKeyExpr.or(TerminalContextKeys.focusInAny, TerminalContextKeys.findFocus),
       weight: KeybindingWeight.WorkbenchContrib
     },
     {
@@ -239,10 +185,7 @@ registerActiveXtermAction({
       weight: KeybindingWeight.WorkbenchContrib
     }
   ],
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     const widget = contr?.findWidget;
@@ -258,14 +201,8 @@ registerActiveXtermAction({
   keybinding: [
     {
       primary: KeyMod.Shift | KeyCode.F3,
-      mac: {
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyG,
-        secondary: [KeyMod.Shift | KeyCode.F3]
-      },
-      when: ContextKeyExpr.or(
-        TerminalContextKeys.focusInAny,
-        TerminalContextKeys.findFocus
-      ),
+      mac: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyG, secondary: [KeyMod.Shift | KeyCode.F3] },
+      when: ContextKeyExpr.or(TerminalContextKeys.focusInAny, TerminalContextKeys.findFocus),
       weight: KeybindingWeight.WorkbenchContrib
     },
     {
@@ -274,10 +211,7 @@ registerActiveXtermAction({
       weight: KeybindingWeight.WorkbenchContrib
     }
   ],
-  precondition: ContextKeyExpr.or(
-    TerminalContextKeys.processSupported,
-    TerminalContextKeys.terminalHasBeenCreated
-  ),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     const contr = TerminalFindContribution.activeFindWidget || TerminalFindContribution.get(activeInstance);
     const widget = contr?.findWidget;
@@ -289,18 +223,11 @@ registerActiveXtermAction({
 });
 registerActiveInstanceAction({
   id: TerminalFindCommandId.SearchWorkspace,
-  title: localize2(
-    "workbench.action.terminal.searchWorkspace",
-    "Search Workspace"
-  ),
+  title: localize2("workbench.action.terminal.searchWorkspace", "Search Workspace"),
   keybinding: [
     {
       primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF,
-      when: ContextKeyExpr.and(
-        TerminalContextKeys.processSupported,
-        TerminalContextKeys.focus,
-        TerminalContextKeys.textSelected
-      ),
+      when: ContextKeyExpr.and(TerminalContextKeys.processSupported, TerminalContextKeys.focus, TerminalContextKeys.textSelected),
       weight: KeybindingWeight.WorkbenchContrib + 50
     }
   ],

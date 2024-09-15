@@ -12,61 +12,37 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as arrays from "../../../../base/common/arrays.js";
 import { Delayer, first } from "../../../../base/common/async.js";
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Color } from "../../../../base/common/color.js";
-import {
-  isCancellationError,
-  onUnexpectedError,
-  onUnexpectedExternalError
-} from "../../../../base/common/errors.js";
+import { isCancellationError, onUnexpectedError, onUnexpectedExternalError } from "../../../../base/common/errors.js";
 import { Event } from "../../../../base/common/event.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import * as strings from "../../../../base/common/strings.js";
 import { URI } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  EditorAction,
-  EditorCommand,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorCommand,
-  registerEditorContribution,
-  registerModelAndPositionCommand
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, EditorCommand, EditorContributionInstantiation, registerEditorAction, registerEditorCommand, registerEditorContribution, registerModelAndPositionCommand, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { IEditorContribution, IEditorDecorationsCollection } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import {
-  TrackedRangeStickiness
-} from "../../../common/model.js";
+import { IModelDeltaDecoration, ITextModel, TrackedRangeStickiness } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import {
-  ILanguageFeatureDebounceService
-} from "../../../common/services/languageFeatureDebounce.js";
+import { LinkedEditingRangeProvider, LinkedEditingRanges } from "../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import * as nls from "../../../../nls.js";
+import { ContextKeyExpr, IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { ISingleEditOperation } from "../../../common/core/editOperation.js";
+import { IFeatureDebounceInformation, ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
 import "./linkedEditing.css";
-const CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE = new RawContextKey(
-  "LinkedEditingInputVisible",
-  false
-);
+const CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE = new RawContextKey("LinkedEditingInputVisible", false);
 const DECORATION_CLASS_NAME = "linked-editing-decoration";
 let LinkedEditingContribution = class extends Disposable {
   constructor(editor, contextKeyService, languageFeaturesService, languageConfigurationService, languageFeatureDebounceService) {
@@ -76,11 +52,7 @@ let LinkedEditingContribution = class extends Disposable {
     this._providers = languageFeaturesService.linkedEditingRangeProvider;
     this._enabled = false;
     this._visibleContextKey = CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE.bindTo(contextKeyService);
-    this._debounceInformation = languageFeatureDebounceService.for(
-      this._providers,
-      "Linked Editing",
-      { max: 200 }
-    );
+    this._debounceInformation = languageFeatureDebounceService.for(this._providers, "Linked Editing", { max: 200 });
     this._currentDecorations = this._editor.createDecorationsCollection();
     this._languageWordPattern = null;
     this._currentWordPattern = null;
@@ -91,24 +63,14 @@ let LinkedEditingContribution = class extends Disposable {
     this._currentRequestCts = null;
     this._currentRequestPosition = null;
     this._currentRequestModelVersion = null;
-    this._register(
-      this._editor.onDidChangeModel(() => this.reinitialize(true))
-    );
-    this._register(
-      this._editor.onDidChangeConfiguration((e) => {
-        if (e.hasChanged(EditorOption.linkedEditing) || e.hasChanged(EditorOption.renameOnType)) {
-          this.reinitialize(false);
-        }
-      })
-    );
-    this._register(
-      this._providers.onDidChange(() => this.reinitialize(false))
-    );
-    this._register(
-      this._editor.onDidChangeModelLanguage(
-        () => this.reinitialize(true)
-      )
-    );
+    this._register(this._editor.onDidChangeModel(() => this.reinitialize(true)));
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(EditorOption.linkedEditing) || e.hasChanged(EditorOption.renameOnType)) {
+        this.reinitialize(false);
+      }
+    }));
+    this._register(this._providers.onDidChange(() => this.reinitialize(false)));
+    this._register(this._editor.onDidChangeModelLanguage(() => this.reinitialize(true)));
     this.reinitialize(true);
   }
   static {
@@ -121,9 +83,7 @@ let LinkedEditingContribution = class extends Disposable {
     className: DECORATION_CLASS_NAME
   });
   static get(editor) {
-    return editor.getContribution(
-      LinkedEditingContribution.ID
-    );
+    return editor.getContribution(LinkedEditingContribution.ID);
   }
   _debounceDuration;
   _editor;
@@ -163,42 +123,29 @@ let LinkedEditingContribution = class extends Disposable {
         }
       )
     );
-    const rangeUpdateScheduler = new Delayer(
-      this._debounceInformation.get(model)
-    );
+    const rangeUpdateScheduler = new Delayer(this._debounceInformation.get(model));
     const triggerRangeUpdate = /* @__PURE__ */ __name(() => {
-      this._rangeUpdateTriggerPromise = rangeUpdateScheduler.trigger(
-        () => this.updateRanges(),
-        this._debounceDuration ?? this._debounceInformation.get(model)
-      );
+      this._rangeUpdateTriggerPromise = rangeUpdateScheduler.trigger(() => this.updateRanges(), this._debounceDuration ?? this._debounceInformation.get(model));
     }, "triggerRangeUpdate");
     const rangeSyncScheduler = new Delayer(0);
     const triggerRangeSync = /* @__PURE__ */ __name((token) => {
-      this._rangeSyncTriggerPromise = rangeSyncScheduler.trigger(
-        () => this._syncRanges(token)
-      );
+      this._rangeSyncTriggerPromise = rangeSyncScheduler.trigger(() => this._syncRanges(token));
     }, "triggerRangeSync");
-    this._localToDispose.add(
-      this._editor.onDidChangeCursorPosition(() => {
-        triggerRangeUpdate();
-      })
-    );
-    this._localToDispose.add(
-      this._editor.onDidChangeModelContent((e) => {
-        if (!this._ignoreChangeEvent) {
-          if (this._currentDecorations.length > 0) {
-            const referenceRange = this._currentDecorations.getRange(0);
-            if (referenceRange && e.changes.every(
-              (c) => referenceRange.intersectRanges(c.range)
-            )) {
-              triggerRangeSync(this._syncRangesToken);
-              return;
-            }
+    this._localToDispose.add(this._editor.onDidChangeCursorPosition(() => {
+      triggerRangeUpdate();
+    }));
+    this._localToDispose.add(this._editor.onDidChangeModelContent((e) => {
+      if (!this._ignoreChangeEvent) {
+        if (this._currentDecorations.length > 0) {
+          const referenceRange = this._currentDecorations.getRange(0);
+          if (referenceRange && e.changes.every((c) => referenceRange.intersectRanges(c.range))) {
+            triggerRangeSync(this._syncRangesToken);
+            return;
           }
         }
-        triggerRangeUpdate();
-      })
-    );
+      }
+      triggerRangeUpdate();
+    }));
     this._localToDispose.add({
       dispose: /* @__PURE__ */ __name(() => {
         rangeUpdateScheduler.dispose();
@@ -240,34 +187,17 @@ let LinkedEditingContribution = class extends Disposable {
         let newValue = referenceValue;
         let rangeStartColumn = mirrorRange.startColumn;
         let rangeEndColumn = mirrorRange.endColumn;
-        const commonPrefixLength = strings.commonPrefixLength(
-          oldValue,
-          newValue
-        );
+        const commonPrefixLength = strings.commonPrefixLength(oldValue, newValue);
         rangeStartColumn += commonPrefixLength;
         oldValue = oldValue.substr(commonPrefixLength);
         newValue = newValue.substr(commonPrefixLength);
-        const commonSuffixLength = strings.commonSuffixLength(
-          oldValue,
-          newValue
-        );
+        const commonSuffixLength = strings.commonSuffixLength(oldValue, newValue);
         rangeEndColumn -= commonSuffixLength;
-        oldValue = oldValue.substr(
-          0,
-          oldValue.length - commonSuffixLength
-        );
-        newValue = newValue.substr(
-          0,
-          newValue.length - commonSuffixLength
-        );
+        oldValue = oldValue.substr(0, oldValue.length - commonSuffixLength);
+        newValue = newValue.substr(0, newValue.length - commonSuffixLength);
         if (rangeStartColumn !== rangeEndColumn || newValue.length !== 0) {
           edits.push({
-            range: new Range(
-              mirrorRange.startLineNumber,
-              rangeStartColumn,
-              mirrorRange.endLineNumber,
-              rangeEndColumn
-            ),
+            range: new Range(mirrorRange.startLineNumber, rangeStartColumn, mirrorRange.endLineNumber, rangeEndColumn),
             text: newValue
           });
         }
@@ -334,12 +264,7 @@ let LinkedEditingContribution = class extends Disposable {
     const currentRequestCts = this._currentRequestCts = new CancellationTokenSource();
     try {
       const sw = new StopWatch(false);
-      const response = await getLinkedEditingRanges(
-        this._providers,
-        model,
-        position,
-        currentRequestCts.token
-      );
+      const response = await getLinkedEditingRanges(this._providers, model, position, currentRequestCts.token);
       this._debounceInformation.update(model, sw.elapsed());
       if (currentRequestCts !== this._currentRequestCts) {
         return;
@@ -369,12 +294,7 @@ let LinkedEditingContribution = class extends Disposable {
         this.clearRanges();
         return;
       }
-      const decorations = ranges.map(
-        (range) => ({
-          range,
-          options: LinkedEditingContribution.DECORATION
-        })
-      );
+      const decorations = ranges.map((range) => ({ range, options: LinkedEditingContribution.DECORATION }));
       this._visibleContextKey.set(true);
       this._currentDecorations.set(decorations);
       this._syncRangesToken++;
@@ -425,10 +345,7 @@ class LinkedEditingAction extends EditorAction {
       id: "editor.action.linkedEditing",
       label: nls.localize("linkedEditing.label", "Start Linked Editing"),
       alias: "Start Linked Editing",
-      precondition: ContextKeyExpr.and(
-        EditorContextKeys.writable,
-        EditorContextKeys.hasRenameProvider
-      ),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasRenameProvider),
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
         primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.F2,
@@ -438,15 +355,9 @@ class LinkedEditingAction extends EditorAction {
   }
   runCommand(accessor, args) {
     const editorService = accessor.get(ICodeEditorService);
-    const [uri, pos] = Array.isArray(args) && args || [
-      void 0,
-      void 0
-    ];
+    const [uri, pos] = Array.isArray(args) && args || [void 0, void 0];
     if (URI.isUri(uri) && Position.isIPosition(pos)) {
-      return editorService.openCodeEditor(
-        { resource: uri },
-        editorService.getActiveCodeEditor()
-      ).then((editor) => {
+      return editorService.openCodeEditor({ resource: uri }, editorService.getActiveCodeEditor()).then((editor) => {
         if (!editor) {
           return;
         }
@@ -467,73 +378,36 @@ class LinkedEditingAction extends EditorAction {
     return Promise.resolve();
   }
 }
-const LinkedEditingCommand = EditorCommand.bindToContribution(
-  LinkedEditingContribution.get
-);
-registerEditorCommand(
-  new LinkedEditingCommand({
-    id: "cancelLinkedEditingInput",
-    precondition: CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE,
-    handler: /* @__PURE__ */ __name((x) => x.clearRanges(), "handler"),
-    kbOpts: {
-      kbExpr: EditorContextKeys.editorTextFocus,
-      weight: KeybindingWeight.EditorContrib + 99,
-      primary: KeyCode.Escape,
-      secondary: [KeyMod.Shift | KeyCode.Escape]
-    }
-  })
-);
+const LinkedEditingCommand = EditorCommand.bindToContribution(LinkedEditingContribution.get);
+registerEditorCommand(new LinkedEditingCommand({
+  id: "cancelLinkedEditingInput",
+  precondition: CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE,
+  handler: /* @__PURE__ */ __name((x) => x.clearRanges(), "handler"),
+  kbOpts: {
+    kbExpr: EditorContextKeys.editorTextFocus,
+    weight: KeybindingWeight.EditorContrib + 99,
+    primary: KeyCode.Escape,
+    secondary: [KeyMod.Shift | KeyCode.Escape]
+  }
+}));
 function getLinkedEditingRanges(providers, model, position, token) {
   const orderedByScore = providers.ordered(model);
-  return first(
-    orderedByScore.map((provider) => async () => {
-      try {
-        return await provider.provideLinkedEditingRanges(
-          model,
-          position,
-          token
-        );
-      } catch (e) {
-        onUnexpectedExternalError(e);
-        return void 0;
-      }
-    }),
-    (result) => !!result && arrays.isNonEmptyArray(result?.ranges)
-  );
+  return first(orderedByScore.map((provider) => async () => {
+    try {
+      return await provider.provideLinkedEditingRanges(model, position, token);
+    } catch (e) {
+      onUnexpectedExternalError(e);
+      return void 0;
+    }
+  }), (result) => !!result && arrays.isNonEmptyArray(result?.ranges));
 }
 __name(getLinkedEditingRanges, "getLinkedEditingRanges");
-const editorLinkedEditingBackground = registerColor(
-  "editor.linkedEditingBackground",
-  {
-    dark: Color.fromHex("#f00").transparent(0.3),
-    light: Color.fromHex("#f00").transparent(0.3),
-    hcDark: Color.fromHex("#f00").transparent(0.3),
-    hcLight: Color.white
-  },
-  nls.localize(
-    "editorLinkedEditingBackground",
-    "Background color when the editor auto renames on type."
-  )
-);
-registerModelAndPositionCommand(
-  "_executeLinkedEditingProvider",
-  (_accessor, model, position) => {
-    const { linkedEditingRangeProvider } = _accessor.get(
-      ILanguageFeaturesService
-    );
-    return getLinkedEditingRanges(
-      linkedEditingRangeProvider,
-      model,
-      position,
-      CancellationToken.None
-    );
-  }
-);
-registerEditorContribution(
-  LinkedEditingContribution.ID,
-  LinkedEditingContribution,
-  EditorContributionInstantiation.AfterFirstRender
-);
+const editorLinkedEditingBackground = registerColor("editor.linkedEditingBackground", { dark: Color.fromHex("#f00").transparent(0.3), light: Color.fromHex("#f00").transparent(0.3), hcDark: Color.fromHex("#f00").transparent(0.3), hcLight: Color.white }, nls.localize("editorLinkedEditingBackground", "Background color when the editor auto renames on type."));
+registerModelAndPositionCommand("_executeLinkedEditingProvider", (_accessor, model, position) => {
+  const { linkedEditingRangeProvider } = _accessor.get(ILanguageFeaturesService);
+  return getLinkedEditingRanges(linkedEditingRangeProvider, model, position, CancellationToken.None);
+});
+registerEditorContribution(LinkedEditingContribution.ID, LinkedEditingContribution, EditorContributionInstantiation.AfterFirstRender);
 registerEditorAction(LinkedEditingAction);
 export {
   CONTEXT_ONTYPE_RENAME_INPUT_VISIBLE,

@@ -10,39 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { getVirtualWorkspaceAuthority } from "../../../../platform/workspace/common/virtualWorkspace.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { API_OPEN_DIFF_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import { SaveSourceRegistry } from "../../../common/editor.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { ITimelineService, Timeline, TimelineChangeEvent, TimelineItem, TimelineOptions, TimelineProvider } from "../../timeline/common/timeline.js";
+import { IWorkingCopyHistoryEntry, IWorkingCopyHistoryService } from "../../../services/workingCopy/common/workingCopyHistory.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
-import {
-  IWorkingCopyHistoryService
-} from "../../../services/workingCopy/common/workingCopyHistory.js";
-import {
-  ITimelineService
-} from "../../timeline/common/timeline.js";
-import {
-  LOCAL_HISTORY_ICON_ENTRY,
-  LOCAL_HISTORY_MENU_CONTEXT_VALUE,
-  getLocalHistoryDateFormatter
-} from "./localHistory.js";
-import {
-  COMPARE_WITH_FILE_LABEL,
-  toDiffEditorArguments
-} from "./localHistoryCommands.js";
+import { API_OPEN_DIFF_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { LocalHistoryFileSystemProvider } from "./localHistoryFileSystemProvider.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { SaveSourceRegistry } from "../../../common/editor.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { COMPARE_WITH_FILE_LABEL, toDiffEditorArguments } from "./localHistoryCommands.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { getLocalHistoryDateFormatter, LOCAL_HISTORY_ICON_ENTRY, LOCAL_HISTORY_MENU_CONTEXT_VALUE } from "./localHistory.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { getVirtualWorkspaceAuthority } from "../../../../platform/workspace/common/virtualWorkspace.js";
 let LocalHistoryTimeline = class extends Disposable {
   constructor(timelineService, workingCopyHistoryService, pathService, fileService, environmentService, configurationService, contextService) {
     super();
@@ -65,75 +53,38 @@ let LocalHistoryTimeline = class extends Disposable {
   label = localize("localHistory", "Local History");
   scheme = "*";
   // we try to show local history for all schemes if possible
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
-  timelineProviderDisposable = this._register(
-    new MutableDisposable()
-  );
+  timelineProviderDisposable = this._register(new MutableDisposable());
   registerComponents() {
     this.updateTimelineRegistration();
-    this._register(
-      this.fileService.registerProvider(
-        LocalHistoryFileSystemProvider.SCHEMA,
-        new LocalHistoryFileSystemProvider(this.fileService)
-      )
-    );
+    this._register(this.fileService.registerProvider(LocalHistoryFileSystemProvider.SCHEMA, new LocalHistoryFileSystemProvider(this.fileService)));
   }
   updateTimelineRegistration() {
-    if (this.configurationService.getValue(
-      LocalHistoryTimeline.LOCAL_HISTORY_ENABLED_SETTINGS_KEY
-    )) {
+    if (this.configurationService.getValue(LocalHistoryTimeline.LOCAL_HISTORY_ENABLED_SETTINGS_KEY)) {
       this.timelineProviderDisposable.value = this.timelineService.registerTimelineProvider(this);
     } else {
       this.timelineProviderDisposable.clear();
     }
   }
   registerListeners() {
-    this._register(
-      this.workingCopyHistoryService.onDidAddEntry(
-        (e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)
-      )
-    );
-    this._register(
-      this.workingCopyHistoryService.onDidChangeEntry(
-        (e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)
-      )
-    );
-    this._register(
-      this.workingCopyHistoryService.onDidReplaceEntry(
-        (e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)
-      )
-    );
-    this._register(
-      this.workingCopyHistoryService.onDidRemoveEntry(
-        (e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)
-      )
-    );
-    this._register(
-      this.workingCopyHistoryService.onDidRemoveEntries(
-        () => this.onDidChangeWorkingCopyHistoryEntry(
-          void 0
-        )
-      )
-    );
-    this._register(
-      this.workingCopyHistoryService.onDidMoveEntries(
-        () => this.onDidChangeWorkingCopyHistoryEntry(
-          void 0
-        )
-      )
-    );
-    this._register(
-      this.configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          LocalHistoryTimeline.LOCAL_HISTORY_ENABLED_SETTINGS_KEY
-        )) {
-          this.updateTimelineRegistration();
-        }
-      })
-    );
+    this._register(this.workingCopyHistoryService.onDidAddEntry((e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)));
+    this._register(this.workingCopyHistoryService.onDidChangeEntry((e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)));
+    this._register(this.workingCopyHistoryService.onDidReplaceEntry((e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)));
+    this._register(this.workingCopyHistoryService.onDidRemoveEntry((e) => this.onDidChangeWorkingCopyHistoryEntry(e.entry)));
+    this._register(this.workingCopyHistoryService.onDidRemoveEntries(() => this.onDidChangeWorkingCopyHistoryEntry(
+      void 0
+      /* all entries */
+    )));
+    this._register(this.workingCopyHistoryService.onDidMoveEntries(() => this.onDidChangeWorkingCopyHistoryEntry(
+      void 0
+      /* all entries */
+    )));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(LocalHistoryTimeline.LOCAL_HISTORY_ENABLED_SETTINGS_KEY)) {
+        this.updateTimelineRegistration();
+      }
+    }));
   }
   onDidChangeWorkingCopyHistoryEntry(entry) {
     this._onDidChange.fire({
@@ -145,27 +96,20 @@ let LocalHistoryTimeline = class extends Disposable {
   }
   async provideTimeline(uri, options, token) {
     const items = [];
-    let resource;
+    let resource = void 0;
     if (uri.scheme === LocalHistoryFileSystemProvider.SCHEMA) {
-      resource = LocalHistoryFileSystemProvider.fromLocalHistoryFileSystem(
-        uri
-      ).associatedResource;
+      resource = LocalHistoryFileSystemProvider.fromLocalHistoryFileSystem(uri).associatedResource;
     } else if (uri.scheme === this.pathService.defaultUriScheme || uri.scheme === Schemas.vscodeUserData) {
       resource = uri;
     } else if (this.fileService.hasProvider(uri)) {
       resource = URI.from({
         scheme: this.pathService.defaultUriScheme,
-        authority: this.environmentService.remoteAuthority ?? getVirtualWorkspaceAuthority(
-          this.contextService.getWorkspace()
-        ),
+        authority: this.environmentService.remoteAuthority ?? getVirtualWorkspaceAuthority(this.contextService.getWorkspace()),
         path: uri.path
       });
     }
     if (resource) {
-      const entries = await this.workingCopyHistoryService.getEntries(
-        resource,
-        token
-      );
+      const entries = await this.workingCopyHistoryService.getEntries(resource, token);
       for (const entry of entries) {
         items.push(this.toTimelineItem(entry));
       }
@@ -179,12 +123,9 @@ let LocalHistoryTimeline = class extends Disposable {
     return {
       handle: entry.id,
       label: SaveSourceRegistry.getSourceLabel(entry.source),
-      tooltip: new MarkdownString(
-        `$(history) ${getLocalHistoryDateFormatter().format(entry.timestamp)}
+      tooltip: new MarkdownString(`$(history) ${getLocalHistoryDateFormatter().format(entry.timestamp)}
 
-${SaveSourceRegistry.getSourceLabel(entry.source)}${entry.sourceDescription ? ` (${entry.sourceDescription})` : ``}`,
-        { supportThemeIcons: true }
-      ),
+${SaveSourceRegistry.getSourceLabel(entry.source)}${entry.sourceDescription ? ` (${entry.sourceDescription})` : ``}`, { supportThemeIcons: true }),
       source: this.id,
       timestamp: entry.timestamp,
       themeIcon: LOCAL_HISTORY_ICON_ENTRY,
@@ -192,10 +133,7 @@ ${SaveSourceRegistry.getSourceLabel(entry.source)}${entry.sourceDescription ? ` 
       command: {
         id: API_OPEN_DIFF_EDITOR_COMMAND_ID,
         title: COMPARE_WITH_FILE_LABEL.value,
-        arguments: toDiffEditorArguments(
-          entry,
-          entry.workingCopy.resource
-        )
+        arguments: toDiffEditorArguments(entry, entry.workingCopy.resource)
       }
     };
   }

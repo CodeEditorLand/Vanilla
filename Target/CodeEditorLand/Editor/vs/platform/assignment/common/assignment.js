@@ -37,9 +37,9 @@ class AssignmentFilterProvider {
    * Ref: https://github.com/microsoft/tas-client/blob/30340d5e1da37c2789049fcf45928b954680606f/vscode-tas-client/src/vscode-tas-client/VSCodeFilterProvider.ts#L35
    *
    * @param version Version string to be trimmed.
-   */
+  */
   static trimVersionSuffix(version) {
-    const regex = /-[a-zA-Z0-9]+$/;
+    const regex = /\-[a-zA-Z0-9]+$/;
     const result = version.split(regex);
     return result[0];
   }

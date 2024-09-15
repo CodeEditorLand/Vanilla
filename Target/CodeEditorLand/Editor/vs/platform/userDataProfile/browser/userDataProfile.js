@@ -12,14 +12,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { BroadcastDataChannel } from "../../../base/browser/broadcast.js";
 import { revive } from "../../../base/common/marshalling.js";
+import { UriDto } from "../../../base/common/uri.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
 import { IFileService } from "../../files/common/files.js";
 import { ILogService } from "../../log/common/log.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  UserDataProfilesService,
-  reviveProfile
-} from "../common/userDataProfile.js";
+import { DidChangeProfilesEvent, IUserDataProfile, IUserDataProfilesService, reviveProfile, StoredProfileAssociations, StoredUserDataProfile, UserDataProfilesService } from "../common/userDataProfile.js";
 let BrowserUserDataProfilesService = class extends UserDataProfilesService {
   static {
     __name(this, "BrowserUserDataProfilesService");
@@ -27,39 +25,27 @@ let BrowserUserDataProfilesService = class extends UserDataProfilesService {
   changesBroadcastChannel;
   constructor(environmentService, fileService, uriIdentityService, logService) {
     super(environmentService, fileService, uriIdentityService, logService);
-    this.changesBroadcastChannel = this._register(
-      new BroadcastDataChannel(
-        `${UserDataProfilesService.PROFILES_KEY}.changes`
-      )
-    );
-    this._register(
-      this.changesBroadcastChannel.onDidReceiveData((changes) => {
-        try {
-          this._profilesObject = void 0;
-          const added = changes.added.map(
-            (p) => reviveProfile(p, this.profilesHome.scheme)
-          );
-          const removed = changes.removed.map(
-            (p) => reviveProfile(p, this.profilesHome.scheme)
-          );
-          const updated = changes.updated.map(
-            (p) => reviveProfile(p, this.profilesHome.scheme)
-          );
-          this.updateTransientProfiles(
-            added.filter((a) => a.isTransient),
-            removed.filter((a) => a.isTransient),
-            updated.filter((a) => a.isTransient)
-          );
-          this._onDidChangeProfiles.fire({
-            added,
-            removed,
-            updated,
-            all: this.profiles
-          });
-        } catch (error) {
-        }
-      })
-    );
+    this.changesBroadcastChannel = this._register(new BroadcastDataChannel(`${UserDataProfilesService.PROFILES_KEY}.changes`));
+    this._register(this.changesBroadcastChannel.onDidReceiveData((changes) => {
+      try {
+        this._profilesObject = void 0;
+        const added = changes.added.map((p) => reviveProfile(p, this.profilesHome.scheme));
+        const removed = changes.removed.map((p) => reviveProfile(p, this.profilesHome.scheme));
+        const updated = changes.updated.map((p) => reviveProfile(p, this.profilesHome.scheme));
+        this.updateTransientProfiles(
+          added.filter((a) => a.isTransient),
+          removed.filter((a) => a.isTransient),
+          updated.filter((a) => a.isTransient)
+        );
+        this._onDidChangeProfiles.fire({
+          added,
+          removed,
+          updated,
+          all: this.profiles
+        });
+      } catch (error) {
+      }
+    }));
   }
   updateTransientProfiles(added, removed, updated) {
     if (added.length) {
@@ -72,17 +58,13 @@ let BrowserUserDataProfilesService = class extends UserDataProfilesService {
         if (removed.some((p) => profile.id === p.id)) {
           continue;
         }
-        this.transientProfilesObject.profiles.push(
-          updated.find((p) => profile.id === p.id) ?? profile
-        );
+        this.transientProfilesObject.profiles.push(updated.find((p) => profile.id === p.id) ?? profile);
       }
     }
   }
   getStoredProfiles() {
     try {
-      const value = localStorage.getItem(
-        UserDataProfilesService.PROFILES_KEY
-      );
+      const value = localStorage.getItem(UserDataProfilesService.PROFILES_KEY);
       if (value) {
         return revive(JSON.parse(value));
       }
@@ -96,17 +78,12 @@ let BrowserUserDataProfilesService = class extends UserDataProfilesService {
     this.changesBroadcastChannel.postData({ added, removed, updated });
   }
   saveStoredProfiles(storedProfiles) {
-    localStorage.setItem(
-      UserDataProfilesService.PROFILES_KEY,
-      JSON.stringify(storedProfiles)
-    );
+    localStorage.setItem(UserDataProfilesService.PROFILES_KEY, JSON.stringify(storedProfiles));
   }
   getStoredProfileAssociations() {
     const migrateKey = "profileAssociationsMigration";
     try {
-      const value = localStorage.getItem(
-        UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY
-      );
+      const value = localStorage.getItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY);
       if (value) {
         let associations = JSON.parse(value);
         if (!localStorage.getItem(migrateKey)) {
@@ -122,10 +99,7 @@ let BrowserUserDataProfilesService = class extends UserDataProfilesService {
     return {};
   }
   saveStoredProfileAssociations(storedProfileAssociations) {
-    localStorage.setItem(
-      UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY,
-      JSON.stringify(storedProfileAssociations)
-    );
+    localStorage.setItem(UserDataProfilesService.PROFILE_ASSOCIATIONS_KEY, JSON.stringify(storedProfileAssociations));
   }
 };
 BrowserUserDataProfilesService = __decorateClass([

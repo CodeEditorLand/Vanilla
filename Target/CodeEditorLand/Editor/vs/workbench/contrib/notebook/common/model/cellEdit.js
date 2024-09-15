@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  UndoRedoElementType
-} from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { IResourceUndoRedoElement, UndoRedoElementType } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { NotebookCellTextModel } from "./notebookCellTextModel.js";
+import { ISelectionState, NotebookCellMetadata } from "../notebookCommon.js";
 class MoveCellEdit {
   constructor(resource, fromIndex, length, toIndex, editingDelegate, beforedSelections, endSelections) {
     this.resource = resource;
@@ -25,25 +26,13 @@ class MoveCellEdit {
     if (!this.editingDelegate.moveCell) {
       throw new Error("Notebook Move Cell not implemented for Undo/Redo");
     }
-    this.editingDelegate.moveCell(
-      this.toIndex,
-      this.length,
-      this.fromIndex,
-      this.endSelections,
-      this.beforedSelections
-    );
+    this.editingDelegate.moveCell(this.toIndex, this.length, this.fromIndex, this.endSelections, this.beforedSelections);
   }
   redo() {
     if (!this.editingDelegate.moveCell) {
       throw new Error("Notebook Move Cell not implemented for Undo/Redo");
     }
-    this.editingDelegate.moveCell(
-      this.fromIndex,
-      this.length,
-      this.toIndex,
-      this.beforedSelections,
-      this.endSelections
-    );
+    this.editingDelegate.moveCell(this.fromIndex, this.length, this.toIndex, this.beforedSelections, this.endSelections);
   }
 }
 class SpliceCellsEdit {
@@ -70,32 +59,18 @@ class SpliceCellsEdit {
   code = "undoredo.textBufferEdit";
   undo() {
     if (!this.editingDelegate.replaceCell) {
-      throw new Error(
-        "Notebook Replace Cell not implemented for Undo/Redo"
-      );
+      throw new Error("Notebook Replace Cell not implemented for Undo/Redo");
     }
     this.diffs.forEach((diff) => {
-      this.editingDelegate.replaceCell(
-        diff[0],
-        diff[2].length,
-        diff[1],
-        this.beforeHandles
-      );
+      this.editingDelegate.replaceCell(diff[0], diff[2].length, diff[1], this.beforeHandles);
     });
   }
   redo() {
     if (!this.editingDelegate.replaceCell) {
-      throw new Error(
-        "Notebook Replace Cell not implemented for Undo/Redo"
-      );
+      throw new Error("Notebook Replace Cell not implemented for Undo/Redo");
     }
     this.diffs.reverse().forEach((diff) => {
-      this.editingDelegate.replaceCell(
-        diff[0],
-        diff[1].length,
-        diff[2],
-        this.endHandles
-      );
+      this.editingDelegate.replaceCell(diff[0], diff[1].length, diff[2], this.endHandles);
     });
   }
 }

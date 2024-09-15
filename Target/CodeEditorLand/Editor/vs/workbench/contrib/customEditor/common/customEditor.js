@@ -1,28 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "../../../../base/common/arrays.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  RegisteredEditorPriority,
-  globMatchesResource,
-  priorityToRank
-} from "../../../services/editor/common/editorResolverService.js";
-const ICustomEditorService = createDecorator(
-  "customEditorService"
-);
-const CONTEXT_ACTIVE_CUSTOM_EDITOR_ID = new RawContextKey(
-  "activeCustomEditorId",
-  "",
-  {
-    type: "string",
-    description: nls.localize(
-      "context.customEditor",
-      "The viewType of the currently active custom editor."
-    )
-  }
-);
+import { IRevertOptions, ISaveOptions } from "../../../common/editor.js";
+import { globMatchesResource, priorityToRank, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+const ICustomEditorService = createDecorator("customEditorService");
+const CONTEXT_ACTIVE_CUSTOM_EDITOR_ID = new RawContextKey("activeCustomEditorId", "", {
+  type: "string",
+  description: nls.localize("context.customEditor", "The viewType of the currently active custom editor.")
+});
 const CONTEXT_FOCUSED_CUSTOM_EDITOR_IS_EDITABLE = new RawContextKey("focusedCustomEditorIsEditable", false);
 var CustomEditorPriority = /* @__PURE__ */ ((CustomEditorPriority2) => {
   CustomEditorPriority2["default"] = "default";
@@ -47,9 +39,7 @@ class CustomEditorInfo {
     this.selector = descriptor.selector;
   }
   matches(resource) {
-    return this.selector.some(
-      (selector) => selector.filenamePattern && globMatchesResource(selector.filenamePattern, resource)
-    );
+    return this.selector.some((selector) => selector.filenamePattern && globMatchesResource(selector.filenamePattern, resource));
   }
 }
 class CustomEditorInfoCollection {
@@ -72,9 +62,7 @@ class CustomEditorInfoCollection {
       switch (editor.priority) {
         case RegisteredEditorPriority.default:
         case RegisteredEditorPriority.builtin:
-          return this.allEditors.every(
-            (otherEditor) => otherEditor === editor || isLowerPriority(otherEditor, editor)
-          );
+          return this.allEditors.every((otherEditor) => otherEditor === editor || isLowerPriority(otherEditor, editor));
         default:
           return false;
       }

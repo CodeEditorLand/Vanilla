@@ -1,21 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
+import { IStringDictionary, INumberDictionary } from "../../../../base/common/collections.js";
 import { URI } from "../../../../base/common/uri.js";
-import { isWindows } from "../../../../base/common/platform.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { IDisposable, DisposableStore, Disposable } from "../../../../base/common/lifecycle.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILineMatcher, createLineMatcher, ProblemMatcher, IProblemMatch, ApplyToKind, IWatchingPattern, getResource } from "./problemMatcher.js";
+import { IMarkerService, IMarkerData, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import {
-  IMarkerData
-} from "../../../../platform/markers/common/markers.js";
-import {
-  ApplyToKind,
-  createLineMatcher,
-  getResource
-} from "./problemMatcher.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { isWindows } from "../../../../base/common/platform.js";
 var ProblemCollectorEventKind = /* @__PURE__ */ ((ProblemCollectorEventKind2) => {
   ProblemCollectorEventKind2["BackgroundProcessingBegins"] = "backgroundProcessingBegins";
   ProblemCollectorEventKind2["BackgroundProcessingEnds"] = "backgroundProcessingEnds";
@@ -58,38 +52,20 @@ class AbstractProblemCollector extends Disposable {
     for (const problemMatcher of problemMatchers) {
       const current = this.applyToByOwner.get(problemMatcher.owner);
       if (current === void 0) {
-        this.applyToByOwner.set(
-          problemMatcher.owner,
-          problemMatcher.applyTo
-        );
+        this.applyToByOwner.set(problemMatcher.owner, problemMatcher.applyTo);
       } else {
-        this.applyToByOwner.set(
-          problemMatcher.owner,
-          this.mergeApplyTo(current, problemMatcher.applyTo)
-        );
+        this.applyToByOwner.set(problemMatcher.owner, this.mergeApplyTo(current, problemMatcher.applyTo));
       }
     }
     this.resourcesToClean = /* @__PURE__ */ new Map();
     this.markers = /* @__PURE__ */ new Map();
     this.deliveredMarkers = /* @__PURE__ */ new Map();
-    this._register(
-      this.modelService.onModelAdded(
-        (model) => {
-          this.openModels[model.uri.toString()] = true;
-        },
-        this,
-        this.modelListeners
-      )
-    );
-    this._register(
-      this.modelService.onModelRemoved(
-        (model) => {
-          delete this.openModels[model.uri.toString()];
-        },
-        this,
-        this.modelListeners
-      )
-    );
+    this._register(this.modelService.onModelAdded((model) => {
+      this.openModels[model.uri.toString()] = true;
+    }, this, this.modelListeners));
+    this._register(this.modelService.onModelRemoved((model) => {
+      delete this.openModels[model.uri.toString()];
+    }, this, this.modelListeners));
     this.modelService.getModels().forEach((model) => this.openModels[model.uri.toString()] = true);
     this._onDidStateChange = new Emitter();
   }
@@ -221,12 +197,7 @@ class AbstractProblemCollector extends Disposable {
   }
   recordResourcesToClean(owner) {
     const resourceSetToClean = this.getResourceSetToClean(owner);
-    this.markerService.read({ owner }).forEach(
-      (marker) => resourceSetToClean.set(
-        marker.resource.toString(),
-        marker.resource
-      )
-    );
+    this.markerService.read({ owner }).forEach((marker) => resourceSetToClean.set(marker.resource.toString(), marker.resource));
   }
   recordResourceToClean(owner, resource) {
     this.getResourceSetToClean(owner).set(resource.toString(), resource);
@@ -289,12 +260,7 @@ class AbstractProblemCollector extends Disposable {
     this.markers.forEach((markersPerOwner, owner) => {
       const deliveredMarkersPerOwner = this.getDeliveredMarkersPerOwner(owner);
       markersPerOwner.forEach((markers, resource) => {
-        this.deliverMarkersPerOwnerAndResourceResolved(
-          owner,
-          resource,
-          markers,
-          deliveredMarkersPerOwner
-        );
+        this.deliverMarkersPerOwnerAndResourceResolved(owner, resource, markers, deliveredMarkersPerOwner);
       });
     });
   }
@@ -308,12 +274,7 @@ class AbstractProblemCollector extends Disposable {
     if (!markersPerResource) {
       return;
     }
-    this.deliverMarkersPerOwnerAndResourceResolved(
-      owner,
-      resource,
-      markersPerResource,
-      deliveredMarkersPerOwner
-    );
+    this.deliverMarkersPerOwnerAndResourceResolved(owner, resource, markersPerResource, deliveredMarkersPerOwner);
   }
   deliverMarkersPerOwnerAndResourceResolved(owner, resource, markers, reported) {
     if (markers.size !== reported.get(resource)) {
@@ -356,9 +317,7 @@ class StartStopProblemCollector extends AbstractProblemCollector {
   constructor(problemMatchers, markerService, modelService, _strategy = 0 /* Clean */, fileService) {
     super(problemMatchers, markerService, modelService, fileService);
     const ownerSet = /* @__PURE__ */ Object.create(null);
-    problemMatchers.forEach(
-      (description) => ownerSet[description.owner] = true
-    );
+    problemMatchers.forEach((description) => ownerSet[description.owner] = true);
     this.owners = Object.keys(ownerSet);
     this.owners.forEach((owner) => {
       this.recordResourcesToClean(owner);
@@ -378,10 +337,7 @@ class StartStopProblemCollector extends AbstractProblemCollector {
       this.recordMarker(markerMatch.marker, owner, resourceAsString);
       if (this.currentOwner !== owner || this.currentResource !== resourceAsString) {
         if (this.currentOwner && this.currentResource) {
-          this.deliverMarkersPerOwnerAndResource(
-            this.currentOwner,
-            this.currentResource
-          );
+          this.deliverMarkersPerOwnerAndResource(this.currentOwner, this.currentResource);
         }
         this.currentOwner = owner;
         this.currentResource = resourceAsString;
@@ -418,44 +374,32 @@ class WatchingProblemCollector extends AbstractProblemCollector {
         this.beginPatterns.push(matcher.watching.beginsPattern.regexp);
       }
     });
-    this.modelListeners.add(
-      this.modelService.onModelRemoved((modelEvent) => {
-        let markerChanged = Event.debounce(
-          this.markerService.onMarkerChanged,
-          (last, e) => {
-            return (last ?? []).concat(e);
-          },
-          500,
-          false,
-          true
-        )(async (markerEvent) => {
-          markerChanged?.dispose();
-          markerChanged = void 0;
-          if (!markerEvent || !markerEvent.includes(modelEvent.uri) || this.markerService.read({ resource: modelEvent.uri }).length !== 0) {
-            return;
-          }
-          const oldLines = Array.from(this.lines);
-          for (const line of oldLines) {
-            await this.processLineInternal(line);
-          }
-        });
-        setTimeout(async () => {
-          const _markerChanged = markerChanged;
-          markerChanged = void 0;
-          _markerChanged?.dispose();
-        }, 600);
-      })
-    );
+    this.modelListeners.add(this.modelService.onModelRemoved((modelEvent) => {
+      let markerChanged = Event.debounce(this.markerService.onMarkerChanged, (last, e) => {
+        return (last ?? []).concat(e);
+      }, 500, false, true)(async (markerEvent) => {
+        markerChanged?.dispose();
+        markerChanged = void 0;
+        if (!markerEvent || !markerEvent.includes(modelEvent.uri) || this.markerService.read({ resource: modelEvent.uri }).length !== 0) {
+          return;
+        }
+        const oldLines = Array.from(this.lines);
+        for (const line of oldLines) {
+          await this.processLineInternal(line);
+        }
+      });
+      setTimeout(async () => {
+        const _markerChanged = markerChanged;
+        markerChanged = void 0;
+        _markerChanged?.dispose();
+      }, 600);
+    }));
   }
   aboutToStart() {
     for (const background of this.backgroundPatterns) {
       if (background.matcher.watching && background.matcher.watching.activeOnStart) {
         this._activeBackgroundMatchers.add(background.key);
-        this._onDidStateChange.fire(
-          IProblemCollectorEvent.create(
-            "backgroundProcessingBegins" /* BackgroundProcessingBegins */
-          )
-        );
+        this._onDidStateChange.fire(IProblemCollectorEvent.create("backgroundProcessingBegins" /* BackgroundProcessingBegins */));
         this.recordResourcesToClean(background.matcher.owner);
       }
     }
@@ -499,11 +443,7 @@ class WatchingProblemCollector extends AbstractProblemCollector {
         this._onDidFindFirstMatch.fire();
         this.lines = [];
         this.lines.push(line);
-        this._onDidStateChange.fire(
-          IProblemCollectorEvent.create(
-            "backgroundProcessingBegins" /* BackgroundProcessingBegins */
-          )
-        );
+        this._onDidStateChange.fire(IProblemCollectorEvent.create("backgroundProcessingBegins" /* BackgroundProcessingBegins */));
         this.cleanMarkerCaches();
         this.resetCurrentResource();
         const owner = background.matcher.owner;
@@ -531,11 +471,7 @@ class WatchingProblemCollector extends AbstractProblemCollector {
         if (this._activeBackgroundMatchers.has(background.key)) {
           this._activeBackgroundMatchers.delete(background.key);
           this.resetCurrentResource();
-          this._onDidStateChange.fire(
-            IProblemCollectorEvent.create(
-              "backgroundProcessingEnds" /* BackgroundProcessingEnds */
-            )
-          );
+          this._onDidStateChange.fire(IProblemCollectorEvent.create("backgroundProcessingEnds" /* BackgroundProcessingEnds */));
           result = true;
           this.lines.push(line);
           const owner = background.matcher.owner;
@@ -553,10 +489,7 @@ class WatchingProblemCollector extends AbstractProblemCollector {
   }
   reportMarkersForCurrentResource() {
     if (this.currentOwner && this.currentResource) {
-      this.deliverMarkersPerOwnerAndResource(
-        this.currentOwner,
-        this.currentResource
-      );
+      this.deliverMarkersPerOwnerAndResource(this.currentOwner, this.currentResource);
     }
   }
   done() {

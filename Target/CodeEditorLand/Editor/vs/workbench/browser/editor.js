@@ -1,21 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Promises } from "../../base/common/async.js";
-import { Emitter } from "../../base/common/event.js";
-import { Iterable } from "../../base/common/iterator.js";
-import { toDisposable } from "../../base/common/lifecycle.js";
-import { Schemas } from "../../base/common/network.js";
 import { localize } from "../../nls.js";
+import { EditorResourceAccessor, EditorExtensions, SideBySideEditor, IEditorDescriptor as ICommonEditorDescriptor, EditorCloseContext, IWillInstantiateEditorPaneEvent } from "../common/editor.js";
+import { EditorInput } from "../common/editor/editorInput.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
 import { Registry } from "../../platform/registry/common/platform.js";
-import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  EditorCloseContext,
-  EditorExtensions,
-  EditorResourceAccessor,
-  SideBySideEditor
-} from "../common/editor.js";
+import { EditorPane } from "./parts/editor/editorPane.js";
+import { IConstructorSignature, IInstantiationService, BrandedService, ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { Promises } from "../../base/common/async.js";
 import { IEditorService } from "../services/editor/common/editorService.js";
+import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkingCopyService } from "../services/workingCopy/common/workingCopyService.js";
+import { URI } from "../../base/common/uri.js";
+import { Schemas } from "../../base/common/network.js";
+import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
+import { Iterable } from "../../base/common/iterator.js";
+import { Emitter } from "../../base/common/event.js";
 class EditorPaneDescriptor {
   constructor(ctor, typeId, name) {
     this.ctor = ctor;
@@ -32,16 +33,10 @@ class EditorPaneDescriptor {
   static _onWillInstantiateEditorPane = new Emitter();
   static onWillInstantiateEditorPane = EditorPaneDescriptor._onWillInstantiateEditorPane.event;
   static create(ctor, typeId, name) {
-    return new EditorPaneDescriptor(
-      ctor,
-      typeId,
-      name
-    );
+    return new EditorPaneDescriptor(ctor, typeId, name);
   }
   instantiate(instantiationService, group) {
-    EditorPaneDescriptor._onWillInstantiateEditorPane.fire({
-      typeId: this.typeId
-    });
+    EditorPaneDescriptor._onWillInstantiateEditorPane.fire({ typeId: this.typeId });
     const pane = instantiationService.createInstance(this.ctor, group);
     EditorPaneDescriptor.instantiatedEditorPanes.add(this.typeId);
     return pane;
@@ -56,10 +51,7 @@ class EditorPaneRegistry {
   }
   mapEditorPanesToEditors = /* @__PURE__ */ new Map();
   registerEditorPane(editorPaneDescriptor, editorDescriptors) {
-    this.mapEditorPanesToEditors.set(
-      editorPaneDescriptor,
-      editorDescriptors
-    );
+    this.mapEditorPanesToEditors.set(editorPaneDescriptor, editorDescriptors);
     return toDisposable(() => {
       this.mapEditorPanesToEditors.delete(editorPaneDescriptor);
     });
@@ -96,10 +88,7 @@ class EditorPaneRegistry {
   }
   //#region Used for tests only
   getEditorPaneByType(typeId) {
-    return Iterable.find(
-      this.mapEditorPanesToEditors.keys(),
-      (editor) => editor.typeId === typeId
-    );
+    return Iterable.find(this.mapEditorPanesToEditors.keys(), (editor) => editor.typeId === typeId);
   }
   getEditorPanes() {
     return Array.from(this.mapEditorPanesToEditors.keys());
@@ -109,11 +98,7 @@ class EditorPaneRegistry {
     for (const editorPane of this.mapEditorPanesToEditors.keys()) {
       const editorDescriptors = this.mapEditorPanesToEditors.get(editorPane);
       if (editorDescriptors) {
-        editorClasses.push(
-          ...editorDescriptors.map(
-            (editorDescriptor) => editorDescriptor.ctor
-          )
-        );
+        editorClasses.push(...editorDescriptors.map((editorDescriptor) => editorDescriptor.ctor));
       }
     }
     return editorClasses;
@@ -131,88 +116,43 @@ function whenEditorClosed(accessor, resources) {
       if (event.context === EditorCloseContext.MOVE) {
         return;
       }
-      let primaryResource = EditorResourceAccessor.getOriginalUri(
-        event.editor,
-        { supportSideBySide: SideBySideEditor.PRIMARY }
-      );
-      let secondaryResource = EditorResourceAccessor.getOriginalUri(
-        event.editor,
-        { supportSideBySide: SideBySideEditor.SECONDARY }
-      );
+      let primaryResource = EditorResourceAccessor.getOriginalUri(event.editor, { supportSideBySide: SideBySideEditor.PRIMARY });
+      let secondaryResource = EditorResourceAccessor.getOriginalUri(event.editor, { supportSideBySide: SideBySideEditor.SECONDARY });
       if (event.context === EditorCloseContext.REPLACE) {
-        const newPrimaryResource = EditorResourceAccessor.getOriginalUri(
-          editorService.activeEditor,
-          { supportSideBySide: SideBySideEditor.PRIMARY }
-        );
-        const newSecondaryResource = EditorResourceAccessor.getOriginalUri(
-          editorService.activeEditor,
-          { supportSideBySide: SideBySideEditor.SECONDARY }
-        );
-        if (uriIdentityService.extUri.isEqual(
-          primaryResource,
-          newPrimaryResource
-        )) {
+        const newPrimaryResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+        const newSecondaryResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.SECONDARY });
+        if (uriIdentityService.extUri.isEqual(primaryResource, newPrimaryResource)) {
           primaryResource = void 0;
         }
-        if (uriIdentityService.extUri.isEqual(
-          secondaryResource,
-          newSecondaryResource
-        )) {
+        if (uriIdentityService.extUri.isEqual(secondaryResource, newSecondaryResource)) {
           secondaryResource = void 0;
         }
       }
       remainingResources = remainingResources.filter((resource) => {
-        if (uriIdentityService.extUri.isEqual(
-          resource,
-          primaryResource
-        ) || uriIdentityService.extUri.isEqual(
-          resource,
-          secondaryResource
-        )) {
+        if (uriIdentityService.extUri.isEqual(resource, primaryResource) || uriIdentityService.extUri.isEqual(resource, secondaryResource)) {
           return false;
         }
         if (event.context !== EditorCloseContext.REPLACE) {
-          if (primaryResource?.scheme === Schemas.untitled && uriIdentityService.extUri.isEqual(
-            resource,
-            primaryResource.with({
-              scheme: resource.scheme
-            })
-          ) || secondaryResource?.scheme === Schemas.untitled && uriIdentityService.extUri.isEqual(
-            resource,
-            secondaryResource.with({
-              scheme: resource.scheme
-            })
-          )) {
+          if (primaryResource?.scheme === Schemas.untitled && uriIdentityService.extUri.isEqual(resource, primaryResource.with({ scheme: resource.scheme })) || secondaryResource?.scheme === Schemas.untitled && uriIdentityService.extUri.isEqual(resource, secondaryResource.with({ scheme: resource.scheme }))) {
             return false;
           }
         }
         return true;
       });
       if (remainingResources.length === 0) {
-        const dirtyResources = resources.filter(
-          (resource) => workingCopyService.isDirty(resource)
-        );
+        const dirtyResources = resources.filter((resource) => workingCopyService.isDirty(resource));
         if (dirtyResources.length > 0) {
-          await Promises.settled(
-            dirtyResources.map(
-              async (resource) => await new Promise((resolve2) => {
-                if (!workingCopyService.isDirty(resource)) {
-                  return resolve2();
-                }
-                const listener2 = workingCopyService.onDidChangeDirty(
-                  (workingCopy) => {
-                    if (!workingCopy.isDirty() && uriIdentityService.extUri.isEqual(
-                      resource,
-                      workingCopy.resource
-                    )) {
-                      listener2.dispose();
-                      return resolve2();
-                    }
-                  }
-                );
-              })
-            )
-          );
+          await Promises.settled(dirtyResources.map(async (resource) => await new Promise((resolve2) => {
+            if (!workingCopyService.isDirty(resource)) {
+              return resolve2();
+            }
+            const listener2 = workingCopyService.onDidChangeDirty((workingCopy) => {
+              if (!workingCopy.isDirty() && uriIdentityService.extUri.isEqual(resource, workingCopy.resource)) {
+                listener2.dispose();
+                return resolve2();
+              }
+            });
+          })));
         }
         listener.dispose();
         return resolve();

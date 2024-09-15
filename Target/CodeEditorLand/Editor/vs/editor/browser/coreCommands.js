@@ -1,46 +1,33 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../nls.js";
 import { isFirefox } from "../../base/browser/browser.js";
-import { getActiveElement, isEditableElement } from "../../base/browser/dom.js";
-import { status } from "../../base/browser/ui/aria/aria.js";
 import { KeyCode, KeyMod } from "../../base/common/keyCodes.js";
 import * as types from "../../base/common/types.js";
-import * as nls from "../../nls.js";
-import { ContextKeyExpr } from "../../platform/contextkey/common/contextkey.js";
-import {
-  KeybindingWeight,
-  KeybindingsRegistry
-} from "../../platform/keybinding/common/keybindingsRegistry.js";
-import { EditorOption } from "../common/config/editorOptions.js";
-import { Position } from "../common/core/position.js";
-import { Range } from "../common/core/range.js";
-import {
-  ColumnSelection
-} from "../common/cursor/cursorColumnSelection.js";
+import { status } from "../../base/browser/ui/aria/aria.js";
+import { ICodeEditor } from "./editorBrowser.js";
+import { Command, EditorCommand, ICommandOptions, registerEditorCommand, MultiCommand, UndoCommand, RedoCommand, SelectAllCommand } from "./editorExtensions.js";
+import { ICodeEditorService } from "./services/codeEditorService.js";
+import { ColumnSelection, IColumnSelectResult } from "../common/cursor/cursorColumnSelection.js";
+import { CursorState, EditOperationType, IColumnSelectData, PartialCursorState } from "../common/cursorCommon.js";
 import { DeleteOperations } from "../common/cursor/cursorDeleteOperations.js";
-import {
-  CursorMoveCommands,
-  CursorMove as CursorMove_
-} from "../common/cursor/cursorMoveCommands.js";
-import { EnterOperation } from "../common/cursor/cursorTypeEditOperations.js";
-import { TypeOperations } from "../common/cursor/cursorTypeOperations.js";
-import {
-  CursorState,
-  EditOperationType
-} from "../common/cursorCommon.js";
 import { CursorChangeReason } from "../common/cursorEvents.js";
+import { CursorMove as CursorMove_, CursorMoveCommands } from "../common/cursor/cursorMoveCommands.js";
+import { TypeOperations } from "../common/cursor/cursorTypeOperations.js";
+import { IPosition, Position } from "../common/core/position.js";
+import { Range } from "../common/core/range.js";
 import { Handler, ScrollType } from "../common/editorCommon.js";
 import { EditorContextKeys } from "../common/editorContextKeys.js";
 import { VerticalRevealType } from "../common/viewEvents.js";
-import {
-  Command,
-  EditorCommand,
-  RedoCommand,
-  SelectAllCommand,
-  UndoCommand,
-  registerEditorCommand
-} from "./editorExtensions.js";
-import { ICodeEditorService } from "./services/codeEditorService.js";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight, KeybindingsRegistry } from "../../platform/keybinding/common/keybindingsRegistry.js";
+import { EditorOption } from "../common/config/editorOptions.js";
+import { IViewModel } from "../common/viewModel.js";
+import { ISelection } from "../common/core/selection.js";
+import { getActiveElement, isEditableElement } from "../../base/browser/dom.js";
+import { EnterOperation } from "../common/cursor/cursorTypeEditOperations.js";
 const CORE_WEIGHT = KeybindingWeight.EditorCore;
 class CoreEditorCommand extends EditorCommand {
   static {
@@ -56,7 +43,7 @@ class CoreEditorCommand extends EditorCommand {
 }
 var EditorScroll_;
 ((EditorScroll_2) => {
-  const isEditorScrollArgs = /* @__PURE__ */ __name((arg) => {
+  const isEditorScrollArgs = /* @__PURE__ */ __name(function(arg) {
     if (!types.isObject(arg)) {
       return false;
     }
@@ -94,29 +81,23 @@ var EditorScroll_;
 				`,
         constraint: isEditorScrollArgs,
         schema: {
-          type: "object",
-          required: ["to"],
-          properties: {
-            to: {
-              type: "string",
-              enum: ["up", "down"]
+          "type": "object",
+          "required": ["to"],
+          "properties": {
+            "to": {
+              "type": "string",
+              "enum": ["up", "down"]
             },
-            by: {
-              type: "string",
-              enum: [
-                "line",
-                "wrappedLine",
-                "page",
-                "halfPage",
-                "editor"
-              ]
+            "by": {
+              "type": "string",
+              "enum": ["line", "wrappedLine", "page", "halfPage", "editor"]
             },
-            value: {
-              type: "number",
-              default: 1
+            "value": {
+              "type": "number",
+              "default": 1
             },
-            revealCursor: {
-              type: "boolean"
+            "revealCursor": {
+              "type": "boolean"
             }
           }
         }
@@ -209,7 +190,7 @@ var EditorScroll_;
 })(EditorScroll_ || (EditorScroll_ = {}));
 var RevealLine_;
 ((RevealLine_2) => {
-  const isRevealLineArgs = /* @__PURE__ */ __name((arg) => {
+  const isRevealLineArgs = /* @__PURE__ */ __name(function(arg) {
     if (!types.isObject(arg)) {
       return false;
     }
@@ -236,15 +217,15 @@ var RevealLine_;
 				`,
         constraint: isRevealLineArgs,
         schema: {
-          type: "object",
-          required: ["lineNumber"],
-          properties: {
-            lineNumber: {
-              type: ["number", "string"]
+          "type": "object",
+          "required": ["lineNumber"],
+          "properties": {
+            "lineNumber": {
+              "type": ["number", "string"]
             },
-            at: {
-              type: "string",
-              enum: ["top", "center", "bottom"]
+            "at": {
+              "type": "string",
+              "enum": ["top", "center", "bottom"]
             }
           }
         }
@@ -262,45 +243,29 @@ class EditorOrNativeTextInputCommand {
     __name(this, "EditorOrNativeTextInputCommand");
   }
   constructor(target) {
-    target.addImplementation(
-      1e4,
-      "code-editor",
-      (accessor, args) => {
-        const focusedEditor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
-        if (focusedEditor && focusedEditor.hasTextFocus()) {
-          return this._runEditorCommand(
-            accessor,
-            focusedEditor,
-            args
-          );
-        }
-        return false;
+    target.addImplementation(1e4, "code-editor", (accessor, args) => {
+      const focusedEditor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
+      if (focusedEditor && focusedEditor.hasTextFocus()) {
+        return this._runEditorCommand(accessor, focusedEditor, args);
       }
-    );
-    target.addImplementation(
-      1e3,
-      "generic-dom-input-textarea",
-      (accessor, args) => {
-        const activeElement = getActiveElement();
-        if (activeElement && isEditableElement(activeElement)) {
-          this.runDOMCommand(activeElement);
-          return true;
-        }
-        return false;
+      return false;
+    });
+    target.addImplementation(1e3, "generic-dom-input-textarea", (accessor, args) => {
+      const activeElement = getActiveElement();
+      if (activeElement && isEditableElement(activeElement)) {
+        this.runDOMCommand(activeElement);
+        return true;
       }
-    );
-    target.addImplementation(
-      0,
-      "generic-dom",
-      (accessor, args) => {
-        const activeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor();
-        if (activeEditor) {
-          activeEditor.focus();
-          return this._runEditorCommand(accessor, activeEditor, args);
-        }
-        return false;
+      return false;
+    });
+    target.addImplementation(0, "generic-dom", (accessor, args) => {
+      const activeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor();
+      if (activeEditor) {
+        activeEditor.focus();
+        return this._runEditorCommand(accessor, activeEditor, args);
       }
-    );
+      return false;
+    });
   }
   _runEditorCommand(accessor, editor, args) {
     const result = this.runEditorCommand(accessor, editor, args);
@@ -336,13 +301,7 @@ var CoreNavigationCommands;
         args.source,
         CursorChangeReason.Explicit,
         [
-          CursorMoveCommands.moveTo(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            this._inSelectionMode,
-            args.position,
-            args.viewPosition
-          )
+          CursorMoveCommands.moveTo(viewModel, viewModel.getPrimaryCursorState(), this._inSelectionMode, args.position, args.viewPosition)
         ]
       );
       if (cursorStateChanged && args.revealType !== 2 /* None */) {
@@ -350,42 +309,27 @@ var CoreNavigationCommands;
       }
     }
   }
-  CoreNavigationCommands2.MoveTo = registerEditorCommand(
-    new BaseMoveToCommand({
-      id: "_moveTo",
-      inSelectionMode: false,
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.MoveToSelect = registerEditorCommand(
-    new BaseMoveToCommand({
-      id: "_moveToSelect",
-      inSelectionMode: true,
-      precondition: void 0
-    })
-  );
+  CoreNavigationCommands2.MoveTo = registerEditorCommand(new BaseMoveToCommand({
+    id: "_moveTo",
+    inSelectionMode: false,
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.MoveToSelect = registerEditorCommand(new BaseMoveToCommand({
+    id: "_moveToSelect",
+    inSelectionMode: true,
+    precondition: void 0
+  }));
   class ColumnSelectCommand extends CoreEditorCommand {
     static {
       __name(this, "ColumnSelectCommand");
     }
     runCoreEditorCommand(viewModel, args) {
       viewModel.model.pushStackElement();
-      const result = this._getColumnSelectResult(
-        viewModel,
-        viewModel.getPrimaryCursorState(),
-        viewModel.getCursorColumnSelectData(),
-        args
-      );
+      const result = this._getColumnSelectResult(viewModel, viewModel.getPrimaryCursorState(), viewModel.getCursorColumnSelectData(), args);
       if (result === null) {
         return;
       }
-      viewModel.setCursorStates(
-        args.source,
-        CursorChangeReason.Explicit,
-        result.viewStates.map(
-          (viewState) => CursorState.fromViewState(viewState)
-        )
-      );
+      viewModel.setCursorStates(args.source, CursorChangeReason.Explicit, result.viewStates.map((viewState) => CursorState.fromViewState(viewState)));
       viewModel.setCursorColumnSelectData({
         isReal: true,
         fromViewLineNumber: result.fromLineNumber,
@@ -400,87 +344,58 @@ var CoreNavigationCommands;
       }
     }
   }
-  CoreNavigationCommands2.ColumnSelect = registerEditorCommand(
-    new class extends ColumnSelectCommand {
-      constructor() {
-        super({
-          id: "columnSelect",
-          precondition: void 0
-        });
+  CoreNavigationCommands2.ColumnSelect = registerEditorCommand(new class extends ColumnSelectCommand {
+    constructor() {
+      super({
+        id: "columnSelect",
+        precondition: void 0
+      });
+    }
+    _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
+      if (typeof args.position === "undefined" || typeof args.viewPosition === "undefined" || typeof args.mouseColumn === "undefined") {
+        return null;
       }
-      _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
-        if (typeof args.position === "undefined" || typeof args.viewPosition === "undefined" || typeof args.mouseColumn === "undefined") {
-          return null;
+      const validatedPosition = viewModel.model.validatePosition(args.position);
+      const validatedViewPosition = viewModel.coordinatesConverter.validateViewPosition(new Position(args.viewPosition.lineNumber, args.viewPosition.column), validatedPosition);
+      const fromViewLineNumber = args.doColumnSelect ? prevColumnSelectData.fromViewLineNumber : validatedViewPosition.lineNumber;
+      const fromViewVisualColumn = args.doColumnSelect ? prevColumnSelectData.fromViewVisualColumn : args.mouseColumn - 1;
+      return ColumnSelection.columnSelect(viewModel.cursorConfig, viewModel, fromViewLineNumber, fromViewVisualColumn, validatedViewPosition.lineNumber, args.mouseColumn - 1);
+    }
+  }());
+  CoreNavigationCommands2.CursorColumnSelectLeft = registerEditorCommand(new class extends ColumnSelectCommand {
+    constructor() {
+      super({
+        id: "cursorColumnSelectLeft",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.LeftArrow,
+          linux: { primary: 0 }
         }
-        const validatedPosition = viewModel.model.validatePosition(
-          args.position
-        );
-        const validatedViewPosition = viewModel.coordinatesConverter.validateViewPosition(
-          new Position(
-            args.viewPosition.lineNumber,
-            args.viewPosition.column
-          ),
-          validatedPosition
-        );
-        const fromViewLineNumber = args.doColumnSelect ? prevColumnSelectData.fromViewLineNumber : validatedViewPosition.lineNumber;
-        const fromViewVisualColumn = args.doColumnSelect ? prevColumnSelectData.fromViewVisualColumn : args.mouseColumn - 1;
-        return ColumnSelection.columnSelect(
-          viewModel.cursorConfig,
-          viewModel,
-          fromViewLineNumber,
-          fromViewVisualColumn,
-          validatedViewPosition.lineNumber,
-          args.mouseColumn - 1
-        );
-      }
-    }()
-  );
-  CoreNavigationCommands2.CursorColumnSelectLeft = registerEditorCommand(
-    new class extends ColumnSelectCommand {
-      constructor() {
-        super({
-          id: "cursorColumnSelectLeft",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.LeftArrow,
-            linux: { primary: 0 }
-          }
-        });
-      }
-      _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
-        return ColumnSelection.columnSelectLeft(
-          viewModel.cursorConfig,
-          viewModel,
-          prevColumnSelectData
-        );
-      }
-    }()
-  );
-  CoreNavigationCommands2.CursorColumnSelectRight = registerEditorCommand(
-    new class extends ColumnSelectCommand {
-      constructor() {
-        super({
-          id: "cursorColumnSelectRight",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.RightArrow,
-            linux: { primary: 0 }
-          }
-        });
-      }
-      _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
-        return ColumnSelection.columnSelectRight(
-          viewModel.cursorConfig,
-          viewModel,
-          prevColumnSelectData
-        );
-      }
-    }()
-  );
+      });
+    }
+    _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
+      return ColumnSelection.columnSelectLeft(viewModel.cursorConfig, viewModel, prevColumnSelectData);
+    }
+  }());
+  CoreNavigationCommands2.CursorColumnSelectRight = registerEditorCommand(new class extends ColumnSelectCommand {
+    constructor() {
+      super({
+        id: "cursorColumnSelectRight",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.RightArrow,
+          linux: { primary: 0 }
+        }
+      });
+    }
+    _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
+      return ColumnSelection.columnSelectRight(viewModel.cursorConfig, viewModel, prevColumnSelectData);
+    }
+  }());
   class ColumnSelectUpCommand extends ColumnSelectCommand {
     static {
       __name(this, "ColumnSelectUpCommand");
@@ -491,40 +406,31 @@ var CoreNavigationCommands;
       this._isPaged = opts.isPaged;
     }
     _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
-      return ColumnSelection.columnSelectUp(
-        viewModel.cursorConfig,
-        viewModel,
-        prevColumnSelectData,
-        this._isPaged
-      );
+      return ColumnSelection.columnSelectUp(viewModel.cursorConfig, viewModel, prevColumnSelectData, this._isPaged);
     }
   }
-  CoreNavigationCommands2.CursorColumnSelectUp = registerEditorCommand(
-    new ColumnSelectUpCommand({
-      isPaged: false,
-      id: "cursorColumnSelectUp",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.UpArrow,
-        linux: { primary: 0 }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorColumnSelectPageUp = registerEditorCommand(
-    new ColumnSelectUpCommand({
-      isPaged: true,
-      id: "cursorColumnSelectPageUp",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.PageUp,
-        linux: { primary: 0 }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorColumnSelectUp = registerEditorCommand(new ColumnSelectUpCommand({
+    isPaged: false,
+    id: "cursorColumnSelectUp",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.UpArrow,
+      linux: { primary: 0 }
+    }
+  }));
+  CoreNavigationCommands2.CursorColumnSelectPageUp = registerEditorCommand(new ColumnSelectUpCommand({
+    isPaged: true,
+    id: "cursorColumnSelectPageUp",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.PageUp,
+      linux: { primary: 0 }
+    }
+  }));
   class ColumnSelectDownCommand extends ColumnSelectCommand {
     static {
       __name(this, "ColumnSelectDownCommand");
@@ -535,40 +441,31 @@ var CoreNavigationCommands;
       this._isPaged = opts.isPaged;
     }
     _getColumnSelectResult(viewModel, primary, prevColumnSelectData, args) {
-      return ColumnSelection.columnSelectDown(
-        viewModel.cursorConfig,
-        viewModel,
-        prevColumnSelectData,
-        this._isPaged
-      );
+      return ColumnSelection.columnSelectDown(viewModel.cursorConfig, viewModel, prevColumnSelectData, this._isPaged);
     }
   }
-  CoreNavigationCommands2.CursorColumnSelectDown = registerEditorCommand(
-    new ColumnSelectDownCommand({
-      isPaged: false,
-      id: "cursorColumnSelectDown",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.DownArrow,
-        linux: { primary: 0 }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorColumnSelectPageDown = registerEditorCommand(
-    new ColumnSelectDownCommand({
-      isPaged: true,
-      id: "cursorColumnSelectPageDown",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.PageDown,
-        linux: { primary: 0 }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorColumnSelectDown = registerEditorCommand(new ColumnSelectDownCommand({
+    isPaged: false,
+    id: "cursorColumnSelectDown",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.DownArrow,
+      linux: { primary: 0 }
+    }
+  }));
+  CoreNavigationCommands2.CursorColumnSelectPageDown = registerEditorCommand(new ColumnSelectDownCommand({
+    isPaged: true,
+    id: "cursorColumnSelectPageDown",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyCode.PageDown,
+      linux: { primary: 0 }
+    }
+  }));
   class CursorMoveImpl extends CoreEditorCommand {
     static {
       __name(this, "CursorMoveImpl");
@@ -592,11 +489,7 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         source,
         CursorChangeReason.Explicit,
-        CursorMoveImpl._move(
-          viewModel,
-          viewModel.getCursorStates(),
-          args
-        )
+        CursorMoveImpl._move(viewModel, viewModel.getCursorStates(), args)
       );
       viewModel.revealAllCursors(source, true);
     }
@@ -615,34 +508,19 @@ var CoreNavigationCommands;
         case CursorMove_.Direction.WrappedLineColumnCenter:
         case CursorMove_.Direction.WrappedLineEnd:
         case CursorMove_.Direction.WrappedLineLastNonWhitespaceCharacter:
-          return CursorMoveCommands.simpleMove(
-            viewModel,
-            cursors,
-            args.direction,
-            inSelectionMode,
-            value,
-            args.unit
-          );
+          return CursorMoveCommands.simpleMove(viewModel, cursors, args.direction, inSelectionMode, value, args.unit);
         case CursorMove_.Direction.ViewPortTop:
         case CursorMove_.Direction.ViewPortBottom:
         case CursorMove_.Direction.ViewPortCenter:
         case CursorMove_.Direction.ViewPortIfOutside:
-          return CursorMoveCommands.viewportMove(
-            viewModel,
-            cursors,
-            args.direction,
-            inSelectionMode,
-            value
-          );
+          return CursorMoveCommands.viewportMove(viewModel, cursors, args.direction, inSelectionMode, value);
         default:
           return null;
       }
     }
   }
   CoreNavigationCommands2.CursorMoveImpl = CursorMoveImpl;
-  CoreNavigationCommands2.CursorMove = registerEditorCommand(
-    new CursorMoveImpl()
-  );
+  CoreNavigationCommands2.CursorMove = registerEditorCommand(new CursorMoveImpl());
   let Constants;
   ((Constants2) => {
     Constants2[Constants2["PAGE_SIZE_MARKER"] = -1] = "PAGE_SIZE_MARKER";
@@ -670,345 +548,272 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         dynamicArgs.source,
         CursorChangeReason.Explicit,
-        CursorMoveCommands.simpleMove(
-          viewModel,
-          viewModel.getCursorStates(),
-          args.direction,
-          args.select,
-          args.value,
-          args.unit
-        )
+        CursorMoveCommands.simpleMove(viewModel, viewModel.getCursorStates(), args.direction, args.select, args.value, args.unit)
       );
       viewModel.revealAllCursors(dynamicArgs.source, true);
     }
   }
-  CoreNavigationCommands2.CursorLeft = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Left,
-        unit: CursorMove_.Unit.None,
-        select: false,
-        value: 1
-      },
-      id: "cursorLeft",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.LeftArrow,
-        mac: {
-          primary: KeyCode.LeftArrow,
-          secondary: [KeyMod.WinCtrl | KeyCode.KeyB]
-        }
+  CoreNavigationCommands2.CursorLeft = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Left,
+      unit: CursorMove_.Unit.None,
+      select: false,
+      value: 1
+    },
+    id: "cursorLeft",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.LeftArrow,
+      mac: { primary: KeyCode.LeftArrow, secondary: [KeyMod.WinCtrl | KeyCode.KeyB] }
+    }
+  }));
+  CoreNavigationCommands2.CursorLeftSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Left,
+      unit: CursorMove_.Unit.None,
+      select: true,
+      value: 1
+    },
+    id: "cursorLeftSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.LeftArrow
+    }
+  }));
+  CoreNavigationCommands2.CursorRight = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Right,
+      unit: CursorMove_.Unit.None,
+      select: false,
+      value: 1
+    },
+    id: "cursorRight",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.RightArrow,
+      mac: { primary: KeyCode.RightArrow, secondary: [KeyMod.WinCtrl | KeyCode.KeyF] }
+    }
+  }));
+  CoreNavigationCommands2.CursorRightSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Right,
+      unit: CursorMove_.Unit.None,
+      select: true,
+      value: 1
+    },
+    id: "cursorRightSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.RightArrow
+    }
+  }));
+  CoreNavigationCommands2.CursorUp = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Up,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: false,
+      value: 1
+    },
+    id: "cursorUp",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.UpArrow,
+      mac: { primary: KeyCode.UpArrow, secondary: [KeyMod.WinCtrl | KeyCode.KeyP] }
+    }
+  }));
+  CoreNavigationCommands2.CursorUpSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Up,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: true,
+      value: 1
+    },
+    id: "cursorUpSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.UpArrow,
+      secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.UpArrow],
+      mac: { primary: KeyMod.Shift | KeyCode.UpArrow },
+      linux: { primary: KeyMod.Shift | KeyCode.UpArrow }
+    }
+  }));
+  CoreNavigationCommands2.CursorPageUp = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Up,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: false,
+      value: -1 /* PAGE_SIZE_MARKER */
+    },
+    id: "cursorPageUp",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.PageUp
+    }
+  }));
+  CoreNavigationCommands2.CursorPageUpSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Up,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: true,
+      value: -1 /* PAGE_SIZE_MARKER */
+    },
+    id: "cursorPageUpSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.PageUp
+    }
+  }));
+  CoreNavigationCommands2.CursorDown = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Down,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: false,
+      value: 1
+    },
+    id: "cursorDown",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.DownArrow,
+      mac: { primary: KeyCode.DownArrow, secondary: [KeyMod.WinCtrl | KeyCode.KeyN] }
+    }
+  }));
+  CoreNavigationCommands2.CursorDownSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Down,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: true,
+      value: 1
+    },
+    id: "cursorDownSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.DownArrow,
+      secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.DownArrow],
+      mac: { primary: KeyMod.Shift | KeyCode.DownArrow },
+      linux: { primary: KeyMod.Shift | KeyCode.DownArrow }
+    }
+  }));
+  CoreNavigationCommands2.CursorPageDown = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Down,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: false,
+      value: -1 /* PAGE_SIZE_MARKER */
+    },
+    id: "cursorPageDown",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.PageDown
+    }
+  }));
+  CoreNavigationCommands2.CursorPageDownSelect = registerEditorCommand(new CursorMoveBasedCommand({
+    args: {
+      direction: CursorMove_.Direction.Down,
+      unit: CursorMove_.Unit.WrappedLine,
+      select: true,
+      value: -1 /* PAGE_SIZE_MARKER */
+    },
+    id: "cursorPageDownSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.PageDown
+    }
+  }));
+  CoreNavigationCommands2.CreateCursor = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "createCursor",
+        precondition: void 0
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      if (!args.position) {
+        return;
       }
-    })
-  );
-  CoreNavigationCommands2.CursorLeftSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Left,
-        unit: CursorMove_.Unit.None,
-        select: true,
-        value: 1
-      },
-      id: "cursorLeftSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.LeftArrow
+      let newState;
+      if (args.wholeLine) {
+        newState = CursorMoveCommands.line(viewModel, viewModel.getPrimaryCursorState(), false, args.position, args.viewPosition);
+      } else {
+        newState = CursorMoveCommands.moveTo(viewModel, viewModel.getPrimaryCursorState(), false, args.position, args.viewPosition);
       }
-    })
-  );
-  CoreNavigationCommands2.CursorRight = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Right,
-        unit: CursorMove_.Unit.None,
-        select: false,
-        value: 1
-      },
-      id: "cursorRight",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.RightArrow,
-        mac: {
-          primary: KeyCode.RightArrow,
-          secondary: [KeyMod.WinCtrl | KeyCode.KeyF]
-        }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorRightSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Right,
-        unit: CursorMove_.Unit.None,
-        select: true,
-        value: 1
-      },
-      id: "cursorRightSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.RightArrow
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorUp = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Up,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: false,
-        value: 1
-      },
-      id: "cursorUp",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.UpArrow,
-        mac: {
-          primary: KeyCode.UpArrow,
-          secondary: [KeyMod.WinCtrl | KeyCode.KeyP]
-        }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorUpSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Up,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: true,
-        value: 1
-      },
-      id: "cursorUpSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.UpArrow,
-        secondary: [
-          KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.UpArrow
-        ],
-        mac: { primary: KeyMod.Shift | KeyCode.UpArrow },
-        linux: { primary: KeyMod.Shift | KeyCode.UpArrow }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorPageUp = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Up,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: false,
-        value: -1 /* PAGE_SIZE_MARKER */
-      },
-      id: "cursorPageUp",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.PageUp
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorPageUpSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Up,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: true,
-        value: -1 /* PAGE_SIZE_MARKER */
-      },
-      id: "cursorPageUpSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.PageUp
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorDown = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Down,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: false,
-        value: 1
-      },
-      id: "cursorDown",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.DownArrow,
-        mac: {
-          primary: KeyCode.DownArrow,
-          secondary: [KeyMod.WinCtrl | KeyCode.KeyN]
-        }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorDownSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Down,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: true,
-        value: 1
-      },
-      id: "cursorDownSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.DownArrow,
-        secondary: [
-          KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.DownArrow
-        ],
-        mac: { primary: KeyMod.Shift | KeyCode.DownArrow },
-        linux: { primary: KeyMod.Shift | KeyCode.DownArrow }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorPageDown = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Down,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: false,
-        value: -1 /* PAGE_SIZE_MARKER */
-      },
-      id: "cursorPageDown",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.PageDown
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorPageDownSelect = registerEditorCommand(
-    new CursorMoveBasedCommand({
-      args: {
-        direction: CursorMove_.Direction.Down,
-        unit: CursorMove_.Unit.WrappedLine,
-        select: true,
-        value: -1 /* PAGE_SIZE_MARKER */
-      },
-      id: "cursorPageDownSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.PageDown
-      }
-    })
-  );
-  CoreNavigationCommands2.CreateCursor = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "createCursor",
-          precondition: void 0
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        if (!args.position) {
-          return;
-        }
-        let newState;
-        if (args.wholeLine) {
-          newState = CursorMoveCommands.line(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            false,
-            args.position,
-            args.viewPosition
-          );
-        } else {
-          newState = CursorMoveCommands.moveTo(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            false,
-            args.position,
-            args.viewPosition
-          );
-        }
-        const states = viewModel.getCursorStates();
-        if (states.length > 1) {
-          const newModelPosition = newState.modelState ? newState.modelState.position : null;
-          const newViewPosition = newState.viewState ? newState.viewState.position : null;
-          for (let i = 0, len = states.length; i < len; i++) {
-            const state = states[i];
-            if (newModelPosition && !state.modelState.selection.containsPosition(
-              newModelPosition
-            )) {
-              continue;
-            }
-            if (newViewPosition && !state.viewState.selection.containsPosition(
-              newViewPosition
-            )) {
-              continue;
-            }
-            states.splice(i, 1);
-            viewModel.model.pushStackElement();
-            viewModel.setCursorStates(
-              args.source,
-              CursorChangeReason.Explicit,
-              states
-            );
-            return;
+      const states = viewModel.getCursorStates();
+      if (states.length > 1) {
+        const newModelPosition = newState.modelState ? newState.modelState.position : null;
+        const newViewPosition = newState.viewState ? newState.viewState.position : null;
+        for (let i = 0, len = states.length; i < len; i++) {
+          const state = states[i];
+          if (newModelPosition && !state.modelState.selection.containsPosition(newModelPosition)) {
+            continue;
           }
-        }
-        states.push(newState);
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          states
-        );
-      }
-    }()
-  );
-  CoreNavigationCommands2.LastCursorMoveToSelect = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "_lastCursorMoveToSelect",
-          precondition: void 0
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        if (!args.position) {
+          if (newViewPosition && !state.viewState.selection.containsPosition(newViewPosition)) {
+            continue;
+          }
+          states.splice(i, 1);
+          viewModel.model.pushStackElement();
+          viewModel.setCursorStates(
+            args.source,
+            CursorChangeReason.Explicit,
+            states
+          );
           return;
         }
-        const lastAddedCursorIndex = viewModel.getLastAddedCursorIndex();
-        const states = viewModel.getCursorStates();
-        const newStates = states.slice(0);
-        newStates[lastAddedCursorIndex] = CursorMoveCommands.moveTo(
-          viewModel,
-          states[lastAddedCursorIndex],
-          true,
-          args.position,
-          args.viewPosition
-        );
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          newStates
-        );
       }
-    }()
-  );
+      states.push(newState);
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        states
+      );
+    }
+  }());
+  CoreNavigationCommands2.LastCursorMoveToSelect = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "_lastCursorMoveToSelect",
+        precondition: void 0
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      if (!args.position) {
+        return;
+      }
+      const lastAddedCursorIndex = viewModel.getLastAddedCursorIndex();
+      const states = viewModel.getCursorStates();
+      const newStates = states.slice(0);
+      newStates[lastAddedCursorIndex] = CursorMoveCommands.moveTo(viewModel, states[lastAddedCursorIndex], true, args.position, args.viewPosition);
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        newStates
+      );
+    }
+  }());
   class HomeCommand extends CoreEditorCommand {
     static {
       __name(this, "HomeCommand");
@@ -1023,49 +828,33 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         args.source,
         CursorChangeReason.Explicit,
-        CursorMoveCommands.moveToBeginningOfLine(
-          viewModel,
-          viewModel.getCursorStates(),
-          this._inSelectionMode
-        )
+        CursorMoveCommands.moveToBeginningOfLine(viewModel, viewModel.getCursorStates(), this._inSelectionMode)
       );
       viewModel.revealAllCursors(args.source, true);
     }
   }
-  CoreNavigationCommands2.CursorHome = registerEditorCommand(
-    new HomeCommand({
-      inSelectionMode: false,
-      id: "cursorHome",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.Home,
-        mac: {
-          primary: KeyCode.Home,
-          secondary: [KeyMod.CtrlCmd | KeyCode.LeftArrow]
-        }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorHomeSelect = registerEditorCommand(
-    new HomeCommand({
-      inSelectionMode: true,
-      id: "cursorHomeSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.Home,
-        mac: {
-          primary: KeyMod.Shift | KeyCode.Home,
-          secondary: [
-            KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.LeftArrow
-          ]
-        }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorHome = registerEditorCommand(new HomeCommand({
+    inSelectionMode: false,
+    id: "cursorHome",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.Home,
+      mac: { primary: KeyCode.Home, secondary: [KeyMod.CtrlCmd | KeyCode.LeftArrow] }
+    }
+  }));
+  CoreNavigationCommands2.CursorHomeSelect = registerEditorCommand(new HomeCommand({
+    inSelectionMode: true,
+    id: "cursorHomeSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.Home,
+      mac: { primary: KeyMod.Shift | KeyCode.Home, secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.LeftArrow] }
+    }
+  }));
   class LineStartCommand extends CoreEditorCommand {
     static {
       __name(this, "LineStartCommand");
@@ -1089,46 +878,33 @@ var CoreNavigationCommands;
       for (let i = 0, len = cursors.length; i < len; i++) {
         const cursor = cursors[i];
         const lineNumber = cursor.modelState.position.lineNumber;
-        result[i] = CursorState.fromModelState(
-          cursor.modelState.move(
-            this._inSelectionMode,
-            lineNumber,
-            1,
-            0
-          )
-        );
+        result[i] = CursorState.fromModelState(cursor.modelState.move(this._inSelectionMode, lineNumber, 1, 0));
       }
       return result;
     }
   }
-  CoreNavigationCommands2.CursorLineStart = registerEditorCommand(
-    new LineStartCommand({
-      inSelectionMode: false,
-      id: "cursorLineStart",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: 0,
-        mac: { primary: KeyMod.WinCtrl | KeyCode.KeyA }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorLineStartSelect = registerEditorCommand(
-    new LineStartCommand({
-      inSelectionMode: true,
-      id: "cursorLineStartSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Shift | KeyCode.KeyA
-        }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorLineStart = registerEditorCommand(new LineStartCommand({
+    inSelectionMode: false,
+    id: "cursorLineStart",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: 0,
+      mac: { primary: KeyMod.WinCtrl | KeyCode.KeyA }
+    }
+  }));
+  CoreNavigationCommands2.CursorLineStartSelect = registerEditorCommand(new LineStartCommand({
+    inSelectionMode: true,
+    id: "cursorLineStartSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: 0,
+      mac: { primary: KeyMod.WinCtrl | KeyMod.Shift | KeyCode.KeyA }
+    }
+  }));
   class EndCommand extends CoreEditorCommand {
     static {
       __name(this, "EndCommand");
@@ -1143,94 +919,67 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         args.source,
         CursorChangeReason.Explicit,
-        CursorMoveCommands.moveToEndOfLine(
-          viewModel,
-          viewModel.getCursorStates(),
-          this._inSelectionMode,
-          args.sticky || false
-        )
+        CursorMoveCommands.moveToEndOfLine(viewModel, viewModel.getCursorStates(), this._inSelectionMode, args.sticky || false)
       );
       viewModel.revealAllCursors(args.source, true);
     }
   }
-  CoreNavigationCommands2.CursorEnd = registerEditorCommand(
-    new EndCommand({
-      inSelectionMode: false,
-      id: "cursorEnd",
-      precondition: void 0,
-      kbOpts: {
-        args: { sticky: false },
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyCode.End,
-        mac: {
-          primary: KeyCode.End,
-          secondary: [KeyMod.CtrlCmd | KeyCode.RightArrow]
-        }
-      },
-      metadata: {
-        description: `Go to End`,
-        args: [
-          {
-            name: "args",
-            schema: {
-              type: "object",
-              properties: {
-                sticky: {
-                  description: nls.localize(
-                    "stickydesc",
-                    "Stick to the end even when going to longer lines"
-                  ),
-                  type: "boolean",
-                  default: false
-                }
-              }
+  CoreNavigationCommands2.CursorEnd = registerEditorCommand(new EndCommand({
+    inSelectionMode: false,
+    id: "cursorEnd",
+    precondition: void 0,
+    kbOpts: {
+      args: { sticky: false },
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyCode.End,
+      mac: { primary: KeyCode.End, secondary: [KeyMod.CtrlCmd | KeyCode.RightArrow] }
+    },
+    metadata: {
+      description: `Go to End`,
+      args: [{
+        name: "args",
+        schema: {
+          type: "object",
+          properties: {
+            "sticky": {
+              description: nls.localize("stickydesc", "Stick to the end even when going to longer lines"),
+              type: "boolean",
+              default: false
             }
           }
-        ]
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorEndSelect = registerEditorCommand(
-    new EndCommand({
-      inSelectionMode: true,
-      id: "cursorEndSelect",
-      precondition: void 0,
-      kbOpts: {
-        args: { sticky: false },
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.Shift | KeyCode.End,
-        mac: {
-          primary: KeyMod.Shift | KeyCode.End,
-          secondary: [
-            KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.RightArrow
-          ]
         }
-      },
-      metadata: {
-        description: `Select to End`,
-        args: [
-          {
-            name: "args",
-            schema: {
-              type: "object",
-              properties: {
-                sticky: {
-                  description: nls.localize(
-                    "stickydesc",
-                    "Stick to the end even when going to longer lines"
-                  ),
-                  type: "boolean",
-                  default: false
-                }
-              }
+      }]
+    }
+  }));
+  CoreNavigationCommands2.CursorEndSelect = registerEditorCommand(new EndCommand({
+    inSelectionMode: true,
+    id: "cursorEndSelect",
+    precondition: void 0,
+    kbOpts: {
+      args: { sticky: false },
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.Shift | KeyCode.End,
+      mac: { primary: KeyMod.Shift | KeyCode.End, secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.RightArrow] }
+    },
+    metadata: {
+      description: `Select to End`,
+      args: [{
+        name: "args",
+        schema: {
+          type: "object",
+          properties: {
+            "sticky": {
+              description: nls.localize("stickydesc", "Stick to the end even when going to longer lines"),
+              type: "boolean",
+              default: false
             }
           }
-        ]
-      }
-    })
-  );
+        }
+      }]
+    }
+  }));
   class LineEndCommand extends CoreEditorCommand {
     static {
       __name(this, "LineEndCommand");
@@ -1255,46 +1004,33 @@ var CoreNavigationCommands;
         const cursor = cursors[i];
         const lineNumber = cursor.modelState.position.lineNumber;
         const maxColumn = viewModel.model.getLineMaxColumn(lineNumber);
-        result[i] = CursorState.fromModelState(
-          cursor.modelState.move(
-            this._inSelectionMode,
-            lineNumber,
-            maxColumn,
-            0
-          )
-        );
+        result[i] = CursorState.fromModelState(cursor.modelState.move(this._inSelectionMode, lineNumber, maxColumn, 0));
       }
       return result;
     }
   }
-  CoreNavigationCommands2.CursorLineEnd = registerEditorCommand(
-    new LineEndCommand({
-      inSelectionMode: false,
-      id: "cursorLineEnd",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: 0,
-        mac: { primary: KeyMod.WinCtrl | KeyCode.KeyE }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorLineEndSelect = registerEditorCommand(
-    new LineEndCommand({
-      inSelectionMode: true,
-      id: "cursorLineEndSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: 0,
-        mac: {
-          primary: KeyMod.WinCtrl | KeyMod.Shift | KeyCode.KeyE
-        }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorLineEnd = registerEditorCommand(new LineEndCommand({
+    inSelectionMode: false,
+    id: "cursorLineEnd",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: 0,
+      mac: { primary: KeyMod.WinCtrl | KeyCode.KeyE }
+    }
+  }));
+  CoreNavigationCommands2.CursorLineEndSelect = registerEditorCommand(new LineEndCommand({
+    inSelectionMode: true,
+    id: "cursorLineEndSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: 0,
+      mac: { primary: KeyMod.WinCtrl | KeyMod.Shift | KeyCode.KeyE }
+    }
+  }));
   class TopCommand extends CoreEditorCommand {
     static {
       __name(this, "TopCommand");
@@ -1309,43 +1045,33 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         args.source,
         CursorChangeReason.Explicit,
-        CursorMoveCommands.moveToBeginningOfBuffer(
-          viewModel,
-          viewModel.getCursorStates(),
-          this._inSelectionMode
-        )
+        CursorMoveCommands.moveToBeginningOfBuffer(viewModel, viewModel.getCursorStates(), this._inSelectionMode)
       );
       viewModel.revealAllCursors(args.source, true);
     }
   }
-  CoreNavigationCommands2.CursorTop = registerEditorCommand(
-    new TopCommand({
-      inSelectionMode: false,
-      id: "cursorTop",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyCode.Home,
-        mac: { primary: KeyMod.CtrlCmd | KeyCode.UpArrow }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorTopSelect = registerEditorCommand(
-    new TopCommand({
-      inSelectionMode: true,
-      id: "cursorTopSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Home,
-        mac: {
-          primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.UpArrow
-        }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorTop = registerEditorCommand(new TopCommand({
+    inSelectionMode: false,
+    id: "cursorTop",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyCode.Home,
+      mac: { primary: KeyMod.CtrlCmd | KeyCode.UpArrow }
+    }
+  }));
+  CoreNavigationCommands2.CursorTopSelect = registerEditorCommand(new TopCommand({
+    inSelectionMode: true,
+    id: "cursorTopSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Home,
+      mac: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.UpArrow }
+    }
+  }));
   class BottomCommand extends CoreEditorCommand {
     static {
       __name(this, "BottomCommand");
@@ -1360,43 +1086,33 @@ var CoreNavigationCommands;
       viewModel.setCursorStates(
         args.source,
         CursorChangeReason.Explicit,
-        CursorMoveCommands.moveToEndOfBuffer(
-          viewModel,
-          viewModel.getCursorStates(),
-          this._inSelectionMode
-        )
+        CursorMoveCommands.moveToEndOfBuffer(viewModel, viewModel.getCursorStates(), this._inSelectionMode)
       );
       viewModel.revealAllCursors(args.source, true);
     }
   }
-  CoreNavigationCommands2.CursorBottom = registerEditorCommand(
-    new BottomCommand({
-      inSelectionMode: false,
-      id: "cursorBottom",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyCode.End,
-        mac: { primary: KeyMod.CtrlCmd | KeyCode.DownArrow }
-      }
-    })
-  );
-  CoreNavigationCommands2.CursorBottomSelect = registerEditorCommand(
-    new BottomCommand({
-      inSelectionMode: true,
-      id: "cursorBottomSelect",
-      precondition: void 0,
-      kbOpts: {
-        weight: CORE_WEIGHT,
-        kbExpr: EditorContextKeys.textInputFocus,
-        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.End,
-        mac: {
-          primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.DownArrow
-        }
-      }
-    })
-  );
+  CoreNavigationCommands2.CursorBottom = registerEditorCommand(new BottomCommand({
+    inSelectionMode: false,
+    id: "cursorBottom",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyCode.End,
+      mac: { primary: KeyMod.CtrlCmd | KeyCode.DownArrow }
+    }
+  }));
+  CoreNavigationCommands2.CursorBottomSelect = registerEditorCommand(new BottomCommand({
+    inSelectionMode: true,
+    id: "cursorBottomSelect",
+    precondition: void 0,
+    kbOpts: {
+      weight: CORE_WEIGHT,
+      kbExpr: EditorContextKeys.textInputFocus,
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.End,
+      mac: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.DownArrow }
+    }
+  }));
   class EditorScrollImpl extends CoreEditorCommand {
     static {
       __name(this, "EditorScrollImpl");
@@ -1418,14 +1134,8 @@ var CoreNavigationCommands;
         5 /* Editor */,
         6 /* Column */
       ];
-      const horizontalDirections = [
-        4 /* Left */,
-        2 /* Right */
-      ];
-      const verticalDirections = [
-        1 /* Up */,
-        3 /* Down */
-      ];
+      const horizontalDirections = [4 /* Left */, 2 /* Right */];
+      const verticalDirections = [1 /* Up */, 3 /* Down */];
       if (horizontalUnits.includes(args.unit) && horizontalDirections.includes(args.direction)) {
         return this._runHorizontalEditorScroll.bind(this);
       }
@@ -1446,64 +1156,39 @@ var CoreNavigationCommands;
       runEditorScroll(viewModel, args.source, parsed);
     }
     _runVerticalEditorScroll(viewModel, source, args) {
-      const desiredScrollTop = this._computeDesiredScrollTop(
-        viewModel,
-        args
-      );
+      const desiredScrollTop = this._computeDesiredScrollTop(viewModel, args);
       if (args.revealCursor) {
-        const desiredVisibleViewRange = viewModel.getCompletelyVisibleViewRangeAtScrollTop(
-          desiredScrollTop
+        const desiredVisibleViewRange = viewModel.getCompletelyVisibleViewRangeAtScrollTop(desiredScrollTop);
+        viewModel.setCursorStates(
+          source,
+          CursorChangeReason.Explicit,
+          [
+            CursorMoveCommands.findPositionInViewportIfOutside(viewModel, viewModel.getPrimaryCursorState(), desiredVisibleViewRange, args.select)
+          ]
         );
-        viewModel.setCursorStates(source, CursorChangeReason.Explicit, [
-          CursorMoveCommands.findPositionInViewportIfOutside(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            desiredVisibleViewRange,
-            args.select
-          )
-        ]);
       }
-      viewModel.viewLayout.setScrollPosition(
-        { scrollTop: desiredScrollTop },
-        ScrollType.Smooth
-      );
+      viewModel.viewLayout.setScrollPosition({ scrollTop: desiredScrollTop }, ScrollType.Smooth);
     }
     _computeDesiredScrollTop(viewModel, args) {
       if (args.unit === 1 /* Line */) {
         const futureViewport = viewModel.viewLayout.getFutureViewport();
-        const visibleViewRange = viewModel.getCompletelyVisibleViewRangeAtScrollTop(
-          futureViewport.top
-        );
-        const visibleModelRange = viewModel.coordinatesConverter.convertViewRangeToModelRange(
-          visibleViewRange
-        );
+        const visibleViewRange = viewModel.getCompletelyVisibleViewRangeAtScrollTop(futureViewport.top);
+        const visibleModelRange = viewModel.coordinatesConverter.convertViewRangeToModelRange(visibleViewRange);
         let desiredTopModelLineNumber;
         if (args.direction === 1 /* Up */) {
-          desiredTopModelLineNumber = Math.max(
-            1,
-            visibleModelRange.startLineNumber - args.value
-          );
+          desiredTopModelLineNumber = Math.max(1, visibleModelRange.startLineNumber - args.value);
         } else {
-          desiredTopModelLineNumber = Math.min(
-            viewModel.model.getLineCount(),
-            visibleModelRange.startLineNumber + args.value
-          );
+          desiredTopModelLineNumber = Math.min(viewModel.model.getLineCount(), visibleModelRange.startLineNumber + args.value);
         }
-        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(
-          new Position(desiredTopModelLineNumber, 1)
-        );
-        return viewModel.viewLayout.getVerticalOffsetForLineNumber(
-          viewPosition.lineNumber
-        );
+        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(new Position(desiredTopModelLineNumber, 1));
+        return viewModel.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber);
       }
       if (args.unit === 5 /* Editor */) {
         let desiredTopModelLineNumber = 0;
         if (args.direction === 3 /* Down */) {
           desiredTopModelLineNumber = viewModel.model.getLineCount() - viewModel.cursorConfig.pageSize;
         }
-        return viewModel.viewLayout.getVerticalOffsetForLineNumber(
-          desiredTopModelLineNumber
-        );
+        return viewModel.viewLayout.getVerticalOffsetForLineNumber(desiredTopModelLineNumber);
       }
       let noOfLines;
       if (args.unit === 3 /* Page */) {
@@ -1517,14 +1202,8 @@ var CoreNavigationCommands;
       return viewModel.viewLayout.getCurrentScrollTop() + deltaLines * viewModel.cursorConfig.lineHeight;
     }
     _runHorizontalEditorScroll(viewModel, source, args) {
-      const desiredScrollLeft = this._computeDesiredScrollLeft(
-        viewModel,
-        args
-      );
-      viewModel.viewLayout.setScrollPosition(
-        { scrollLeft: desiredScrollLeft },
-        ScrollType.Smooth
-      );
+      const desiredScrollLeft = this._computeDesiredScrollLeft(viewModel, args);
+      viewModel.viewLayout.setScrollPosition({ scrollLeft: desiredScrollLeft }, ScrollType.Smooth);
     }
     _computeDesiredScrollLeft(viewModel, args) {
       const deltaColumns = (args.direction === 4 /* Left */ ? -1 : 1) * args.value;
@@ -1532,211 +1211,193 @@ var CoreNavigationCommands;
     }
   }
   CoreNavigationCommands2.EditorScrollImpl = EditorScrollImpl;
-  CoreNavigationCommands2.EditorScroll = registerEditorCommand(
-    new EditorScrollImpl()
-  );
-  CoreNavigationCommands2.ScrollLineUp = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollLineUp",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyCode.UpArrow,
-            mac: { primary: KeyMod.WinCtrl | KeyCode.PageUp }
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Up,
-          by: EditorScroll_.RawUnit.WrappedLine,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollPageUp = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollPageUp",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyCode.PageUp,
-            win: { primary: KeyMod.Alt | KeyCode.PageUp },
-            linux: { primary: KeyMod.Alt | KeyCode.PageUp }
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Up,
-          by: EditorScroll_.RawUnit.Page,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollEditorTop = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollEditorTop",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Up,
-          by: EditorScroll_.RawUnit.Editor,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollLineDown = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollLineDown",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
-            mac: { primary: KeyMod.WinCtrl | KeyCode.PageDown }
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Down,
-          by: EditorScroll_.RawUnit.WrappedLine,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollPageDown = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollPageDown",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyMod.CtrlCmd | KeyCode.PageDown,
-            win: { primary: KeyMod.Alt | KeyCode.PageDown },
-            linux: { primary: KeyMod.Alt | KeyCode.PageDown }
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Down,
-          by: EditorScroll_.RawUnit.Page,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollEditorBottom = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollEditorBottom",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Down,
-          by: EditorScroll_.RawUnit.Editor,
-          value: 1,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollLeft = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollLeft",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Left,
-          by: EditorScroll_.RawUnit.Column,
-          value: 2,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
-  CoreNavigationCommands2.ScrollRight = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "scrollRight",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
-          to: EditorScroll_.RawDirection.Right,
-          by: EditorScroll_.RawUnit.Column,
-          value: 2,
-          revealCursor: false,
-          select: false,
-          source: args.source
-        });
-      }
-    }()
-  );
+  CoreNavigationCommands2.EditorScroll = registerEditorCommand(new EditorScrollImpl());
+  CoreNavigationCommands2.ScrollLineUp = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollLineUp",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyCode.UpArrow,
+          mac: { primary: KeyMod.WinCtrl | KeyCode.PageUp }
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Up,
+        by: EditorScroll_.RawUnit.WrappedLine,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollPageUp = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollPageUp",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyCode.PageUp,
+          win: { primary: KeyMod.Alt | KeyCode.PageUp },
+          linux: { primary: KeyMod.Alt | KeyCode.PageUp }
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Up,
+        by: EditorScroll_.RawUnit.Page,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollEditorTop = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollEditorTop",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Up,
+        by: EditorScroll_.RawUnit.Editor,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollLineDown = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollLineDown",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
+          mac: { primary: KeyMod.WinCtrl | KeyCode.PageDown }
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Down,
+        by: EditorScroll_.RawUnit.WrappedLine,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollPageDown = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollPageDown",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyMod.CtrlCmd | KeyCode.PageDown,
+          win: { primary: KeyMod.Alt | KeyCode.PageDown },
+          linux: { primary: KeyMod.Alt | KeyCode.PageDown }
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Down,
+        by: EditorScroll_.RawUnit.Page,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollEditorBottom = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollEditorBottom",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Down,
+        by: EditorScroll_.RawUnit.Editor,
+        value: 1,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollLeft = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollLeft",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Left,
+        by: EditorScroll_.RawUnit.Column,
+        value: 2,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
+  CoreNavigationCommands2.ScrollRight = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "scrollRight",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus
+        }
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      CoreNavigationCommands2.EditorScroll.runCoreEditorCommand(viewModel, {
+        to: EditorScroll_.RawDirection.Right,
+        by: EditorScroll_.RawUnit.Column,
+        value: 2,
+        revealCursor: false,
+        select: false,
+        source: args.source
+      });
+    }
+  }());
   class WordCommand extends CoreEditorCommand {
     static {
       __name(this, "WordCommand");
@@ -1755,12 +1416,7 @@ var CoreNavigationCommands;
         args.source,
         CursorChangeReason.Explicit,
         [
-          CursorMoveCommands.word(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            this._inSelectionMode,
-            args.position
-          )
+          CursorMoveCommands.word(viewModel, viewModel.getPrimaryCursorState(), this._inSelectionMode, args.position)
         ]
       );
       if (args.revealType !== 2 /* None */) {
@@ -1768,51 +1424,40 @@ var CoreNavigationCommands;
       }
     }
   }
-  CoreNavigationCommands2.WordSelect = registerEditorCommand(
-    new WordCommand({
-      inSelectionMode: false,
-      id: "_wordSelect",
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.WordSelectDrag = registerEditorCommand(
-    new WordCommand({
-      inSelectionMode: true,
-      id: "_wordSelectDrag",
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.LastCursorWordSelect = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "lastCursorWordSelect",
-          precondition: void 0
-        });
+  CoreNavigationCommands2.WordSelect = registerEditorCommand(new WordCommand({
+    inSelectionMode: false,
+    id: "_wordSelect",
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.WordSelectDrag = registerEditorCommand(new WordCommand({
+    inSelectionMode: true,
+    id: "_wordSelectDrag",
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.LastCursorWordSelect = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "lastCursorWordSelect",
+        precondition: void 0
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      if (!args.position) {
+        return;
       }
-      runCoreEditorCommand(viewModel, args) {
-        if (!args.position) {
-          return;
-        }
-        const lastAddedCursorIndex = viewModel.getLastAddedCursorIndex();
-        const states = viewModel.getCursorStates();
-        const newStates = states.slice(0);
-        const lastAddedState = states[lastAddedCursorIndex];
-        newStates[lastAddedCursorIndex] = CursorMoveCommands.word(
-          viewModel,
-          lastAddedState,
-          lastAddedState.modelState.hasSelection(),
-          args.position
-        );
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          newStates
-        );
-      }
-    }()
-  );
+      const lastAddedCursorIndex = viewModel.getLastAddedCursorIndex();
+      const states = viewModel.getCursorStates();
+      const newStates = states.slice(0);
+      const lastAddedState = states[lastAddedCursorIndex];
+      newStates[lastAddedCursorIndex] = CursorMoveCommands.word(viewModel, lastAddedState, lastAddedState.modelState.hasSelection(), args.position);
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        newStates
+      );
+    }
+  }());
   class LineCommand extends CoreEditorCommand {
     static {
       __name(this, "LineCommand");
@@ -1831,13 +1476,7 @@ var CoreNavigationCommands;
         args.source,
         CursorChangeReason.Explicit,
         [
-          CursorMoveCommands.line(
-            viewModel,
-            viewModel.getPrimaryCursorState(),
-            this._inSelectionMode,
-            args.position,
-            args.viewPosition
-          )
+          CursorMoveCommands.line(viewModel, viewModel.getPrimaryCursorState(), this._inSelectionMode, args.position, args.viewPosition)
         ]
       );
       if (args.revealType !== 2 /* None */) {
@@ -1845,20 +1484,16 @@ var CoreNavigationCommands;
       }
     }
   }
-  CoreNavigationCommands2.LineSelect = registerEditorCommand(
-    new LineCommand({
-      inSelectionMode: false,
-      id: "_lineSelect",
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.LineSelectDrag = registerEditorCommand(
-    new LineCommand({
-      inSelectionMode: true,
-      id: "_lineSelectDrag",
-      precondition: void 0
-    })
-  );
+  CoreNavigationCommands2.LineSelect = registerEditorCommand(new LineCommand({
+    inSelectionMode: false,
+    id: "_lineSelect",
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.LineSelectDrag = registerEditorCommand(new LineCommand({
+    inSelectionMode: true,
+    id: "_lineSelectDrag",
+    precondition: void 0
+  }));
   class LastCursorLineCommand extends CoreEditorCommand {
     static {
       __name(this, "LastCursorLineCommand");
@@ -1875,13 +1510,7 @@ var CoreNavigationCommands;
       const lastAddedCursorIndex = viewModel.getLastAddedCursorIndex();
       const states = viewModel.getCursorStates();
       const newStates = states.slice(0);
-      newStates[lastAddedCursorIndex] = CursorMoveCommands.line(
-        viewModel,
-        states[lastAddedCursorIndex],
-        this._inSelectionMode,
-        args.position,
-        args.viewPosition
-      );
+      newStates[lastAddedCursorIndex] = CursorMoveCommands.line(viewModel, states[lastAddedCursorIndex], this._inSelectionMode, args.position, args.viewPosition);
       viewModel.model.pushStackElement();
       viewModel.setCursorStates(
         args.source,
@@ -1890,136 +1519,112 @@ var CoreNavigationCommands;
       );
     }
   }
-  CoreNavigationCommands2.LastCursorLineSelect = registerEditorCommand(
-    new LastCursorLineCommand({
-      inSelectionMode: false,
-      id: "lastCursorLineSelect",
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.LastCursorLineSelectDrag = registerEditorCommand(
-    new LastCursorLineCommand({
-      inSelectionMode: true,
-      id: "lastCursorLineSelectDrag",
-      precondition: void 0
-    })
-  );
-  CoreNavigationCommands2.CancelSelection = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "cancelSelection",
-          precondition: EditorContextKeys.hasNonEmptySelection,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyCode.Escape,
-            secondary: [KeyMod.Shift | KeyCode.Escape]
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          [
-            CursorMoveCommands.cancelSelection(
-              viewModel,
-              viewModel.getPrimaryCursorState()
-            )
-          ]
-        );
-        viewModel.revealAllCursors(args.source, true);
-      }
-    }()
-  );
-  CoreNavigationCommands2.RemoveSecondaryCursors = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "removeSecondaryCursors",
-          precondition: EditorContextKeys.hasMultipleSelections,
-          kbOpts: {
-            weight: CORE_WEIGHT + 1,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyCode.Escape,
-            secondary: [KeyMod.Shift | KeyCode.Escape]
-          }
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          [viewModel.getPrimaryCursorState()]
-        );
-        viewModel.revealAllCursors(args.source, true);
-        status(
-          nls.localize(
-            "removedCursor",
-            "Removed secondary cursors"
-          )
-        );
-      }
-    }()
-  );
-  CoreNavigationCommands2.RevealLine = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "revealLine",
-          precondition: void 0,
-          metadata: RevealLine_.metadata
-        });
-      }
-      runCoreEditorCommand(viewModel, args) {
-        const revealLineArg = args;
-        const lineNumberArg = revealLineArg.lineNumber || 0;
-        let lineNumber = typeof lineNumberArg === "number" ? lineNumberArg + 1 : Number.parseInt(lineNumberArg) + 1;
-        if (lineNumber < 1) {
-          lineNumber = 1;
+  CoreNavigationCommands2.LastCursorLineSelect = registerEditorCommand(new LastCursorLineCommand({
+    inSelectionMode: false,
+    id: "lastCursorLineSelect",
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.LastCursorLineSelectDrag = registerEditorCommand(new LastCursorLineCommand({
+    inSelectionMode: true,
+    id: "lastCursorLineSelectDrag",
+    precondition: void 0
+  }));
+  CoreNavigationCommands2.CancelSelection = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "cancelSelection",
+        precondition: EditorContextKeys.hasNonEmptySelection,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyCode.Escape,
+          secondary: [KeyMod.Shift | KeyCode.Escape]
         }
-        const lineCount = viewModel.model.getLineCount();
-        if (lineNumber > lineCount) {
-          lineNumber = lineCount;
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        [
+          CursorMoveCommands.cancelSelection(viewModel, viewModel.getPrimaryCursorState())
+        ]
+      );
+      viewModel.revealAllCursors(args.source, true);
+    }
+  }());
+  CoreNavigationCommands2.RemoveSecondaryCursors = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "removeSecondaryCursors",
+        precondition: EditorContextKeys.hasMultipleSelections,
+        kbOpts: {
+          weight: CORE_WEIGHT + 1,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyCode.Escape,
+          secondary: [KeyMod.Shift | KeyCode.Escape]
         }
-        const range = new Range(
-          lineNumber,
-          1,
-          lineNumber,
-          viewModel.model.getLineMaxColumn(lineNumber)
-        );
-        let revealAt = VerticalRevealType.Simple;
-        if (revealLineArg.at) {
-          switch (revealLineArg.at) {
-            case RevealLine_.RawAtArgument.Top:
-              revealAt = VerticalRevealType.Top;
-              break;
-            case RevealLine_.RawAtArgument.Center:
-              revealAt = VerticalRevealType.Center;
-              break;
-            case RevealLine_.RawAtArgument.Bottom:
-              revealAt = VerticalRevealType.Bottom;
-              break;
-            default:
-              break;
-          }
-        }
-        const viewRange = viewModel.coordinatesConverter.convertModelRangeToViewRange(
-          range
-        );
-        viewModel.revealRange(
-          args.source,
-          false,
-          viewRange,
-          revealAt,
-          ScrollType.Smooth
-        );
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        [
+          viewModel.getPrimaryCursorState()
+        ]
+      );
+      viewModel.revealAllCursors(args.source, true);
+      status(nls.localize("removedCursor", "Removed secondary cursors"));
+    }
+  }());
+  CoreNavigationCommands2.RevealLine = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "revealLine",
+        precondition: void 0,
+        metadata: RevealLine_.metadata
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      const revealLineArg = args;
+      const lineNumberArg = revealLineArg.lineNumber || 0;
+      let lineNumber = typeof lineNumberArg === "number" ? lineNumberArg + 1 : parseInt(lineNumberArg) + 1;
+      if (lineNumber < 1) {
+        lineNumber = 1;
       }
-    }()
-  );
+      const lineCount = viewModel.model.getLineCount();
+      if (lineNumber > lineCount) {
+        lineNumber = lineCount;
+      }
+      const range = new Range(
+        lineNumber,
+        1,
+        lineNumber,
+        viewModel.model.getLineMaxColumn(lineNumber)
+      );
+      let revealAt = VerticalRevealType.Simple;
+      if (revealLineArg.at) {
+        switch (revealLineArg.at) {
+          case RevealLine_.RawAtArgument.Top:
+            revealAt = VerticalRevealType.Top;
+            break;
+          case RevealLine_.RawAtArgument.Center:
+            revealAt = VerticalRevealType.Center;
+            break;
+          case RevealLine_.RawAtArgument.Bottom:
+            revealAt = VerticalRevealType.Bottom;
+            break;
+          default:
+            break;
+        }
+      }
+      const viewRange = viewModel.coordinatesConverter.convertModelRangeToViewRange(range);
+      viewModel.revealRange(args.source, false, viewRange, revealAt, ScrollType.Smooth);
+    }
+  }());
   CoreNavigationCommands2.SelectAll = new class extends EditorOrNativeTextInputCommand {
     constructor() {
       super(SelectAllCommand);
@@ -2040,35 +1645,36 @@ var CoreNavigationCommands;
     }
     runCoreEditorCommand(viewModel, args) {
       viewModel.model.pushStackElement();
-      viewModel.setCursorStates("keyboard", CursorChangeReason.Explicit, [
-        CursorMoveCommands.selectAll(
-          viewModel,
-          viewModel.getPrimaryCursorState()
-        )
-      ]);
+      viewModel.setCursorStates(
+        "keyboard",
+        CursorChangeReason.Explicit,
+        [
+          CursorMoveCommands.selectAll(viewModel, viewModel.getPrimaryCursorState())
+        ]
+      );
     }
   }();
-  CoreNavigationCommands2.SetSelection = registerEditorCommand(
-    new class extends CoreEditorCommand {
-      constructor() {
-        super({
-          id: "setSelection",
-          precondition: void 0
-        });
+  CoreNavigationCommands2.SetSelection = registerEditorCommand(new class extends CoreEditorCommand {
+    constructor() {
+      super({
+        id: "setSelection",
+        precondition: void 0
+      });
+    }
+    runCoreEditorCommand(viewModel, args) {
+      if (!args.selection) {
+        return;
       }
-      runCoreEditorCommand(viewModel, args) {
-        if (!args.selection) {
-          return;
-        }
-        viewModel.model.pushStackElement();
-        viewModel.setCursorStates(
-          args.source,
-          CursorChangeReason.Explicit,
-          [CursorState.fromModelSelection(args.selection)]
-        );
-      }
-    }()
-  );
+      viewModel.model.pushStackElement();
+      viewModel.setCursorStates(
+        args.source,
+        CursorChangeReason.Explicit,
+        [
+          CursorState.fromModelSelection(args.selection)
+        ]
+      );
+    }
+  }());
 })(CoreNavigationCommands || (CoreNavigationCommands = {}));
 const columnSelectionCondition = ContextKeyExpr.and(
   EditorContextKeys.textInputFocus,
@@ -2083,30 +1689,12 @@ function registerColumnSelection(id, keybinding) {
   });
 }
 __name(registerColumnSelection, "registerColumnSelection");
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectLeft.id,
-  KeyMod.Shift | KeyCode.LeftArrow
-);
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectRight.id,
-  KeyMod.Shift | KeyCode.RightArrow
-);
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectUp.id,
-  KeyMod.Shift | KeyCode.UpArrow
-);
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectPageUp.id,
-  KeyMod.Shift | KeyCode.PageUp
-);
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectDown.id,
-  KeyMod.Shift | KeyCode.DownArrow
-);
-registerColumnSelection(
-  CoreNavigationCommands.CursorColumnSelectPageDown.id,
-  KeyMod.Shift | KeyCode.PageDown
-);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectLeft.id, KeyMod.Shift | KeyCode.LeftArrow);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectRight.id, KeyMod.Shift | KeyCode.RightArrow);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectUp.id, KeyMod.Shift | KeyCode.UpArrow);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectPageUp.id, KeyMod.Shift | KeyCode.PageUp);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectDown.id, KeyMod.Shift | KeyCode.DownArrow);
+registerColumnSelection(CoreNavigationCommands.CursorColumnSelectPageDown.id, KeyMod.Shift | KeyCode.PageDown);
 function registerCommand(command) {
   command.register();
   return command;
@@ -2127,170 +1715,111 @@ var CoreEditingCommands;
     }
   }
   CoreEditingCommands2.CoreEditingCommand = CoreEditingCommand;
-  CoreEditingCommands2.LineBreakInsert = registerEditorCommand(
-    new class extends CoreEditingCommand {
-      constructor() {
-        super({
-          id: "lineBreakInsert",
-          precondition: EditorContextKeys.writable,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: 0,
-            mac: { primary: KeyMod.WinCtrl | KeyCode.KeyO }
-          }
-        });
-      }
-      runCoreEditingCommand(editor, viewModel, args) {
-        editor.pushUndoStop();
-        editor.executeCommands(
-          this.id,
-          EnterOperation.lineBreakInsert(
-            viewModel.cursorConfig,
-            viewModel.model,
-            viewModel.getCursorStates().map((s) => s.modelState.selection)
-          )
-        );
-      }
-    }()
-  );
-  CoreEditingCommands2.Outdent = registerEditorCommand(
-    new class extends CoreEditingCommand {
-      constructor() {
-        super({
-          id: "outdent",
-          precondition: EditorContextKeys.writable,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: ContextKeyExpr.and(
-              EditorContextKeys.editorTextFocus,
-              EditorContextKeys.tabDoesNotMoveFocus
-            ),
-            primary: KeyMod.Shift | KeyCode.Tab
-          }
-        });
-      }
-      runCoreEditingCommand(editor, viewModel, args) {
-        editor.pushUndoStop();
-        editor.executeCommands(
-          this.id,
-          TypeOperations.outdent(
-            viewModel.cursorConfig,
-            viewModel.model,
-            viewModel.getCursorStates().map((s) => s.modelState.selection)
-          )
-        );
-        editor.pushUndoStop();
-      }
-    }()
-  );
-  CoreEditingCommands2.Tab = registerEditorCommand(
-    new class extends CoreEditingCommand {
-      constructor() {
-        super({
-          id: "tab",
-          precondition: EditorContextKeys.writable,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: ContextKeyExpr.and(
-              EditorContextKeys.editorTextFocus,
-              EditorContextKeys.tabDoesNotMoveFocus
-            ),
-            primary: KeyCode.Tab
-          }
-        });
-      }
-      runCoreEditingCommand(editor, viewModel, args) {
-        editor.pushUndoStop();
-        editor.executeCommands(
-          this.id,
-          TypeOperations.tab(
-            viewModel.cursorConfig,
-            viewModel.model,
-            viewModel.getCursorStates().map((s) => s.modelState.selection)
-          )
-        );
-        editor.pushUndoStop();
-      }
-    }()
-  );
-  CoreEditingCommands2.DeleteLeft = registerEditorCommand(
-    new class extends CoreEditingCommand {
-      constructor() {
-        super({
-          id: "deleteLeft",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyCode.Backspace,
-            secondary: [KeyMod.Shift | KeyCode.Backspace],
-            mac: {
-              primary: KeyCode.Backspace,
-              secondary: [
-                KeyMod.Shift | KeyCode.Backspace,
-                KeyMod.WinCtrl | KeyCode.KeyH,
-                KeyMod.WinCtrl | KeyCode.Backspace
-              ]
-            }
-          }
-        });
-      }
-      runCoreEditingCommand(editor, viewModel, args) {
-        const [shouldPushStackElementBefore, commands] = DeleteOperations.deleteLeft(
-          viewModel.getPrevEditOperationType(),
-          viewModel.cursorConfig,
-          viewModel.model,
-          viewModel.getCursorStates().map((s) => s.modelState.selection),
-          viewModel.getCursorAutoClosedCharacters()
-        );
-        if (shouldPushStackElementBefore) {
-          editor.pushUndoStop();
+  CoreEditingCommands2.LineBreakInsert = registerEditorCommand(new class extends CoreEditingCommand {
+    constructor() {
+      super({
+        id: "lineBreakInsert",
+        precondition: EditorContextKeys.writable,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: 0,
+          mac: { primary: KeyMod.WinCtrl | KeyCode.KeyO }
         }
-        editor.executeCommands(this.id, commands);
-        viewModel.setPrevEditOperationType(
-          EditOperationType.DeletingLeft
-        );
-      }
-    }()
-  );
-  CoreEditingCommands2.DeleteRight = registerEditorCommand(
-    new class extends CoreEditingCommand {
-      constructor() {
-        super({
-          id: "deleteRight",
-          precondition: void 0,
-          kbOpts: {
-            weight: CORE_WEIGHT,
-            kbExpr: EditorContextKeys.textInputFocus,
-            primary: KeyCode.Delete,
-            mac: {
-              primary: KeyCode.Delete,
-              secondary: [
-                KeyMod.WinCtrl | KeyCode.KeyD,
-                KeyMod.WinCtrl | KeyCode.Delete
-              ]
-            }
-          }
-        });
-      }
-      runCoreEditingCommand(editor, viewModel, args) {
-        const [shouldPushStackElementBefore, commands] = DeleteOperations.deleteRight(
-          viewModel.getPrevEditOperationType(),
-          viewModel.cursorConfig,
-          viewModel.model,
-          viewModel.getCursorStates().map((s) => s.modelState.selection)
-        );
-        if (shouldPushStackElementBefore) {
-          editor.pushUndoStop();
+      });
+    }
+    runCoreEditingCommand(editor, viewModel, args) {
+      editor.pushUndoStop();
+      editor.executeCommands(this.id, EnterOperation.lineBreakInsert(viewModel.cursorConfig, viewModel.model, viewModel.getCursorStates().map((s) => s.modelState.selection)));
+    }
+  }());
+  CoreEditingCommands2.Outdent = registerEditorCommand(new class extends CoreEditingCommand {
+    constructor() {
+      super({
+        id: "outdent",
+        precondition: EditorContextKeys.writable,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: ContextKeyExpr.and(
+            EditorContextKeys.editorTextFocus,
+            EditorContextKeys.tabDoesNotMoveFocus
+          ),
+          primary: KeyMod.Shift | KeyCode.Tab
         }
-        editor.executeCommands(this.id, commands);
-        viewModel.setPrevEditOperationType(
-          EditOperationType.DeletingRight
-        );
+      });
+    }
+    runCoreEditingCommand(editor, viewModel, args) {
+      editor.pushUndoStop();
+      editor.executeCommands(this.id, TypeOperations.outdent(viewModel.cursorConfig, viewModel.model, viewModel.getCursorStates().map((s) => s.modelState.selection)));
+      editor.pushUndoStop();
+    }
+  }());
+  CoreEditingCommands2.Tab = registerEditorCommand(new class extends CoreEditingCommand {
+    constructor() {
+      super({
+        id: "tab",
+        precondition: EditorContextKeys.writable,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: ContextKeyExpr.and(
+            EditorContextKeys.editorTextFocus,
+            EditorContextKeys.tabDoesNotMoveFocus
+          ),
+          primary: KeyCode.Tab
+        }
+      });
+    }
+    runCoreEditingCommand(editor, viewModel, args) {
+      editor.pushUndoStop();
+      editor.executeCommands(this.id, TypeOperations.tab(viewModel.cursorConfig, viewModel.model, viewModel.getCursorStates().map((s) => s.modelState.selection)));
+      editor.pushUndoStop();
+    }
+  }());
+  CoreEditingCommands2.DeleteLeft = registerEditorCommand(new class extends CoreEditingCommand {
+    constructor() {
+      super({
+        id: "deleteLeft",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyCode.Backspace,
+          secondary: [KeyMod.Shift | KeyCode.Backspace],
+          mac: { primary: KeyCode.Backspace, secondary: [KeyMod.Shift | KeyCode.Backspace, KeyMod.WinCtrl | KeyCode.KeyH, KeyMod.WinCtrl | KeyCode.Backspace] }
+        }
+      });
+    }
+    runCoreEditingCommand(editor, viewModel, args) {
+      const [shouldPushStackElementBefore, commands] = DeleteOperations.deleteLeft(viewModel.getPrevEditOperationType(), viewModel.cursorConfig, viewModel.model, viewModel.getCursorStates().map((s) => s.modelState.selection), viewModel.getCursorAutoClosedCharacters());
+      if (shouldPushStackElementBefore) {
+        editor.pushUndoStop();
       }
-    }()
-  );
+      editor.executeCommands(this.id, commands);
+      viewModel.setPrevEditOperationType(EditOperationType.DeletingLeft);
+    }
+  }());
+  CoreEditingCommands2.DeleteRight = registerEditorCommand(new class extends CoreEditingCommand {
+    constructor() {
+      super({
+        id: "deleteRight",
+        precondition: void 0,
+        kbOpts: {
+          weight: CORE_WEIGHT,
+          kbExpr: EditorContextKeys.textInputFocus,
+          primary: KeyCode.Delete,
+          mac: { primary: KeyCode.Delete, secondary: [KeyMod.WinCtrl | KeyCode.KeyD, KeyMod.WinCtrl | KeyCode.Delete] }
+        }
+      });
+    }
+    runCoreEditingCommand(editor, viewModel, args) {
+      const [shouldPushStackElementBefore, commands] = DeleteOperations.deleteRight(viewModel.getPrevEditOperationType(), viewModel.cursorConfig, viewModel.model, viewModel.getCursorStates().map((s) => s.modelState.selection));
+      if (shouldPushStackElementBefore) {
+        editor.pushUndoStop();
+      }
+      editor.executeCommands(this.id, commands);
+      viewModel.setPrevEditOperationType(EditOperationType.DeletingRight);
+    }
+  }());
   CoreEditingCommands2.Undo = new class extends EditorOrNativeTextInputCommand {
     constructor() {
       super(UndoCommand);
@@ -2342,28 +1871,24 @@ class EditorHandlerCommand extends Command {
   }
 }
 function registerOverwritableCommand(handlerId, metadata) {
-  registerCommand(
-    new EditorHandlerCommand("default:" + handlerId, handlerId)
-  );
+  registerCommand(new EditorHandlerCommand("default:" + handlerId, handlerId));
   registerCommand(new EditorHandlerCommand(handlerId, handlerId, metadata));
 }
 __name(registerOverwritableCommand, "registerOverwritableCommand");
 registerOverwritableCommand(Handler.Type, {
   description: `Type`,
-  args: [
-    {
-      name: "args",
-      schema: {
-        type: "object",
-        required: ["text"],
-        properties: {
-          text: {
-            type: "string"
-          }
+  args: [{
+    name: "args",
+    schema: {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": {
+          "type": "string"
         }
       }
     }
-  ]
+  }]
 });
 registerOverwritableCommand(Handler.ReplacePreviousChar);
 registerOverwritableCommand(Handler.CompositionType);

@@ -11,11 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Barrier } from "../../../../base/common/async.js";
-import {
-  ITerminalLogService
-} from "../../../../platform/terminal/common/terminal.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IProcessPropertyMap, ITerminalChildProcess, ITerminalLaunchError, ITerminalLogService, ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
 import { BasePty } from "../common/basePty.js";
+import { RemoteTerminalChannelClient } from "../common/remote/remoteTerminalChannel.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 let RemotePty = class extends BasePty {
   constructor(id, shouldPersist, _remoteTerminalChannel, _remoteAgentService, _logService) {
     super(id, shouldPersist);
@@ -33,9 +32,7 @@ let RemotePty = class extends BasePty {
     if (!env) {
       throw new Error("Could not fetch remote environment");
     }
-    this._logService.trace("Spawning remote agent process", {
-      terminalId: this.id
-    });
+    this._logService.trace("Spawning remote agent process", { terminalId: this.id });
     const startResult = await this._remoteTerminalChannel.start(this.id);
     if (startResult && "message" in startResult) {
       return startResult;
@@ -45,10 +42,7 @@ let RemotePty = class extends BasePty {
   }
   async detach(forcePersist) {
     await this._startBarrier.wait();
-    return this._remoteTerminalChannel.detachFromProcess(
-      this.id,
-      forcePersist
-    );
+    return this._remoteTerminalChannel.detachFromProcess(this.id, forcePersist);
   }
   shutdown(immediate) {
     this._startBarrier.wait().then((_) => {
@@ -81,9 +75,7 @@ let RemotePty = class extends BasePty {
   }
   freePortKillProcess(port) {
     if (!this._remoteTerminalChannel.freePortKillProcess) {
-      throw new Error(
-        "freePortKillProcess does not exist on the local pty service"
-      );
+      throw new Error("freePortKillProcess does not exist on the local pty service");
     }
     return this._remoteTerminalChannel.freePortKillProcess(port);
   }
@@ -92,10 +84,7 @@ let RemotePty = class extends BasePty {
       return;
     }
     this._startBarrier.wait().then((_) => {
-      this._remoteTerminalChannel.acknowledgeDataEvent(
-        this.id,
-        charCount
-      );
+      this._remoteTerminalChannel.acknowledgeDataEvent(this.id, charCount);
     });
   }
   async setUnicodeVersion(version) {

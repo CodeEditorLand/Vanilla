@@ -10,98 +10,74 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { insertInto } from "../../../../base/common/arrays.js";
-import {
-  DisposableStore,
-  combinedDisposable
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { combinedDisposable, IDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import * as resources from "../../../../base/common/resources.js";
 import { isFalsyOrWhitespace } from "../../../../base/common/strings.js";
-import { isStringArray } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
 import { setSnippetSuggestSupport } from "../../../../editor/contrib/suggest/browser/suggest.js";
 import { localize } from "../../../../nls.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
-import {
-  FileChangeType,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { FileChangeType, IFileService } from "../../../../platform/files/common/files.js";
+import { ILifecycleService, LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  ExtensionsRegistry
-} from "../../../services/extensions/common/extensionsRegistry.js";
+import { IWorkspace, IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ISnippetGetOptions, ISnippetsService } from "./snippets.js";
+import { Snippet, SnippetFile, SnippetSource } from "./snippetsFile.js";
+import { ExtensionsRegistry, IExtensionPointUser } from "../../../services/extensions/common/extensionsRegistry.js";
 import { languagesExtPoint } from "../../../services/language/common/languageService.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../../services/lifecycle/common/lifecycle.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { SnippetCompletionProvider } from "./snippetCompletionProvider.js";
-import { SnippetFile, SnippetSource } from "./snippetsFile.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { isStringArray } from "../../../../base/common/types.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { insertInto } from "../../../../base/common/arrays.js";
 var snippetExt;
 ((snippetExt2) => {
   function toValidSnippet(extension, snippet, languageService) {
     if (isFalsyOrWhitespace(snippet.path)) {
-      extension.collector.error(
-        localize(
-          "invalid.path.0",
-          "Expected string in `contributes.{0}.path`. Provided value: {1}",
-          extension.description.name,
-          String(snippet.path)
-        )
-      );
+      extension.collector.error(localize(
+        "invalid.path.0",
+        "Expected string in `contributes.{0}.path`. Provided value: {1}",
+        extension.description.name,
+        String(snippet.path)
+      ));
       return null;
     }
     if (isFalsyOrWhitespace(snippet.language) && !snippet.path.endsWith(".code-snippets")) {
-      extension.collector.error(
-        localize(
-          "invalid.language.0",
-          "When omitting the language, the value of `contributes.{0}.path` must be a `.code-snippets`-file. Provided value: {1}",
-          extension.description.name,
-          String(snippet.path)
-        )
-      );
+      extension.collector.error(localize(
+        "invalid.language.0",
+        "When omitting the language, the value of `contributes.{0}.path` must be a `.code-snippets`-file. Provided value: {1}",
+        extension.description.name,
+        String(snippet.path)
+      ));
       return null;
     }
     if (!isFalsyOrWhitespace(snippet.language) && !languageService.isRegisteredLanguageId(snippet.language)) {
-      extension.collector.error(
-        localize(
-          "invalid.language",
-          "Unknown language in `contributes.{0}.language`. Provided value: {1}",
-          extension.description.name,
-          String(snippet.language)
-        )
-      );
+      extension.collector.error(localize(
+        "invalid.language",
+        "Unknown language in `contributes.{0}.language`. Provided value: {1}",
+        extension.description.name,
+        String(snippet.language)
+      ));
       return null;
     }
     const extensionLocation = extension.description.extensionLocation;
-    const snippetLocation = resources.joinPath(
-      extensionLocation,
-      snippet.path
-    );
+    const snippetLocation = resources.joinPath(extensionLocation, snippet.path);
     if (!resources.isEqualOrParent(snippetLocation, extensionLocation)) {
-      extension.collector.error(
-        localize(
-          "invalid.path.1",
-          "Expected `contributes.{0}.path` ({1}) to be included inside extension's folder ({2}). This might make the extension non-portable.",
-          extension.description.name,
-          snippetLocation.path,
-          extensionLocation.path
-        )
-      );
+      extension.collector.error(localize(
+        "invalid.path.1",
+        "Expected `contributes.{0}.path` ({1}) to be included inside extension's folder ({2}). This might make the extension non-portable.",
+        extension.description.name,
+        snippetLocation.path,
+        extensionLocation.path
+      ));
       return null;
     }
     return {
@@ -112,35 +88,19 @@ var snippetExt;
   snippetExt2.toValidSnippet = toValidSnippet;
   __name(toValidSnippet, "toValidSnippet");
   snippetExt2.snippetsContribution = {
-    description: localize(
-      "vscode.extension.contributes.snippets",
-      "Contributes snippets."
-    ),
+    description: localize("vscode.extension.contributes.snippets", "Contributes snippets."),
     type: "array",
     defaultSnippets: [{ body: [{ language: "", path: "" }] }],
     items: {
       type: "object",
-      defaultSnippets: [
-        {
-          body: {
-            language: "${1:id}",
-            path: "./snippets/${2:id}.json."
-          }
-        }
-      ],
+      defaultSnippets: [{ body: { language: "${1:id}", path: "./snippets/${2:id}.json." } }],
       properties: {
         language: {
-          description: localize(
-            "vscode.extension.contributes.snippets-language",
-            "Language identifier for which this snippet is contributed to."
-          ),
+          description: localize("vscode.extension.contributes.snippets-language", "Language identifier for which this snippet is contributed to."),
           type: "string"
         },
         path: {
-          description: localize(
-            "vscode.extension.contributes.snippets-path",
-            "Path of the snippets file. The path is relative to the extension folder and typically starts with './snippets/'."
-          ),
+          description: localize("vscode.extension.contributes.snippets-path", "Path of the snippets file. The path is relative to the extension folder and typically starts with './snippets/'."),
           type: "string"
         }
       }
@@ -166,11 +126,7 @@ __name(watch, "watch");
 let SnippetEnablement = class {
   constructor(_storageService) {
     this._storageService = _storageService;
-    const raw = _storageService.get(
-      SnippetEnablement._key,
-      StorageScope.PROFILE,
-      ""
-    );
+    const raw = _storageService.get(SnippetEnablement._key, StorageScope.PROFILE, "");
     let data;
     try {
       data = JSON.parse(raw);
@@ -196,12 +152,7 @@ let SnippetEnablement = class {
       changed = true;
     }
     if (changed) {
-      this._storageService.store(
-        SnippetEnablement._key,
-        JSON.stringify(Array.from(this._ignored)),
-        StorageScope.PROFILE,
-        StorageTarget.USER
-      );
+      this._storageService.store(SnippetEnablement._key, JSON.stringify(Array.from(this._ignored)), StorageScope.PROFILE, StorageTarget.USER);
     }
   }
 };
@@ -211,11 +162,7 @@ SnippetEnablement = __decorateClass([
 let SnippetUsageTimestamps = class {
   constructor(_storageService) {
     this._storageService = _storageService;
-    const raw = _storageService.get(
-      SnippetUsageTimestamps._key,
-      StorageScope.PROFILE,
-      ""
-    );
+    const raw = _storageService.get(SnippetUsageTimestamps._key, StorageScope.PROFILE, "");
     let data;
     try {
       data = JSON.parse(raw);
@@ -236,12 +183,7 @@ let SnippetUsageTimestamps = class {
     this._usages.delete(id);
     this._usages.set(id, Date.now());
     const all = [...this._usages].slice(-100);
-    this._storageService.store(
-      SnippetUsageTimestamps._key,
-      JSON.stringify(all),
-      StorageScope.PROFILE,
-      StorageTarget.USER
-    );
+    this._storageService.store(SnippetUsageTimestamps._key, JSON.stringify(all), StorageScope.PROFILE, StorageTarget.USER);
   }
 };
 SnippetUsageTimestamps = __decorateClass([
@@ -257,26 +199,14 @@ let SnippetsService = class {
     this._fileService = _fileService;
     this._textfileService = _textfileService;
     this._extensionResourceLoaderService = _extensionResourceLoaderService;
-    this._pendingWork.push(
-      Promise.resolve(
-        lifecycleService.when(LifecyclePhase.Restored).then(() => {
-          this._initExtensionSnippets();
-          this._initUserSnippets();
-          this._initWorkspaceSnippets();
-        })
-      )
-    );
-    setSnippetSuggestSupport(
-      new SnippetCompletionProvider(
-        this._languageService,
-        this,
-        languageConfigurationService
-      )
-    );
+    this._pendingWork.push(Promise.resolve(lifecycleService.when(LifecyclePhase.Restored).then(() => {
+      this._initExtensionSnippets();
+      this._initUserSnippets();
+      this._initWorkspaceSnippets();
+    })));
+    setSnippetSuggestSupport(new SnippetCompletionProvider(this._languageService, this, languageConfigurationService));
     this._enablement = instantiationService.createInstance(SnippetEnablement);
-    this._usageTimestamps = instantiationService.createInstance(
-      SnippetUsageTimestamps
-    );
+    this._usageTimestamps = instantiationService.createInstance(SnippetUsageTimestamps);
   }
   static {
     __name(this, "SnippetsService");
@@ -315,26 +245,14 @@ let SnippetsService = class {
       if (this._languageService.isRegisteredLanguageId(languageId)) {
         for (const file of this._files.values()) {
           promises.push(
-            file.load().then((file2) => file2.select(languageId, result)).catch(
-              (err) => this._logService.error(
-                err,
-                file.location.toString()
-              )
-            )
+            file.load().then((file2) => file2.select(languageId, result)).catch((err) => this._logService.error(err, file.location.toString()))
           );
         }
       }
     } else {
       for (const file of this._files.values()) {
         promises.push(
-          file.load().then(
-            (file2) => insertInto(result, result.length, file2.data)
-          ).catch(
-            (err) => this._logService.error(
-              err,
-              file.location.toString()
-            )
-          )
+          file.load().then((file2) => insertInto(result, result.length, file2.data)).catch((err) => this._logService.error(err, file.location.toString()))
         );
       }
     }
@@ -369,12 +287,8 @@ let SnippetsService = class {
     return result.sort((a, b) => {
       let result2 = 0;
       if (!opts?.noRecencySort) {
-        const val1 = this._usageTimestamps.getUsageTimestamp(
-          a.snippetIdentifier
-        ) ?? -1;
-        const val2 = this._usageTimestamps.getUsageTimestamp(
-          b.snippetIdentifier
-        ) ?? -1;
+        const val1 = this._usageTimestamps.getUsageTimestamp(a.snippetIdentifier) ?? -1;
+        const val2 = this._usageTimestamps.getUsageTimestamp(b.snippetIdentifier) ?? -1;
         result2 = val2 - val1;
       }
       if (result2 === 0) {
@@ -410,11 +324,7 @@ let SnippetsService = class {
       }
       for (const extension of extensions) {
         for (const contribution of extension.value) {
-          const validContribution = snippetExt.toValidSnippet(
-            extension,
-            contribution,
-            this._languageService
-          );
+          const validContribution = snippetExt.toValidSnippet(extension, contribution, this._languageService);
           if (!validContribution) {
             continue;
           }
@@ -426,40 +336,24 @@ let SnippetsService = class {
               file.defaultScopes = [];
             }
           } else {
-            const file2 = new SnippetFile(
-              SnippetSource.Extension,
-              validContribution.location,
-              validContribution.language ? [validContribution.language] : void 0,
-              extension.description,
-              this._fileService,
-              this._extensionResourceLoaderService
-            );
+            const file2 = new SnippetFile(SnippetSource.Extension, validContribution.location, validContribution.language ? [validContribution.language] : void 0, extension.description, this._fileService, this._extensionResourceLoaderService);
             this._files.set(file2.location, file2);
             if (this._environmentService.isExtensionDevelopment) {
-              file2.load().then(
-                (file3) => {
-                  if (file3.data.some(
-                    (snippet) => snippet.isBogous
-                  )) {
-                    extension.collector.warn(
-                      localize(
-                        "badVariableUse",
-                        "One or more snippets from the extension '{0}' very likely confuse snippet-variables and snippet-placeholders (see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax for more details)",
-                        extension.description.name
-                      )
-                    );
-                  }
-                },
-                (err) => {
-                  extension.collector.warn(
-                    localize(
-                      "badFile",
-                      'The snippet file "{0}" could not be read.',
-                      file2.location.toString()
-                    )
-                  );
+              file2.load().then((file3) => {
+                if (file3.data.some((snippet) => snippet.isBogous)) {
+                  extension.collector.warn(localize(
+                    "badVariableUse",
+                    "One or more snippets from the extension '{0}' very likely confuse snippet-variables and snippet-placeholders (see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax for more details)",
+                    extension.description.name
+                  ));
                 }
-              );
+              }, (err) => {
+                extension.collector.warn(localize(
+                  "badFile",
+                  'The snippet file "{0}" could not be read.',
+                  file2.location.toString()
+                ));
+              });
             }
           }
         }
@@ -470,24 +364,11 @@ let SnippetsService = class {
     const disposables = new DisposableStore();
     const updateWorkspaceSnippets = /* @__PURE__ */ __name(() => {
       disposables.clear();
-      this._pendingWork.push(
-        this._initWorkspaceFolderSnippets(
-          this._contextService.getWorkspace(),
-          disposables
-        )
-      );
+      this._pendingWork.push(this._initWorkspaceFolderSnippets(this._contextService.getWorkspace(), disposables));
     }, "updateWorkspaceSnippets");
     this._disposables.add(disposables);
-    this._disposables.add(
-      this._contextService.onDidChangeWorkspaceFolders(
-        updateWorkspaceSnippets
-      )
-    );
-    this._disposables.add(
-      this._contextService.onDidChangeWorkbenchState(
-        updateWorkspaceSnippets
-      )
-    );
+    this._disposables.add(this._contextService.onDidChangeWorkspaceFolders(updateWorkspaceSnippets));
+    this._disposables.add(this._contextService.onDidChangeWorkbenchState(updateWorkspaceSnippets));
     updateWorkspaceSnippets();
   }
   async _initWorkspaceFolderSnippets(workspace, bucket) {
@@ -495,23 +376,13 @@ let SnippetsService = class {
       const snippetFolder = folder.toResource(".vscode");
       const value = await this._fileService.exists(snippetFolder);
       if (value) {
-        this._initFolderSnippets(
-          SnippetSource.Workspace,
-          snippetFolder,
-          bucket
-        );
+        this._initFolderSnippets(SnippetSource.Workspace, snippetFolder, bucket);
       } else {
-        bucket.add(
-          this._fileService.onDidFilesChange((e) => {
-            if (e.contains(snippetFolder, FileChangeType.ADDED)) {
-              this._initFolderSnippets(
-                SnippetSource.Workspace,
-                snippetFolder,
-                bucket
-              );
-            }
-          })
-        );
+        bucket.add(this._fileService.onDidFilesChange((e) => {
+          if (e.contains(snippetFolder, FileChangeType.ADDED)) {
+            this._initFolderSnippets(SnippetSource.Workspace, snippetFolder, bucket);
+          }
+        }));
       }
     });
     await Promise.all(promises);
@@ -522,22 +393,12 @@ let SnippetsService = class {
       disposables.clear();
       const userSnippetsFolder = this._userDataProfileService.currentProfile.snippetsHome;
       await this._fileService.createFolder(userSnippetsFolder);
-      await this._initFolderSnippets(
-        SnippetSource.User,
-        userSnippetsFolder,
-        disposables
-      );
+      await this._initFolderSnippets(SnippetSource.User, userSnippetsFolder, disposables);
     }, "updateUserSnippets");
     this._disposables.add(disposables);
-    this._disposables.add(
-      this._userDataProfileService.onDidChangeCurrentProfile(
-        (e) => e.join(
-          (async () => {
-            this._pendingWork.push(updateUserSnippets());
-          })()
-        )
-      )
-    );
+    this._disposables.add(this._userDataProfileService.onDidChangeCurrentProfile((e) => e.join((async () => {
+      this._pendingWork.push(updateUserSnippets());
+    })())));
     await updateUserSnippets();
   }
   _initFolderSnippets(source, folder, bucket) {
@@ -550,24 +411,17 @@ let SnippetsService = class {
       try {
         const stat = await this._fileService.resolve(folder);
         for (const entry of stat.children || []) {
-          disposables.add(
-            this._addSnippetFile(entry.resource, source)
-          );
+          disposables.add(this._addSnippetFile(entry.resource, source));
         }
       } catch (err) {
-        this._logService.error(
-          `Failed snippets from folder '${folder.toString()}'`,
-          err
-        );
+        this._logService.error(`Failed snippets from folder '${folder.toString()}'`, err);
       }
     }, "addFolderSnippets");
-    bucket.add(
-      this._textfileService.files.onDidSave((e) => {
-        if (resources.isEqualOrParent(e.model.resource, folder)) {
-          addFolderSnippets();
-        }
-      })
-    );
+    bucket.add(this._textfileService.files.onDidSave((e) => {
+      if (resources.isEqualOrParent(e.model.resource, folder)) {
+        addFolderSnippets();
+      }
+    }));
     bucket.add(watch(this._fileService, folder, addFolderSnippets));
     bucket.add(disposables);
     return addFolderSnippets();
@@ -576,29 +430,9 @@ let SnippetsService = class {
     const ext = resources.extname(uri);
     if (source === SnippetSource.User && ext === ".json") {
       const langName = resources.basename(uri).replace(/\.json/, "");
-      this._files.set(
-        uri,
-        new SnippetFile(
-          source,
-          uri,
-          [langName],
-          void 0,
-          this._fileService,
-          this._extensionResourceLoaderService
-        )
-      );
+      this._files.set(uri, new SnippetFile(source, uri, [langName], void 0, this._fileService, this._extensionResourceLoaderService));
     } else if (ext === ".code-snippets") {
-      this._files.set(
-        uri,
-        new SnippetFile(
-          source,
-          uri,
-          void 0,
-          void 0,
-          this._fileService,
-          this._extensionResourceLoaderService
-        )
-      );
+      this._files.set(uri, new SnippetFile(source, uri, void 0, void 0, this._fileService, this._extensionResourceLoaderService));
     }
     return {
       dispose: /* @__PURE__ */ __name(() => this._files.delete(uri), "dispose")

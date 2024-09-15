@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Iterable } from "../../../common/iterator.js";
-import { AbstractTree } from "./abstractTree.js";
+import { IListVirtualDelegate } from "../list/list.js";
+import { AbstractTree, IAbstractTreeOptions } from "./abstractTree.js";
 import { IndexTreeModel } from "./indexTreeModel.js";
-import {
-  TreeError
-} from "./tree.js";
+import { ITreeElement, ITreeModel, ITreeRenderer, TreeError } from "./tree.js";
+import { Iterable } from "../../../common/iterator.js";
 import "./media/tree.css";
 class IndexTree extends AbstractTree {
   constructor(user, container, delegate, renderers, rootElement, options = {}) {
@@ -28,10 +27,7 @@ class IndexTree extends AbstractTree {
   }
   updateElementHeight(location, height) {
     if (location.length === 0) {
-      throw new TreeError(
-        this.user,
-        `Update element height failed: invalid location`
-      );
+      throw new TreeError(this.user, `Update element height failed: invalid location`);
     }
     const elementIndex = this.model.getListIndex(location);
     if (elementIndex === -1) {

@@ -10,26 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { distinct, equals } from "../../../../base/common/arrays.js";
-import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { localize } from "../../../../nls.js";
 import { EXTENSION_IDENTIFIER_PATTERN } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  FileChangeType,
-  IFileService
-} from "../../../../platform/files/common/files.js";
+import { distinct, equals } from "../../../../base/common/arrays.js";
+import { ExtensionRecommendations, ExtensionRecommendation } from "./extensionRecommendations.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchExtensionManagementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import {
-  IWorkspaceExtensionsConfigService
-} from "../../../services/extensionRecommendations/common/workspaceExtensionsConfig.js";
-import {
-  ExtensionRecommendations
-} from "./extensionRecommendations.js";
+import { localize } from "../../../../nls.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IExtensionsConfigContent, IWorkspaceExtensionsConfigService } from "../../../services/extensionRecommendations/common/workspaceExtensionsConfig.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { FileChangeType, IFileService } from "../../../../platform/files/common/files.js";
+import { URI } from "../../../../base/common/uri.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { IWorkbenchExtensionManagementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 const WORKSPACE_EXTENSIONS_FOLDER = ".vscode/extensions";
 let WorkspaceRecommendations = class extends ExtensionRecommendations {
   constructor(workspaceExtensionsConfigService, contextService, uriIdentityService, fileService, workbenchExtensionManagementService, notificationService) {
@@ -40,12 +34,7 @@ let WorkspaceRecommendations = class extends ExtensionRecommendations {
     this.fileService = fileService;
     this.workbenchExtensionManagementService = workbenchExtensionManagementService;
     this.notificationService = notificationService;
-    this.onDidChangeWorkspaceExtensionsScheduler = this._register(
-      new RunOnceScheduler(
-        () => this.onDidChangeWorkspaceExtensionsFolders(),
-        1e3
-      )
-    );
+    this.onDidChangeWorkspaceExtensionsScheduler = this._register(new RunOnceScheduler(() => this.onDidChangeWorkspaceExtensionsFolders(), 1e3));
   }
   static {
     __name(this, "WorkspaceRecommendations");
@@ -65,61 +54,28 @@ let WorkspaceRecommendations = class extends ExtensionRecommendations {
   async doActivate() {
     this.workspaceExtensions = await this.fetchWorkspaceExtensions();
     await this.fetch();
-    this._register(
-      this.workspaceExtensionsConfigService.onDidChangeExtensionsConfigs(
-        () => this.onDidChangeExtensionsConfigs()
-      )
-    );
+    this._register(this.workspaceExtensionsConfigService.onDidChangeExtensionsConfigs(() => this.onDidChangeExtensionsConfigs()));
     for (const folder of this.contextService.getWorkspace().folders) {
-      this._register(
-        this.fileService.watch(
-          this.uriIdentityService.extUri.joinPath(
-            folder.uri,
-            WORKSPACE_EXTENSIONS_FOLDER
-          )
-        )
-      );
+      this._register(this.fileService.watch(this.uriIdentityService.extUri.joinPath(folder.uri, WORKSPACE_EXTENSIONS_FOLDER)));
     }
-    this._register(
-      this.contextService.onDidChangeWorkspaceFolders(
-        () => this.onDidChangeWorkspaceExtensionsScheduler.schedule()
-      )
-    );
-    this._register(
-      this.fileService.onDidFilesChange((e) => {
-        if (this.contextService.getWorkspace().folders.some(
-          (folder) => e.affects(
-            this.uriIdentityService.extUri.joinPath(
-              folder.uri,
-              WORKSPACE_EXTENSIONS_FOLDER
-            ),
-            FileChangeType.ADDED,
-            FileChangeType.DELETED
-          )
-        )) {
-          this.onDidChangeWorkspaceExtensionsScheduler.schedule();
-        }
-      })
-    );
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.onDidChangeWorkspaceExtensionsScheduler.schedule()));
+    this._register(this.fileService.onDidFilesChange((e) => {
+      if (this.contextService.getWorkspace().folders.some((folder) => e.affects(this.uriIdentityService.extUri.joinPath(folder.uri, WORKSPACE_EXTENSIONS_FOLDER), FileChangeType.ADDED, FileChangeType.DELETED))) {
+        this.onDidChangeWorkspaceExtensionsScheduler.schedule();
+      }
+    }));
   }
   async onDidChangeWorkspaceExtensionsFolders() {
     const existing = this.workspaceExtensions;
     this.workspaceExtensions = await this.fetchWorkspaceExtensions();
-    if (!equals(
-      existing,
-      this.workspaceExtensions,
-      (a, b) => this.uriIdentityService.extUri.isEqual(a, b)
-    )) {
+    if (!equals(existing, this.workspaceExtensions, (a, b) => this.uriIdentityService.extUri.isEqual(a, b))) {
       this.onDidChangeExtensionsConfigs();
     }
   }
   async fetchWorkspaceExtensions() {
     const workspaceExtensions = [];
     for (const workspaceFolder of this.contextService.getWorkspace().folders) {
-      const extensionsLocaiton = this.uriIdentityService.extUri.joinPath(
-        workspaceFolder.uri,
-        WORKSPACE_EXTENSIONS_FOLDER
-      );
+      const extensionsLocaiton = this.uriIdentityService.extUri.joinPath(workspaceFolder.uri, WORKSPACE_EXTENSIONS_FOLDER);
       try {
         const stat = await this.fileService.resolve(extensionsLocaiton);
         for (const extension of stat.children ?? []) {
@@ -132,9 +88,7 @@ let WorkspaceRecommendations = class extends ExtensionRecommendations {
       }
     }
     if (workspaceExtensions.length) {
-      const resourceExtensions = await this.workbenchExtensionManagementService.getExtensions(
-        workspaceExtensions
-      );
+      const resourceExtensions = await this.workbenchExtensionManagementService.getExtensions(workspaceExtensions);
       return resourceExtensions.map((extension) => extension.location);
     }
     return [];
@@ -146,22 +100,16 @@ let WorkspaceRecommendations = class extends ExtensionRecommendations {
     const extensionsConfigs = await this.workspaceExtensionsConfigService.getExtensionsConfigs();
     const { invalidRecommendations, message } = await this.validateExtensions(extensionsConfigs);
     if (invalidRecommendations.length) {
-      this.notificationService.warn(
-        `The ${invalidRecommendations.length} extension(s) below, in workspace recommendations have issues:
-${message}`
-      );
+      this.notificationService.warn(`The ${invalidRecommendations.length} extension(s) below, in workspace recommendations have issues:
+${message}`);
     }
     this._recommendations = [];
     this._ignoredRecommendations = [];
     for (const extensionsConfig of extensionsConfigs) {
       if (extensionsConfig.unwantedRecommendations) {
         for (const unwantedRecommendation of extensionsConfig.unwantedRecommendations) {
-          if (invalidRecommendations.indexOf(
-            unwantedRecommendation
-          ) === -1) {
-            this._ignoredRecommendations.push(
-              unwantedRecommendation
-            );
+          if (invalidRecommendations.indexOf(unwantedRecommendation) === -1) {
+            this._ignoredRecommendations.push(unwantedRecommendation);
           }
         }
       }
@@ -172,10 +120,7 @@ ${message}`
               extension: extensionId,
               reason: {
                 reasonId: ExtensionRecommendationReason.Workspace,
-                reasonText: localize(
-                  "workspaceRecommendation",
-                  "This extension is recommended by users of the current workspace."
-                )
+                reasonText: localize("workspaceRecommendation", "This extension is recommended by users of the current workspace.")
               }
             });
           }
@@ -187,10 +132,7 @@ ${message}`
         extension,
         reason: {
           reasonId: ExtensionRecommendationReason.Workspace,
-          reasonText: localize(
-            "workspaceRecommendation",
-            "This extension is recommended by users of the current workspace."
-          )
+          reasonText: localize("workspaceRecommendation", "This extension is recommended by users of the current workspace.")
         }
       });
     }
@@ -199,9 +141,7 @@ ${message}`
     const validExtensions = [];
     const invalidExtensions = [];
     let message = "";
-    const allRecommendations = distinct(
-      contents.flatMap(({ recommendations }) => recommendations || [])
-    );
+    const allRecommendations = distinct(contents.flatMap(({ recommendations }) => recommendations || []));
     const regEx = new RegExp(EXTENSION_IDENTIFIER_PATTERN);
     for (const extensionId of allRecommendations) {
       if (regEx.test(extensionId)) {
@@ -212,11 +152,7 @@ ${message}`
 `;
       }
     }
-    return {
-      validRecommendations: validExtensions,
-      invalidRecommendations: invalidExtensions,
-      message
-    };
+    return { validRecommendations: validExtensions, invalidRecommendations: invalidExtensions, message };
   }
   async onDidChangeExtensionsConfigs() {
     await this.fetch();

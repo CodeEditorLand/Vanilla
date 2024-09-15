@@ -10,78 +10,47 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { release } from "os";
-import electron, {} from "electron";
-import { isESM } from "../../../base/common/amd.js";
-import {
-  DeferredPromise,
-  RunOnceScheduler,
-  timeout
-} from "../../../base/common/async.js";
+import electron, { BrowserWindowConstructorOptions } from "electron";
+import { DeferredPromise, RunOnceScheduler, timeout } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { FileAccess, Schemas } from "../../../base/common/network.js";
 import { getMarks, mark } from "../../../base/common/performance.js";
-import {
-  isBigSurOrNewer,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
+import { isBigSurOrNewer, isMacintosh, isWindows } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { release } from "os";
+import { ISerializableCommandAction } from "../../action/common/action.js";
 import { IBackupMainService } from "../../backup/electron-main/backup.js";
-import {
-  IConfigurationService
-} from "../../configuration/common/configuration.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../configuration/common/configuration.js";
 import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
 import { isLaunchedFromCli } from "../../environment/node/argvHelper.js";
-import { resolveMarketplaceHeaders } from "../../externalServices/common/marketplace.js";
 import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
-import { ILoggerMainService } from "../../log/electron-main/loggerService.js";
-import { IPolicyService } from "../../policy/common/policy.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
-import { IStateService } from "../../state/node/state.js";
-import {
-  IApplicationStorageMainService,
-  IStorageMainService
-} from "../../storage/electron-main/storageMainService.js";
+import { resolveMarketplaceHeaders } from "../../externalServices/common/marketplace.js";
+import { IApplicationStorageMainService, IStorageMainService } from "../../storage/electron-main/storageMainService.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
 import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
-import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
-import {
-  DEFAULT_CUSTOM_TITLEBAR_HEIGHT,
-  TitlebarStyle,
-  getMenuBarVisibility,
-  hasNativeTitlebar,
-  useNativeFullScreen,
-  useWindowControlsOverlay
-} from "../../window/common/window.js";
-import {
-  LoadReason,
-  WindowError,
-  WindowMode,
-  defaultWindowState
-} from "../../window/electron-main/window.js";
-import {
-  isSingleFolderWorkspaceIdentifier,
-  isWorkspaceIdentifier,
-  toWorkspaceIdentifier
-} from "../../workspace/common/workspace.js";
+import { getMenuBarVisibility, IFolderToOpen, INativeWindowConfiguration, IWindowSettings, IWorkspaceToOpen, MenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, useWindowControlsOverlay, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, TitlebarStyle } from "../../window/common/window.js";
+import { defaultBrowserWindowOptions, IWindowsMainService, OpenContext, WindowStateValidator } from "./windows.js";
+import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
-import {
-  IWindowsMainService,
-  OpenContext,
-  WindowStateValidator,
-  defaultBrowserWindowOptions
-} from "./windows.js";
+import { IWindowState, ICodeWindow, ILoadEvent, WindowMode, WindowError, LoadReason, defaultWindowState, IBaseWindow } from "../../window/electron-main/window.js";
+import { IPolicyService } from "../../policy/common/policy.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import { IStateService } from "../../state/node/state.js";
+import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
+import { ILoggerMainService } from "../../log/electron-main/loggerService.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { isESM } from "../../../base/common/amd.js";
 var ReadyState = /* @__PURE__ */ ((ReadyState2) => {
   ReadyState2[ReadyState2["NONE"] = 0] = "NONE";
   ReadyState2[ReadyState2["NAVIGATING"] = 1] = "NAVIGATING";
@@ -106,17 +75,11 @@ class BaseWindow extends Disposable {
   onDidMaximize = this._onDidMaximize.event;
   _onDidUnmaximize = this._register(new Emitter());
   onDidUnmaximize = this._onDidUnmaximize.event;
-  _onDidTriggerSystemContextMenu = this._register(
-    new Emitter()
-  );
+  _onDidTriggerSystemContextMenu = this._register(new Emitter());
   onDidTriggerSystemContextMenu = this._onDidTriggerSystemContextMenu.event;
-  _onDidEnterFullScreen = this._register(
-    new Emitter()
-  );
+  _onDidEnterFullScreen = this._register(new Emitter());
   onDidEnterFullScreen = this._onDidEnterFullScreen.event;
-  _onDidLeaveFullScreen = this._register(
-    new Emitter()
-  );
+  _onDidLeaveFullScreen = this._register(new Emitter());
   onDidLeaveFullScreen = this._onDidLeaveFullScreen.event;
   _lastFocusTime = Date.now();
   // window is shown on creation so take current time
@@ -129,66 +92,31 @@ class BaseWindow extends Disposable {
   }
   setWin(win, options) {
     this._win = win;
-    this._register(
-      Event.fromNodeEventEmitter(
-        win,
-        "maximize"
-      )(() => this._onDidMaximize.fire())
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        win,
-        "unmaximize"
-      )(() => this._onDidUnmaximize.fire())
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        win,
-        "closed"
-      )(() => {
-        this._onDidClose.fire();
-        this.dispose();
-      })
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        win,
-        "focus"
-      )(() => {
-        this._lastFocusTime = Date.now();
-      })
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win,
-        "enter-full-screen"
-      )(() => this._onDidEnterFullScreen.fire())
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win,
-        "leave-full-screen"
-      )(() => this._onDidLeaveFullScreen.fire())
-    );
+    this._register(Event.fromNodeEventEmitter(win, "maximize")(() => this._onDidMaximize.fire()));
+    this._register(Event.fromNodeEventEmitter(win, "unmaximize")(() => this._onDidUnmaximize.fire()));
+    this._register(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this._onDidClose.fire();
+      this.dispose();
+    }));
+    this._register(Event.fromNodeEventEmitter(win, "focus")(() => {
+      this._lastFocusTime = Date.now();
+    }));
+    this._register(Event.fromNodeEventEmitter(this._win, "enter-full-screen")(() => this._onDidEnterFullScreen.fire()));
+    this._register(Event.fromNodeEventEmitter(this._win, "leave-full-screen")(() => this._onDidLeaveFullScreen.fire()));
     const useCustomTitleStyle = !hasNativeTitlebar(
       this.configurationService,
       options?.titleBarStyle === "hidden" ? TitlebarStyle.CUSTOM : void 0
+      /* unknown */
     );
     if (isMacintosh && useCustomTitleStyle) {
       win.setSheetOffset(isBigSurOrNewer(release()) ? 28 : 22);
     }
     if (useCustomTitleStyle && (useWindowControlsOverlay(this.configurationService) || isMacintosh)) {
-      const cachedWindowControlHeight = this.stateService.getItem(
-        BaseWindow.windowControlHeightStateStorageKey
-      );
+      const cachedWindowControlHeight = this.stateService.getItem(BaseWindow.windowControlHeightStateStorageKey);
       if (cachedWindowControlHeight) {
-        this.updateWindowControls({
-          height: cachedWindowControlHeight
-        });
+        this.updateWindowControls({ height: cachedWindowControlHeight });
       } else {
-        this.updateWindowControls({
-          height: DEFAULT_CUSTOM_TITLEBAR_HEIGHT
-        });
+        this.updateWindowControls({ height: DEFAULT_CUSTOM_TITLEBAR_HEIGHT });
       }
     }
     if (isWindows && useCustomTitleStyle) {
@@ -216,25 +144,19 @@ class BaseWindow extends Disposable {
       win.webContents.openDevTools();
     }
     if (isMacintosh) {
-      this._register(
-        this.onDidEnterFullScreen(() => {
-          this.joinNativeFullScreenTransition?.complete(true);
-        })
-      );
-      this._register(
-        this.onDidLeaveFullScreen(() => {
-          this.joinNativeFullScreenTransition?.complete(true);
-        })
-      );
+      this._register(this.onDidEnterFullScreen(() => {
+        this.joinNativeFullScreenTransition?.complete(true);
+      }));
+      this._register(this.onDidLeaveFullScreen(() => {
+        this.joinNativeFullScreenTransition?.complete(true);
+      }));
     }
   }
   applyState(state, hasMultipleDisplays = electron.screen.getAllDisplays().length > 0) {
     const windowSettings = this.configurationService.getValue("window");
     const useNativeTabs = isMacintosh && windowSettings?.nativeTabs === true;
     if ((isMacintosh || isWindows) && hasMultipleDisplays && (!useNativeTabs || electron.BrowserWindow.getAllWindows().length === 1)) {
-      if ([state.width, state.height, state.x, state.y].every(
-        (value) => typeof value === "number"
-      )) {
+      if ([state.width, state.height, state.x, state.y].every((value) => typeof value === "number")) {
         this._win?.setBounds({
           width: state.width,
           height: state.height,
@@ -297,10 +219,7 @@ class BaseWindow extends Disposable {
       return;
     }
     if (isMacintosh) {
-      const action = electron.systemPreferences.getUserDefault(
-        "AppleActionOnDoubleClick",
-        "string"
-      );
+      const action = electron.systemPreferences.getUserDefault("AppleActionOnDoubleClick", "string");
       switch (action) {
         case "Minimize":
           win.minimize();
@@ -315,27 +234,24 @@ class BaseWindow extends Disposable {
             win.maximize();
           }
       }
-    } else if (win.isMaximized()) {
-      win.unmaximize();
     } else {
-      win.maximize();
+      if (win.isMaximized()) {
+        win.unmaximize();
+      } else {
+        win.maximize();
+      }
     }
   }
   //#region Window Control Overlays
   static windowControlHeightStateStorageKey = "windowControlHeight";
-  hasWindowControlOverlay = useWindowControlsOverlay(
-    this.configurationService
-  );
+  hasWindowControlOverlay = useWindowControlsOverlay(this.configurationService);
   updateWindowControls(options) {
     const win = this.win;
     if (!win) {
       return;
     }
     if (options.height) {
-      this.stateService.setItem(
-        CodeWindow.windowControlHeightStateStorageKey,
-        options.height
-      );
+      this.stateService.setItem(CodeWindow.windowControlHeightStateStorageKey, options.height);
     }
     if (this.hasWindowControlOverlay) {
       win.setTitleBarOverlay({
@@ -346,13 +262,10 @@ class BaseWindow extends Disposable {
       });
     } else if (isMacintosh && options.height !== void 0) {
       const verticalOffset = (options.height - 15) / 2;
-      if (verticalOffset) {
-        win.setWindowButtonPosition({
-          x: verticalOffset,
-          y: verticalOffset
-        });
-      } else {
+      if (!verticalOffset) {
         win.setWindowButtonPosition(null);
+      } else {
+        win.setWindowButtonPosition({ x: verticalOffset, y: verticalOffset });
       }
     }
   }
@@ -401,9 +314,7 @@ class BaseWindow extends Disposable {
         this.transientIsNativeFullScreen = void 0;
         this.joinNativeFullScreenTransition = void 0;
         if (!transitioned && fullscreen && fromRestore && this.win && !this.win.isFullScreen()) {
-          this.logService.warn(
-            "window: native macOS fullscreen transition did not happen within 10s from restoring"
-          );
+          this.logService.warn("window: native macOS fullscreen transition did not happen within 10s from restoring");
           this._onDidLeaveFullScreen.fire();
         }
       })();
@@ -426,12 +337,7 @@ class BaseWindow extends Disposable {
 }
 let CodeWindow = class extends BaseWindow {
   constructor(config, logService, loggerMainService, environmentMainService, policyService, userDataProfilesService, fileService, applicationStorageMainService, storageMainService, configurationService, themeMainService, workspacesManagementMainService, backupMainService, telemetryService, dialogMainService, lifecycleMainService, productService, protocolMainService, windowsMainService, stateService, instantiationService) {
-    super(
-      configurationService,
-      stateService,
-      environmentMainService,
-      logService
-    );
+    super(configurationService, stateService, environmentMainService, logService);
     this.loggerMainService = loggerMainService;
     this.policyService = policyService;
     this.userDataProfilesService = userDataProfilesService;
@@ -448,25 +354,14 @@ let CodeWindow = class extends BaseWindow {
     this.protocolMainService = protocolMainService;
     this.windowsMainService = windowsMainService;
     {
-      const [state, hasMultipleDisplays] = this.restoreWindowState(
-        config.state
-      );
+      const [state, hasMultipleDisplays] = this.restoreWindowState(config.state);
       this.windowState = state;
       this.logService.trace("window#ctor: using window state", state);
-      const options = instantiationService.invokeFunction(
-        defaultBrowserWindowOptions,
-        this.windowState,
-        void 0,
-        {
-          preload: FileAccess.asFileUri(
-            "vs/base/parts/sandbox/electron-sandbox/preload.js"
-          ).fsPath,
-          additionalArguments: [
-            `--vscode-window-config=${this.configObjectUrl.resource.toString()}`
-          ],
-          v8CacheOptions: this.environmentMainService.useCodeCache ? "bypassHeatCheck" : "none"
-        }
-      );
+      const options = instantiationService.invokeFunction(defaultBrowserWindowOptions, this.windowState, void 0, {
+        preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-sandbox/preload.js").fsPath,
+        additionalArguments: [`--vscode-window-config=${this.configObjectUrl.resource.toString()}`],
+        v8CacheOptions: this.environmentMainService.useCodeCache ? "bypassHeatCheck" : "none"
+      });
       mark("code/willCreateCodeBrowserWindow");
       this._win = new electron.BrowserWindow(options);
       mark("code/didCreateCodeBrowserWindow");
@@ -506,18 +401,11 @@ let CodeWindow = class extends BaseWindow {
     if (!this.config) {
       return void 0;
     }
-    const profile = this.userDataProfilesService.profiles.find(
-      (profile2) => profile2.id === this.config?.profiles.profile.id
-    );
+    const profile = this.userDataProfilesService.profiles.find((profile2) => profile2.id === this.config?.profiles.profile.id);
     if (this.isExtensionDevelopmentHost && profile) {
       return profile;
     }
-    return this.userDataProfilesService.getProfileForWorkspace(
-      this.config.workspace ?? toWorkspaceIdentifier(
-        this.backupPath,
-        this.isExtensionDevelopmentHost
-      )
-    ) ?? this.userDataProfilesService.defaultProfile;
+    return this.userDataProfilesService.getProfileForWorkspace(this.config.workspace ?? toWorkspaceIdentifier(this.backupPath, this.isExtensionDevelopmentHost)) ?? this.userDataProfilesService.defaultProfile;
   }
   get remoteAuthority() {
     return this._config?.remoteAuthority;
@@ -543,16 +431,12 @@ let CodeWindow = class extends BaseWindow {
   currentHttpProxy = void 0;
   currentNoProxy = void 0;
   customZoomLevel = void 0;
-  configObjectUrl = this._register(
-    this.protocolMainService.createIPCObjectUrl()
-  );
+  configObjectUrl = this._register(this.protocolMainService.createIPCObjectUrl());
   pendingLoadConfig;
   wasLoaded = false;
   readyState = 0 /* NONE */;
   setReady() {
-    this.logService.trace(
-      `window#load: window reported ready (id: ${this._id})`
-    );
+    this.logService.trace(`window#load: window reported ready (id: ${this._id})`);
     this.readyState = 2 /* READY */;
     while (this.whenReadyCallbacks.length) {
       this.whenReadyCallbacks.pop()(this);
@@ -583,104 +467,39 @@ let CodeWindow = class extends BaseWindow {
     });
   }
   registerListeners() {
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win,
-        "unresponsive"
-      )(() => this.onWindowError(WindowError.UNRESPONSIVE))
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win.webContents,
-        "render-process-gone",
-        (event, details) => details
-      )(
-        (details) => this.onWindowError(WindowError.PROCESS_GONE, { ...details })
-      )
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win.webContents,
-        "did-fail-load",
-        (event, exitCode, reason) => ({ exitCode, reason })
-      )(
-        ({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })
-      )
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win.webContents,
-        "will-prevent-unload"
-      )((event) => event.preventDefault())
-    );
-    this._register(
-      Event.fromNodeEventEmitter(
-        this._win.webContents,
-        "did-finish-load"
-      )(() => {
-        if (this.pendingLoadConfig) {
-          this._config = this.pendingLoadConfig;
-          this.pendingLoadConfig = void 0;
-        }
-      })
-    );
-    this._register(
-      this.onDidMaximize(() => {
-        if (this._config) {
-          this._config.maximized = true;
-        }
-      })
-    );
-    this._register(
-      this.onDidUnmaximize(() => {
-        if (this._config) {
-          this._config.maximized = false;
-        }
-      })
-    );
-    this._register(
-      this.onDidEnterFullScreen(() => {
-        this.sendWhenReady(
-          "vscode:enterFullScreen",
-          CancellationToken.None
-        );
-      })
-    );
-    this._register(
-      this.onDidLeaveFullScreen(() => {
-        this.sendWhenReady(
-          "vscode:leaveFullScreen",
-          CancellationToken.None
-        );
-      })
-    );
-    this._register(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => this.onConfigurationUpdated(e)
-      )
-    );
-    this._register(
-      this.workspacesManagementMainService.onDidDeleteUntitledWorkspace(
-        (e) => this.onDidDeleteUntitledWorkspace(e)
-      )
-    );
-    const urls = [
-      "https://marketplace.visualstudio.com/*",
-      "https://*.vsassets.io/*"
-    ];
-    this._win.webContents.session.webRequest.onBeforeSendHeaders(
-      { urls },
-      async (details, cb) => {
-        const headers = await this.getMarketplaceHeaders();
-        cb({
-          cancel: false,
-          requestHeaders: Object.assign(
-            details.requestHeaders,
-            headers
-          )
-        });
+    this._register(Event.fromNodeEventEmitter(this._win, "unresponsive")(() => this.onWindowError(WindowError.UNRESPONSIVE)));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "render-process-gone", (event, details) => details)((details) => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "did-fail-load", (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "will-prevent-unload")((event) => event.preventDefault()));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "did-finish-load")(() => {
+      if (this.pendingLoadConfig) {
+        this._config = this.pendingLoadConfig;
+        this.pendingLoadConfig = void 0;
       }
-    );
+    }));
+    this._register(this.onDidMaximize(() => {
+      if (this._config) {
+        this._config.maximized = true;
+      }
+    }));
+    this._register(this.onDidUnmaximize(() => {
+      if (this._config) {
+        this._config.maximized = false;
+      }
+    }));
+    this._register(this.onDidEnterFullScreen(() => {
+      this.sendWhenReady("vscode:enterFullScreen", CancellationToken.None);
+    }));
+    this._register(this.onDidLeaveFullScreen(() => {
+      this.sendWhenReady("vscode:leaveFullScreen", CancellationToken.None);
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(this.workspacesManagementMainService.onDidDeleteUntitledWorkspace((e) => this.onDidDeleteUntitledWorkspace(e)));
+    const urls = ["https://marketplace.visualstudio.com/*", "https://*.vsassets.io/*"];
+    this._win.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
+      const headers = await this.getMarketplaceHeaders();
+      cb({ cancel: false, requestHeaders: Object.assign(details.requestHeaders, headers) });
+    });
   }
   marketplaceHeadersPromise;
   getMarketplaceHeaders() {
@@ -700,17 +519,13 @@ let CodeWindow = class extends BaseWindow {
   async onWindowError(type, details) {
     switch (type) {
       case WindowError.PROCESS_GONE:
-        this.logService.error(
-          `CodeWindow: renderer process gone (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`
-        );
+        this.logService.error(`CodeWindow: renderer process gone (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`);
         break;
       case WindowError.UNRESPONSIVE:
         this.logService.error("CodeWindow: detected unresponsive");
         break;
       case WindowError.LOAD:
-        this.logService.error(
-          `CodeWindow: failed to load (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`
-        );
+        this.logService.error(`CodeWindow: failed to load (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`);
         break;
     }
     this.telemetryService.publicLog2("windowerror", {
@@ -734,110 +549,38 @@ let CodeWindow = class extends BaseWindow {
           if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this._win && this._win.webContents && this._win.webContents.isDevToolsOpened()) {
             return;
           }
-          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox(
-            {
-              type: "warning",
-              buttons: [
-                localize(
-                  {
-                    key: "reopen",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "&&Reopen"
-                ),
-                localize(
-                  {
-                    key: "close",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "&&Close"
-                ),
-                localize(
-                  {
-                    key: "wait",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "&&Keep Waiting"
-                )
-              ],
-              message: localize(
-                "appStalled",
-                "The window is not responding"
-              ),
-              detail: localize(
-                "appStalledDetail",
-                "You can reopen or close the window or keep waiting."
-              ),
-              checkboxLabel: this._config?.workspace ? localize(
-                "doNotRestoreEditors",
-                "Don't restore editors"
-              ) : void 0
-            },
-            this._win
-          );
+          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox({
+            type: "warning",
+            buttons: [
+              localize({ key: "reopen", comment: ["&& denotes a mnemonic"] }, "&&Reopen"),
+              localize({ key: "close", comment: ["&& denotes a mnemonic"] }, "&&Close"),
+              localize({ key: "wait", comment: ["&& denotes a mnemonic"] }, "&&Keep Waiting")
+            ],
+            message: localize("appStalled", "The window is not responding"),
+            detail: localize("appStalledDetail", "You can reopen or close the window or keep waiting."),
+            checkboxLabel: this._config?.workspace ? localize("doNotRestoreEditors", "Don't restore editors") : void 0
+          }, this._win);
           if (response !== 2) {
             const reopen = response === 0;
             await this.destroyWindow(reopen, checkboxChecked);
           }
         } else if (type === WindowError.PROCESS_GONE) {
           let message;
-          if (details) {
-            message = localize(
-              "appGoneDetails",
-              "The window terminated unexpectedly (reason: '{0}', code: '{1}')",
-              details.reason,
-              details.exitCode ?? "<unknown>"
-            );
+          if (!details) {
+            message = localize("appGone", "The window terminated unexpectedly");
           } else {
-            message = localize(
-              "appGone",
-              "The window terminated unexpectedly"
-            );
+            message = localize("appGoneDetails", "The window terminated unexpectedly (reason: '{0}', code: '{1}')", details.reason, details.exitCode ?? "<unknown>");
           }
-          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox(
-            {
-              type: "warning",
-              buttons: [
-                this._config?.workspace ? localize(
-                  {
-                    key: "reopen",
-                    comment: [
-                      "&& denotes a mnemonic"
-                    ]
-                  },
-                  "&&Reopen"
-                ) : localize(
-                  {
-                    key: "newWindow",
-                    comment: [
-                      "&& denotes a mnemonic"
-                    ]
-                  },
-                  "&&New Window"
-                ),
-                localize(
-                  {
-                    key: "close",
-                    comment: ["&& denotes a mnemonic"]
-                  },
-                  "&&Close"
-                )
-              ],
-              message,
-              detail: this._config?.workspace ? localize(
-                "appGoneDetailWorkspace",
-                "We are sorry for the inconvenience. You can reopen the window to continue where you left off."
-              ) : localize(
-                "appGoneDetailEmptyWindow",
-                "We are sorry for the inconvenience. You can open a new empty window to start again."
-              ),
-              checkboxLabel: this._config?.workspace ? localize(
-                "doNotRestoreEditors",
-                "Don't restore editors"
-              ) : void 0
-            },
-            this._win
-          );
+          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox({
+            type: "warning",
+            buttons: [
+              this._config?.workspace ? localize({ key: "reopen", comment: ["&& denotes a mnemonic"] }, "&&Reopen") : localize({ key: "newWindow", comment: ["&& denotes a mnemonic"] }, "&&New Window"),
+              localize({ key: "close", comment: ["&& denotes a mnemonic"] }, "&&Close")
+            ],
+            message,
+            detail: this._config?.workspace ? localize("appGoneDetailWorkspace", "We are sorry for the inconvenience. You can reopen the window to continue where you left off.") : localize("appGoneDetailEmptyWindow", "We are sorry for the inconvenience. You can open a new empty window to start again."),
+            checkboxLabel: this._config?.workspace ? localize("doNotRestoreEditors", "Don't restore editors") : void 0
+          }, this._win);
           const reopen = response === 0;
           await this.destroyWindow(reopen, checkboxChecked);
         }
@@ -859,8 +602,8 @@ let CodeWindow = class extends BaseWindow {
     this._onDidDestroy.fire();
     try {
       if (reopen && this._config) {
-        let uriToOpen;
-        let forceEmpty;
+        let uriToOpen = void 0;
+        let forceEmpty = void 0;
         if (isSingleFolderWorkspaceIdentifier(workspace)) {
           uriToOpen = { folderUri: workspace.uri };
         } else if (isWorkspaceIdentifier(workspace)) {
@@ -901,8 +644,7 @@ let CodeWindow = class extends BaseWindow {
       }
     }
     if (!e || e.affectsConfiguration("http.proxy") || e.affectsConfiguration("http.noProxy")) {
-      let newHttpProxy = (this.configurationService.getValue("http.proxy") || "").trim() || (process.env["https_proxy"] || process.env["HTTPS_PROXY"] || process.env["http_proxy"] || process.env["HTTP_PROXY"] || "").trim() || // Not standardized.
-      void 0;
+      let newHttpProxy = (this.configurationService.getValue("http.proxy") || "").trim() || (process.env["https_proxy"] || process.env["HTTPS_PROXY"] || process.env["http_proxy"] || process.env["HTTP_PROXY"] || "").trim() || void 0;
       if (newHttpProxy?.indexOf("@") !== -1) {
         const uri = URI.parse(newHttpProxy);
         const i = uri.authority.indexOf("@");
@@ -913,27 +655,15 @@ let CodeWindow = class extends BaseWindow {
       if (newHttpProxy?.endsWith("/")) {
         newHttpProxy = newHttpProxy.substr(0, newHttpProxy.length - 1);
       }
-      const newNoProxy = (this.configurationService.getValue(
-        "http.noProxy"
-      ) || []).map((item) => item.trim()).join(",") || (process.env["no_proxy"] || process.env["NO_PROXY"] || "").trim() || void 0;
+      const newNoProxy = (this.configurationService.getValue("http.noProxy") || []).map((item) => item.trim()).join(",") || (process.env["no_proxy"] || process.env["NO_PROXY"] || "").trim() || void 0;
       if ((newHttpProxy || "").indexOf("@") === -1 && (newHttpProxy !== this.currentHttpProxy || newNoProxy !== this.currentNoProxy)) {
         this.currentHttpProxy = newHttpProxy;
         this.currentNoProxy = newNoProxy;
         const proxyRules = newHttpProxy || "";
         const proxyBypassRules = newNoProxy ? `${newNoProxy},<local>` : "<local>";
-        this.logService.trace(
-          `Setting proxy to '${proxyRules}', bypassing '${proxyBypassRules}'`
-        );
-        this._win.webContents.session.setProxy({
-          proxyRules,
-          proxyBypassRules,
-          pacScript: ""
-        });
-        electron.app.setProxy({
-          proxyRules,
-          proxyBypassRules,
-          pacScript: ""
-        });
+        this.logService.trace(`Setting proxy to '${proxyRules}', bypassing '${proxyBypassRules}'`);
+        this._win.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: "" });
+        electron.app.setProxy({ proxyRules, proxyBypassRules, pacScript: "" });
       }
     }
   }
@@ -943,9 +673,7 @@ let CodeWindow = class extends BaseWindow {
     }
   }
   load(configuration, options = /* @__PURE__ */ Object.create(null)) {
-    this.logService.trace(
-      `window#load: attempt to load window (id: ${this._id})`
-    );
+    this.logService.trace(`window#load: attempt to load window (id: ${this._id})`);
     if (this.isDocumentEdited()) {
       if (!options.isReload || !this.backupMainService.isHotExitEnabled()) {
         this.setDocumentEdited(false);
@@ -964,28 +692,19 @@ let CodeWindow = class extends BaseWindow {
       this.pendingLoadConfig = configuration;
     }
     this.readyState = 1 /* NAVIGATING */;
-    this._win.loadURL(
-      FileAccess.asBrowserUri(
-        `vs/code/electron-sandbox/workbench/workbench${this.environmentMainService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`
-      ).toString(true)
-    );
+    this._win.loadURL(FileAccess.asBrowserUri(`vs/code/electron-sandbox/workbench/workbench${this.environmentMainService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`).toString(true));
     const wasLoaded = this.wasLoaded;
     this.wasLoaded = true;
     if (!this.environmentMainService.isBuilt && !this.environmentMainService.extensionTestsLocationURI) {
-      this._register(
-        new RunOnceScheduler(() => {
-          if (this._win && !this._win.isVisible() && !this._win.isMinimized()) {
-            this._win.show();
-            this.focus({ force: true });
-            this._win.webContents.openDevTools();
-          }
-        }, 1e4)
-      ).schedule();
+      this._register(new RunOnceScheduler(() => {
+        if (this._win && !this._win.isVisible() && !this._win.isMinimized()) {
+          this._win.show();
+          this.focus({ force: true });
+          this._win.webContents.openDevTools();
+        }
+      }, 1e4)).schedule();
     }
-    this._onWillLoad.fire({
-      workspace: configuration.workspace,
-      reason: options.isReload ? LoadReason.RELOAD : wasLoaded ? LoadReason.LOAD : LoadReason.INITIAL
-    });
+    this._onWillLoad.fire({ workspace: configuration.workspace, reason: options.isReload ? LoadReason.RELOAD : wasLoaded ? LoadReason.LOAD : LoadReason.INITIAL });
   }
   updateConfiguration(configuration, options) {
     const currentUserEnv = (this._config ?? this.pendingLoadConfig)?.userEnv;
@@ -993,10 +712,7 @@ let CodeWindow = class extends BaseWindow {
       const shouldPreserveLaunchCliEnvironment = isLaunchedFromCli(currentUserEnv) && !isLaunchedFromCli(configuration.userEnv);
       const shouldPreserveDebugEnvironmnet = this.isExtensionDevelopmentHost;
       if (shouldPreserveLaunchCliEnvironment || shouldPreserveDebugEnvironmnet) {
-        configuration.userEnv = {
-          ...currentUserEnv,
-          ...configuration.userEnv
-        };
+        configuration.userEnv = { ...currentUserEnv, ...configuration.userEnv };
       }
     }
     if (process.env["CHROME_CRASHPAD_PIPE_NAME"]) {
@@ -1048,10 +764,7 @@ let CodeWindow = class extends BaseWindow {
       window: this.loggerMainService.getRegisteredLoggers(this.id),
       global: this.loggerMainService.getRegisteredLoggers()
     };
-    this.load(configuration, {
-      isReload: true,
-      disableExtensions: cli?.["disable-extensions"]
-    });
+    this.load(configuration, { isReload: true, disableExtensions: cli?.["disable-extensions"] });
   }
   async validateWorkspaceBeforeReload(configuration) {
     if (isWorkspaceIdentifier(configuration.workspace)) {
@@ -1134,16 +847,10 @@ let CodeWindow = class extends BaseWindow {
       try {
         const displays = electron.screen.getAllDisplays();
         hasMultipleDisplays = displays.length > 1;
-        state = WindowStateValidator.validateWindowState(
-          this.logService,
-          state,
-          displays
-        );
+        state = WindowStateValidator.validateWindowState(this.logService, state, displays);
       } catch (err) {
-        this.logService.warn(
-          `Unexpected error validating window state: ${err}
-${err.stack}`
-        );
+        this.logService.warn(`Unexpected error validating window state: ${err}
+${err.stack}`);
       }
     }
     mark("code/didRestoreCodeWindowState");
@@ -1156,10 +863,7 @@ ${err.stack}`
   }
   setFullScreen(fullscreen, fromRestore) {
     super.setFullScreen(fullscreen, fromRestore);
-    this.sendWhenReady(
-      fullscreen ? "vscode:enterFullScreen" : "vscode:leaveFullScreen",
-      CancellationToken.None
-    );
+    this.sendWhenReady(fullscreen ? "vscode:enterFullScreen" : "vscode:leaveFullScreen", CancellationToken.None);
     if (this.currentMenuBarVisibility) {
       this.setMenuBarVisibility(this.currentMenuBarVisibility, false);
     }
@@ -1177,13 +881,7 @@ ${err.stack}`
     }
     if (visibility === "toggle") {
       if (notify) {
-        this.send(
-          "vscode:showInfoMessage",
-          localize(
-            "hiddenMenuBar",
-            "You can still access the menu bar by pressing the Alt-key."
-          )
-        );
+        this.send("vscode:showInfoMessage", localize("hiddenMenuBar", "You can still access the menu bar by pressing the Alt-key."));
       }
     }
     if (visibility === "hidden") {
@@ -1242,17 +940,13 @@ ${err.stack}`
   send(channel, ...args) {
     if (this._win) {
       if (this._win.isDestroyed() || this._win.webContents.isDestroyed()) {
-        this.logService.warn(
-          `Sending IPC message to channel '${channel}' for window that is destroyed`
-        );
+        this.logService.warn(`Sending IPC message to channel '${channel}' for window that is destroyed`);
         return;
       }
       try {
         this._win.webContents.send(channel, ...args);
       } catch (error) {
-        this.logService.warn(
-          `Error sending IPC message to channel '${channel}' of window ${this._id}: ${toErrorMessage(error)}`
-        );
+        this.logService.warn(`Error sending IPC message to channel '${channel}' of window ${this._id}: ${toErrorMessage(error)}`);
       }
     }
   }
@@ -1273,9 +967,7 @@ ${err.stack}`
       const groupTouchBar = this.createTouchBarGroup();
       this.touchBarGroups.push(groupTouchBar);
     }
-    this._win.setTouchBar(
-      new electron.TouchBar({ items: this.touchBarGroups })
-    );
+    this._win.setTouchBar(new electron.TouchBar({ items: this.touchBarGroups }));
   }
   createTouchBarGroup(items = []) {
     const segments = this.createTouchBarGroupSegments(items);
@@ -1284,10 +976,7 @@ ${err.stack}`
       mode: "buttons",
       segmentStyle: "automatic",
       change: /* @__PURE__ */ __name((selectedIndex) => {
-        this.sendWhenReady("vscode:runAction", CancellationToken.None, {
-          id: control.segments[selectedIndex].id,
-          from: "touchbar"
-        });
+        this.sendWhenReady("vscode:runAction", CancellationToken.None, { id: control.segments[selectedIndex].id, from: "touchbar" });
       }, "change")
     });
     return control;
@@ -1296,9 +985,7 @@ ${err.stack}`
     const segments = items.map((item) => {
       let icon;
       if (item.icon && !ThemeIcon.isThemeIcon(item.icon) && item.icon?.dark?.scheme === Schemas.file) {
-        icon = electron.nativeImage.createFromPath(
-          URI.revive(item.icon.dark).fsPath
-        );
+        icon = electron.nativeImage.createFromPath(URI.revive(item.icon.dark).fsPath);
         if (icon.isEmpty()) {
           icon = void 0;
         }
@@ -1311,7 +998,7 @@ ${err.stack}`
       }
       return {
         id: item.id,
-        label: icon ? void 0 : title,
+        label: !icon ? title : void 0,
         icon
       };
     });

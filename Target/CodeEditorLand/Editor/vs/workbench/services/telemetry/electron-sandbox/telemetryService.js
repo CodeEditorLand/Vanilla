@@ -10,31 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { process } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
+import { ITelemetryService, ITelemetryData, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { supportsTelemetry, NullTelemetryService, getPiiPathsFromEnvironment, isInternalTelemetry } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import {
-  ITelemetryService
-} from "../../../../platform/telemetry/common/telemetry.js";
-import { TelemetryAppenderClient } from "../../../../platform/telemetry/common/telemetryIpc.js";
-import {
-  TelemetryService as BaseTelemetryService
-} from "../../../../platform/telemetry/common/telemetryService.js";
-import {
-  NullTelemetryService,
-  getPiiPathsFromEnvironment,
-  isInternalTelemetry,
-  supportsTelemetry
-} from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
+import { TelemetryAppenderClient } from "../../../../platform/telemetry/common/telemetryIpc.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { resolveWorkbenchCommonProperties } from "../common/workbenchCommonProperties.js";
+import { TelemetryService as BaseTelemetryService, ITelemetryServiceConfig } from "../../../../platform/telemetry/common/telemetryService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ClassifiedEvent, StrictPropertyCheck, OmitMetadata, IGDPRProperty } from "../../../../platform/telemetry/common/gdprTypings.js";
+import { process } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
 let TelemetryService = class extends Disposable {
   static {
     __name(this, "TelemetryService");
@@ -62,36 +51,15 @@ let TelemetryService = class extends Disposable {
   constructor(environmentService, productService, sharedProcessService, storageService, configurationService) {
     super();
     if (supportsTelemetry(productService, environmentService)) {
-      const isInternal = isInternalTelemetry(
-        productService,
-        configurationService
-      );
+      const isInternal = isInternalTelemetry(productService, configurationService);
       const channel = sharedProcessService.getChannel("telemetryAppender");
       const config = {
         appenders: [new TelemetryAppenderClient(channel)],
-        commonProperties: resolveWorkbenchCommonProperties(
-          storageService,
-          environmentService.os.release,
-          environmentService.os.hostname,
-          productService.commit,
-          productService.version,
-          environmentService.machineId,
-          environmentService.sqmId,
-          environmentService.devDeviceId,
-          isInternal,
-          process,
-          environmentService.remoteAuthority
-        ),
+        commonProperties: resolveWorkbenchCommonProperties(storageService, environmentService.os.release, environmentService.os.hostname, productService.commit, productService.version, environmentService.machineId, environmentService.sqmId, environmentService.devDeviceId, isInternal, process, environmentService.remoteAuthority),
         piiPaths: getPiiPathsFromEnvironment(environmentService),
         sendErrorTelemetry: true
       };
-      this.impl = this._register(
-        new BaseTelemetryService(
-          config,
-          configurationService,
-          productService
-        )
-      );
+      this.impl = this._register(new BaseTelemetryService(config, configurationService, productService));
     } else {
       this.impl = NullTelemetryService;
     }
@@ -123,11 +91,7 @@ TelemetryService = __decorateClass([
   __decorateParam(3, IStorageService),
   __decorateParam(4, IConfigurationService)
 ], TelemetryService);
-registerSingleton(
-  ITelemetryService,
-  TelemetryService,
-  InstantiationType.Delayed
-);
+registerSingleton(ITelemetryService, TelemetryService, InstantiationType.Delayed);
 export {
   TelemetryService
 };

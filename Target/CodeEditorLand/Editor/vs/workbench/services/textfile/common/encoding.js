@@ -1,24 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Readable, ReadableStream, newWriteableStream, listenStream } from "../../../../base/common/stream.js";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
 import { importAMDNodeModule } from "../../../../amdX.js";
-import { isESM } from "../../../../base/common/amd.js";
-import { coalesce } from "../../../../base/common/arrays.js";
-import {
-  VSBuffer
-} from "../../../../base/common/buffer.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import {
-  listenStream,
-  newWriteableStream
-} from "../../../../base/common/stream.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { isESM } from "../../../../base/common/amd.js";
 const UTF8 = "utf8";
 const UTF8_with_bom = "utf8bom";
 const UTF16be = "utf16be";
 const UTF16le = "utf16le";
 function isUTFEncoding(encoding) {
-  return [UTF8, UTF8_with_bom, UTF16be, UTF16le].some(
-    (utfEncoding) => utfEncoding === encoding
-  );
+  return [UTF8, UTF8_with_bom, UTF16be, UTF16le].some((utfEncoding) => utfEncoding === encoding);
 }
 __name(isUTFEncoding, "isUTFEncoding");
 const UTF16be_BOM = [254, 255];
@@ -59,7 +52,7 @@ class DecoderStream {
    * in browser and node.js environments.
    */
   static async create(encoding) {
-    let decoder;
+    let decoder = void 0;
     if (encoding !== UTF8) {
       const iconv = await importAMDNodeModule("@vscode/iconv-lite-umd", "lib/iconv-lite-umd.js");
       decoder = iconv.getDecoder(toNodeEncoding(encoding));
@@ -91,36 +84,23 @@ class DecoderStream {
 function toDecodeStream(source, options) {
   const minBytesRequiredForDetection = options.minBytesRequiredForDetection ?? options.guessEncoding ? AUTO_ENCODING_GUESS_MIN_BYTES : NO_ENCODING_GUESS_MIN_BYTES;
   return new Promise((resolve, reject) => {
-    const target = newWriteableStream(
-      (strings) => strings.join("")
-    );
+    const target = newWriteableStream((strings) => strings.join(""));
     const bufferedChunks = [];
     let bytesBuffered = 0;
-    let decoder;
+    let decoder = void 0;
     const cts = new CancellationTokenSource();
     const createDecoder = /* @__PURE__ */ __name(async () => {
       try {
-        const detected = await detectEncodingFromBuffer(
-          {
-            buffer: VSBuffer.concat(bufferedChunks),
-            bytesRead: bytesBuffered
-          },
-          options.guessEncoding,
-          options.candidateGuessEncodings
-        );
+        const detected = await detectEncodingFromBuffer({
+          buffer: VSBuffer.concat(bufferedChunks),
+          bytesRead: bytesBuffered
+        }, options.guessEncoding, options.candidateGuessEncodings);
         if (detected.seemsBinary && options.acceptTextOnly) {
-          throw new DecodeStreamError(
-            "Stream is binary but only text is accepted for decoding",
-            1 /* STREAM_IS_BINARY */
-          );
+          throw new DecodeStreamError("Stream is binary but only text is accepted for decoding", 1 /* STREAM_IS_BINARY */);
         }
-        detected.encoding = await options.overwriteEncoding(
-          detected.encoding
-        );
+        detected.encoding = await options.overwriteEncoding(detected.encoding);
         decoder = await DecoderStream.create(detected.encoding);
-        const decoded = decoder.write(
-          VSBuffer.concat(bufferedChunks).buffer
-        );
+        const decoded = decoder.write(VSBuffer.concat(bufferedChunks).buffer);
         target.write(decoded);
         bufferedChunks.length = 0;
         bytesBuffered = 0;
@@ -134,33 +114,29 @@ function toDecodeStream(source, options) {
         reject(error);
       }
     }, "createDecoder");
-    listenStream(
-      source,
-      {
-        onData: /* @__PURE__ */ __name(async (chunk) => {
-          if (decoder) {
-            target.write(decoder.write(chunk.buffer));
-          } else {
-            bufferedChunks.push(chunk);
-            bytesBuffered += chunk.byteLength;
-            if (bytesBuffered >= minBytesRequiredForDetection) {
-              source.pause();
-              await createDecoder();
-              setTimeout(() => source.resume());
-            }
-          }
-        }, "onData"),
-        onError: /* @__PURE__ */ __name((error) => target.error(error), "onError"),
-        // simply forward to target
-        onEnd: /* @__PURE__ */ __name(async () => {
-          if (!decoder) {
+    listenStream(source, {
+      onData: /* @__PURE__ */ __name(async (chunk) => {
+        if (decoder) {
+          target.write(decoder.write(chunk.buffer));
+        } else {
+          bufferedChunks.push(chunk);
+          bytesBuffered += chunk.byteLength;
+          if (bytesBuffered >= minBytesRequiredForDetection) {
+            source.pause();
             await createDecoder();
+            setTimeout(() => source.resume());
           }
-          target.end(decoder?.end());
-        }, "onEnd")
-      },
-      cts.token
-    );
+        }
+      }, "onData"),
+      onError: /* @__PURE__ */ __name((error) => target.error(error), "onError"),
+      // simply forward to target
+      onEnd: /* @__PURE__ */ __name(async () => {
+        if (!decoder) {
+          await createDecoder();
+        }
+        target.end(decoder?.end());
+      }, "onEnd")
+    }, cts.token);
   });
 }
 __name(toDecodeStream, "toDecodeStream");
@@ -237,37 +213,29 @@ function detectEncodingByBOMFromBuffer(buffer, bytesRead) {
 __name(detectEncodingByBOMFromBuffer, "detectEncodingByBOMFromBuffer");
 const IGNORE_ENCODINGS = ["ascii", "utf-16", "utf-32"];
 async function guessEncodingByBuffer(buffer, candidateGuessEncodings) {
-  const jschardet = await importAMDNodeModule(
-    "jschardet",
-    isESM ? "dist/jschardet.js" : "dist/jschardet.min.js"
-  );
+  const jschardet = await importAMDNodeModule("jschardet", isESM ? "dist/jschardet.js" : "dist/jschardet.min.js");
   const limitedBuffer = buffer.slice(0, AUTO_ENCODING_GUESS_MAX_BYTES);
   const binaryString = encodeLatin1(limitedBuffer.buffer);
   if (candidateGuessEncodings) {
-    candidateGuessEncodings = coalesce(
-      candidateGuessEncodings.map((e) => toJschardetEncoding(e))
-    );
+    candidateGuessEncodings = coalesce(candidateGuessEncodings.map((e) => toJschardetEncoding(e)));
     if (candidateGuessEncodings.length === 0) {
       candidateGuessEncodings = void 0;
     }
   }
-  const guessed = jschardet.detect(
-    binaryString,
-    candidateGuessEncodings ? { detectEncodings: candidateGuessEncodings } : void 0
-  );
+  const guessed = jschardet.detect(binaryString, candidateGuessEncodings ? { detectEncodings: candidateGuessEncodings } : void 0);
   if (!guessed || !guessed.encoding) {
     return null;
   }
   const enc = guessed.encoding.toLowerCase();
-  if (IGNORE_ENCODINGS.indexOf(enc) >= 0) {
+  if (0 <= IGNORE_ENCODINGS.indexOf(enc)) {
     return null;
   }
   return toIconvLiteEncoding(guessed.encoding);
 }
 __name(guessEncodingByBuffer, "guessEncodingByBuffer");
 const JSCHARDET_TO_ICONV_ENCODINGS = {
-  ibm866: "cp866",
-  big5: "cp950"
+  "ibm866": "cp866",
+  "big5": "cp950"
 };
 function normalizeEncoding(encodingName) {
   return encodingName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -359,10 +327,7 @@ function detectEncodingFromBuffer({ buffer, bytesRead }, autoGuessEncoding, cand
     }
   }
   if (autoGuessEncoding && !seemsBinary && !encoding && buffer) {
-    return guessEncodingByBuffer(
-      buffer.slice(0, bytesRead),
-      candidateGuessEncodings
-    ).then((guessedEncoding) => {
+    return guessEncodingByBuffer(buffer.slice(0, bytesRead), candidateGuessEncodings).then((guessedEncoding) => {
       return {
         seemsBinary: false,
         encoding: guessedEncoding

@@ -10,23 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService, ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModel, DefaultEndOfLine, EndOfLinePreference, ITextBufferFactory } from "../../../../editor/common/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import * as marked from "../../../../base/common/marked/marked.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import {
-  DefaultEndOfLine,
-  EndOfLinePreference
-} from "../../../../editor/common/model.js";
 import { createTextBufferFactory } from "../../../../editor/common/model/textModel.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import {
-  ITextModelService
-} from "../../../../editor/common/services/resolverService.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 class WalkThroughContentProviderRegistry {
   static {
     __name(this, "WalkThroughContentProviderRegistry");
@@ -50,9 +45,7 @@ async function moduleToContent(instantiationService, resource) {
   }
   const provider = walkThroughContentRegistry.getProvider(query.moduleId);
   if (!provider) {
-    throw new Error(
-      `Walkthrough: no provider registered for ${query.moduleId}`
-    );
+    throw new Error(`Walkthrough: no provider registered for ${query.moduleId}`);
   }
   return instantiationService.invokeFunction(provider);
 }
@@ -63,10 +56,7 @@ let WalkThroughSnippetContentProvider = class {
     this.languageService = languageService;
     this.modelService = modelService;
     this.instantiationService = instantiationService;
-    this.textModelResolverService.registerTextModelContentProvider(
-      Schemas.walkThroughSnippet,
-      this
-    );
+    this.textModelResolverService.registerTextModelContentProvider(Schemas.walkThroughSnippet, this);
   }
   static {
     __name(this, "WalkThroughSnippetContentProvider");
@@ -82,25 +72,17 @@ let WalkThroughSnippetContentProvider = class {
     return ongoing;
   }
   async provideTextContent(resource) {
-    const factory = await this.textBufferFactoryFromResource(
-      resource.with({ fragment: "" })
-    );
+    const factory = await this.textBufferFactoryFromResource(resource.with({ fragment: "" }));
     let codeEditorModel = this.modelService.getModel(resource);
     if (!codeEditorModel) {
-      const j = Number.parseInt(resource.fragment);
+      const j = parseInt(resource.fragment);
       let i = 0;
       const renderer = new marked.marked.Renderer();
       renderer.code = ({ text, lang }) => {
         i++;
-        const languageId = typeof lang === "string" ? this.languageService.getLanguageIdByLanguageName(
-          lang
-        ) || "" : "";
+        const languageId = typeof lang === "string" ? this.languageService.getLanguageIdByLanguageName(lang) || "" : "";
         const languageSelection = this.languageService.createById(languageId);
-        const model = this.modelService.createModel(
-          text,
-          languageSelection,
-          resource.with({ fragment: `${i}.${lang}` })
-        );
+        const model = this.modelService.createModel(text, languageSelection, resource.with({ fragment: `${i}.${lang}` }));
         if (i === j) {
           codeEditorModel = model;
         }
@@ -108,16 +90,8 @@ let WalkThroughSnippetContentProvider = class {
       };
       const textBuffer = factory.create(DefaultEndOfLine.LF).textBuffer;
       const lineCount = textBuffer.getLineCount();
-      const range = new Range(
-        1,
-        1,
-        lineCount,
-        textBuffer.getLineLength(lineCount) + 1
-      );
-      const markdown = textBuffer.getValueInRange(
-        range,
-        EndOfLinePreference.TextDefined
-      );
+      const range = new Range(1, 1, lineCount, textBuffer.getLineLength(lineCount) + 1);
+      const markdown = textBuffer.getValueInRange(range, EndOfLinePreference.TextDefined);
       marked.marked(markdown, { renderer });
     }
     return assertIsDefined(codeEditorModel);

@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AbstractMessageLogger,
-  DEFAULT_LOG_LEVEL,
-  log
-} from "./log.js";
+import { AbstractMessageLogger, DEFAULT_LOG_LEVEL, ILogger, log, LogLevel } from "./log.js";
 class BufferLogger extends AbstractMessageLogger {
   static {
     __name(this, "BufferLogger");
@@ -14,11 +10,9 @@ class BufferLogger extends AbstractMessageLogger {
   constructor(logLevel = DEFAULT_LOG_LEVEL) {
     super();
     this.setLevel(logLevel);
-    this._register(
-      this.onDidChangeLogLevel((level) => {
-        this._logger?.setLevel(level);
-      })
-    );
+    this._register(this.onDidChangeLogLevel((level) => {
+      this._logger?.setLevel(level);
+    }));
   }
   set logger(logger) {
     this._logger = logger;

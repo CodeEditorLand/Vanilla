@@ -1,18 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(() => {
+(function() {
   const define = globalThis.define;
   const require2 = globalThis.require;
   if (!define || !require2 || typeof require2.getConfig !== "function") {
-    throw new Error(
-      "Expected global define() and require() functions. Please only load this module in an AMD context!"
-    );
+    throw new Error("Expected global define() and require() functions. Please only load this module in an AMD context!");
   }
   let baseUrl = require2?.getConfig().baseUrl;
   if (!baseUrl) {
-    throw new Error(
-      "Failed to determine baseUrl for loading AMD modules (tried require.getConfig().baseUrl)"
-    );
+    throw new Error("Failed to determine baseUrl for loading AMD modules (tried require.getConfig().baseUrl)");
   }
   if (!baseUrl.endsWith("/")) {
     baseUrl = baseUrl + "/";
@@ -30,20 +26,18 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       load: /* @__PURE__ */ __name((_name, _req, _load, _config) => {
         const script = document.createElement("script");
         script.type = "module";
-        script.src = trustedTypesPolicy ? trustedTypesPolicy.createScriptURL(
-          `${baseUrl}vs/workbench/workbench.web.main.internal.js`
-        ) : `${baseUrl}vs/workbench/workbench.web.main.internal.js`;
+        script.src = trustedTypesPolicy ? trustedTypesPolicy.createScriptURL(`${baseUrl}vs/workbench/workbench.web.main.internal.js`) : `${baseUrl}vs/workbench/workbench.web.main.internal.js`;
         document.head.appendChild(script);
         return promise.then((mod) => _load(mod));
       }, "load")
     };
   });
-  define("vs/workbench/workbench.web.main", [
-    "require",
-    "exports",
-    "vs/web-api!"
-  ], (_require, exports, webApi) => {
-    Object.assign(exports, webApi);
-  });
+  define(
+    "vs/workbench/workbench.web.main",
+    ["require", "exports", "vs/web-api!"],
+    function(_require, exports, webApi) {
+      Object.assign(exports, webApi);
+    }
+  );
 })();
 //# sourceMappingURL=workbench.web.main.js.map

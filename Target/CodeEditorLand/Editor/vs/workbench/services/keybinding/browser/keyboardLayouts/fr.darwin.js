@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.French",
-    lang: "fr",
-    localizedName: "French"
-  },
+  layout: { id: "com.apple.keylayout.French", lang: "fr", localizedName: "French" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["q", "Q", "\u2021", "\u03A9", 0],

@@ -11,34 +11,29 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../../base/browser/dom.js";
+import { IKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
 import { alert as alertFn } from "../../../../../../base/browser/ui/aria/aria.js";
 import { KeyCode, KeyMod } from "../../../../../../base/common/keyCodes.js";
 import { Lazy } from "../../../../../../base/common/lazy.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import * as strings from "../../../../../../base/common/strings.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { FindMatch } from "../../../../../../editor/common/model.js";
 import { MATCHES_LIMIT } from "../../../../../../editor/contrib/find/browser/findModel.js";
 import { FindReplaceState } from "../../../../../../editor/contrib/find/browser/findState.js";
-import {
-  NLS_MATCHES_LOCATION,
-  NLS_NO_RESULTS
-} from "../../../../../../editor/contrib/find/browser/findWidget.js";
+import { NLS_MATCHES_LOCATION, NLS_NO_RESULTS } from "../../../../../../editor/contrib/find/browser/findWidget.js";
 import { localize } from "../../../../../../nls.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../../../../../platform/contextkey/common/contextkey.js";
-import {
-  IContextMenuService,
-  IContextViewService
-} from "../../../../../../platform/contextview/browser/contextView.js";
+import { IContextKey, IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED } from "../../../common/notebookContextKeys.js";
-import {
-  CellEditState
-} from "../../notebookBrowser.js";
+import { NotebookFindFilters } from "./findFilters.js";
 import { FindModel } from "./findModel.js";
 import { SimpleFindReplaceWidget } from "./notebookFindReplaceWidget.js";
+import { CellEditState, ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+import { INotebookFindScope } from "../../../common/notebookCommon.js";
+import { KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED } from "../../../common/notebookContextKeys.js";
 const FIND_HIDE_TRANSITION = "find-hide-transition";
 const FIND_SHOW_TRANSITION = "find-show-transition";
 let MAX_MATCHES_COUNT_WIDTH = 69;
@@ -48,14 +43,7 @@ let NotebookFindContrib = class extends Disposable {
     super();
     this.notebookEditor = notebookEditor;
     this.instantiationService = instantiationService;
-    this.widget = new Lazy(
-      () => this._register(
-        this.instantiationService.createInstance(
-          NotebookFindWidget,
-          this.notebookEditor
-        )
-      )
-    );
+    this.widget = new Lazy(() => this._register(this.instantiationService.createInstance(NotebookFindWidget, this.notebookEditor)));
   }
   static {
     __name(this, "NotebookFindContrib");
@@ -85,70 +73,34 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
   _previousFocusElement;
   _findModel;
   constructor(_notebookEditor, contextViewService, contextKeyService, configurationService, contextMenuService, hoverService, instantiationService) {
-    super(
-      contextViewService,
-      contextKeyService,
-      configurationService,
-      contextMenuService,
-      instantiationService,
-      hoverService,
-      new FindReplaceState(),
-      _notebookEditor
-    );
-    this._findModel = new FindModel(
-      this._notebookEditor,
-      this._state,
-      this._configurationService
-    );
+    super(contextViewService, contextKeyService, configurationService, contextMenuService, instantiationService, hoverService, new FindReplaceState(), _notebookEditor);
+    this._findModel = new FindModel(this._notebookEditor, this._state, this._configurationService);
     DOM.append(this._notebookEditor.getDomNode(), this.getDomNode());
-    this._findWidgetFocused = KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED.bindTo(
-      contextKeyService
-    );
-    this._register(
-      this._findInput.onKeyDown((e) => this._onFindInputKeyDown(e))
-    );
-    this._register(
-      this._replaceInput.onKeyDown((e) => this._onReplaceInputKeyDown(e))
-    );
-    this._register(
-      this._state.onFindReplaceStateChange((e) => {
-        this.onInputChanged();
-        if (e.isSearching) {
-          if (this._state.isSearching) {
-            this._progressBar.infinite().show(PROGRESS_BAR_DELAY);
-          } else {
-            this._progressBar.stop().hide();
-          }
+    this._findWidgetFocused = KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED.bindTo(contextKeyService);
+    this._register(this._findInput.onKeyDown((e) => this._onFindInputKeyDown(e)));
+    this._register(this._replaceInput.onKeyDown((e) => this._onReplaceInputKeyDown(e)));
+    this._register(this._state.onFindReplaceStateChange((e) => {
+      this.onInputChanged();
+      if (e.isSearching) {
+        if (this._state.isSearching) {
+          this._progressBar.infinite().show(PROGRESS_BAR_DELAY);
+        } else {
+          this._progressBar.stop().hide();
         }
-        if (this._findModel.currentMatch >= 0) {
-          const currentMatch = this._findModel.getCurrentMatch();
-          this._replaceBtn.setEnabled(currentMatch.isModelMatch);
-        }
-        const matches = this._findModel.findMatches;
-        this._replaceAllBtn.setEnabled(
-          matches.length > 0 && matches.find(
-            (match) => match.webviewMatches.length > 0
-          ) === void 0
-        );
-        if (e.filters) {
-          this._findInput.updateFilterState(
-            this._state.filters?.isModified() ?? false
-          );
-        }
-      })
-    );
-    this._register(
-      DOM.addDisposableListener(
-        this.getDomNode(),
-        DOM.EventType.FOCUS,
-        (e) => {
-          this._previousFocusElement = DOM.isHTMLElement(
-            e.relatedTarget
-          ) ? e.relatedTarget : void 0;
-        },
-        true
-      )
-    );
+      }
+      if (this._findModel.currentMatch >= 0) {
+        const currentMatch = this._findModel.getCurrentMatch();
+        this._replaceBtn.setEnabled(currentMatch.isModelMatch);
+      }
+      const matches = this._findModel.findMatches;
+      this._replaceAllBtn.setEnabled(matches.length > 0 && matches.find((match) => match.webviewMatches.length > 0) === void 0);
+      if (e.filters) {
+        this._findInput.updateFilterState(this._state.filters?.isModified() ?? false);
+      }
+    }));
+    this._register(DOM.addDisposableListener(this.getDomNode(), DOM.EventType.FOCUS, (e) => {
+      this._previousFocusElement = DOM.isHTMLElement(e.relatedTarget) ? e.relatedTarget : void 0;
+    }, true));
   }
   _onFindInputKeyDown(e) {
     if (e.equals(KeyCode.Enter)) {
@@ -199,10 +151,7 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
       const match = currentMatch.match;
       this._progressBar.infinite().show(PROGRESS_BAR_DELAY);
       const replacePattern = this.replacePattern;
-      const replaceString = replacePattern.buildReplaceString(
-        match.matches,
-        this._state.preserveCase
-      );
+      const replaceString = replacePattern.buildReplaceString(match.matches, this._state.preserveCase);
       const viewModel = this._notebookEditor.getViewModel();
       viewModel.replaceOne(cell, match.range, replaceString).then(() => {
         this._progressBar.stop();
@@ -222,12 +171,7 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
     cellFindMatches.forEach((cellFindMatch) => {
       cellFindMatch.contentMatches.forEach((match) => {
         const matches = match.matches;
-        replaceStrings.push(
-          replacePattern.buildReplaceString(
-            matches,
-            this._state.preserveCase
-          )
-        );
+        replaceStrings.push(replacePattern.buildReplaceString(matches, this._state.preserveCase));
       });
     });
     const viewModel = this._notebookEditor.getViewModel();
@@ -255,13 +199,7 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
   async show(initialInput, options) {
     const searchStringUpdate = this._state.searchString !== initialInput;
     super.show(initialInput, options);
-    this._state.change(
-      {
-        searchString: initialInput ?? this._state.searchString,
-        isRevealed: true
-      },
-      false
-    );
+    this._state.change({ searchString: initialInput ?? this._state.searchString, isRevealed: true }, false);
     if (typeof options?.matchIndex === "number") {
       if (!this._findModel.findMatches.length) {
         await this._findModel.research();
@@ -275,50 +213,33 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
     }
     if (this._showTimeout === null) {
       if (this._hideTimeout !== null) {
-        DOM.getWindow(this.getDomNode()).clearTimeout(
-          this._hideTimeout
-        );
+        DOM.getWindow(this.getDomNode()).clearTimeout(this._hideTimeout);
         this._hideTimeout = null;
         this._notebookEditor.removeClassName(FIND_HIDE_TRANSITION);
       }
       this._notebookEditor.addClassName(FIND_SHOW_TRANSITION);
-      this._showTimeout = DOM.getWindow(this.getDomNode()).setTimeout(
-        () => {
-          this._notebookEditor.removeClassName(FIND_SHOW_TRANSITION);
-          this._showTimeout = null;
-        },
-        200
-      );
+      this._showTimeout = DOM.getWindow(this.getDomNode()).setTimeout(() => {
+        this._notebookEditor.removeClassName(FIND_SHOW_TRANSITION);
+        this._showTimeout = null;
+      }, 200);
     } else {
     }
   }
   replace(initialFindInput, initialReplaceInput) {
     super.showWithReplace(initialFindInput, initialReplaceInput);
-    this._state.change(
-      {
-        searchString: initialFindInput ?? "",
-        replaceString: initialReplaceInput ?? "",
-        isRevealed: true
-      },
-      false
-    );
+    this._state.change({ searchString: initialFindInput ?? "", replaceString: initialReplaceInput ?? "", isRevealed: true }, false);
     this._replaceInput.select();
     if (this._showTimeout === null) {
       if (this._hideTimeout !== null) {
-        DOM.getWindow(this.getDomNode()).clearTimeout(
-          this._hideTimeout
-        );
+        DOM.getWindow(this.getDomNode()).clearTimeout(this._hideTimeout);
         this._hideTimeout = null;
         this._notebookEditor.removeClassName(FIND_HIDE_TRANSITION);
       }
       this._notebookEditor.addClassName(FIND_SHOW_TRANSITION);
-      this._showTimeout = DOM.getWindow(this.getDomNode()).setTimeout(
-        () => {
-          this._notebookEditor.removeClassName(FIND_SHOW_TRANSITION);
-          this._showTimeout = null;
-        },
-        200
-      );
+      this._showTimeout = DOM.getWindow(this.getDomNode()).setTimeout(() => {
+        this._notebookEditor.removeClassName(FIND_SHOW_TRANSITION);
+        this._showTimeout = null;
+      }, 200);
     } else {
     }
   }
@@ -330,19 +251,14 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
     this._progressBar.stop();
     if (this._hideTimeout === null) {
       if (this._showTimeout !== null) {
-        DOM.getWindow(this.getDomNode()).clearTimeout(
-          this._showTimeout
-        );
+        DOM.getWindow(this.getDomNode()).clearTimeout(this._showTimeout);
         this._showTimeout = null;
         this._notebookEditor.removeClassName(FIND_SHOW_TRANSITION);
       }
       this._notebookEditor.addClassName(FIND_HIDE_TRANSITION);
-      this._hideTimeout = DOM.getWindow(this.getDomNode()).setTimeout(
-        () => {
-          this._notebookEditor.removeClassName(FIND_HIDE_TRANSITION);
-        },
-        200
-      );
+      this._hideTimeout = DOM.getWindow(this.getDomNode()).setTimeout(() => {
+        this._notebookEditor.removeClassName(FIND_HIDE_TRANSITION);
+      }, 200);
     } else {
     }
     if (this._previousFocusElement && this._previousFocusElement.offsetParent) {
@@ -372,42 +288,19 @@ let NotebookFindWidget = class extends SimpleFindReplaceWidget {
         matchesCount += "+";
       }
       const matchesPosition = this._findModel.currentMatch < 0 ? "?" : String(this._findModel.currentMatch + 1);
-      label = strings.format(
-        NLS_MATCHES_LOCATION,
-        matchesPosition,
-        matchesCount
-      );
+      label = strings.format(NLS_MATCHES_LOCATION, matchesPosition, matchesCount);
     } else {
       label = NLS_NO_RESULTS;
     }
     this._matchesCount.appendChild(document.createTextNode(label));
-    alertFn(
-      this._getAriaLabel(
-        label,
-        this._state.currentMatch,
-        this._state.searchString
-      )
-    );
-    MAX_MATCHES_COUNT_WIDTH = Math.max(
-      MAX_MATCHES_COUNT_WIDTH,
-      this._matchesCount.clientWidth
-    );
+    alertFn(this._getAriaLabel(label, this._state.currentMatch, this._state.searchString));
+    MAX_MATCHES_COUNT_WIDTH = Math.max(MAX_MATCHES_COUNT_WIDTH, this._matchesCount.clientWidth);
   }
   _getAriaLabel(label, currentMatch, searchString) {
     if (label === NLS_NO_RESULTS) {
-      return searchString === "" ? localize("ariaSearchNoResultEmpty", "{0} found", label) : localize(
-        "ariaSearchNoResult",
-        "{0} found for '{1}'",
-        label,
-        searchString
-      );
+      return searchString === "" ? localize("ariaSearchNoResultEmpty", "{0} found", label) : localize("ariaSearchNoResult", "{0} found for '{1}'", label, searchString);
     }
-    return localize(
-      "ariaSearchNoResultWithLineNumNoCurrentMatch",
-      "{0} found for '{1}'",
-      label,
-      searchString
-    );
+    return localize("ariaSearchNoResultWithLineNumNoCurrentMatch", "{0} found for '{1}'", label, searchString);
   }
   dispose() {
     this._notebookEditor?.removeClassName(FIND_SHOW_TRANSITION);

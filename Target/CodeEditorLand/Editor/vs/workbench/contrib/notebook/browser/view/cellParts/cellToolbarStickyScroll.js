@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../../../base/common/numbers.js";
+import { ICellViewModel, INotebookEditor } from "../../notebookBrowser.js";
 function registerCellToolbarStickyScroll(notebookEditor, cell, element, opts) {
   const extraOffset = opts?.extraOffset ?? 0;
   const min = opts?.min ?? 0;

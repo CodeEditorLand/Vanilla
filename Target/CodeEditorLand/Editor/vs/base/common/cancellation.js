@@ -1,16 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter, Event } from "./event.js";
-const shortcutEvent = Object.freeze(
-  (callback, context) => {
-    const handle = setTimeout(callback.bind(context), 0);
-    return {
-      dispose() {
-        clearTimeout(handle);
-      }
-    };
-  }
-);
+import { DisposableStore, IDisposable } from "./lifecycle.js";
+const shortcutEvent = Object.freeze(function(callback, context) {
+  const handle = setTimeout(callback.bind(context), 0);
+  return { dispose() {
+    clearTimeout(handle);
+  } };
+});
 var CancellationToken;
 ((CancellationToken2) => {
   function isCancellationToken(thing) {
@@ -106,11 +103,9 @@ class CancellationTokenSource {
 }
 function cancelOnDispose(store) {
   const source = new CancellationTokenSource();
-  store.add({
-    dispose() {
-      source.cancel();
-    }
-  });
+  store.add({ dispose() {
+    source.cancel();
+  } });
   return source.token;
 }
 __name(cancelOnDispose, "cancelOnDispose");

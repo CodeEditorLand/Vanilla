@@ -10,50 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
 import * as UUID from "../../../../../base/common/uuid.js";
-import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import * as editorCommon from "../../../../../editor/common/editorCommon.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import {
-  CellKind
-} from "../../common/notebookCommon.js";
-import {
-  CellEditState,
-  CellFoldingState,
-  CellLayoutContext,
-  CellLayoutState
-} from "../notebookBrowser.js";
-import {
-  NotebookCellStateChangedEvent
-} from "../notebookViewEvents.js";
+import { CellEditState, CellFindMatch, CellFoldingState, CellLayoutContext, CellLayoutState, EditorFoldingStateDelegate, ICellOutputViewModel, ICellViewModel, MarkupCellLayoutChangeEvent, MarkupCellLayoutInfo } from "../notebookBrowser.js";
 import { BaseCellViewModel } from "./baseCellViewModel.js";
+import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import { CellKind, INotebookFindOptions } from "../../common/notebookCommon.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ViewContext } from "./viewContext.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { NotebookOptionsChangeEvent } from "../notebookOptions.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { NotebookCellStateChangedEvent, NotebookLayoutInfo } from "../notebookViewEvents.js";
 let MarkupCellViewModel = class extends BaseCellViewModel {
   constructor(viewType, model, initialNotebookLayoutInfo, foldingDelegate, viewContext, configurationService, textModelService, undoRedoService, codeEditorService) {
-    super(
-      viewType,
-      model,
-      UUID.generateUuid(),
-      viewContext,
-      configurationService,
-      textModelService,
-      undoRedoService,
-      codeEditorService
-    );
+    super(viewType, model, UUID.generateUuid(), viewContext, configurationService, textModelService, undoRedoService, codeEditorService);
     this.foldingDelegate = foldingDelegate;
     this.viewContext = viewContext;
-    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(
-      this.viewType
-    );
+    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType);
     this._layoutInfo = {
       chatHeight: 0,
       editorHeight: 0,
       previewHeight: 0,
       fontInfo: initialNotebookLayoutInfo?.fontInfo || null,
-      editorWidth: initialNotebookLayoutInfo?.width ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(
-        initialNotebookLayoutInfo.width
-      ) : 0,
+      editorWidth: initialNotebookLayoutInfo?.width ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(initialNotebookLayoutInfo.width) : 0,
       commentOffset: 0,
       commentHeight: 0,
       bottomToolbarOffset: bottomToolbarGap,
@@ -62,19 +44,12 @@ let MarkupCellViewModel = class extends BaseCellViewModel {
       foldHintHeight: 0,
       statusBarHeight: 0
     };
-    this._register(
-      this.onDidChangeState((e) => {
-        this.viewContext.eventDispatcher.emit([
-          new NotebookCellStateChangedEvent(e, this.model)
-        ]);
-        if (e.foldingStateChanged) {
-          this._updateTotalHeight(
-            this._computeTotalHeight(),
-            CellLayoutContext.Fold
-          );
-        }
-      })
-    );
+    this._register(this.onDidChangeState((e) => {
+      this.viewContext.eventDispatcher.emit([new NotebookCellStateChangedEvent(e, this.model)]);
+      if (e.foldingStateChanged) {
+        this._updateTotalHeight(this._computeTotalHeight(), CellLayoutContext.Fold);
+      }
+    }));
   }
   static {
     __name(this, "MarkupCellViewModel");
@@ -117,14 +92,10 @@ let MarkupCellViewModel = class extends BaseCellViewModel {
   get editorHeight() {
     throw new Error("MarkdownCellViewModel.editorHeight is write only");
   }
-  _onDidChangeLayout = this._register(
-    new Emitter()
-  );
+  _onDidChangeLayout = this._register(new Emitter());
   onDidChangeLayout = this._onDidChangeLayout.event;
   get foldingState() {
-    return this.foldingDelegate.getFoldingState(
-      this.foldingDelegate.getCellIndex(this)
-    );
+    return this.foldingDelegate.getFoldingState(this.foldingDelegate.getCellIndex(this));
   }
   _hoveringOutput = false;
   get outputIsHovered() {
@@ -155,17 +126,12 @@ let MarkupCellViewModel = class extends BaseCellViewModel {
   }
   _computeTotalHeight() {
     const layoutConfiguration = this.viewContext.notebookOptions.getLayoutConfiguration();
-    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(
-      this.viewType
-    );
+    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType);
     const foldHintHeight = this._computeFoldHintHeight();
     if (this.getEditState() === CellEditState.Editing) {
       return this._editorHeight + layoutConfiguration.markdownCellTopMargin + layoutConfiguration.markdownCellBottomMargin + bottomToolbarGap + this._statusBarHeight + this._commentHeight;
     } else {
-      return Math.max(
-        1,
-        this._previewHeight + bottomToolbarGap + foldHintHeight + this._commentHeight
-      );
+      return Math.max(1, this._previewHeight + bottomToolbarGap + foldHintHeight + this._commentHeight);
     }
   }
   _computeFoldHintHeight() {
@@ -196,29 +162,24 @@ let MarkupCellViewModel = class extends BaseCellViewModel {
   layoutChange(state) {
     let totalHeight;
     let foldHintHeight;
-    if (this.isInputCollapsed) {
-      totalHeight = this.viewContext.notebookOptions.computeCollapsedMarkdownCellHeight(
-        this.viewType
-      );
-      state.totalHeight = totalHeight;
-      foldHintHeight = 0;
-    } else {
+    if (!this.isInputCollapsed) {
       totalHeight = state.totalHeight === void 0 ? this._layoutInfo.layoutState === CellLayoutState.Uninitialized ? 100 : this._layoutInfo.totalHeight : state.totalHeight;
       foldHintHeight = this._computeFoldHintHeight();
+    } else {
+      totalHeight = this.viewContext.notebookOptions.computeCollapsedMarkdownCellHeight(this.viewType);
+      state.totalHeight = totalHeight;
+      foldHintHeight = 0;
     }
     let commentOffset;
     if (this.getEditState() === CellEditState.Editing) {
       const notebookLayoutConfiguration = this.viewContext.notebookOptions.getLayoutConfiguration();
-      commentOffset = notebookLayoutConfiguration.editorToolbarHeight + notebookLayoutConfiguration.cellTopMargin + // CELL_TOP_MARGIN
-      this._chatHeight + this._editorHeight + this._statusBarHeight;
+      commentOffset = notebookLayoutConfiguration.editorToolbarHeight + notebookLayoutConfiguration.cellTopMargin + this._chatHeight + this._editorHeight + this._statusBarHeight;
     } else {
       commentOffset = this._previewHeight;
     }
     this._layoutInfo = {
       fontInfo: state.font || this._layoutInfo.fontInfo,
-      editorWidth: state.outerWidth !== void 0 ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(
-        state.outerWidth
-      ) : this._layoutInfo.editorWidth,
+      editorWidth: state.outerWidth !== void 0 ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(state.outerWidth) : this._layoutInfo.editorWidth,
       chatHeight: this._chatHeight,
       editorHeight: this._editorHeight,
       statusBarHeight: this._statusBarHeight,

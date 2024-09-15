@@ -1,22 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../base/common/codicons.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
 import { localize2 } from "../../../../nls.js";
-import {
-  Action2,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  TextEditorSelectionRevealType
-} from "../../../../platform/editor/common/editor.js";
+import { ITextEditorOptions, TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { IListService } from "../../../../platform/list/browser/listService.js";
 import { resolveCommandsContext } from "../../../browser/parts/editor/editorCommandsContext.js";
-import { ActiveEditorContext } from "../../../common/contextkeys.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { MultiDiffEditor } from "./multiDiffEditor.js";
 import { MultiDiffEditorInput } from "./multiDiffEditorInput.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
 class GoToFileAction extends Action2 {
   static {
     __name(this, "GoToFileAction");
@@ -39,7 +37,7 @@ class GoToFileAction extends Action2 {
     const uri = args[0];
     const editorService = accessor.get(IEditorService);
     const activeEditorPane = editorService.activeEditorPane;
-    let selections;
+    let selections = void 0;
     if (!(activeEditorPane instanceof MultiDiffEditor)) {
       return;
     }
@@ -70,15 +68,9 @@ class CollapseAllAction extends Action2 {
       id: "multiDiffEditor.collapseAll",
       title: localize2("collapseAllDiffs", "Collapse All Diffs"),
       icon: Codicon.collapseAll,
-      precondition: ContextKeyExpr.and(
-        ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
-        ContextKeyExpr.not("multiDiffEditorAllCollapsed")
-      ),
+      precondition: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.not("multiDiffEditorAllCollapsed")),
       menu: {
-        when: ContextKeyExpr.and(
-          ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
-          ContextKeyExpr.not("multiDiffEditorAllCollapsed")
-        ),
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.not("multiDiffEditorAllCollapsed")),
         id: MenuId.EditorTitle,
         group: "navigation",
         order: 100
@@ -87,12 +79,7 @@ class CollapseAllAction extends Action2 {
     });
   }
   async run(accessor, ...args) {
-    const resolvedContext = resolveCommandsContext(
-      args,
-      accessor.get(IEditorService),
-      accessor.get(IEditorGroupsService),
-      accessor.get(IListService)
-    );
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
     const groupContext = resolvedContext.groupedEditors[0];
     if (!groupContext) {
       return;
@@ -113,15 +100,9 @@ class ExpandAllAction extends Action2 {
       id: "multiDiffEditor.expandAll",
       title: localize2("ExpandAllDiffs", "Expand All Diffs"),
       icon: Codicon.expandAll,
-      precondition: ContextKeyExpr.and(
-        ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
-        ContextKeyExpr.has("multiDiffEditorAllCollapsed")
-      ),
+      precondition: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.has("multiDiffEditorAllCollapsed")),
       menu: {
-        when: ContextKeyExpr.and(
-          ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
-          ContextKeyExpr.has("multiDiffEditorAllCollapsed")
-        ),
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.has("multiDiffEditorAllCollapsed")),
         id: MenuId.EditorTitle,
         group: "navigation",
         order: 100
@@ -130,12 +111,7 @@ class ExpandAllAction extends Action2 {
     });
   }
   async run(accessor, ...args) {
-    const resolvedContext = resolveCommandsContext(
-      args,
-      accessor.get(IEditorService),
-      accessor.get(IEditorGroupsService),
-      accessor.get(IListService)
-    );
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
     const groupContext = resolvedContext.groupedEditors[0];
     if (!groupContext) {
       return;

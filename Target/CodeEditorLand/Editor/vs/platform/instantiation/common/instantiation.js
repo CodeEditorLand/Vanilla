@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import * as descriptors from "./descriptors.js";
+import { ServiceCollection } from "./serviceCollection.js";
 var _util;
 ((_util2) => {
   _util2.serviceIds = /* @__PURE__ */ new Map();
@@ -11,9 +14,7 @@ var _util;
   _util2.getServiceDependencies = getServiceDependencies;
   __name(getServiceDependencies, "getServiceDependencies");
 })(_util || (_util = {}));
-const IInstantiationService = createDecorator(
-  "instantiationService"
-);
+const IInstantiationService = createDecorator("instantiationService");
 function storeServiceDependency(id, target, index) {
   if (target[_util.DI_TARGET] === target) {
     target[_util.DI_DEPENDENCIES].push({ id, index });
@@ -27,11 +28,9 @@ function createDecorator(serviceId) {
   if (_util.serviceIds.has(serviceId)) {
     return _util.serviceIds.get(serviceId);
   }
-  const id = /* @__PURE__ */ __name((target, key, index) => {
+  const id = /* @__PURE__ */ __name(function(target, key, index) {
     if (arguments.length !== 3) {
-      throw new Error(
-        "@IServiceName-decorator can only be used to decorate a parameter"
-      );
+      throw new Error("@IServiceName-decorator can only be used to decorate a parameter");
     }
     storeServiceDependency(id, target, index);
   }, "id");

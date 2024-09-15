@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IRange } from "../../core/range.js";
+import { IInplaceReplaceSupportResult } from "../../languages.js";
 class BasicInplaceReplace {
   static {
     __name(this, "BasicInplaceReplace");
@@ -34,12 +36,9 @@ class BasicInplaceReplace {
     return this.textReplace(text, up);
   }
   numberReplace(value, up) {
-    const precision = Math.pow(
-      10,
-      value.length - (value.lastIndexOf(".") + 1)
-    );
+    const precision = Math.pow(10, value.length - (value.lastIndexOf(".") + 1));
     let n1 = Number(value);
-    const n2 = Number.parseFloat(value);
+    const n2 = parseFloat(value);
     if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
       if (n1 === 0 && !up) {
         return null;
@@ -54,15 +53,7 @@ class BasicInplaceReplace {
   _defaultValueSet = [
     ["true", "false"],
     ["True", "False"],
-    [
-      "Private",
-      "Public",
-      "Friend",
-      "ReadOnly",
-      "Partial",
-      "Protected",
-      "WriteOnly"
-    ],
+    ["Private", "Public", "Friend", "ReadOnly", "Partial", "Protected", "WriteOnly"],
     ["public", "protected", "private"]
   ];
   textReplace(value, up) {

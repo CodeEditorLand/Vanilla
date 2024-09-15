@@ -21,19 +21,19 @@ label {
   user-select: none;
 }
 .block-settingsSearchResults-details {
-  padding-bottom: 0.5rem;
+  padding-bottom: .5rem;
 }
 .block-settingsSearchResults-details > div {
-  padding: 0.5rem 0.75rem;
+  padding: .5rem .75rem;
 }
 .section {
-  margin-bottom: 0.5em;
+  margin-bottom: .5em;
 }
 input[type=text],
 textarea {
   display: block;
   width: 100%;
-  padding: 0.375rem 0.75rem;
+  padding: .375rem .75rem;
   font-size: 1rem;
   line-height: 1.5;
   color: #495057;
@@ -71,7 +71,7 @@ select {
   font-family: inherit;
 }
 html {
-  color: #cccccc;
+  color: #CCCCCC;
   height: 100%;
 }
 .extension-caption .codicon-modifier-spin {
@@ -293,7 +293,7 @@ input:disabled {
 }
 .instructions {
   font-size: 12px;
-  margin-top: 0.5em;
+  margin-top: .5em;
 }
 a,
 .workbenchCommand {
@@ -315,7 +315,7 @@ textarea {
   color: #cccccc;
 }
 a {
-  color: #cccccc;
+  color: #CCCCCC;
   text-decoration: none;
 }
 .section .input-group .validation-error {
@@ -384,7 +384,7 @@ a {
 }
 .issues-container {
   margin-left: 1.5em;
-  margin-top: 0.5em;
+  margin-top: .5em;
   max-height: 92px;
   overflow-y: auto;
 }
@@ -407,9 +407,9 @@ a {
   width: 77px;
   padding: 3px 6px;
   margin-right: 5px;
-  color: #cccccc;
+  color: #CCCCCC;
   background-color: #3c3c3c;
-  border-radius: 0.25rem;
+  border-radius: .25rem;
 }
 .issues-container > .issue .label {
   padding-top: 2px;

@@ -1,24 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { coalesce } from "../../../base/common/arrays.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { isCancellationError } from "../../../base/common/errors.js";
 import { Emitter } from "../../../base/common/event.js";
-import { dispose } from "../../../base/common/lifecycle.js";
+import { dispose, IDisposable } from "../../../base/common/lifecycle.js";
+import { ExtHostCommands } from "./extHostCommands.js";
+import { IExtHostWorkspaceProvider } from "./extHostWorkspace.js";
+import { InputBox, InputBoxOptions, InputBoxValidationMessage, QuickInput, QuickInputButton, QuickPick, QuickPickItem, QuickPickItemButtonEvent, QuickPickOptions, WorkspaceFolder, WorkspaceFolderPickOptions } from "vscode";
+import { ExtHostQuickOpenShape, IMainContext, MainContext, TransferQuickInput, TransferQuickInputButton, TransferQuickPickItemOrSeparator } from "./extHost.protocol.js";
+import { URI } from "../../../base/common/uri.js";
+import { ThemeIcon, QuickInputButtons, QuickPickItemKind, InputBoxValidationSeverity } from "./extHostTypes.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { coalesce } from "../../../base/common/arrays.js";
 import Severity from "../../../base/common/severity.js";
 import { ThemeIcon as ThemeIconUtils } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
 import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
 import { MarkdownString } from "./extHostTypeConverters.js";
-import {
-  InputBoxValidationSeverity,
-  QuickInputButtons,
-  QuickPickItemKind,
-  ThemeIcon
-} from "./extHostTypes.js";
 function createExtHostQuickOpen(mainContext, workspace, commands) {
   const proxy = mainContext.getProxy(MainContext.MainThreadQuickOpen);
   class ExtHostQuickOpenImpl {
@@ -39,30 +36,21 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
       this._onDidSelectItem = void 0;
       const itemsPromise = Promise.resolve(itemsOrItemsPromise);
       const instance = ++this._instances;
-      const quickPickWidget = proxy.$show(
-        instance,
-        {
-          title: options?.title,
-          placeHolder: options?.placeHolder,
-          matchOnDescription: options?.matchOnDescription,
-          matchOnDetail: options?.matchOnDetail,
-          ignoreFocusLost: options?.ignoreFocusOut,
-          canPickMany: options?.canPickMany
-        },
-        token
-      );
+      const quickPickWidget = proxy.$show(instance, {
+        title: options?.title,
+        placeHolder: options?.placeHolder,
+        matchOnDescription: options?.matchOnDescription,
+        matchOnDetail: options?.matchOnDetail,
+        ignoreFocusLost: options?.ignoreFocusOut,
+        canPickMany: options?.canPickMany
+      }, token);
       const widgetClosedMarker = {};
-      const widgetClosedPromise = quickPickWidget.then(
-        () => widgetClosedMarker
-      );
+      const widgetClosedPromise = quickPickWidget.then(() => widgetClosedMarker);
       return Promise.race([widgetClosedPromise, itemsPromise]).then((result) => {
         if (result === widgetClosedMarker) {
           return void 0;
         }
-        const allowedTooltips = isProposedApiEnabled(
-          extension,
-          "quickPickItemTooltip"
-        );
+        const allowedTooltips = isProposedApiEnabled(extension, "quickPickItemTooltip");
         return itemsPromise.then((items) => {
           const pickItems = [];
           for (let handle = 0; handle < items.length; handle++) {
@@ -70,15 +58,10 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
             if (typeof item === "string") {
               pickItems.push({ label: item, handle });
             } else if (item.kind === QuickPickItemKind.Separator) {
-              pickItems.push({
-                type: "separator",
-                label: item.label
-              });
+              pickItems.push({ type: "separator", label: item.label });
             } else {
               if (item.tooltip && !allowedTooltips) {
-                console.warn(
-                  `Extension '${extension.identifier.value}' uses a tooltip which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${extension.identifier.value}`
-                );
+                console.warn(`Extension '${extension.identifier.value}' uses a tooltip which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${extension.identifier.value}`);
               }
               const icon = item.iconPath ? getIconPathOrClass(item.iconPath) : void 0;
               pickItems.push({
@@ -89,9 +72,7 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
                 detail: item.detail,
                 picked: item.picked,
                 alwaysShow: item.alwaysShow,
-                tooltip: allowedTooltips ? MarkdownString.fromStrict(
-                  item.tooltip
-                ) : void 0,
+                tooltip: allowedTooltips ? MarkdownString.fromStrict(item.tooltip) : void 0,
                 handle
               });
             }
@@ -125,11 +106,7 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
     // ---- input
     showInput(options, token = CancellationToken.None) {
       this._validateInput = options?.validateInput;
-      return proxy.$input(
-        options,
-        typeof this._validateInput === "function",
-        token
-      ).then(void 0, (err) => {
+      return proxy.$input(options, typeof this._validateInput === "function", token).then(void 0, (err) => {
         if (isCancellationError(err)) {
           return void 0;
         }
@@ -166,10 +143,7 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
     }
     // ---- workspace folder picker
     async showWorkspaceFolderPick(options, token = CancellationToken.None) {
-      const selectedFolder = await this._commands.executeCommand(
-        "_workbench.pickWorkspaceFolder",
-        [options]
-      );
+      const selectedFolder = await this._commands.executeCommand("_workbench.pickWorkspaceFolder", [options]);
       if (!selectedFolder) {
         return void 0;
       }
@@ -177,24 +151,16 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
       if (!workspaceFolders) {
         return void 0;
       }
-      return workspaceFolders.find(
-        (folder) => folder.uri.toString() === selectedFolder.uri.toString()
-      );
+      return workspaceFolders.find((folder) => folder.uri.toString() === selectedFolder.uri.toString());
     }
     // ---- QuickInput
     createQuickPick(extension) {
-      const session = new ExtHostQuickPick(
-        extension,
-        () => this._sessions.delete(session._id)
-      );
+      const session = new ExtHostQuickPick(extension, () => this._sessions.delete(session._id));
       this._sessions.set(session._id, session);
       return session;
     }
     createInputBox(extension) {
-      const session = new ExtHostInputBox(
-        extension,
-        () => this._sessions.delete(session._id)
-      );
+      const session = new ExtHostInputBox(extension, () => this._sessions.delete(session._id));
       this._sessions.set(session._id, session);
       return session;
     }
@@ -330,14 +296,9 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
       return this._buttons;
     }
     set buttons(buttons) {
-      const allowedButtonLocation = isProposedApiEnabled(
-        this._extension,
-        "quickInputButtonLocation"
-      );
+      const allowedButtonLocation = isProposedApiEnabled(this._extension, "quickInputButtonLocation");
       if (!allowedButtonLocation && buttons.some((button) => button.location)) {
-        console.warn(
-          `Extension '${this._extension.identifier.value}' uses a button location which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${this._extension.identifier.value}`
-        );
+        console.warn(`Extension '${this._extension.identifier.value}' uses a button location which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${this._extension.identifier.value}`);
       }
       this._buttons = buttons.slice();
       this._handlesToButtons.clear();
@@ -430,12 +391,8 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
     if (iconPath instanceof ThemeIcon) {
       return { id: iconPath.id };
     }
-    const dark = getDarkIconUri(
-      iconPath
-    );
-    const light = getLightIconUri(
-      iconPath
-    );
+    const dark = getDarkIconUri(iconPath);
+    const light = getLightIconUri(iconPath);
     return {
       dark: typeof dark === "string" ? URI.file(dark) : dark,
       light: typeof light === "string" ? URI.file(light) : light
@@ -502,10 +459,7 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
         this._handlesToItems.set(i, item);
         this._itemsToHandles.set(item, i);
       });
-      const allowedTooltips = isProposedApiEnabled(
-        this._extension,
-        "quickPickItemTooltip"
-      );
+      const allowedTooltips = isProposedApiEnabled(this._extension, "quickPickItemTooltip");
       const pickItems = [];
       for (let handle = 0; handle < items.length; handle++) {
         const item = items[handle];
@@ -513,9 +467,7 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
           pickItems.push({ type: "separator", label: item.label });
         } else {
           if (item.tooltip && !allowedTooltips) {
-            console.warn(
-              `Extension '${this._extension.identifier.value}' uses a tooltip which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${this._extension.identifier.value}`
-            );
+            console.warn(`Extension '${this._extension.identifier.value}' uses a tooltip which is proposed API that is only available when running out of dev or with the following command line switch: --enable-proposed-api ${this._extension.identifier.value}`);
           }
           const icon = item.iconPath ? getIconPathOrClass(item.iconPath) : void 0;
           pickItems.push({
@@ -528,15 +480,13 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
             picked: item.picked,
             alwaysShow: item.alwaysShow,
             tooltip: allowedTooltips ? MarkdownString.fromStrict(item.tooltip) : void 0,
-            buttons: item.buttons?.map(
-              (button, i) => {
-                return {
-                  ...getIconPathOrClass(button.iconPath),
-                  tooltip: button.tooltip,
-                  handle: i
-                };
-              }
-            )
+            buttons: item.buttons?.map((button, i) => {
+              return {
+                ...getIconPathOrClass(button.iconPath),
+                tooltip: button.tooltip,
+                handle: i
+              };
+            })
           });
         }
       }
@@ -583,41 +533,25 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
       return this._activeItems;
     }
     set activeItems(activeItems) {
-      this._activeItems = activeItems.filter(
-        (item) => this._itemsToHandles.has(item)
-      );
-      this.update({
-        activeItems: this._activeItems.map(
-          (item) => this._itemsToHandles.get(item)
-        )
-      });
+      this._activeItems = activeItems.filter((item) => this._itemsToHandles.has(item));
+      this.update({ activeItems: this._activeItems.map((item) => this._itemsToHandles.get(item)) });
     }
     onDidChangeActive = this._onDidChangeActiveEmitter.event;
     get selectedItems() {
       return this._selectedItems;
     }
     set selectedItems(selectedItems) {
-      this._selectedItems = selectedItems.filter(
-        (item) => this._itemsToHandles.has(item)
-      );
-      this.update({
-        selectedItems: this._selectedItems.map(
-          (item) => this._itemsToHandles.get(item)
-        )
-      });
+      this._selectedItems = selectedItems.filter((item) => this._itemsToHandles.has(item));
+      this.update({ selectedItems: this._selectedItems.map((item) => this._itemsToHandles.get(item)) });
     }
     onDidChangeSelection = this._onDidChangeSelectionEmitter.event;
     _fireDidChangeActive(handles) {
-      const items = coalesce(
-        handles.map((handle) => this._handlesToItems.get(handle))
-      );
+      const items = coalesce(handles.map((handle) => this._handlesToItems.get(handle)));
       this._activeItems = items;
       this._onDidChangeActiveEmitter.fire(items);
     }
     _fireDidChangeSelection(handles) {
-      const items = coalesce(
-        handles.map((handle) => this._handlesToItems.get(handle))
-      );
+      const items = coalesce(handles.map((handle) => this._handlesToItems.get(handle)));
       this._selectedItems = items;
       this._onDidChangeSelectionEmitter.fire(items);
     }
@@ -675,17 +609,11 @@ function createExtHostQuickOpen(mainContext, workspace, commands) {
     set validationMessage(validationMessage) {
       this._validationMessage = validationMessage;
       if (!validationMessage) {
-        this.update({
-          validationMessage: void 0,
-          severity: Severity.Ignore
-        });
+        this.update({ validationMessage: void 0, severity: Severity.Ignore });
       } else if (typeof validationMessage === "string") {
         this.update({ validationMessage, severity: Severity.Error });
       } else {
-        this.update({
-          validationMessage: validationMessage.message,
-          severity: validationMessage.severity ?? Severity.Error
-        });
+        this.update({ validationMessage: validationMessage.message, severity: validationMessage.severity ?? Severity.Error });
       }
     }
   }

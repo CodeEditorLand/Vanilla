@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../base/common/event.js";
-import { toDisposable } from "../../base/common/lifecycle.js";
-import {
-  score
-} from "./languageSelector.js";
-import { shouldSynchronizeModel } from "./model.js";
+import { IDisposable, toDisposable } from "../../base/common/lifecycle.js";
+import { ITextModel, shouldSynchronizeModel } from "./model.js";
+import { LanguageFilter, LanguageSelector, score } from "./languageSelector.js";
+import { URI } from "../../base/common/uri.js";
 function isExclusive(selector) {
   if (typeof selector === "string") {
     return false;
@@ -85,11 +84,7 @@ class LanguageFeatureRegistry {
   }
   ordered(model, recursive = false) {
     const result = [];
-    this._orderedForEach(
-      model,
-      recursive,
-      (entry) => result.push(entry.provider)
-    );
+    this._orderedForEach(model, recursive, (entry) => result.push(entry.provider));
     return result;
   }
   orderedGroups(model) {
@@ -118,32 +113,13 @@ class LanguageFeatureRegistry {
   _lastCandidate;
   _updateScores(model, recursive) {
     const notebookInfo = this._notebookInfoResolver?.(model.uri);
-    const candidate = notebookInfo ? new MatchCandidate(
-      model.uri,
-      model.getLanguageId(),
-      notebookInfo.uri,
-      notebookInfo.type,
-      recursive
-    ) : new MatchCandidate(
-      model.uri,
-      model.getLanguageId(),
-      void 0,
-      void 0,
-      recursive
-    );
+    const candidate = notebookInfo ? new MatchCandidate(model.uri, model.getLanguageId(), notebookInfo.uri, notebookInfo.type, recursive) : new MatchCandidate(model.uri, model.getLanguageId(), void 0, void 0, recursive);
     if (this._lastCandidate?.equals(candidate)) {
       return;
     }
     this._lastCandidate = candidate;
     for (const entry of this._entries) {
-      entry._score = score(
-        entry.selector,
-        candidate.uri,
-        candidate.languageId,
-        shouldSynchronizeModel(model),
-        candidate.notebookUri,
-        candidate.notebookType
-      );
+      entry._score = score(entry.selector, candidate.uri, candidate.languageId, shouldSynchronizeModel(model), candidate.notebookUri, candidate.notebookType);
       if (isExclusive(entry.selector) && entry._score > 0) {
         if (recursive) {
           entry._score = 0;

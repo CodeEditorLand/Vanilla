@@ -10,131 +10,68 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  DataTransfers
-} from "../../../../../base/browser/dnd.js";
+import { IListAccessibilityProvider } from "../../../../../base/browser/ui/list/listWidget.js";
 import * as DOM from "../../../../../base/browser/dom.js";
-import {
-  InputBox,
-  MessageType
-} from "../../../../../base/browser/ui/inputbox/inputBox.js";
-import {
-  ListDragOverEffectPosition,
-  ListDragOverEffectType
-} from "../../../../../base/browser/ui/list/list.js";
-import {
-  ExternalElementsDragAndDropData,
-  ListViewTargetSector,
-  NativeDragAndDropData
-} from "../../../../../base/browser/ui/list/listView.js";
-import {
-  TreeDragOverBubble,
-  TreeVisibility
-} from "../../../../../base/browser/ui/tree/tree.js";
-import { mainWindow } from "../../../../../base/browser/window.js";
-import { timeout } from "../../../../../base/common/async.js";
-import {
-  compareFileExtensionsDefault,
-  compareFileExtensionsLower,
-  compareFileExtensionsUnicode,
-  compareFileExtensionsUpper,
-  compareFileNamesDefault,
-  compareFileNamesLower,
-  compareFileNamesUnicode,
-  compareFileNamesUpper
-} from "../../../../../base/common/comparers.js";
-import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
-import {
-  Emitter,
-  Event,
-  EventMultiplexer
-} from "../../../../../base/common/event.js";
-import {
-  createMatches
-} from "../../../../../base/common/filters.js";
-import { createSingleCallFunction } from "../../../../../base/common/functional.js";
 import * as glob from "../../../../../base/common/glob.js";
-import { KeyCode } from "../../../../../base/common/keyCodes.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
-import { ResourceSet } from "../../../../../base/common/map.js";
-import { Schemas } from "../../../../../base/common/network.js";
-import { deepClone, equals } from "../../../../../base/common/objects.js";
-import * as path from "../../../../../base/common/path.js";
-import { isMacintosh, isWeb } from "../../../../../base/common/platform.js";
-import {
-  dirname,
-  distinctParents,
-  joinPath
-} from "../../../../../base/common/resources.js";
-import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
-import { isNumber } from "../../../../../base/common/types.js";
-import { ResourceFileEdit } from "../../../../../editor/browser/services/bulkEditService.js";
-import { localize } from "../../../../../nls.js";
-import {
-  IConfigurationService
-} from "../../../../../platform/configuration/common/configuration.js";
-import {
-  IContextMenuService,
-  IContextViewService
-} from "../../../../../platform/contextview/browser/contextView.js";
-import {
-  IDialogService,
-  getFileNamesMessage
-} from "../../../../../platform/dialogs/common/dialogs.js";
-import {
-  CodeDataTransfers,
-  containsDragType
-} from "../../../../../platform/dnd/browser/dnd.js";
-import { WebFileSystemAccess } from "../../../../../platform/files/browser/webFileSystemAccess.js";
-import {
-  FileChangeType,
-  FileKind,
-  FileOperationResult,
-  IFileService
-} from "../../../../../platform/files/common/files.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import {
-  INotificationService,
-  Severity
-} from "../../../../../platform/notification/common/notification.js";
-import {
-  IProgressService,
-  ProgressLocation
-} from "../../../../../platform/progress/common/progress.js";
-import { defaultInputBoxStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState,
-  isTemporaryWorkspace
-} from "../../../../../platform/workspace/common/workspace.js";
-import { fillEditorsDragData } from "../../../../browser/dnd.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IListVirtualDelegate, ListDragOverEffectPosition, ListDragOverEffectType } from "../../../../../base/browser/ui/list/list.js";
+import { IProgressService, ProgressLocation } from "../../../../../platform/progress/common/progress.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { IFileService, FileKind, FileOperationError, FileOperationResult, FileChangeType } from "../../../../../platform/files/common/files.js";
 import { IWorkbenchLayoutService } from "../../../../services/layout/browser/layoutService.js";
-import { IgnoreFile } from "../../../../services/search/common/ignoreFile.js";
-import { IWorkspaceEditingService } from "../../../../services/workspaces/common/workspaceEditing.js";
+import { isTemporaryWorkspace, IWorkspaceContextService, WorkbenchState } from "../../../../../platform/workspace/common/workspace.js";
+import { IDisposable, Disposable, dispose, toDisposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { KeyCode } from "../../../../../base/common/keyCodes.js";
+import { IFileLabelOptions, IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
+import { ITreeNode, ITreeFilter, TreeVisibility, IAsyncDataSource, ITreeSorter, ITreeDragAndDrop, ITreeDragOverReaction, TreeDragOverBubble } from "../../../../../base/browser/ui/tree/tree.js";
+import { IContextMenuService, IContextViewService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IConfigurationChangeEvent, IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IFilesConfiguration, UndoConfirmLevel } from "../../common/files.js";
+import { dirname, joinPath, distinctParents } from "../../../../../base/common/resources.js";
+import { InputBox, MessageType } from "../../../../../base/browser/ui/inputbox/inputBox.js";
+import { localize } from "../../../../../nls.js";
+import { createSingleCallFunction } from "../../../../../base/common/functional.js";
+import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { equals, deepClone } from "../../../../../base/common/objects.js";
+import * as path from "../../../../../base/common/path.js";
 import { ExplorerItem, NewExplorerItem } from "../../common/explorerModel.js";
-import {
-  UndoConfirmLevel
-} from "../../common/files.js";
-import {
-  explorerFileContribRegistry
-} from "../explorerFileContrib.js";
+import { compareFileExtensionsDefault, compareFileNamesDefault, compareFileNamesUpper, compareFileExtensionsUpper, compareFileNamesLower, compareFileExtensionsLower, compareFileNamesUnicode, compareFileExtensionsUnicode } from "../../../../../base/common/comparers.js";
+import { CodeDataTransfers, containsDragType } from "../../../../../platform/dnd/browser/dnd.js";
+import { fillEditorsDragData } from "../../../../browser/dnd.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IDragAndDropData, DataTransfers } from "../../../../../base/browser/dnd.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { NativeDragAndDropData, ExternalElementsDragAndDropData, ElementsDragAndDropData, ListViewTargetSector } from "../../../../../base/browser/ui/list/listView.js";
+import { isMacintosh, isWeb } from "../../../../../base/common/platform.js";
+import { IDialogService, getFileNamesMessage } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IWorkspaceEditingService } from "../../../../services/workspaces/common/workspaceEditing.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IWorkspaceFolderCreationData } from "../../../../../platform/workspaces/common/workspaces.js";
 import { findValidPasteFileTarget } from "../fileActions.js";
-import {
-  BrowserFileUpload,
-  ExternalFileImport,
-  getMultipleFilesOverwriteConfirm
-} from "../fileImportExport.js";
+import { FuzzyScore, createMatches } from "../../../../../base/common/filters.js";
+import { Emitter, Event, EventMultiplexer } from "../../../../../base/common/event.js";
+import { ITreeCompressionDelegate } from "../../../../../base/browser/ui/tree/asyncDataTree.js";
+import { ICompressibleTreeRenderer } from "../../../../../base/browser/ui/tree/objectTree.js";
+import { ICompressedTreeNode } from "../../../../../base/browser/ui/tree/compressedObjectTreeModel.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { isNumber } from "../../../../../base/common/types.js";
+import { IEditableData } from "../../../../common/views.js";
+import { EditorInput } from "../../../../common/editor/editorInput.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ResourceFileEdit } from "../../../../../editor/browser/services/bulkEditService.js";
 import { IExplorerService } from "../files.js";
+import { BrowserFileUpload, ExternalFileImport, getMultipleFilesOverwriteConfirm } from "../fileImportExport.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { WebFileSystemAccess } from "../../../../../platform/files/browser/webFileSystemAccess.js";
+import { IgnoreFile } from "../../../../services/search/common/ignoreFile.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
+import { defaultInputBoxStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { timeout } from "../../../../../base/common/async.js";
+import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { mainWindow } from "../../../../../base/browser/window.js";
+import { IExplorerFileContribution, explorerFileContribRegistry } from "../explorerFileContrib.js";
 class ExplorerDelegate {
   static {
     __name(this, "ExplorerDelegate");
@@ -164,9 +101,7 @@ let ExplorerDataSource = class {
     __name(this, "ExplorerDataSource");
   }
   hasChildren(element) {
-    return Array.isArray(element) || element.hasChildren(
-      (stat) => this.fileFilter.filter(stat, TreeVisibility.Visible)
-    );
+    return Array.isArray(element) || element.hasChildren((stat) => this.fileFilter.filter(stat, TreeVisibility.Visible));
   }
   getChildren(element) {
     if (Array.isArray(element)) {
@@ -188,15 +123,7 @@ let ExplorerDataSource = class {
       (e) => {
         if (element instanceof ExplorerItem && element.isRoot) {
           if (this.contextService.getWorkbenchState() === WorkbenchState.FOLDER) {
-            const placeholder = new ExplorerItem(
-              element.resource,
-              this.fileService,
-              this.configService,
-              this.filesConfigService,
-              void 0,
-              void 0,
-              false
-            );
+            const placeholder = new ExplorerItem(element.resource, this.fileService, this.configService, this.filesConfigService, void 0, void 0, false);
             placeholder.error = e;
             return [placeholder];
           } else {
@@ -208,14 +135,11 @@ let ExplorerDataSource = class {
         return [];
       }
     );
-    this.progressService.withProgress(
-      {
-        location: ProgressLocation.Explorer,
-        delay: this.layoutService.isRestored() ? 800 : 1500
-        // reduce progress visibility when still restoring
-      },
-      (_progress) => promise
-    );
+    this.progressService.withProgress({
+      location: ProgressLocation.Explorer,
+      delay: this.layoutService.isRestored() ? 800 : 1500
+      // reduce progress visibility when still restoring
+    }, (_progress) => promise);
     return promise;
   }
 };
@@ -237,9 +161,7 @@ class CompressedNavigationController {
     this.collapsed = collapsed;
     this._index = items.length - 1;
     this.updateLabels(templateData);
-    this._updateLabelDisposable = templateData.label.onDidRender(
-      () => this.updateLabels(templateData)
-    );
+    this._updateLabelDisposable = templateData.label.onDidRender(() => this.updateLabels(templateData));
   }
   static {
     __name(this, "CompressedNavigationController");
@@ -266,9 +188,7 @@ class CompressedNavigationController {
   _onDidChange = new Emitter();
   onDidChange = this._onDidChange.event;
   updateLabels(templateData) {
-    this._labels = Array.from(
-      templateData.container.querySelectorAll(".label-name")
-    );
+    this._labels = Array.from(templateData.container.querySelectorAll(".label-name"));
     let parents = "";
     for (let i = 0; i < this.labels.length; i++) {
       const ariaLabel = parents.length ? `${this.items[i].name}, compact, ${parents}` : this.items[i].name;
@@ -317,10 +237,7 @@ class CompressedNavigationController {
   updateCollapsed(collapsed) {
     this.collapsed = collapsed;
     for (let i = 0; i < this.labels.length; i++) {
-      this.labels[i].setAttribute(
-        "aria-expanded",
-        collapsed ? "false" : "true"
-      );
+      this.labels[i].setAttribute("aria-expanded", collapsed ? "false" : "true");
     }
   }
   dispose() {
@@ -342,14 +259,9 @@ let FilesRenderer = class {
     this.instantiationService = instantiationService;
     this.config = this.configurationService.getValue();
     const updateOffsetStyles = /* @__PURE__ */ __name(() => {
-      const indent = this.configurationService.getValue(
-        "workbench.tree.indent"
-      );
+      const indent = this.configurationService.getValue("workbench.tree.indent");
       const offset = Math.max(22 - indent, 0);
-      container.style.setProperty(
-        `--vscode-explorer-align-offset-margin-left`,
-        `${offset}px`
-      );
+      container.style.setProperty(`--vscode-explorer-align-offset-margin-left`, `${offset}px`);
     }, "updateOffsetStyles");
     this.configListener = this.configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("explorer")) {
@@ -378,38 +290,22 @@ let FilesRenderer = class {
   }
   renderTemplate(container) {
     const templateDisposables = new DisposableStore();
-    const label = templateDisposables.add(
-      this.labels.create(container, { supportHighlights: true })
-    );
-    templateDisposables.add(
-      label.onDidRender(() => {
-        try {
-          if (templateData.currentContext) {
-            this.updateWidth(templateData.currentContext);
-          }
-        } catch (e) {
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true }));
+    templateDisposables.add(label.onDidRender(() => {
+      try {
+        if (templateData.currentContext) {
+          this.updateWidth(templateData.currentContext);
         }
-      })
-    );
-    const contribs = explorerFileContribRegistry.create(
-      this.instantiationService,
-      container,
-      templateDisposables
-    );
-    templateDisposables.add(
-      explorerFileContribRegistry.onDidRegisterDescriptor((d) => {
-        const contr = d.create(this.instantiationService, container);
-        contribs.push(templateDisposables.add(contr));
-        contr.setResource(templateData.currentContext?.resource);
-      })
-    );
-    const templateData = {
-      templateDisposables,
-      elementDisposables: templateDisposables.add(new DisposableStore()),
-      label,
-      container,
-      contribs
-    };
+      } catch (e) {
+      }
+    }));
+    const contribs = explorerFileContribRegistry.create(this.instantiationService, container, templateDisposables);
+    templateDisposables.add(explorerFileContribRegistry.onDidRegisterDescriptor((d) => {
+      const contr = d.create(this.instantiationService, container);
+      contribs.push(templateDisposables.add(contr));
+      contr.setResource(templateData.currentContext?.resource);
+    }));
+    const templateData = { templateDisposables, elementDisposables: templateDisposables.add(new DisposableStore()), label, container, contribs };
     return templateData;
   }
   renderElement(node, index, templateData) {
@@ -417,99 +313,54 @@ let FilesRenderer = class {
     templateData.currentContext = stat;
     const editableData = this.explorerService.getEditableData(stat);
     templateData.label.element.classList.remove("compressed");
-    if (editableData) {
+    if (!editableData) {
+      templateData.label.element.style.display = "flex";
+      this.renderStat(stat, stat.name, void 0, node.filterData, templateData);
+    } else {
       templateData.label.element.style.display = "none";
       templateData.contribs.forEach((c) => c.setResource(void 0));
-      templateData.elementDisposables.add(
-        this.renderInputBox(templateData.container, stat, editableData)
-      );
-    } else {
-      templateData.label.element.style.display = "flex";
-      this.renderStat(
-        stat,
-        stat.name,
-        void 0,
-        node.filterData,
-        templateData
-      );
+      templateData.elementDisposables.add(this.renderInputBox(templateData.container, stat, editableData));
     }
   }
   renderCompressedElements(node, index, templateData, height) {
     const stat = node.element.elements[node.element.elements.length - 1];
     templateData.currentContext = stat;
-    const editable = node.element.elements.filter(
-      (e) => this.explorerService.isEditable(e)
-    );
+    const editable = node.element.elements.filter((e) => this.explorerService.isEditable(e));
     const editableData = editable.length === 0 ? void 0 : this.explorerService.getEditableData(editable[0]);
-    if (editableData) {
-      templateData.label.element.classList.remove("compressed");
-      templateData.label.element.style.display = "none";
-      templateData.contribs.forEach((c) => c.setResource(void 0));
-      templateData.elementDisposables.add(
-        this.renderInputBox(
-          templateData.container,
-          editable[0],
-          editableData
-        )
-      );
-    } else {
+    if (!editableData) {
       templateData.label.element.classList.add("compressed");
       templateData.label.element.style.display = "flex";
       const id = `compressed-explorer_${CompressedNavigationController.ID++}`;
       const label = node.element.elements.map((e) => e.name);
       this.renderStat(stat, label, id, node.filterData, templateData);
-      const compressedNavigationController = new CompressedNavigationController(
-        id,
-        node.element.elements,
-        templateData,
-        node.depth,
-        node.collapsed
-      );
+      const compressedNavigationController = new CompressedNavigationController(id, node.element.elements, templateData, node.depth, node.collapsed);
       templateData.elementDisposables.add(compressedNavigationController);
       const nodeControllers = this.compressedNavigationControllers.get(stat) ?? [];
-      this.compressedNavigationControllers.set(stat, [
-        ...nodeControllers,
-        compressedNavigationController
-      ]);
-      templateData.elementDisposables.add(
-        this._onDidChangeActiveDescendant.add(
-          compressedNavigationController.onDidChange
-        )
-      );
-      templateData.elementDisposables.add(
-        DOM.addDisposableListener(
-          templateData.container,
-          "mousedown",
-          (e) => {
-            const result = getIconLabelNameFromHTMLElement(
-              e.target
-            );
-            if (result) {
-              compressedNavigationController.setIndex(
-                result.index
-              );
-            }
-          }
-        )
-      );
-      templateData.elementDisposables.add(
-        toDisposable(() => {
-          const nodeControllers2 = this.compressedNavigationControllers.get(stat) ?? [];
-          const renderedIndex = nodeControllers2.findIndex(
-            (controller) => controller === compressedNavigationController
-          );
-          if (renderedIndex < 0) {
-            throw new Error(
-              "Disposing unknown navigation controller"
-            );
-          }
-          if (nodeControllers2.length === 1) {
-            this.compressedNavigationControllers.delete(stat);
-          } else {
-            nodeControllers2.splice(renderedIndex, 1);
-          }
-        })
-      );
+      this.compressedNavigationControllers.set(stat, [...nodeControllers, compressedNavigationController]);
+      templateData.elementDisposables.add(this._onDidChangeActiveDescendant.add(compressedNavigationController.onDidChange));
+      templateData.elementDisposables.add(DOM.addDisposableListener(templateData.container, "mousedown", (e) => {
+        const result = getIconLabelNameFromHTMLElement(e.target);
+        if (result) {
+          compressedNavigationController.setIndex(result.index);
+        }
+      }));
+      templateData.elementDisposables.add(toDisposable(() => {
+        const nodeControllers2 = this.compressedNavigationControllers.get(stat) ?? [];
+        const renderedIndex = nodeControllers2.findIndex((controller) => controller === compressedNavigationController);
+        if (renderedIndex < 0) {
+          throw new Error("Disposing unknown navigation controller");
+        }
+        if (nodeControllers2.length === 1) {
+          this.compressedNavigationControllers.delete(stat);
+        } else {
+          nodeControllers2.splice(renderedIndex, 1);
+        }
+      }));
+    } else {
+      templateData.label.element.classList.remove("compressed");
+      templateData.label.element.style.display = "none";
+      templateData.contribs.forEach((c) => c.setResource(void 0));
+      templateData.elementDisposables.add(this.renderInputBox(templateData.container, editable[0], editableData));
     }
   }
   renderStat(stat, label, domId, filterData, templateData) {
@@ -519,30 +370,19 @@ let FilesRenderer = class {
       extraClasses.push("cut");
     }
     const theme = this.themeService.getFileIconTheme();
-    const twistieContainer = templateData.container.parentElement?.parentElement?.querySelector(
-      ".monaco-tl-twistie"
-    );
-    twistieContainer?.classList.toggle(
-      "force-twistie",
-      stat.hasNests && theme.hidesExplorerArrows
-    );
+    const twistieContainer = templateData.container.parentElement?.parentElement?.querySelector(".monaco-tl-twistie");
+    twistieContainer?.classList.toggle("force-twistie", stat.hasNests && theme.hidesExplorerArrows);
     const themeIsUnhappyWithNesting = theme.hasFileIcons && (theme.hidesExplorerArrows || !theme.hasFolderIcons);
     const realignNestedChildren = stat.nestedParent && themeIsUnhappyWithNesting;
     templateData.contribs.forEach((c) => c.setResource(stat.resource));
-    templateData.label.setResource(
-      { resource: stat.resource, name: label },
-      {
-        fileKind: stat.isRoot ? FileKind.ROOT_FOLDER : stat.isDirectory ? FileKind.FOLDER : FileKind.FILE,
-        extraClasses: realignNestedChildren ? [...extraClasses, "align-nest-icon-with-parent-icon"] : extraClasses,
-        fileDecorations: this.config.explorer.decorations,
-        matches: createMatches(filterData),
-        separator: this.labelService.getSeparator(
-          stat.resource.scheme,
-          stat.resource.authority
-        ),
-        domId
-      }
-    );
+    templateData.label.setResource({ resource: stat.resource, name: label }, {
+      fileKind: stat.isRoot ? FileKind.ROOT_FOLDER : stat.isDirectory ? FileKind.FOLDER : FileKind.FILE,
+      extraClasses: realignNestedChildren ? [...extraClasses, "align-nest-icon-with-parent-icon"] : extraClasses,
+      fileDecorations: this.config.explorer.decorations,
+      matches: createMatches(filterData),
+      separator: this.labelService.getSeparator(stat.resource.scheme, stat.resource.authority),
+      domId
+    });
   }
   renderInputBox(container, stat, editableData) {
     const label = this.labels.create(container);
@@ -575,31 +415,23 @@ let FilesRenderer = class {
           };
         }, "validation")
       },
-      ariaLabel: localize(
-        "fileInputAriaLabel",
-        "Type file name. Press Enter to confirm or Escape to cancel."
-      ),
+      ariaLabel: localize("fileInputAriaLabel", "Type file name. Press Enter to confirm or Escape to cancel."),
       inputBoxStyles: defaultInputBoxStyles
     });
     const lastDot = value.lastIndexOf(".");
     let currentSelectionState = "prefix";
     inputBox.value = value;
     inputBox.focus();
-    inputBox.select({
-      start: 0,
-      end: lastDot > 0 && !stat.isDirectory ? lastDot : value.length
-    });
-    const done = createSingleCallFunction(
-      (success, finishEditing) => {
-        label.element.style.display = "none";
-        const value2 = inputBox.value;
-        dispose(toDispose);
-        label.element.remove();
-        if (finishEditing) {
-          editableData.onFinish(value2, success);
-        }
+    inputBox.select({ start: 0, end: lastDot > 0 && !stat.isDirectory ? lastDot : value.length });
+    const done = createSingleCallFunction((success, finishEditing) => {
+      label.element.style.display = "none";
+      const value2 = inputBox.value;
+      dispose(toDispose);
+      label.element.remove();
+      if (finishEditing) {
+        editableData.onFinish(value2, success);
       }
-    );
+    });
     const showInputBoxNotification = /* @__PURE__ */ __name(() => {
       if (inputBox.isInputValid()) {
         const message = editableData.validationMessage(inputBox.value);
@@ -620,73 +452,50 @@ let FilesRenderer = class {
       inputBox.onDidChange((value2) => {
         label.setFile(joinPath(parent, value2 || " "), labelOptions);
       }),
-      DOM.addStandardDisposableListener(
-        inputBox.inputElement,
-        DOM.EventType.KEY_DOWN,
-        (e) => {
-          if (e.equals(KeyCode.F2)) {
-            const dotIndex = inputBox.value.lastIndexOf(".");
-            if (stat.isDirectory || dotIndex === -1) {
-              return;
-            }
-            if (currentSelectionState === "prefix") {
-              currentSelectionState = "all";
-              inputBox.select({
-                start: 0,
-                end: inputBox.value.length
-              });
-            } else if (currentSelectionState === "all") {
-              currentSelectionState = "suffix";
-              inputBox.select({
-                start: dotIndex + 1,
-                end: inputBox.value.length
-              });
-            } else {
-              currentSelectionState = "prefix";
-              inputBox.select({ start: 0, end: dotIndex });
-            }
-          } else if (e.equals(KeyCode.Enter)) {
-            if (!inputBox.validate()) {
-              done(true, true);
-            }
-          } else if (e.equals(KeyCode.Escape)) {
-            done(false, true);
+      DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_DOWN, (e) => {
+        if (e.equals(KeyCode.F2)) {
+          const dotIndex = inputBox.value.lastIndexOf(".");
+          if (stat.isDirectory || dotIndex === -1) {
+            return;
+          }
+          if (currentSelectionState === "prefix") {
+            currentSelectionState = "all";
+            inputBox.select({ start: 0, end: inputBox.value.length });
+          } else if (currentSelectionState === "all") {
+            currentSelectionState = "suffix";
+            inputBox.select({ start: dotIndex + 1, end: inputBox.value.length });
+          } else {
+            currentSelectionState = "prefix";
+            inputBox.select({ start: 0, end: dotIndex });
+          }
+        } else if (e.equals(KeyCode.Enter)) {
+          if (!inputBox.validate()) {
+            done(true, true);
+          }
+        } else if (e.equals(KeyCode.Escape)) {
+          done(false, true);
+        }
+      }),
+      DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_UP, (e) => {
+        showInputBoxNotification();
+      }),
+      DOM.addDisposableListener(inputBox.inputElement, DOM.EventType.BLUR, async () => {
+        while (true) {
+          await timeout(0);
+          const ownerDocument = inputBox.inputElement.ownerDocument;
+          if (!ownerDocument.hasFocus()) {
+            break;
+          }
+          if (DOM.isActiveElement(inputBox.inputElement)) {
+            return;
+          } else if (DOM.isHTMLElement(ownerDocument.activeElement) && DOM.hasParentWithClass(ownerDocument.activeElement, "context-view")) {
+            await Event.toPromise(this.contextMenuService.onDidHideContextMenu);
+          } else {
+            break;
           }
         }
-      ),
-      DOM.addStandardDisposableListener(
-        inputBox.inputElement,
-        DOM.EventType.KEY_UP,
-        (e) => {
-          showInputBoxNotification();
-        }
-      ),
-      DOM.addDisposableListener(
-        inputBox.inputElement,
-        DOM.EventType.BLUR,
-        async () => {
-          while (true) {
-            await timeout(0);
-            const ownerDocument = inputBox.inputElement.ownerDocument;
-            if (!ownerDocument.hasFocus()) {
-              break;
-            }
-            if (DOM.isActiveElement(inputBox.inputElement)) {
-              return;
-            } else if (DOM.isHTMLElement(ownerDocument.activeElement) && DOM.hasParentWithClass(
-              ownerDocument.activeElement,
-              "context-view"
-            )) {
-              await Event.toPromise(
-                this.contextMenuService.onDidHideContextMenu
-              );
-            } else {
-              break;
-            }
-          }
-          done(inputBox.isInputValid(), true);
-        }
-      ),
+        done(inputBox.isInputValid(), true);
+      }),
       label
     ];
     return toDisposable(() => {
@@ -748,67 +557,50 @@ let FilesFilter = class {
     this.editorService = editorService;
     this.uriIdentityService = uriIdentityService;
     this.fileService = fileService;
-    this.toDispose.push(
-      this.contextService.onDidChangeWorkspaceFolders(
-        () => this.updateConfiguration()
-      )
-    );
-    this.toDispose.push(
-      this.configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("files.exclude") || e.affectsConfiguration("explorer.excludeGitIgnore")) {
-          this.updateConfiguration();
-        }
-      })
-    );
-    this.toDispose.push(
-      this.fileService.onDidFilesChange((e) => {
-        for (const [
-          root,
-          ignoreFileResourceSet
-        ] of this.ignoreFileResourcesPerRoot.entries()) {
-          ignoreFileResourceSet.forEach(async (ignoreResource) => {
-            if (e.contains(ignoreResource, FileChangeType.UPDATED)) {
-              await this.processIgnoreFile(
-                root,
-                ignoreResource,
-                true
-              );
-            }
-            if (e.contains(ignoreResource, FileChangeType.DELETED)) {
-              this.ignoreTreesPerRoot.get(root)?.delete(dirname(ignoreResource));
-              ignoreFileResourceSet.delete(ignoreResource);
-              this._onDidChange.fire();
-            }
-          });
-        }
-      })
-    );
-    this.toDispose.push(
-      this.editorService.onDidVisibleEditorsChange(() => {
-        const editors = this.editorService.visibleEditors;
-        let shouldFire = false;
-        for (const e of editors) {
-          if (!e.resource) {
-            continue;
+    this.toDispose.push(this.contextService.onDidChangeWorkspaceFolders(() => this.updateConfiguration()));
+    this.toDispose.push(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("files.exclude") || e.affectsConfiguration("explorer.excludeGitIgnore")) {
+        this.updateConfiguration();
+      }
+    }));
+    this.toDispose.push(this.fileService.onDidFilesChange((e) => {
+      for (const [root, ignoreFileResourceSet] of this.ignoreFileResourcesPerRoot.entries()) {
+        ignoreFileResourceSet.forEach(async (ignoreResource) => {
+          if (e.contains(ignoreResource, FileChangeType.UPDATED)) {
+            await this.processIgnoreFile(root, ignoreResource, true);
           }
-          const stat = this.explorerService.findClosest(e.resource);
-          if (stat && stat.isExcluded) {
-            shouldFire = true;
-            break;
+          if (e.contains(ignoreResource, FileChangeType.DELETED)) {
+            this.ignoreTreesPerRoot.get(root)?.delete(dirname(ignoreResource));
+            ignoreFileResourceSet.delete(ignoreResource);
+            this._onDidChange.fire();
           }
+        });
+      }
+    }));
+    this.toDispose.push(this.editorService.onDidVisibleEditorsChange(() => {
+      const editors = this.editorService.visibleEditors;
+      let shouldFire = false;
+      for (const e of editors) {
+        if (!e.resource) {
+          continue;
         }
-        for (const e of this.editorsAffectingFilter) {
-          if (!editors.includes(e)) {
-            shouldFire = true;
-            break;
-          }
+        const stat = this.explorerService.findClosest(e.resource);
+        if (stat && stat.isExcluded) {
+          shouldFire = true;
+          break;
         }
-        if (shouldFire) {
-          this.editorsAffectingFilter.clear();
-          this._onDidChange.fire();
+      }
+      for (const e of this.editorsAffectingFilter) {
+        if (!editors.includes(e)) {
+          shouldFire = true;
+          break;
         }
-      })
-    );
+      }
+      if (shouldFire) {
+        this.editorsAffectingFilter.clear();
+        this._onDidChange.fire();
+      }
+    }));
     this.updateConfiguration();
   }
   static {
@@ -831,23 +623,13 @@ let FilesFilter = class {
     let shouldFire = false;
     let updatedGitIgnoreSetting = false;
     this.contextService.getWorkspace().folders.forEach((folder) => {
-      const configuration = this.configurationService.getValue({
-        resource: folder.uri
-      });
+      const configuration = this.configurationService.getValue({ resource: folder.uri });
       const excludesConfig = configuration?.files?.exclude || /* @__PURE__ */ Object.create(null);
       const parseIgnoreFile = configuration.explorer.excludeGitIgnore;
       if (parseIgnoreFile && !this.ignoreTreesPerRoot.has(folder.uri.toString())) {
         updatedGitIgnoreSetting = true;
-        this.ignoreFileResourcesPerRoot.set(
-          folder.uri.toString(),
-          new ResourceSet()
-        );
-        this.ignoreTreesPerRoot.set(
-          folder.uri.toString(),
-          TernarySearchTree.forUris(
-            (uri) => this.uriIdentityService.extUri.ignorePathCasing(uri)
-          )
-        );
+        this.ignoreFileResourcesPerRoot.set(folder.uri.toString(), new ResourceSet());
+        this.ignoreTreesPerRoot.set(folder.uri.toString(), TernarySearchTree.forUris((uri) => this.uriIdentityService.extUri.ignorePathCasing(uri)));
       }
       if (!parseIgnoreFile && this.ignoreTreesPerRoot.has(folder.uri.toString())) {
         updatedGitIgnoreSetting = true;
@@ -855,16 +637,11 @@ let FilesFilter = class {
         this.ignoreTreesPerRoot.delete(folder.uri.toString());
       }
       if (!shouldFire) {
-        const cached = this.hiddenExpressionPerRoot.get(
-          folder.uri.toString()
-        );
+        const cached = this.hiddenExpressionPerRoot.get(folder.uri.toString());
         shouldFire = !cached || !equals(cached.original, excludesConfig);
       }
       const excludesConfigCopy = deepClone(excludesConfig);
-      this.hiddenExpressionPerRoot.set(folder.uri.toString(), {
-        original: excludesConfigCopy,
-        parsed: glob.parse(excludesConfigCopy)
-      });
+      this.hiddenExpressionPerRoot.set(folder.uri.toString(), { original: excludesConfigCopy, parsed: glob.parse(excludesConfigCopy) });
     });
     if (shouldFire || updatedGitIgnoreSetting) {
       this.editorsAffectingFilter.clear();
@@ -892,11 +669,7 @@ let FilesFilter = class {
       ignoreFile?.updateContents(content.value.toString());
     } else {
       const ignoreParent = ignoreTree.findSubstr(dirUri);
-      const ignoreFile = new IgnoreFile(
-        content.value.toString(),
-        dirUri.path,
-        ignoreParent
-      );
+      const ignoreFile = new IgnoreFile(content.value.toString(), dirUri.path, ignoreParent);
       ignoreTree.set(dirUri, ignoreFile);
       if (!this.ignoreFileResourcesPerRoot.get(root)?.has(ignoreFileResource)) {
         this.ignoreFileResourcesPerRoot.get(root)?.add(ignoreFileResource);
@@ -906,11 +679,7 @@ let FilesFilter = class {
   }
   filter(stat, parentVisibility) {
     if (stat.name === ".gitignore" && this.ignoreTreesPerRoot.has(stat.root.resource.toString())) {
-      this.processIgnoreFile(
-        stat.root.resource.toString(),
-        stat.resource,
-        false
-      );
+      this.processIgnoreFile(stat.root.resource.toString(), stat.resource, false);
       return true;
     }
     return this.isVisible(stat, parentVisibility);
@@ -924,29 +693,15 @@ let FilesFilter = class {
     if (this.explorerService.getEditableData(stat)) {
       return true;
     }
-    const cached = this.hiddenExpressionPerRoot.get(
-      stat.root.resource.toString()
-    );
-    const globMatch = cached?.parsed(
-      path.relative(stat.root.resource.path, stat.resource.path),
-      stat.name,
-      (name) => !!(stat.parent && stat.parent.getChild(name))
-    );
+    const cached = this.hiddenExpressionPerRoot.get(stat.root.resource.toString());
+    const globMatch = cached?.parsed(path.relative(stat.root.resource.path, stat.resource.path), stat.name, (name) => !!(stat.parent && stat.parent.getChild(name)));
     const ignoreFile = globMatch ? void 0 : this.ignoreTreesPerRoot.get(stat.root.resource.toString())?.findSubstr(stat.resource);
-    const isIncludedInTraversal = ignoreFile?.isPathIncludedInTraversal(
-      stat.resource.path,
-      stat.isDirectory
-    );
+    const isIncludedInTraversal = ignoreFile?.isPathIncludedInTraversal(stat.resource.path, stat.isDirectory);
     const isIgnoredByIgnoreFile = isIncludedInTraversal === void 0 ? false : !isIncludedInTraversal;
     if (isIgnoredByIgnoreFile || globMatch || stat.parent?.isExcluded) {
       stat.isExcluded = true;
       const editors = this.editorService.visibleEditors;
-      const editor = editors.find(
-        (e) => e.resource && this.uriIdentityService.extUri.isEqualOrParent(
-          e.resource,
-          stat.resource
-        )
-      );
+      const editor = editors.find((e) => e.resource && this.uriIdentityService.extUri.isEqualOrParent(e.resource, stat.resource));
       if (editor && stat.root === this.explorerService.findClosestRoot(stat.resource)) {
         this.editorsAffectingFilter.add(editor);
         return true;
@@ -978,12 +733,8 @@ let FileSorter = class {
   compare(statA, statB) {
     if (statA.isRoot) {
       if (statB.isRoot) {
-        const workspaceA = this.contextService.getWorkspaceFolder(
-          statA.resource
-        );
-        const workspaceB = this.contextService.getWorkspaceFolder(
-          statB.resource
-        );
+        const workspaceA = this.contextService.getWorkspaceFolder(statA.resource);
+        const workspaceB = this.contextService.getWorkspaceFolder(statB.resource);
         return workspaceA && workspaceB ? workspaceA.index - workspaceB.index : -1;
       }
       return -1;
@@ -1093,17 +844,11 @@ let FileDragAndDrop = class {
     this.uriIdentityService = uriIdentityService;
     const updateDropEnablement = /* @__PURE__ */ __name((e) => {
       if (!e || e.affectsConfiguration("explorer.enableDragAndDrop")) {
-        this.dropEnabled = this.configurationService.getValue(
-          "explorer.enableDragAndDrop"
-        );
+        this.dropEnabled = this.configurationService.getValue("explorer.enableDragAndDrop");
       }
     }, "updateDropEnablement");
     updateDropEnablement(void 0);
-    this.disposables.add(
-      this.configurationService.onDidChangeConfiguration(
-        (e) => updateDropEnablement(e)
-      )
-    );
+    this.disposables.add(this.configurationService.onDidChangeConfiguration((e) => updateDropEnablement(e)));
   }
   static {
     __name(this, "FileDragAndDrop");
@@ -1118,34 +863,19 @@ let FileDragAndDrop = class {
       return false;
     }
     if (target) {
-      const compressedTarget = FileDragAndDrop.getCompressedStatFromDragEvent(
-        target,
-        originalEvent
-      );
+      const compressedTarget = FileDragAndDrop.getCompressedStatFromDragEvent(target, originalEvent);
       if (compressedTarget) {
-        const iconLabelName = getIconLabelNameFromHTMLElement(
-          originalEvent.target
-        );
+        const iconLabelName = getIconLabelNameFromHTMLElement(originalEvent.target);
         if (iconLabelName && iconLabelName.index < iconLabelName.count - 1) {
-          const result = this.handleDragOver(
-            data,
-            compressedTarget,
-            targetIndex,
-            targetSector,
-            originalEvent
-          );
+          const result = this.handleDragOver(data, compressedTarget, targetIndex, targetSector, originalEvent);
           if (result) {
             if (iconLabelName.element !== this.compressedDragOverElement) {
               this.compressedDragOverElement = iconLabelName.element;
               this.compressedDropTargetDisposable.dispose();
-              this.compressedDropTargetDisposable = toDisposable(
-                () => {
-                  iconLabelName.element.classList.remove(
-                    "drop-target"
-                  );
-                  this.compressedDragOverElement = void 0;
-                }
-              );
+              this.compressedDropTargetDisposable = toDisposable(() => {
+                iconLabelName.element.classList.remove("drop-target");
+                this.compressedDragOverElement = void 0;
+              });
               iconLabelName.element.classList.add("drop-target");
             }
             return typeof result === "boolean" ? result : { ...result, feedback: [] };
@@ -1156,57 +886,30 @@ let FileDragAndDrop = class {
       }
     }
     this.compressedDropTargetDisposable.dispose();
-    return this.handleDragOver(
-      data,
-      target,
-      targetIndex,
-      targetSector,
-      originalEvent
-    );
+    return this.handleDragOver(data, target, targetIndex, targetSector, originalEvent);
   }
   handleDragOver(data, target, targetIndex, targetSector, originalEvent) {
     const isCopy = originalEvent && (originalEvent.ctrlKey && !isMacintosh || originalEvent.altKey && isMacintosh);
     const isNative = data instanceof NativeDragAndDropData;
     const effectType = isNative || isCopy ? ListDragOverEffectType.Copy : ListDragOverEffectType.Move;
-    const effect = {
-      type: effectType,
-      position: ListDragOverEffectPosition.Over
-    };
+    const effect = { type: effectType, position: ListDragOverEffectPosition.Over };
     if (isNative) {
-      if (!containsDragType(
-        originalEvent,
-        DataTransfers.FILES,
-        CodeDataTransfers.FILES,
-        DataTransfers.RESOURCES
-      )) {
+      if (!containsDragType(originalEvent, DataTransfers.FILES, CodeDataTransfers.FILES, DataTransfers.RESOURCES)) {
         return false;
       }
     } else if (data instanceof ExternalElementsDragAndDropData) {
       return false;
     } else {
-      const items = FileDragAndDrop.getStatsFromDragAndDropData(
-        data
-      );
+      const items = FileDragAndDrop.getStatsFromDragAndDropData(data);
       const isRootsReorder = items.every((item) => item.isRoot);
       if (!target) {
         if (!isCopy && items.every((i) => !!i.parent && i.parent.isRoot)) {
           return false;
         }
         if (isRootsReorder) {
-          return {
-            accept: true,
-            effect: {
-              type: ListDragOverEffectType.Move,
-              position: ListDragOverEffectPosition.After
-            }
-          };
+          return { accept: true, effect: { type: ListDragOverEffectType.Move, position: ListDragOverEffectPosition.After } };
         }
-        return {
-          accept: true,
-          bubble: TreeDragOverBubble.Down,
-          effect,
-          autoExpand: false
-        };
+        return { accept: true, bubble: TreeDragOverBubble.Down, effect, autoExpand: false };
       }
       if (!Array.isArray(items)) {
         return false;
@@ -1218,22 +921,13 @@ let FileDragAndDrop = class {
         if (source.isRoot) {
           return false;
         }
-        if (this.uriIdentityService.extUri.isEqual(
-          source.resource,
-          target.resource
-        )) {
+        if (this.uriIdentityService.extUri.isEqual(source.resource, target.resource)) {
           return true;
         }
-        if (!isCopy && this.uriIdentityService.extUri.isEqual(
-          dirname(source.resource),
-          target.resource
-        )) {
+        if (!isCopy && this.uriIdentityService.extUri.isEqual(dirname(source.resource), target.resource)) {
           return true;
         }
-        if (this.uriIdentityService.extUri.isEqualOrParent(
-          target.resource,
-          source.resource
-        )) {
+        if (this.uriIdentityService.extUri.isEqualOrParent(target.resource, source.resource)) {
           return true;
         }
         return false;
@@ -1244,7 +938,7 @@ let FileDragAndDrop = class {
         if (!target.isRoot) {
           return false;
         }
-        let dropEffectPosition;
+        let dropEffectPosition = void 0;
         switch (targetSector) {
           case ListViewTargetSector.TOP:
           case ListViewTargetSector.CENTER_TOP:
@@ -1255,34 +949,21 @@ let FileDragAndDrop = class {
             dropEffectPosition = ListDragOverEffectPosition.After;
             break;
         }
-        return {
-          accept: true,
-          effect: {
-            type: ListDragOverEffectType.Move,
-            position: dropEffectPosition
-          }
-        };
+        return { accept: true, effect: { type: ListDragOverEffectType.Move, position: dropEffectPosition } };
       }
     }
-    if (target) {
+    if (!target) {
+      return { accept: true, bubble: TreeDragOverBubble.Down, effect };
+    } else {
       if (target.isDirectory) {
         if (target.isReadonly) {
           return false;
         }
-        return {
-          accept: true,
-          bubble: TreeDragOverBubble.Down,
-          effect,
-          autoExpand: true
-        };
+        return { accept: true, bubble: TreeDragOverBubble.Down, effect, autoExpand: true };
       }
-      if (this.contextService.getWorkspace().folders.every(
-        (folder) => folder.uri.toString() !== target.resource.toString()
-      )) {
+      if (this.contextService.getWorkspace().folders.every((folder) => folder.uri.toString() !== target.resource.toString())) {
         return { accept: true, bubble: TreeDragOverBubble.Up, effect };
       }
-    } else {
-      return { accept: true, bubble: TreeDragOverBubble.Down, effect };
     }
     return false;
   }
@@ -1294,39 +975,25 @@ let FileDragAndDrop = class {
   }
   getDragLabel(elements, originalEvent) {
     if (elements.length === 1) {
-      const stat = FileDragAndDrop.getCompressedStatFromDragEvent(
-        elements[0],
-        originalEvent
-      );
+      const stat = FileDragAndDrop.getCompressedStatFromDragEvent(elements[0], originalEvent);
       return stat.name;
     }
     return String(elements.length);
   }
   onDragStart(data, originalEvent) {
-    const items = FileDragAndDrop.getStatsFromDragAndDropData(
-      data,
-      originalEvent
-    );
+    const items = FileDragAndDrop.getStatsFromDragAndDropData(data, originalEvent);
     if (items && items.length && originalEvent.dataTransfer) {
-      this.instantiationService.invokeFunction(
-        (accessor) => fillEditorsDragData(accessor, items, originalEvent)
-      );
+      this.instantiationService.invokeFunction((accessor) => fillEditorsDragData(accessor, items, originalEvent));
       const fileResources = items.filter((s) => s.resource.scheme === Schemas.file).map((r) => r.resource.fsPath);
       if (fileResources.length) {
-        originalEvent.dataTransfer.setData(
-          CodeDataTransfers.FILES,
-          JSON.stringify(fileResources)
-        );
+        originalEvent.dataTransfer.setData(CodeDataTransfers.FILES, JSON.stringify(fileResources));
       }
     }
   }
   async drop(data, target, targetIndex, targetSector, originalEvent) {
     this.compressedDropTargetDisposable.dispose();
     if (target) {
-      const compressedTarget = FileDragAndDrop.getCompressedStatFromDragEvent(
-        target,
-        originalEvent
-      );
+      const compressedTarget = FileDragAndDrop.getCompressedStatFromDragEvent(target, originalEvent);
       if (compressedTarget) {
         target = compressedTarget;
       }
@@ -1348,28 +1015,14 @@ let FileDragAndDrop = class {
     try {
       if (data instanceof NativeDragAndDropData) {
         if (!isWeb || isTemporaryWorkspace(this.contextService.getWorkspace()) && WebFileSystemAccess.supported(mainWindow)) {
-          const fileImport = this.instantiationService.createInstance(
-            ExternalFileImport
-          );
-          await fileImport.import(
-            resolvedTarget,
-            originalEvent,
-            mainWindow
-          );
+          const fileImport = this.instantiationService.createInstance(ExternalFileImport);
+          await fileImport.import(resolvedTarget, originalEvent, mainWindow);
         } else {
-          const browserUpload = this.instantiationService.createInstance(
-            BrowserFileUpload
-          );
+          const browserUpload = this.instantiationService.createInstance(BrowserFileUpload);
           await browserUpload.upload(target, originalEvent);
         }
       } else {
-        await this.handleExplorerDrop(
-          data,
-          resolvedTarget,
-          targetIndex,
-          targetSector,
-          originalEvent
-        );
+        await this.handleExplorerDrop(data, resolvedTarget, targetIndex, targetSector, originalEvent);
       }
     } catch (error) {
       this.dialogService.error(toErrorMessage(error));
@@ -1377,9 +1030,7 @@ let FileDragAndDrop = class {
   }
   async handleExplorerDrop(data, target, targetIndex, targetSector, originalEvent) {
     const elementsData = FileDragAndDrop.getStatsFromDragAndDropData(data);
-    const distinctItems = new Map(
-      elementsData.map((element) => [element, this.isCollapsed(element)])
-    );
+    const distinctItems = new Map(elementsData.map((element) => [element, this.isCollapsed(element)]));
     for (const [item, collapsed] of distinctItems) {
       if (collapsed) {
         const nestedChildren = item.nestedChildren;
@@ -1390,33 +1041,11 @@ let FileDragAndDrop = class {
         }
       }
     }
-    const items = distinctParents(
-      [...distinctItems.keys()],
-      (s) => s.resource
-    );
+    const items = distinctParents([...distinctItems.keys()], (s) => s.resource);
     const isCopy = originalEvent.ctrlKey && !isMacintosh || originalEvent.altKey && isMacintosh;
-    const confirmDragAndDrop = !isCopy && this.configurationService.getValue(
-      FileDragAndDrop.CONFIRM_DND_SETTING_KEY
-    );
+    const confirmDragAndDrop = !isCopy && this.configurationService.getValue(FileDragAndDrop.CONFIRM_DND_SETTING_KEY);
     if (confirmDragAndDrop) {
-      const message = items.length > 1 && items.every((s) => s.isRoot) ? localize(
-        "confirmRootsMove",
-        "Are you sure you want to change the order of multiple root folders in your workspace?"
-      ) : items.length > 1 ? localize(
-        "confirmMultiMove",
-        "Are you sure you want to move the following {0} files into '{1}'?",
-        items.length,
-        target.name
-      ) : items[0].isRoot ? localize(
-        "confirmRootMove",
-        "Are you sure you want to change the order of root folder '{0}' in your workspace?",
-        items[0].name
-      ) : localize(
-        "confirmMove",
-        "Are you sure you want to move '{0}' into '{1}'?",
-        items[0].name,
-        target.name
-      );
+      const message = items.length > 1 && items.every((s) => s.isRoot) ? localize("confirmRootsMove", "Are you sure you want to change the order of multiple root folders in your workspace?") : items.length > 1 ? localize("confirmMultiMove", "Are you sure you want to move the following {0} files into '{1}'?", items.length, target.name) : items[0].isRoot ? localize("confirmRootMove", "Are you sure you want to change the order of root folder '{0}' in your workspace?", items[0].name) : localize("confirmMove", "Are you sure you want to move '{0}' into '{1}'?", items[0].name, target.name);
       const detail = items.length > 1 && !items.every((s) => s.isRoot) ? getFileNamesMessage(items.map((i) => i.resource)) : void 0;
       const confirmation = await this.dialogService.confirm({
         message,
@@ -1424,29 +1053,16 @@ let FileDragAndDrop = class {
         checkbox: {
           label: localize("doNotAskAgain", "Do not ask me again")
         },
-        primaryButton: localize(
-          {
-            key: "moveButtonLabel",
-            comment: ["&& denotes a mnemonic"]
-          },
-          "&&Move"
-        )
+        primaryButton: localize({ key: "moveButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Move")
       });
       if (!confirmation.confirmed) {
         return;
       }
       if (confirmation.checkboxChecked === true) {
-        await this.configurationService.updateValue(
-          FileDragAndDrop.CONFIRM_DND_SETTING_KEY,
-          false
-        );
+        await this.configurationService.updateValue(FileDragAndDrop.CONFIRM_DND_SETTING_KEY, false);
       }
     }
-    await this.doHandleRootDrop(
-      items.filter((s) => s.isRoot),
-      target,
-      targetSector
-    );
+    await this.doHandleRootDrop(items.filter((s) => s.isRoot), target, targetSector);
     const sources = items.filter((s) => !s.isRoot);
     if (isCopy) {
       return this.doHandleExplorerDropOnCopy(sources, target);
@@ -1467,24 +1083,16 @@ let FileDragAndDrop = class {
         uri: folders[index].uri,
         name: folders[index].name
       };
-      if (target instanceof ExplorerItem && this.uriIdentityService.extUri.isEqual(
-        folders[index].uri,
-        target.resource
-      )) {
+      if (target instanceof ExplorerItem && this.uriIdentityService.extUri.isEqual(folders[index].uri, target.resource)) {
         targetIndex = index;
       }
       for (const root of roots) {
-        if (this.uriIdentityService.extUri.isEqual(
-          folders[index].uri,
-          root.resource
-        )) {
+        if (this.uriIdentityService.extUri.isEqual(folders[index].uri, root.resource)) {
           sourceIndices.push(index);
           break;
         }
       }
-      if (roots.every(
-        (r) => r.resource.toString() !== folders[index].uri.toString()
-      )) {
+      if (roots.every((r) => r.resource.toString() !== folders[index].uri.toString())) {
         workspaceCreationData.push(data);
       } else {
         rootsToMove.push(data);
@@ -1506,11 +1114,7 @@ let FileDragAndDrop = class {
       }
     }
     workspaceCreationData.splice(targetIndex, 0, ...rootsToMove);
-    return this.workspaceEditingService.updateFolders(
-      0,
-      workspaceCreationData.length,
-      workspaceCreationData
-    );
+    return this.workspaceEditingService.updateFolders(0, workspaceCreationData.length, workspaceCreationData);
   }
   async doHandleExplorerDropOnCopy(sources, target) {
     const explorerConfig = this.configurationService.getValue().explorer;
@@ -1528,10 +1132,7 @@ let FileDragAndDrop = class {
       if (!newResource) {
         continue;
       }
-      const resourceEdit = new ResourceFileEdit(resource, newResource, {
-        copy: true,
-        overwrite: allowOverwrite
-      });
+      const resourceEdit = new ResourceFileEdit(resource, newResource, { copy: true, overwrite: allowOverwrite });
       resourceFileEdits.push(resourceEdit);
     }
     const labelSuffix = getFileOrFolderLabelSuffix(sources);
@@ -1543,19 +1144,11 @@ let FileDragAndDrop = class {
     const editors = resourceFileEdits.filter((edit) => {
       const item = edit.newResource ? this.explorerService.findClosest(edit.newResource) : void 0;
       return item && !item.isDirectory;
-    }).map((edit) => ({
-      resource: edit.newResource,
-      options: { pinned: true }
-    }));
+    }).map((edit) => ({ resource: edit.newResource, options: { pinned: true } }));
     await this.editorService.openEditors(editors);
   }
   async doHandleExplorerDropOnMove(sources, target) {
-    const resourceFileEdits = sources.filter((source) => !source.isReadonly).map(
-      (source) => new ResourceFileEdit(
-        source.resource,
-        joinPath(target.resource, source.name)
-      )
-    );
+    const resourceFileEdits = sources.filter((source) => !source.isReadonly).map((source) => new ResourceFileEdit(source.resource, joinPath(target.resource, source.name)));
     const labelSuffix = getFileOrFolderLabelSuffix(sources);
     const options = {
       confirmBeforeUndo: this.configurationService.getValue().explorer.confirmUndo === UndoConfirmLevel.Verbose,
@@ -1563,10 +1156,7 @@ let FileDragAndDrop = class {
       progressLabel: localize("moving", "Moving {0}", labelSuffix)
     };
     try {
-      await this.explorerService.applyBulkEdit(
-        resourceFileEdits,
-        options
-      );
+      await this.explorerService.applyBulkEdit(resourceFileEdits, options);
     } catch (error) {
       if (error.fileOperationResult === FileOperationResult.FILE_MOVE_CONFLICT) {
         const overwrites = [];
@@ -1578,16 +1168,7 @@ let FileDragAndDrop = class {
         const confirm = getMultipleFilesOverwriteConfirm(overwrites);
         const { confirmed } = await this.dialogService.confirm(confirm);
         if (confirmed) {
-          await this.explorerService.applyBulkEdit(
-            resourceFileEdits.map(
-              (re) => new ResourceFileEdit(
-                re.oldResource,
-                re.newResource,
-                { overwrite: true }
-              )
-            ),
-            options
-          );
+          await this.explorerService.applyBulkEdit(resourceFileEdits.map((re) => new ResourceFileEdit(re.oldResource, re.newResource, { overwrite: true })), options);
         }
       } else {
         throw error;
@@ -1599,21 +1180,13 @@ let FileDragAndDrop = class {
       return data.context;
     }
     if (dragStartEvent && data.elements.length === 1) {
-      data.context = [
-        FileDragAndDrop.getCompressedStatFromDragEvent(
-          data.elements[0],
-          dragStartEvent
-        )
-      ];
+      data.context = [FileDragAndDrop.getCompressedStatFromDragEvent(data.elements[0], dragStartEvent)];
       return data.context;
     }
     return data.elements;
   }
   static getCompressedStatFromDragEvent(stat, dragEvent) {
-    const target = DOM.getWindow(dragEvent).document.elementFromPoint(
-      dragEvent.clientX,
-      dragEvent.clientY
-    );
+    const target = DOM.getWindow(dragEvent).document.elementFromPoint(dragEvent.clientX, dragEvent.clientY);
     const iconLabelName = getIconLabelNameFromHTMLElement(target);
     if (iconLabelName) {
       const { count, index } = iconLabelName;
@@ -1671,7 +1244,7 @@ class ExplorerCompressionDelegate {
     __name(this, "ExplorerCompressionDelegate");
   }
   isIncompressible(stat) {
-    return stat.isRoot || !stat.isDirectory || stat instanceof NewExplorerItem || !stat.parent || stat.parent.isRoot;
+    return stat.isRoot || !stat.isDirectory || stat instanceof NewExplorerItem || (!stat.parent || stat.parent.isRoot);
   }
 }
 function getFileOrFolderLabelSuffix(items) {

@@ -40,27 +40,14 @@ let LogsDataCleaner = class extends Disposable {
     this.logService.trace("[logs cleanup]: Starting to clean up old logs.");
     try {
       const currentLog = basename(this.environmentService.logsHome);
-      const logsRoot = dirname(
-        this.environmentService.logsHome.with({ scheme: Schemas.file })
-      ).fsPath;
+      const logsRoot = dirname(this.environmentService.logsHome.with({ scheme: Schemas.file })).fsPath;
       const logFiles = await Promises.readdir(logsRoot);
-      const allSessions = logFiles.filter(
-        (logFile) => /^\d{8}T\d{6}$/.test(logFile)
-      );
+      const allSessions = logFiles.filter((logFile) => /^\d{8}T\d{6}$/.test(logFile));
       const oldSessions = allSessions.sort().filter((session) => session !== currentLog);
-      const sessionsToDelete = oldSessions.slice(
-        0,
-        Math.max(0, oldSessions.length - 9)
-      );
+      const sessionsToDelete = oldSessions.slice(0, Math.max(0, oldSessions.length - 9));
       if (sessionsToDelete.length > 0) {
-        this.logService.trace(
-          `[logs cleanup]: Removing log folders '${sessionsToDelete.join(", ")}'`
-        );
-        await Promise.all(
-          sessionsToDelete.map(
-            (sessionToDelete) => Promises.rm(join(logsRoot, sessionToDelete))
-          )
-        );
+        this.logService.trace(`[logs cleanup]: Removing log folders '${sessionsToDelete.join(", ")}'`);
+        await Promise.all(sessionsToDelete.map((sessionToDelete) => Promises.rm(join(logsRoot, sessionToDelete))));
       }
     } catch (error) {
       onUnexpectedError(error);

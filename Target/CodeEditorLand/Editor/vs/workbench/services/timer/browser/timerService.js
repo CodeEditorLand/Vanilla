@@ -10,32 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createBlobWorker } from "../../../../base/browser/defaultWorkerFactory.js";
-import { Barrier, timeout } from "../../../../base/common/async.js";
 import * as perf from "../../../../base/common/performance.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { TelemetryTrustedValue } from "../../../../platform/telemetry/common/telemetryUtils.js";
-import {
-  TerminalExtensions
-} from "../../../../platform/terminal/common/terminal.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
-import { ViewContainerLocation } from "../../../common/views.js";
-import { IEditorService } from "../../editor/common/editorService.js";
+import { IWorkspaceContextService, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { Barrier, timeout } from "../../../../base/common/async.js";
 import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
 import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import { TelemetryTrustedValue } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { createBlobWorker } from "../../../../base/browser/defaultWorkerFactory.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ITerminalBackendRegistry, TerminalExtensions } from "../../../../platform/terminal/common/terminal.js";
 const ITimerService = createDecorator("timerService");
 class PerfMarks {
   static {
@@ -90,13 +82,7 @@ let AbstractTimerService = class {
       // workbench created and parts restored
       layoutService.whenRestored,
       // layout restored (including visible editors resolved)
-      Promise.all(
-        Array.from(
-          Registry.as(
-            TerminalExtensions.Backend
-          ).backends.values()
-        ).map((e) => e.whenReady)
-      )
+      Promise.all(Array.from(Registry.as(TerminalExtensions.Backend).backends.values()).map((e) => e.whenReady))
     ]).then(() => {
       this.setPerformanceMarks("renderer", perf.getMarks());
       return this._computeStartupMetrics();
@@ -126,13 +112,9 @@ let AbstractTimerService = class {
         const value = Math.round(performance.now() - t1);
         self.postMessage({ value: tooSlow ? -1 : value });
       }.toString();
-      const blob = new Blob([`(${jsSrc})();`], {
-        type: "application/javascript"
-      });
+      const blob = new Blob([`(${jsSrc})();`], { type: "application/javascript" });
       const blobUrl = URL.createObjectURL(blob);
-      const worker = createBlobWorker(blobUrl, {
-        name: "perfBaseline"
-      });
+      const worker = createBlobWorker(blobUrl, { name: "perfBaseline" });
       return new Promise((resolve) => {
         worker.onmessage = (e) => resolve(e.data.value);
       }).finally(() => {
@@ -155,9 +137,7 @@ let AbstractTimerService = class {
   }
   get startupMetrics() {
     if (!this._startupMetrics) {
-      throw new Error(
-        "illegal state, MUST NOT access startupMetrics before whenReady has resolved"
-      );
+      throw new Error("illegal state, MUST NOT access startupMetrics before whenReady has resolved");
     }
     return this._startupMetrics;
   }
@@ -186,14 +166,11 @@ let AbstractTimerService = class {
       return;
     }
     for (const mark of marks) {
-      this._telemetryService.publicLog2(
-        "startup.timer.mark",
-        {
-          source,
-          name: new TelemetryTrustedValue(mark.name),
-          startTime: mark.startTime
-        }
-      );
+      this._telemetryService.publicLog2("startup.timer.mark", {
+        source,
+        name: new TelemetryTrustedValue(mark.name),
+        startTime: mark.startTime
+      });
     }
   }
   async _computeStartupMetrics() {
@@ -204,136 +181,47 @@ let AbstractTimerService = class {
     } else {
       startMark = initialStartup ? "code/didStartMain" : "code/willOpenNewWindow";
     }
-    const activeViewlet = this._paneCompositeService.getActivePaneComposite(
-      ViewContainerLocation.Sidebar
-    );
-    const activePanel = this._paneCompositeService.getActivePaneComposite(
-      ViewContainerLocation.Panel
-    );
+    const activeViewlet = this._paneCompositeService.getActivePaneComposite(ViewContainerLocation.Sidebar);
+    const activePanel = this._paneCompositeService.getActivePaneComposite(ViewContainerLocation.Panel);
     const info = {
       version: 2,
-      ellapsed: this._marks.getDuration(
-        startMark,
-        "code/didStartWorkbench"
-      ),
+      ellapsed: this._marks.getDuration(startMark, "code/didStartWorkbench"),
       // reflections
-      isLatestVersion: Boolean(
-        await this._updateService.isLatestVersion()
-      ),
+      isLatestVersion: Boolean(await this._updateService.isLatestVersion()),
       didUseCachedData: this._didUseCachedData(),
       windowKind: this._lifecycleService.startupKind,
       windowCount: await this._getWindowCount(),
       viewletId: activeViewlet?.getId(),
-      editorIds: this._editorService.visibleEditors.map(
-        (input) => input.typeId
-      ),
+      editorIds: this._editorService.visibleEditors.map((input) => input.typeId),
       panelId: activePanel ? activePanel.getId() : void 0,
       // timers
       timers: {
-        ellapsedAppReady: initialStartup ? this._marks.getDuration(
-          "code/didStartMain",
-          "code/mainAppReady"
-        ) : void 0,
-        ellapsedNlsGeneration: initialStartup ? this._marks.getDuration(
-          "code/willGenerateNls",
-          "code/didGenerateNls"
-        ) : void 0,
-        ellapsedLoadMainBundle: initialStartup ? this._marks.getDuration(
-          "code/willLoadMainBundle",
-          "code/didLoadMainBundle"
-        ) : void 0,
-        ellapsedCrashReporter: initialStartup ? this._marks.getDuration(
-          "code/willStartCrashReporter",
-          "code/didStartCrashReporter"
-        ) : void 0,
-        ellapsedMainServer: initialStartup ? this._marks.getDuration(
-          "code/willStartMainServer",
-          "code/didStartMainServer"
-        ) : void 0,
-        ellapsedWindowCreate: initialStartup ? this._marks.getDuration(
-          "code/willCreateCodeWindow",
-          "code/didCreateCodeWindow"
-        ) : void 0,
-        ellapsedWindowRestoreState: initialStartup ? this._marks.getDuration(
-          "code/willRestoreCodeWindowState",
-          "code/didRestoreCodeWindowState"
-        ) : void 0,
-        ellapsedBrowserWindowCreate: initialStartup ? this._marks.getDuration(
-          "code/willCreateCodeBrowserWindow",
-          "code/didCreateCodeBrowserWindow"
-        ) : void 0,
-        ellapsedWindowMaximize: initialStartup ? this._marks.getDuration(
-          "code/willMaximizeCodeWindow",
-          "code/didMaximizeCodeWindow"
-        ) : void 0,
-        ellapsedWindowLoad: initialStartup ? this._marks.getDuration(
-          "code/mainAppReady",
-          "code/willOpenNewWindow"
-        ) : void 0,
-        ellapsedWindowLoadToRequire: this._marks.getDuration(
-          "code/willOpenNewWindow",
-          "code/willLoadWorkbenchMain"
-        ),
-        ellapsedRequire: this._marks.getDuration(
-          "code/willLoadWorkbenchMain",
-          "code/didLoadWorkbenchMain"
-        ),
-        ellapsedWaitForWindowConfig: this._marks.getDuration(
-          "code/willWaitForWindowConfig",
-          "code/didWaitForWindowConfig"
-        ),
-        ellapsedStorageInit: this._marks.getDuration(
-          "code/willInitStorage",
-          "code/didInitStorage"
-        ),
-        ellapsedSharedProcesConnected: this._marks.getDuration(
-          "code/willConnectSharedProcess",
-          "code/didConnectSharedProcess"
-        ),
-        ellapsedWorkspaceServiceInit: this._marks.getDuration(
-          "code/willInitWorkspaceService",
-          "code/didInitWorkspaceService"
-        ),
-        ellapsedRequiredUserDataInit: this._marks.getDuration(
-          "code/willInitRequiredUserData",
-          "code/didInitRequiredUserData"
-        ),
-        ellapsedOtherUserDataInit: this._marks.getDuration(
-          "code/willInitOtherUserData",
-          "code/didInitOtherUserData"
-        ),
-        ellapsedExtensions: this._marks.getDuration(
-          "code/willLoadExtensions",
-          "code/didLoadExtensions"
-        ),
-        ellapsedEditorRestore: this._marks.getDuration(
-          "code/willRestoreEditors",
-          "code/didRestoreEditors"
-        ),
-        ellapsedViewletRestore: this._marks.getDuration(
-          "code/willRestoreViewlet",
-          "code/didRestoreViewlet"
-        ),
-        ellapsedPanelRestore: this._marks.getDuration(
-          "code/willRestorePanel",
-          "code/didRestorePanel"
-        ),
-        ellapsedWorkbenchContributions: this._marks.getDuration(
-          "code/willCreateWorkbenchContributions/1",
-          "code/didCreateWorkbenchContributions/2"
-        ),
-        ellapsedWorkbench: this._marks.getDuration(
-          "code/willStartWorkbench",
-          "code/didStartWorkbench"
-        ),
-        ellapsedExtensionsReady: this._marks.getDuration(
-          startMark,
-          "code/didLoadExtensions"
-        ),
-        ellapsedRenderer: this._marks.getDuration(
-          "code/didStartRenderer",
-          "code/didStartWorkbench"
-        )
+        ellapsedAppReady: initialStartup ? this._marks.getDuration("code/didStartMain", "code/mainAppReady") : void 0,
+        ellapsedNlsGeneration: initialStartup ? this._marks.getDuration("code/willGenerateNls", "code/didGenerateNls") : void 0,
+        ellapsedLoadMainBundle: initialStartup ? this._marks.getDuration("code/willLoadMainBundle", "code/didLoadMainBundle") : void 0,
+        ellapsedCrashReporter: initialStartup ? this._marks.getDuration("code/willStartCrashReporter", "code/didStartCrashReporter") : void 0,
+        ellapsedMainServer: initialStartup ? this._marks.getDuration("code/willStartMainServer", "code/didStartMainServer") : void 0,
+        ellapsedWindowCreate: initialStartup ? this._marks.getDuration("code/willCreateCodeWindow", "code/didCreateCodeWindow") : void 0,
+        ellapsedWindowRestoreState: initialStartup ? this._marks.getDuration("code/willRestoreCodeWindowState", "code/didRestoreCodeWindowState") : void 0,
+        ellapsedBrowserWindowCreate: initialStartup ? this._marks.getDuration("code/willCreateCodeBrowserWindow", "code/didCreateCodeBrowserWindow") : void 0,
+        ellapsedWindowMaximize: initialStartup ? this._marks.getDuration("code/willMaximizeCodeWindow", "code/didMaximizeCodeWindow") : void 0,
+        ellapsedWindowLoad: initialStartup ? this._marks.getDuration("code/mainAppReady", "code/willOpenNewWindow") : void 0,
+        ellapsedWindowLoadToRequire: this._marks.getDuration("code/willOpenNewWindow", "code/willLoadWorkbenchMain"),
+        ellapsedRequire: this._marks.getDuration("code/willLoadWorkbenchMain", "code/didLoadWorkbenchMain"),
+        ellapsedWaitForWindowConfig: this._marks.getDuration("code/willWaitForWindowConfig", "code/didWaitForWindowConfig"),
+        ellapsedStorageInit: this._marks.getDuration("code/willInitStorage", "code/didInitStorage"),
+        ellapsedSharedProcesConnected: this._marks.getDuration("code/willConnectSharedProcess", "code/didConnectSharedProcess"),
+        ellapsedWorkspaceServiceInit: this._marks.getDuration("code/willInitWorkspaceService", "code/didInitWorkspaceService"),
+        ellapsedRequiredUserDataInit: this._marks.getDuration("code/willInitRequiredUserData", "code/didInitRequiredUserData"),
+        ellapsedOtherUserDataInit: this._marks.getDuration("code/willInitOtherUserData", "code/didInitOtherUserData"),
+        ellapsedExtensions: this._marks.getDuration("code/willLoadExtensions", "code/didLoadExtensions"),
+        ellapsedEditorRestore: this._marks.getDuration("code/willRestoreEditors", "code/didRestoreEditors"),
+        ellapsedViewletRestore: this._marks.getDuration("code/willRestoreViewlet", "code/didRestoreViewlet"),
+        ellapsedPanelRestore: this._marks.getDuration("code/willRestorePanel", "code/didRestorePanel"),
+        ellapsedWorkbenchContributions: this._marks.getDuration("code/willCreateWorkbenchContributions/1", "code/didCreateWorkbenchContributions/2"),
+        ellapsedWorkbench: this._marks.getDuration("code/willStartWorkbench", "code/didStartWorkbench"),
+        ellapsedExtensionsReady: this._marks.getDuration(startMark, "code/didLoadExtensions"),
+        ellapsedRenderer: this._marks.getDuration("code/didStartRenderer", "code/didStartWorkbench")
       },
       // system info
       platform: void 0,

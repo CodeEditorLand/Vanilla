@@ -10,47 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Promises, ResourceQueue } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  FileChangeType,
-  FileOperation,
-  IFileService
-} from "../../../../platform/files/common/files.js";
+import { DisposableStore, dispose, IDisposable } from "../../../../base/common/lifecycle.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { StoredFileWorkingCopy, StoredFileWorkingCopyState, IStoredFileWorkingCopy, IStoredFileWorkingCopyModel, IStoredFileWorkingCopyModelFactory, IStoredFileWorkingCopyResolveOptions, IStoredFileWorkingCopySaveEvent as IBaseStoredFileWorkingCopySaveEvent } from "./storedFileWorkingCopy.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { Promises, ResourceQueue } from "../../../../base/common/async.js";
+import { FileChangesEvent, FileChangeType, FileOperation, IFileService, IFileSystemProviderCapabilitiesChangeEvent, IFileSystemProviderRegistrationEvent } from "../../../../platform/files/common/files.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { IWorkingCopyFileService, WorkingCopyFileEvent } from "./workingCopyFileService.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from "./abstractFileWorkingCopyManager.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
 import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import {
-  BaseFileWorkingCopyManager
-} from "./abstractFileWorkingCopyManager.js";
-import { SnapshotContext } from "./fileWorkingCopy.js";
-import {
-  StoredFileWorkingCopy,
-  StoredFileWorkingCopyState
-} from "./storedFileWorkingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
 import { IWorkingCopyEditorService } from "./workingCopyEditorService.js";
-import {
-  IWorkingCopyFileService
-} from "./workingCopyFileService.js";
 import { IWorkingCopyService } from "./workingCopyService.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { SnapshotContext } from "./fileWorkingCopy.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
 let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   constructor(workingCopyTypeId, modelFactory, fileService, lifecycleService, labelService, logService, workingCopyFileService, workingCopyBackupService, uriIdentityService, filesConfigurationService, workingCopyService, notificationService, workingCopyEditorService, editorService, elevatedFileService, progressService) {
     super(fileService, logService, workingCopyBackupService);
@@ -73,116 +60,49 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
     __name(this, "StoredFileWorkingCopyManager");
   }
   //#region Events
-  _onDidResolve = this._register(
-    new Emitter()
-  );
+  _onDidResolve = this._register(new Emitter());
   onDidResolve = this._onDidResolve.event;
-  _onDidChangeDirty = this._register(
-    new Emitter()
-  );
+  _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidChangeReadonly = this._register(
-    new Emitter()
-  );
+  _onDidChangeReadonly = this._register(new Emitter());
   onDidChangeReadonly = this._onDidChangeReadonly.event;
-  _onDidChangeOrphaned = this._register(
-    new Emitter()
-  );
+  _onDidChangeOrphaned = this._register(new Emitter());
   onDidChangeOrphaned = this._onDidChangeOrphaned.event;
-  _onDidSaveError = this._register(
-    new Emitter()
-  );
+  _onDidSaveError = this._register(new Emitter());
   onDidSaveError = this._onDidSaveError.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
-  _onDidRevert = this._register(
-    new Emitter()
-  );
+  _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
   _onDidRemove = this._register(new Emitter());
   onDidRemove = this._onDidRemove.event;
   //#endregion
   mapResourceToWorkingCopyListeners = new ResourceMap();
   mapResourceToPendingWorkingCopyResolve = new ResourceMap();
-  workingCopyResolveQueue = this._register(
-    new ResourceQueue()
-  );
+  workingCopyResolveQueue = this._register(new ResourceQueue());
   registerListeners() {
-    this._register(
-      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderCapabilities(
-        (e) => this.onDidChangeFileSystemProviderCapabilities(e)
-      )
-    );
-    this._register(
-      this.fileService.onDidChangeFileSystemProviderRegistrations(
-        (e) => this.onDidChangeFileSystemProviderRegistrations(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onWillRunWorkingCopyFileOperation(
-        (e) => this.onWillRunWorkingCopyFileOperation(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onDidFailWorkingCopyFileOperation(
-        (e) => this.onDidFailWorkingCopyFileOperation(e)
-      )
-    );
-    this._register(
-      this.workingCopyFileService.onDidRunWorkingCopyFileOperation(
-        (e) => this.onDidRunWorkingCopyFileOperation(e)
-      )
-    );
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
+    this._register(this.fileService.onDidChangeFileSystemProviderCapabilities((e) => this.onDidChangeFileSystemProviderCapabilities(e)));
+    this._register(this.fileService.onDidChangeFileSystemProviderRegistrations((e) => this.onDidChangeFileSystemProviderRegistrations(e)));
+    this._register(this.workingCopyFileService.onWillRunWorkingCopyFileOperation((e) => this.onWillRunWorkingCopyFileOperation(e)));
+    this._register(this.workingCopyFileService.onDidFailWorkingCopyFileOperation((e) => this.onDidFailWorkingCopyFileOperation(e)));
+    this._register(this.workingCopyFileService.onDidRunWorkingCopyFileOperation((e) => this.onDidRunWorkingCopyFileOperation(e)));
     if (isWeb) {
-      this._register(
-        this.lifecycleService.onBeforeShutdown(
-          (event) => event.veto(
-            this.onBeforeShutdownWeb(),
-            "veto.fileWorkingCopyManager"
-          )
-        )
-      );
+      this._register(this.lifecycleService.onBeforeShutdown((event) => event.veto(this.onBeforeShutdownWeb(), "veto.fileWorkingCopyManager")));
     } else {
-      this._register(
-        this.lifecycleService.onWillShutdown(
-          (event) => event.join(this.onWillShutdownDesktop(), {
-            id: "join.fileWorkingCopyManager",
-            label: localize(
-              "join.fileWorkingCopyManager",
-              "Saving working copies"
-            )
-          })
-        )
-      );
+      this._register(this.lifecycleService.onWillShutdown((event) => event.join(this.onWillShutdownDesktop(), { id: "join.fileWorkingCopyManager", label: localize("join.fileWorkingCopyManager", "Saving working copies") })));
     }
   }
   onBeforeShutdownWeb() {
-    if (this.workingCopies.some(
-      (workingCopy) => workingCopy.hasState(StoredFileWorkingCopyState.PENDING_SAVE)
-    )) {
+    if (this.workingCopies.some((workingCopy) => workingCopy.hasState(StoredFileWorkingCopyState.PENDING_SAVE))) {
       return true;
     }
     return false;
   }
   async onWillShutdownDesktop() {
     let pendingSavedWorkingCopies;
-    while ((pendingSavedWorkingCopies = this.workingCopies.filter(
-      (workingCopy) => workingCopy.hasState(
-        StoredFileWorkingCopyState.PENDING_SAVE
-      )
-    )).length > 0) {
-      await Promises.settled(
-        pendingSavedWorkingCopies.map(
-          (workingCopy) => workingCopy.joinState(
-            StoredFileWorkingCopyState.PENDING_SAVE
-          )
-        )
-      );
+    while ((pendingSavedWorkingCopies = this.workingCopies.filter((workingCopy) => workingCopy.hasState(StoredFileWorkingCopyState.PENDING_SAVE))).length > 0) {
+      await Promises.settled(pendingSavedWorkingCopies.map((workingCopy) => workingCopy.joinState(StoredFileWorkingCopyState.PENDING_SAVE)));
     }
   }
   //#region Resolve from file or file provider changes
@@ -207,11 +127,7 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
       if (typeof schemeOrEvent === "string") {
         resolveWorkingCopy = schemeOrEvent === workingCopy.resource.scheme;
       } else {
-        resolveWorkingCopy = schemeOrEvent.contains(
-          workingCopy.resource,
-          FileChangeType.UPDATED,
-          FileChangeType.ADDED
-        );
+        resolveWorkingCopy = schemeOrEvent.contains(workingCopy.resource, FileChangeType.UPDATED, FileChangeType.ADDED);
       }
       if (resolveWorkingCopy) {
         this.queueWorkingCopyReload(workingCopy);
@@ -219,20 +135,15 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
     }
   }
   queueWorkingCopyReload(workingCopy) {
-    const queueSize = this.workingCopyResolveQueue.queueSize(
-      workingCopy.resource
-    );
+    const queueSize = this.workingCopyResolveQueue.queueSize(workingCopy.resource);
     if (queueSize <= 1) {
-      this.workingCopyResolveQueue.queueFor(
-        workingCopy.resource,
-        async () => {
-          try {
-            await this.reload(workingCopy);
-          } catch (error) {
-            this.logService.error(error);
-          }
+      this.workingCopyResolveQueue.queueFor(workingCopy.resource, async () => {
+        try {
+          await this.reload(workingCopy);
+        } catch (error) {
+          this.logService.error(error);
         }
-      );
+      });
     }
   }
   //#endregion
@@ -240,70 +151,44 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   mapCorrelationIdToWorkingCopiesToRestore = /* @__PURE__ */ new Map();
   onWillRunWorkingCopyFileOperation(e) {
     if (e.operation === FileOperation.MOVE || e.operation === FileOperation.COPY) {
-      e.waitUntil(
-        (async () => {
-          const workingCopiesToRestore = [];
-          for (const { source, target } of e.files) {
-            if (source) {
-              if (this.uriIdentityService.extUri.isEqual(
-                source,
-                target
-              )) {
-                continue;
-              }
-              const sourceWorkingCopies = [];
-              for (const workingCopy of this.workingCopies) {
-                if (this.uriIdentityService.extUri.isEqualOrParent(
-                  workingCopy.resource,
-                  source
-                )) {
-                  sourceWorkingCopies.push(workingCopy);
-                }
-              }
-              for (const sourceWorkingCopy of sourceWorkingCopies) {
-                const sourceResource = sourceWorkingCopy.resource;
-                let targetResource;
-                if (this.uriIdentityService.extUri.isEqual(
-                  sourceResource,
-                  source
-                )) {
-                  targetResource = target;
-                } else {
-                  targetResource = joinPath(
-                    target,
-                    sourceResource.path.substr(
-                      source.path.length + 1
-                    )
-                  );
-                }
-                workingCopiesToRestore.push({
-                  source: sourceResource,
-                  target: targetResource,
-                  snapshot: sourceWorkingCopy.isDirty() ? await sourceWorkingCopy.model?.snapshot(
-                    SnapshotContext.Save,
-                    CancellationToken.None
-                  ) : void 0
-                });
+      e.waitUntil((async () => {
+        const workingCopiesToRestore = [];
+        for (const { source, target } of e.files) {
+          if (source) {
+            if (this.uriIdentityService.extUri.isEqual(source, target)) {
+              continue;
+            }
+            const sourceWorkingCopies = [];
+            for (const workingCopy of this.workingCopies) {
+              if (this.uriIdentityService.extUri.isEqualOrParent(workingCopy.resource, source)) {
+                sourceWorkingCopies.push(workingCopy);
               }
             }
+            for (const sourceWorkingCopy of sourceWorkingCopies) {
+              const sourceResource = sourceWorkingCopy.resource;
+              let targetResource;
+              if (this.uriIdentityService.extUri.isEqual(sourceResource, source)) {
+                targetResource = target;
+              } else {
+                targetResource = joinPath(target, sourceResource.path.substr(source.path.length + 1));
+              }
+              workingCopiesToRestore.push({
+                source: sourceResource,
+                target: targetResource,
+                snapshot: sourceWorkingCopy.isDirty() ? await sourceWorkingCopy.model?.snapshot(SnapshotContext.Save, CancellationToken.None) : void 0
+              });
+            }
           }
-          this.mapCorrelationIdToWorkingCopiesToRestore.set(
-            e.correlationId,
-            workingCopiesToRestore
-          );
-        })()
-      );
+        }
+        this.mapCorrelationIdToWorkingCopiesToRestore.set(e.correlationId, workingCopiesToRestore);
+      })());
     }
   }
   onDidFailWorkingCopyFileOperation(e) {
     if (e.operation === FileOperation.MOVE || e.operation === FileOperation.COPY) {
-      const workingCopiesToRestore = this.mapCorrelationIdToWorkingCopiesToRestore.get(
-        e.correlationId
-      );
+      const workingCopiesToRestore = this.mapCorrelationIdToWorkingCopiesToRestore.get(e.correlationId);
       if (workingCopiesToRestore) {
-        this.mapCorrelationIdToWorkingCopiesToRestore.delete(
-          e.correlationId
-        );
+        this.mapCorrelationIdToWorkingCopiesToRestore.delete(e.correlationId);
         for (const workingCopy of workingCopiesToRestore) {
           if (workingCopy.snapshot) {
             this.get(workingCopy.source)?.markModified();
@@ -316,46 +201,32 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
     switch (e.operation) {
       // Create: Revert existing working copies
       case FileOperation.CREATE:
-        e.waitUntil(
-          (async () => {
-            for (const { target } of e.files) {
-              const workingCopy = this.get(target);
-              if (workingCopy && !workingCopy.isDisposed()) {
-                await workingCopy.revert();
-              }
+        e.waitUntil((async () => {
+          for (const { target } of e.files) {
+            const workingCopy = this.get(target);
+            if (workingCopy && !workingCopy.isDisposed()) {
+              await workingCopy.revert();
             }
-          })()
-        );
+          }
+        })());
         break;
       // Move/Copy: restore working copies that were loaded before the operation took place
       case FileOperation.MOVE:
       case FileOperation.COPY:
-        e.waitUntil(
-          (async () => {
-            const workingCopiesToRestore = this.mapCorrelationIdToWorkingCopiesToRestore.get(
-              e.correlationId
-            );
-            if (workingCopiesToRestore) {
-              this.mapCorrelationIdToWorkingCopiesToRestore.delete(
-                e.correlationId
-              );
-              await Promises.settled(
-                workingCopiesToRestore.map(
-                  async (workingCopyToRestore) => {
-                    const target = this.uriIdentityService.asCanonicalUri(
-                      workingCopyToRestore.target
-                    );
-                    await this.resolve(target, {
-                      reload: { async: false },
-                      // enforce a reload
-                      contents: workingCopyToRestore.snapshot
-                    });
-                  }
-                )
-              );
-            }
-          })()
-        );
+        e.waitUntil((async () => {
+          const workingCopiesToRestore = this.mapCorrelationIdToWorkingCopiesToRestore.get(e.correlationId);
+          if (workingCopiesToRestore) {
+            this.mapCorrelationIdToWorkingCopiesToRestore.delete(e.correlationId);
+            await Promises.settled(workingCopiesToRestore.map(async (workingCopyToRestore) => {
+              const target = this.uriIdentityService.asCanonicalUri(workingCopyToRestore.target);
+              await this.resolve(target, {
+                reload: { async: false },
+                // enforce a reload
+                contents: workingCopyToRestore.snapshot
+              });
+            }));
+          }
+        })());
         break;
     }
   }
@@ -419,10 +290,7 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
         this.labelService.getUriBasenameLabel(resource),
         this.modelFactory,
         async (options2) => {
-          await this.resolve(resource, {
-            ...options2,
-            reload: { async: false }
-          });
+          await this.resolve(resource, { ...options2, reload: { async: false } });
         },
         this.fileService,
         this.logService,
@@ -439,10 +307,7 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
       workingCopyResolve = workingCopy.resolve(resolveOptions);
       this.registerWorkingCopy(workingCopy);
     }
-    this.mapResourceToPendingWorkingCopyResolve.set(
-      resource,
-      workingCopyResolve
-    );
+    this.mapResourceToPendingWorkingCopyResolve.set(resource, workingCopyResolve);
     this.add(resource, workingCopy);
     if (didCreateWorkingCopy) {
       if (workingCopy.isDirty()) {
@@ -487,43 +352,14 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   }
   registerWorkingCopy(workingCopy) {
     const workingCopyListeners = new DisposableStore();
-    workingCopyListeners.add(
-      workingCopy.onDidResolve(
-        () => this._onDidResolve.fire(workingCopy)
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidChangeDirty(
-        () => this._onDidChangeDirty.fire(workingCopy)
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidChangeReadonly(
-        () => this._onDidChangeReadonly.fire(workingCopy)
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidChangeOrphaned(
-        () => this._onDidChangeOrphaned.fire(workingCopy)
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidSaveError(
-        () => this._onDidSaveError.fire(workingCopy)
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidSave(
-        (e) => this._onDidSave.fire({ workingCopy, ...e })
-      )
-    );
-    workingCopyListeners.add(
-      workingCopy.onDidRevert(() => this._onDidRevert.fire(workingCopy))
-    );
-    this.mapResourceToWorkingCopyListeners.set(
-      workingCopy.resource,
-      workingCopyListeners
-    );
+    workingCopyListeners.add(workingCopy.onDidResolve(() => this._onDidResolve.fire(workingCopy)));
+    workingCopyListeners.add(workingCopy.onDidChangeDirty(() => this._onDidChangeDirty.fire(workingCopy)));
+    workingCopyListeners.add(workingCopy.onDidChangeReadonly(() => this._onDidChangeReadonly.fire(workingCopy)));
+    workingCopyListeners.add(workingCopy.onDidChangeOrphaned(() => this._onDidChangeOrphaned.fire(workingCopy)));
+    workingCopyListeners.add(workingCopy.onDidSaveError(() => this._onDidSaveError.fire(workingCopy)));
+    workingCopyListeners.add(workingCopy.onDidSave((e) => this._onDidSave.fire({ workingCopy, ...e })));
+    workingCopyListeners.add(workingCopy.onDidRevert(() => this._onDidRevert.fire(workingCopy)));
+    this.mapResourceToWorkingCopyListeners.set(workingCopy.resource, workingCopyListeners);
   }
   remove(resource) {
     const removed = super.remove(resource);
@@ -540,9 +376,7 @@ let StoredFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   //#endregion
   //#region Lifecycle
   canDispose(workingCopy) {
-    if (workingCopy.isDisposed() || !this.mapResourceToPendingWorkingCopyResolve.has(
-      workingCopy.resource
-    ) && !workingCopy.isDirty()) {
+    if (workingCopy.isDisposed() || !this.mapResourceToPendingWorkingCopyResolve.has(workingCopy.resource) && !workingCopy.isDirty()) {
       return true;
     }
     return this.doCanDispose(workingCopy);

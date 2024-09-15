@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assertNever } from "../../base/common/assert.js";
+import { WrappingIndent } from "./config/editorOptions.js";
+import { FontInfo } from "./config/fontInfo.js";
 import { Position } from "./core/position.js";
-import {
-  InjectedTextCursorStops,
-  PositionAffinity
-} from "./model.js";
+import { InjectedTextCursorStops, InjectedTextOptions, PositionAffinity } from "./model.js";
+import { LineInjectedText } from "./textModelEvents.js";
 class ModelLineProjectionData {
   constructor(injectionOffsets, injectionOptions, breakOffsets, breakOffsetsVisibleColumn, wrappedTextIndentLength) {
     this.injectionOffsets = injectionOffsets;
@@ -40,10 +40,7 @@ class ModelLineProjectionData {
   }
   translateToInputOffset(outputLineIndex, outputOffset) {
     if (outputLineIndex > 0) {
-      outputOffset = Math.max(
-        0,
-        outputOffset - this.wrappedTextIndentLength
-      );
+      outputOffset = Math.max(0, outputOffset - this.wrappedTextIndentLength);
     }
     const offsetInInputWithInjection = outputLineIndex === 0 ? outputOffset : this.breakOffsets[outputLineIndex - 1] + outputOffset;
     let offsetInInput = offsetInInputWithInjection;
@@ -75,10 +72,7 @@ class ModelLineProjectionData {
         inputOffsetInInputWithInjection += this.injectionOptions[i].content.length;
       }
     }
-    return this.offsetInInputWithInjectionsToOutputPosition(
-      inputOffsetInInputWithInjection,
-      affinity
-    );
+    return this.offsetInInputWithInjectionsToOutputPosition(inputOffsetInInputWithInjection, affinity);
   }
   offsetInInputWithInjectionsToOutputPosition(offsetInInputWithInjections, affinity = PositionAffinity.None) {
     let low = 0;
@@ -97,12 +91,14 @@ class ModelLineProjectionData {
         } else {
           break;
         }
-      } else if (offsetInInputWithInjections < midStart) {
-        high = mid - 1;
-      } else if (offsetInInputWithInjections >= midStop) {
-        low = mid + 1;
       } else {
-        break;
+        if (offsetInInputWithInjections < midStart) {
+          high = mid - 1;
+        } else if (offsetInInputWithInjections >= midStop) {
+          low = mid + 1;
+        } else {
+          break;
+        }
       }
     }
     let outputOffset = offsetInInputWithInjections - midStart;
@@ -113,79 +109,51 @@ class ModelLineProjectionData {
   }
   normalizeOutputPosition(outputLineIndex, outputOffset, affinity) {
     if (this.injectionOffsets !== null) {
-      const offsetInInputWithInjections = this.outputPositionToOffsetInInputWithInjections(
-        outputLineIndex,
-        outputOffset
-      );
-      const normalizedOffsetInUnwrappedLine = this.normalizeOffsetInInputWithInjectionsAroundInjections(
-        offsetInInputWithInjections,
-        affinity
-      );
+      const offsetInInputWithInjections = this.outputPositionToOffsetInInputWithInjections(outputLineIndex, outputOffset);
+      const normalizedOffsetInUnwrappedLine = this.normalizeOffsetInInputWithInjectionsAroundInjections(offsetInInputWithInjections, affinity);
       if (normalizedOffsetInUnwrappedLine !== offsetInInputWithInjections) {
-        return this.offsetInInputWithInjectionsToOutputPosition(
-          normalizedOffsetInUnwrappedLine,
-          affinity
-        );
+        return this.offsetInInputWithInjectionsToOutputPosition(normalizedOffsetInUnwrappedLine, affinity);
       }
     }
     if (affinity === PositionAffinity.Left) {
       if (outputLineIndex > 0 && outputOffset === this.getMinOutputOffset(outputLineIndex)) {
-        return new OutputPosition(
-          outputLineIndex - 1,
-          this.getMaxOutputOffset(outputLineIndex - 1)
-        );
+        return new OutputPosition(outputLineIndex - 1, this.getMaxOutputOffset(outputLineIndex - 1));
       }
     } else if (affinity === PositionAffinity.Right) {
       const maxOutputLineIndex = this.getOutputLineCount() - 1;
       if (outputLineIndex < maxOutputLineIndex && outputOffset === this.getMaxOutputOffset(outputLineIndex)) {
-        return new OutputPosition(
-          outputLineIndex + 1,
-          this.getMinOutputOffset(outputLineIndex + 1)
-        );
+        return new OutputPosition(outputLineIndex + 1, this.getMinOutputOffset(outputLineIndex + 1));
       }
     }
     return new OutputPosition(outputLineIndex, outputOffset);
   }
   outputPositionToOffsetInInputWithInjections(outputLineIndex, outputOffset) {
     if (outputLineIndex > 0) {
-      outputOffset = Math.max(
-        0,
-        outputOffset - this.wrappedTextIndentLength
-      );
+      outputOffset = Math.max(0, outputOffset - this.wrappedTextIndentLength);
     }
     const result = (outputLineIndex > 0 ? this.breakOffsets[outputLineIndex - 1] : 0) + outputOffset;
     return result;
   }
   normalizeOffsetInInputWithInjectionsAroundInjections(offsetInInputWithInjections, affinity) {
-    const injectedText = this.getInjectedTextAtOffset(
-      offsetInInputWithInjections
-    );
+    const injectedText = this.getInjectedTextAtOffset(offsetInInputWithInjections);
     if (!injectedText) {
       return offsetInInputWithInjections;
     }
     if (affinity === PositionAffinity.None) {
-      if (offsetInInputWithInjections === injectedText.offsetInInputWithInjections + injectedText.length && hasRightCursorStop(
-        this.injectionOptions[injectedText.injectedTextIndex].cursorStops
-      )) {
+      if (offsetInInputWithInjections === injectedText.offsetInInputWithInjections + injectedText.length && hasRightCursorStop(this.injectionOptions[injectedText.injectedTextIndex].cursorStops)) {
         return injectedText.offsetInInputWithInjections + injectedText.length;
       } else {
         let result = injectedText.offsetInInputWithInjections;
-        if (hasLeftCursorStop(
-          this.injectionOptions[injectedText.injectedTextIndex].cursorStops
-        )) {
+        if (hasLeftCursorStop(this.injectionOptions[injectedText.injectedTextIndex].cursorStops)) {
           return result;
         }
         let index = injectedText.injectedTextIndex - 1;
         while (index >= 0 && this.injectionOffsets[index] === this.injectionOffsets[injectedText.injectedTextIndex]) {
-          if (hasRightCursorStop(
-            this.injectionOptions[index].cursorStops
-          )) {
+          if (hasRightCursorStop(this.injectionOptions[index].cursorStops)) {
             break;
           }
           result -= this.injectionOptions[index].content.length;
-          if (hasLeftCursorStop(
-            this.injectionOptions[index].cursorStops
-          )) {
+          if (hasLeftCursorStop(this.injectionOptions[index].cursorStops)) {
             break;
           }
           index--;
@@ -212,10 +180,7 @@ class ModelLineProjectionData {
     assertNever(affinity);
   }
   getInjectedText(outputLineIndex, outputOffset) {
-    const offset = this.outputPositionToOffsetInInputWithInjections(
-      outputLineIndex,
-      outputOffset
-    );
+    const offset = this.outputPositionToOffsetInInputWithInjections(outputLineIndex, outputOffset);
     const injectedText = this.getInjectedTextAtOffset(offset);
     if (!injectedText) {
       return null;
@@ -285,10 +250,7 @@ class OutputPosition {
     return `${this.outputLineIndex}:${this.outputOffset}`;
   }
   toPosition(baseLineNumber) {
-    return new Position(
-      baseLineNumber + this.outputLineIndex,
-      this.outputOffset + 1
-    );
+    return new Position(baseLineNumber + this.outputLineIndex, this.outputOffset + 1);
   }
 }
 export {

@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { format } from "../../../common/strings.js";
 import { $, append } from "../../dom.js";
+import { format } from "../../../common/strings.js";
 import "./countBadge.css";
 const unthemedCountStyles = {
   badgeBackground: "#4D4D4D",

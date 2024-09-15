@@ -10,24 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import {
-  IContextKeyService
-} from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { IEditorContribution } from "../../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../../common/editorContextKeys.js";
 import { StandaloneColorPickerWidget } from "./standaloneColorPickerWidget.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
 let StandaloneColorPickerController = class extends Disposable {
   constructor(_editor, _contextKeyService, _instantiationService) {
     super();
     this._editor = _editor;
     this._instantiationService = _instantiationService;
-    this._standaloneColorPickerVisible = EditorContextKeys.standaloneColorPickerVisible.bindTo(
-      _contextKeyService
-    );
-    this._standaloneColorPickerFocused = EditorContextKeys.standaloneColorPickerFocused.bindTo(
-      _contextKeyService
-    );
+    this._standaloneColorPickerVisible = EditorContextKeys.standaloneColorPickerVisible.bindTo(_contextKeyService);
+    this._standaloneColorPickerFocused = EditorContextKeys.standaloneColorPickerFocused.bindTo(_contextKeyService);
   }
   static {
     __name(this, "StandaloneColorPickerController");
@@ -62,9 +58,7 @@ let StandaloneColorPickerController = class extends Disposable {
     this.hide();
   }
   static get(editor) {
-    return editor.getContribution(
-      StandaloneColorPickerController.ID
-    );
+    return editor.getContribution(StandaloneColorPickerController.ID);
   }
 };
 StandaloneColorPickerController = __decorateClass([

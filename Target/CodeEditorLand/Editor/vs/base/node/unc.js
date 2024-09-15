@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const module = { exports: {} };
-(() => {
+(function() {
   const isESM = true;
   function factory() {
     function processUNCHostAllowlist() {
@@ -55,23 +55,17 @@ const module = { exports: {} };
         "\\\\"
         // standard UNC path
       ];
-      let host;
+      let host = void 0;
       for (const uncRoot of uncRoots) {
         const indexOfUNCRoot = maybeUNCPath.indexOf(uncRoot);
         if (indexOfUNCRoot !== 0) {
           continue;
         }
-        const indexOfUNCPath = maybeUNCPath.indexOf(
-          "\\",
-          uncRoot.length
-        );
+        const indexOfUNCPath = maybeUNCPath.indexOf("\\", uncRoot.length);
         if (indexOfUNCPath === -1) {
           continue;
         }
-        const hostCandidate = maybeUNCPath.substring(
-          uncRoot.length,
-          indexOfUNCPath
-        );
+        const hostCandidate = maybeUNCPath.substring(uncRoot.length, indexOfUNCPath);
         if (hostCandidate) {
           host = hostCandidate;
           break;
@@ -104,13 +98,13 @@ const module = { exports: {} };
   }
   __name(factory, "factory");
   if (!isESM && typeof define === "function") {
-    define([], () => factory());
+    define([], function() {
+      return factory();
+    });
   } else if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
   } else {
-    console.trace(
-      "vs/base/node/unc defined in UNKNOWN context (neither requirejs or commonjs)"
-    );
+    console.trace("vs/base/node/unc defined in UNKNOWN context (neither requirejs or commonjs)");
   }
 })();
 const getUNCHost = module.exports.getUNCHost;

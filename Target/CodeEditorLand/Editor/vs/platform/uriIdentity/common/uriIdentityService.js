@@ -10,22 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IUriIdentityService } from "./uriIdentity.js";
+import { URI } from "../../../base/common/uri.js";
+import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
+import { IFileService, FileSystemProviderCapabilities, IFileSystemProviderCapabilitiesChangeEvent, IFileSystemProviderRegistrationEvent } from "../../files/common/files.js";
+import { ExtUri, IExtUri, normalizePath } from "../../../base/common/resources.js";
+import { SkipList } from "../../../base/common/skipList.js";
 import { Event } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import {
-  ExtUri,
-  normalizePath
-} from "../../../base/common/resources.js";
-import { SkipList } from "../../../base/common/skipList.js";
-import {
-  FileSystemProviderCapabilities,
-  IFileService
-} from "../../files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../instantiation/common/extensions.js";
-import { IUriIdentityService } from "./uriIdentity.js";
 class Entry {
   constructor(uri) {
     this.uri = uri;
@@ -47,27 +39,19 @@ let UriIdentityService = class {
     const ignorePathCasing = /* @__PURE__ */ __name((uri) => {
       let ignorePathCasing2 = schemeIgnoresPathCasingCache.get(uri.scheme);
       if (ignorePathCasing2 === void 0) {
-        ignorePathCasing2 = _fileService.hasProvider(uri) && !this._fileService.hasCapability(
-          uri,
-          FileSystemProviderCapabilities.PathCaseSensitive
-        );
+        ignorePathCasing2 = _fileService.hasProvider(uri) && !this._fileService.hasCapability(uri, FileSystemProviderCapabilities.PathCaseSensitive);
         schemeIgnoresPathCasingCache.set(uri.scheme, ignorePathCasing2);
       }
       return ignorePathCasing2;
     }, "ignorePathCasing");
-    this._dispooables.add(
-      Event.any(
-        _fileService.onDidChangeFileSystemProviderRegistrations,
-        _fileService.onDidChangeFileSystemProviderCapabilities
-      )((e) => {
-        schemeIgnoresPathCasingCache.delete(e.scheme);
-      })
-    );
+    this._dispooables.add(Event.any(
+      _fileService.onDidChangeFileSystemProviderRegistrations,
+      _fileService.onDidChangeFileSystemProviderCapabilities
+    )((e) => {
+      schemeIgnoresPathCasingCache.delete(e.scheme);
+    }));
     this.extUri = new ExtUri(ignorePathCasing);
-    this._canonicalUris = new SkipList(
-      (a, b) => this.extUri.compare(a, b, true),
-      this._limit
-    );
+    this._canonicalUris = new SkipList((a, b) => this.extUri.compare(a, b, true), this._limit);
   }
   static {
     __name(this, "UriIdentityService");
@@ -116,11 +100,7 @@ let UriIdentityService = class {
 UriIdentityService = __decorateClass([
   __decorateParam(0, IFileService)
 ], UriIdentityService);
-registerSingleton(
-  IUriIdentityService,
-  UriIdentityService,
-  InstantiationType.Delayed
-);
+registerSingleton(IUriIdentityService, UriIdentityService, InstantiationType.Delayed);
 export {
   UriIdentityService
 };

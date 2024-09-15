@@ -4,9 +4,7 @@ import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { mark } from "../../../../base/common/performance.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  ProcessPropertyType
-} from "../../../../platform/terminal/common/terminal.js";
+import { ProcessPropertyType } from "../../../../platform/terminal/common/terminal.js";
 class BasePty extends Disposable {
   constructor(id, shouldPersist) {
     super();
@@ -28,34 +26,19 @@ class BasePty extends Disposable {
     failedShellIntegrationActivation: false,
     usedShellIntegrationInjection: void 0
   };
-  _lastDimensions = {
-    cols: -1,
-    rows: -1
-  };
+  _lastDimensions = { cols: -1, rows: -1 };
   _inReplay = false;
-  _onProcessData = this._register(
-    new Emitter()
-  );
+  _onProcessData = this._register(new Emitter());
   onProcessData = this._onProcessData.event;
-  _onProcessReplayComplete = this._register(
-    new Emitter()
-  );
+  _onProcessReplayComplete = this._register(new Emitter());
   onProcessReplayComplete = this._onProcessReplayComplete.event;
-  _onProcessReady = this._register(
-    new Emitter()
-  );
+  _onProcessReady = this._register(new Emitter());
   onProcessReady = this._onProcessReady.event;
-  _onDidChangeProperty = this._register(
-    new Emitter()
-  );
+  _onDidChangeProperty = this._register(new Emitter());
   onDidChangeProperty = this._onDidChangeProperty.event;
-  _onProcessExit = this._register(
-    new Emitter()
-  );
+  _onProcessExit = this._register(new Emitter());
   onProcessExit = this._onProcessExit.event;
-  _onRestoreCommands = this._register(
-    new Emitter()
-  );
+  _onRestoreCommands = this._register(new Emitter());
   onRestoreCommands = this._onRestoreCommands.event;
   async getInitialCwd() {
     return this._properties.initialCwd;
@@ -93,19 +76,9 @@ class BasePty extends Disposable {
       this._inReplay = true;
       for (const innerEvent of e.events) {
         if (innerEvent.cols !== 0 || innerEvent.rows !== 0) {
-          this._onDidChangeProperty.fire({
-            type: ProcessPropertyType.OverrideDimensions,
-            value: {
-              cols: innerEvent.cols,
-              rows: innerEvent.rows,
-              forceExactSize: true
-            }
-          });
+          this._onDidChangeProperty.fire({ type: ProcessPropertyType.OverrideDimensions, value: { cols: innerEvent.cols, rows: innerEvent.rows, forceExactSize: true } });
         }
-        const e2 = {
-          data: innerEvent.data,
-          trackCommit: true
-        };
+        const e2 = { data: innerEvent.data, trackCommit: true };
         this._onProcessData.fire(e2);
         await e2.writePromise;
       }
@@ -115,10 +88,7 @@ class BasePty extends Disposable {
     if (e.commands) {
       this._onRestoreCommands.fire(e.commands);
     }
-    this._onDidChangeProperty.fire({
-      type: ProcessPropertyType.OverrideDimensions,
-      value: void 0
-    });
+    this._onDidChangeProperty.fire({ type: ProcessPropertyType.OverrideDimensions, value: void 0 });
     mark(`code/terminal/didHandleReplay/${this.id}`);
     this._onProcessReplayComplete.fire();
   }

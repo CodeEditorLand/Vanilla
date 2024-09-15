@@ -10,27 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { INotificationsModel, INotificationChangeEvent, NotificationChangeType, IStatusMessageChangeEvent, StatusMessageChangeType, IStatusMessageViewItem } from "../../../common/notifications.js";
+import { IStatusbarService, StatusbarAlignment, IStatusbarEntryAccessor, IStatusbarEntry } from "../../../services/statusbar/browser/statusbar.js";
+import { Disposable, IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { HIDE_NOTIFICATIONS_CENTER, SHOW_NOTIFICATIONS_CENTER } from "./notificationsCommands.js";
 import { localize } from "../../../../nls.js";
-import {
-  INotificationService,
-  NotificationsFilter
-} from "../../../../platform/notification/common/notification.js";
-import {
-  NotificationChangeType,
-  StatusMessageChangeType
-} from "../../../common/notifications.js";
-import {
-  IStatusbarService,
-  StatusbarAlignment
-} from "../../../services/statusbar/browser/statusbar.js";
-import {
-  HIDE_NOTIFICATIONS_CENTER,
-  SHOW_NOTIFICATIONS_CENTER
-} from "./notificationsCommands.js";
+import { INotificationService, NotificationsFilter } from "../../../../platform/notification/common/notification.js";
 let NotificationsStatus = class extends Disposable {
   constructor(model, statusbarService, notificationService) {
     super();
@@ -52,21 +37,9 @@ let NotificationsStatus = class extends Disposable {
   isNotificationsCenterVisible = false;
   isNotificationsToastsVisible = false;
   registerListeners() {
-    this._register(
-      this.model.onDidChangeNotification(
-        (e) => this.onDidChangeNotification(e)
-      )
-    );
-    this._register(
-      this.model.onDidChangeStatusMessage(
-        (e) => this.onDidChangeStatusMessage(e)
-      )
-    );
-    this._register(
-      this.notificationService.onDidChangeFilter(
-        () => this.updateNotificationsCenterStatusItem()
-      )
-    );
+    this._register(this.model.onDidChangeNotification((e) => this.onDidChangeNotification(e)));
+    this._register(this.model.onDidChangeStatusMessage((e) => this.onDidChangeStatusMessage(e)));
+    this._register(this.notificationService.onDidChangeFilter(() => this.updateNotificationsCenterStatusItem()));
   }
   onDidChangeNotification(e) {
     if (!this.isNotificationsCenterVisible) {
@@ -100,21 +73,19 @@ let NotificationsStatus = class extends Disposable {
         ...statusProperties,
         text: `${notificationsInProgress > 0 || this.newNotificationsCount > 0 ? "$(bell-slash-dot)" : "$(bell-slash)"}`,
         ariaLabel: localize("status.doNotDisturb", "Do Not Disturb"),
-        tooltip: localize(
-          "status.doNotDisturbTooltip",
-          "Do Not Disturb Mode is Enabled"
-        )
+        tooltip: localize("status.doNotDisturbTooltip", "Do Not Disturb Mode is Enabled")
       };
     }
-    if (this.notificationsCenterStatusItem) {
-      this.notificationsCenterStatusItem.update(statusProperties);
-    } else {
+    if (!this.notificationsCenterStatusItem) {
       this.notificationsCenterStatusItem = this.statusbarService.addEntry(
         statusProperties,
         "status.notifications",
         StatusbarAlignment.RIGHT,
         -Number.MAX_VALUE
+        /* towards the far end of the right hand side */
       );
+    } else {
+      this.notificationsCenterStatusItem.update(statusProperties);
     }
   }
   getTooltip(notificationsInProgress) {
@@ -131,44 +102,15 @@ let NotificationsStatus = class extends Disposable {
       if (this.newNotificationsCount === 1) {
         return localize("oneNotification", "1 New Notification");
       }
-      return localize(
-        {
-          key: "notifications",
-          comment: ["{0} will be replaced by a number"]
-        },
-        "{0} New Notifications",
-        this.newNotificationsCount
-      );
+      return localize({ key: "notifications", comment: ["{0} will be replaced by a number"] }, "{0} New Notifications", this.newNotificationsCount);
     }
     if (this.newNotificationsCount === 0) {
-      return localize(
-        {
-          key: "noNotificationsWithProgress",
-          comment: ["{0} will be replaced by a number"]
-        },
-        "No New Notifications ({0} in progress)",
-        notificationsInProgress
-      );
+      return localize({ key: "noNotificationsWithProgress", comment: ["{0} will be replaced by a number"] }, "No New Notifications ({0} in progress)", notificationsInProgress);
     }
     if (this.newNotificationsCount === 1) {
-      return localize(
-        {
-          key: "oneNotificationWithProgress",
-          comment: ["{0} will be replaced by a number"]
-        },
-        "1 New Notification ({0} in progress)",
-        notificationsInProgress
-      );
+      return localize({ key: "oneNotificationWithProgress", comment: ["{0} will be replaced by a number"] }, "1 New Notification ({0} in progress)", notificationsInProgress);
     }
-    return localize(
-      {
-        key: "notificationsWithProgress",
-        comment: ["{0} and {1} will be replaced by a number"]
-      },
-      "{0} New Notifications ({1} in progress)",
-      this.newNotificationsCount,
-      notificationsInProgress
-    );
+    return localize({ key: "notificationsWithProgress", comment: ["{0} and {1} will be replaced by a number"] }, "{0} New Notifications ({1} in progress)", this.newNotificationsCount, notificationsInProgress);
   }
   update(isCenterVisible, isToastsVisible) {
     let updateNotificationsCenterStatusItem = false;
@@ -219,6 +161,7 @@ let NotificationsStatus = class extends Disposable {
         "status.message",
         StatusbarAlignment.LEFT,
         -Number.MAX_VALUE
+        /* far right on left hand side */
       );
       showHandle = null;
     }, showAfter);
@@ -235,10 +178,7 @@ let NotificationsStatus = class extends Disposable {
       }, "dispose")
     };
     if (hideAfter > 0) {
-      hideHandle = setTimeout(
-        () => statusMessageDispose.dispose(),
-        hideAfter
-      );
+      hideHandle = setTimeout(() => statusMessageDispose.dispose(), hideAfter);
     }
     this.currentStatusMessage = [item, statusMessageDispose];
   }

@@ -11,8 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
 import { IRemoteExplorerService } from "../../../services/remote/common/remoteExplorerService.js";
+import { CandidatePort } from "../../../services/remote/common/tunnelModel.js";
 let ShowCandidateContribution = class extends Disposable {
   static {
     __name(this, "ShowCandidateContribution");
@@ -22,31 +24,19 @@ let ShowCandidateContribution = class extends Disposable {
     super();
     const showPortCandidate = environmentService.options?.tunnelProvider?.showPortCandidate;
     if (showPortCandidate) {
-      this._register(
-        remoteExplorerService.setCandidateFilter(
-          async (candidates) => {
-            const filters = await Promise.all(
-              candidates.map(
-                (candidate) => showPortCandidate(
-                  candidate.host,
-                  candidate.port,
-                  candidate.detail ?? ""
-                )
-              )
-            );
-            const filteredCandidates = [];
-            if (filters.length !== candidates.length) {
-              return candidates;
-            }
-            for (let i = 0; i < candidates.length; i++) {
-              if (filters[i]) {
-                filteredCandidates.push(candidates[i]);
-              }
-            }
-            return filteredCandidates;
+      this._register(remoteExplorerService.setCandidateFilter(async (candidates) => {
+        const filters = await Promise.all(candidates.map((candidate) => showPortCandidate(candidate.host, candidate.port, candidate.detail ?? "")));
+        const filteredCandidates = [];
+        if (filters.length !== candidates.length) {
+          return candidates;
+        }
+        for (let i = 0; i < candidates.length; i++) {
+          if (filters[i]) {
+            filteredCandidates.push(candidates[i]);
           }
-        )
-      );
+        }
+        return filteredCandidates;
+      }));
     }
   }
 };

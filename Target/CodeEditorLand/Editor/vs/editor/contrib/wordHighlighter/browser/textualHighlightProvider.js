@@ -10,13 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { USUAL_WORD_SEPARATORS } from "../../../common/core/wordHelper.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { DocumentHighlight, DocumentHighlightKind, DocumentHighlightProvider, MultiDocumentHighlightProvider, ProviderResult } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { Position } from "../../../common/core/position.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
-import { USUAL_WORD_SEPARATORS } from "../../../common/core/wordHelper.js";
-import {
-  DocumentHighlightKind
-} from "../../../common/languages.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { LanguageFilter } from "../../../common/languageSelector.js";
 class TextualDocumentHighlightProvider {
   static {
     __name(this, "TextualDocumentHighlightProvider");
@@ -34,14 +36,7 @@ class TextualDocumentHighlightProvider {
     if (model.isDisposed()) {
       return;
     }
-    const matches = model.findMatches(
-      word.word,
-      true,
-      false,
-      true,
-      USUAL_WORD_SEPARATORS,
-      false
-    );
+    const matches = model.findMatches(word.word, true, false, true, USUAL_WORD_SEPARATORS, false);
     return matches.map((m) => ({
       range: m.range,
       kind: DocumentHighlightKind.Text
@@ -60,14 +55,7 @@ class TextualDocumentHighlightProvider {
       if (model.isDisposed()) {
         continue;
       }
-      const matches = model.findMatches(
-        word.word,
-        true,
-        false,
-        true,
-        USUAL_WORD_SEPARATORS,
-        false
-      );
+      const matches = model.findMatches(word.word, true, false, true, USUAL_WORD_SEPARATORS, false);
       const highlights = matches.map((m) => ({
         range: m.range,
         kind: DocumentHighlightKind.Text
@@ -85,18 +73,8 @@ let TextualMultiDocumentHighlightFeature = class extends Disposable {
   }
   constructor(languageFeaturesService) {
     super();
-    this._register(
-      languageFeaturesService.documentHighlightProvider.register(
-        "*",
-        new TextualDocumentHighlightProvider()
-      )
-    );
-    this._register(
-      languageFeaturesService.multiDocumentHighlightProvider.register(
-        "*",
-        new TextualDocumentHighlightProvider()
-      )
-    );
+    this._register(languageFeaturesService.documentHighlightProvider.register("*", new TextualDocumentHighlightProvider()));
+    this._register(languageFeaturesService.multiDocumentHighlightProvider.register("*", new TextualDocumentHighlightProvider()));
   }
 };
 TextualMultiDocumentHighlightFeature = __decorateClass([

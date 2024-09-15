@@ -10,52 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { HistoryNavigator2 } from "../../../../base/common/history.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { ISCMService, ISCMProvider, ISCMInput, ISCMRepository, IInputValidator, ISCMInputChangeEvent, SCMInputChangeReason, InputValidationType, IInputValidation } from "./scm.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { HistoryNavigator2 } from "../../../../base/common/history.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Iterable } from "../../../../base/common/iterator.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import {
-  SCMInputChangeReason
-} from "./scm.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 class SCMInput extends Disposable {
   constructor(repository, history) {
     super();
     this.repository = repository;
     this.history = history;
     if (this.repository.provider.rootUri) {
-      this.historyNavigator = history.getHistory(
-        this.repository.provider.label,
-        this.repository.provider.rootUri
-      );
-      this._register(
-        this.history.onWillSaveHistory((event) => {
-          if (this.historyNavigator.isAtEnd()) {
-            this.saveValue();
-          }
-          if (this.didChangeHistory) {
-            event.historyDidIndeedChange();
-          }
-          this.didChangeHistory = false;
-        })
-      );
+      this.historyNavigator = history.getHistory(this.repository.provider.label, this.repository.provider.rootUri);
+      this._register(this.history.onWillSaveHistory((event) => {
+        if (this.historyNavigator.isAtEnd()) {
+          this.saveValue();
+        }
+        if (this.didChangeHistory) {
+          event.historyDidIndeedChange();
+        }
+        this.didChangeHistory = false;
+      }));
     } else {
       this.historyNavigator = new HistoryNavigator2([""], 100);
     }
@@ -106,10 +90,7 @@ class SCMInput extends Disposable {
   _onDidChangeFocus = new Emitter();
   onDidChangeFocus = this._onDidChangeFocus.event;
   showValidationMessage(message, type) {
-    this._onDidChangeValidationMessage.fire({
-      message,
-      type
-    });
+    this._onDidChangeValidationMessage.fire({ message, type });
   }
   _onDidChangeValidationMessage = new Emitter();
   onDidChangeValidationMessage = this._onDidChangeValidationMessage.event;
@@ -220,41 +201,31 @@ let SCMInputHistory = class {
     if (this.migrateStorage()) {
       this.saveToStorage();
     }
-    this.disposables.add(
-      this.storageService.onDidChangeValue(
-        StorageScope.WORKSPACE,
-        "scm.history",
-        this.disposables
-      )((e) => {
-        if (e.external && e.key === "scm.history") {
-          const raw = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
-          for (const [providerLabel, uri, rawHistory] of raw) {
-            const history = this.getHistory(providerLabel, uri);
-            for (const value of Iterable.reverse(rawHistory)) {
-              history.prepend(value);
-            }
+    this.disposables.add(this.storageService.onDidChangeValue(StorageScope.WORKSPACE, "scm.history", this.disposables)((e) => {
+      if (e.external && e.key === "scm.history") {
+        const raw = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
+        for (const [providerLabel, uri, rawHistory] of raw) {
+          const history = this.getHistory(providerLabel, uri);
+          for (const value of Iterable.reverse(rawHistory)) {
+            history.prepend(value);
           }
         }
-      })
-    );
-    this.disposables.add(
-      this.storageService.onWillSaveState((_) => {
-        const event = new WillSaveHistoryEvent();
-        this._onWillSaveHistory.fire(event);
-        if (event.didChangeHistory) {
-          this.saveToStorage();
-        }
-      })
-    );
+      }
+    }));
+    this.disposables.add(this.storageService.onWillSaveState((_) => {
+      const event = new WillSaveHistoryEvent();
+      this._onWillSaveHistory.fire(event);
+      if (event.didChangeHistory) {
+        this.saveToStorage();
+      }
+    }));
   }
   static {
     __name(this, "SCMInputHistory");
   }
   disposables = new DisposableStore();
   histories = /* @__PURE__ */ new Map();
-  _onWillSaveHistory = this.disposables.add(
-    new Emitter()
-  );
+  _onWillSaveHistory = this.disposables.add(new Emitter());
   onWillSaveHistory = this._onWillSaveHistory.event;
   saveToStorage() {
     const raw = [];
@@ -265,12 +236,7 @@ let SCMInputHistory = class {
         }
       }
     }
-    this.storageService.store(
-      "scm.history",
-      raw,
-      StorageScope.WORKSPACE,
-      StorageTarget.USER
-    );
+    this.storageService.store("scm.history", raw, StorageScope.WORKSPACE, StorageTarget.USER);
   }
   getHistory(providerLabel, rootUri) {
     let providerHistories = this.histories.get(providerLabel);
@@ -289,18 +255,10 @@ let SCMInputHistory = class {
   // TODO@joaomoreno: Change from January 2024 onwards such that the only code is to remove all `scm/input:` storage keys
   migrateStorage() {
     let didSomethingChange = false;
-    const machineKeys = Iterable.filter(
-      this.storageService.keys(
-        StorageScope.APPLICATION,
-        StorageTarget.MACHINE
-      ),
-      (key) => key.startsWith("scm/input:")
-    );
+    const machineKeys = Iterable.filter(this.storageService.keys(StorageScope.APPLICATION, StorageTarget.MACHINE), (key) => key.startsWith("scm/input:"));
     for (const key of machineKeys) {
       try {
-        const legacyHistory = JSON.parse(
-          this.storageService.get(key, StorageScope.APPLICATION, "")
-        );
+        const legacyHistory = JSON.parse(this.storageService.get(key, StorageScope.APPLICATION, ""));
         const match = /^scm\/input:([^:]+):(.+)$/.exec(key);
         if (!match || !Array.isArray(legacyHistory?.history) || !Number.isInteger(legacyHistory?.timestamp)) {
           this.storageService.remove(key, StorageScope.APPLICATION);
@@ -310,9 +268,7 @@ let SCMInputHistory = class {
         const rootUri = URI.file(rootPath);
         if (this.workspaceContextService.getWorkspaceFolder(rootUri)) {
           const history = this.getHistory(providerLabel, rootUri);
-          for (const entry of Iterable.reverse(
-            legacyHistory.history
-          )) {
+          for (const entry of Iterable.reverse(legacyHistory.history)) {
             history.prepend(entry);
           }
           didSomethingChange = true;
@@ -336,14 +292,8 @@ let SCMService = class {
   constructor(logService, workspaceContextService, contextKeyService, storageService, uriIdentityService) {
     this.logService = logService;
     this.uriIdentityService = uriIdentityService;
-    this.inputHistory = new SCMInputHistory(
-      storageService,
-      workspaceContextService
-    );
-    this.providerCount = contextKeyService.createKey(
-      "scm.providerCount",
-      0
-    );
+    this.inputHistory = new SCMInputHistory(storageService, workspaceContextService);
+    this.providerCount = contextKeyService.createKey("scm.providerCount", 0);
   }
   static {
     __name(this, "SCMService");
@@ -372,12 +322,7 @@ let SCMService = class {
       this._onDidRemoveProvider.fire(repository);
       this.providerCount.set(this._repositories.size);
     });
-    const repository = new SCMRepository(
-      provider.id,
-      provider,
-      disposable,
-      this.inputHistory
-    );
+    const repository = new SCMRepository(provider.id, provider, disposable, this.inputHistory);
     this._repositories.set(provider.id, repository);
     this._onDidAddProvider.fire(repository);
     this.providerCount.set(this._repositories.size);
@@ -390,17 +335,14 @@ let SCMService = class {
     if (idOrResource.scheme !== Schemas.file && idOrResource.scheme !== Schemas.vscodeRemote) {
       return void 0;
     }
-    let bestRepository;
+    let bestRepository = void 0;
     let bestMatchLength = Number.POSITIVE_INFINITY;
     for (const repository of this.repositories) {
       const root = repository.provider.rootUri;
       if (!root) {
         continue;
       }
-      const path = this.uriIdentityService.extUri.relativePath(
-        root,
-        idOrResource
-      );
+      const path = this.uriIdentityService.extUri.relativePath(root, idOrResource);
       if (path && !/^\.\./.test(path) && path.length < bestMatchLength) {
         bestRepository = repository;
         bestMatchLength = path.length;

@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IEditorAction } from "./editorCommon.js";
+import { ICommandMetadata } from "../../platform/commands/common/commands.js";
+import { ContextKeyExpression, IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
 class InternalEditorAction {
   constructor(id, label, alias, metadata, _precondition, _run, _contextKeyService) {
     this.id = id;

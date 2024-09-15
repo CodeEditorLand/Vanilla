@@ -10,12 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { URI } from "../../../base/common/uri.js";
+import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataSyncStore, IUserDataSyncStoreManagementService, UserDataSyncStoreType } from "./userDataSync.js";
+import { IUserDataSyncAccount, IUserDataSyncAccountService } from "./userDataSyncAccount.js";
 import { AbstractUserDataSyncStoreManagementService } from "./userDataSyncStoreService.js";
 class UserDataSyncAccountServiceChannel {
   constructor(service) {
@@ -31,9 +34,7 @@ class UserDataSyncAccountServiceChannel {
       case "onTokenFailed":
         return this.service.onTokenFailed;
     }
-    throw new Error(
-      `[UserDataSyncAccountServiceChannel] Event not found: ${event}`
-    );
+    throw new Error(`[UserDataSyncAccountServiceChannel] Event not found: ${event}`);
   }
   call(context, command, args) {
     switch (command) {
@@ -51,14 +52,10 @@ class UserDataSyncAccountServiceChannelClient extends Disposable {
     this.channel = channel;
     this.channel.call("_getInitialData").then((account) => {
       this._account = account;
-      this._register(
-        this.channel.listen(
-          "onDidChangeAccount"
-        )((account2) => {
-          this._account = account2;
-          this._onDidChangeAccount.fire(account2);
-        })
-      );
+      this._register(this.channel.listen("onDidChangeAccount")((account2) => {
+        this._account = account2;
+        this._onDidChangeAccount.fire(account2);
+      }));
     });
   }
   static {
@@ -71,9 +68,7 @@ class UserDataSyncAccountServiceChannelClient extends Disposable {
   get onTokenFailed() {
     return this.channel.listen("onTokenFailed");
   }
-  _onDidChangeAccount = this._register(
-    new Emitter()
-  );
+  _onDidChangeAccount = this._register(new Emitter());
   onDidChangeAccount = this._onDidChangeAccount.event;
   updateAccount(account) {
     return this.channel.call("updateAccount", account);
@@ -91,9 +86,7 @@ class UserDataSyncStoreManagementServiceChannel {
       case "onDidChangeUserDataSyncStore":
         return this.service.onDidChangeUserDataSyncStore;
     }
-    throw new Error(
-      `[UserDataSyncStoreManagementServiceChannel] Event not found: ${event}`
-    );
+    throw new Error(`[UserDataSyncStoreManagementServiceChannel] Event not found: ${event}`);
   }
   call(context, command, args) {
     switch (command) {
@@ -109,11 +102,7 @@ let UserDataSyncStoreManagementServiceChannelClient = class extends AbstractUser
   constructor(channel, productService, configurationService, storageService) {
     super(productService, configurationService, storageService);
     this.channel = channel;
-    this._register(
-      this.channel.listen("onDidChangeUserDataSyncStore")(
-        () => this.updateUserDataSyncStore()
-      )
-    );
+    this._register(this.channel.listen("onDidChangeUserDataSyncStore")(() => this.updateUserDataSyncStore()));
   }
   static {
     __name(this, "UserDataSyncStoreManagementServiceChannelClient");
@@ -122,9 +111,7 @@ let UserDataSyncStoreManagementServiceChannelClient = class extends AbstractUser
     return this.channel.call("switch", [type]);
   }
   async getPreviousUserDataSyncStore() {
-    const userDataSyncStore = await this.channel.call(
-      "getPreviousUserDataSyncStore"
-    );
+    const userDataSyncStore = await this.channel.call("getPreviousUserDataSyncStore");
     return this.revive(userDataSyncStore);
   }
   revive(userDataSyncStore) {

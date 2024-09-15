@@ -10,36 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { env } from "../../../../base/common/process.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { join } from "../../../../base/common/path.js";
-import {
-  OperatingSystem,
-  isWindows
-} from "../../../../base/common/platform.js";
-import { env } from "../../../../base/common/process.js";
-import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  FileOperationError,
-  FileOperationResult,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  IInstantiationService
-} from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  GeneralShellType,
-  PosixShellType,
-  TerminalSettingId
-} from "../../../../platform/terminal/common/terminal.js";
+import { FileOperationError, FileOperationResult, IFileContent, IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { GeneralShellType, PosixShellType, TerminalSettingId, TerminalShellType } from "../../../../platform/terminal/common/terminal.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isWindows, OperatingSystem } from "../../../../base/common/platform.js";
+import { join } from "../../../../base/common/path.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["DefaultHistoryLimit"] = 100] = "DefaultHistoryLimit";
   return Constants2;
@@ -49,24 +32,18 @@ var StorageKeys = /* @__PURE__ */ ((StorageKeys2) => {
   StorageKeys2["Timestamp"] = "terminal.history.timestamp";
   return StorageKeys2;
 })(StorageKeys || {});
-let commandHistory;
+let commandHistory = void 0;
 function getCommandHistory(accessor) {
   if (!commandHistory) {
-    commandHistory = accessor.get(IInstantiationService).createInstance(
-      TerminalPersistedHistory,
-      "commands"
-    );
+    commandHistory = accessor.get(IInstantiationService).createInstance(TerminalPersistedHistory, "commands");
   }
   return commandHistory;
 }
 __name(getCommandHistory, "getCommandHistory");
-let directoryHistory;
+let directoryHistory = void 0;
 function getDirectoryHistory(accessor) {
   if (!directoryHistory) {
-    directoryHistory = accessor.get(IInstantiationService).createInstance(
-      TerminalPersistedHistory,
-      "dirs"
-    );
+    directoryHistory = accessor.get(IInstantiationService).createInstance(TerminalPersistedHistory, "dirs");
   }
   return directoryHistory;
 }
@@ -120,30 +97,16 @@ let TerminalPersistedHistory = class extends Disposable {
     this._configurationService = _configurationService;
     this._storageService = _storageService;
     this._entries = new LRUCache(this._getHistoryLimit());
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          TerminalSettingId.ShellIntegrationCommandHistory
-        )) {
-          this._entries.limit = this._getHistoryLimit();
-        }
-      })
-    );
-    this._register(
-      this._storageService.onDidChangeValue(
-        StorageScope.APPLICATION,
-        this._getTimestampStorageKey(),
-        this._store
-      )(() => {
-        if (!this._isStale) {
-          this._isStale = this._storageService.getNumber(
-            this._getTimestampStorageKey(),
-            StorageScope.APPLICATION,
-            0
-          ) !== this._timestamp;
-        }
-      })
-    );
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TerminalSettingId.ShellIntegrationCommandHistory)) {
+        this._entries.limit = this._getHistoryLimit();
+      }
+    }));
+    this._register(this._storageService.onDidChangeValue(StorageScope.APPLICATION, this._getTimestampStorageKey(), this._store)(() => {
+      if (!this._isStale) {
+        this._isStale = this._storageService.getNumber(this._getTimestampStorageKey(), StorageScope.APPLICATION, 0) !== this._timestamp;
+      }
+    }));
   }
   static {
     __name(this, "TerminalPersistedHistory");
@@ -183,11 +146,7 @@ let TerminalPersistedHistory = class extends Disposable {
     }
   }
   _loadState() {
-    this._timestamp = this._storageService.getNumber(
-      this._getTimestampStorageKey(),
-      StorageScope.APPLICATION,
-      0
-    );
+    this._timestamp = this._storageService.getNumber(this._getTimestampStorageKey(), StorageScope.APPLICATION, 0);
     const serialized = this._loadPersistedState();
     if (serialized) {
       for (const entry of serialized.entries) {
@@ -196,14 +155,11 @@ let TerminalPersistedHistory = class extends Disposable {
     }
   }
   _loadPersistedState() {
-    const raw = this._storageService.get(
-      this._getEntriesStorageKey(),
-      StorageScope.APPLICATION
-    );
+    const raw = this._storageService.get(this._getEntriesStorageKey(), StorageScope.APPLICATION);
     if (raw === void 0 || raw.length === 0) {
       return void 0;
     }
-    let serialized;
+    let serialized = void 0;
     try {
       serialized = JSON.parse(raw);
     } catch {
@@ -213,27 +169,13 @@ let TerminalPersistedHistory = class extends Disposable {
   }
   _saveState() {
     const serialized = { entries: [] };
-    this._entries.forEach(
-      (value, key) => serialized.entries.push({ key, value })
-    );
-    this._storageService.store(
-      this._getEntriesStorageKey(),
-      JSON.stringify(serialized),
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this._entries.forEach((value, key) => serialized.entries.push({ key, value }));
+    this._storageService.store(this._getEntriesStorageKey(), JSON.stringify(serialized), StorageScope.APPLICATION, StorageTarget.MACHINE);
     this._timestamp = Date.now();
-    this._storageService.store(
-      this._getTimestampStorageKey(),
-      this._timestamp,
-      StorageScope.APPLICATION,
-      StorageTarget.MACHINE
-    );
+    this._storageService.store(this._getTimestampStorageKey(), this._timestamp, StorageScope.APPLICATION, StorageTarget.MACHINE);
   }
   _getHistoryLimit() {
-    const historyLimit = this._configurationService.getValue(
-      TerminalSettingId.ShellIntegrationCommandHistory
-    );
+    const historyLimit = this._configurationService.getValue(TerminalSettingId.ShellIntegrationCommandHistory);
     return typeof historyLimit === "number" ? historyLimit : 100 /* DefaultHistoryLimit */;
   }
   _getTimestampStorageKey() {
@@ -254,21 +196,15 @@ async function fetchBashHistory(accessor) {
   if (remoteEnvironment?.os === OperatingSystem.Windows || !remoteEnvironment && isWindows) {
     return void 0;
   }
-  const content = await fetchFileContents(
-    env["HOME"],
-    ".bash_history",
-    false,
-    fileService,
-    remoteAgentService
-  );
+  const content = await fetchFileContents(env["HOME"], ".bash_history", false, fileService, remoteAgentService);
   if (content === void 0) {
     return void 0;
   }
   const fileLines = content.split("\n");
   const result = /* @__PURE__ */ new Set();
   let currentLine;
-  let currentCommand;
-  let wrapChar;
+  let currentCommand = void 0;
+  let wrapChar = void 0;
   for (let i = 0; i < fileLines.length; i++) {
     currentLine = fileLines[i];
     if (currentCommand === void 0) {
@@ -282,8 +218,10 @@ ${currentLine}`;
         if (currentLine[c] === wrapChar) {
           wrapChar = void 0;
         }
-      } else if (currentLine[c].match(/['"]/)) {
-        wrapChar = currentLine[c];
+      } else {
+        if (currentLine[c].match(/['"]/)) {
+          wrapChar = currentLine[c];
+        }
       }
     }
     if (wrapChar === void 0) {
@@ -303,17 +241,11 @@ async function fetchZshHistory(accessor) {
   if (remoteEnvironment?.os === OperatingSystem.Windows || !remoteEnvironment && isWindows) {
     return void 0;
   }
-  const content = await fetchFileContents(
-    env["HOME"],
-    ".zsh_history",
-    false,
-    fileService,
-    remoteAgentService
-  );
+  const content = await fetchFileContents(env["HOME"], ".zsh_history", false, fileService, remoteAgentService);
   if (content === void 0) {
     return void 0;
   }
-  const fileLines = content.split(/:\s\d+:\d+;/);
+  const fileLines = content.split(/\:\s\d+\:\d+;/);
   const result = /* @__PURE__ */ new Set();
   for (let i = 0; i < fileLines.length; i++) {
     const sanitized = fileLines[i].replace(/\\\n/g, "\n").trim();
@@ -327,13 +259,7 @@ __name(fetchZshHistory, "fetchZshHistory");
 async function fetchPythonHistory(accessor) {
   const fileService = accessor.get(IFileService);
   const remoteAgentService = accessor.get(IRemoteAgentService);
-  const content = await fetchFileContents(
-    env["HOME"],
-    ".python_history",
-    false,
-    fileService,
-    remoteAgentService
-  );
+  const content = await fetchFileContents(env["HOME"], ".python_history", false, fileService, remoteAgentService);
   if (content === void 0) {
     return void 0;
   }
@@ -361,21 +287,15 @@ async function fetchPwshHistory(accessor) {
     folderPrefix = env["HOME"];
     filePath = ".local/share/powershell/PSReadline/ConsoleHost_history.txt";
   }
-  const content = await fetchFileContents(
-    folderPrefix,
-    filePath,
-    isFileWindows,
-    fileService,
-    remoteAgentService
-  );
+  const content = await fetchFileContents(folderPrefix, filePath, isFileWindows, fileService, remoteAgentService);
   if (content === void 0) {
     return void 0;
   }
   const fileLines = content.split("\n");
   const result = /* @__PURE__ */ new Set();
   let currentLine;
-  let currentCommand;
-  let wrapChar;
+  let currentCommand = void 0;
+  let wrapChar = void 0;
   for (let i = 0; i < fileLines.length; i++) {
     currentLine = fileLines[i];
     if (currentCommand === void 0) {
@@ -397,19 +317,21 @@ ${currentLine}`;
         if (currentLine[c] === wrapChar) {
           wrapChar = void 0;
         }
-      } else if (currentLine[c].match(/`/)) {
-        wrapChar = currentLine[c];
+      } else {
+        if (currentLine[c].match(/`/)) {
+          wrapChar = currentLine[c];
+        }
       }
     }
-    if (wrapChar) {
-      currentCommand = currentCommand.replace(/`$/, "");
-      wrapChar = void 0;
-    } else {
+    if (!wrapChar) {
       const sanitized = currentCommand.trim();
       if (sanitized.length > 0) {
         result.add(sanitized);
       }
       currentCommand = void 0;
+    } else {
+      currentCommand = currentCommand.replace(/`$/, "");
+      wrapChar = void 0;
     }
   }
   return result.values();
@@ -423,19 +345,7 @@ async function fetchFishHistory(accessor) {
     return void 0;
   }
   const overridenDataHome = env["XDG_DATA_HOME"];
-  const content = await (overridenDataHome ? fetchFileContents(
-    env["XDG_DATA_HOME"],
-    "fish/fish_history",
-    false,
-    fileService,
-    remoteAgentService
-  ) : fetchFileContents(
-    env["HOME"],
-    ".local/share/fish/fish_history",
-    false,
-    fileService,
-    remoteAgentService
-  ));
+  const content = await (overridenDataHome ? fetchFileContents(env["XDG_DATA_HOME"], "fish/fish_history", false, fileService, remoteAgentService) : fetchFileContents(env["HOME"], ".local/share/fish/fish_history", false, fileService, remoteAgentService));
   if (content === void 0) {
     return void 0;
   }

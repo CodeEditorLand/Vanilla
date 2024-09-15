@@ -12,17 +12,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { windowOpenNoOpener } from "../../../base/browser/dom.js";
 import { Schemas } from "../../../base/common/network.js";
-import {
-  IContextKeyService
-} from "../../../platform/contextkey/common/contextkey.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../platform/instantiation/common/extensions.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { URI } from "../../../base/common/uri.js";
+import { ICodeEditor } from "../../browser/editorBrowser.js";
 import { AbstractCodeEditorService } from "../../browser/services/abstractCodeEditorService.js";
 import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
+import { IRange } from "../../common/core/range.js";
 import { ScrollType } from "../../common/editorCommon.js";
+import { ITextModel } from "../../common/model.js";
+import { IContextKey, IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { ITextResourceEditorInput } from "../../../platform/editor/common/editor.js";
+import { InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
 let StandaloneCodeEditorService = class extends AbstractCodeEditorService {
   static {
     __name(this, "StandaloneCodeEditorService");
@@ -35,16 +35,12 @@ let StandaloneCodeEditorService = class extends AbstractCodeEditorService {
     this._register(this.onCodeEditorRemove(() => this._checkContextKey()));
     this._editorIsOpen = contextKeyService.createKey("editorIsOpen", false);
     this._activeCodeEditor = null;
-    this._register(
-      this.registerCodeEditorOpenHandler(
-        async (input, source, sideBySide) => {
-          if (!source) {
-            return null;
-          }
-          return this.doOpenEditor(source, input);
-        }
-      )
-    );
+    this._register(this.registerCodeEditorOpenHandler(async (input, source, sideBySide) => {
+      if (!source) {
+        return null;
+      }
+      return this.doOpenEditor(source, input);
+    }));
   }
   _checkContextKey() {
     let hasCodeEditor = false;
@@ -102,11 +98,7 @@ StandaloneCodeEditorService = __decorateClass([
   __decorateParam(0, IContextKeyService),
   __decorateParam(1, IThemeService)
 ], StandaloneCodeEditorService);
-registerSingleton(
-  ICodeEditorService,
-  StandaloneCodeEditorService,
-  InstantiationType.Eager
-);
+registerSingleton(ICodeEditorService, StandaloneCodeEditorService, InstantiationType.Eager);
 export {
   StandaloneCodeEditorService
 };

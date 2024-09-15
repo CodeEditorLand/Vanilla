@@ -1,15 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  createFastDomNode
-} from "../../../../base/browser/fastDomNode.js";
-import {
-  EditorOption
-} from "../../../common/config/editorOptions.js";
+import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { IOverviewRuler } from "../../editorBrowser.js";
+import { OverviewRulerPosition, EditorOption } from "../../../common/config/editorOptions.js";
+import { ColorZone, OverviewRulerZone, OverviewZoneManager } from "../../../common/viewModel/overviewZoneManager.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
 import { ViewEventHandler } from "../../../common/viewEventHandler.js";
-import {
-  OverviewZoneManager
-} from "../../../common/viewModel/overviewZoneManager.js";
 class OverviewRuler extends ViewEventHandler {
   static {
     __name(this, "OverviewRuler");
@@ -26,14 +23,10 @@ class OverviewRuler extends ViewEventHandler {
     this._domNode.setPosition("absolute");
     this._domNode.setLayerHinting(true);
     this._domNode.setContain("strict");
-    this._zoneManager = new OverviewZoneManager(
-      (lineNumber) => this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber)
-    );
+    this._zoneManager = new OverviewZoneManager((lineNumber) => this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber));
     this._zoneManager.setDOMWidth(0);
     this._zoneManager.setDOMHeight(0);
-    this._zoneManager.setOuterHeight(
-      this._context.viewLayout.getScrollHeight()
-    );
+    this._zoneManager.setOuterHeight(this._context.viewLayout.getScrollHeight());
     this._zoneManager.setLineHeight(options.get(EditorOption.lineHeight));
     this._zoneManager.setPixelRatio(options.get(EditorOption.pixelRatio));
     this._context.addEventHandler(this);
@@ -46,15 +39,11 @@ class OverviewRuler extends ViewEventHandler {
   onConfigurationChanged(e) {
     const options = this._context.configuration.options;
     if (e.hasChanged(EditorOption.lineHeight)) {
-      this._zoneManager.setLineHeight(
-        options.get(EditorOption.lineHeight)
-      );
+      this._zoneManager.setLineHeight(options.get(EditorOption.lineHeight));
       this._render();
     }
     if (e.hasChanged(EditorOption.pixelRatio)) {
-      this._zoneManager.setPixelRatio(
-        options.get(EditorOption.pixelRatio)
-      );
+      this._zoneManager.setPixelRatio(options.get(EditorOption.pixelRatio));
       this._domNode.setWidth(this._zoneManager.getDOMWidth());
       this._domNode.setHeight(this._zoneManager.getDOMHeight());
       this._domNode.domNode.width = this._zoneManager.getCanvasWidth();
@@ -129,12 +118,14 @@ class OverviewRuler extends ViewEventHandler {
         ctx.fillStyle = id2Color[currentColorId];
         currentFrom = zoneFrom;
         currentTo = zoneTo;
-      } else if (currentTo >= zoneFrom) {
-        currentTo = Math.max(currentTo, zoneTo);
       } else {
-        ctx.fillRect(0, currentFrom, width, currentTo - currentFrom);
-        currentFrom = zoneFrom;
-        currentTo = zoneTo;
+        if (currentTo >= zoneFrom) {
+          currentTo = Math.max(currentTo, zoneTo);
+        } else {
+          ctx.fillRect(0, currentFrom, width, currentTo - currentFrom);
+          currentFrom = zoneFrom;
+          currentTo = zoneTo;
+        }
       }
     }
     ctx.fillRect(0, currentFrom, width, currentTo - currentFrom);

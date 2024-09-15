@@ -11,34 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { OffsetRange } from "../../../../editor/common/core/offsetRange.js";
-import {
-  Position
-} from "../../../../editor/common/core/position.js";
+import { IPosition, Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  ChatAgentLocation,
-  IChatAgentService
-} from "./chatAgents.js";
-import {
-  ChatRequestAgentPart,
-  ChatRequestAgentSubcommandPart,
-  ChatRequestDynamicVariablePart,
-  ChatRequestSlashCommandPart,
-  ChatRequestTextPart,
-  ChatRequestToolPart,
-  ChatRequestVariablePart,
-  chatAgentLeader,
-  chatSubcommandLeader,
-  chatVariableLeader
-} from "./chatParserTypes.js";
+import { ChatAgentLocation, IChatAgentData, IChatAgentService } from "./chatAgents.js";
+import { ChatRequestAgentPart, ChatRequestAgentSubcommandPart, ChatRequestDynamicVariablePart, ChatRequestSlashCommandPart, ChatRequestTextPart, ChatRequestToolPart, ChatRequestVariablePart, IParsedChatRequest, IParsedChatRequestPart, chatAgentLeader, chatSubcommandLeader, chatVariableLeader } from "./chatParserTypes.js";
 import { IChatSlashCommandService } from "./chatSlashCommands.js";
-import {
-  IChatVariablesService
-} from "./chatVariables.js";
+import { IChatVariablesService, IDynamicVariable } from "./chatVariables.js";
 import { ILanguageModelToolsService } from "./languageModelToolsService.js";
-const agentReg = /^@([\w_\-.]+)(?=(\s|$|\b))/i;
-const variableReg = /^#([\w_-]+)(:\d+)?(?=(\s|$|\b))/i;
-const slashReg = /\/([\w_-]+)(?=(\s|$|\b))/i;
+const agentReg = /^@([\w_\-\.]+)(?=(\s|$|\b))/i;
+const variableReg = /^#([\w_\-]+)(:\d+)?(?=(\s|$|\b))/i;
+const slashReg = /\/([\w_\-]+)(?=(\s|$|\b))/i;
 let ChatRequestParser = class {
   constructor(agentService, variableService, slashCommandService, toolsService) {
     this.agentService = agentService;
@@ -60,39 +42,14 @@ let ChatRequestParser = class {
       let newPart;
       if (previousChar.match(/\s/) || i === 0) {
         if (char === chatVariableLeader) {
-          newPart = this.tryToParseVariable(
-            message.slice(i),
-            i,
-            new Position(lineNumber, column),
-            parts
-          );
+          newPart = this.tryToParseVariable(message.slice(i), i, new Position(lineNumber, column), parts);
         } else if (char === chatAgentLeader) {
-          newPart = this.tryToParseAgent(
-            message.slice(i),
-            message,
-            i,
-            new Position(lineNumber, column),
-            parts,
-            location,
-            context
-          );
+          newPart = this.tryToParseAgent(message.slice(i), message, i, new Position(lineNumber, column), parts, location, context);
         } else if (char === chatSubcommandLeader) {
-          newPart = this.tryToParseSlashCommand(
-            message.slice(i),
-            message,
-            i,
-            new Position(lineNumber, column),
-            parts,
-            location
-          );
+          newPart = this.tryToParseSlashCommand(message.slice(i), message, i, new Position(lineNumber, column), parts, location);
         }
         if (!newPart) {
-          newPart = this.tryToParseDynamicVariable(
-            message.slice(i),
-            i,
-            new Position(lineNumber, column),
-            references
-          );
+          newPart = this.tryToParseDynamicVariable(message.slice(i), i, new Position(lineNumber, column), references);
         }
       }
       if (newPart) {
@@ -101,18 +58,11 @@ let ChatRequestParser = class {
           const previousPartEnd = previousPart?.range.endExclusive ?? 0;
           const previousPartEditorRangeEndLine = previousPart?.editorRange.endLineNumber ?? 1;
           const previousPartEditorRangeEndCol = previousPart?.editorRange.endColumn ?? 1;
-          parts.push(
-            new ChatRequestTextPart(
-              new OffsetRange(previousPartEnd, i),
-              new Range(
-                previousPartEditorRangeEndLine,
-                previousPartEditorRangeEndCol,
-                lineNumber,
-                column
-              ),
-              message.slice(previousPartEnd, i)
-            )
-          );
+          parts.push(new ChatRequestTextPart(
+            new OffsetRange(previousPartEnd, i),
+            new Range(previousPartEditorRangeEndLine, previousPartEditorRangeEndCol, lineNumber, column),
+            message.slice(previousPartEnd, i)
+          ));
         }
         parts.push(newPart);
       }
@@ -126,18 +76,11 @@ let ChatRequestParser = class {
     const lastPart = parts.at(-1);
     const lastPartEnd = lastPart?.range.endExclusive ?? 0;
     if (lastPartEnd < message.length) {
-      parts.push(
-        new ChatRequestTextPart(
-          new OffsetRange(lastPartEnd, message.length),
-          new Range(
-            lastPart?.editorRange.endLineNumber ?? 1,
-            lastPart?.editorRange.endColumn ?? 1,
-            lineNumber,
-            column
-          ),
-          message.slice(lastPartEnd, message.length)
-        )
-      );
+      parts.push(new ChatRequestTextPart(
+        new OffsetRange(lastPartEnd, message.length),
+        new Range(lastPart?.editorRange.endLineNumber ?? 1, lastPart?.editorRange.endColumn ?? 1, lineNumber, column),
+        message.slice(lastPartEnd, message.length)
+      ));
     }
     return {
       parts,
@@ -151,12 +94,7 @@ let ChatRequestParser = class {
     }
     const [full, name] = nextAgentMatch;
     const agentRange = new OffsetRange(offset, offset + full.length);
-    const agentEditorRange = new Range(
-      position.lineNumber,
-      position.column,
-      position.lineNumber,
-      position.column + full.length
-    );
+    const agentEditorRange = new Range(position.lineNumber, position.column, position.lineNumber, position.column + full.length);
     let agents = this.agentService.getAgentsByName(name);
     if (!agents.length) {
       const fqAgent = this.agentService.getAgentByFullyQualifiedId(name);
@@ -171,17 +109,12 @@ let ChatRequestParser = class {
     if (parts.some((p) => p instanceof ChatRequestAgentPart)) {
       return;
     }
-    if (parts.some(
-      (p) => p instanceof ChatRequestTextPart && p.text.trim() !== "" || !(p instanceof ChatRequestAgentPart)
-    )) {
+    if (parts.some((p) => p instanceof ChatRequestTextPart && p.text.trim() !== "" || !(p instanceof ChatRequestAgentPart))) {
       return;
     }
     const previousPart = parts.at(-1);
     const previousPartEnd = previousPart?.range.endExclusive ?? 0;
-    const textSincePreviousPart = fullMessage.slice(
-      previousPartEnd,
-      offset
-    );
+    const textSincePreviousPart = fullMessage.slice(previousPartEnd, offset);
     if (textSincePreviousPart.trim() !== "") {
       return;
     }
@@ -195,34 +128,16 @@ let ChatRequestParser = class {
     const [full, name] = nextVariableMatch;
     const variableArg = nextVariableMatch[2] ?? "";
     const varRange = new OffsetRange(offset, offset + full.length);
-    const varEditorRange = new Range(
-      position.lineNumber,
-      position.column,
-      position.lineNumber,
-      position.column + full.length
-    );
-    const usedAgent = parts.find(
-      (p) => p instanceof ChatRequestAgentPart
-    );
+    const varEditorRange = new Range(position.lineNumber, position.column, position.lineNumber, position.column + full.length);
+    const usedAgent = parts.find((p) => p instanceof ChatRequestAgentPart);
     const allowSlow = !usedAgent || usedAgent.agent.metadata.supportsSlowVariables;
     const variable = this.variableService.getVariable(name);
     if (variable && (!variable.isSlow || allowSlow)) {
-      return new ChatRequestVariablePart(
-        varRange,
-        varEditorRange,
-        name,
-        variableArg,
-        variable.id
-      );
+      return new ChatRequestVariablePart(varRange, varEditorRange, name, variableArg, variable.id);
     }
     const tool = this.toolsService.getToolByName(name);
     if (tool && tool.canBeInvokedManually && (!usedAgent || usedAgent.agent.supportsToolReferences)) {
-      return new ChatRequestToolPart(
-        varRange,
-        varEditorRange,
-        name,
-        tool.id
-      );
+      return new ChatRequestToolPart(varRange, varEditorRange, name, tool.id);
     }
     return;
   }
@@ -236,83 +151,44 @@ let ChatRequestParser = class {
     }
     const [full, command] = nextSlashMatch;
     const slashRange = new OffsetRange(offset, offset + full.length);
-    const slashEditorRange = new Range(
-      position.lineNumber,
-      position.column,
-      position.lineNumber,
-      position.column + full.length
-    );
-    const usedAgent = parts.find(
-      (p) => p instanceof ChatRequestAgentPart
-    );
+    const slashEditorRange = new Range(position.lineNumber, position.column, position.lineNumber, position.column + full.length);
+    const usedAgent = parts.find((p) => p instanceof ChatRequestAgentPart);
     if (usedAgent) {
-      if (parts.some(
-        (p) => p instanceof ChatRequestTextPart && p.text.trim() !== "" || !(p instanceof ChatRequestAgentPart) && !(p instanceof ChatRequestTextPart)
-      )) {
+      if (parts.some((p) => p instanceof ChatRequestTextPart && p.text.trim() !== "" || !(p instanceof ChatRequestAgentPart) && !(p instanceof ChatRequestTextPart))) {
         return;
       }
       const previousPart = parts.at(-1);
       const previousPartEnd = previousPart?.range.endExclusive ?? 0;
-      const textSincePreviousPart = fullMessage.slice(
-        previousPartEnd,
-        offset
-      );
+      const textSincePreviousPart = fullMessage.slice(previousPartEnd, offset);
       if (textSincePreviousPart.trim() !== "") {
         return;
       }
-      const subCommand = usedAgent.agent.slashCommands.find(
-        (c) => c.name === command
-      );
+      const subCommand = usedAgent.agent.slashCommands.find((c) => c.name === command);
       if (subCommand) {
-        return new ChatRequestAgentSubcommandPart(
-          slashRange,
-          slashEditorRange,
-          subCommand
-        );
+        return new ChatRequestAgentSubcommandPart(slashRange, slashEditorRange, subCommand);
       }
     } else {
       const slashCommands = this.slashCommandService.getCommands(location);
-      const slashCommand = slashCommands.find(
-        (c) => c.command === command
-      );
+      const slashCommand = slashCommands.find((c) => c.command === command);
       if (slashCommand) {
-        return new ChatRequestSlashCommandPart(
-          slashRange,
-          slashEditorRange,
-          slashCommand
-        );
+        return new ChatRequestSlashCommandPart(slashRange, slashEditorRange, slashCommand);
       } else {
         const defaultAgent = this.agentService.getDefaultAgent(location);
-        const subCommand = defaultAgent?.slashCommands.find(
-          (c) => c.name === command
-        );
+        const subCommand = defaultAgent?.slashCommands.find((c) => c.name === command);
         if (subCommand) {
-          return new ChatRequestAgentSubcommandPart(
-            slashRange,
-            slashEditorRange,
-            subCommand
-          );
+          return new ChatRequestAgentSubcommandPart(slashRange, slashEditorRange, subCommand);
         }
       }
     }
     return;
   }
   tryToParseDynamicVariable(message, offset, position, references) {
-    const refAtThisPosition = references.find(
-      (r) => r.range.startLineNumber === position.lineNumber && r.range.startColumn === position.column
-    );
+    const refAtThisPosition = references.find((r) => r.range.startLineNumber === position.lineNumber && r.range.startColumn === position.column);
     if (refAtThisPosition) {
       const length = refAtThisPosition.range.endColumn - refAtThisPosition.range.startColumn;
       const text = message.substring(0, length);
       const range = new OffsetRange(offset, offset + length);
-      return new ChatRequestDynamicVariablePart(
-        range,
-        refAtThisPosition.range,
-        text,
-        refAtThisPosition.id,
-        refAtThisPosition.modelDescription,
-        refAtThisPosition.data
-      );
+      return new ChatRequestDynamicVariablePart(range, refAtThisPosition.range, text, refAtThisPosition.id, refAtThisPosition.modelDescription, refAtThisPosition.data);
     }
     return;
   }

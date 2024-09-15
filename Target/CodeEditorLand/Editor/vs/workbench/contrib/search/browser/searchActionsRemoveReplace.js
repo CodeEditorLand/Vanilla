@@ -1,301 +1,212 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { equals } from "../../../../base/common/arrays.js";
-import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { ITreeNavigator } from "../../../../base/browser/ui/tree/tree.js";
 import * as nls from "../../../../nls.js";
-import {
-  Action2,
-  MenuId,
-  registerAction2
-} from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  getSelectionKeyboardEvent
-} from "../../../../platform/list/browser/listService.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { getSelectionKeyboardEvent, WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { searchRemoveIcon, searchReplaceIcon } from "./searchIcons.js";
+import { SearchView } from "./searchView.js";
 import * as Constants from "../common/constants.js";
 import { IReplaceService } from "./replace.js";
-import {
-  category,
-  getElementsToOperateOn,
-  getSearchView,
-  shouldRefocus
-} from "./searchActionsBase.js";
-import { searchRemoveIcon, searchReplaceIcon } from "./searchIcons.js";
-import {
-  FileMatch,
-  FolderMatch,
-  Match,
-  MatchInNotebook,
-  SearchResult,
-  arrayContainsElementOrParent
-} from "./searchModel.js";
-registerAction2(
-  class RemoveAction extends Action2 {
-    static {
-      __name(this, "RemoveAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.RemoveActionId,
-        title: nls.localize2("RemoveAction.label", "Dismiss"),
-        category,
-        icon: searchRemoveIcon,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: ContextKeyExpr.and(
-            Constants.SearchContext.SearchViewVisibleKey,
-            Constants.SearchContext.FileMatchOrMatchFocusKey
-          ),
-          primary: KeyCode.Delete,
-          mac: {
-            primary: KeyMod.CtrlCmd | KeyCode.Backspace
-          }
+import { arrayContainsElementOrParent, FileMatch, FolderMatch, Match, MatchInNotebook, RenderableMatch, SearchResult } from "./searchModel.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ISearchConfiguration, ISearchConfigurationProperties } from "../../../services/search/common/search.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { category, getElementsToOperateOn, getSearchView, shouldRefocus } from "./searchActionsBase.js";
+import { equals } from "../../../../base/common/arrays.js";
+registerAction2(class RemoveAction extends Action2 {
+  static {
+    __name(this, "RemoveAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.RemoveActionId,
+      title: nls.localize2("RemoveAction.label", "Dismiss"),
+      category,
+      icon: searchRemoveIcon,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.FileMatchOrMatchFocusKey),
+        primary: KeyCode.Delete,
+        mac: {
+          primary: KeyMod.CtrlCmd | KeyCode.Backspace
+        }
+      },
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          group: "search",
+          order: 2
         },
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            group: "search",
-            order: 2
-          },
-          {
-            id: MenuId.SearchActionMenu,
-            group: "inline",
-            order: 2
-          }
-        ]
-      });
-    }
-    run(accessor, context) {
-      const viewsService = accessor.get(IViewsService);
-      const configurationService = accessor.get(IConfigurationService);
-      const searchView = getSearchView(viewsService);
-      if (!searchView) {
-        return;
-      }
-      let element = context?.element;
-      let viewer = context?.viewer;
-      if (!viewer) {
-        viewer = searchView.getControl();
-      }
-      if (!element) {
-        element = viewer.getFocus()[0] ?? void 0;
-      }
-      const elementsToRemove = getElementsToOperateOn(
-        viewer,
-        element,
-        configurationService.getValue(
-          "search"
-        )
-      );
-      let focusElement = viewer.getFocus()[0] ?? void 0;
-      if (elementsToRemove.length === 0) {
-        return;
-      }
-      if (!focusElement || focusElement instanceof SearchResult) {
-        focusElement = element;
-      }
-      let nextFocusElement;
-      const shouldRefocusMatch = shouldRefocus(
-        elementsToRemove,
-        focusElement
-      );
-      if (focusElement && shouldRefocusMatch) {
-        nextFocusElement = getElementToFocusAfterRemoved(
-          viewer,
-          focusElement,
-          elementsToRemove
-        );
-      }
-      const searchResult = searchView.searchResult;
-      if (searchResult) {
-        searchResult.batchRemove(elementsToRemove);
-      }
-      if (focusElement && shouldRefocusMatch) {
-        if (!nextFocusElement) {
-          nextFocusElement = getLastNodeFromSameType(
-            viewer,
-            focusElement
-          );
+        {
+          id: MenuId.SearchActionMenu,
+          group: "inline",
+          order: 2
         }
-        if (nextFocusElement && !arrayContainsElementOrParent(
-          nextFocusElement,
-          elementsToRemove
-        )) {
-          viewer.reveal(nextFocusElement);
-          viewer.setFocus(
-            [nextFocusElement],
-            getSelectionKeyboardEvent()
-          );
-          viewer.setSelection(
-            [nextFocusElement],
-            getSelectionKeyboardEvent()
-          );
-        }
-      } else if (!equals(viewer.getFocus(), viewer.getSelection())) {
-        viewer.setSelection(viewer.getFocus());
-      }
-      viewer.domFocus();
+      ]
+    });
+  }
+  run(accessor, context) {
+    const viewsService = accessor.get(IViewsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const searchView = getSearchView(viewsService);
+    if (!searchView) {
       return;
     }
-  }
-);
-registerAction2(
-  class ReplaceAction extends Action2 {
-    static {
-      __name(this, "ReplaceAction");
+    let element = context?.element;
+    let viewer = context?.viewer;
+    if (!viewer) {
+      viewer = searchView.getControl();
     }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.ReplaceActionId,
-        title: nls.localize2("match.replace.label", "Replace"),
-        category,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: ContextKeyExpr.and(
-            Constants.SearchContext.SearchViewVisibleKey,
-            Constants.SearchContext.ReplaceActiveKey,
-            Constants.SearchContext.MatchFocusKey,
-            Constants.SearchContext.IsEditableItemKey
-          ),
-          primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1
+    if (!element) {
+      element = viewer.getFocus()[0] ?? void 0;
+    }
+    const elementsToRemove = getElementsToOperateOn(viewer, element, configurationService.getValue("search"));
+    let focusElement = viewer.getFocus()[0] ?? void 0;
+    if (elementsToRemove.length === 0) {
+      return;
+    }
+    if (!focusElement || focusElement instanceof SearchResult) {
+      focusElement = element;
+    }
+    let nextFocusElement;
+    const shouldRefocusMatch = shouldRefocus(elementsToRemove, focusElement);
+    if (focusElement && shouldRefocusMatch) {
+      nextFocusElement = getElementToFocusAfterRemoved(viewer, focusElement, elementsToRemove);
+    }
+    const searchResult = searchView.searchResult;
+    if (searchResult) {
+      searchResult.batchRemove(elementsToRemove);
+    }
+    if (focusElement && shouldRefocusMatch) {
+      if (!nextFocusElement) {
+        nextFocusElement = getLastNodeFromSameType(viewer, focusElement);
+      }
+      if (nextFocusElement && !arrayContainsElementOrParent(nextFocusElement, elementsToRemove)) {
+        viewer.reveal(nextFocusElement);
+        viewer.setFocus([nextFocusElement], getSelectionKeyboardEvent());
+        viewer.setSelection([nextFocusElement], getSelectionKeyboardEvent());
+      }
+    } else if (!equals(viewer.getFocus(), viewer.getSelection())) {
+      viewer.setSelection(viewer.getFocus());
+    }
+    viewer.domFocus();
+    return;
+  }
+});
+registerAction2(class ReplaceAction extends Action2 {
+  static {
+    __name(this, "ReplaceAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceActionId,
+      title: nls.localize2("match.replace.label", "Replace"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
         },
-        icon: searchReplaceIcon,
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.MatchFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "search",
-            order: 1
-          },
-          {
-            id: MenuId.SearchActionMenu,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.MatchFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "inline",
-            order: 1
-          }
-        ]
-      });
-    }
-    async run(accessor, context) {
-      return performReplace(accessor, context);
-    }
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
   }
-);
-registerAction2(
-  class ReplaceAllAction extends Action2 {
-    static {
-      __name(this, "ReplaceAllAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.ReplaceAllInFileActionId,
-        title: nls.localize2("file.replaceAll.label", "Replace All"),
-        category,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: ContextKeyExpr.and(
-            Constants.SearchContext.SearchViewVisibleKey,
-            Constants.SearchContext.ReplaceActiveKey,
-            Constants.SearchContext.FileFocusKey,
-            Constants.SearchContext.IsEditableItemKey
-          ),
-          primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
-          secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
+registerAction2(class ReplaceAllAction extends Action2 {
+  static {
+    __name(this, "ReplaceAllAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceAllInFileActionId,
+      title: nls.localize2("file.replaceAll.label", "Replace All"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
+        secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
         },
-        icon: searchReplaceIcon,
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.FileFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "search",
-            order: 1
-          },
-          {
-            id: MenuId.SearchActionMenu,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.FileFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "inline",
-            order: 1
-          }
-        ]
-      });
-    }
-    async run(accessor, context) {
-      return performReplace(accessor, context);
-    }
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
   }
-);
-registerAction2(
-  class ReplaceAllInFolderAction extends Action2 {
-    static {
-      __name(this, "ReplaceAllInFolderAction");
-    }
-    constructor() {
-      super({
-        id: Constants.SearchCommandIds.ReplaceAllInFolderActionId,
-        title: nls.localize2("file.replaceAll.label", "Replace All"),
-        category,
-        keybinding: {
-          weight: KeybindingWeight.WorkbenchContrib,
-          when: ContextKeyExpr.and(
-            Constants.SearchContext.SearchViewVisibleKey,
-            Constants.SearchContext.ReplaceActiveKey,
-            Constants.SearchContext.FolderFocusKey,
-            Constants.SearchContext.IsEditableItemKey
-          ),
-          primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
-          secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
+registerAction2(class ReplaceAllInFolderAction extends Action2 {
+  static {
+    __name(this, "ReplaceAllInFolderAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceAllInFolderActionId,
+      title: nls.localize2("file.replaceAll.label", "Replace All"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
+        secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
         },
-        icon: searchReplaceIcon,
-        menu: [
-          {
-            id: MenuId.SearchContext,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.FolderFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "search",
-            order: 1
-          },
-          {
-            id: MenuId.SearchActionMenu,
-            when: ContextKeyExpr.and(
-              Constants.SearchContext.ReplaceActiveKey,
-              Constants.SearchContext.FolderFocusKey,
-              Constants.SearchContext.IsEditableItemKey
-            ),
-            group: "inline",
-            order: 1
-          }
-        ]
-      });
-    }
-    async run(accessor, context) {
-      return performReplace(accessor, context);
-    }
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
   }
-);
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
 function performReplace(accessor, context) {
   const configurationService = accessor.get(IConfigurationService);
   const viewsService = accessor.get(IViewsService);
@@ -305,11 +216,7 @@ function performReplace(accessor, context) {
     return;
   }
   const element = context?.element ?? viewer.getFocus()[0];
-  const elementsToReplace = getElementsToOperateOn(
-    viewer,
-    element ?? void 0,
-    configurationService.getValue("search")
-  );
+  const elementsToReplace = getElementsToOperateOn(viewer, element ?? void 0, configurationService.getValue("search"));
   let focusElement = viewer.getFocus()[0];
   if (!focusElement || focusElement && !arrayContainsElementOrParent(focusElement, elementsToReplace) || focusElement instanceof SearchResult) {
     focusElement = element;
@@ -319,11 +226,7 @@ function performReplace(accessor, context) {
   }
   let nextFocusElement;
   if (focusElement) {
-    nextFocusElement = getElementToFocusAfterRemoved(
-      viewer,
-      focusElement,
-      elementsToReplace
-    );
+    nextFocusElement = getElementToFocusAfterRemoved(viewer, focusElement, elementsToReplace);
   }
   const searchResult = viewlet?.searchResult;
   if (searchResult) {
@@ -336,10 +239,7 @@ function performReplace(accessor, context) {
     if (nextFocusElement) {
       viewer.reveal(nextFocusElement);
       viewer.setFocus([nextFocusElement], getSelectionKeyboardEvent());
-      viewer.setSelection(
-        [nextFocusElement],
-        getSelectionKeyboardEvent()
-      );
+      viewer.setSelection([nextFocusElement], getSelectionKeyboardEvent());
       if (nextFocusElement instanceof Match) {
         const useReplacePreview = configurationService.getValue().search.useReplacePreview;
         if (!useReplacePreview || hasToOpenFile(accessor, nextFocusElement) || nextFocusElement instanceof MatchInNotebook) {
@@ -394,23 +294,14 @@ __name(compareLevels, "compareLevels");
 function getElementToFocusAfterRemoved(viewer, element, elementsToRemove) {
   const navigator = viewer.navigate(element);
   if (element instanceof FolderMatch) {
-    while (!!navigator.next() && (!(navigator.current() instanceof FolderMatch) || arrayContainsElementOrParent(
-      navigator.current(),
-      elementsToRemove
-    ))) {
+    while (!!navigator.next() && (!(navigator.current() instanceof FolderMatch) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
     }
   } else if (element instanceof FileMatch) {
-    while (!!navigator.next() && (!(navigator.current() instanceof FileMatch) || arrayContainsElementOrParent(
-      navigator.current(),
-      elementsToRemove
-    ))) {
+    while (!!navigator.next() && (!(navigator.current() instanceof FileMatch) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
       viewer.expand(navigator.current());
     }
   } else {
-    while (navigator.next() && (!(navigator.current() instanceof Match) || arrayContainsElementOrParent(
-      navigator.current(),
-      elementsToRemove
-    ))) {
+    while (navigator.next() && (!(navigator.current() instanceof Match) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
       viewer.expand(navigator.current());
     }
   }

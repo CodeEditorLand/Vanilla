@@ -1,23 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { reset } from "../../../../base/browser/dom.js";
-import {
-  ActionViewItem
-} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
-import { Action } from "../../../../base/common/actions.js";
+import { SCMHistoryItemLoadMoreTreeElement, SCMHistoryItemViewModelTreeElement } from "../common/history.js";
+import { ISCMResource, ISCMRepository, ISCMResourceGroup, ISCMInput, ISCMActionButton, ISCMViewService, ISCMProvider } from "../common/scm.js";
+import { IMenu, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { ActionBar, IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Action, IAction } from "../../../../base/common/actions.js";
+import { createActionViewItem, createAndFillInActionBarActions, createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { equals } from "../../../../base/common/arrays.js";
-import {
-  ResourceTree
-} from "../../../../base/common/resourceTree.js";
-import {
-  createActionViewItem,
-  createAndFillInActionBarActions,
-  createAndFillInContextMenuActions
-} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  MenuItemAction
-} from "../../../../platform/actions/common/actions.js";
+import { ActionViewItem, IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Command } from "../../../../editor/common/languages.js";
+import { reset } from "../../../../base/browser/dom.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IResourceNode, ResourceTree } from "../../../../base/common/resourceTree.js";
 function isSCMViewService(element) {
   return Array.isArray(element.repositories) && Array.isArray(element.visibleRepositories);
 }
@@ -66,12 +63,7 @@ function connectPrimaryMenu(menu, callback, primaryGroup) {
   const updateActions = /* @__PURE__ */ __name(() => {
     const primary = [];
     const secondary = [];
-    createAndFillInActionBarActions(
-      menu,
-      { shouldForwardArgs: true },
-      { primary, secondary },
-      primaryGroup
-    );
+    createAndFillInActionBarActions(menu, { shouldForwardArgs: true }, { primary, secondary }, primaryGroup);
     if (equals(cachedPrimary, primary, compareActions) && equals(cachedSecondary, secondary, compareActions)) {
       return;
     }
@@ -84,25 +76,16 @@ function connectPrimaryMenu(menu, callback, primaryGroup) {
 }
 __name(connectPrimaryMenu, "connectPrimaryMenu");
 function connectPrimaryMenuToInlineActionBar(menu, actionBar) {
-  return connectPrimaryMenu(
-    menu,
-    (primary) => {
-      actionBar.clear();
-      actionBar.push(primary, { icon: true, label: false });
-    },
-    "inline"
-  );
+  return connectPrimaryMenu(menu, (primary) => {
+    actionBar.clear();
+    actionBar.push(primary, { icon: true, label: false });
+  }, "inline");
 }
 __name(connectPrimaryMenuToInlineActionBar, "connectPrimaryMenuToInlineActionBar");
 function collectContextMenuActions(menu) {
   const primary = [];
   const actions = [];
-  createAndFillInContextMenuActions(
-    menu,
-    { shouldForwardArgs: true },
-    { primary, secondary: actions },
-    "inline"
-  );
+  createAndFillInContextMenuActions(menu, { shouldForwardArgs: true }, { primary, secondary: actions }, "inline");
   return actions;
 }
 __name(collectContextMenuActions, "collectContextMenuActions");
@@ -117,10 +100,7 @@ class StatusBarAction extends Action {
     __name(this, "StatusBarAction");
   }
   run() {
-    return this.commandService.executeCommand(
-      this.command.id,
-      ...this.command.arguments || []
-    );
+    return this.commandService.executeCommand(this.command.id, ...this.command.arguments || []);
   }
 }
 class StatusBarActionViewItem extends ActionViewItem {

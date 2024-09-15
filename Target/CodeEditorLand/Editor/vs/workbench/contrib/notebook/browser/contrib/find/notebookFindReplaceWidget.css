@@ -130,6 +130,6 @@
 }
 .monaco-workbench .simple-fr-find-part-wrapper .monaco-sash {
   left: 0 !important;
-  background-color: var( --vscode-editorWidget-resizeBorder, var(--vscode-editorWidget-border) );
+  background-color: var(--vscode-editorWidget-resizeBorder, var(--vscode-editorWidget-border));
 }
 /*# sourceMappingURL=notebookFindReplaceWidget.css.map */

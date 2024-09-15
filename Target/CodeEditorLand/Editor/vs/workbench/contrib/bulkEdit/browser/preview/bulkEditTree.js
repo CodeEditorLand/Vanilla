@@ -10,36 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IAsyncDataSource, ITreeRenderer, ITreeNode, ITreeSorter } from "../../../../../base/browser/ui/tree/tree.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { FuzzyScore, createMatches } from "../../../../../base/common/filters.js";
+import { IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
+import { HighlightedLabel, IHighlight } from "../../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { IIdentityProvider, IListVirtualDelegate, IKeyboardNavigationLabelProvider } from "../../../../../base/browser/ui/list/list.js";
+import { Range } from "../../../../../editor/common/core/range.js";
 import * as dom from "../../../../../base/browser/dom.js";
-import {
-  HighlightedLabel
-} from "../../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { IDisposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import { BulkFileOperations, BulkFileOperation, BulkFileOperationType, BulkTextEdit, BulkCategory } from "./bulkEditPreview.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { localize } from "../../../../../nls.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { IconLabel } from "../../../../../base/browser/ui/iconLabel/iconLabel.js";
-import {
-  createMatches
-} from "../../../../../base/common/filters.js";
-import {
-  DisposableStore
-} from "../../../../../base/common/lifecycle.js";
 import { basename } from "../../../../../base/common/resources.js";
-import { compare } from "../../../../../base/common/strings.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { compare } from "../../../../../base/common/strings.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { ResourceFileEdit } from "../../../../../editor/browser/services/bulkEditService.js";
-import { Range } from "../../../../../editor/common/core/range.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../../../editor/common/languages/modesRegistry.js";
-import { TextModel } from "../../../../../editor/common/model/textModel.js";
-import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { SnippetParser } from "../../../../../editor/contrib/snippet/browser/snippetParser.js";
-import { localize } from "../../../../../nls.js";
-import { FileKind } from "../../../../../platform/files/common/files.js";
+import { AriaRole } from "../../../../../base/browser/ui/aria/aria.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import {
-  BulkFileOperationType,
-  BulkFileOperations
-} from "./bulkEditPreview.js";
 class CategoryElement {
   constructor(parent, category) {
     this.parent = parent;
@@ -79,9 +75,7 @@ class FileElement {
     const model = this.parent instanceof CategoryElement ? this.parent.parent : this.parent;
     let checked = true;
     if (this.edit.type === BulkFileOperationType.TextEdit) {
-      checked = !this.edit.textEdits.every(
-        (edit) => !model.checked.isChecked(edit.textEdit)
-      );
+      checked = !this.edit.textEdits.every((edit) => !model.checked.isChecked(edit.textEdit));
     }
     for (const edit of this.edit.originalEdits.values()) {
       if (edit instanceof ResourceFileEdit) {
@@ -169,10 +163,7 @@ class TextEditElement {
     if (value) {
       for (const edit of this.parent.edit.originalEdits.values()) {
         if (edit instanceof ResourceFileEdit) {
-          model.checked.updateChecked(
-            edit,
-            value
-          );
+          model.checked.updateChecked(edit, value);
         }
       }
     }
@@ -201,83 +192,42 @@ let BulkEditDataSource = class {
   }
   async getChildren(element) {
     if (element instanceof BulkFileOperations) {
-      return this.groupByFile ? element.fileOperations.map(
-        (op) => new FileElement(element, op)
-      ) : element.categories.map(
-        (cat) => new CategoryElement(element, cat)
-      );
+      return this.groupByFile ? element.fileOperations.map((op) => new FileElement(element, op)) : element.categories.map((cat) => new CategoryElement(element, cat));
     }
     if (element instanceof CategoryElement) {
-      return Array.from(
-        element.category.fileOperations,
-        (op) => new FileElement(element, op)
-      );
+      return Array.from(element.category.fileOperations, (op) => new FileElement(element, op));
     }
     if (element instanceof FileElement && element.edit.textEdits.length > 0) {
       let textModel;
       let textModelDisposable;
       try {
-        const ref = await this._textModelService.createModelReference(
-          element.edit.uri
-        );
+        const ref = await this._textModelService.createModelReference(element.edit.uri);
         textModel = ref.object.textEditorModel;
         textModelDisposable = ref;
       } catch {
-        textModel = this._instantiationService.createInstance(
-          TextModel,
-          "",
-          PLAINTEXT_LANGUAGE_ID,
-          TextModel.DEFAULT_CREATION_OPTIONS,
-          null
-        );
+        textModel = this._instantiationService.createInstance(TextModel, "", PLAINTEXT_LANGUAGE_ID, TextModel.DEFAULT_CREATION_OPTIONS, null);
         textModelDisposable = textModel;
       }
       const result = element.edit.textEdits.map((edit, idx) => {
-        const range = textModel.validateRange(
-          edit.textEdit.textEdit.range
-        );
-        const startTokens = textModel.tokenization.getLineTokens(
-          range.startLineNumber
-        );
+        const range = textModel.validateRange(edit.textEdit.textEdit.range);
+        const startTokens = textModel.tokenization.getLineTokens(range.startLineNumber);
         let prefixLen = 23;
-        for (let idx2 = startTokens.findTokenIndexAtOffset(
-          range.startColumn - 1
-        ) - 1; prefixLen < 50 && idx2 >= 0; idx2--) {
+        for (let idx2 = startTokens.findTokenIndexAtOffset(range.startColumn - 1) - 1; prefixLen < 50 && idx2 >= 0; idx2--) {
           prefixLen = range.startColumn - startTokens.getStartOffset(idx2);
         }
-        const endTokens = textModel.tokenization.getLineTokens(
-          range.endLineNumber
-        );
+        const endTokens = textModel.tokenization.getLineTokens(range.endLineNumber);
         let suffixLen = 0;
-        for (let idx2 = endTokens.findTokenIndexAtOffset(
-          range.endColumn - 1
-        ); suffixLen < 50 && idx2 < endTokens.getCount(); idx2++) {
+        for (let idx2 = endTokens.findTokenIndexAtOffset(range.endColumn - 1); suffixLen < 50 && idx2 < endTokens.getCount(); idx2++) {
           suffixLen += endTokens.getEndOffset(idx2) - endTokens.getStartOffset(idx2);
         }
         return new TextEditElement(
           element,
           idx,
           edit,
-          textModel.getValueInRange(
-            new Range(
-              range.startLineNumber,
-              range.startColumn - prefixLen,
-              range.startLineNumber,
-              range.startColumn
-            )
-          ),
+          textModel.getValueInRange(new Range(range.startLineNumber, range.startColumn - prefixLen, range.startLineNumber, range.startColumn)),
           textModel.getValueInRange(range),
-          edit.textEdit.textEdit.insertAsSnippet ? SnippetParser.asInsertText(
-            edit.textEdit.textEdit.text
-          ) : edit.textEdit.textEdit.text,
-          textModel.getValueInRange(
-            new Range(
-              range.endLineNumber,
-              range.endColumn,
-              range.endLineNumber,
-              range.endColumn + suffixLen
-            )
-          )
+          !edit.textEdit.textEdit.insertAsSnippet ? edit.textEdit.textEdit.text : SnippetParser.asInsertText(edit.textEdit.textEdit.text),
+          textModel.getValueInRange(new Range(range.endLineNumber, range.endColumn, range.endLineNumber, range.endColumn + suffixLen))
         );
       });
       textModelDisposable.dispose();
@@ -299,10 +249,7 @@ class BulkEditSorter {
       return compareBulkFileOperations(a.edit, b.edit);
     }
     if (a instanceof TextEditElement && b instanceof TextEditElement) {
-      return Range.compareRangesUsingStarts(
-        a.edit.textEdit.textEdit.range,
-        b.edit.textEdit.textEdit.range
-      );
+      return Range.compareRangesUsingStarts(a.edit.textEdit.textEdit.range, b.edit.textEdit.textEdit.range);
     }
     return 0;
   }
@@ -331,90 +278,58 @@ let BulkEditAccessibilityProvider = class {
           return localize(
             "aria.renameAndEdit",
             "Renaming {0} to {1}, also making text edits",
-            this._labelService.getUriLabel(element.edit.uri, {
-              relative: true
-            }),
-            this._labelService.getUriLabel(element.edit.newUri, {
-              relative: true
-            })
+            this._labelService.getUriLabel(element.edit.uri, { relative: true }),
+            this._labelService.getUriLabel(element.edit.newUri, { relative: true })
           );
         } else if (element.edit.type & BulkFileOperationType.Create) {
           return localize(
             "aria.createAndEdit",
             "Creating {0}, also making text edits",
-            this._labelService.getUriLabel(element.edit.uri, {
-              relative: true
-            })
+            this._labelService.getUriLabel(element.edit.uri, { relative: true })
           );
         } else if (element.edit.type & BulkFileOperationType.Delete) {
           return localize(
             "aria.deleteAndEdit",
             "Deleting {0}, also making text edits",
-            this._labelService.getUriLabel(element.edit.uri, {
-              relative: true
-            })
+            this._labelService.getUriLabel(element.edit.uri, { relative: true })
           );
         } else {
           return localize(
             "aria.editOnly",
             "{0}, making text edits",
-            this._labelService.getUriLabel(element.edit.uri, {
-              relative: true
-            })
+            this._labelService.getUriLabel(element.edit.uri, { relative: true })
           );
         }
-      } else if (element.edit.type & BulkFileOperationType.Rename && element.edit.newUri) {
-        return localize(
-          "aria.rename",
-          "Renaming {0} to {1}",
-          this._labelService.getUriLabel(element.edit.uri, {
-            relative: true
-          }),
-          this._labelService.getUriLabel(element.edit.newUri, {
-            relative: true
-          })
-        );
-      } else if (element.edit.type & BulkFileOperationType.Create) {
-        return localize(
-          "aria.create",
-          "Creating {0}",
-          this._labelService.getUriLabel(element.edit.uri, {
-            relative: true
-          })
-        );
-      } else if (element.edit.type & BulkFileOperationType.Delete) {
-        return localize(
-          "aria.delete",
-          "Deleting {0}",
-          this._labelService.getUriLabel(element.edit.uri, {
-            relative: true
-          })
-        );
+      } else {
+        if (element.edit.type & BulkFileOperationType.Rename && element.edit.newUri) {
+          return localize(
+            "aria.rename",
+            "Renaming {0} to {1}",
+            this._labelService.getUriLabel(element.edit.uri, { relative: true }),
+            this._labelService.getUriLabel(element.edit.newUri, { relative: true })
+          );
+        } else if (element.edit.type & BulkFileOperationType.Create) {
+          return localize(
+            "aria.create",
+            "Creating {0}",
+            this._labelService.getUriLabel(element.edit.uri, { relative: true })
+          );
+        } else if (element.edit.type & BulkFileOperationType.Delete) {
+          return localize(
+            "aria.delete",
+            "Deleting {0}",
+            this._labelService.getUriLabel(element.edit.uri, { relative: true })
+          );
+        }
       }
     }
     if (element instanceof TextEditElement) {
       if (element.selecting.length > 0 && element.inserting.length > 0) {
-        return localize(
-          "aria.replace",
-          "line {0}, replacing {1} with {2}",
-          element.edit.textEdit.textEdit.range.startLineNumber,
-          element.selecting,
-          element.inserting
-        );
+        return localize("aria.replace", "line {0}, replacing {1} with {2}", element.edit.textEdit.textEdit.range.startLineNumber, element.selecting, element.inserting);
       } else if (element.selecting.length > 0 && element.inserting.length === 0) {
-        return localize(
-          "aria.del",
-          "line {0}, removing {1}",
-          element.edit.textEdit.textEdit.range.startLineNumber,
-          element.selecting
-        );
+        return localize("aria.del", "line {0}, removing {1}", element.edit.textEdit.textEdit.range.startLineNumber, element.selecting);
       } else if (element.selecting.length === 0 && element.inserting.length > 0) {
-        return localize(
-          "aria.insert",
-          "line {0}, inserting {1}",
-          element.edit.textEdit.textEdit.range.startLineNumber,
-          element.selecting
-        );
+        return localize("aria.insert", "line {0}, inserting {1}", element.edit.textEdit.textEdit.range.startLineNumber, element.selecting);
       }
     }
     return null;
@@ -473,24 +388,12 @@ let CategoryElementRenderer = class {
       template.icon.style.color = metadata.iconPath.color ? this._themeService.getColorTheme().getColor(metadata.iconPath.color.id)?.toString() ?? "" : "";
     } else if (URI.isUri(metadata.iconPath)) {
       template.icon.className = "uri-icon";
-      template.icon.style.setProperty(
-        "--background-dark",
-        dom.asCSSUrl(metadata.iconPath)
-      );
-      template.icon.style.setProperty(
-        "--background-light",
-        dom.asCSSUrl(metadata.iconPath)
-      );
+      template.icon.style.setProperty("--background-dark", dom.asCSSUrl(metadata.iconPath));
+      template.icon.style.setProperty("--background-light", dom.asCSSUrl(metadata.iconPath));
     } else if (metadata.iconPath) {
       template.icon.className = "uri-icon";
-      template.icon.style.setProperty(
-        "--background-dark",
-        dom.asCSSUrl(metadata.iconPath.dark)
-      );
-      template.icon.style.setProperty(
-        "--background-light",
-        dom.asCSSUrl(metadata.iconPath.light)
-      );
+      template.icon.style.setProperty("--background-dark", dom.asCSSUrl(metadata.iconPath.dark));
+      template.icon.style.setProperty("--background-light", dom.asCSSUrl(metadata.iconPath.light));
     }
     template.label.setLabel(metadata.label, metadata.description, {
       descriptionMatches: createMatches(node.filterData)
@@ -511,9 +414,7 @@ let FileElementTemplate = class {
     this._checkbox.type = "checkbox";
     this._checkbox.setAttribute("role", "checkbox");
     container.appendChild(this._checkbox);
-    this._label = resourceLabels.create(container, {
-      supportHighlights: true
-    });
+    this._label = resourceLabels.create(container, { supportHighlights: true });
     this._details = document.createElement("span");
     this._details.className = "details";
     container.appendChild(this._details);
@@ -535,30 +436,16 @@ let FileElementTemplate = class {
     this._localDisposables.clear();
     this._checkbox.checked = element.isChecked();
     this._checkbox.disabled = element.isDisabled();
-    this._localDisposables.add(
-      dom.addDisposableListener(this._checkbox, "change", () => {
-        element.setChecked(this._checkbox.checked);
-      })
-    );
+    this._localDisposables.add(dom.addDisposableListener(this._checkbox, "change", () => {
+      element.setChecked(this._checkbox.checked);
+    }));
     if (element.edit.type & BulkFileOperationType.Rename && element.edit.newUri) {
-      this._label.setResource(
-        {
-          resource: element.edit.uri,
-          name: localize(
-            "rename.label",
-            "{0} \u2192 {1}",
-            this._labelService.getUriLabel(element.edit.uri, {
-              relative: true
-            }),
-            this._labelService.getUriLabel(element.edit.newUri, {
-              relative: true
-            })
-          )
-        },
-        {
-          fileDecorations: { colors: true, badges: false }
-        }
-      );
+      this._label.setResource({
+        resource: element.edit.uri,
+        name: localize("rename.label", "{0} \u2192 {1}", this._labelService.getUriLabel(element.edit.uri, { relative: true }), this._labelService.getUriLabel(element.edit.newUri, { relative: true }))
+      }, {
+        fileDecorations: { colors: true, badges: false }
+      });
       this._details.innerText = localize("detail.rename", "(renaming)");
     } else {
       const options = {
@@ -568,10 +455,7 @@ let FileElementTemplate = class {
         extraClasses: []
       };
       if (element.edit.type & BulkFileOperationType.Create) {
-        this._details.innerText = localize(
-          "detail.create",
-          "(creating)"
-        );
+        this._details.innerText = localize("detail.create", "(creating)");
       } else if (element.edit.type & BulkFileOperationType.Delete) {
         this._details.innerText = localize("detail.del", "(deleting)");
         options.extraClasses.push("delete");
@@ -596,11 +480,7 @@ let FileElementRenderer = class {
   static id = "FileElementRenderer";
   templateId = FileElementRenderer.id;
   renderTemplate(container) {
-    return new FileElementTemplate(
-      container,
-      this._resourceLabels,
-      this._labelService
-    );
+    return new FileElementTemplate(container, this._resourceLabels, this._labelService);
   }
   renderElement(node, _index, template) {
     template.set(node.element, node.filterData);
@@ -639,12 +519,10 @@ let TextEditElementTemplate = class {
   }
   set(element) {
     this._localDisposables.clear();
-    this._localDisposables.add(
-      dom.addDisposableListener(this._checkbox, "change", (e) => {
-        element.setChecked(this._checkbox.checked);
-        e.preventDefault();
-      })
-    );
+    this._localDisposables.add(dom.addDisposableListener(this._checkbox, "change", (e) => {
+      element.setChecked(this._checkbox.checked);
+      e.preventDefault();
+    }));
     if (element.parent.isChecked()) {
       this._checkbox.checked = element.isChecked();
       this._checkbox.disabled = element.isDisabled();
@@ -657,30 +535,19 @@ let TextEditElementTemplate = class {
     value += element.selecting;
     value += element.inserting;
     value += element.suffix;
-    const selectHighlight = {
-      start: element.prefix.length,
-      end: element.prefix.length + element.selecting.length,
-      extraClasses: ["remove"]
-    };
-    const insertHighlight = {
-      start: selectHighlight.end,
-      end: selectHighlight.end + element.inserting.length,
-      extraClasses: ["insert"]
-    };
+    const selectHighlight = { start: element.prefix.length, end: element.prefix.length + element.selecting.length, extraClasses: ["remove"] };
+    const insertHighlight = { start: selectHighlight.end, end: selectHighlight.end + element.inserting.length, extraClasses: ["insert"] };
     let title;
     const { metadata } = element.edit.textEdit;
     if (metadata && metadata.description) {
-      title = localize(
-        "title",
-        "{0} - {1}",
-        metadata.label,
-        metadata.description
-      );
+      title = localize("title", "{0} - {1}", metadata.label, metadata.description);
     } else if (metadata) {
       title = metadata.label;
     }
     const iconPath = metadata?.iconPath;
-    if (iconPath) {
+    if (!iconPath) {
+      this._icon.style.display = "none";
+    } else {
       this._icon.style.display = "block";
       this._icon.style.setProperty("--background-dark", null);
       this._icon.style.setProperty("--background-light", null);
@@ -690,27 +557,13 @@ let TextEditElementTemplate = class {
         this._icon.style.color = iconPath.color ? this._themeService.getColorTheme().getColor(iconPath.color.id)?.toString() ?? "" : "";
       } else if (URI.isUri(iconPath)) {
         this._icon.className = "uri-icon";
-        this._icon.style.setProperty(
-          "--background-dark",
-          dom.asCSSUrl(iconPath)
-        );
-        this._icon.style.setProperty(
-          "--background-light",
-          dom.asCSSUrl(iconPath)
-        );
+        this._icon.style.setProperty("--background-dark", dom.asCSSUrl(iconPath));
+        this._icon.style.setProperty("--background-light", dom.asCSSUrl(iconPath));
       } else {
         this._icon.className = "uri-icon";
-        this._icon.style.setProperty(
-          "--background-dark",
-          dom.asCSSUrl(iconPath.dark)
-        );
-        this._icon.style.setProperty(
-          "--background-light",
-          dom.asCSSUrl(iconPath.light)
-        );
+        this._icon.style.setProperty("--background-dark", dom.asCSSUrl(iconPath.dark));
+        this._icon.style.setProperty("--background-light", dom.asCSSUrl(iconPath.light));
       }
-    } else {
-      this._icon.style.display = "none";
     }
     this._label.set(value, [selectHighlight, insertHighlight], title, true);
     this._icon.title = title || "";

@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const module = { exports: {} };
-(() => {
+(function() {
   const isESM = true;
   function factory() {
-    const regexp = /("[^"\\]*(?:\\.[^"\\]*)*")|('[^'\\]*(?:\\.[^'\\]*)*')|(\/\*[^/*]*(?:(?:\*|\/)[^/*]*)*?\*\/)|(\/{2,}.*?(?:(?:\r?\n)|$))|(,\s*[}\]])/g;
+    const regexp = /("[^"\\]*(?:\\.[^"\\]*)*")|('[^'\\]*(?:\\.[^'\\]*)*')|(\/\*[^\/\*]*(?:(?:\*|\/)[^\/\*]*)*?\*\/)|(\/{2,}.*?(?:(?:\r?\n)|$))|(,\s*[}\]])/g;
     function stripComments2(content) {
-      return content.replace(regexp, (match, _m1, _m2, m3, m4, m5) => {
+      return content.replace(regexp, function(match, _m1, _m2, m3, m4, m5) {
         if (m3) {
           return "";
         } else if (m4) {
@@ -29,10 +29,7 @@ const module = { exports: {} };
       try {
         return JSON.parse(commentsStripped);
       } catch (error) {
-        const trailingCommasStriped = commentsStripped.replace(
-          /,\s*([}\]])/g,
-          "$1"
-        );
+        const trailingCommasStriped = commentsStripped.replace(/,\s*([}\]])/g, "$1");
         return JSON.parse(trailingCommasStriped);
       }
     }
@@ -44,13 +41,13 @@ const module = { exports: {} };
   }
   __name(factory, "factory");
   if (!isESM && typeof define === "function") {
-    define([], () => factory());
+    define([], function() {
+      return factory();
+    });
   } else if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
   } else {
-    console.trace(
-      "jsonc defined in UNKNOWN context (neither requirejs or commonjs)"
-    );
+    console.trace("jsonc defined in UNKNOWN context (neither requirejs or commonjs)");
   }
 })();
 const stripComments = module.exports.stripComments;

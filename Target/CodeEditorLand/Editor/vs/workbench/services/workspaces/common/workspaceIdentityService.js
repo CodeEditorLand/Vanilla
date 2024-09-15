@@ -11,24 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import {
-  isEqualOrParent,
-  joinPath,
-  relativePath
-} from "../../../../base/common/resources.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { isEqualOrParent, joinPath, relativePath } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  EditSessionIdentityMatch,
-  IEditSessionIdentityService
-} from "../../../../platform/workspace/common/editSessions.js";
-import {
-  IWorkspaceContextService
-} from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceStateFolder } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { EditSessionIdentityMatch, IEditSessionIdentityService } from "../../../../platform/workspace/common/editSessions.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
 const IWorkspaceIdentityService = createDecorator("IWorkspaceIdentityService");
 let WorkspaceIdentityService = class {
   constructor(workspaceContextService, editSessionIdentityService) {
@@ -41,17 +31,11 @@ let WorkspaceIdentityService = class {
   async getWorkspaceStateFolders(cancellationToken) {
     const workspaceStateFolders = [];
     for (const workspaceFolder of this.workspaceContextService.getWorkspace().folders) {
-      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(
-        workspaceFolder,
-        cancellationToken
-      );
+      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(workspaceFolder, cancellationToken);
       if (!workspaceFolderIdentity) {
         continue;
       }
-      workspaceStateFolders.push({
-        resourceUri: workspaceFolder.uri.toString(),
-        workspaceFolderIdentity
-      });
+      workspaceStateFolders.push({ resourceUri: workspaceFolder.uri.toString(), workspaceFolderIdentity });
     }
     return workspaceStateFolders;
   }
@@ -63,37 +47,21 @@ let WorkspaceIdentityService = class {
     }
     const currentWorkspaceFoldersToIdentities = /* @__PURE__ */ new Map();
     for (const workspaceFolder of this.workspaceContextService.getWorkspace().folders) {
-      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(
-        workspaceFolder,
-        cancellationToken
-      );
+      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(workspaceFolder, cancellationToken);
       if (!workspaceFolderIdentity) {
         continue;
       }
-      currentWorkspaceFoldersToIdentities.set(
-        workspaceFolder,
-        workspaceFolderIdentity
-      );
+      currentWorkspaceFoldersToIdentities.set(workspaceFolder, workspaceFolderIdentity);
     }
-    for (const [
-      currentWorkspaceFolder,
-      currentWorkspaceFolderIdentity
-    ] of currentWorkspaceFoldersToIdentities.entries()) {
+    for (const [currentWorkspaceFolder, currentWorkspaceFolderIdentity] of currentWorkspaceFoldersToIdentities.entries()) {
       const incomingWorkspaceFolder = incomingIdentitiesToIncomingWorkspaceFolders[currentWorkspaceFolderIdentity];
       if (incomingWorkspaceFolder) {
         incomingToCurrentWorkspaceFolderUris[incomingWorkspaceFolder] = currentWorkspaceFolder.uri.toString();
         continue;
       }
       let hasCompleteMatch = false;
-      for (const [incomingIdentity, incomingFolder] of Object.entries(
-        incomingIdentitiesToIncomingWorkspaceFolders
-      )) {
-        if (await this.editSessionIdentityService.provideEditSessionIdentityMatch(
-          currentWorkspaceFolder,
-          currentWorkspaceFolderIdentity,
-          incomingIdentity,
-          cancellationToken
-        ) === EditSessionIdentityMatch.Complete) {
+      for (const [incomingIdentity, incomingFolder] of Object.entries(incomingIdentitiesToIncomingWorkspaceFolders)) {
+        if (await this.editSessionIdentityService.provideEditSessionIdentityMatch(currentWorkspaceFolder, currentWorkspaceFolderIdentity, incomingIdentity, cancellationToken) === EditSessionIdentityMatch.Complete) {
           incomingToCurrentWorkspaceFolderUris[incomingFolder] = currentWorkspaceFolder.uri.toString();
           hasCompleteMatch = true;
           break;
@@ -105,21 +73,13 @@ let WorkspaceIdentityService = class {
       return false;
     }
     const convertUri = /* @__PURE__ */ __name((uriToConvert) => {
-      for (const incomingFolderUriKey of Object.keys(
-        incomingToCurrentWorkspaceFolderUris
-      )) {
+      for (const incomingFolderUriKey of Object.keys(incomingToCurrentWorkspaceFolderUris)) {
         const incomingFolderUri = URI.parse(incomingFolderUriKey);
         if (isEqualOrParent(incomingFolderUri, uriToConvert)) {
           const currentWorkspaceFolderUri = incomingToCurrentWorkspaceFolderUris[incomingFolderUriKey];
-          const relativeFilePath = relativePath(
-            incomingFolderUri,
-            uriToConvert
-          );
+          const relativeFilePath = relativePath(incomingFolderUri, uriToConvert);
           if (relativeFilePath) {
-            return joinPath(
-              URI.parse(currentWorkspaceFolderUri),
-              relativeFilePath
-            );
+            return joinPath(URI.parse(currentWorkspaceFolderUri), relativeFilePath);
           }
         }
       }
@@ -155,11 +115,7 @@ WorkspaceIdentityService = __decorateClass([
   __decorateParam(0, IWorkspaceContextService),
   __decorateParam(1, IEditSessionIdentityService)
 ], WorkspaceIdentityService);
-registerSingleton(
-  IWorkspaceIdentityService,
-  WorkspaceIdentityService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkspaceIdentityService, WorkspaceIdentityService, InstantiationType.Delayed);
 export {
   IWorkspaceIdentityService,
   WorkspaceIdentityService

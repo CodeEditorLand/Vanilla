@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 import { memoize } from "./decorators.js";
-import * as paths from "./path.js";
-import { extUri as defaultExtUri } from "./resources.js";
 import { PathIterator } from "./ternarySearchTree.js";
+import * as paths from "./path.js";
+import { extUri as defaultExtUri, IExtUri } from "./resources.js";
 import { URI } from "./uri.js";
 class Node {
   constructor(uri, relativePath, context, element = void 0, parent = void 0) {

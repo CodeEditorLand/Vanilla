@@ -1,23 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
 import { canceled } from "../../../base/common/errors.js";
 import { Emitter, Event } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import {
-  newWriteableStream
-} from "../../../base/common/stream.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { newWriteableStream, ReadableStreamEventPayload, ReadableStreamEvents } from "../../../base/common/stream.js";
+import { URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import {
-  FileSystemProviderCapabilities,
-  FileSystemProviderErrorCode,
-  createFileSystemProviderError
-} from "./files.js";
+import { IChannel } from "../../../base/parts/ipc/common/ipc.js";
+import { createFileSystemProviderError, IFileAtomicReadOptions, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileAtomicReadCapability, IFileSystemProviderWithFileCloneCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileReadStreamCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IStat, IWatchOptions, IFileSystemProviderError } from "./files.js";
 import { reviveFileChanges } from "./watcher.js";
 const LOCAL_FILE_SYSTEM_CHANNEL_NAME = "localFilesystem";
 class DiskFileSystemProviderClient extends Disposable {
@@ -56,60 +49,41 @@ class DiskFileSystemProviderClient extends Disposable {
   //#endregion
   //#region File Reading/Writing
   async readFile(resource, opts) {
-    const { buffer } = await this.channel.call("readFile", [
-      resource,
-      opts
-    ]);
+    const { buffer } = await this.channel.call("readFile", [resource, opts]);
     return buffer;
   }
   readFileStream(resource, opts, token) {
-    const stream = newWriteableStream(
-      (data) => VSBuffer.concat(data.map((data2) => VSBuffer.wrap(data2))).buffer
-    );
+    const stream = newWriteableStream((data) => VSBuffer.concat(data.map((data2) => VSBuffer.wrap(data2))).buffer);
     const disposables = new DisposableStore();
-    disposables.add(
-      this.channel.listen(
-        "readFileStream",
-        [resource, opts]
-      )((dataOrErrorOrEnd) => {
-        if (dataOrErrorOrEnd instanceof VSBuffer) {
-          stream.write(dataOrErrorOrEnd.buffer);
+    disposables.add(this.channel.listen("readFileStream", [resource, opts])((dataOrErrorOrEnd) => {
+      if (dataOrErrorOrEnd instanceof VSBuffer) {
+        stream.write(dataOrErrorOrEnd.buffer);
+      } else {
+        if (dataOrErrorOrEnd === "end") {
+          stream.end();
         } else {
-          if (dataOrErrorOrEnd === "end") {
-            stream.end();
+          let error;
+          if (dataOrErrorOrEnd instanceof Error) {
+            error = dataOrErrorOrEnd;
           } else {
-            let error;
-            if (dataOrErrorOrEnd instanceof Error) {
-              error = dataOrErrorOrEnd;
-            } else {
-              const errorCandidate = dataOrErrorOrEnd;
-              error = createFileSystemProviderError(
-                errorCandidate.message ?? toErrorMessage(errorCandidate),
-                errorCandidate.code ?? FileSystemProviderErrorCode.Unknown
-              );
-            }
-            stream.error(error);
-            stream.end();
+            const errorCandidate = dataOrErrorOrEnd;
+            error = createFileSystemProviderError(errorCandidate.message ?? toErrorMessage(errorCandidate), errorCandidate.code ?? FileSystemProviderErrorCode.Unknown);
           }
-          disposables.dispose();
+          stream.error(error);
+          stream.end();
         }
-      })
-    );
-    disposables.add(
-      token.onCancellationRequested(() => {
-        stream.error(canceled());
-        stream.end();
         disposables.dispose();
-      })
-    );
+      }
+    }));
+    disposables.add(token.onCancellationRequested(() => {
+      stream.error(canceled());
+      stream.end();
+      disposables.dispose();
+    }));
     return stream;
   }
   writeFile(resource, content, opts) {
-    return this.channel.call("writeFile", [
-      resource,
-      VSBuffer.wrap(content),
-      opts
-    ]);
+    return this.channel.call("writeFile", [resource, VSBuffer.wrap(content), opts]);
   }
   open(resource, opts) {
     return this.channel.call("open", [resource, opts]);
@@ -118,21 +92,12 @@ class DiskFileSystemProviderClient extends Disposable {
     return this.channel.call("close", [fd]);
   }
   async read(fd, pos, data, offset, length) {
-    const [bytes, bytesRead] = await this.channel.call(
-      "read",
-      [fd, pos, length]
-    );
+    const [bytes, bytesRead] = await this.channel.call("read", [fd, pos, length]);
     data.set(bytes.buffer.slice(0, bytesRead), offset);
     return bytesRead;
   }
   write(fd, pos, data, offset, length) {
-    return this.channel.call("write", [
-      fd,
-      pos,
-      VSBuffer.wrap(data),
-      offset,
-      length
-    ]);
+    return this.channel.call("write", [fd, pos, VSBuffer.wrap(data), offset, length]);
   }
   //#endregion
   //#region Move/Copy/Delete/Create Folder
@@ -155,9 +120,7 @@ class DiskFileSystemProviderClient extends Disposable {
   }
   //#endregion
   //#region File Watching
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChangeFile = this._onDidChange.event;
   _onDidWatchError = this._register(new Emitter());
   onDidWatchError = this._onDidWatchError.event;
@@ -168,26 +131,20 @@ class DiskFileSystemProviderClient extends Disposable {
   // clients.
   sessionId = generateUuid();
   registerFileChangeListeners() {
-    this._register(
-      this.channel.listen("fileChange", [
-        this.sessionId
-      ])((eventsOrError) => {
-        if (Array.isArray(eventsOrError)) {
-          const events = eventsOrError;
-          this._onDidChange.fire(reviveFileChanges(events));
-        } else {
-          const error = eventsOrError;
-          this._onDidWatchError.fire(error);
-        }
-      })
-    );
+    this._register(this.channel.listen("fileChange", [this.sessionId])((eventsOrError) => {
+      if (Array.isArray(eventsOrError)) {
+        const events = eventsOrError;
+        this._onDidChange.fire(reviveFileChanges(events));
+      } else {
+        const error = eventsOrError;
+        this._onDidWatchError.fire(error);
+      }
+    }));
   }
   watch(resource, opts) {
     const req = generateUuid();
     this.channel.call("watch", [this.sessionId, req, resource, opts]);
-    return toDisposable(
-      () => this.channel.call("unwatch", [this.sessionId, req])
-    );
+    return toDisposable(() => this.channel.call("unwatch", [this.sessionId, req]));
   }
   //#endregion
 }

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Promises, isThenable } from "../../../base/common/async.js";
+import { isThenable, Promises } from "../../../base/common/async.js";
 function handleVetos(vetos, onError) {
   if (vetos.length === 0) {
     return Promise.resolve(false);
@@ -12,19 +12,14 @@ function handleVetos(vetos, onError) {
       return Promise.resolve(true);
     }
     if (isThenable(valueOrPromise)) {
-      promises.push(
-        valueOrPromise.then(
-          (value) => {
-            if (value) {
-              lazyValue = true;
-            }
-          },
-          (err) => {
-            onError(err);
-            lazyValue = true;
-          }
-        )
-      );
+      promises.push(valueOrPromise.then((value) => {
+        if (value) {
+          lazyValue = true;
+        }
+      }, (err) => {
+        onError(err);
+        lazyValue = true;
+      }));
     }
   }
   return Promises.settled(promises).then(() => lazyValue);

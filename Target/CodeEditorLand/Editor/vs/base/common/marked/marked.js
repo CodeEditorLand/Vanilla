@@ -1,15 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const __marked_exports = {};
+let __marked_exports = {};
 (function() {
   function define(deps, factory) {
     factory(__marked_exports);
   }
   __name(define, "define");
   define.amd = true;
-  ((global, factory) => {
+  (function(global, factory) {
     typeof define === "function" && define.amd ? define(["exports"], factory) : typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.marked = {}));
   })(this, function(exports2) {
+    "use strict";
     function _getDefaults() {
       return {
         async: false,
@@ -33,10 +34,7 @@ const __marked_exports = {};
     const escapeTest = /[&<>"']/;
     const escapeReplace = new RegExp(escapeTest.source, "g");
     const escapeTestNoEncode = /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/;
-    const escapeReplaceNoEncode = new RegExp(
-      escapeTestNoEncode.source,
-      "g"
-    );
+    const escapeReplaceNoEncode = new RegExp(escapeTestNoEncode.source, "g");
     const escapeReplacements = {
       "&": "&amp;",
       "<": "&lt;",
@@ -50,16 +48,15 @@ const __marked_exports = {};
         if (escapeTest.test(html2)) {
           return html2.replace(escapeReplace, getEscapeReplacement);
         }
-      } else if (escapeTestNoEncode.test(html2)) {
-        return html2.replace(
-          escapeReplaceNoEncode,
-          getEscapeReplacement
-        );
+      } else {
+        if (escapeTestNoEncode.test(html2)) {
+          return html2.replace(escapeReplaceNoEncode, getEscapeReplacement);
+        }
       }
       return html2;
     }
     __name(escape$1, "escape$1");
-    const caret = /(^|[^[])\^/g;
+    const caret = /(^|[^\[])\^/g;
     function edit(regex, opt) {
       let source = typeof regex === "string" ? regex : regex.source;
       opt = opt || "";
@@ -110,7 +107,8 @@ const __marked_exports = {};
         if (cells.length > count) {
           cells.splice(count);
         } else {
-          while (cells.length < count) cells.push("");
+          while (cells.length < count)
+            cells.push("");
         }
       }
       for (; i < cells.length; i++) {
@@ -161,7 +159,7 @@ const __marked_exports = {};
     function outputLink(cap, link2, raw, lexer3) {
       const href = link2.href;
       const title = link2.title ? escape$1(link2.title) : null;
-      const text = cap[1].replace(/\\([[\]])/g, "$1");
+      const text = cap[1].replace(/\\([\[\]])/g, "$1");
       if (cap[0].charAt(0) !== "!") {
         lexer3.state.inLink = true;
         const token = {
@@ -232,7 +230,7 @@ const __marked_exports = {};
             type: "code",
             raw: cap[0],
             codeBlockStyle: "indented",
-            text: this.options.pedantic ? text : rtrim(text, "\n")
+            text: !this.options.pedantic ? rtrim(text, "\n") : text
           };
         }
       }
@@ -244,10 +242,7 @@ const __marked_exports = {};
           return {
             type: "code",
             raw,
-            lang: cap[2] ? cap[2].trim().replace(
-              this.rules.inline.anyPunctuation,
-              "$1"
-            ) : cap[2],
+            lang: cap[2] ? cap[2].trim().replace(this.rules.inline.anyPunctuation, "$1") : cap[2],
             text
           };
         }
@@ -297,18 +292,15 @@ const __marked_exports = {};
               if (/^ {0,3}>/.test(lines[i])) {
                 currentLines.push(lines[i]);
                 inBlockquote = true;
-              } else if (inBlockquote) {
-                break;
-              } else {
+              } else if (!inBlockquote) {
                 currentLines.push(lines[i]);
+              } else {
+                break;
               }
             }
             lines = lines.slice(i);
             const currentRaw = currentLines.join("\n");
-            const currentText = currentRaw.replace(
-              /\n {0,3}((?:=+|-+) *)(?=\n|$)/g,
-              "\n    $1"
-            ).replace(/^ {0,3}>[ \t]?/gm, "");
+            const currentText = currentRaw.replace(/\n {0,3}((?:=+|-+) *)(?=\n|$)/g, "\n    $1").replace(/^ {0,3}>[ \t]?/gm, "");
             raw = raw ? `${raw}
 ${currentRaw}` : currentRaw;
             text = text ? `${text}
@@ -328,28 +320,16 @@ ${currentText}` : currentText;
               const newText = oldToken.raw + "\n" + lines.join("\n");
               const newToken = this.blockquote(newText);
               tokens[tokens.length - 1] = newToken;
-              raw = raw.substring(
-                0,
-                raw.length - oldToken.raw.length
-              ) + newToken.raw;
-              text = text.substring(
-                0,
-                text.length - oldToken.text.length
-              ) + newToken.text;
+              raw = raw.substring(0, raw.length - oldToken.raw.length) + newToken.raw;
+              text = text.substring(0, text.length - oldToken.text.length) + newToken.text;
               break;
             } else if (lastToken?.type === "list") {
               const oldToken = lastToken;
               const newText = oldToken.raw + "\n" + lines.join("\n");
               const newToken = this.list(newText);
               tokens[tokens.length - 1] = newToken;
-              raw = raw.substring(
-                0,
-                raw.length - lastToken.raw.length
-              ) + newToken.raw;
-              text = text.substring(
-                0,
-                text.length - oldToken.raw.length
-              ) + newToken.raw;
+              raw = raw.substring(0, raw.length - lastToken.raw.length) + newToken.raw;
+              text = text.substring(0, text.length - oldToken.raw.length) + newToken.raw;
               lines = newText.substring(tokens[tokens.length - 1].raw.length).split("\n");
               continue;
             }
@@ -379,9 +359,7 @@ ${currentText}` : currentText;
           if (this.options.pedantic) {
             bull = isordered ? bull : "[*+-]";
           }
-          const itemRegex = new RegExp(
-            `^( {0,3}${bull})((?:[	 ][^\\n]*)?(?:\\n|$))`
-          );
+          const itemRegex = new RegExp(`^( {0,3}${bull})((?:[	 ][^\\n]*)?(?:\\n|$))`);
           let endsWithBlankLine = false;
           while (src) {
             let endEarly = false;
@@ -416,26 +394,15 @@ ${currentText}` : currentText;
               endEarly = true;
             }
             if (!endEarly) {
-              const nextBulletRegex = new RegExp(
-                `^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`
-              );
-              const hrRegex = new RegExp(
-                `^ {0,${Math.min(3, indent - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`
-              );
-              const fencesBeginRegex = new RegExp(
-                `^ {0,${Math.min(3, indent - 1)}}(?:\`\`\`|~~~)`
-              );
-              const headingBeginRegex = new RegExp(
-                `^ {0,${Math.min(3, indent - 1)}}#`
-              );
+              const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`);
+              const hrRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`);
+              const fencesBeginRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:\`\`\`|~~~)`);
+              const headingBeginRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}#`);
               while (src) {
                 const rawLine = src.split("\n", 1)[0];
                 nextLine = rawLine;
                 if (this.options.pedantic) {
-                  nextLine = nextLine.replace(
-                    /^ {1,4}(?=( {4})*[^ ])/g,
-                    "  "
-                  );
+                  nextLine = nextLine.replace(/^ {1,4}(?=( {4})*[^ ])/g, "  ");
                 }
                 if (fencesBeginRegex.test(nextLine)) {
                   break;
@@ -490,10 +457,7 @@ ${currentText}` : currentText;
               istask = /^\[[ xX]\] /.exec(itemContents);
               if (istask) {
                 ischecked = istask[0] !== "[ ] ";
-                itemContents = itemContents.replace(
-                  /^\[[ xX]\] +/,
-                  ""
-                );
+                itemContents = itemContents.replace(/^\[[ xX]\] +/, "");
               }
             }
             list2.items.push({
@@ -512,14 +476,9 @@ ${currentText}` : currentText;
           list2.raw = list2.raw.trimEnd();
           for (let i = 0; i < list2.items.length; i++) {
             this.lexer.state.top = false;
-            list2.items[i].tokens = this.lexer.blockTokens(
-              list2.items[i].text,
-              []
-            );
+            list2.items[i].tokens = this.lexer.blockTokens(list2.items[i].text, []);
             if (!list2.loose) {
-              const spacers = list2.items[i].tokens.filter(
-                (t) => t.type === "space"
-              );
+              const spacers = list2.items[i].tokens.filter((t) => t.type === "space");
               const hasMultipleLineBreaks = spacers.length > 0 && spacers.some((t) => /\n.*\n/.test(t.raw));
               list2.loose = hasMultipleLineBreaks;
             }
@@ -601,16 +560,14 @@ ${currentText}` : currentText;
           });
         }
         for (const row of rows) {
-          item.rows.push(
-            splitCells(row, item.header.length).map((cell, i) => {
-              return {
-                text: cell,
-                tokens: this.lexer.inline(cell),
-                header: false,
-                align: item.align[i]
-              };
-            })
-          );
+          item.rows.push(splitCells(row, item.header.length).map((cell, i) => {
+            return {
+              text: cell,
+              tokens: this.lexer.inline(cell),
+              header: false,
+              align: item.align[i]
+            };
+          }));
         }
         return item;
       }
@@ -723,21 +680,10 @@ ${currentText}` : currentText;
               href = href.slice(1, -1);
             }
           }
-          return outputLink(
-            cap,
-            {
-              href: href ? href.replace(
-                this.rules.inline.anyPunctuation,
-                "$1"
-              ) : href,
-              title: title ? title.replace(
-                this.rules.inline.anyPunctuation,
-                "$1"
-              ) : title
-            },
-            cap[0],
-            this.lexer
-          );
+          return outputLink(cap, {
+            href: href ? href.replace(this.rules.inline.anyPunctuation, "$1") : href,
+            title: title ? title.replace(this.rules.inline.anyPunctuation, "$1") : title
+          }, cap[0], this.lexer);
         }
       }
       reflink(src, links) {
@@ -758,8 +704,10 @@ ${currentText}` : currentText;
       }
       emStrong(src, maskedSrc, prevChar = "") {
         let match = this.rules.inline.emStrongLDelim.exec(src);
-        if (!match) return;
-        if (match[3] && prevChar.match(/[\p{L}\p{N}]/u)) return;
+        if (!match)
+          return;
+        if (match[3] && prevChar.match(/[\p{L}\p{N}]/u))
+          return;
         const nextChar = match[1] || match[2] || "";
         if (!nextChar || !prevChar || this.rules.inline.punctuation.exec(prevChar)) {
           const lLength = [...match[0]].length - 1;
@@ -769,7 +717,8 @@ ${currentText}` : currentText;
           maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
           while ((match = endReg.exec(maskedSrc)) != null) {
             rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
-            if (!rDelim) continue;
+            if (!rDelim)
+              continue;
             rLength = [...rDelim].length;
             if (match[3] || match[4]) {
               delimTotal += rLength;
@@ -781,16 +730,11 @@ ${currentText}` : currentText;
               }
             }
             delimTotal -= rLength;
-            if (delimTotal > 0) continue;
-            rLength = Math.min(
-              rLength,
-              rLength + delimTotal + midDelimTotal
-            );
+            if (delimTotal > 0)
+              continue;
+            rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
             const lastCharLength = [...match[0]][0].length;
-            const raw = src.slice(
-              0,
-              lLength + match.index + lastCharLength + rLength
-            );
+            const raw = src.slice(0, lLength + match.index + lastCharLength + rLength);
             if (Math.min(lLength, rLength) % 2) {
               const text2 = raw.slice(1, -1);
               return {
@@ -884,9 +828,7 @@ ${currentText}` : currentText;
             let prevCapZero;
             do {
               prevCapZero = cap[0];
-              cap[0] = this.rules.inline._backpedal.exec(
-                cap[0]
-              )?.[0] ?? "";
+              cap[0] = this.rules.inline._backpedal.exec(cap[0])?.[0] ?? "";
             } while (prevCapZero !== cap[0]);
             text = escape$1(cap[0]);
             if (cap[1] === "www.") {
@@ -933,32 +875,16 @@ ${currentText}` : currentText;
     const hr = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/;
     const heading = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/;
     const bullet = /(?:[*+-]|\d{1,9}[.)])/;
-    const lheading = edit(
-      /^(?!bull |blockCode|fences|blockquote|heading|html)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html))+?)\n {0,3}(=+|-+) *(?:\n+|$)/
-    ).replace(/bull/g, bullet).replace(/blockCode/g, / {4}/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).getRegex();
+    const lheading = edit(/^(?!bull |blockCode|fences|blockquote|heading|html)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html))+?)\n {0,3}(=+|-+) *(?:\n+|$)/).replace(/bull/g, bullet).replace(/blockCode/g, / {4}/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).getRegex();
     const _paragraph = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/;
     const blockText = /^[^\n]+/;
-    const _blockLabel = /(?!\s*\])(?:\\.|[^[\]\\])+/;
-    const def = edit(
-      /^ {0,3}\[(label)\]: *(?:\n *)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/
-    ).replace("label", _blockLabel).replace(
-      "title",
-      /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/
-    ).getRegex();
+    const _blockLabel = /(?!\s*\])(?:\\.|[^\[\]\\])+/;
+    const def = edit(/^ {0,3}\[(label)\]: *(?:\n *)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/).replace("label", _blockLabel).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex();
     const list = edit(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, bullet).getRegex();
     const _tag = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
     const _comment = /<!--(?:-?>|[\s\S]*?(?:-->|$))/;
-    const html = edit(
-      "^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))",
-      "i"
-    ).replace("comment", _comment).replace("tag", _tag).replace(
-      "attribute",
-      / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/
-    ).getRegex();
-    const paragraph = edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace(
-      "html",
-      "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)"
-    ).replace("tag", _tag).getRegex();
+    const html = edit("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))", "i").replace("comment", _comment).replace("tag", _tag).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+    const paragraph = edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex();
     const blockquote = edit(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", paragraph).getRegex();
     const blockNormal = {
       blockquote,
@@ -975,31 +901,15 @@ ${currentText}` : currentText;
       table: noopTest,
       text: blockText
     };
-    const gfmTable = edit(
-      "^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"
-    ).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", " {4}[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace(
-      "html",
-      "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)"
-    ).replace("tag", _tag).getRegex();
+    const gfmTable = edit("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", " {4}[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex();
     const blockGfm = {
       ...blockNormal,
       table: gfmTable,
-      paragraph: edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", gfmTable).replace("blockquote", " {0,3}>").replace(
-        "fences",
-        " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n"
-      ).replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace(
-        "html",
-        "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)"
-      ).replace("tag", _tag).getRegex()
+      paragraph: edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", gfmTable).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex()
     };
     const blockPedantic = {
       ...blockNormal,
-      html: edit(
-        `^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`
-      ).replace("comment", _comment).replace(
-        /tag/g,
-        "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b"
-      ).getRegex(),
+      html: edit(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", _comment).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
       def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
       heading: /^(#{1,6})(.*)(?:\n+|$)/,
       fences: noopTest,
@@ -1007,42 +917,22 @@ ${currentText}` : currentText;
       lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
       paragraph: edit(_paragraph).replace("hr", hr).replace("heading", " *#{1,6} *[^\n]").replace("lheading", lheading).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
     };
-    const escape = /^\\([!"#$%&'()*+,\-./:;<=>?@[\]\\^_`{|}~])/;
+    const escape = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
     const inlineCode = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
     const br = /^( {2,}|\\)\n(?!\s*$)/;
-    const inlineText = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<![`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
+    const inlineText = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
     const _punctuation = "\\p{P}\\p{S}";
     const punctuation = edit(/^((?![*_])[\spunctuation])/, "u").replace(/punctuation/g, _punctuation).getRegex();
-    const blockSkip = /\[[^[\]]*?\]\([^()]*?\)|`[^`]*?`|<[^<>]*?>/g;
-    const emStrongLDelim = edit(
-      /^(?:\*+(?:((?!\*)[punct])|[^\s*]))|^_+(?:((?!_)[punct])|([^\s_]))/,
-      "u"
-    ).replace(/punct/g, _punctuation).getRegex();
-    const emStrongRDelimAst = edit(
-      "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)[punct](\\*+)(?=[\\s]|$)|[^punct\\s](\\*+)(?!\\*)(?=[punct\\s]|$)|(?!\\*)[punct\\s](\\*+)(?=[^punct\\s])|[\\s](\\*+)(?!\\*)(?=[punct])|(?!\\*)[punct](\\*+)(?!\\*)(?=[punct])|[^punct\\s](\\*+)(?=[^punct\\s])",
-      "gu"
-    ).replace(/punct/g, _punctuation).getRegex();
-    const emStrongRDelimUnd = edit(
-      "^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)[punct](_+)(?=[\\s]|$)|[^punct\\s](_+)(?!_)(?=[punct\\s]|$)|(?!_)[punct\\s](_+)(?=[^punct\\s])|[\\s](_+)(?!_)(?=[punct])|(?!_)[punct](_+)(?!_)(?=[punct])",
-      "gu"
-    ).replace(/punct/g, _punctuation).getRegex();
+    const blockSkip = /\[[^[\]]*?\]\([^\(\)]*?\)|`[^`]*?`|<[^<>]*?>/g;
+    const emStrongLDelim = edit(/^(?:\*+(?:((?!\*)[punct])|[^\s*]))|^_+(?:((?!_)[punct])|([^\s_]))/, "u").replace(/punct/g, _punctuation).getRegex();
+    const emStrongRDelimAst = edit("^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)[punct](\\*+)(?=[\\s]|$)|[^punct\\s](\\*+)(?!\\*)(?=[punct\\s]|$)|(?!\\*)[punct\\s](\\*+)(?=[^punct\\s])|[\\s](\\*+)(?!\\*)(?=[punct])|(?!\\*)[punct](\\*+)(?!\\*)(?=[punct])|[^punct\\s](\\*+)(?=[^punct\\s])", "gu").replace(/punct/g, _punctuation).getRegex();
+    const emStrongRDelimUnd = edit("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)[punct](_+)(?=[\\s]|$)|[^punct\\s](_+)(?!_)(?=[punct\\s]|$)|(?!_)[punct\\s](_+)(?=[^punct\\s])|[\\s](_+)(?!_)(?=[punct])|(?!_)[punct](_+)(?!_)(?=[punct])", "gu").replace(/punct/g, _punctuation).getRegex();
     const anyPunctuation = edit(/\\([punct])/, "gu").replace(/punct/g, _punctuation).getRegex();
-    const autolink = edit(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace(
-      "email",
-      /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/
-    ).getRegex();
+    const autolink = edit(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex();
     const _inlineComment = edit(_comment).replace("(?:-->|$)", "-->").getRegex();
-    const tag = edit(
-      "^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>"
-    ).replace("comment", _inlineComment).replace(
-      "attribute",
-      /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/
-    ).getRegex();
-    const _inlineLabel = /(?:\[(?:\\.|[^[\]\\])*\]|\\.|`[^`]*`|[^[\]\\`])*?/;
-    const link = edit(/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/).replace("label", _inlineLabel).replace("href", /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/).replace(
-      "title",
-      /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/
-    ).getRegex();
+    const tag = edit("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", _inlineComment).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex();
+    const _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+    const link = edit(/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/).replace("label", _inlineLabel).replace("href", /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex();
     const reflink = edit(/^!?\[(label)\]\[(ref)\]/).replace("label", _inlineLabel).replace("ref", _blockLabel).getRegex();
     const nolink = edit(/^!?\[(ref)\](?:\[\])?/).replace("ref", _blockLabel).getRegex();
     const reflinkSearch = edit("reflink|nolink(?!\\()", "g").replace("reflink", reflink).replace("nolink", nolink).getRegex();
@@ -1076,16 +966,10 @@ ${currentText}` : currentText;
     const inlineGfm = {
       ...inlineNormal,
       escape: edit(escape).replace("])", "~|])").getRegex(),
-      url: edit(
-        /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9-]+\.?)+[^\s<]*|^email/,
-        "i"
-      ).replace(
-        "email",
-        /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/
-      ).getRegex(),
+      url: edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/, "i").replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
       _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
       del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
-      text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+/=?_`{|}~-]+@)|[\s\S]*?(?:(?=[\\<![`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+/=?_`{|}~-](?=[a-zA-Z0-9.!#$%&'*+/=?_`{|}~-]+@)))/
+      text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
     };
     const inlineBreaks = {
       ...inlineGfm,
@@ -1192,11 +1076,7 @@ ${currentText}` : currentText;
         let cutSrc;
         while (src) {
           if (this.options.extensions && this.options.extensions.block && this.options.extensions.block.some((extTokenizer) => {
-            if (token = extTokenizer.call(
-              { lexer: this },
-              src,
-              tokens
-            )) {
+            if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
               src = src.substring(token.raw.length);
               tokens.push(token);
               return true;
@@ -1283,24 +1163,16 @@ ${currentText}` : currentText;
           }
           cutSrc = src;
           if (this.options.extensions && this.options.extensions.startBlock) {
-            let startIndex = Number.POSITIVE_INFINITY;
+            let startIndex = Infinity;
             const tempSrc = src.slice(1);
             let tempStart;
-            this.options.extensions.startBlock.forEach(
-              (getStartIndex) => {
-                tempStart = getStartIndex.call(
-                  { lexer: this },
-                  tempSrc
-                );
-                if (typeof tempStart === "number" && tempStart >= 0) {
-                  startIndex = Math.min(
-                    startIndex,
-                    tempStart
-                  );
-                }
+            this.options.extensions.startBlock.forEach((getStartIndex) => {
+              tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+              if (typeof tempStart === "number" && tempStart >= 0) {
+                startIndex = Math.min(startIndex, tempStart);
               }
-            );
-            if (startIndex < Number.POSITIVE_INFINITY && startIndex >= 0) {
+            });
+            if (startIndex < Infinity && startIndex >= 0) {
               cutSrc = src.substring(0, startIndex + 1);
             }
           }
@@ -1359,35 +1231,18 @@ ${currentText}` : currentText;
         if (this.tokens.links) {
           const links = Object.keys(this.tokens.links);
           if (links.length > 0) {
-            while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(
-              maskedSrc
-            )) != null) {
-              if (links.includes(
-                match[0].slice(
-                  match[0].lastIndexOf("[") + 1,
-                  -1
-                )
-              )) {
-                maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(
-                  this.tokenizer.rules.inline.reflinkSearch.lastIndex
-                );
+            while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
+              if (links.includes(match[0].slice(match[0].lastIndexOf("[") + 1, -1))) {
+                maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
               }
             }
           }
         }
-        while ((match = this.tokenizer.rules.inline.blockSkip.exec(
-          maskedSrc
-        )) != null) {
-          maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(
-            this.tokenizer.rules.inline.blockSkip.lastIndex
-          );
+        while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
+          maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
         }
-        while ((match = this.tokenizer.rules.inline.anyPunctuation.exec(
-          maskedSrc
-        )) != null) {
-          maskedSrc = maskedSrc.slice(0, match.index) + "++" + maskedSrc.slice(
-            this.tokenizer.rules.inline.anyPunctuation.lastIndex
-          );
+        while ((match = this.tokenizer.rules.inline.anyPunctuation.exec(maskedSrc)) != null) {
+          maskedSrc = maskedSrc.slice(0, match.index) + "++" + maskedSrc.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);
         }
         while (src) {
           if (!keepPrevChar) {
@@ -1395,11 +1250,7 @@ ${currentText}` : currentText;
           }
           keepPrevChar = false;
           if (this.options.extensions && this.options.extensions.inline && this.options.extensions.inline.some((extTokenizer) => {
-            if (token = extTokenizer.call(
-              { lexer: this },
-              src,
-              tokens
-            )) {
+            if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
               src = src.substring(token.raw.length);
               tokens.push(token);
               return true;
@@ -1440,11 +1291,7 @@ ${currentText}` : currentText;
             }
             continue;
           }
-          if (token = this.tokenizer.emStrong(
-            src,
-            maskedSrc,
-            prevChar
-          )) {
+          if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
             src = src.substring(token.raw.length);
             tokens.push(token);
             continue;
@@ -1476,24 +1323,16 @@ ${currentText}` : currentText;
           }
           cutSrc = src;
           if (this.options.extensions && this.options.extensions.startInline) {
-            let startIndex = Number.POSITIVE_INFINITY;
+            let startIndex = Infinity;
             const tempSrc = src.slice(1);
             let tempStart;
-            this.options.extensions.startInline.forEach(
-              (getStartIndex) => {
-                tempStart = getStartIndex.call(
-                  { lexer: this },
-                  tempSrc
-                );
-                if (typeof tempStart === "number" && tempStart >= 0) {
-                  startIndex = Math.min(
-                    startIndex,
-                    tempStart
-                  );
-                }
+            this.options.extensions.startInline.forEach((getStartIndex) => {
+              tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+              if (typeof tempStart === "number" && tempStart >= 0) {
+                startIndex = Math.min(startIndex, tempStart);
               }
-            );
-            if (startIndex < Number.POSITIVE_INFINITY && startIndex >= 0) {
+            });
+            if (startIndex < Infinity && startIndex >= 0) {
               cutSrc = src.substring(0, startIndex + 1);
             }
           }
@@ -1622,7 +1461,8 @@ ${body}</blockquote>
           }
           body += this.tablerow({ text: cell });
         }
-        if (body) body = `<tbody>${body}</tbody>`;
+        if (body)
+          body = `<tbody>${body}</tbody>`;
         return "<table>\n<thead>\n" + header + "</thead>\n" + body + "</table>\n";
       }
       tablerow({ text }) {
@@ -1758,18 +1598,7 @@ ${text}</tr>
           if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[anyToken.type]) {
             const genericToken = anyToken;
             const ret = this.options.extensions.renderers[genericToken.type].call({ parser: this }, genericToken);
-            if (ret !== false || ![
-              "space",
-              "hr",
-              "heading",
-              "code",
-              "table",
-              "blockquote",
-              "list",
-              "html",
-              "paragraph",
-              "text"
-            ].includes(genericToken.type)) {
+            if (ret !== false || !["space", "hr", "heading", "code", "table", "blockquote", "list", "html", "paragraph", "text"].includes(genericToken.type)) {
               out += ret || "";
               continue;
             }
@@ -1824,9 +1653,7 @@ ${text}</tr>
                   type: "paragraph",
                   raw: body,
                   text: body,
-                  tokens: [
-                    { type: "text", raw: body, text: body }
-                  ]
+                  tokens: [{ type: "text", raw: body, text: body }]
                 });
               } else {
                 out += body;
@@ -1856,18 +1683,7 @@ ${text}</tr>
           const anyToken = tokens[i];
           if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[anyToken.type]) {
             const ret = this.options.extensions.renderers[anyToken.type].call({ parser: this }, anyToken);
-            if (ret !== false || ![
-              "escape",
-              "html",
-              "link",
-              "image",
-              "strong",
-              "em",
-              "codespan",
-              "br",
-              "del",
-              "text"
-            ].includes(anyToken.type)) {
+            if (ret !== false || !["escape", "html", "link", "image", "strong", "em", "codespan", "br", "del", "text"].includes(anyToken.type)) {
               out += ret || "";
               continue;
             }
@@ -1967,10 +1783,7 @@ ${text}</tr>
       defaults = _getDefaults();
       options = this.setOptions;
       parse = this.parseMarkdown(_Lexer.lex, _Parser.parse);
-      parseInline = this.parseMarkdown(
-        _Lexer.lexInline,
-        _Parser.parseInline
-      );
+      parseInline = this.parseMarkdown(_Lexer.lexInline, _Parser.parseInline);
       Parser = _Parser;
       Renderer = _Renderer;
       TextRenderer = _TextRenderer;
@@ -1991,42 +1804,29 @@ ${text}</tr>
             case "table": {
               const tableToken = token;
               for (const cell of tableToken.header) {
-                values = values.concat(
-                  this.walkTokens(cell.tokens, callback)
-                );
+                values = values.concat(this.walkTokens(cell.tokens, callback));
               }
               for (const row of tableToken.rows) {
                 for (const cell of row) {
-                  values = values.concat(
-                    this.walkTokens(cell.tokens, callback)
-                  );
+                  values = values.concat(this.walkTokens(cell.tokens, callback));
                 }
               }
               break;
             }
             case "list": {
               const listToken = token;
-              values = values.concat(
-                this.walkTokens(listToken.items, callback)
-              );
+              values = values.concat(this.walkTokens(listToken.items, callback));
               break;
             }
             default: {
               const genericToken = token;
               if (this.defaults.extensions?.childTokens?.[genericToken.type]) {
                 this.defaults.extensions.childTokens[genericToken.type].forEach((childTokens) => {
-                  const tokens2 = genericToken[childTokens].flat(Number.POSITIVE_INFINITY);
-                  values = values.concat(
-                    this.walkTokens(tokens2, callback)
-                  );
+                  const tokens2 = genericToken[childTokens].flat(Infinity);
+                  values = values.concat(this.walkTokens(tokens2, callback));
                 });
               } else if (genericToken.tokens) {
-                values = values.concat(
-                  this.walkTokens(
-                    genericToken.tokens,
-                    callback
-                  )
-                );
+                values = values.concat(this.walkTokens(genericToken.tokens, callback));
               }
             }
           }
@@ -2034,10 +1834,7 @@ ${text}</tr>
         return values;
       }
       use(...args) {
-        const extensions = this.defaults.extensions || {
-          renderers: {},
-          childTokens: {}
-        };
+        const extensions = this.defaults.extensions || { renderers: {}, childTokens: {} };
         args.forEach((pack) => {
           const opts = { ...pack };
           opts.async = this.defaults.async || opts.async || false;
@@ -2050,15 +1847,9 @@ ${text}</tr>
                 const prevRenderer = extensions.renderers[ext.name];
                 if (prevRenderer) {
                   extensions.renderers[ext.name] = function(...args2) {
-                    let ret = ext.renderer.apply(
-                      this,
-                      args2
-                    );
+                    let ret = ext.renderer.apply(this, args2);
                     if (ret === false) {
-                      ret = prevRenderer.apply(
-                        this,
-                        args2
-                      );
+                      ret = prevRenderer.apply(this, args2);
                     }
                     return ret;
                   };
@@ -2068,9 +1859,7 @@ ${text}</tr>
               }
               if ("tokenizer" in ext) {
                 if (!ext.level || ext.level !== "block" && ext.level !== "inline") {
-                  throw new Error(
-                    "extension level must be 'block' or 'inline'"
-                  );
+                  throw new Error("extension level must be 'block' or 'inline'");
                 }
                 const extLevel = extensions[ext.level];
                 if (extLevel) {
@@ -2081,21 +1870,15 @@ ${text}</tr>
                 if (ext.start) {
                   if (ext.level === "block") {
                     if (extensions.startBlock) {
-                      extensions.startBlock.push(
-                        ext.start
-                      );
+                      extensions.startBlock.push(ext.start);
                     } else {
                       extensions.startBlock = [ext.start];
                     }
                   } else if (ext.level === "inline") {
                     if (extensions.startInline) {
-                      extensions.startInline.push(
-                        ext.start
-                      );
+                      extensions.startInline.push(ext.start);
                     } else {
-                      extensions.startInline = [
-                        ext.start
-                      ];
+                      extensions.startInline = [ext.start];
                     }
                   }
                 }
@@ -2110,9 +1893,7 @@ ${text}</tr>
             const renderer = this.defaults.renderer || new _Renderer(this.defaults);
             for (const prop in pack.renderer) {
               if (!(prop in renderer)) {
-                throw new Error(
-                  `renderer '${prop}' does not exist`
-                );
+                throw new Error(`renderer '${prop}' does not exist`);
               }
               if (["options", "parser"].includes(prop)) {
                 continue;
@@ -2134,9 +1915,7 @@ ${text}</tr>
             const tokenizer = this.defaults.tokenizer || new _Tokenizer(this.defaults);
             for (const prop in pack.tokenizer) {
               if (!(prop in tokenizer)) {
-                throw new Error(
-                  `tokenizer '${prop}' does not exist`
-                );
+                throw new Error(`tokenizer '${prop}' does not exist`);
               }
               if (["options", "rules", "lexer"].includes(prop)) {
                 continue;
@@ -2158,9 +1937,7 @@ ${text}</tr>
             const hooks = this.defaults.hooks || new _Hooks();
             for (const prop in pack.hooks) {
               if (!(prop in hooks)) {
-                throw new Error(
-                  `hook '${prop}' does not exist`
-                );
+                throw new Error(`hook '${prop}' does not exist`);
               }
               if (prop === "options") {
                 continue;
@@ -2171,9 +1948,7 @@ ${text}</tr>
               if (_Hooks.passThroughHooks.has(prop)) {
                 hooks[hooksProp] = (arg) => {
                   if (this.defaults.async) {
-                    return Promise.resolve(
-                      hooksFunc.call(hooks, arg)
-                    ).then((ret2) => {
+                    return Promise.resolve(hooksFunc.call(hooks, arg)).then((ret2) => {
                       return prevHook.call(hooks, ret2);
                     });
                   }
@@ -2199,9 +1974,7 @@ ${text}</tr>
               let values = [];
               values.push(packWalktokens.call(this, token));
               if (walkTokens3) {
-                values = values.concat(
-                  walkTokens3.call(this, token)
-                );
+                values = values.concat(walkTokens3.call(this, token));
               }
               return values;
             };
@@ -2226,44 +1999,19 @@ ${text}</tr>
           const opt = { ...this.defaults, ...origOpt };
           const throwError = this.onError(!!opt.silent, !!opt.async);
           if (this.defaults.async === true && origOpt.async === false) {
-            return throwError(
-              new Error(
-                "marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."
-              )
-            );
+            return throwError(new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));
           }
           if (typeof src === "undefined" || src === null) {
-            return throwError(
-              new Error(
-                "marked(): input parameter is undefined or null"
-              )
-            );
+            return throwError(new Error("marked(): input parameter is undefined or null"));
           }
           if (typeof src !== "string") {
-            return throwError(
-              new Error(
-                "marked(): input parameter is of type " + Object.prototype.toString.call(src) + ", string expected"
-              )
-            );
+            return throwError(new Error("marked(): input parameter is of type " + Object.prototype.toString.call(src) + ", string expected"));
           }
           if (opt.hooks) {
             opt.hooks.options = opt;
           }
           if (opt.async) {
-            return Promise.resolve(
-              opt.hooks ? opt.hooks.preprocess(src) : src
-            ).then((src2) => lexer3(src2, opt)).then(
-              (tokens) => opt.hooks ? opt.hooks.processAllTokens(tokens) : tokens
-            ).then(
-              (tokens) => opt.walkTokens ? Promise.all(
-                this.walkTokens(
-                  tokens,
-                  opt.walkTokens
-                )
-              ).then(() => tokens) : tokens
-            ).then((tokens) => parser3(tokens, opt)).then(
-              (html2) => opt.hooks ? opt.hooks.postprocess(html2) : html2
-            ).catch(throwError);
+            return Promise.resolve(opt.hooks ? opt.hooks.preprocess(src) : src).then((src2) => lexer3(src2, opt)).then((tokens) => opt.hooks ? opt.hooks.processAllTokens(tokens) : tokens).then((tokens) => opt.walkTokens ? Promise.all(this.walkTokens(tokens, opt.walkTokens)).then(() => tokens) : tokens).then((tokens) => parser3(tokens, opt)).then((html2) => opt.hooks ? opt.hooks.postprocess(html2) : html2).catch(throwError);
           }
           try {
             if (opt.hooks) {
@@ -2309,7 +2057,7 @@ ${text}</tr>
       return markedInstance.parse(src, opt);
     }
     __name(marked2, "marked");
-    marked2.options = marked2.setOptions = (options3) => {
+    marked2.options = marked2.setOptions = function(options3) {
       markedInstance.setOptions(options3);
       marked2.defaults = markedInstance.defaults;
       changeDefaults(marked2.defaults);
@@ -2317,13 +2065,15 @@ ${text}</tr>
     };
     marked2.getDefaults = _getDefaults;
     marked2.defaults = exports2.defaults;
-    marked2.use = (...args) => {
+    marked2.use = function(...args) {
       markedInstance.use(...args);
       marked2.defaults = markedInstance.defaults;
       changeDefaults(marked2.defaults);
       return marked2;
     };
-    marked2.walkTokens = (tokens, callback) => markedInstance.walkTokens(tokens, callback);
+    marked2.walkTokens = function(tokens, callback) {
+      return markedInstance.walkTokens(tokens, callback);
+    };
     marked2.parseInline = markedInstance.parseInline;
     marked2.Parser = _Parser;
     marked2.parser = _Parser.parse;

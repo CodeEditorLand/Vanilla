@@ -10,80 +10,37 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  EventHelper,
-  EventType,
-  WindowIdleValue,
-  addDisposableListener
-} from "../../../../base/browser/dom.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-import { coalesce, remove } from "../../../../base/common/arrays.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService,
-  RawContextKey
-} from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  FILES_EXCLUDE_CONFIG,
-  FileChangeType,
-  FileChangesEvent,
-  FileOperation,
-  FileOperationEvent,
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
-import {
-  EditorCloseContext,
-  EditorPaneSelectionChangeReason,
-  EditorPaneSelectionCompareResult,
-  EditorResourceAccessor,
-  EditorsOrder,
-  GroupModelChangeKind,
-  SideBySideEditor,
-  isEditorInput,
-  isEditorPaneWithSelection,
-  isResourceEditorInput,
-  isSideBySideEditorInput
-} from "../../../common/editor.js";
-import { ResourceGlobMatcher } from "../../../common/resources.js";
-import {
-  IEditorGroupsService
-} from "../../editor/common/editorGroupsService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IResourceEditorInput, IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IEditorPane, IEditorCloseEvent, EditorResourceAccessor, IEditorIdentifier, GroupIdentifier, EditorsOrder, SideBySideEditor, IUntypedEditorInput, isResourceEditorInput, isEditorInput, isSideBySideEditorInput, EditorCloseContext, IEditorPaneSelection, EditorPaneSelectionCompareResult, EditorPaneSelectionChangeReason, isEditorPaneWithSelection, IEditorPaneSelectionChangeEvent, IEditorPaneWithSelection, IEditorWillMoveEvent, GroupModelChangeKind } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
 import { IEditorService } from "../../editor/common/editorService.js";
-import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
-import { IPathService } from "../../path/common/pathService.js";
-import {
-  SEARCH_EXCLUDE_CONFIG,
-  getExcludes
-} from "../../search/common/search.js";
 import { GoFilter, GoScope, IHistoryService } from "../common/history.js";
+import { FileChangesEvent, IFileService, FileChangeType, FILES_EXCLUDE_CONFIG, FileOperationEvent, FileOperation } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { dispose, Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEditorGroup, IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
+import { getExcludes, ISearchConfiguration, SEARCH_EXCLUDE_CONFIG } from "../../search/common/search.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorServiceImpl } from "../../../browser/parts/editor/editor.js";
+import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { coalesce, remove } from "../../../../base/common/arrays.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { addDisposableListener, EventType, EventHelper, WindowIdleValue } from "../../../../base/browser/dom.js";
+import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { ResourceGlobMatcher } from "../../../common/resources.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
+import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 let HistoryService = class extends Disposable {
   constructor(editorService, editorGroupService, contextService, storageService, configurationService, fileService, workspacesService, instantiationService, layoutService, contextKeyService, logService) {
     super();
@@ -108,118 +65,45 @@ let HistoryService = class extends Disposable {
   }
   static MOUSE_NAVIGATION_SETTING = "workbench.editor.mouseBackForwardToNavigate";
   static NAVIGATION_SCOPE_SETTING = "workbench.editor.navigationScope";
-  activeEditorListeners = this._register(
-    new DisposableStore()
-  );
+  activeEditorListeners = this._register(new DisposableStore());
   lastActiveEditor = void 0;
   editorHelper = this.instantiationService.createInstance(EditorHelper);
   registerListeners() {
     this.registerMouseNavigationListener();
-    this._register(
-      this.editorService.onDidActiveEditorChange(
-        () => this.onDidActiveEditorChange()
-      )
-    );
-    this._register(
-      this.editorService.onDidOpenEditorFail(
-        (event) => this.remove(event.editor)
-      )
-    );
-    this._register(
-      this.editorService.onDidCloseEditor(
-        (event) => this.onDidCloseEditor(event)
-      )
-    );
-    this._register(
-      this.editorService.onDidMostRecentlyActiveEditorsChange(
-        () => this.handleEditorEventInRecentEditorsStack()
-      )
-    );
-    this._register(
-      this.editorGroupService.onDidRemoveGroup(
-        (e) => this.onDidRemoveGroup(e)
-      )
-    );
-    this._register(
-      this.fileService.onDidFilesChange(
-        (event) => this.onDidFilesChange(event)
-      )
-    );
-    this._register(
-      this.fileService.onDidRunOperation(
-        (event) => this.onDidFilesChange(event)
-      )
-    );
-    this._register(
-      this.storageService.onWillSaveState(() => this.saveState())
-    );
+    this._register(this.editorService.onDidActiveEditorChange(() => this.onDidActiveEditorChange()));
+    this._register(this.editorService.onDidOpenEditorFail((event) => this.remove(event.editor)));
+    this._register(this.editorService.onDidCloseEditor((event) => this.onDidCloseEditor(event)));
+    this._register(this.editorService.onDidMostRecentlyActiveEditorsChange(() => this.handleEditorEventInRecentEditorsStack()));
+    this._register(this.editorGroupService.onDidRemoveGroup((e) => this.onDidRemoveGroup(e)));
+    this._register(this.fileService.onDidFilesChange((event) => this.onDidFilesChange(event)));
+    this._register(this.fileService.onDidRunOperation((event) => this.onDidFilesChange(event)));
+    this._register(this.storageService.onWillSaveState(() => this.saveState()));
     this.registerEditorNavigationScopeChangeListener();
-    this._register(
-      this.onDidChangeEditorNavigationStack(
-        () => this.updateContextKeys()
-      )
-    );
-    this._register(
-      this.editorGroupService.onDidChangeActiveGroup(
-        () => this.updateContextKeys()
-      )
-    );
+    this._register(this.onDidChangeEditorNavigationStack(() => this.updateContextKeys()));
+    this._register(this.editorGroupService.onDidChangeActiveGroup(() => this.updateContextKeys()));
   }
   onDidCloseEditor(e) {
     this.handleEditorCloseEventInHistory(e);
     this.handleEditorCloseEventInReopen(e);
   }
   registerMouseNavigationListener() {
-    const mouseBackForwardSupportListener = this._register(
-      new DisposableStore()
-    );
+    const mouseBackForwardSupportListener = this._register(new DisposableStore());
     const handleMouseBackForwardSupport = /* @__PURE__ */ __name(() => {
       mouseBackForwardSupportListener.clear();
-      if (this.configurationService.getValue(
-        HistoryService.MOUSE_NAVIGATION_SETTING
-      )) {
-        this._register(
-          Event.runAndSubscribe(
-            this.layoutService.onDidAddContainer,
-            ({ container, disposables }) => {
-              const eventDisposables = disposables.add(
-                new DisposableStore()
-              );
-              eventDisposables.add(
-                addDisposableListener(
-                  container,
-                  EventType.MOUSE_DOWN,
-                  (e) => this.onMouseDownOrUp(e, true)
-                )
-              );
-              eventDisposables.add(
-                addDisposableListener(
-                  container,
-                  EventType.MOUSE_UP,
-                  (e) => this.onMouseDownOrUp(e, false)
-                )
-              );
-              mouseBackForwardSupportListener.add(
-                eventDisposables
-              );
-            },
-            {
-              container: this.layoutService.mainContainer,
-              disposables: this._store
-            }
-          )
-        );
+      if (this.configurationService.getValue(HistoryService.MOUSE_NAVIGATION_SETTING)) {
+        this._register(Event.runAndSubscribe(this.layoutService.onDidAddContainer, ({ container, disposables }) => {
+          const eventDisposables = disposables.add(new DisposableStore());
+          eventDisposables.add(addDisposableListener(container, EventType.MOUSE_DOWN, (e) => this.onMouseDownOrUp(e, true)));
+          eventDisposables.add(addDisposableListener(container, EventType.MOUSE_UP, (e) => this.onMouseDownOrUp(e, false)));
+          mouseBackForwardSupportListener.add(eventDisposables);
+        }, { container: this.layoutService.mainContainer, disposables: this._store }));
       }
     }, "handleMouseBackForwardSupport");
-    this._register(
-      this.configurationService.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration(
-          HistoryService.MOUSE_NAVIGATION_SETTING
-        )) {
-          handleMouseBackForwardSupport();
-        }
-      })
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration(HistoryService.MOUSE_NAVIGATION_SETTING)) {
+        handleMouseBackForwardSupport();
+      }
+    }));
     handleMouseBackForwardSupport();
   }
   onMouseDownOrUp(event, isMouseDown) {
@@ -244,56 +128,31 @@ let HistoryService = class extends Disposable {
   onDidActiveEditorChange() {
     const activeEditorGroup = this.editorGroupService.activeGroup;
     const activeEditorPane = activeEditorGroup.activeEditorPane;
-    if (this.lastActiveEditor && this.editorHelper.matchesEditorIdentifier(
-      this.lastActiveEditor,
-      activeEditorPane
-    )) {
+    if (this.lastActiveEditor && this.editorHelper.matchesEditorIdentifier(this.lastActiveEditor, activeEditorPane)) {
       return;
     }
-    this.lastActiveEditor = activeEditorPane?.input ? {
-      editor: activeEditorPane.input,
-      groupId: activeEditorPane.group.id
-    } : void 0;
+    this.lastActiveEditor = activeEditorPane?.input ? { editor: activeEditorPane.input, groupId: activeEditorPane.group.id } : void 0;
     this.activeEditorListeners.clear();
-    if (activeEditorPane?.group.isTransient(activeEditorPane.input)) {
-      this.logService.trace(
-        `[History]: ignoring transient editor change until becoming non-transient (editor: ${activeEditorPane.input?.resource?.toString()}})`
-      );
-      const transientListener = activeEditorGroup.onDidModelChange(
-        (e) => {
-          if (e.kind === GroupModelChangeKind.EDITOR_TRANSIENT && e.editor === activeEditorPane.input && !activeEditorPane.group.isTransient(
-            activeEditorPane.input
-          )) {
-            transientListener.dispose();
-            this.handleActiveEditorChange(
-              activeEditorGroup,
-              activeEditorPane
-            );
-          }
-        }
-      );
-      this.activeEditorListeners.add(transientListener);
-    } else {
+    if (!activeEditorPane?.group.isTransient(activeEditorPane.input)) {
       this.handleActiveEditorChange(activeEditorGroup, activeEditorPane);
+    } else {
+      this.logService.trace(`[History]: ignoring transient editor change until becoming non-transient (editor: ${activeEditorPane.input?.resource?.toString()}})`);
+      const transientListener = activeEditorGroup.onDidModelChange((e) => {
+        if (e.kind === GroupModelChangeKind.EDITOR_TRANSIENT && e.editor === activeEditorPane.input && !activeEditorPane.group.isTransient(activeEditorPane.input)) {
+          transientListener.dispose();
+          this.handleActiveEditorChange(activeEditorGroup, activeEditorPane);
+        }
+      });
+      this.activeEditorListeners.add(transientListener);
     }
     if (isEditorPaneWithSelection(activeEditorPane)) {
-      this.activeEditorListeners.add(
-        activeEditorPane.onDidChangeSelection((e) => {
-          if (activeEditorPane.group.isTransient(
-            activeEditorPane.input
-          )) {
-            this.logService.trace(
-              `[History]: ignoring transient editor selection change (editor: ${activeEditorPane.input?.resource?.toString()}})`
-            );
-          } else {
-            this.handleActiveEditorSelectionChangeEvent(
-              activeEditorGroup,
-              activeEditorPane,
-              e
-            );
-          }
-        })
-      );
+      this.activeEditorListeners.add(activeEditorPane.onDidChangeSelection((e) => {
+        if (!activeEditorPane.group.isTransient(activeEditorPane.input)) {
+          this.handleActiveEditorSelectionChangeEvent(activeEditorGroup, activeEditorPane, e);
+        } else {
+          this.logService.trace(`[History]: ignoring transient editor selection change (editor: ${activeEditorPane.input?.resource?.toString()}})`);
+        }
+      }));
     }
     this.updateContextKeys();
   }
@@ -315,11 +174,7 @@ let HistoryService = class extends Disposable {
     this.handleActiveEditorChangeInNavigationStacks(group, editorPane);
   }
   handleActiveEditorSelectionChangeEvent(group, editorPane, event) {
-    this.handleActiveEditorSelectionChangeInNavigationStacks(
-      group,
-      editorPane,
-      event
-    );
+    this.handleActiveEditorSelectionChangeInNavigationStacks(group, editorPane, event);
   }
   move(event) {
     this.moveInHistory(event);
@@ -332,7 +187,7 @@ let HistoryService = class extends Disposable {
     this.removeFromRecentlyOpened(arg1);
   }
   removeFromRecentlyOpened(arg1) {
-    let resource;
+    let resource = void 0;
     if (isEditorInput(arg1)) {
       resource = EditorResourceAccessor.getOriginalUri(arg1);
     } else if (arg1 instanceof FileChangesEvent) {
@@ -350,115 +205,32 @@ let HistoryService = class extends Disposable {
     this.updateContextKeys();
   }
   //#region History Context Keys
-  canNavigateBackContextKey = new RawContextKey(
-    "canNavigateBack",
-    false,
-    localize(
-      "canNavigateBack",
-      "Whether it is possible to navigate back in editor history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateForwardContextKey = new RawContextKey(
-    "canNavigateForward",
-    false,
-    localize(
-      "canNavigateForward",
-      "Whether it is possible to navigate forward in editor history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateBackInNavigationsContextKey = new RawContextKey(
-    "canNavigateBackInNavigationLocations",
-    false,
-    localize(
-      "canNavigateBackInNavigationLocations",
-      "Whether it is possible to navigate back in editor navigation locations history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateForwardInNavigationsContextKey = new RawContextKey(
-    "canNavigateForwardInNavigationLocations",
-    false,
-    localize(
-      "canNavigateForwardInNavigationLocations",
-      "Whether it is possible to navigate forward in editor navigation locations history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateToLastNavigationLocationContextKey = new RawContextKey(
-    "canNavigateToLastNavigationLocation",
-    false,
-    localize(
-      "canNavigateToLastNavigationLocation",
-      "Whether it is possible to navigate to the last editor navigation location"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateBackInEditsContextKey = new RawContextKey(
-    "canNavigateBackInEditLocations",
-    false,
-    localize(
-      "canNavigateBackInEditLocations",
-      "Whether it is possible to navigate back in editor edit locations history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateForwardInEditsContextKey = new RawContextKey(
-    "canNavigateForwardInEditLocations",
-    false,
-    localize(
-      "canNavigateForwardInEditLocations",
-      "Whether it is possible to navigate forward in editor edit locations history"
-    )
-  ).bindTo(this.contextKeyService);
-  canNavigateToLastEditLocationContextKey = new RawContextKey(
-    "canNavigateToLastEditLocation",
-    false,
-    localize(
-      "canNavigateToLastEditLocation",
-      "Whether it is possible to navigate to the last editor edit location"
-    )
-  ).bindTo(this.contextKeyService);
-  canReopenClosedEditorContextKey = new RawContextKey(
-    "canReopenClosedEditor",
-    false,
-    localize(
-      "canReopenClosedEditor",
-      "Whether it is possible to reopen the last closed editor"
-    )
-  ).bindTo(this.contextKeyService);
+  canNavigateBackContextKey = new RawContextKey("canNavigateBack", false, localize("canNavigateBack", "Whether it is possible to navigate back in editor history")).bindTo(this.contextKeyService);
+  canNavigateForwardContextKey = new RawContextKey("canNavigateForward", false, localize("canNavigateForward", "Whether it is possible to navigate forward in editor history")).bindTo(this.contextKeyService);
+  canNavigateBackInNavigationsContextKey = new RawContextKey("canNavigateBackInNavigationLocations", false, localize("canNavigateBackInNavigationLocations", "Whether it is possible to navigate back in editor navigation locations history")).bindTo(this.contextKeyService);
+  canNavigateForwardInNavigationsContextKey = new RawContextKey("canNavigateForwardInNavigationLocations", false, localize("canNavigateForwardInNavigationLocations", "Whether it is possible to navigate forward in editor navigation locations history")).bindTo(this.contextKeyService);
+  canNavigateToLastNavigationLocationContextKey = new RawContextKey("canNavigateToLastNavigationLocation", false, localize("canNavigateToLastNavigationLocation", "Whether it is possible to navigate to the last editor navigation location")).bindTo(this.contextKeyService);
+  canNavigateBackInEditsContextKey = new RawContextKey("canNavigateBackInEditLocations", false, localize("canNavigateBackInEditLocations", "Whether it is possible to navigate back in editor edit locations history")).bindTo(this.contextKeyService);
+  canNavigateForwardInEditsContextKey = new RawContextKey("canNavigateForwardInEditLocations", false, localize("canNavigateForwardInEditLocations", "Whether it is possible to navigate forward in editor edit locations history")).bindTo(this.contextKeyService);
+  canNavigateToLastEditLocationContextKey = new RawContextKey("canNavigateToLastEditLocation", false, localize("canNavigateToLastEditLocation", "Whether it is possible to navigate to the last editor edit location")).bindTo(this.contextKeyService);
+  canReopenClosedEditorContextKey = new RawContextKey("canReopenClosedEditor", false, localize("canReopenClosedEditor", "Whether it is possible to reopen the last closed editor")).bindTo(this.contextKeyService);
   updateContextKeys() {
     this.contextKeyService.bufferChangeEvents(() => {
       const activeStack = this.getStack();
-      this.canNavigateBackContextKey.set(
-        activeStack.canGoBack(GoFilter.NONE)
-      );
-      this.canNavigateForwardContextKey.set(
-        activeStack.canGoForward(GoFilter.NONE)
-      );
-      this.canNavigateBackInNavigationsContextKey.set(
-        activeStack.canGoBack(GoFilter.NAVIGATION)
-      );
-      this.canNavigateForwardInNavigationsContextKey.set(
-        activeStack.canGoForward(GoFilter.NAVIGATION)
-      );
-      this.canNavigateToLastNavigationLocationContextKey.set(
-        activeStack.canGoLast(GoFilter.NAVIGATION)
-      );
-      this.canNavigateBackInEditsContextKey.set(
-        activeStack.canGoBack(GoFilter.EDITS)
-      );
-      this.canNavigateForwardInEditsContextKey.set(
-        activeStack.canGoForward(GoFilter.EDITS)
-      );
-      this.canNavigateToLastEditLocationContextKey.set(
-        activeStack.canGoLast(GoFilter.EDITS)
-      );
-      this.canReopenClosedEditorContextKey.set(
-        this.recentlyClosedEditors.length > 0
-      );
+      this.canNavigateBackContextKey.set(activeStack.canGoBack(GoFilter.NONE));
+      this.canNavigateForwardContextKey.set(activeStack.canGoForward(GoFilter.NONE));
+      this.canNavigateBackInNavigationsContextKey.set(activeStack.canGoBack(GoFilter.NAVIGATION));
+      this.canNavigateForwardInNavigationsContextKey.set(activeStack.canGoForward(GoFilter.NAVIGATION));
+      this.canNavigateToLastNavigationLocationContextKey.set(activeStack.canGoLast(GoFilter.NAVIGATION));
+      this.canNavigateBackInEditsContextKey.set(activeStack.canGoBack(GoFilter.EDITS));
+      this.canNavigateForwardInEditsContextKey.set(activeStack.canGoForward(GoFilter.EDITS));
+      this.canNavigateToLastEditLocationContextKey.set(activeStack.canGoLast(GoFilter.EDITS));
+      this.canReopenClosedEditorContextKey.set(this.recentlyClosedEditors.length > 0);
     });
   }
   //#endregion
   //#region Editor History Navigation (limit: 50)
-  _onDidChangeEditorNavigationStack = this._register(
-    new Emitter()
-  );
+  _onDidChangeEditorNavigationStack = this._register(new Emitter());
   onDidChangeEditorNavigationStack = this._onDidChangeEditorNavigationStack.event;
   defaultScopedEditorNavigationStack = void 0;
   editorGroupScopedNavigationStacks = /* @__PURE__ */ new Map();
@@ -467,9 +239,7 @@ let HistoryService = class extends Disposable {
   registerEditorNavigationScopeChangeListener() {
     const handleEditorNavigationScopeChange = /* @__PURE__ */ __name(() => {
       this.disposeEditorNavigationStacks();
-      const configuredScope = this.configurationService.getValue(
-        HistoryService.NAVIGATION_SCOPE_SETTING
-      );
+      const configuredScope = this.configurationService.getValue(HistoryService.NAVIGATION_SCOPE_SETTING);
       if (configuredScope === "editorGroup") {
         this.editorNavigationScope = GoScope.EDITOR_GROUP;
       } else if (configuredScope === "editor") {
@@ -478,15 +248,11 @@ let HistoryService = class extends Disposable {
         this.editorNavigationScope = GoScope.DEFAULT;
       }
     }, "handleEditorNavigationScopeChange");
-    this._register(
-      this.configurationService.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration(
-          HistoryService.NAVIGATION_SCOPE_SETTING
-        )) {
-          handleEditorNavigationScopeChange();
-        }
-      })
-    );
+    this._register(this.configurationService.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration(HistoryService.NAVIGATION_SCOPE_SETTING)) {
+        handleEditorNavigationScopeChange();
+      }
+    }));
     handleEditorNavigationScopeChange();
   }
   getStack(group = this.editorGroupService.activeGroup, editor = group.activeEditor) {
@@ -496,73 +262,36 @@ let HistoryService = class extends Disposable {
         if (!editor) {
           return new NoOpEditorNavigationStacks();
         }
-        let stacksForGroup = this.editorScopedNavigationStacks.get(
-          group.id
-        );
+        let stacksForGroup = this.editorScopedNavigationStacks.get(group.id);
         if (!stacksForGroup) {
           stacksForGroup = /* @__PURE__ */ new Map();
-          this.editorScopedNavigationStacks.set(
-            group.id,
-            stacksForGroup
-          );
+          this.editorScopedNavigationStacks.set(group.id, stacksForGroup);
         }
         let stack = stacksForGroup.get(editor)?.stack;
         if (!stack) {
           const disposable = new DisposableStore();
-          stack = disposable.add(
-            this.instantiationService.createInstance(
-              EditorNavigationStacks,
-              GoScope.EDITOR
-            )
-          );
-          disposable.add(
-            stack.onDidChange(
-              () => this._onDidChangeEditorNavigationStack.fire()
-            )
-          );
+          stack = disposable.add(this.instantiationService.createInstance(EditorNavigationStacks, GoScope.EDITOR));
+          disposable.add(stack.onDidChange(() => this._onDidChangeEditorNavigationStack.fire()));
           stacksForGroup.set(editor, { stack, disposable });
         }
         return stack;
       }
       // Per Editor Group
       case GoScope.EDITOR_GROUP: {
-        let stack = this.editorGroupScopedNavigationStacks.get(
-          group.id
-        )?.stack;
+        let stack = this.editorGroupScopedNavigationStacks.get(group.id)?.stack;
         if (!stack) {
           const disposable = new DisposableStore();
-          stack = disposable.add(
-            this.instantiationService.createInstance(
-              EditorNavigationStacks,
-              GoScope.EDITOR_GROUP
-            )
-          );
-          disposable.add(
-            stack.onDidChange(
-              () => this._onDidChangeEditorNavigationStack.fire()
-            )
-          );
-          this.editorGroupScopedNavigationStacks.set(group.id, {
-            stack,
-            disposable
-          });
+          stack = disposable.add(this.instantiationService.createInstance(EditorNavigationStacks, GoScope.EDITOR_GROUP));
+          disposable.add(stack.onDidChange(() => this._onDidChangeEditorNavigationStack.fire()));
+          this.editorGroupScopedNavigationStacks.set(group.id, { stack, disposable });
         }
         return stack;
       }
       // Global
       case GoScope.DEFAULT: {
         if (!this.defaultScopedEditorNavigationStack) {
-          this.defaultScopedEditorNavigationStack = this._register(
-            this.instantiationService.createInstance(
-              EditorNavigationStacks,
-              GoScope.DEFAULT
-            )
-          );
-          this._register(
-            this.defaultScopedEditorNavigationStack.onDidChange(
-              () => this._onDidChangeEditorNavigationStack.fire()
-            )
-          );
+          this.defaultScopedEditorNavigationStack = this._register(this.instantiationService.createInstance(EditorNavigationStacks, GoScope.DEFAULT));
+          this._register(this.defaultScopedEditorNavigationStack.onDidChange(() => this._onDidChangeEditorNavigationStack.fire()));
         }
         return this.defaultScopedEditorNavigationStack;
       }
@@ -581,15 +310,10 @@ let HistoryService = class extends Disposable {
     return this.getStack().goLast(filter);
   }
   handleActiveEditorChangeInNavigationStacks(group, editorPane) {
-    this.getStack(group, editorPane?.input).handleActiveEditorChange(
-      editorPane
-    );
+    this.getStack(group, editorPane?.input).handleActiveEditorChange(editorPane);
   }
   handleActiveEditorSelectionChangeInNavigationStacks(group, editorPane, event) {
-    this.getStack(
-      group,
-      editorPane.input
-    ).handleActiveEditorSelectionChange(editorPane, event);
+    this.getStack(group, editorPane.input).handleActiveEditorSelectionChange(editorPane, event);
   }
   handleEditorCloseEventInHistory(e) {
     const editors = this.editorScopedNavigationStacks.get(e.groupId);
@@ -606,9 +330,7 @@ let HistoryService = class extends Disposable {
   }
   handleEditorGroupRemoveInNavigationStacks(group) {
     this.defaultScopedEditorNavigationStack?.remove(group.id);
-    const editorGroupStack = this.editorGroupScopedNavigationStacks.get(
-      group.id
-    );
+    const editorGroupStack = this.editorGroupScopedNavigationStacks.get(group.id);
     if (editorGroupStack) {
       editorGroupStack.disposable.dispose();
       this.editorGroupScopedNavigationStacks.delete(group.id);
@@ -659,17 +381,11 @@ let HistoryService = class extends Disposable {
   navigatingInRecentlyUsedEditorsStack = false;
   navigatingInRecentlyUsedEditorsInGroupStack = false;
   openNextRecentlyUsedEditor(groupId) {
-    const [stack, index] = this.ensureRecentlyUsedStack(
-      (index2) => index2 - 1,
-      groupId
-    );
+    const [stack, index] = this.ensureRecentlyUsedStack((index2) => index2 - 1, groupId);
     return this.doNavigateInRecentlyUsedEditorsStack(stack[index], groupId);
   }
   openPreviouslyUsedEditor(groupId) {
-    const [stack, index] = this.ensureRecentlyUsedStack(
-      (index2) => index2 + 1,
-      groupId
-    );
+    const [stack, index] = this.ensureRecentlyUsedStack((index2) => index2 + 1, groupId);
     return this.doNavigateInRecentlyUsedEditorsStack(stack[index], groupId);
   }
   async doNavigateInRecentlyUsedEditorsStack(editorIdentifier, groupId) {
@@ -696,14 +412,12 @@ let HistoryService = class extends Disposable {
     let editors;
     let index;
     const group = typeof groupId === "number" ? this.editorGroupService.getGroup(groupId) : void 0;
-    if (group) {
+    if (!group) {
+      editors = this.recentlyUsedEditorsStack || this.editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE);
+      index = this.recentlyUsedEditorsStackIndex;
+    } else {
       editors = this.recentlyUsedEditorsInGroupStack || group.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE).map((editor) => ({ groupId: group.id, editor }));
       index = this.recentlyUsedEditorsInGroupStackIndex;
-    } else {
-      editors = this.recentlyUsedEditorsStack || this.editorService.getEditors(
-        EditorsOrder.MOST_RECENTLY_ACTIVE
-      );
-      index = this.recentlyUsedEditorsStackIndex;
     }
     let newIndex = indexModifier(index);
     if (newIndex < 0) {
@@ -711,12 +425,12 @@ let HistoryService = class extends Disposable {
     } else if (newIndex > editors.length - 1) {
       newIndex = editors.length - 1;
     }
-    if (group) {
-      this.recentlyUsedEditorsInGroupStack = editors;
-      this.recentlyUsedEditorsInGroupStackIndex = newIndex;
-    } else {
+    if (!group) {
       this.recentlyUsedEditorsStack = editors;
       this.recentlyUsedEditorsStackIndex = newIndex;
+    } else {
+      this.recentlyUsedEditorsInGroupStack = editors;
+      this.recentlyUsedEditorsInGroupStackIndex = newIndex;
     }
     return [editors, newIndex];
   }
@@ -748,15 +462,11 @@ let HistoryService = class extends Disposable {
       return;
     }
     const associatedResources = [];
-    const editorResource = EditorResourceAccessor.getOriginalUri(editor, {
-      supportSideBySide: SideBySideEditor.BOTH
-    });
+    const editorResource = EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH });
     if (URI.isUri(editorResource)) {
       associatedResources.push(editorResource);
     } else if (editorResource) {
-      associatedResources.push(
-        ...coalesce([editorResource.primary, editorResource.secondary])
-      );
+      associatedResources.push(...coalesce([editorResource.primary, editorResource.secondary]));
     }
     this.removeFromRecentlyClosedEditors(editor);
     this.recentlyClosedEditors.push({
@@ -774,33 +484,20 @@ let HistoryService = class extends Disposable {
   }
   async reopenLastClosedEditor() {
     const lastClosedEditor = this.recentlyClosedEditors.pop();
-    let reopenClosedEditorPromise;
+    let reopenClosedEditorPromise = void 0;
     if (lastClosedEditor) {
       reopenClosedEditorPromise = this.doReopenLastClosedEditor(lastClosedEditor);
     }
-    this.canReopenClosedEditorContextKey.set(
-      this.recentlyClosedEditors.length > 0
-    );
+    this.canReopenClosedEditorContextKey.set(this.recentlyClosedEditors.length > 0);
     return reopenClosedEditorPromise;
   }
   async doReopenLastClosedEditor(lastClosedEditor) {
-    const options = {
-      pinned: true,
-      sticky: lastClosedEditor.sticky,
-      index: lastClosedEditor.index,
-      ignoreError: true
-    };
-    if (lastClosedEditor.sticky && !this.editorGroupService.activeGroup.isSticky(
-      lastClosedEditor.index
-    ) || !lastClosedEditor.sticky && this.editorGroupService.activeGroup.isSticky(
-      lastClosedEditor.index
-    )) {
+    const options = { pinned: true, sticky: lastClosedEditor.sticky, index: lastClosedEditor.index, ignoreError: true };
+    if (lastClosedEditor.sticky && !this.editorGroupService.activeGroup.isSticky(lastClosedEditor.index) || !lastClosedEditor.sticky && this.editorGroupService.activeGroup.isSticky(lastClosedEditor.index)) {
       options.index = void 0;
     }
-    let editorPane;
-    if (!this.editorGroupService.activeGroup.contains(
-      lastClosedEditor.editor
-    )) {
+    let editorPane = void 0;
+    if (!this.editorGroupService.activeGroup.contains(lastClosedEditor.editor)) {
       this.ignoreEditorCloseEvent = true;
       try {
         editorPane = await this.editorService.openEditor({
@@ -820,31 +517,19 @@ let HistoryService = class extends Disposable {
     }
   }
   removeFromRecentlyClosedEditors(arg1) {
-    this.recentlyClosedEditors = this.recentlyClosedEditors.filter(
-      (recentlyClosedEditor) => {
-        if (isEditorInput(arg1) && recentlyClosedEditor.editorId !== arg1.editorId) {
-          return true;
-        }
-        if (recentlyClosedEditor.resource && this.editorHelper.matchesFile(
-          recentlyClosedEditor.resource,
-          arg1
-        )) {
-          return false;
-        }
-        if (recentlyClosedEditor.associatedResources.some(
-          (associatedResource) => this.editorHelper.matchesFile(
-            associatedResource,
-            arg1
-          )
-        )) {
-          return false;
-        }
+    this.recentlyClosedEditors = this.recentlyClosedEditors.filter((recentlyClosedEditor) => {
+      if (isEditorInput(arg1) && recentlyClosedEditor.editorId !== arg1.editorId) {
         return true;
       }
-    );
-    this.canReopenClosedEditorContextKey.set(
-      this.recentlyClosedEditors.length > 0
-    );
+      if (recentlyClosedEditor.resource && this.editorHelper.matchesFile(recentlyClosedEditor.resource, arg1)) {
+        return false;
+      }
+      if (recentlyClosedEditor.associatedResources.some((associatedResource) => this.editorHelper.matchesFile(associatedResource, arg1))) {
+        return false;
+      }
+      return true;
+    });
+    this.canReopenClosedEditorContextKey.set(this.recentlyClosedEditors.length > 0);
   }
   //#endregion
   //#region Go to: Recently Opened Editor (limit: 200, persisted)
@@ -852,27 +537,15 @@ let HistoryService = class extends Disposable {
   static HISTORY_STORAGE_KEY = "history.entries";
   history = void 0;
   editorHistoryListeners = /* @__PURE__ */ new Map();
-  resourceExcludeMatcher = this._register(
-    new WindowIdleValue(mainWindow, () => {
-      const matcher = this._register(
-        this.instantiationService.createInstance(
-          ResourceGlobMatcher,
-          (root) => getExcludes(
-            root ? this.configurationService.getValue(
-              { resource: root }
-            ) : this.configurationService.getValue()
-          ) || /* @__PURE__ */ Object.create(null),
-          (event) => event.affectsConfiguration(FILES_EXCLUDE_CONFIG) || event.affectsConfiguration(SEARCH_EXCLUDE_CONFIG)
-        )
-      );
-      this._register(
-        matcher.onExpressionChange(
-          () => this.removeExcludedFromHistory()
-        )
-      );
-      return matcher;
-    })
-  );
+  resourceExcludeMatcher = this._register(new WindowIdleValue(mainWindow, () => {
+    const matcher = this._register(this.instantiationService.createInstance(
+      ResourceGlobMatcher,
+      (root) => getExcludes(root ? this.configurationService.getValue({ resource: root }) : this.configurationService.getValue()) || /* @__PURE__ */ Object.create(null),
+      (event) => event.affectsConfiguration(FILES_EXCLUDE_CONFIG) || event.affectsConfiguration(SEARCH_EXCLUDE_CONFIG)
+    ));
+    this._register(matcher.onExpressionChange(() => this.removeExcludedFromHistory()));
+    return matcher;
+  }));
   handleActiveEditorChangeInHistory(editorPane) {
     const editor = editorPane?.input;
     if (!editor || editor.isDisposed() || !this.includeInHistory(editor)) {
@@ -893,22 +566,17 @@ let HistoryService = class extends Disposable {
       this.history.push(historyInput);
     }
     if (this.history.length > HistoryService.MAX_HISTORY_ITEMS) {
-      this.editorHelper.clearOnEditorDispose(
-        this.history.pop(),
-        this.editorHistoryListeners
-      );
+      this.editorHelper.clearOnEditorDispose(this.history.pop(), this.editorHistoryListeners);
     }
     if (isEditorInput(editor)) {
-      this.editorHelper.onEditorDispose(
-        editor,
-        () => this.updateHistoryOnEditorDispose(historyInput),
-        this.editorHistoryListeners
-      );
+      this.editorHelper.onEditorDispose(editor, () => this.updateHistoryOnEditorDispose(historyInput), this.editorHistoryListeners);
     }
   }
   updateHistoryOnEditorDispose(editor) {
     if (isEditorInput(editor)) {
-      if (isSideBySideEditorInput(editor)) {
+      if (!isSideBySideEditorInput(editor)) {
+        this.removeFromHistory(editor);
+      } else {
         const resourceInputs = [];
         const sideInputs = editor.primary.matches(editor.secondary) ? [editor.primary] : [editor.primary, editor.secondary];
         for (const sideInput of sideInputs) {
@@ -918,8 +586,6 @@ let HistoryService = class extends Disposable {
           }
         }
         this.replaceInHistory(editor, ...resourceInputs);
-      } else {
-        this.removeFromHistory(editor);
       }
     } else {
       if (!this.includeInHistory(editor)) {
@@ -938,10 +604,7 @@ let HistoryService = class extends Disposable {
     this.history = this.history.filter((entry) => {
       const include = this.includeInHistory(entry);
       if (!include) {
-        this.editorHelper.clearOnEditorDispose(
-          entry,
-          this.editorHistoryListeners
-        );
+        this.editorHelper.clearOnEditorDispose(entry, this.editorHistoryListeners);
       }
       return include;
     });
@@ -960,10 +623,7 @@ let HistoryService = class extends Disposable {
     this.history = this.history.filter((entry) => {
       const matches = this.editorHelper.matchesEditor(arg1, entry);
       if (matches) {
-        this.editorHelper.clearOnEditorDispose(
-          arg1,
-          this.editorHistoryListeners
-        );
+        this.editorHelper.clearOnEditorDispose(arg1, this.editorHistoryListeners);
         removed = true;
       }
       return !matches;
@@ -976,17 +636,12 @@ let HistoryService = class extends Disposable {
     const newHistory = [];
     for (const entry of this.history) {
       if (this.editorHelper.matchesEditor(editor, entry)) {
-        this.editorHelper.clearOnEditorDispose(
-          editor,
-          this.editorHistoryListeners
-        );
+        this.editorHelper.clearOnEditorDispose(editor, this.editorHistoryListeners);
         if (!replaced) {
           newHistory.push(...replacements);
           replaced = true;
         }
-      } else if (!replacements.some(
-        (replacement) => this.editorHelper.matchesEditor(replacement, entry)
-      )) {
+      } else if (!replacements.some((replacement) => this.editorHelper.matchesEditor(replacement, entry))) {
         newHistory.push(entry);
       }
     }
@@ -1022,9 +677,7 @@ let HistoryService = class extends Disposable {
   loadHistory() {
     this.history = [];
     const storedEditorHistory = this.loadHistoryFromStorage();
-    const openedEditorsLru = [
-      ...this.editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE)
-    ].reverse();
+    const openedEditorsLru = [...this.editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE)].reverse();
     const handledEditors = /* @__PURE__ */ new Set();
     for (const { editor } of openedEditorsLru) {
       if (!this.includeInHistory(editor)) {
@@ -1032,15 +685,11 @@ let HistoryService = class extends Disposable {
       }
       this.addToHistory(editor);
       if (editor.resource) {
-        handledEditors.add(
-          `${editor.resource.toString()}/${editor.editorId}`
-        );
+        handledEditors.add(`${editor.resource.toString()}/${editor.editorId}`);
       }
     }
     for (const editor of storedEditorHistory) {
-      if (!handledEditors.has(
-        `${editor.resource.toString()}/${editor.options?.override}`
-      ) && this.includeInHistory(editor)) {
+      if (!handledEditors.has(`${editor.resource.toString()}/${editor.options?.override}`) && this.includeInHistory(editor)) {
         this.addToHistory(
           editor,
           false
@@ -1051,10 +700,7 @@ let HistoryService = class extends Disposable {
   }
   loadHistoryFromStorage() {
     const entries = [];
-    const entriesRaw = this.storageService.get(
-      HistoryService.HISTORY_STORAGE_KEY,
-      StorageScope.WORKSPACE
-    );
+    const entriesRaw = this.storageService.get(HistoryService.HISTORY_STORAGE_KEY, StorageScope.WORKSPACE);
     if (entriesRaw) {
       try {
         const entriesParsed = JSON.parse(entriesRaw);
@@ -1097,12 +743,7 @@ let HistoryService = class extends Disposable {
         }
       });
     }
-    this.storageService.store(
-      HistoryService.HISTORY_STORAGE_KEY,
-      JSON.stringify(entries),
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(HistoryService.HISTORY_STORAGE_KEY, JSON.stringify(entries), StorageScope.WORKSPACE, StorageTarget.MACHINE);
   }
   //#endregion
   //#region Last Active Workspace/File
@@ -1128,9 +769,7 @@ let HistoryService = class extends Disposable {
       if (authorityFilter && input.resource.authority !== authorityFilter) {
         continue;
       }
-      const resourceWorkspace = this.contextService.getWorkspaceFolder(
-        input.resource
-      );
+      const resourceWorkspace = this.contextService.getWorkspaceFolder(input.resource);
       if (resourceWorkspace) {
         return resourceWorkspace.uri;
       }
@@ -1147,9 +786,7 @@ let HistoryService = class extends Disposable {
     for (const input of this.getHistory()) {
       let resource;
       if (isEditorInput(input)) {
-        resource = EditorResourceAccessor.getOriginalUri(input, {
-          filterByScheme
-        });
+        resource = EditorResourceAccessor.getOriginalUri(input, { filterByScheme });
       } else {
         resource = input.resource;
       }
@@ -1224,27 +861,9 @@ let EditorNavigationStacks = class extends Disposable {
   static {
     __name(this, "EditorNavigationStacks");
   }
-  selectionsStack = this._register(
-    this.instantiationService.createInstance(
-      EditorNavigationStack,
-      GoFilter.NONE,
-      this.scope
-    )
-  );
-  editsStack = this._register(
-    this.instantiationService.createInstance(
-      EditorNavigationStack,
-      GoFilter.EDITS,
-      this.scope
-    )
-  );
-  navigationsStack = this._register(
-    this.instantiationService.createInstance(
-      EditorNavigationStack,
-      GoFilter.NAVIGATION,
-      this.scope
-    )
-  );
+  selectionsStack = this._register(this.instantiationService.createInstance(EditorNavigationStack, GoFilter.NONE, this.scope));
+  editsStack = this._register(this.instantiationService.createInstance(EditorNavigationStack, GoFilter.EDITS, this.scope));
+  navigationsStack = this._register(this.instantiationService.createInstance(EditorNavigationStack, GoFilter.NAVIGATION, this.scope));
   stacks = [
     this.selectionsStack,
     this.editsStack,
@@ -1297,11 +916,7 @@ let EditorNavigationStacks = class extends Disposable {
     } else if ((event.reason === EditorPaneSelectionChangeReason.NAVIGATION || event.reason === EditorPaneSelectionChangeReason.JUMP) && !this.selectionsStack.isNavigating()) {
       if (event.reason === EditorPaneSelectionChangeReason.JUMP && !this.navigationsStack.isNavigating()) {
         if (previous) {
-          this.navigationsStack.addOrReplace(
-            previous.groupId,
-            previous.editor,
-            previous.selection
-          );
+          this.navigationsStack.addOrReplace(previous.groupId, previous.editor, previous.selection);
         }
       }
       this.navigationsStack.notifyNavigation(editorPane, event);
@@ -1396,9 +1011,7 @@ let EditorNavigationStack = class extends Disposable {
   }
   registerListeners() {
     this._register(this.onDidChange(() => this.traceStack()));
-    this._register(
-      this.logService.onDidChangeLogLevel(() => this.traceStack())
-    );
+    this._register(this.logService.onDidChangeLogLevel(() => this.traceStack()));
   }
   traceStack() {
     if (this.logService.getLevel() !== LogLevel.Trace) {
@@ -1407,19 +1020,13 @@ let EditorNavigationStack = class extends Disposable {
     const entryLabels = [];
     for (const entry of this.stack) {
       if (typeof entry.selection?.log === "function") {
-        entryLabels.push(
-          `- group: ${entry.groupId}, editor: ${entry.editor.resource?.toString()}, selection: ${entry.selection.log()}`
-        );
+        entryLabels.push(`- group: ${entry.groupId}, editor: ${entry.editor.resource?.toString()}, selection: ${entry.selection.log()}`);
       } else {
-        entryLabels.push(
-          `- group: ${entry.groupId}, editor: ${entry.editor.resource?.toString()}, selection: <none>`
-        );
+        entryLabels.push(`- group: ${entry.groupId}, editor: ${entry.editor.resource?.toString()}, selection: <none>`);
       }
     }
     if (entryLabels.length === 0) {
-      this.trace(
-        `index: ${this.index}, navigating: ${this.isNavigating()}: <empty>`
-      );
+      this.trace(`index: ${this.index}, navigating: ${this.isNavigating()}: <empty>`);
     } else {
       this.trace(`index: ${this.index}, navigating: ${this.isNavigating()}
 ${entryLabels.join("\n")}
@@ -1455,13 +1062,9 @@ ${entryLabels.join("\n")}
         break;
     }
     if (editor !== null) {
-      this.logService.trace(
-        `[History stack ${filterLabel}-${scopeLabel}]: ${msg} (editor: ${editor?.resource?.toString()}, event: ${this.traceEvent(event)})`
-      );
+      this.logService.trace(`[History stack ${filterLabel}-${scopeLabel}]: ${msg} (editor: ${editor?.resource?.toString()}, event: ${this.traceEvent(event)})`);
     } else {
-      this.logService.trace(
-        `[History stack ${filterLabel}-${scopeLabel}]: ${msg}`
-      );
+      this.logService.trace(`[History stack ${filterLabel}-${scopeLabel}]: ${msg}`);
     }
   }
   traceEvent(event) {
@@ -1485,10 +1088,7 @@ ${entryLabels.join("\n")}
     if (!this.mapGroupToDisposable.has(groupId)) {
       const group = this.editorGroupService.getGroup(groupId);
       if (group) {
-        this.mapGroupToDisposable.set(
-          groupId,
-          group.onWillMoveEditor((e) => this.onWillMoveEditor(e))
-        );
+        this.mapGroupToDisposable.set(groupId, group.onWillMoveEditor((e) => this.onWillMoveEditor(e)));
       }
     }
   }
@@ -1513,50 +1113,22 @@ ${entryLabels.join("\n")}
     const isSelectionAwareEditorPane = isEditorPaneWithSelection(editorPane);
     const hasValidEditor = editorPane?.input && !editorPane.input.isDisposed();
     if (this.navigating) {
-      this.trace(
-        `notifyNavigation() ignoring (navigating)`,
-        editorPane?.input,
-        event
-      );
+      this.trace(`notifyNavigation() ignoring (navigating)`, editorPane?.input, event);
       if (isSelectionAwareEditorPane && hasValidEditor) {
-        this.trace(
-          "notifyNavigation() updating current selection state",
-          editorPane?.input,
-          event
-        );
-        this.currentSelectionState = new EditorSelectionState(
-          { groupId: editorPane.group.id, editor: editorPane.input },
-          editorPane.getSelection(),
-          event?.reason
-        );
+        this.trace("notifyNavigation() updating current selection state", editorPane?.input, event);
+        this.currentSelectionState = new EditorSelectionState({ groupId: editorPane.group.id, editor: editorPane.input }, editorPane.getSelection(), event?.reason);
       } else {
-        this.trace(
-          "notifyNavigation() dropping current selection state",
-          editorPane?.input,
-          event
-        );
+        this.trace("notifyNavigation() dropping current selection state", editorPane?.input, event);
         this.currentSelectionState = void 0;
       }
     } else {
-      this.trace(
-        `notifyNavigation() not ignoring`,
-        editorPane?.input,
-        event
-      );
+      this.trace(`notifyNavigation() not ignoring`, editorPane?.input, event);
       if (isSelectionAwareEditorPane && hasValidEditor) {
-        this.onSelectionAwareEditorNavigation(
-          editorPane.group.id,
-          editorPane.input,
-          editorPane.getSelection(),
-          event
-        );
+        this.onSelectionAwareEditorNavigation(editorPane.group.id, editorPane.input, editorPane.getSelection(), event);
       } else {
         this.currentSelectionState = void 0;
         if (hasValidEditor) {
-          this.onNonSelectionAwareEditorNavigation(
-            editorPane.group.id,
-            editorPane.input
-          );
+          this.onNonSelectionAwareEditorNavigation(editorPane.group.id, editorPane.input);
         }
       }
     }
@@ -1566,14 +1138,8 @@ ${entryLabels.join("\n")}
       return;
     }
     this.trace("onSelectionAwareEditorNavigation()", editor, event);
-    const stateCandidate = new EditorSelectionState(
-      { groupId, editor },
-      selection,
-      event?.reason
-    );
-    if (!this.currentSelectionState || this.currentSelectionState.justifiesNewNavigationEntry(
-      stateCandidate
-    )) {
+    const stateCandidate = new EditorSelectionState({ groupId, editor }, selection, event?.reason);
+    if (!this.currentSelectionState || this.currentSelectionState.justifiesNewNavigationEntry(stateCandidate)) {
       this.doAdd(groupId, editor, stateCandidate.selection);
     } else {
       this.doReplace(groupId, editor, stateCandidate.selection);
@@ -1599,6 +1165,7 @@ ${entryLabels.join("\n")}
         editor,
         selection,
         true
+        /* force replace */
       );
     }
   }
@@ -1608,11 +1175,7 @@ ${entryLabels.join("\n")}
     if (this.current) {
       if (forceReplace) {
         replace = true;
-      } else if (this.shouldReplaceStackEntry(this.current, {
-        groupId,
-        editor: editorCandidate,
-        selection
-      })) {
+      } else if (this.shouldReplaceStackEntry(this.current, { groupId, editor: editorCandidate, selection })) {
         replace = true;
       }
     }
@@ -1625,11 +1188,7 @@ ${entryLabels.join("\n")}
     } else {
       this.trace("add()", editor);
     }
-    const newStackEntry = {
-      groupId,
-      editor,
-      selection
-    };
+    const newStackEntry = { groupId, editor, selection };
     const removedEntries = [];
     if (replace) {
       if (this.current) {
@@ -1653,21 +1212,15 @@ ${entryLabels.join("\n")}
         this.setIndex(
           this.index + 1,
           true
+          /* skip event, we fire it later */
         );
       }
     }
     for (const removedEntry of removedEntries) {
-      this.editorHelper.clearOnEditorDispose(
-        removedEntry.editor,
-        this.mapEditorToDisposable
-      );
+      this.editorHelper.clearOnEditorDispose(removedEntry.editor, this.mapEditorToDisposable);
     }
     if (isEditorInput(editor)) {
-      this.editorHelper.onEditorDispose(
-        editor,
-        () => this.remove(editor),
-        this.mapEditorToDisposable
-      );
+      this.editorHelper.onEditorDispose(editor, () => this.remove(editor), this.mapEditorToDisposable);
     }
     this._onDidChange.fire();
   }
@@ -1700,10 +1253,7 @@ ${entryLabels.join("\n")}
     this.stack = this.stack.filter((entry) => {
       const matches = typeof arg1 === "number" ? entry.groupId === arg1 : this.editorHelper.matchesEditor(arg1, entry.editor);
       if (matches) {
-        this.editorHelper.clearOnEditorDispose(
-          entry.editor,
-          this.mapEditorToDisposable
-        );
+        this.editorHelper.clearOnEditorDispose(entry.editor, this.mapEditorToDisposable);
       }
       return !matches;
     });
@@ -1721,7 +1271,7 @@ ${entryLabels.join("\n")}
   }
   flatten() {
     const flattenedStack = [];
-    let previousEntry;
+    let previousEntry = void 0;
     for (const entry of this.stack) {
       if (previousEntry && this.shouldReplaceStackEntry(entry, previousEntry)) {
         continue;
@@ -1852,22 +1402,15 @@ ${entryLabels.join("\n")}
       options = location.selection.restore(options);
     }
     if (isEditorInput(location.editor)) {
-      return this.editorService.openEditor(
-        location.editor,
-        options,
-        location.groupId
-      );
+      return this.editorService.openEditor(location.editor, options, location.groupId);
     }
-    return this.editorService.openEditor(
-      {
-        ...location.editor,
-        options: {
-          ...location.editor.options,
-          ...options
-        }
-      },
-      location.groupId
-    );
+    return this.editorService.openEditor({
+      ...location.editor,
+      options: {
+        ...location.editor.options,
+        ...options
+      }
+    }, location.groupId);
   }
   isNavigating() {
     return this.navigating;
@@ -1924,20 +1467,14 @@ let EditorHelper = class {
     if (isEditorInput(inputB)) {
       return this.matchesFile(arg1.resource, inputB);
     }
-    return arg1 && inputB && this.uriIdentityService.extUri.isEqual(
-      arg1.resource,
-      inputB.resource
-    );
+    return arg1 && inputB && this.uriIdentityService.extUri.isEqual(arg1.resource, inputB.resource);
   }
   matchesFile(resource, arg2) {
     if (arg2 instanceof FileChangesEvent) {
       return arg2.contains(resource, FileChangeType.DELETED);
     }
     if (arg2 instanceof FileOperationEvent) {
-      return this.uriIdentityService.extUri.isEqualOrParent(
-        resource,
-        arg2.resource
-      );
+      return this.uriIdentityService.extUri.isEqualOrParent(resource, arg2.resource);
     }
     if (isEditorInput(arg2)) {
       const inputResource = arg2.resource;
@@ -1947,10 +1484,7 @@ let EditorHelper = class {
       if (this.lifecycleService.phase >= LifecyclePhase.Restored && !this.fileService.hasProvider(inputResource)) {
         return false;
       }
-      return this.uriIdentityService.extUri.isEqual(
-        inputResource,
-        resource
-      );
+      return this.uriIdentityService.extUri.isEqual(inputResource, resource);
     }
     return this.uriIdentityService.extUri.isEqual(arg2?.resource, resource);
   }

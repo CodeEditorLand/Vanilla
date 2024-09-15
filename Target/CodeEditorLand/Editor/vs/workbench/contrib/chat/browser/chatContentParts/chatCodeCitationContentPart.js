@@ -15,8 +15,11 @@ import { Button } from "../../../../../base/browser/ui/button/button.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ChatTreeItem } from "../chat.js";
+import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 import { getCodeCitationsMessage } from "../../common/chatModel.js";
+import { IChatCodeCitations, IChatRendererContent } from "../../common/chatViewModel.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 let ChatCodeCitationContentPart = class extends Disposable {
   constructor(citations, context, editorService, telemetryService) {
     super();
@@ -28,41 +31,31 @@ let ChatCodeCitationContentPart = class extends Disposable {
       dom.h(".chat-code-citation-button-container@button")
     ]);
     elements.label.textContent = label + " - ";
-    const button = this._register(
-      new Button(elements.button, {
-        buttonBackground: void 0,
-        buttonBorder: void 0,
-        buttonForeground: void 0,
-        buttonHoverBackground: void 0,
-        buttonSecondaryBackground: void 0,
-        buttonSecondaryForeground: void 0,
-        buttonSecondaryHoverBackground: void 0,
-        buttonSeparator: void 0
-      })
-    );
+    const button = this._register(new Button(elements.button, {
+      buttonBackground: void 0,
+      buttonBorder: void 0,
+      buttonForeground: void 0,
+      buttonHoverBackground: void 0,
+      buttonSecondaryBackground: void 0,
+      buttonSecondaryForeground: void 0,
+      buttonSecondaryHoverBackground: void 0,
+      buttonSeparator: void 0
+    }));
     button.label = localize("viewMatches", "View matches");
-    this._register(
-      button.onDidClick(() => {
-        const citationText = `# Code Citations
+    this._register(button.onDidClick(() => {
+      const citationText = `# Code Citations
 
-` + citations.citations.map(
-          (c) => `## License: ${c.license}
+` + citations.citations.map((c) => `## License: ${c.license}
 ${c.value.toString()}
 
 \`\`\`
 ${c.snippet}
 \`\`\`
 
-`
-        ).join("\n");
-        this.editorService.openEditor({
-          resource: void 0,
-          contents: citationText,
-          languageId: "markdown"
-        });
-        this.telemetryService.publicLog2("openedChatCodeCitations");
-      })
-    );
+`).join("\n");
+      this.editorService.openEditor({ resource: void 0, contents: citationText, languageId: "markdown" });
+      this.telemetryService.publicLog2("openedChatCodeCitations");
+    }));
     this.domNode = elements.root;
   }
   static {

@@ -10,17 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
-import {
-  IAiEmbeddingVectorService
-} from "../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ExtHostAiEmbeddingVectorShape, ExtHostContext, MainContext, MainThreadAiEmbeddingVectorShape } from "../common/extHost.protocol.js";
+import { IAiEmbeddingVectorProvider, IAiEmbeddingVectorService } from "../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadAiEmbeddingVector = class extends Disposable {
   constructor(context, _AiEmbeddingVectorService) {
     super();
@@ -28,9 +22,7 @@ let MainThreadAiEmbeddingVector = class extends Disposable {
     this._proxy = context.getProxy(ExtHostContext.ExtHostAiEmbeddingVector);
   }
   _proxy;
-  _registrations = this._register(
-    new DisposableMap()
-  );
+  _registrations = this._register(new DisposableMap());
   $registerAiEmbeddingVectorProvider(model, handle) {
     const provider = {
       provideAiEmbeddingVector: /* @__PURE__ */ __name((strings, token) => {
@@ -41,13 +33,7 @@ let MainThreadAiEmbeddingVector = class extends Disposable {
         );
       }, "provideAiEmbeddingVector")
     };
-    this._registrations.set(
-      handle,
-      this._AiEmbeddingVectorService.registerAiEmbeddingVectorProvider(
-        model,
-        provider
-      )
-    );
+    this._registrations.set(handle, this._AiEmbeddingVectorService.registerAiEmbeddingVectorProvider(model, provider));
   }
   $unregisterAiEmbeddingVectorProvider(handle) {
     this._registrations.deleteAndDispose(handle);

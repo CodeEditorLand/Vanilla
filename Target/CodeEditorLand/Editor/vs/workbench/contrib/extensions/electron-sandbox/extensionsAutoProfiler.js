@@ -14,6 +14,7 @@ import { timeout } from "../../../../base/common/async.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { joinPath } from "../../../../base/common/resources.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
@@ -21,31 +22,23 @@ import { URI } from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  ExtensionIdentifier,
-  ExtensionIdentifierSet
-} from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifier, ExtensionIdentifierSet, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  INotificationService,
-  NotificationPriority,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
 import { IProfileAnalysisWorkerService } from "../../../../platform/profiling/electron-sandbox/profileAnalysisWorkerService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { ExtensionHostKind } from "../../../services/extensions/common/extensionHostKind.js";
-import {
-  IExtensionService
-} from "../../../services/extensions/common/extensions.js";
-import { ExtensionHostProfiler } from "../../../services/extensions/electron-sandbox/extensionHostProfiler.js";
-import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
 import { createSlowExtensionAction } from "./extensionsSlowActions.js";
 import { IExtensionHostProfileService } from "./runtimeExtensionsEditor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { ExtensionHostKind } from "../../../services/extensions/common/extensionHostKind.js";
+import { IExtensionHostProfile, IExtensionService, IResponsiveStateChangeEvent, ProfileSession } from "../../../services/extensions/common/extensions.js";
+import { ExtensionHostProfiler } from "../../../services/extensions/electron-sandbox/extensionHostProfiler.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
 let ExtensionsAutoProfiler = class {
   constructor(_extensionService, _extensionProfileService, _telemetryService, _logService, _notificationService, _editorService, _instantiationService, _environmentServie, _profileAnalysisService, _configService, _fileService, timerService) {
     this._extensionService = _extensionService;
@@ -64,10 +57,7 @@ let ExtensionsAutoProfiler = class {
         return;
       }
       this._perfBaseline = value;
-      this._unresponsiveListener = _extensionService.onDidChangeResponsiveChange(
-        this._onDidChangeResponsiveChange,
-        this
-      );
+      this._unresponsiveListener = _extensionService.onDidChangeResponsiveChange(this._onDidChangeResponsiveChange, this);
     });
   }
   static {
@@ -91,26 +81,18 @@ let ExtensionsAutoProfiler = class {
     }
     if (event.isResponsive && this._session) {
       this._session.cancel();
-      this._logService.info(
-        "UNRESPONSIVE extension host: received responsive event and cancelling profiling session"
-      );
+      this._logService.info("UNRESPONSIVE extension host: received responsive event and cancelling profiling session");
     } else if (!event.isResponsive && !this._session) {
       const cts = new CancellationTokenSource();
       this._session = cts;
       let session;
       try {
-        session = await this._instantiationService.createInstance(
-          ExtensionHostProfiler,
-          listener.host,
-          listener.port
-        ).start();
+        session = await this._instantiationService.createInstance(ExtensionHostProfiler, listener.host, listener.port).start();
       } catch (err) {
         this._session = void 0;
         return;
       }
-      this._logService.info(
-        "UNRESPONSIVE extension host: starting to profile NOW"
-      );
+      this._logService.info("UNRESPONSIVE extension host: starting to profile NOW");
       try {
         await timeout(5e3, cts.token);
       } catch {
@@ -126,16 +108,9 @@ let ExtensionsAutoProfiler = class {
   }
   async _processCpuProfile(profile) {
     await this._extensionService.whenInstalledExtensionsRegistered();
-    if (this._configService.getValue(
-      "application.experimental.rendererProfiling"
-    )) {
+    if (this._configService.getValue("application.experimental.rendererProfiling")) {
       const searchTree = TernarySearchTree.forUris();
-      searchTree.fill(
-        this._extensionService.extensions.map((e) => [
-          e.extensionLocation,
-          e
-        ])
-      );
+      searchTree.fill(this._extensionService.extensions.map((e) => [e.extensionLocation, e]));
       await this._profileAnalysisService.analyseBottomUp(
         profile.data,
         (url) => searchTree.findSubstr(URI.parse(url))?.identifier.value ?? "<<not-found>>",
@@ -143,14 +118,8 @@ let ExtensionsAutoProfiler = class {
         false
       );
     }
-    const categories = this._extensionService.extensions.filter((e) => e.extensionLocation.scheme === Schemas.file).map((e) => [
-      e.extensionLocation,
-      ExtensionIdentifier.toKey(e.identifier)
-    ]);
-    const data = await this._profileAnalysisService.analyseByLocation(
-      profile.data,
-      categories
-    );
+    const categories = this._extensionService.extensions.filter((e) => e.extensionLocation.scheme === Schemas.file).map((e) => [e.extensionLocation, ExtensionIdentifier.toKey(e.identifier)]);
+    const data = await this._profileAnalysisService.analyseByLocation(profile.data, categories);
     let overall = 0;
     let top = "";
     let topAggregated = -1;
@@ -167,35 +136,20 @@ let ExtensionsAutoProfiler = class {
       return;
     }
     const sessionId = generateUuid();
-    const path = joinPath(
-      this._environmentServie.tmpDir,
-      `exthost-${Math.random().toString(16).slice(2, 8)}.cpuprofile`
-    );
-    await this._fileService.writeFile(
-      path,
-      VSBuffer.fromString(JSON.stringify(profile.data))
-    );
-    this._logService.warn(
-      `UNRESPONSIVE extension host: '${top}' took ${topPercentage}% of ${topAggregated / 1e3}ms, saved PROFILE here: '${path}'`
-    );
+    const path = joinPath(this._environmentServie.tmpDir, `exthost-${Math.random().toString(16).slice(2, 8)}.cpuprofile`);
+    await this._fileService.writeFile(path, VSBuffer.fromString(JSON.stringify(profile.data)));
+    this._logService.warn(`UNRESPONSIVE extension host: '${top}' took ${topPercentage}% of ${topAggregated / 1e3}ms, saved PROFILE here: '${path}'`);
     this._telemetryService.publicLog2("exthostunresponsive", {
       sessionId,
       duration: overall,
-      data: data.flatMap((tuple) => tuple[0]),
+      data: data.map((tuple) => tuple[0]).flat(),
       id: ExtensionIdentifier.toKey(extension.identifier)
     });
-    this._extensionProfileService.setUnresponsiveProfile(
-      extension.identifier,
-      profile
-    );
+    this._extensionProfileService.setUnresponsiveProfile(extension.identifier, profile);
     if (!(topPercentage >= 95 && topAggregated >= 5e6)) {
       return;
     }
-    const action = await this._instantiationService.invokeFunction(
-      createSlowExtensionAction,
-      extension,
-      profile
-    );
+    const action = await this._instantiationService.invokeFunction(createSlowExtensionAction, extension, profile);
     if (!action) {
       return;
     }
@@ -213,10 +167,7 @@ let ExtensionsAutoProfiler = class {
       [
         {
           label: localize("show", "Show Extensions"),
-          run: /* @__PURE__ */ __name(() => this._editorService.openEditor(
-            RuntimeExtensionsInput.instance,
-            { pinned: true }
-          ), "run")
+          run: /* @__PURE__ */ __name(() => this._editorService.openEditor(RuntimeExtensionsInput.instance, { pinned: true }), "run")
         },
         action
       ],

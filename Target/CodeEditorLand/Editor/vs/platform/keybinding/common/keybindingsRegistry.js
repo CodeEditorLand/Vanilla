@@ -1,19 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  decodeKeybinding
-} from "../../../base/common/keybindings.js";
-import {
-  DisposableStore,
-  combinedDisposable,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
-import { LinkedList } from "../../../base/common/linkedList.js";
-import { OS, OperatingSystem } from "../../../base/common/platform.js";
-import {
-  CommandsRegistry
-} from "../../commands/common/commands.js";
+import { decodeKeybinding, Keybinding } from "../../../base/common/keybindings.js";
+import { OperatingSystem, OS } from "../../../base/common/platform.js";
+import { CommandsRegistry, ICommandHandler, ICommandMetadata } from "../../commands/common/commands.js";
+import { ContextKeyExpression } from "../../contextkey/common/contextkey.js";
 import { Registry } from "../../registry/common/platform.js";
+import { combinedDisposable, DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { LinkedList } from "../../../base/common/linkedList.js";
 var KeybindingWeight = /* @__PURE__ */ ((KeybindingWeight2) => {
   KeybindingWeight2[KeybindingWeight2["EditorCore"] = 0] = "EditorCore";
   KeybindingWeight2[KeybindingWeight2["EditorContrib"] = 100] = "EditorContrib";
@@ -46,8 +39,10 @@ class KeybindingsRegistryImpl {
       if (kb && kb.mac) {
         return kb.mac;
       }
-    } else if (kb && kb.linux) {
-      return kb.linux;
+    } else {
+      if (kb && kb.linux) {
+        return kb.linux;
+      }
     }
     return kb;
   }
@@ -57,16 +52,7 @@ class KeybindingsRegistryImpl {
     if (actualKb && actualKb.primary) {
       const kk = decodeKeybinding(actualKb.primary, OS);
       if (kk) {
-        result.add(
-          this._registerDefaultKeybinding(
-            kk,
-            rule.id,
-            rule.args,
-            rule.weight,
-            0,
-            rule.when
-          )
-        );
+        result.add(this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, 0, rule.when));
       }
     }
     if (actualKb && Array.isArray(actualKb.secondary)) {
@@ -74,16 +60,7 @@ class KeybindingsRegistryImpl {
         const k = actualKb.secondary[i];
         const kk = decodeKeybinding(k, OS);
         if (kk) {
-          result.add(
-            this._registerDefaultKeybinding(
-              kk,
-              rule.id,
-              rule.args,
-              rule.weight,
-              -i - 1,
-              rule.when
-            )
-          );
+          result.add(this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, -i - 1, rule.when));
         }
       }
     }
@@ -134,9 +111,7 @@ class KeybindingsRegistryImpl {
   }
   getDefaultKeybindings() {
     if (!this._cachedMergedKeybindings) {
-      this._cachedMergedKeybindings = Array.from(
-        this._coreKeybindings
-      ).concat(this._extensionKeybindings);
+      this._cachedMergedKeybindings = Array.from(this._coreKeybindings).concat(this._extensionKeybindings);
       this._cachedMergedKeybindings.sort(sorter);
     }
     return this._cachedMergedKeybindings.slice(0);

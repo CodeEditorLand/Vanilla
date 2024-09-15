@@ -1,31 +1,23 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { disposableTimeout } from "../../../../base/common/async.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
-import { localize2 } from "../../../../nls.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  StartVoiceChatAction,
-  StopListeningAction,
-  VOICE_KEY_HOLD_THRESHOLD
-} from "../../chat/electron-sandbox/actions/voiceChatActions.js";
-import {
-  HasSpeechProvider,
-  ISpeechService
-} from "../../speech/common/speechService.js";
-import {
-  AbstractInlineChatAction,
-  setHoldForSpeech
-} from "../browser/inlineChatActions.js";
-import {
-  CTX_INLINE_CHAT_VISIBLE,
-  InlineChatConfigKeys
-} from "../common/inlineChat.js";
+import { InlineChatController } from "../browser/inlineChatController.js";
+import { AbstractInlineChatAction, setHoldForSpeech } from "../browser/inlineChatActions.js";
+import { disposableTimeout } from "../../../../base/common/async.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { StartVoiceChatAction, StopListeningAction, VOICE_KEY_HOLD_THRESHOLD } from "../../chat/electron-sandbox/actions/voiceChatActions.js";
+import { IChatExecuteActionContext } from "../../chat/browser/actions/chatExecuteActions.js";
+import { CTX_INLINE_CHAT_VISIBLE, InlineChatConfigKeys } from "../common/inlineChat.js";
+import { HasSpeechProvider, ISpeechService } from "../../speech/common/speechService.js";
+import { localize2 } from "../../../../nls.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 class HoldToSpeak extends AbstractInlineChatAction {
   static {
     __name(this, "HoldToSpeak");
@@ -33,10 +25,7 @@ class HoldToSpeak extends AbstractInlineChatAction {
   constructor() {
     super({
       id: "inlineChat.holdForSpeech",
-      precondition: ContextKeyExpr.and(
-        HasSpeechProvider,
-        CTX_INLINE_CHAT_VISIBLE
-      ),
+      precondition: ContextKeyExpr.and(HasSpeechProvider, CTX_INLINE_CHAT_VISIBLE),
       title: localize2("holdForSpeech", "Hold for Speech"),
       keybinding: {
         when: EditorContextKeys.textInputFocus,
@@ -54,9 +43,7 @@ function holdForSpeech(accessor, ctrl, action) {
   const speechService = accessor.get(ISpeechService);
   const keybindingService = accessor.get(IKeybindingService);
   const commandService = accessor.get(ICommandService);
-  if (!configService.getValue(
-    InlineChatConfigKeys.HoldToSpeech || !speechService.hasSpeechProvider
-  )) {
+  if (!configService.getValue(InlineChatConfigKeys.HoldToSpeech || !speechService.hasSpeechProvider)) {
     return;
   }
   const holdMode = keybindingService.enableKeybindingHoldMode(action.desc.id);
@@ -65,9 +52,7 @@ function holdForSpeech(accessor, ctrl, action) {
   }
   let listening = false;
   const handle = disposableTimeout(() => {
-    commandService.executeCommand(StartVoiceChatAction.ID, {
-      voice: { disableTimeout: true }
-    });
+    commandService.executeCommand(StartVoiceChatAction.ID, { voice: { disableTimeout: true } });
     listening = true;
   }, VOICE_KEY_HOLD_THRESHOLD);
   holdMode.finally(() => {

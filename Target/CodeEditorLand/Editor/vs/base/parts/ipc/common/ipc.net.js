@@ -1,14 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../common/buffer.js";
-import { Emitter } from "../../../common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../common/lifecycle.js";
-import {
-  IPCClient
-} from "./ipc.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { IIPCLogger, IMessagePassingProtocol, IPCClient } from "./ipc.js";
 var SocketDiagnosticsEventType = /* @__PURE__ */ ((SocketDiagnosticsEventType2) => {
   SocketDiagnosticsEventType2["Created"] = "created";
   SocketDiagnosticsEventType2["Read"] = "read";
@@ -67,21 +62,9 @@ var SocketDiagnostics;
     if (data instanceof VSBuffer || data instanceof Uint8Array || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
       const copiedData = VSBuffer.alloc(data.byteLength);
       copiedData.set(data);
-      SocketDiagnostics2.records.push({
-        timestamp: Date.now(),
-        id,
-        label: socketDebugLabel,
-        type,
-        buff: copiedData
-      });
+      SocketDiagnostics2.records.push({ timestamp: Date.now(), id, label: socketDebugLabel, type, buff: copiedData });
     } else {
-      SocketDiagnostics2.records.push({
-        timestamp: Date.now(),
-        id,
-        label: socketDebugLabel,
-        type,
-        data
-      });
+      SocketDiagnostics2.records.push({ timestamp: Date.now(), id, label: socketDebugLabel, type, data });
     }
   }
   SocketDiagnostics2.traceSocketEvent = traceSocketEvent;
@@ -243,9 +226,7 @@ class ProtocolReader extends Disposable {
   _isDisposed;
   _incomingData;
   lastReadTime;
-  _onMessage = this._register(
-    new Emitter()
-  );
+  _onMessage = this._register(new Emitter());
   onMessage = this._onMessage.event;
   _state = {
     readHead: true,
@@ -276,17 +257,7 @@ class ProtocolReader extends Disposable {
         this._state.messageType = buff.readUInt8(0);
         this._state.id = buff.readUInt32BE(1);
         this._state.ack = buff.readUInt32BE(5);
-        this._socket.traceSocketEvent(
-          "protocolHeaderRead" /* ProtocolHeaderRead */,
-          {
-            messageType: protocolMessageTypeToString(
-              this._state.messageType
-            ),
-            id: this._state.id,
-            ack: this._state.ack,
-            messageSize: this._state.readLen
-          }
-        );
+        this._socket.traceSocketEvent("protocolHeaderRead" /* ProtocolHeaderRead */, { messageType: protocolMessageTypeToString(this._state.messageType), id: this._state.id, ack: this._state.ack, messageSize: this._state.readLen });
       } else {
         const messageType = this._state.messageType;
         const id = this._state.id;
@@ -296,13 +267,8 @@ class ProtocolReader extends Disposable {
         this._state.messageType = 0 /* None */;
         this._state.id = 0;
         this._state.ack = 0;
-        this._socket.traceSocketEvent(
-          "protocolMessageRead" /* ProtocolMessageRead */,
-          buff
-        );
-        this._onMessage.fire(
-          new ProtocolMessage(messageType, id, ack, buff)
-        );
+        this._socket.traceSocketEvent("protocolMessageRead" /* ProtocolMessageRead */, buff);
+        this._onMessage.fire(new ProtocolMessage(messageType, id, ack, buff));
         if (this._isDisposed) {
           break;
         }
@@ -367,19 +333,8 @@ class ProtocolWriter {
     header.writeUInt32BE(msg.id, 1);
     header.writeUInt32BE(msg.ack, 5);
     header.writeUInt32BE(msg.data.byteLength, 9);
-    this._socket.traceSocketEvent(
-      "protocolHeaderWrite" /* ProtocolHeaderWrite */,
-      {
-        messageType: protocolMessageTypeToString(msg.type),
-        id: msg.id,
-        ack: msg.ack,
-        messageSize: msg.data.byteLength
-      }
-    );
-    this._socket.traceSocketEvent(
-      "protocolMessageWrite" /* ProtocolMessageWrite */,
-      msg.data
-    );
+    this._socket.traceSocketEvent("protocolHeaderWrite" /* ProtocolHeaderWrite */, { messageType: protocolMessageTypeToString(msg.type), id: msg.id, ack: msg.ack, messageSize: msg.data.byteLength });
+    this._socket.traceSocketEvent("protocolMessageWrite" /* ProtocolMessageWrite */, msg.data);
     this._writeSoon(header, msg.data);
   }
   _bufferAdd(head, body) {
@@ -417,10 +372,7 @@ class ProtocolWriter {
       return;
     }
     const data = this._bufferTake();
-    this._socket.traceSocketEvent(
-      "protocolWrite" /* ProtocolWrite */,
-      { byteLength: data.byteLength }
-    );
+    this._socket.traceSocketEvent("protocolWrite" /* ProtocolWrite */, { byteLength: data.byteLength });
     this._socket.write(data);
   }
 }
@@ -440,13 +392,11 @@ class Protocol extends Disposable {
     this._socket = socket;
     this._socketWriter = this._register(new ProtocolWriter(this._socket));
     this._socketReader = this._register(new ProtocolReader(this._socket));
-    this._register(
-      this._socketReader.onMessage((msg) => {
-        if (msg.type === 1 /* Regular */) {
-          this._onMessage.fire(msg.data);
-        }
-      })
-    );
+    this._register(this._socketReader.onMessage((msg) => {
+      if (msg.type === 1 /* Regular */) {
+        this._onMessage.fire(msg.data);
+      }
+    }));
     this._register(this._socket.onClose(() => this._onDidDispose.fire()));
   }
   drain() {
@@ -458,9 +408,7 @@ class Protocol extends Disposable {
   sendDisconnect() {
   }
   send(buffer) {
-    this._socketWriter.write(
-      new ProtocolMessage(1 /* Regular */, 0, 0, buffer)
-    );
+    this._socketWriter.write(new ProtocolMessage(1 /* Regular */, 0, 0, buffer));
   }
 }
 class Client extends IPCClient {
@@ -696,18 +644,10 @@ class PersistentProtocol {
     this._lastSocketTimeoutTime = Date.now();
     this._socketDisposables = new DisposableStore();
     this._socket = opts.socket;
-    this._socketWriter = this._socketDisposables.add(
-      new ProtocolWriter(this._socket)
-    );
-    this._socketReader = this._socketDisposables.add(
-      new ProtocolReader(this._socket)
-    );
-    this._socketDisposables.add(
-      this._socketReader.onMessage((msg) => this._receiveMessage(msg))
-    );
-    this._socketDisposables.add(
-      this._socket.onClose((e) => this._onSocketClose.fire(e))
-    );
+    this._socketWriter = this._socketDisposables.add(new ProtocolWriter(this._socket));
+    this._socketReader = this._socketDisposables.add(new ProtocolReader(this._socket));
+    this._socketDisposables.add(this._socketReader.onMessage((msg) => this._receiveMessage(msg)));
+    this._socketDisposables.add(this._socket.onClose((e) => this._onSocketClose.fire(e)));
     if (opts.initialChunk) {
       this._socketReader.acceptChunk(opts.initialChunk);
     }
@@ -740,32 +680,17 @@ class PersistentProtocol {
   sendDisconnect() {
     if (!this._didSendDisconnect) {
       this._didSendDisconnect = true;
-      const msg = new ProtocolMessage(
-        5 /* Disconnect */,
-        0,
-        0,
-        getEmptyBuffer()
-      );
+      const msg = new ProtocolMessage(5 /* Disconnect */, 0, 0, getEmptyBuffer());
       this._socketWriter.write(msg);
       this._socketWriter.flush();
     }
   }
   sendPause() {
-    const msg = new ProtocolMessage(
-      7 /* Pause */,
-      0,
-      0,
-      getEmptyBuffer()
-    );
+    const msg = new ProtocolMessage(7 /* Pause */, 0, 0, getEmptyBuffer());
     this._socketWriter.write(msg);
   }
   sendResume() {
-    const msg = new ProtocolMessage(
-      8 /* Resume */,
-      0,
-      0,
-      getEmptyBuffer()
-    );
+    const msg = new ProtocolMessage(8 /* Resume */, 0, 0, getEmptyBuffer());
     this._socketWriter.write(msg);
   }
   pauseSocketWriting() {
@@ -788,29 +713,16 @@ class PersistentProtocol {
     this._lastReplayRequestTime = 0;
     this._lastSocketTimeoutTime = Date.now();
     this._socket = socket;
-    this._socketWriter = this._socketDisposables.add(
-      new ProtocolWriter(this._socket)
-    );
-    this._socketReader = this._socketDisposables.add(
-      new ProtocolReader(this._socket)
-    );
-    this._socketDisposables.add(
-      this._socketReader.onMessage((msg) => this._receiveMessage(msg))
-    );
-    this._socketDisposables.add(
-      this._socket.onClose((e) => this._onSocketClose.fire(e))
-    );
+    this._socketWriter = this._socketDisposables.add(new ProtocolWriter(this._socket));
+    this._socketReader = this._socketDisposables.add(new ProtocolReader(this._socket));
+    this._socketDisposables.add(this._socketReader.onMessage((msg) => this._receiveMessage(msg)));
+    this._socketDisposables.add(this._socket.onClose((e) => this._onSocketClose.fire(e)));
     this._socketReader.acceptChunk(initialDataChunk);
   }
   endAcceptReconnection() {
     this._isReconnecting = false;
     this._incomingAckId = this._incomingMsgId;
-    const msg = new ProtocolMessage(
-      3 /* Ack */,
-      0,
-      this._incomingAckId,
-      getEmptyBuffer()
-    );
+    const msg = new ProtocolMessage(3 /* Ack */, 0, this._incomingAckId, getEmptyBuffer());
     this._socketWriter.write(msg);
     const toSend = this._outgoingUnackMsg.toArray();
     for (let i = 0, len = toSend.length; i < len; i++) {
@@ -843,14 +755,7 @@ class PersistentProtocol {
             const now = Date.now();
             if (now - this._lastReplayRequestTime > 1e4) {
               this._lastReplayRequestTime = now;
-              this._socketWriter.write(
-                new ProtocolMessage(
-                  6 /* ReplayRequest */,
-                  0,
-                  0,
-                  getEmptyBuffer()
-                )
-              );
+              this._socketWriter.write(new ProtocolMessage(6 /* ReplayRequest */, 0, 0, getEmptyBuffer()));
             }
           } else {
             this._incomingMsgId = msg.id;
@@ -902,12 +807,7 @@ class PersistentProtocol {
   send(buffer) {
     const myId = ++this._outgoingMsgId;
     this._incomingAckId = this._incomingMsgId;
-    const msg = new ProtocolMessage(
-      1 /* Regular */,
-      myId,
-      this._incomingAckId,
-      buffer
-    );
+    const msg = new ProtocolMessage(1 /* Regular */, myId, this._incomingAckId, buffer);
     this._outgoingUnackMsg.push(msg);
     if (!this._isReconnecting) {
       this._socketWriter.write(msg);
@@ -919,12 +819,7 @@ class PersistentProtocol {
    * Use this for early control messages which are repeated in case of reconnection.
    */
   sendControl(buffer) {
-    const msg = new ProtocolMessage(
-      2 /* Control */,
-      0,
-      0,
-      buffer
-    );
+    const msg = new ProtocolMessage(2 /* Control */, 0, 0, buffer);
     this._socketWriter.write(msg);
   }
   _sendAckCheck() {
@@ -939,13 +834,10 @@ class PersistentProtocol {
       this._sendAck();
       return;
     }
-    this._incomingAckTimeout = setTimeout(
-      () => {
-        this._incomingAckTimeout = null;
-        this._sendAckCheck();
-      },
-      2e3 /* AcknowledgeTime */ - timeSinceLastIncomingMsg + 5
-    );
+    this._incomingAckTimeout = setTimeout(() => {
+      this._incomingAckTimeout = null;
+      this._sendAckCheck();
+    }, 2e3 /* AcknowledgeTime */ - timeSinceLastIncomingMsg + 5);
   }
   _recvAckCheck() {
     if (this._outgoingMsgId <= this._outgoingAckId) {
@@ -988,22 +880,12 @@ class PersistentProtocol {
       return;
     }
     this._incomingAckId = this._incomingMsgId;
-    const msg = new ProtocolMessage(
-      3 /* Ack */,
-      0,
-      this._incomingAckId,
-      getEmptyBuffer()
-    );
+    const msg = new ProtocolMessage(3 /* Ack */, 0, this._incomingAckId, getEmptyBuffer());
     this._socketWriter.write(msg);
   }
   _sendKeepAlive() {
     this._incomingAckId = this._incomingMsgId;
-    const msg = new ProtocolMessage(
-      9 /* KeepAlive */,
-      0,
-      this._incomingAckId,
-      getEmptyBuffer()
-    );
+    const msg = new ProtocolMessage(9 /* KeepAlive */, 0, this._incomingAckId, getEmptyBuffer());
     this._socketWriter.write(msg);
   }
 }

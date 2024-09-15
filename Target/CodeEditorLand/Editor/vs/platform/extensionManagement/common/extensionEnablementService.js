@@ -10,20 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 import { isUndefinedOrNull } from "../../../base/common/types.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../storage/common/storage.js";
-import {
-  DISABLED_EXTENSIONS_STORAGE_PATH,
-  IExtensionManagementService,
-  InstallOperation
-} from "./extensionManagement.js";
+import { DISABLED_EXTENSIONS_STORAGE_PATH, IExtensionIdentifier, IExtensionManagementService, IGlobalExtensionEnablementService, InstallOperation } from "./extensionManagement.js";
 import { areSameExtensions } from "./extensionManagementUtil.js";
+import { IProfileStorageValueChangeEvent, IStorageService, StorageScope, StorageTarget } from "../../storage/common/storage.js";
 let GlobalExtensionEnablementService = class extends Disposable {
   static {
     __name(this, "GlobalExtensionEnablementService");
@@ -33,45 +25,24 @@ let GlobalExtensionEnablementService = class extends Disposable {
   storageManager;
   constructor(storageService, extensionManagementService) {
     super();
-    this.storageManager = this._register(
-      new StorageManager(storageService)
-    );
-    this._register(
-      this.storageManager.onDidChange(
-        (extensions) => this._onDidChangeEnablement.fire({
-          extensions,
-          source: "storage"
-        })
-      )
-    );
-    this._register(
-      extensionManagementService.onDidInstallExtensions(
-        (e) => e.forEach(({ local, operation }) => {
-          if (local && operation === InstallOperation.Migrate) {
-            this._removeFromDisabledExtensions(
-              local.identifier
-            );
-          }
-        })
-      )
-    );
+    this.storageManager = this._register(new StorageManager(storageService));
+    this._register(this.storageManager.onDidChange((extensions) => this._onDidChangeEnablement.fire({ extensions, source: "storage" })));
+    this._register(extensionManagementService.onDidInstallExtensions((e) => e.forEach(({ local, operation }) => {
+      if (local && operation === InstallOperation.Migrate) {
+        this._removeFromDisabledExtensions(local.identifier);
+      }
+    })));
   }
   async enableExtension(extension, source) {
     if (this._removeFromDisabledExtensions(extension)) {
-      this._onDidChangeEnablement.fire({
-        extensions: [extension],
-        source
-      });
+      this._onDidChangeEnablement.fire({ extensions: [extension], source });
       return true;
     }
     return false;
   }
   async disableExtension(extension, source) {
     if (this._addToDisabledExtensions(extension)) {
-      this._onDidChangeEnablement.fire({
-        extensions: [extension],
-        source
-      });
+      this._onDidChangeEnablement.fire({ extensions: [extension], source });
       return true;
     }
     return false;
@@ -104,10 +75,7 @@ let GlobalExtensionEnablementService = class extends Disposable {
     return false;
   }
   _setDisabledExtensions(disabledExtensions) {
-    this._setExtensions(
-      DISABLED_EXTENSIONS_STORAGE_PATH,
-      disabledExtensions
-    );
+    this._setExtensions(DISABLED_EXTENSIONS_STORAGE_PATH, disabledExtensions);
   }
   _getExtensions(storageId) {
     return this.storageManager.get(storageId, StorageScope.PROFILE);
@@ -124,21 +92,13 @@ class StorageManager extends Disposable {
   constructor(storageService) {
     super();
     this.storageService = storageService;
-    this._register(
-      storageService.onDidChangeValue(
-        StorageScope.PROFILE,
-        void 0,
-        this._register(new DisposableStore())
-      )((e) => this.onDidStorageChange(e))
-    );
+    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, void 0, this._register(new DisposableStore()))((e) => this.onDidStorageChange(e)));
   }
   static {
     __name(this, "StorageManager");
   }
   storage = /* @__PURE__ */ Object.create(null);
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
   get(key, scope) {
     let value;
@@ -153,9 +113,7 @@ class StorageManager extends Disposable {
     return JSON.parse(value);
   }
   set(key, value, scope) {
-    const newValue = JSON.stringify(
-      value.map(({ id, uuid }) => ({ id, uuid }))
-    );
+    const newValue = JSON.stringify(value.map(({ id, uuid }) => ({ id, uuid })));
     const oldValue = this._get(key, scope);
     if (oldValue !== newValue) {
       if (scope === StorageScope.PROFILE) {
@@ -170,30 +128,13 @@ class StorageManager extends Disposable {
   }
   onDidStorageChange(storageChangeEvent) {
     if (!isUndefinedOrNull(this.storage[storageChangeEvent.key])) {
-      const newValue = this._get(
-        storageChangeEvent.key,
-        storageChangeEvent.scope
-      );
+      const newValue = this._get(storageChangeEvent.key, storageChangeEvent.scope);
       if (newValue !== this.storage[storageChangeEvent.key]) {
-        const oldValues = this.get(
-          storageChangeEvent.key,
-          storageChangeEvent.scope
-        );
+        const oldValues = this.get(storageChangeEvent.key, storageChangeEvent.scope);
         delete this.storage[storageChangeEvent.key];
-        const newValues = this.get(
-          storageChangeEvent.key,
-          storageChangeEvent.scope
-        );
-        const added = oldValues.filter(
-          (oldValue) => !newValues.some(
-            (newValue2) => areSameExtensions(oldValue, newValue2)
-          )
-        );
-        const removed = newValues.filter(
-          (newValue2) => !oldValues.some(
-            (oldValue) => areSameExtensions(oldValue, newValue2)
-          )
-        );
+        const newValues = this.get(storageChangeEvent.key, storageChangeEvent.scope);
+        const added = oldValues.filter((oldValue) => !newValues.some((newValue2) => areSameExtensions(oldValue, newValue2)));
+        const removed = newValues.filter((newValue2) => !oldValues.some((oldValue) => areSameExtensions(oldValue, newValue2)));
         if (added.length || removed.length) {
           this._onDidChange.fire([...added, ...removed]);
         }

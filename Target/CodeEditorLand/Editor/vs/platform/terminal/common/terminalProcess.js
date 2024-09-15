@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { UriComponents } from "../../../base/common/uri.js";
+import { ISerializableEnvironmentVariableCollection, ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
+import { IFixedTerminalDimensions, IRawTerminalTabLayoutInfo, IReconnectionProperties, ITerminalEnvironment, ITerminalTabLayoutInfoById, TerminalIcon, TerminalType, TitleEventSource, WaitOnExitValue } from "./terminal.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["WriteMaxChunkSize"] = 50] = "WriteMaxChunkSize";
   return Constants2;

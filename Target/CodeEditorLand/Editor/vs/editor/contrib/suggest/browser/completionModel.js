@@ -2,17 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { quickSelect } from "../../../../base/common/arrays.js";
 import { CharCode } from "../../../../base/common/charCode.js";
-import {
-  FuzzyScore,
-  FuzzyScoreOptions,
-  anyScore,
-  fuzzyScore,
-  fuzzyScoreGracefulAggressive
-} from "../../../../base/common/filters.js";
+import { anyScore, fuzzyScore, FuzzyScore, fuzzyScoreGracefulAggressive, FuzzyScoreOptions, FuzzyScorer } from "../../../../base/common/filters.js";
 import { compareIgnoreCase } from "../../../../base/common/strings.js";
-import {
-  CompletionItemKind
-} from "../../../common/languages.js";
+import { InternalSuggestOptions } from "../../../common/config/editorOptions.js";
+import { CompletionItemKind, CompletionItemProvider } from "../../../common/languages.js";
+import { WordDistance } from "./wordDistance.js";
+import { CompletionItem } from "./suggest.js";
 class LineContext {
   constructor(leadingLineContent, characterCountDelta) {
     this.leadingLineContent = leadingLineContent;
@@ -136,44 +131,18 @@ class CompletionModel {
         if (wordPos >= wordLen) {
           item.score = FuzzyScore.Default;
         } else if (typeof item.completion.filterText === "string") {
-          const match = scoreFn(
-            word,
-            wordLow,
-            wordPos,
-            item.completion.filterText,
-            item.filterTextLow,
-            0,
-            this._fuzzyScoreOptions
-          );
+          const match = scoreFn(word, wordLow, wordPos, item.completion.filterText, item.filterTextLow, 0, this._fuzzyScoreOptions);
           if (!match) {
             continue;
           }
-          if (compareIgnoreCase(
-            item.completion.filterText,
-            item.textLabel
-          ) === 0) {
+          if (compareIgnoreCase(item.completion.filterText, item.textLabel) === 0) {
             item.score = match;
           } else {
-            item.score = anyScore(
-              word,
-              wordLow,
-              wordPos,
-              item.textLabel,
-              item.labelLow,
-              0
-            );
+            item.score = anyScore(word, wordLow, wordPos, item.textLabel, item.labelLow, 0);
             item.score[0] = match[0];
           }
         } else {
-          const match = scoreFn(
-            word,
-            wordLow,
-            wordPos,
-            item.textLabel,
-            item.labelLow,
-            0,
-            this._fuzzyScoreOptions
-          );
+          const match = scoreFn(word, wordLow, wordPos, item.textLabel, item.labelLow, 0, this._fuzzyScoreOptions);
           if (!match) {
             continue;
           }
@@ -181,21 +150,14 @@ class CompletionModel {
         }
       }
       item.idx = i;
-      item.distance = this._wordDistance.distance(
-        item.position,
-        item.completion
-      );
+      item.distance = this._wordDistance.distance(item.position, item.completion);
       target.push(item);
       labelLengths.push(item.textLabel.length);
     }
     this._filteredItems = target.sort(this._snippetCompareFn);
     this._refilterKind = 0 /* Nothing */;
     this._stats = {
-      pLabelLen: labelLengths.length ? quickSelect(
-        labelLengths.length - 0.85,
-        labelLengths,
-        (a, b) => a - b
-      ) : 0
+      pLabelLen: labelLengths.length ? quickSelect(labelLengths.length - 0.85, labelLengths, (a, b) => a - b) : 0
     };
   }
   static _compareCompletionItems(a, b) {

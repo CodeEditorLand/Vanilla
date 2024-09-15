@@ -13,53 +13,37 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import "./outlinePane.css";
 import * as dom from "../../../../base/browser/dom.js";
 import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import {
-  AbstractTreeViewState,
-  TreeFindMode
-} from "../../../../base/browser/ui/tree/abstractTree.js";
 import { TimeoutTimer, timeout } from "../../../../base/common/async.js";
-import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import {
-  DisposableStore,
-  MutableDisposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { IDisposable, toDisposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
-import { basename } from "../../../../base/common/resources.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { WorkbenchDataTree } from "../../../../platform/list/browser/listService.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { ViewPane } from "../../../browser/parts/views/viewPane.js";
-import {
-  EditorResourceAccessor
-} from "../../../common/editor.js";
-import { IViewDescriptorService } from "../../../common/views.js";
+import { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  IOutlineService,
-  OutlineTarget
-} from "../../../services/outline/browser/outline.js";
-import {
-  OutlineSortOrder,
-  ctxAllCollapsed,
-  ctxFilterOnType,
-  ctxFollowsCursor,
-  ctxSortMode
-} from "./outline.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import { basename } from "../../../../base/common/resources.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { OutlineViewState } from "./outlineViewState.js";
+import { IOutline, IOutlineComparator, IOutlineService, OutlineTarget } from "../../../services/outline/browser/outline.js";
+import { EditorResourceAccessor, IEditorPane } from "../../../common/editor.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { ITreeSorter } from "../../../../base/browser/ui/tree/tree.js";
+import { AbstractTreeViewState, IAbstractTreeViewState, TreeFindMode } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ctxAllCollapsed, ctxFilterOnType, ctxFollowsCursor, ctxSortMode, IOutlinePane, OutlineSortOrder } from "./outline.js";
+import { defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 class OutlineTreeSorter {
   constructor(_comparator, order) {
     this._comparator = _comparator;
@@ -80,19 +64,7 @@ class OutlineTreeSorter {
 }
 let OutlinePane = class extends ViewPane {
   constructor(options, _outlineService, _instantiationService, viewDescriptorService, _storageService, _editorService, configurationService, keybindingService, contextKeyService, contextMenuService, openerService, themeService, telemetryService, hoverService) {
-    super(
-      options,
-      keybindingService,
-      contextMenuService,
-      configurationService,
-      contextKeyService,
-      viewDescriptorService,
-      _instantiationService,
-      openerService,
-      themeService,
-      telemetryService,
-      hoverService
-    );
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, _instantiationService, openerService, themeService, telemetryService, hoverService);
     this._outlineService = _outlineService;
     this._instantiationService = _instantiationService;
     this._storageService = _storageService;
@@ -111,9 +83,7 @@ let OutlinePane = class extends ViewPane {
       this._ctxSortMode.set(this._outlineViewState.sortBy);
     }, "updateContext");
     updateContext();
-    this._disposables.add(
-      this._outlineViewState.onDidChange(updateContext)
-    );
+    this._disposables.add(this._outlineViewState.onDidChange(updateContext));
   }
   static {
     __name(this, "OutlinePane");
@@ -152,39 +122,20 @@ let OutlinePane = class extends ViewPane {
     container.classList.add("outline-pane");
     const progressContainer = dom.$(".outline-progress");
     this._message = dom.$(".outline-message");
-    this._progressBar = new ProgressBar(
-      progressContainer,
-      defaultProgressBarStyles
-    );
+    this._progressBar = new ProgressBar(progressContainer, defaultProgressBarStyles);
     this._treeContainer = dom.$(".outline-tree");
-    dom.append(
-      container,
-      progressContainer,
-      this._message,
-      this._treeContainer
-    );
-    this._disposables.add(
-      this.onDidChangeBodyVisibility((visible) => {
-        if (!visible) {
-          this._editorListener.clear();
-          this._editorPaneDisposables.clear();
-          this._editorControlDisposables.clear();
-        } else if (!this._editorListener.value) {
-          const event = Event.any(
-            this._editorService.onDidActiveEditorChange,
-            this._outlineService.onDidChange
-          );
-          this._editorListener.value = event(
-            () => this._handleEditorChanged(
-              this._editorService.activeEditorPane
-            )
-          );
-          this._handleEditorChanged(
-            this._editorService.activeEditorPane
-          );
-        }
-      })
-    );
+    dom.append(container, progressContainer, this._message, this._treeContainer);
+    this._disposables.add(this.onDidChangeBodyVisibility((visible) => {
+      if (!visible) {
+        this._editorListener.clear();
+        this._editorPaneDisposables.clear();
+        this._editorControlDisposables.clear();
+      } else if (!this._editorListener.value) {
+        const event = Event.any(this._editorService.onDidActiveEditorChange, this._outlineService.onDidChange);
+        this._editorListener.value = event(() => this._handleEditorChanged(this._editorService.activeEditorPane));
+        this._handleEditorChanged(this._editorService.activeEditorPane);
+      }
+    }));
   }
   layoutBody(height, width) {
     super.layoutBody(height, width);
@@ -212,10 +163,7 @@ let OutlinePane = class extends ViewPane {
         uri = oldOutline?.uri;
       }
       if (oldOutline && uri) {
-        this._treeStates.set(
-          `${oldOutline.outlineKind}/${uri}`,
-          this._tree.getViewState()
-        );
+        this._treeStates.set(`${oldOutline.outlineKind}/${uri}`, this._tree.getViewState());
         return true;
       }
     }
@@ -224,11 +172,9 @@ let OutlinePane = class extends ViewPane {
   _handleEditorChanged(pane) {
     this._editorPaneDisposables.clear();
     if (pane) {
-      this._editorPaneDisposables.add(
-        pane.onDidChangeControl(() => {
-          this._handleEditorControlChanged(pane);
-        })
-      );
+      this._editorPaneDisposables.add(pane.onDidChangeControl(() => {
+        this._handleEditorControlChanged(pane);
+      }));
     }
     this._handleEditorControlChanged(pane);
   }
@@ -237,35 +183,18 @@ let OutlinePane = class extends ViewPane {
     const didCapture = this._captureViewState();
     this._editorControlDisposables.clear();
     if (!pane || !this._outlineService.canCreateOutline(pane) || !resource) {
-      return this._showMessage(
-        localize(
-          "no-editor",
-          "The active editor cannot provide outline information."
-        )
-      );
+      return this._showMessage(localize("no-editor", "The active editor cannot provide outline information."));
     }
     let loadingMessage;
     if (!didCapture) {
       loadingMessage = new TimeoutTimer(() => {
-        this._showMessage(
-          localize(
-            "loading",
-            "Loading document symbols for '{0}'...",
-            basename(resource)
-          )
-        );
+        this._showMessage(localize("loading", "Loading document symbols for '{0}'...", basename(resource)));
       }, 100);
     }
     this._progressBar.infinite().show(500);
     const cts = new CancellationTokenSource();
-    this._editorControlDisposables.add(
-      toDisposable(() => cts.dispose(true))
-    );
-    const newOutline = await this._outlineService.createOutline(
-      pane,
-      OutlineTarget.OutlinePane,
-      cts.token
-    );
+    this._editorControlDisposables.add(toDisposable(() => cts.dispose(true)));
+    const newOutline = await this._outlineService.createOutline(pane, OutlineTarget.OutlinePane, cts.token);
     loadingMessage?.dispose();
     if (!newOutline) {
       return;
@@ -276,10 +205,7 @@ let OutlinePane = class extends ViewPane {
     }
     this._editorControlDisposables.add(newOutline);
     this._progressBar.stop().hide();
-    const sorter = new OutlineTreeSorter(
-      newOutline.config.comparator,
-      this._outlineViewState.sortBy
-    );
+    const sorter = new OutlineTreeSorter(newOutline.config.comparator, this._outlineViewState.sortBy);
     const tree = this._instantiationService.createInstance(
       WorkbenchDataTree,
       "OutlinePane",
@@ -300,65 +226,39 @@ let OutlinePane = class extends ViewPane {
     );
     const updateTree = /* @__PURE__ */ __name(() => {
       if (newOutline.isEmpty) {
-        this._showMessage(
-          localize(
-            "no-symbols",
-            "No symbols found in document '{0}'",
-            basename(resource)
-          )
-        );
+        this._showMessage(localize("no-symbols", "No symbols found in document '{0}'", basename(resource)));
         this._captureViewState(resource);
         tree.setInput(void 0);
-      } else if (tree.getInput()) {
+      } else if (!tree.getInput()) {
         this._domNode.classList.remove("message");
-        tree.updateChildren();
+        const state = this._treeStates.get(`${newOutline.outlineKind}/${newOutline.uri}`);
+        tree.setInput(newOutline, state && AbstractTreeViewState.lift(state));
       } else {
         this._domNode.classList.remove("message");
-        const state = this._treeStates.get(
-          `${newOutline.outlineKind}/${newOutline.uri}`
-        );
-        tree.setInput(
-          newOutline,
-          state && AbstractTreeViewState.lift(state)
-        );
+        tree.updateChildren();
       }
     }, "updateTree");
     updateTree();
     this._editorControlDisposables.add(newOutline.onDidChange(updateTree));
     tree.findMode = this._outlineViewState.filterOnType ? TreeFindMode.Filter : TreeFindMode.Highlight;
-    this._editorControlDisposables.add(
-      this.viewDescriptorService.onDidChangeLocation(({ views }) => {
-        if (views.some((v) => v.id === this.id)) {
-          tree.updateOptions({
-            overrideStyles: this.getLocationBasedColors().listOverrideStyles
-          });
-        }
-      })
-    );
-    this._editorControlDisposables.add(
-      tree.onDidChangeFindMode(
-        (mode) => this._outlineViewState.filterOnType = mode === TreeFindMode.Filter
-      )
-    );
+    this._editorControlDisposables.add(this.viewDescriptorService.onDidChangeLocation(({ views }) => {
+      if (views.some((v) => v.id === this.id)) {
+        tree.updateOptions({ overrideStyles: this.getLocationBasedColors().listOverrideStyles });
+      }
+    }));
+    this._editorControlDisposables.add(tree.onDidChangeFindMode((mode) => this._outlineViewState.filterOnType = mode === TreeFindMode.Filter));
     let idPool = 0;
-    this._editorControlDisposables.add(
-      tree.onDidOpen(async (e) => {
-        const myId = ++idPool;
-        const isDoubleClick = e.browserEvent?.type === "dblclick";
-        if (!isDoubleClick) {
-          await timeout(150);
-          if (myId !== idPool) {
-            return;
-          }
+    this._editorControlDisposables.add(tree.onDidOpen(async (e) => {
+      const myId = ++idPool;
+      const isDoubleClick = e.browserEvent?.type === "dblclick";
+      if (!isDoubleClick) {
+        await timeout(150);
+        if (myId !== idPool) {
+          return;
         }
-        await newOutline.reveal(
-          e.element,
-          e.editorOptions,
-          e.sideBySide,
-          isDoubleClick
-        );
-      })
-    );
+      }
+      await newOutline.reveal(e.element, e.editorOptions, e.sideBySide, isDoubleClick);
+    }));
     const revealActiveElement = /* @__PURE__ */ __name(() => {
       if (!this._outlineViewState.followCursor || !newOutline.activeElement) {
         return;
@@ -378,63 +278,45 @@ let OutlinePane = class extends ViewPane {
       }
     }, "revealActiveElement");
     revealActiveElement();
-    this._editorControlDisposables.add(
-      newOutline.onDidChange(revealActiveElement)
-    );
-    this._editorControlDisposables.add(
-      this._outlineViewState.onDidChange(
-        (e) => {
-          this._outlineViewState.persist(this._storageService);
-          if (e.filterOnType) {
-            tree.findMode = this._outlineViewState.filterOnType ? TreeFindMode.Filter : TreeFindMode.Highlight;
-          }
-          if (e.followCursor) {
-            revealActiveElement();
-          }
-          if (e.sortBy) {
-            sorter.order = this._outlineViewState.sortBy;
-            tree.resort();
-          }
-        }
-      )
-    );
+    this._editorControlDisposables.add(newOutline.onDidChange(revealActiveElement));
+    this._editorControlDisposables.add(this._outlineViewState.onDidChange((e) => {
+      this._outlineViewState.persist(this._storageService);
+      if (e.filterOnType) {
+        tree.findMode = this._outlineViewState.filterOnType ? TreeFindMode.Filter : TreeFindMode.Highlight;
+      }
+      if (e.followCursor) {
+        revealActiveElement();
+      }
+      if (e.sortBy) {
+        sorter.order = this._outlineViewState.sortBy;
+        tree.resort();
+      }
+    }));
     let viewState;
-    this._editorControlDisposables.add(
-      tree.onDidChangeFindPattern((pattern) => {
-        if (tree.findMode === TreeFindMode.Highlight) {
-          return;
-        }
-        if (!viewState && pattern) {
-          viewState = tree.getViewState();
-          tree.expandAll();
-        } else if (!pattern && viewState) {
-          tree.setInput(tree.getInput(), viewState);
-          viewState = void 0;
-        }
-      })
-    );
+    this._editorControlDisposables.add(tree.onDidChangeFindPattern((pattern) => {
+      if (tree.findMode === TreeFindMode.Highlight) {
+        return;
+      }
+      if (!viewState && pattern) {
+        viewState = tree.getViewState();
+        tree.expandAll();
+      } else if (!pattern && viewState) {
+        tree.setInput(tree.getInput(), viewState);
+        viewState = void 0;
+      }
+    }));
     const updateAllCollapsedCtx = /* @__PURE__ */ __name(() => {
-      this._ctxAllCollapsed.set(
-        tree.getNode(null).children.every(
-          (node) => !node.collapsible || node.collapsed
-        )
-      );
+      this._ctxAllCollapsed.set(tree.getNode(null).children.every((node) => !node.collapsible || node.collapsed));
     }, "updateAllCollapsedCtx");
-    this._editorControlDisposables.add(
-      tree.onDidChangeCollapseState(updateAllCollapsedCtx)
-    );
-    this._editorControlDisposables.add(
-      tree.onDidChangeModel(updateAllCollapsedCtx)
-    );
+    this._editorControlDisposables.add(tree.onDidChangeCollapseState(updateAllCollapsedCtx));
+    this._editorControlDisposables.add(tree.onDidChangeModel(updateAllCollapsedCtx));
     updateAllCollapsedCtx();
     tree.layout(this._treeDimensions?.height, this._treeDimensions?.width);
     this._tree = tree;
-    this._editorControlDisposables.add(
-      toDisposable(() => {
-        tree.dispose();
-        this._tree = void 0;
-      })
-    );
+    this._editorControlDisposables.add(toDisposable(() => {
+      tree.dispose();
+      this._tree = void 0;
+    }));
   }
 };
 OutlinePane = __decorateClass([

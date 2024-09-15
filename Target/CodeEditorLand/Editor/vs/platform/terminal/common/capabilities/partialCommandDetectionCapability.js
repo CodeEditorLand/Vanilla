@@ -2,9 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import {
-  TerminalCapability
-} from "./capabilities.js";
+import { IPartialCommandDetectionCapability, TerminalCapability } from "./capabilities.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["MinimumPromptLength"] = 2] = "MinimumPromptLength";
   return Constants2;
@@ -14,17 +12,12 @@ class PartialCommandDetectionCapability extends DisposableStore {
     super();
     this._terminal = _terminal;
     this.add(this._terminal.onData((e) => this._onData(e)));
-    this.add(
-      this._terminal.parser.registerCsiHandler(
-        { final: "J" },
-        (params) => {
-          if (params.length >= 1 && (params[0] === 2 || params[0] === 3)) {
-            this._clearCommandsInViewport();
-          }
-          return false;
-        }
-      )
-    );
+    this.add(this._terminal.parser.registerCsiHandler({ final: "J" }, (params) => {
+      if (params.length >= 1 && (params[0] === 2 || params[0] === 3)) {
+        this._clearCommandsInViewport();
+      }
+      return false;
+    }));
   }
   static {
     __name(this, "PartialCommandDetectionCapability");

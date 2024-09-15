@@ -14,26 +14,23 @@ import { Schemas } from "../../../../../base/common/network.js";
 import { OperatingSystem } from "../../../../../base/common/platform.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITextEditorSelection } from "../../../../../platform/editor/common/editor.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
-import {
-  TerminalCapability
-} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { ITerminalLinkOpener, ITerminalSimpleLink } from "./links.js";
+import { osPathModule, updateLinkWithRelativeCwd } from "./terminalLinkHelpers.js";
+import { ITerminalCapabilityStore, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../../../services/environment/common/environmentService.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
 import { QueryBuilder } from "../../../../services/search/common/queryBuilder.js";
 import { ISearchService } from "../../../../services/search/common/search.js";
-import {
-  osPathModule,
-  updateLinkWithRelativeCwd
-} from "./terminalLinkHelpers.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { detectLinks, getLinkSuffix } from "./terminalLinkParsing.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
 let TerminalLocalFileLinkOpener = class {
   constructor(_editorService) {
     this._editorService = _editorService;
@@ -73,9 +70,7 @@ let TerminalLocalFolderInWorkspaceLinkOpener = class {
   }
   async open(link) {
     if (!link.uri) {
-      throw new Error(
-        "Tried to open folder in workspace link without a resolved URI"
-      );
+      throw new Error("Tried to open folder in workspace link without a resolved URI");
     }
     await this._commandService.executeCommand("revealInExplorer", link.uri);
   }
@@ -92,13 +87,9 @@ let TerminalLocalFolderOutsideWorkspaceLinkOpener = class {
   }
   async open(link) {
     if (!link.uri) {
-      throw new Error(
-        "Tried to open folder in workspace link without a resolved URI"
-      );
+      throw new Error("Tried to open folder in workspace link without a resolved URI");
     }
-    this._hostService.openWindow([{ folderUri: link.uri }], {
-      forceNewWindow: true
-    });
+    this._hostService.openWindow([{ folderUri: link.uri }], { forceNewWindow: true });
   }
 };
 TerminalLocalFolderOutsideWorkspaceLinkOpener = __decorateClass([
@@ -130,9 +121,7 @@ let TerminalSearchLinkOpener = class {
     text = osPath.normalize(text).replace(/^(\.+[\\/])+/, "");
     if (link.contextLine) {
       const parsedLinks = detectLinks(link.contextLine, this._getOS());
-      const matchingParsedLink = parsedLinks.find(
-        (parsedLink) => parsedLink.suffix && link.text.startsWith(parsedLink.path.text)
-      );
+      const matchingParsedLink = parsedLinks.find((parsedLink) => parsedLink.suffix && link.text.startsWith(parsedLink.path.text));
       if (matchingParsedLink) {
         if (matchingParsedLink.suffix?.row !== void 0) {
           text = matchingParsedLink.path.text;
@@ -153,13 +142,7 @@ let TerminalSearchLinkOpener = class {
     });
     let cwdResolvedText = text;
     if (this._capabilities.has(TerminalCapability.CommandDetection)) {
-      cwdResolvedText = updateLinkWithRelativeCwd(
-        this._capabilities,
-        link.bufferRange.start.y,
-        text,
-        osPath,
-        this._logService
-      )?.[0] || text;
+      cwdResolvedText = updateLinkWithRelativeCwd(this._capabilities, link.bufferRange.start.y, text, osPath, this._logService)?.[0] || text;
     }
     if (await this._tryOpenExactLink(cwdResolvedText, link)) {
       return;
@@ -206,29 +189,21 @@ let TerminalSearchLinkOpener = class {
     }
     if (!resourceMatch) {
       const results = await this._searchService.fileSearch(
-        this._fileQueryBuilder.file(
-          this._workspaceContextService.getWorkspace().folders,
-          {
-            filePattern: sanitizedLink,
-            maxResults: 2
-          }
-        )
+        this._fileQueryBuilder.file(this._workspaceContextService.getWorkspace().folders, {
+          filePattern: sanitizedLink,
+          maxResults: 2
+        })
       );
       if (results.results.length > 0) {
         if (results.results.length === 1) {
           resourceMatch = { uri: results.results[0].resource };
         } else if (!isAbsolute) {
           const results2 = await this._searchService.fileSearch(
-            this._fileQueryBuilder.file(
-              this._workspaceContextService.getWorkspace().folders,
-              {
-                filePattern: `**/${sanitizedLink}`
-              }
-            )
+            this._fileQueryBuilder.file(this._workspaceContextService.getWorkspace().folders, {
+              filePattern: `**/${sanitizedLink}`
+            })
           );
-          const exactMatches = results2.results.filter(
-            (e) => e.resource.toString().endsWith(sanitizedLink)
-          );
+          const exactMatches = results2.results.filter((e) => e.resource.toString().endsWith(sanitizedLink));
           if (exactMatches.length === 1) {
             resourceMatch = { uri: exactMatches[0].resource };
           }

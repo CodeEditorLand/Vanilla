@@ -38,14 +38,14 @@
   align-self: center;
 }
 .monaco-workbench .bulk-edit-panel .monaco-tl-contents .edit-checkbox.disabled {
-  opacity: 0.5;
+  opacity: .5;
 }
 .monaco-workbench .bulk-edit-panel .monaco-tl-contents .monaco-icon-label.delete .monaco-icon-label-container {
   text-decoration: line-through;
 }
 .monaco-workbench .bulk-edit-panel .monaco-tl-contents .details {
   margin-left: .5em;
-  opacity: 0.7;
+  opacity: .7;
   font-size: 0.9em;
   white-space: pre;
 }

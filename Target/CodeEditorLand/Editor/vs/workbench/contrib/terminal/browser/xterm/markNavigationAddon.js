@@ -10,21 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindow } from "../../../../../base/browser/dom.js";
 import { coalesce } from "../../../../../base/common/arrays.js";
+import { Disposable, DisposableStore, MutableDisposable, dispose } from "../../../../../base/common/lifecycle.js";
+import { IMarkTracker } from "../terminal.js";
+import { ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { timeout } from "../../../../../base/common/async.js";
-import {
-  Disposable,
-  DisposableStore,
-  MutableDisposable,
-  dispose
-} from "../../../../../base/common/lifecycle.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import {
-  TerminalCapability
-} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
 import { TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR } from "../../common/terminalColorRegistry.js";
+import { getWindow } from "../../../../../base/browser/dom.js";
+import { ICurrentPartialCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { TerminalStickyScrollSettingId } from "../../../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
 var Boundary = /* @__PURE__ */ ((Boundary2) => {
   Boundary2[Boundary2["Top"] = 0] = "Top";
@@ -52,38 +47,22 @@ let MarkNavigationAddon = class extends Disposable {
   _terminal;
   _navigationDecorations;
   _activeCommandGuide;
-  _commandGuideDecorations = this._register(
-    new MutableDisposable()
-  );
+  _commandGuideDecorations = this._register(new MutableDisposable());
   activate(terminal) {
     this._terminal = terminal;
-    this._register(
-      this._terminal.onData(() => {
-        this._currentMarker = 1 /* Bottom */;
-      })
-    );
+    this._register(this._terminal.onData(() => {
+      this._currentMarker = 1 /* Bottom */;
+    }));
   }
   _getMarkers(skipEmptyCommands) {
-    const commandCapability = this._capabilities.get(
-      TerminalCapability.CommandDetection
-    );
-    const partialCommandCapability = this._capabilities.get(
-      TerminalCapability.PartialCommandDetection
-    );
-    const markCapability = this._capabilities.get(
-      TerminalCapability.BufferMarkDetection
-    );
+    const commandCapability = this._capabilities.get(TerminalCapability.CommandDetection);
+    const partialCommandCapability = this._capabilities.get(TerminalCapability.PartialCommandDetection);
+    const markCapability = this._capabilities.get(TerminalCapability.BufferMarkDetection);
     let markers = [];
     if (commandCapability) {
-      markers = coalesce(
-        commandCapability.commands.filter(
-          (e) => skipEmptyCommands ? e.exitCode !== void 0 : true
-        ).map((e) => e.promptStartMarker ?? e.marker)
-      );
+      markers = coalesce(commandCapability.commands.filter((e) => skipEmptyCommands ? e.exitCode !== void 0 : true).map((e) => e.promptStartMarker ?? e.marker));
       if (commandCapability.currentCommand?.promptStartMarker && commandCapability.currentCommand.commandExecutedMarker) {
-        markers.push(
-          commandCapability.currentCommand?.promptStartMarker
-        );
+        markers.push(commandCapability.currentCommand?.promptStartMarker);
       }
     } else if (partialCommandCapability) {
       markers.push(...partialCommandCapability.commands);
@@ -100,13 +79,9 @@ let MarkNavigationAddon = class extends Disposable {
     return markers;
   }
   _findCommand(marker) {
-    const commandCapability = this._capabilities.get(
-      TerminalCapability.CommandDetection
-    );
+    const commandCapability = this._capabilities.get(TerminalCapability.CommandDetection);
     if (commandCapability) {
-      const command = commandCapability.commands.find(
-        (e) => e.marker?.line === marker.line || e.promptStartMarker?.line === marker.line
-      );
+      const command = commandCapability.commands.find((e) => e.marker?.line === marker.line || e.promptStartMarker?.line === marker.line);
       if (command) {
         return command;
       }
@@ -144,18 +119,10 @@ let MarkNavigationAddon = class extends Disposable {
       this._selectionStart = null;
     }
     let markerIndex;
-    const currentLineY = typeof this._currentMarker === "object" ? this.getTargetScrollLine(
-      this._currentMarker.line,
-      scrollPosition
-    ) : Math.min(
-      getLine(this._terminal, this._currentMarker),
-      this._terminal.buffer.active.baseY
-    );
+    const currentLineY = typeof this._currentMarker === "object" ? this.getTargetScrollLine(this._currentMarker.line, scrollPosition) : Math.min(getLine(this._terminal, this._currentMarker), this._terminal.buffer.active.baseY);
     const viewportY = this._terminal.buffer.active.viewportY;
     if (typeof this._currentMarker === "object" ? !this._isMarkerInViewport(this._terminal, this._currentMarker) : currentLineY !== viewportY) {
-      const markersBelowViewport = this._getMarkers(
-        skipEmptyCommands
-      ).filter((e) => e.line >= viewportY).length;
+      const markersBelowViewport = this._getMarkers(skipEmptyCommands).filter((e) => e.line >= viewportY).length;
       markerIndex = this._getMarkers(skipEmptyCommands).length - markersBelowViewport - 1;
     } else if (this._currentMarker === 1 /* Bottom */) {
       markerIndex = this._getMarkers(skipEmptyCommands).length - 1;
@@ -165,12 +132,12 @@ let MarkNavigationAddon = class extends Disposable {
       markerIndex = this._findPreviousMarker(skipEmptyCommands);
       this._currentMarker.dispose();
       this._isDisposable = false;
-    } else if (skipEmptyCommands && this._isEmptyCommand(this._currentMarker)) {
-      markerIndex = this._findPreviousMarker(true);
     } else {
-      markerIndex = this._getMarkers(skipEmptyCommands).indexOf(
-        this._currentMarker
-      ) - 1;
+      if (skipEmptyCommands && this._isEmptyCommand(this._currentMarker)) {
+        markerIndex = this._findPreviousMarker(true);
+      } else {
+        markerIndex = this._getMarkers(skipEmptyCommands).indexOf(this._currentMarker) - 1;
+      }
     }
     if (markerIndex < 0) {
       this._currentMarker = 0 /* Top */;
@@ -189,18 +156,10 @@ let MarkNavigationAddon = class extends Disposable {
       this._selectionStart = null;
     }
     let markerIndex;
-    const currentLineY = typeof this._currentMarker === "object" ? this.getTargetScrollLine(
-      this._currentMarker.line,
-      scrollPosition
-    ) : Math.min(
-      getLine(this._terminal, this._currentMarker),
-      this._terminal.buffer.active.baseY
-    );
+    const currentLineY = typeof this._currentMarker === "object" ? this.getTargetScrollLine(this._currentMarker.line, scrollPosition) : Math.min(getLine(this._terminal, this._currentMarker), this._terminal.buffer.active.baseY);
     const viewportY = this._terminal.buffer.active.viewportY;
     if (typeof this._currentMarker === "object" ? !this._isMarkerInViewport(this._terminal, this._currentMarker) : currentLineY !== viewportY) {
-      const markersAboveViewport = this._getMarkers(
-        skipEmptyCommands
-      ).filter((e) => e.line <= viewportY).length;
+      const markersAboveViewport = this._getMarkers(skipEmptyCommands).filter((e) => e.line <= viewportY).length;
       markerIndex = markersAboveViewport;
     } else if (this._currentMarker === 1 /* Bottom */) {
       markerIndex = this._getMarkers(skipEmptyCommands).length;
@@ -210,12 +169,12 @@ let MarkNavigationAddon = class extends Disposable {
       markerIndex = this._findNextMarker(skipEmptyCommands);
       this._currentMarker.dispose();
       this._isDisposable = false;
-    } else if (skipEmptyCommands && this._isEmptyCommand(this._currentMarker)) {
-      markerIndex = this._findNextMarker(true);
     } else {
-      markerIndex = this._getMarkers(skipEmptyCommands).indexOf(
-        this._currentMarker
-      ) + 1;
+      if (skipEmptyCommands && this._isEmptyCommand(this._currentMarker)) {
+        markerIndex = this._findNextMarker(true);
+      } else {
+        markerIndex = this._getMarkers(skipEmptyCommands).indexOf(this._currentMarker) + 1;
+      }
     }
     if (markerIndex >= this._getMarkers(skipEmptyCommands).length) {
       this._currentMarker = 1 /* Bottom */;
@@ -254,15 +213,11 @@ let MarkNavigationAddon = class extends Disposable {
     if (offset === 0 && isMarker(marker)) {
       return marker;
     } else {
-      const offsetMarker = this._terminal?.registerMarker(
-        -this._terminal.buffer.active.cursorY + toLineIndex(marker) - this._terminal.buffer.active.baseY + offset
-      );
+      const offsetMarker = this._terminal?.registerMarker(-this._terminal.buffer.active.cursorY + toLineIndex(marker) - this._terminal.buffer.active.baseY + offset);
       if (offsetMarker) {
         return offsetMarker;
       } else {
-        throw new Error(
-          `Could not register marker with offset ${toLineIndex(marker)}, ${offset}`
-        );
+        throw new Error(`Could not register marker with offset ${toLineIndex(marker)}, ${offset}`);
       }
     }
   }
@@ -288,9 +243,7 @@ let MarkNavigationAddon = class extends Disposable {
       {
         bufferRange: range,
         // Ensure scroll shows the line when sticky scroll is enabled
-        forceScroll: !!this._configurationService.getValue(
-          TerminalStickyScrollSettingId.Enabled
-        )
+        forceScroll: !!this._configurationService.getValue(TerminalStickyScrollSettingId.Enabled)
       }
     );
   }
@@ -324,32 +277,28 @@ let MarkNavigationAddon = class extends Disposable {
         if (decoration) {
           store.add(decoration);
           let renderedElement;
-          store.add(
-            decoration.onRender((element) => {
-              if (!renderedElement) {
-                renderedElement = element;
-                element.classList.add("terminal-command-guide");
-                if (i === 0) {
-                  element.classList.add("top");
-                }
-                if (i === decorationCount - 1) {
-                  element.classList.add("bottom");
-                }
+          store.add(decoration.onRender((element) => {
+            if (!renderedElement) {
+              renderedElement = element;
+              element.classList.add("terminal-command-guide");
+              if (i === 0) {
+                element.classList.add("top");
               }
-              if (this._terminal?.element) {
-                element.style.marginLeft = `-${getWindow(this._terminal.element).getComputedStyle(this._terminal.element).paddingLeft}`;
+              if (i === decorationCount - 1) {
+                element.classList.add("bottom");
               }
-            })
-          );
+            }
+            if (this._terminal?.element) {
+              element.style.marginLeft = `-${getWindow(this._terminal.element).getComputedStyle(this._terminal.element).paddingLeft}`;
+            }
+          }));
         }
       }
     }
   }
   _scrollState;
   saveScrollState() {
-    this._scrollState = {
-      viewportY: this._terminal?.buffer.active.viewportY ?? 0
-    };
+    this._scrollState = { viewportY: this._terminal?.buffer.active.viewportY ?? 0 };
   }
   restoreScrollState() {
     if (this._scrollState && this._terminal) {
@@ -381,9 +330,7 @@ let MarkNavigationAddon = class extends Disposable {
           }
         });
         decoration.onDispose(() => {
-          this._navigationDecorations = this._navigationDecorations?.filter(
-            (d) => d !== decoration
-          );
+          this._navigationDecorations = this._navigationDecorations?.filter((d) => d !== decoration);
         });
       }
     }
@@ -408,15 +355,11 @@ let MarkNavigationAddon = class extends Disposable {
         this._navigationDecorations?.push(decoration);
         let renderedElement;
         decoration.onRender((element) => {
-          if (renderedElement) {
-            element.classList.add("terminal-scroll-highlight");
-          } else {
+          if (!renderedElement) {
             renderedElement = element;
             element.classList.add("terminal-scroll-highlight");
             if (showOutline) {
-              element.classList.add(
-                "terminal-scroll-highlight-outline"
-              );
+              element.classList.add("terminal-scroll-highlight-outline");
             }
             if (i === 0) {
               element.classList.add("top");
@@ -424,22 +367,20 @@ let MarkNavigationAddon = class extends Disposable {
             if (i === decorationCount - 1) {
               element.classList.add("bottom");
             }
+          } else {
+            element.classList.add("terminal-scroll-highlight");
           }
           if (this._terminal?.element) {
             element.style.marginLeft = `-${getWindow(this._terminal.element).getComputedStyle(this._terminal.element).paddingLeft}`;
           }
         });
         decoration.onDispose(() => {
-          this._navigationDecorations = this._navigationDecorations?.filter(
-            (d) => d !== decoration
-          );
+          this._navigationDecorations = this._navigationDecorations?.filter((d) => d !== decoration);
         });
         if (showOutline) {
           timeout(350).then(() => {
             if (renderedElement) {
-              renderedElement.classList.remove(
-                "terminal-scroll-highlight-outline"
-              );
+              renderedElement.classList.remove("terminal-scroll-highlight-outline");
             }
           });
         }
@@ -461,9 +402,7 @@ let MarkNavigationAddon = class extends Disposable {
     return line >= viewportY && line < viewportY + terminal.rows;
   }
   scrollToClosestMarker(startMarkerId, endMarkerId, highlight) {
-    const detectionCapability = this._capabilities.get(
-      TerminalCapability.BufferMarkDetection
-    );
+    const detectionCapability = this._capabilities.get(TerminalCapability.BufferMarkDetection);
     if (!detectionCapability) {
       return;
     }
@@ -472,9 +411,7 @@ let MarkNavigationAddon = class extends Disposable {
       return;
     }
     const endMarker = endMarkerId ? detectionCapability.getMark(endMarkerId) : startMarker;
-    this._scrollToMarker(startMarker, 0 /* Top */, endMarker, {
-      hideDecoration: !highlight
-    });
+    this._scrollToMarker(startMarker, 0 /* Top */, endMarker, { hideDecoration: !highlight });
   }
   selectToPreviousMark() {
     if (!this._terminal) {
@@ -533,19 +470,13 @@ let MarkNavigationAddon = class extends Disposable {
       return;
     }
     if (this._currentMarker === 1 /* Bottom */) {
-      this._currentMarker = this._registerMarkerOrThrow(
-        xterm,
-        this._getOffset(xterm) - 1
-      );
+      this._currentMarker = this._registerMarkerOrThrow(xterm, this._getOffset(xterm) - 1);
     } else {
       const offset = this._getOffset(xterm);
       if (this._isDisposable) {
         this._currentMarker.dispose();
       }
-      this._currentMarker = this._registerMarkerOrThrow(
-        xterm,
-        offset - 1
-      );
+      this._currentMarker = this._registerMarkerOrThrow(xterm, offset - 1);
     }
     this._isDisposable = true;
     this._scrollToMarker(this._currentMarker, scrollPosition);
@@ -559,19 +490,13 @@ let MarkNavigationAddon = class extends Disposable {
       return;
     }
     if (this._currentMarker === 0 /* Top */) {
-      this._currentMarker = this._registerMarkerOrThrow(
-        xterm,
-        this._getOffset(xterm) + 1
-      );
+      this._currentMarker = this._registerMarkerOrThrow(xterm, this._getOffset(xterm) + 1);
     } else {
       const offset = this._getOffset(xterm);
       if (this._isDisposable) {
         this._currentMarker.dispose();
       }
-      this._currentMarker = this._registerMarkerOrThrow(
-        xterm,
-        offset + 1
-      );
+      this._currentMarker = this._registerMarkerOrThrow(xterm, offset + 1);
     }
     this._isDisposable = true;
     this._scrollToMarker(this._currentMarker, scrollPosition);

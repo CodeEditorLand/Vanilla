@@ -10,54 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Dimension,
-  getActiveElement,
-  getWindowById,
-  hide,
-  isAncestor,
-  isEditableElement,
-  show
-} from "../../../../base/browser/dom.js";
-import { toErrorMessage } from "../../../../base/common/errorMessage.js";
-import { isCancellationError } from "../../../../base/common/errors.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import Severity from "../../../../base/common/severity.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
-import {
-  IDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  EditorOpenSource
-} from "../../../../platform/editor/common/editor.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IEditorProgressService,
-  LongRunningOperation
-} from "../../../../platform/progress/common/progress.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { Emitter } from "../../../../base/common/event.js";
+import Severity from "../../../../base/common/severity.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { EditorExtensions, EditorInputCapabilities, IEditorOpenContext, IVisibleEditorPane, isEditorOpenError } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { Dimension, show, hide, IDomNodePagePosition, isAncestor, getActiveElement, getWindowById, isEditableElement } from "../../../../base/browser/dom.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import {
-  EditorExtensions,
-  EditorInputCapabilities,
-  isEditorOpenError
-} from "../../../common/editor.js";
-import { IHostService } from "../../../services/host/browser/host.js";
+import { IEditorPaneRegistry, IEditorPaneDescriptor } from "../../editor.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import {
-  DEFAULT_EDITOR_MAX_DIMENSIONS,
-  DEFAULT_EDITOR_MIN_DIMENSIONS
-} from "./editor.js";
-import {
-  ErrorPlaceholderEditor,
-  WorkspaceTrustRequiredPlaceholderEditor
-} from "./editorPlaceholder.js";
+import { EditorPane } from "./editorPane.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorProgressService, LongRunningOperation } from "../../../../platform/progress/common/progress.js";
+import { IEditorGroupView, DEFAULT_EDITOR_MIN_DIMENSIONS, DEFAULT_EDITOR_MAX_DIMENSIONS, IInternalEditorOpenOptions } from "./editor.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ErrorPlaceholderEditor, IErrorEditorPlaceholderOptions, WorkspaceTrustRequiredPlaceholderEditor } from "./editorPlaceholder.js";
+import { EditorOpenSource, IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDialogService, IPromptButton, IPromptCancelButton } from "../../../../platform/dialogs/common/dialogs.js";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { IHostService } from "../../../services/host/browser/host.js";
 let EditorPanes = class extends Disposable {
   constructor(editorGroupParent, editorPanesParent, groupView, layoutService, instantiationService, editorProgressService, workspaceTrustService, logService, dialogService, hostService) {
     super();
@@ -79,9 +56,7 @@ let EditorPanes = class extends Disposable {
   //#region Events
   _onDidFocus = this._register(new Emitter());
   onDidFocus = this._onDidFocus.event;
-  _onDidChangeSizeConstraints = this._register(
-    new Emitter()
-  );
+  _onDidChangeSizeConstraints = this._register(new Emitter());
   onDidChangeSizeConstraints = this._onDidChangeSizeConstraints.event;
   //#endregion
   get minimumWidth() {
@@ -102,23 +77,13 @@ let EditorPanes = class extends Disposable {
   }
   editorPanes = [];
   mapEditorPaneToPendingSetInput = /* @__PURE__ */ new Map();
-  activeEditorPaneDisposables = this._register(
-    new DisposableStore()
-  );
+  activeEditorPaneDisposables = this._register(new DisposableStore());
   pagePosition;
   boundarySashes;
-  editorOperation = this._register(
-    new LongRunningOperation(this.editorProgressService)
-  );
-  editorPanesRegistry = Registry.as(
-    EditorExtensions.EditorPane
-  );
+  editorOperation = this._register(new LongRunningOperation(this.editorProgressService));
+  editorPanesRegistry = Registry.as(EditorExtensions.EditorPane);
   registerListeners() {
-    this._register(
-      this.workspaceTrustService.onDidChangeTrust(
-        () => this.onDidChangeWorkspaceTrust()
-      )
-    );
+    this._register(this.workspaceTrustService.onDidChangeTrust(() => this.onDidChangeWorkspaceTrust()));
   }
   onDidChangeWorkspaceTrust() {
     const editor = this._activeEditorPane?.input;
@@ -129,24 +94,12 @@ let EditorPanes = class extends Disposable {
   }
   async openEditor(editor, options, internalOptions, context = /* @__PURE__ */ Object.create(null)) {
     try {
-      return await this.doOpenEditor(
-        this.getEditorPaneDescriptor(editor),
-        editor,
-        options,
-        internalOptions,
-        context
-      );
+      return await this.doOpenEditor(this.getEditorPaneDescriptor(editor), editor, options, internalOptions, context);
     } catch (error) {
       if (options?.ignoreError) {
         return { error };
       }
-      return this.doShowError(
-        error,
-        editor,
-        options,
-        internalOptions,
-        context
-      );
+      return this.doShowError(error, editor, options, internalOptions, context);
     }
   }
   async doShowError(error, editor, options, internalOptions, context) {
@@ -158,28 +111,20 @@ let EditorPanes = class extends Disposable {
     if (errorHandled) {
       return { error };
     }
-    const editorPlaceholderOptions = {
-      ...options
-    };
+    const editorPlaceholderOptions = { ...options };
     if (!isCancellationError(error)) {
       editorPlaceholderOptions.error = error;
     }
     return {
-      ...await this.doOpenEditor(
-        ErrorPlaceholderEditor.DESCRIPTOR,
-        editor,
-        editorPlaceholderOptions,
-        internalOptions,
-        context
-      ),
+      ...await this.doOpenEditor(ErrorPlaceholderEditor.DESCRIPTOR, editor, editorPlaceholderOptions, internalOptions, context),
       error
     };
   }
   async doShowErrorDialog(error, editor) {
     let severity = Severity.Error;
-    let message;
+    let message = void 0;
     let detail = toErrorMessage(error);
-    let errorActions;
+    let errorActions = void 0;
     if (isEditorOpenError(error)) {
       errorActions = error.actions;
       severity = error.forceSeverity ?? Severity.Error;
@@ -189,11 +134,7 @@ let EditorPanes = class extends Disposable {
       }
     }
     if (!message) {
-      message = localize(
-        "editorOpenErrorDialog",
-        "Unable to open '{0}'",
-        editor.getName()
-      );
+      message = localize("editorOpenErrorDialog", "Unable to open '{0}'", editor.getName());
     }
     const buttons = [];
     if (errorActions && errorActions.length > 0) {
@@ -205,14 +146,11 @@ let EditorPanes = class extends Disposable {
       }
     } else {
       buttons.push({
-        label: localize(
-          { key: "ok", comment: ["&& denotes a mnemonic"] },
-          "&&OK"
-        ),
+        label: localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
         run: /* @__PURE__ */ __name(() => void 0, "run")
       });
     }
-    let cancelButton;
+    let cancelButton = void 0;
     if (buttons.length === 1) {
       cancelButton = {
         run: /* @__PURE__ */ __name(() => {
@@ -232,9 +170,7 @@ let EditorPanes = class extends Disposable {
     if (result) {
       const errorActionResult = result.run();
       if (errorActionResult instanceof Promise) {
-        errorActionResult.catch(
-          (error2) => this.dialogService.error(toErrorMessage(error2))
-        );
+        errorActionResult.catch((error2) => this.dialogService.error(toErrorMessage(error2)));
       }
       errorHandled = true;
     }
@@ -243,20 +179,13 @@ let EditorPanes = class extends Disposable {
   async doOpenEditor(descriptor, editor, options, internalOptions, context = /* @__PURE__ */ Object.create(null)) {
     const pane = this.doShowEditorPane(descriptor);
     const activeElement = getActiveElement();
-    const { changed, cancelled } = await this.doSetInput(
-      pane,
-      editor,
-      options,
-      context
-    );
+    const { changed, cancelled } = await this.doSetInput(pane, editor, options, context);
     if (!cancelled) {
       const focus = !options || !options.preserveFocus;
       if (focus && this.shouldRestoreFocus(activeElement)) {
         pane.focus();
       } else if (!internalOptions?.preserveWindowOrder) {
-        this.hostService.moveTop(
-          getWindowById(this.groupView.windowId, true).window
-        );
+        this.hostService.moveTop(getWindowById(this.groupView.windowId, true).window);
       }
     }
     return { pane, changed, cancelled };
@@ -302,13 +231,7 @@ let EditorPanes = class extends Disposable {
     show(container);
     editorPane.setVisible(true);
     if (this.pagePosition) {
-      editorPane.layout(
-        new Dimension(
-          this.pagePosition.width,
-          this.pagePosition.height
-        ),
-        { top: this.pagePosition.top, left: this.pagePosition.left }
-      );
+      editorPane.layout(new Dimension(this.pagePosition.width, this.pagePosition.height), { top: this.pagePosition.top, left: this.pagePosition.left });
     }
     if (this.boundarySashes) {
       editorPane.setBoundarySashes(this.boundarySashes);
@@ -326,15 +249,11 @@ let EditorPanes = class extends Disposable {
     return editorPane;
   }
   doInstantiateEditorPane(descriptor) {
-    const existingEditorPane = this.editorPanes.find(
-      (editorPane2) => descriptor.describes(editorPane2)
-    );
+    const existingEditorPane = this.editorPanes.find((editorPane2) => descriptor.describes(editorPane2));
     if (existingEditorPane) {
       return existingEditorPane;
     }
-    const editorPane = this._register(
-      descriptor.instantiate(this.instantiationService, this.groupView)
-    );
+    const editorPane = this._register(descriptor.instantiate(this.instantiationService, this.groupView));
     this.editorPanes.push(editorPane);
     return editorPane;
   }
@@ -342,14 +261,8 @@ let EditorPanes = class extends Disposable {
     this._activeEditorPane = editorPane;
     this.activeEditorPaneDisposables.clear();
     if (editorPane) {
-      this.activeEditorPaneDisposables.add(
-        editorPane.onDidChangeSizeConstraints(
-          (e) => this._onDidChangeSizeConstraints.fire(e)
-        )
-      );
-      this.activeEditorPaneDisposables.add(
-        editorPane.onDidFocus(() => this._onDidFocus.fire())
-      );
+      this.activeEditorPaneDisposables.add(editorPane.onDidChangeSizeConstraints((e) => this._onDidChangeSizeConstraints.fire(e)));
+      this.activeEditorPaneDisposables.add(editorPane.onDidFocus(() => this._onDidFocus.fire()));
     }
     this._onDidChangeSizeConstraints.fire(void 0);
   }
@@ -365,31 +278,21 @@ let EditorPanes = class extends Disposable {
       }
       return { changed: false, cancelled: !inputMatches };
     }
-    const operation = this.editorOperation.start(
-      this.layoutService.isRestored() ? 800 : 3200
-    );
+    const operation = this.editorOperation.start(this.layoutService.isRestored() ? 800 : 3200);
     let cancelled = false;
     try {
       editorPane.clearInput();
-      const pendingSetInput = editorPane.setInput(
-        editor,
-        options,
-        context,
-        operation.token
-      );
-      this.mapEditorPaneToPendingSetInput.set(
-        editorPane,
-        pendingSetInput
-      );
+      const pendingSetInput = editorPane.setInput(editor, options, context, operation.token);
+      this.mapEditorPaneToPendingSetInput.set(editorPane, pendingSetInput);
       await pendingSetInput;
       if (!operation.isCurrent()) {
         cancelled = true;
       }
     } catch (error) {
-      if (operation.isCurrent()) {
-        throw error;
-      } else {
+      if (!operation.isCurrent()) {
         cancelled = true;
+      } else {
+        throw error;
       }
     } finally {
       if (operation.isCurrent()) {
@@ -424,12 +327,7 @@ let EditorPanes = class extends Disposable {
   }
   layout(pagePosition) {
     this.pagePosition = pagePosition;
-    this.safeRun(
-      () => this._activeEditorPane?.layout(
-        new Dimension(pagePosition.width, pagePosition.height),
-        pagePosition
-      )
-    );
+    this.safeRun(() => this._activeEditorPane?.layout(new Dimension(pagePosition.width, pagePosition.height), pagePosition));
   }
   setBoundarySashes(sashes) {
     this.boundarySashes = sashes;

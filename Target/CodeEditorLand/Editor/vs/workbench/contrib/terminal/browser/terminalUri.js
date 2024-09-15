@@ -2,13 +2,11 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
-import { TerminalDataTransfers } from "./terminal.js";
+import { ITerminalInstance, TerminalDataTransfers } from "./terminal.js";
 function parseTerminalUri(resource) {
   const [, workspaceId, instanceId] = resource.path.split("/");
   if (!workspaceId || !Number.parseInt(instanceId)) {
-    throw new Error(
-      `Could not parse terminal uri for resource ${resource}`
-    );
+    throw new Error(`Could not parse terminal uri for resource ${resource}`);
   }
   return { workspaceId, instanceId: Number.parseInt(instanceId) };
 }
@@ -22,9 +20,7 @@ function getTerminalUri(workspaceId, instanceId, title) {
 }
 __name(getTerminalUri, "getTerminalUri");
 function getTerminalResourcesFromDragEvent(event) {
-  const resources = event.dataTransfer?.getData(
-    TerminalDataTransfers.Terminals
-  );
+  const resources = event.dataTransfer?.getData(TerminalDataTransfers.Terminals);
   if (resources) {
     const json = JSON.parse(resources);
     const result = [];

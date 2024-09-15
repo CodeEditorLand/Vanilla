@@ -12,25 +12,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
-import {
-  OS,
-  isWindows
-} from "../../../base/common/platform.js";
-import { StopWatch } from "../../../base/common/stopwatch.js";
-import { getSystemShell } from "../../../base/node/shell.js";
+import { IProcessEnvironment, OS, OperatingSystem, isWindows } from "../../../base/common/platform.js";
 import { ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { ILogService, ILoggerService, LogLevel } from "../../log/common/log.js";
 import { RemoteLoggerChannelClient } from "../../log/common/logIpc.js";
 import { getResolvedShellEnv } from "../../shell/node/shellEnv.js";
+import { IPtyHostProcessReplayEvent } from "../common/capabilities/capabilities.js";
 import { RequestStore } from "../common/requestStore.js";
-import {
-  HeartbeatConstants,
-  TerminalIpcChannels,
-  TerminalSettingId
-} from "../common/terminal.js";
+import { HeartbeatConstants, IHeartbeatService, IProcessDataEvent, IProcessProperty, IProcessPropertyMap, IProcessReadyEvent, IPtyHostLatencyMeasurement, IPtyHostService, IPtyService, IRequestResolveVariablesEvent, ISerializedTerminalState, IShellLaunchConfig, ITerminalLaunchError, ITerminalProcessOptions, ITerminalProfile, ITerminalsLayoutInfo, ProcessPropertyType, TerminalIcon, TerminalIpcChannels, TerminalSettingId, TitleEventSource } from "../common/terminal.js";
 import { registerTerminalPlatformConfiguration } from "../common/terminalPlatformConfiguration.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "../common/terminalProcess.js";
+import { IPtyHostConnection, IPtyHostStarter } from "./ptyHost.js";
 import { detectAvailableProfiles } from "./terminalProfiles.js";
+import * as performance from "../../../base/common/performance.js";
+import { getSystemShell } from "../../../base/node/shell.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["MaxRestarts"] = 5] = "MaxRestarts";
   return Constants2;
@@ -45,28 +42,13 @@ let PtyHostService = class extends Disposable {
     registerTerminalPlatformConfiguration();
     this._register(this._ptyHostStarter);
     this._register(toDisposable(() => this._disposePtyHost()));
-    this._resolveVariablesRequestStore = this._register(
-      new RequestStore(void 0, this._logService)
-    );
-    this._register(
-      this._resolveVariablesRequestStore.onCreateRequest(
-        this._onPtyHostRequestResolveVariables.fire,
-        this._onPtyHostRequestResolveVariables
-      )
-    );
+    this._resolveVariablesRequestStore = this._register(new RequestStore(void 0, this._logService));
+    this._register(this._resolveVariablesRequestStore.onCreateRequest(this._onPtyHostRequestResolveVariables.fire, this._onPtyHostRequestResolveVariables));
     if (this._ptyHostStarter.onRequestConnection) {
-      this._register(
-        Event.once(this._ptyHostStarter.onRequestConnection)(
-          () => this._ensurePtyHost()
-        )
-      );
+      this._register(Event.once(this._ptyHostStarter.onRequestConnection)(() => this._ensurePtyHost()));
     }
     if (this._ptyHostStarter.onWillShutdown) {
-      this._register(
-        this._ptyHostStarter.onWillShutdown(
-          () => this._wasQuitRequested = true
-        )
-      );
+      this._register(this._ptyHostStarter.onWillShutdown(() => this._wasQuitRequested = true));
     }
   }
   static {
@@ -105,70 +87,40 @@ let PtyHostService = class extends Disposable {
   onPtyHostExit = this._onPtyHostExit.event;
   _onPtyHostStart = this._register(new Emitter());
   onPtyHostStart = this._onPtyHostStart.event;
-  _onPtyHostUnresponsive = this._register(
-    new Emitter()
-  );
+  _onPtyHostUnresponsive = this._register(new Emitter());
   onPtyHostUnresponsive = this._onPtyHostUnresponsive.event;
   _onPtyHostResponsive = this._register(new Emitter());
   onPtyHostResponsive = this._onPtyHostResponsive.event;
-  _onPtyHostRequestResolveVariables = this._register(
-    new Emitter()
-  );
+  _onPtyHostRequestResolveVariables = this._register(new Emitter());
   onPtyHostRequestResolveVariables = this._onPtyHostRequestResolveVariables.event;
-  _onProcessData = this._register(
-    new Emitter()
-  );
+  _onProcessData = this._register(new Emitter());
   onProcessData = this._onProcessData.event;
-  _onProcessReady = this._register(
-    new Emitter()
-  );
+  _onProcessReady = this._register(new Emitter());
   onProcessReady = this._onProcessReady.event;
-  _onProcessReplay = this._register(
-    new Emitter()
-  );
+  _onProcessReplay = this._register(new Emitter());
   onProcessReplay = this._onProcessReplay.event;
-  _onProcessOrphanQuestion = this._register(
-    new Emitter()
-  );
+  _onProcessOrphanQuestion = this._register(new Emitter());
   onProcessOrphanQuestion = this._onProcessOrphanQuestion.event;
-  _onDidRequestDetach = this._register(
-    new Emitter()
-  );
+  _onDidRequestDetach = this._register(new Emitter());
   onDidRequestDetach = this._onDidRequestDetach.event;
-  _onDidChangeProperty = this._register(
-    new Emitter()
-  );
+  _onDidChangeProperty = this._register(new Emitter());
   onDidChangeProperty = this._onDidChangeProperty.event;
-  _onProcessExit = this._register(
-    new Emitter()
-  );
+  _onProcessExit = this._register(new Emitter());
   onProcessExit = this._onProcessExit.event;
   get _ignoreProcessNames() {
-    return this._configurationService.getValue(
-      TerminalSettingId.IgnoreProcessNames
-    );
+    return this._configurationService.getValue(TerminalSettingId.IgnoreProcessNames);
   }
   async _refreshIgnoreProcessNames() {
-    return this._optionalProxy?.refreshIgnoreProcessNames?.(
-      this._ignoreProcessNames
-    );
+    return this._optionalProxy?.refreshIgnoreProcessNames?.(this._ignoreProcessNames);
   }
   async _resolveShellEnv() {
     if (isWindows) {
       return process.env;
     }
     try {
-      return await getResolvedShellEnv(
-        this._configurationService,
-        this._logService,
-        { _: [] },
-        process.env
-      );
+      return await getResolvedShellEnv(this._configurationService, this._logService, { _: [] }, process.env);
     } catch (error) {
-      this._logService.error(
-        "ptyHost was unable to resolve shell environment",
-        error
-      );
+      this._logService.error("ptyHost was unable to resolve shell environment", error);
       return {};
     }
   }
@@ -176,93 +128,46 @@ let PtyHostService = class extends Disposable {
     const connection = this._ptyHostStarter.start();
     const client = connection.client;
     if (this._logService.getLevel() === LogLevel.Trace) {
-      this._logService.trace(
-        "PtyHostService#_startPtyHost",
-        new Error().stack?.replace(/^Error/, "")
-      );
+      this._logService.trace("PtyHostService#_startPtyHost", new Error().stack?.replace(/^Error/, ""));
     }
-    const heartbeatService = ProxyChannel.toService(
-      client.getChannel(TerminalIpcChannels.Heartbeat)
-    );
+    const heartbeatService = ProxyChannel.toService(client.getChannel(TerminalIpcChannels.Heartbeat));
     heartbeatService.onBeat(() => this._handleHeartbeat());
     this._handleHeartbeat(true);
-    this._register(
-      connection.onDidProcessExit((e) => {
-        this._onPtyHostExit.fire(e.code);
-        if (!this._wasQuitRequested && !this._store.isDisposed) {
-          if (this._restartCount <= 5 /* MaxRestarts */) {
-            this._logService.error(
-              `ptyHost terminated unexpectedly with code ${e.code}`
-            );
-            this._restartCount++;
-            this.restartPtyHost();
-          } else {
-            this._logService.error(
-              `ptyHost terminated unexpectedly with code ${e.code}, giving up`
-            );
-          }
+    this._register(connection.onDidProcessExit((e) => {
+      this._onPtyHostExit.fire(e.code);
+      if (!this._wasQuitRequested && !this._store.isDisposed) {
+        if (this._restartCount <= 5 /* MaxRestarts */) {
+          this._logService.error(`ptyHost terminated unexpectedly with code ${e.code}`);
+          this._restartCount++;
+          this.restartPtyHost();
+        } else {
+          this._logService.error(`ptyHost terminated unexpectedly with code ${e.code}, giving up`);
         }
-      })
-    );
-    const proxy = ProxyChannel.toService(
-      client.getChannel(TerminalIpcChannels.PtyHost)
-    );
+      }
+    }));
+    const proxy = ProxyChannel.toService(client.getChannel(TerminalIpcChannels.PtyHost));
     this._register(proxy.onProcessData((e) => this._onProcessData.fire(e)));
-    this._register(
-      proxy.onProcessReady((e) => this._onProcessReady.fire(e))
-    );
+    this._register(proxy.onProcessReady((e) => this._onProcessReady.fire(e)));
     this._register(proxy.onProcessExit((e) => this._onProcessExit.fire(e)));
-    this._register(
-      proxy.onDidChangeProperty((e) => this._onDidChangeProperty.fire(e))
-    );
-    this._register(
-      proxy.onProcessReplay((e) => this._onProcessReplay.fire(e))
-    );
-    this._register(
-      proxy.onProcessOrphanQuestion(
-        (e) => this._onProcessOrphanQuestion.fire(e)
-      )
-    );
-    this._register(
-      proxy.onDidRequestDetach((e) => this._onDidRequestDetach.fire(e))
-    );
-    this._register(
-      new RemoteLoggerChannelClient(
-        this._loggerService,
-        client.getChannel(TerminalIpcChannels.Logger)
-      )
-    );
+    this._register(proxy.onDidChangeProperty((e) => this._onDidChangeProperty.fire(e)));
+    this._register(proxy.onProcessReplay((e) => this._onProcessReplay.fire(e)));
+    this._register(proxy.onProcessOrphanQuestion((e) => this._onProcessOrphanQuestion.fire(e)));
+    this._register(proxy.onDidRequestDetach((e) => this._onDidRequestDetach.fire(e)));
+    this._register(new RemoteLoggerChannelClient(this._loggerService, client.getChannel(TerminalIpcChannels.Logger)));
     this.__connection = connection;
     this.__proxy = proxy;
     this._onPtyHostStart.fire();
-    this._register(
-      this._configurationService.onDidChangeConfiguration(async (e) => {
-        if (e.affectsConfiguration(TerminalSettingId.IgnoreProcessNames)) {
-          await this._refreshIgnoreProcessNames();
-        }
-      })
-    );
+    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration(TerminalSettingId.IgnoreProcessNames)) {
+        await this._refreshIgnoreProcessNames();
+      }
+    }));
     this._refreshIgnoreProcessNames();
     return [connection, proxy];
   }
   async createProcess(shellLaunchConfig, cwd, cols, rows, unicodeVersion, env, executableEnv, options, shouldPersist, workspaceId, workspaceName) {
-    const timeout = setTimeout(
-      () => this._handleUnresponsiveCreateProcess(),
-      HeartbeatConstants.CreateProcessTimeout
-    );
-    const id = await this._proxy.createProcess(
-      shellLaunchConfig,
-      cwd,
-      cols,
-      rows,
-      unicodeVersion,
-      env,
-      executableEnv,
-      options,
-      shouldPersist,
-      workspaceId,
-      workspaceName
-    );
+    const timeout = setTimeout(() => this._handleUnresponsiveCreateProcess(), HeartbeatConstants.CreateProcessTimeout);
+    const id = await this._proxy.createProcess(shellLaunchConfig, cwd, cols, rows, unicodeVersion, env, executableEnv, options, shouldPersist, workspaceId, workspaceName);
     clearTimeout(timeout);
     return id;
   }
@@ -349,16 +254,7 @@ let PtyHostService = class extends Disposable {
   }
   async getProfiles(workspaceId, profiles, defaultProfile, includeDetectedProfiles = false) {
     const shellEnv = await this._resolveShellEnv();
-    return detectAvailableProfiles(
-      profiles,
-      defaultProfile,
-      includeDetectedProfiles,
-      this._configurationService,
-      shellEnv,
-      void 0,
-      this._logService,
-      this._resolveVariables.bind(this, workspaceId)
-    );
+    return detectAvailableProfiles(profiles, defaultProfile, includeDetectedProfiles, this._configurationService, shellEnv, void 0, this._logService, this._resolveVariables.bind(this, workspaceId));
   }
   async getEnvironment() {
     if (!this.__proxy) {
@@ -382,16 +278,11 @@ let PtyHostService = class extends Disposable {
     return this._proxy.requestDetachInstance(workspaceId, instanceId);
   }
   async acceptDetachInstanceReply(requestId, persistentProcessId) {
-    return this._proxy.acceptDetachInstanceReply(
-      requestId,
-      persistentProcessId
-    );
+    return this._proxy.acceptDetachInstanceReply(requestId, persistentProcessId);
   }
   async freePortKillProcess(port) {
     if (!this._proxy.freePortKillProcess) {
-      throw new Error(
-        "freePortKillProcess does not exist on the pty proxy"
-      );
+      throw new Error("freePortKillProcess does not exist on the pty proxy");
     }
     return this._proxy.freePortKillProcess(port);
   }
@@ -399,11 +290,7 @@ let PtyHostService = class extends Disposable {
     return this._proxy.serializeTerminalState(ids);
   }
   async reviveTerminalProcesses(workspaceId, state, dateTimeFormatLocate) {
-    return this._proxy.reviveTerminalProcesses(
-      workspaceId,
-      state,
-      dateTimeFormatLocate
-    );
+    return this._proxy.reviveTerminalProcesses(workspaceId, state, dateTimeFormatLocate);
   }
   async refreshProperty(id, property) {
     return this._proxy.refreshProperty(id, property);
@@ -422,29 +309,19 @@ let PtyHostService = class extends Disposable {
   }
   _handleHeartbeat(isConnecting) {
     this._clearHeartbeatTimeouts();
-    this._heartbeatFirstTimeout = setTimeout(
-      () => this._handleHeartbeatFirstTimeout(),
-      isConnecting ? HeartbeatConstants.ConnectingBeatInterval : HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier
-    );
+    this._heartbeatFirstTimeout = setTimeout(() => this._handleHeartbeatFirstTimeout(), isConnecting ? HeartbeatConstants.ConnectingBeatInterval : HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier);
     if (!this._isResponsive) {
       this._isResponsive = true;
       this._onPtyHostResponsive.fire();
     }
   }
   _handleHeartbeatFirstTimeout() {
-    this._logService.warn(
-      `No ptyHost heartbeat after ${HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier / 1e3} seconds`
-    );
+    this._logService.warn(`No ptyHost heartbeat after ${HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier / 1e3} seconds`);
     this._heartbeatFirstTimeout = void 0;
-    this._heartbeatSecondTimeout = setTimeout(
-      () => this._handleHeartbeatSecondTimeout(),
-      HeartbeatConstants.BeatInterval * HeartbeatConstants.SecondWaitMultiplier
-    );
+    this._heartbeatSecondTimeout = setTimeout(() => this._handleHeartbeatSecondTimeout(), HeartbeatConstants.BeatInterval * HeartbeatConstants.SecondWaitMultiplier);
   }
   _handleHeartbeatSecondTimeout() {
-    this._logService.error(
-      `No ptyHost heartbeat after ${(HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier + HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier) / 1e3} seconds`
-    );
+    this._logService.error(`No ptyHost heartbeat after ${(HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier + HeartbeatConstants.BeatInterval * HeartbeatConstants.FirstWaitMultiplier) / 1e3} seconds`);
     this._heartbeatSecondTimeout = void 0;
     if (this._isResponsive) {
       this._isResponsive = false;
@@ -453,9 +330,7 @@ let PtyHostService = class extends Disposable {
   }
   _handleUnresponsiveCreateProcess() {
     this._clearHeartbeatTimeouts();
-    this._logService.error(
-      `No ptyHost response to createProcess after ${HeartbeatConstants.CreateProcessTimeout / 1e3} seconds`
-    );
+    this._logService.error(`No ptyHost response to createProcess after ${HeartbeatConstants.CreateProcessTimeout / 1e3} seconds`);
     if (this._isResponsive) {
       this._isResponsive = false;
       this._onPtyHostUnresponsive.fire();
@@ -472,10 +347,7 @@ let PtyHostService = class extends Disposable {
     }
   }
   _resolveVariables(workspaceId, text) {
-    return this._resolveVariablesRequestStore.createRequest({
-      workspaceId,
-      originalText: text
-    });
+    return this._resolveVariablesRequestStore.createRequest({ workspaceId, originalText: text });
   }
   async acceptPtyHostResolvedVariables(requestId, resolved) {
     this._resolveVariablesRequestStore.acceptReply(requestId, resolved);

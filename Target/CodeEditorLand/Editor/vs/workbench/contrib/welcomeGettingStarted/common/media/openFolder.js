@@ -1,4 +1,4 @@
-var openFolder_default = "../../../../../../Asset/openFolder-4EKINIIT.svg";
+var openFolder_default = "../../../../../../Asset/openFolder-ITJOTFEM.svg";
 export {
   openFolder_default as default
 };

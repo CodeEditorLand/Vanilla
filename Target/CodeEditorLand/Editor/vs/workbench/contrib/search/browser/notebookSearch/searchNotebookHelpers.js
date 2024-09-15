@@ -1,13 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FindMatch } from "../../../../../editor/common/model.js";
+import { IFileMatch, ITextSearchMatch, TextSearchMatch } from "../../../../services/search/common/search.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import {
-  TextSearchMatch
-} from "../../../../services/search/common/search.js";
-import {
-  genericCellMatchesToTextSearchMatches,
-  rawCellPrefix
-} from "../../common/searchNotebookHelpers.js";
+import { INotebookCellMatchNoModel, INotebookFileMatchNoModel, genericCellMatchesToTextSearchMatches, rawCellPrefix } from "../../common/searchNotebookHelpers.js";
+import { CellWebviewFindMatch, ICellViewModel } from "../../../notebook/browser/notebookBrowser.js";
+import { URI } from "../../../../../base/common/uri.js";
 function getIDFromINotebookCellMatch(match) {
   if (isINotebookCellMatchWithModel(match)) {
     return match.cell.id;
@@ -35,12 +33,7 @@ function webviewMatchesToTextSearchMatches(webviewMatches) {
   return webviewMatches.map(
     (rawMatch) => rawMatch.searchPreviewInfo ? new TextSearchMatch(
       rawMatch.searchPreviewInfo.line,
-      new Range(
-        0,
-        rawMatch.searchPreviewInfo.range.start,
-        0,
-        rawMatch.searchPreviewInfo.range.end
-      ),
+      new Range(0, rawMatch.searchPreviewInfo.range.start, 0, rawMatch.searchPreviewInfo.range.end),
       void 0,
       rawMatch.index
     ) : void 0

@@ -10,23 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { BaseTextEditorModel } from "./textEditorModel.js";
+import { URI } from "../../../base/common/uri.js";
 import { ILanguageService } from "../../../editor/common/languages/language.js";
 import { IModelService } from "../../../editor/common/services/model.js";
-import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
 import { ILanguageDetectionService } from "../../services/languageDetection/common/languageDetectionWorkerService.js";
-import { BaseTextEditorModel } from "./textEditorModel.js";
+import { IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
 let TextResourceEditorModel = class extends BaseTextEditorModel {
   static {
     __name(this, "TextResourceEditorModel");
   }
   constructor(resource, languageService, modelService, languageDetectionService, accessibilityService) {
-    super(
-      modelService,
-      languageService,
-      languageDetectionService,
-      accessibilityService,
-      resource
-    );
+    super(modelService, languageService, languageDetectionService, accessibilityService, resource);
   }
   dispose() {
     if (this.textEditorModelHandle) {

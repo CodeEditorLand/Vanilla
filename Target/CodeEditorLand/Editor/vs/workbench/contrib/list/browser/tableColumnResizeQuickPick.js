@@ -10,11 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Table } from "../../../../base/browser/ui/table/tableWidget.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
 import { localize } from "../../../../nls.js";
-import {
-  IQuickInputService
-} from "../../../../platform/quickinput/common/quickInput.js";
+import { IQuickInputService, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
 let TableColumnResizeQuickPick = class extends Disposable {
   constructor(_table, _quickInputService) {
     super();
@@ -31,28 +31,13 @@ let TableColumnResizeQuickPick = class extends Disposable {
         items.push({ label, index });
       }
     });
-    const column = await this._quickInputService.pick(
-      items,
-      {
-        placeHolder: localize(
-          "table.column.selection",
-          "Select the column to resize, type to filter."
-        )
-      }
-    );
+    const column = await this._quickInputService.pick(items, { placeHolder: localize("table.column.selection", "Select the column to resize, type to filter.") });
     if (!column) {
       return;
     }
     const value = await this._quickInputService.input({
-      placeHolder: localize(
-        "table.column.resizeValue.placeHolder",
-        "i.e. 20, 60, 100..."
-      ),
-      prompt: localize(
-        "table.column.resizeValue.prompt",
-        "Please enter a width in percentage for the '{0}' column.",
-        column.label
-      ),
+      placeHolder: localize("table.column.resizeValue.placeHolder", "i.e. 20, 60, 100..."),
+      prompt: localize("table.column.resizeValue.prompt", "Please enter a width in percentage for the '{0}' column.", column.label),
       validateInput: /* @__PURE__ */ __name((input) => this._validateColumnResizeValue(input), "validateInput")
     });
     const percentageValue = value ? Number.parseInt(value) : void 0;
@@ -64,15 +49,9 @@ let TableColumnResizeQuickPick = class extends Disposable {
   async _validateColumnResizeValue(input) {
     const percentage = Number.parseInt(input);
     if (input && !Number.isInteger(percentage)) {
-      return localize(
-        "table.column.resizeValue.invalidType",
-        "Please enter an integer."
-      );
+      return localize("table.column.resizeValue.invalidType", "Please enter an integer.");
     } else if (percentage < 0 || percentage > 100) {
-      return localize(
-        "table.column.resizeValue.invalidRange",
-        "Please enter a number greater than 0 and less than or equal to 100."
-      );
+      return localize("table.column.resizeValue.invalidRange", "Please enter a number greater than 0 and less than or equal to 100.");
     }
     return null;
   }

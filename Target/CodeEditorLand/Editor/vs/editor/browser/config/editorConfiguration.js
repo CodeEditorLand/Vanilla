@@ -11,82 +11,51 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as browser from "../../../base/browser/browser.js";
-import { getWindow, getWindowById } from "../../../base/browser/dom.js";
-import { PixelRatio } from "../../../base/browser/pixelRatio.js";
 import * as arrays from "../../../base/common/arrays.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import * as objects from "../../../base/common/objects.js";
 import * as platform from "../../../base/common/platform.js";
-import {
-  AccessibilitySupport,
-  IAccessibilityService
-} from "../../../platform/accessibility/common/accessibility.js";
-import {
-  ComputeOptionsMemory,
-  ConfigurationChangedEvent,
-  EditorOption,
-  editorOptionsRegistry
-} from "../../common/config/editorOptions.js";
-import { EditorZoom } from "../../common/config/editorZoom.js";
-import {
-  BareFontInfo
-} from "../../common/config/fontInfo.js";
 import { ElementSizeObserver } from "./elementSizeObserver.js";
 import { FontMeasurements } from "./fontMeasurements.js";
 import { migrateOptions } from "./migrateOptions.js";
 import { TabFocus } from "./tabFocus.js";
+import { ComputeOptionsMemory, ConfigurationChangedEvent, EditorOption, editorOptionsRegistry, FindComputedEditorOptionValueById, IComputedEditorOptions, IEditorOptions, IEnvironmentalOptions } from "../../common/config/editorOptions.js";
+import { EditorZoom } from "../../common/config/editorZoom.js";
+import { BareFontInfo, FontInfo, IValidatedEditorOptions } from "../../common/config/fontInfo.js";
+import { IDimension } from "../../common/core/dimension.js";
+import { IEditorConfiguration } from "../../common/config/editorConfiguration.js";
+import { AccessibilitySupport, IAccessibilityService } from "../../../platform/accessibility/common/accessibility.js";
+import { getWindow, getWindowById } from "../../../base/browser/dom.js";
+import { PixelRatio } from "../../../base/browser/pixelRatio.js";
+import { MenuId } from "../../../platform/actions/common/actions.js";
 let EditorConfiguration = class extends Disposable {
   constructor(isSimpleWidget, contextMenuId, options, container, _accessibilityService) {
     super();
     this._accessibilityService = _accessibilityService;
     this.isSimpleWidget = isSimpleWidget;
     this.contextMenuId = contextMenuId;
-    this._containerObserver = this._register(
-      new ElementSizeObserver(container, options.dimension)
-    );
+    this._containerObserver = this._register(new ElementSizeObserver(container, options.dimension));
     this._targetWindowId = getWindow(container).vscodeWindowId;
     this._rawOptions = deepCloneAndMigrateOptions(options);
-    this._validatedOptions = EditorOptionsUtil.validateOptions(
-      this._rawOptions
-    );
+    this._validatedOptions = EditorOptionsUtil.validateOptions(this._rawOptions);
     this.options = this._computeOptions();
     if (this.options.get(EditorOption.automaticLayout)) {
       this._containerObserver.startObserving();
     }
-    this._register(
-      EditorZoom.onDidChangeZoomLevel(() => this._recomputeOptions())
-    );
-    this._register(
-      TabFocus.onDidChangeTabFocus(() => this._recomputeOptions())
-    );
-    this._register(
-      this._containerObserver.onDidChange(() => this._recomputeOptions())
-    );
-    this._register(
-      FontMeasurements.onDidChange(() => this._recomputeOptions())
-    );
-    this._register(
-      PixelRatio.getInstance(getWindow(container)).onDidChange(
-        () => this._recomputeOptions()
-      )
-    );
-    this._register(
-      this._accessibilityService.onDidChangeScreenReaderOptimized(
-        () => this._recomputeOptions()
-      )
-    );
+    this._register(EditorZoom.onDidChangeZoomLevel(() => this._recomputeOptions()));
+    this._register(TabFocus.onDidChangeTabFocus(() => this._recomputeOptions()));
+    this._register(this._containerObserver.onDidChange(() => this._recomputeOptions()));
+    this._register(FontMeasurements.onDidChange(() => this._recomputeOptions()));
+    this._register(PixelRatio.getInstance(getWindow(container)).onDidChange(() => this._recomputeOptions()));
+    this._register(this._accessibilityService.onDidChangeScreenReaderOptimized(() => this._recomputeOptions()));
   }
   static {
     __name(this, "EditorConfiguration");
   }
-  _onDidChange = this._register(
-    new Emitter()
-  );
+  _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
-  _onDidChangeFast = this._register(
-    new Emitter()
-  );
+  _onDidChangeFast = this._register(new Emitter());
   onDidChangeFast = this._onDidChangeFast.event;
   isSimpleWidget;
   contextMenuId;
@@ -112,10 +81,7 @@ let EditorConfiguration = class extends Disposable {
   options;
   _recomputeOptions() {
     const newOptions = this._computeOptions();
-    const changeEvent = EditorOptionsUtil.checkEquals(
-      this.options,
-      newOptions
-    );
+    const changeEvent = EditorOptionsUtil.checkEquals(this.options, newOptions);
     if (changeEvent === null) {
       return;
     }
@@ -125,11 +91,7 @@ let EditorConfiguration = class extends Disposable {
   }
   _computeOptions() {
     const partialEnv = this._readEnvConfiguration();
-    const bareFontInfo = BareFontInfo.createFromValidatedSettings(
-      this._validatedOptions,
-      partialEnv.pixelRatio,
-      this.isSimpleWidget
-    );
+    const bareFontInfo = BareFontInfo.createFromValidatedSettings(this._validatedOptions, partialEnv.pixelRatio, this.isSimpleWidget);
     const fontInfo = this._readFontInfo(bareFontInfo);
     const env = {
       memory: this._computeOptionsMemory,
@@ -154,33 +116,23 @@ let EditorConfiguration = class extends Disposable {
       outerWidth: this._containerObserver.getWidth(),
       outerHeight: this._containerObserver.getHeight(),
       emptySelectionClipboard: browser.isWebKit || browser.isFirefox,
-      pixelRatio: PixelRatio.getInstance(
-        getWindowById(this._targetWindowId, true).window
-      ).value,
+      pixelRatio: PixelRatio.getInstance(getWindowById(this._targetWindowId, true).window).value,
       accessibilitySupport: this._accessibilityService.isScreenReaderOptimized() ? AccessibilitySupport.Enabled : this._accessibilityService.getAccessibilitySupport()
     };
   }
   _readFontInfo(bareFontInfo) {
-    return FontMeasurements.readFontInfo(
-      getWindowById(this._targetWindowId, true).window,
-      bareFontInfo
-    );
+    return FontMeasurements.readFontInfo(getWindowById(this._targetWindowId, true).window, bareFontInfo);
   }
   getRawOptions() {
     return this._rawOptions;
   }
   updateOptions(_newOptions) {
     const newOptions = deepCloneAndMigrateOptions(_newOptions);
-    const didChange = EditorOptionsUtil.applyUpdate(
-      this._rawOptions,
-      newOptions
-    );
+    const didChange = EditorOptionsUtil.applyUpdate(this._rawOptions, newOptions);
     if (!didChange) {
       return;
     }
-    this._validatedOptions = EditorOptionsUtil.validateOptions(
-      this._rawOptions
-    );
+    this._validatedOptions = EditorOptionsUtil.validateOptions(this._rawOptions);
     this._recomputeOptions();
   }
   observeContainer(dimension) {
@@ -298,14 +250,7 @@ class EditorOptionsUtil {
   static computeOptions(options, env) {
     const result = new ComputedEditorOptions();
     for (const editorOption of editorOptionsRegistry) {
-      result._write(
-        editorOption.id,
-        editorOption.compute(
-          env,
-          result,
-          options._read(editorOption.id)
-        )
-      );
+      result._write(editorOption.id, editorOption.compute(env, result, options._read(editorOption.id)));
     }
     return result;
   }
@@ -330,10 +275,7 @@ class EditorOptionsUtil {
     const result = [];
     let somethingChanged = false;
     for (const editorOption of editorOptionsRegistry) {
-      const changed = !EditorOptionsUtil._deepEquals(
-        a._read(editorOption.id),
-        b._read(editorOption.id)
-      );
+      const changed = !EditorOptionsUtil._deepEquals(a._read(editorOption.id), b._read(editorOption.id));
       result[editorOption.id] = changed;
       if (changed) {
         somethingChanged = true;
@@ -344,15 +286,12 @@ class EditorOptionsUtil {
   /**
    * Returns true if something changed.
    * Modifies `options`.
-   */
+  */
   static applyUpdate(options, update) {
     let changed = false;
     for (const editorOption of editorOptionsRegistry) {
       if (update.hasOwnProperty(editorOption.name)) {
-        const result = editorOption.applyUpdate(
-          options[editorOption.name],
-          update[editorOption.name]
-        );
+        const result = editorOption.applyUpdate(options[editorOption.name], update[editorOption.name]);
         options[editorOption.name] = result.newValue;
         changed = changed || result.didChange;
       }

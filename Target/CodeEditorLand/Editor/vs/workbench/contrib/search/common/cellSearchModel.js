@@ -2,9 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import {
-  DefaultEndOfLine
-} from "../../../../editor/common/model.js";
+import { DefaultEndOfLine, FindMatch, IReadonlyTextBuffer } from "../../../../editor/common/model.js";
 import { PieceTreeTextBufferBuilder } from "../../../../editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js";
 import { SearchParams } from "../../../../editor/common/model/textModelSearch.js";
 class CellSearchModel extends Disposable {
@@ -20,12 +18,7 @@ class CellSearchModel extends Disposable {
   _outputTextBuffers = void 0;
   _getFullModelRange(buffer) {
     const lineCount = buffer.getLineCount();
-    return new Range(
-      1,
-      1,
-      lineCount,
-      this._getLineMaxColumn(buffer, lineCount)
-    );
+    return new Range(1, 1, lineCount, this._getLineMaxColumn(buffer, lineCount));
   }
   _getLineMaxColumn(buffer, lineNumber) {
     if (lineNumber < 1 || lineNumber > buffer.getLineCount()) {
@@ -38,9 +31,7 @@ class CellSearchModel extends Disposable {
       const builder = new PieceTreeTextBufferBuilder();
       builder.acceptChunk(this._source);
       const bufferFactory = builder.finish(true);
-      const { textBuffer, disposable } = bufferFactory.create(
-        DefaultEndOfLine.LF
-      );
+      const { textBuffer, disposable } = bufferFactory.create(DefaultEndOfLine.LF);
       this._inputTextBuffer = textBuffer;
       this._register(disposable);
     }
@@ -52,9 +43,7 @@ class CellSearchModel extends Disposable {
         const builder = new PieceTreeTextBufferBuilder();
         builder.acceptChunk(output);
         const bufferFactory = builder.finish(true);
-        const { textBuffer, disposable } = bufferFactory.create(
-          DefaultEndOfLine.LF
-        );
+        const { textBuffer, disposable } = bufferFactory.create(DefaultEndOfLine.LF);
         this._register(disposable);
         return textBuffer;
       });
@@ -68,12 +57,7 @@ class CellSearchModel extends Disposable {
       return [];
     }
     const fullInputRange = this._getFullModelRange(this.inputTextBuffer);
-    return this.inputTextBuffer.findMatchesLineByLine(
-      fullInputRange,
-      searchData,
-      true,
-      5e3
-    );
+    return this.inputTextBuffer.findMatchesLineByLine(fullInputRange, searchData, true, 5e3);
   }
   findInOutputs(target) {
     const searchParams = new SearchParams(target, false, false, null);

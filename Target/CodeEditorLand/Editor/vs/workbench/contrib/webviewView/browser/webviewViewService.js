@@ -2,12 +2,11 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { promiseWithResolvers } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IViewBadge } from "../../../common/views.js";
+import { IOverlayWebview } from "../../webview/browser/webview.js";
 const IWebviewViewService = createDecorator("webviewViewService");
 class WebviewViewService extends Disposable {
   static {
@@ -16,9 +15,7 @@ class WebviewViewService extends Disposable {
   _serviceBrand;
   _resolvers = /* @__PURE__ */ new Map();
   _awaitingRevival = /* @__PURE__ */ new Map();
-  _onNewResolverRegistered = this._register(
-    new Emitter()
-  );
+  _onNewResolverRegistered = this._register(new Emitter());
   onNewResolverRegistered = this._onNewResolverRegistered.event;
   register(viewType, resolver) {
     if (this._resolvers.has(viewType)) {

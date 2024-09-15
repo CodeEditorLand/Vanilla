@@ -3,15 +3,10 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { basename } from "../../../base/common/path.js";
 import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
 import { URI } from "../../../base/common/uri.js";
-import { Utils } from "../common/profiling.js";
-import {
-  BottomUpNode,
-  buildModel,
-  processNode
-} from "../common/profilingModel.js";
-import {
-  ProfilingOutput
-} from "./profileAnalysisWorkerService.js";
+import { IRequestHandler, IWorkerServer } from "../../../base/common/worker/simpleWorker.js";
+import { IV8Profile, Utils } from "../common/profiling.js";
+import { IProfileModel, BottomUpSample, buildModel, BottomUpNode, processNode, CdpCallFrame } from "../common/profilingModel.js";
+import { BottomUpAnalysis, IProfileAnalysisWorker, ProfilingOutput } from "./profileAnalysisWorkerService.js";
 function create(workerServer) {
   return new ProfileAnalysisWorker();
 }
@@ -138,9 +133,7 @@ function bottomUp(model, topN) {
         }
       }
       if (top) {
-        const percentage = Math.round(
-          top.selfTime / (node2.selfTime / 100)
-        );
+        const percentage = Math.round(top.selfTime / (node2.selfTime / 100));
         sample.caller.push({
           percentage,
           location: printCallFrameShort(top.callFrame),

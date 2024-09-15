@@ -11,34 +11,24 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./hover.css";
-import * as dom from "../../../../base/browser/dom.js";
-import { status } from "../../../../base/browser/ui/aria/aria.js";
-import { AnchorPosition } from "../../../../base/browser/ui/contextview/contextview.js";
-import {
-  HoverWidget as BaseHoverWidget,
-  HoverAction,
-  HoverPosition,
-  getHoverAccessibleViewHint
-} from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { Widget } from "../../../../base/browser/ui/widget.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { isMarkdownString } from "../../../../base/common/htmlContent.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { isMacintosh } from "../../../../base/common/platform.js";
-import { localize } from "../../../../nls.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import * as dom from "../../../../base/browser/dom.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { EDITOR_FONT_DEFAULTS, IEditorOptions } from "../../../common/config/editorOptions.js";
+import { HoverAction, HoverPosition, HoverWidget as BaseHoverWidget, getHoverAccessibleViewHint } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { AnchorPosition } from "../../../../base/browser/ui/contextview/contextview.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  EDITOR_FONT_DEFAULTS
-} from "../../../common/config/editorOptions.js";
-import {
-  MarkdownRenderer,
-  openLinkFromMarkdown
-} from "../../widget/markdownRenderer/browser/markdownRenderer.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { MarkdownRenderer, openLinkFromMarkdown } from "../../widget/markdownRenderer/browser/markdownRenderer.js";
+import { isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { localize } from "../../../../nls.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
 const $ = dom.$;
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["PointerSize"] = 3] = "PointerSize";
@@ -55,29 +45,20 @@ let HoverWidget = class extends Widget {
     this._instantiationService = _instantiationService;
     this._accessibilityService = _accessibilityService;
     this._linkHandler = options.linkHandler || ((url) => {
-      return openLinkFromMarkdown(
-        this._openerService,
-        url,
-        isMarkdownString(options.content) ? options.content.isTrusted : void 0
-      );
+      return openLinkFromMarkdown(this._openerService, url, isMarkdownString(options.content) ? options.content.isTrusted : void 0);
     });
     this._target = "targetElements" in options.target ? options.target : new ElementHoverTarget(options.target);
     this._hoverPointer = options.appearance?.showPointer ? $("div.workbench-hover-pointer") : void 0;
     this._hover = this._register(new BaseHoverWidget());
     this._hover.containerDomNode.classList.add("workbench-hover", "fadeIn");
     if (options.appearance?.compact) {
-      this._hover.containerDomNode.classList.add(
-        "workbench-hover",
-        "compact"
-      );
+      this._hover.containerDomNode.classList.add("workbench-hover", "compact");
     }
     if (options.appearance?.skipFadeInAnimation) {
       this._hover.containerDomNode.classList.add("skip-fade-in");
     }
     if (options.additionalClasses) {
-      this._hover.containerDomNode.classList.add(
-        ...options.additionalClasses
-      );
+      this._hover.containerDomNode.classList.add(...options.additionalClasses);
     }
     if (options.position?.forcePosition) {
       this._forcePosition = true;
@@ -86,22 +67,13 @@ let HoverWidget = class extends Widget {
       this._enableFocusTraps = true;
     }
     this._hoverPosition = options.position?.hoverPosition ?? HoverPosition.ABOVE;
-    this.onmousedown(
-      this._hover.containerDomNode,
-      (e) => e.stopPropagation()
-    );
+    this.onmousedown(this._hover.containerDomNode, (e) => e.stopPropagation());
     this.onkeydown(this._hover.containerDomNode, (e) => {
       if (e.equals(KeyCode.Escape)) {
         this.dispose();
       }
     });
-    this._register(
-      dom.addDisposableListener(
-        this._targetWindow,
-        "blur",
-        () => this.dispose()
-      )
-    );
+    this._register(dom.addDisposableListener(this._targetWindow, "blur", () => this.dispose()));
     const rowElement = $("div.hover-row.markdown-hover");
     const contentsElement = $("div.hover-contents");
     if (typeof options.content === "string") {
@@ -114,11 +86,7 @@ let HoverWidget = class extends Widget {
       const markdown = options.content;
       const mdRenderer = this._instantiationService.createInstance(
         MarkdownRenderer,
-        {
-          codeBlockFontFamily: this._configurationService.getValue(
-            "editor"
-          ).fontFamily || EDITOR_FONT_DEFAULTS.fontFamily
-        }
+        { codeBlockFontFamily: this._configurationService.getValue("editor").fontFamily || EDITOR_FONT_DEFAULTS.fontFamily }
       );
       const { element } = mdRenderer.render(markdown, {
         actionHandler: {
@@ -139,23 +107,17 @@ let HoverWidget = class extends Widget {
       const statusBarElement = $("div.hover-row.status-bar");
       const actionsElement = $("div.actions");
       options.actions.forEach((action) => {
-        const keybinding = this._keybindingService.lookupKeybinding(
-          action.commandId
-        );
+        const keybinding = this._keybindingService.lookupKeybinding(action.commandId);
         const keybindingLabel = keybinding ? keybinding.getLabel() : null;
-        HoverAction.render(
-          actionsElement,
-          {
-            label: action.label,
-            commandId: action.commandId,
-            run: /* @__PURE__ */ __name((e) => {
-              action.run(e);
-              this.dispose();
-            }, "run"),
-            iconClass: action.iconClass
-          },
-          keybindingLabel
-        );
+        HoverAction.render(actionsElement, {
+          label: action.label,
+          commandId: action.commandId,
+          run: /* @__PURE__ */ __name((e) => {
+            action.run(e);
+            this.dispose();
+          }, "run"),
+          iconClass: action.iconClass
+        }, keybindingLabel);
       });
       statusBarElement.appendChild(actionsElement);
       this._hover.containerDomNode.appendChild(statusBarElement);
@@ -168,19 +130,17 @@ let HoverWidget = class extends Widget {
     let hideOnHover;
     if (options.actions && options.actions.length > 0) {
       hideOnHover = false;
-    } else if (options.persistence?.hideOnHover === void 0) {
-      hideOnHover = typeof options.content === "string" || isMarkdownString(options.content) && !options.content.value.includes("](") && !options.content.value.includes("</a>");
     } else {
-      hideOnHover = options.persistence.hideOnHover;
+      if (options.persistence?.hideOnHover === void 0) {
+        hideOnHover = typeof options.content === "string" || isMarkdownString(options.content) && !options.content.value.includes("](") && !options.content.value.includes("</a>");
+      } else {
+        hideOnHover = options.persistence.hideOnHover;
+      }
     }
     if (options.appearance?.showHoverHint) {
       const statusBarElement = $("div.hover-row.status-bar");
       const infoElement = $("div.info");
-      infoElement.textContent = localize(
-        "hoverhint",
-        "Hold {0} key to mouse over",
-        isMacintosh ? "Option" : "Alt"
-      );
+      infoElement.textContent = localize("hoverhint", "Hold {0} key to mouse over", isMacintosh ? "Option" : "Alt");
       statusBarElement.appendChild(infoElement);
       this._hover.containerDomNode.appendChild(statusBarElement);
     }
@@ -188,31 +148,20 @@ let HoverWidget = class extends Widget {
     if (!hideOnHover) {
       mouseTrackerTargets.push(this._hoverContainer);
     }
-    const mouseTracker = this._register(
-      new CompositeMouseTracker(mouseTrackerTargets)
-    );
-    this._register(
-      mouseTracker.onMouseOut(() => {
+    const mouseTracker = this._register(new CompositeMouseTracker(mouseTrackerTargets));
+    this._register(mouseTracker.onMouseOut(() => {
+      if (!this._isLocked) {
+        this.dispose();
+      }
+    }));
+    if (hideOnHover) {
+      const mouseTracker2Targets = [...this._target.targetElements, this._hoverContainer];
+      this._lockMouseTracker = this._register(new CompositeMouseTracker(mouseTracker2Targets));
+      this._register(this._lockMouseTracker.onMouseOut(() => {
         if (!this._isLocked) {
           this.dispose();
         }
-      })
-    );
-    if (hideOnHover) {
-      const mouseTracker2Targets = [
-        ...this._target.targetElements,
-        this._hoverContainer
-      ];
-      this._lockMouseTracker = this._register(
-        new CompositeMouseTracker(mouseTracker2Targets)
-      );
-      this._register(
-        this._lockMouseTracker.onMouseOut(() => {
-          if (!this._isLocked) {
-            this.dispose();
-          }
-        })
-      );
+      }));
     } else {
       this._lockMouseTracker = mouseTracker;
     }
@@ -287,48 +236,26 @@ let HoverWidget = class extends Widget {
     }
     this._addedFocusTrap = true;
     const firstContainerFocusElement = this._hover.containerDomNode;
-    const lastContainerFocusElement = this.findLastFocusableChild(
-      this._hover.containerDomNode
-    );
+    const lastContainerFocusElement = this.findLastFocusableChild(this._hover.containerDomNode);
     if (lastContainerFocusElement) {
-      const beforeContainerFocusElement = dom.prepend(
-        this._hoverContainer,
-        $("div")
-      );
-      const afterContainerFocusElement = dom.append(
-        this._hoverContainer,
-        $("div")
-      );
+      const beforeContainerFocusElement = dom.prepend(this._hoverContainer, $("div"));
+      const afterContainerFocusElement = dom.append(this._hoverContainer, $("div"));
       beforeContainerFocusElement.tabIndex = 0;
       afterContainerFocusElement.tabIndex = 0;
-      this._register(
-        dom.addDisposableListener(
-          afterContainerFocusElement,
-          "focus",
-          (e) => {
-            firstContainerFocusElement.focus();
-            e.preventDefault();
-          }
-        )
-      );
-      this._register(
-        dom.addDisposableListener(
-          beforeContainerFocusElement,
-          "focus",
-          (e) => {
-            lastContainerFocusElement.focus();
-            e.preventDefault();
-          }
-        )
-      );
+      this._register(dom.addDisposableListener(afterContainerFocusElement, "focus", (e) => {
+        firstContainerFocusElement.focus();
+        e.preventDefault();
+      }));
+      this._register(dom.addDisposableListener(beforeContainerFocusElement, "focus", (e) => {
+        lastContainerFocusElement.focus();
+        e.preventDefault();
+      }));
     }
   }
   findLastFocusableChild(root) {
     if (root.hasChildNodes()) {
       for (let i = 0; i < root.childNodes.length; i++) {
-        const node = root.childNodes.item(
-          root.childNodes.length - i - 1
-        );
+        const node = root.childNodes.item(root.childNodes.length - i - 1);
         if (node.nodeType === node.ELEMENT_NODE) {
           const parsedNode = node;
           if (typeof parsedNode.tabIndex === "number" && parsedNode.tabIndex >= 0) {
@@ -345,15 +272,8 @@ let HoverWidget = class extends Widget {
   }
   render(container) {
     container.appendChild(this._hoverContainer);
-    const hoverFocused = this._hoverContainer.contains(
-      this._hoverContainer.ownerDocument.activeElement
-    );
-    const accessibleViewHint = hoverFocused && getHoverAccessibleViewHint(
-      this._configurationService.getValue(
-        "accessibility.verbosity.hover"
-      ) === true && this._accessibilityService.isScreenReaderOptimized(),
-      this._keybindingService.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel()
-    );
+    const hoverFocused = this._hoverContainer.contains(this._hoverContainer.ownerDocument.activeElement);
+    const accessibleViewHint = hoverFocused && getHoverAccessibleViewHint(this._configurationService.getValue("accessibility.verbosity.hover") === true && this._accessibilityService.isScreenReaderOptimized(), this._keybindingService.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel());
     if (accessibleViewHint) {
       status(accessibleViewHint);
     }
@@ -373,9 +293,7 @@ let HoverWidget = class extends Widget {
         left: boundingRect.left * zoom
       };
     }, "getZoomAccountedBoundingClientRect");
-    const targetBounds = this._target.targetElements.map(
-      (e) => getZoomAccountedBoundingClientRect(e)
-    );
+    const targetBounds = this._target.targetElements.map((e) => getZoomAccountedBoundingClientRect(e));
     const { top, right, bottom, left } = targetBounds[0];
     const width = right - left;
     const height = bottom - top;
@@ -453,10 +371,7 @@ let HoverWidget = class extends Widget {
       }
       if (this._x + hoverWidth >= this._targetDocumentElement.clientWidth) {
         this._hover.containerDomNode.classList.add("right-aligned");
-        this._x = Math.max(
-          this._targetDocumentElement.clientWidth - hoverWidth - 2 /* HoverWindowEdgeMargin */,
-          this._targetDocumentElement.clientLeft
-        );
+        this._x = Math.max(this._targetDocumentElement.clientWidth - hoverWidth - 2 /* HoverWindowEdgeMargin */, this._targetDocumentElement.clientLeft);
       }
     }
     if (this._x < this._targetDocumentElement.clientLeft) {
@@ -470,10 +385,12 @@ let HoverWidget = class extends Widget {
       this._y = target.top;
     } else if (this._hoverPosition === HoverPosition.BELOW) {
       this._y = target.bottom - 2;
-    } else if (this._hoverPointer) {
-      this._y = target.center.y + this._hover.containerDomNode.clientHeight / 2;
     } else {
-      this._y = target.bottom;
+      if (this._hoverPointer) {
+        this._y = target.center.y + this._hover.containerDomNode.clientHeight / 2;
+      } else {
+        this._y = target.bottom;
+      }
     }
     if (this._y > this._targetWindow.innerHeight) {
       this._y = target.bottom;
@@ -540,10 +457,7 @@ let HoverWidget = class extends Widget {
       if (this._hoverPosition === HoverPosition.ABOVE) {
         maxHeight = Math.min(maxHeight, target.top - padding);
       } else if (this._hoverPosition === HoverPosition.BELOW) {
-        maxHeight = Math.min(
-          maxHeight,
-          this._targetWindow.innerHeight - target.bottom - padding
-        );
+        maxHeight = Math.min(maxHeight, this._targetWindow.innerHeight - target.bottom - padding);
       }
     }
     this._hover.containerDomNode.style.maxHeight = `${maxHeight}px`;
@@ -561,9 +475,7 @@ let HoverWidget = class extends Widget {
     switch (this._hoverPosition) {
       case HoverPosition.LEFT:
       case HoverPosition.RIGHT: {
-        this._hoverPointer.classList.add(
-          this._hoverPosition === HoverPosition.LEFT ? "right" : "left"
-        );
+        this._hoverPointer.classList.add(this._hoverPosition === HoverPosition.LEFT ? "right" : "left");
         const hoverHeight = this._hover.containerDomNode.clientHeight;
         if (hoverHeight > target.height) {
           this._hoverPointer.style.top = `${target.center.y - (this._y - hoverHeight) - 3 /* PointerSize */}px`;
@@ -574,9 +486,7 @@ let HoverWidget = class extends Widget {
       }
       case HoverPosition.ABOVE:
       case HoverPosition.BELOW: {
-        this._hoverPointer.classList.add(
-          this._hoverPosition === HoverPosition.ABOVE ? "bottom" : "top"
-        );
+        this._hoverPointer.classList.add(this._hoverPosition === HoverPosition.ABOVE ? "bottom" : "top");
         const hoverWidth = this._hover.containerDomNode.clientWidth;
         let pointerLeftPosition = Math.round(hoverWidth / 2) - 3 /* PointerSize */;
         const pointerX = this._x + pointerLeftPosition;
@@ -616,12 +526,8 @@ class CompositeMouseTracker extends Widget {
   constructor(_elements) {
     super();
     this._elements = _elements;
-    this._elements.forEach(
-      (n) => this.onmouseover(n, () => this._onTargetMouseOver(n))
-    );
-    this._elements.forEach(
-      (n) => this.onmouseleave(n, () => this._onTargetMouseLeave(n))
-    );
+    this._elements.forEach((n) => this.onmouseover(n, () => this._onTargetMouseOver(n)));
+    this._elements.forEach((n) => this.onmouseleave(n, () => this._onTargetMouseLeave(n)));
   }
   static {
     __name(this, "CompositeMouseTracker");

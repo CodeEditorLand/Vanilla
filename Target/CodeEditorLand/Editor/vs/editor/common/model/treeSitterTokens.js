@@ -1,11 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { StandardTokenType } from "../encodedTokenAttributes.js";
-import {
-  TreeSitterTokenizationRegistry
-} from "../languages.js";
+import { ILanguageIdCodec, ITreeSitterTokenizationSupport, TreeSitterTokenizationRegistry } from "../languages.js";
 import { LineTokens } from "../tokens/lineTokens.js";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { TextModel } from "./textModel.js";
+import { ITreeSitterParserService } from "../services/treeSitterParserService.js";
+import { IModelContentChangedEvent } from "../textModelEvents.js";
 import { AbstractTokens } from "./tokens.js";
+import { ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
 class TreeSitterTokens extends AbstractTokens {
   constructor(_treeSitterService, languageIdCodec, textModel, languageId) {
     super(languageIdCodec, textModel, languageId);
@@ -27,16 +29,9 @@ class TreeSitterTokens extends AbstractTokens {
   getLineTokens(lineNumber) {
     const content = this._textModel.getLineContent(lineNumber);
     if (this._tokenizationSupport) {
-      const rawTokens = this._tokenizationSupport.tokenizeEncoded(
-        lineNumber,
-        this._textModel
-      );
+      const rawTokens = this._tokenizationSupport.tokenizeEncoded(lineNumber, this._textModel);
       if (rawTokens) {
-        return new LineTokens(
-          rawTokens,
-          content,
-          this._languageIdCodec
-        );
+        return new LineTokens(rawTokens, content, this._languageIdCodec);
       }
     }
     return LineTokens.createEmpty(content, this._languageIdCodec);

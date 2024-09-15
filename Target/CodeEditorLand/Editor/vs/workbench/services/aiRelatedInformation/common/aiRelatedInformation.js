@@ -1,7 +1,7 @@
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IAiRelatedInformationService = createDecorator(
-  "IAiRelatedInformationService"
-);
+const IAiRelatedInformationService = createDecorator("IAiRelatedInformationService");
 var RelatedInformationType = /* @__PURE__ */ ((RelatedInformationType2) => {
   RelatedInformationType2[RelatedInformationType2["SymbolInformation"] = 1] = "SymbolInformation";
   RelatedInformationType2[RelatedInformationType2["CommandInformation"] = 2] = "CommandInformation";

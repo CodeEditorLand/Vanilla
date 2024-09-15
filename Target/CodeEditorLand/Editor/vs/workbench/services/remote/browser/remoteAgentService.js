@@ -11,39 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as nls from "../../../../nls.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../common/remoteAgentService.js";
+import { IRemoteAuthorityResolverService, RemoteAuthorityResolverError } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { AbstractRemoteAgentService } from "../common/abstractRemoteAgentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISignService } from "../../../../platform/sign/common/sign.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { Severity } from "../../../../platform/notification/common/notification.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import {
-  IRemoteAuthorityResolverService,
-  RemoteAuthorityResolverError
-} from "../../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
-import { ISignService } from "../../../../platform/sign/common/sign.js";
-import {
-  WorkbenchPhase,
-  registerWorkbenchContribution2
-} from "../../../common/contributions.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
 import { IHostService } from "../../host/browser/host.js";
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
-import { AbstractRemoteAgentService } from "../common/abstractRemoteAgentService.js";
-import { IRemoteAgentService } from "../common/remoteAgentService.js";
+import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
 let RemoteAgentService = class extends AbstractRemoteAgentService {
   static {
     __name(this, "RemoteAgentService");
   }
   constructor(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService) {
-    super(
-      remoteSocketFactoryService,
-      userDataProfileService,
-      environmentService,
-      productService,
-      remoteAuthorityResolverService,
-      signService,
-      logService
-    );
+    super(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService);
   }
 };
 RemoteAgentService = __decorateClass([
@@ -72,21 +58,11 @@ let RemoteConnectionFailureNotificationContribution = class {
   async _presentConnectionError(err) {
     await this._dialogService.prompt({
       type: Severity.Error,
-      message: nls.localize(
-        "connectionError",
-        "An unexpected error occurred that requires a reload of this page."
-      ),
-      detail: nls.localize(
-        "connectionErrorDetail",
-        "The workbench failed to connect to the server (Error: {0})",
-        err ? err.message : ""
-      ),
+      message: nls.localize("connectionError", "An unexpected error occurred that requires a reload of this page."),
+      detail: nls.localize("connectionErrorDetail", "The workbench failed to connect to the server (Error: {0})", err ? err.message : ""),
       buttons: [
         {
-          label: nls.localize(
-            { key: "reload", comment: ["&& denotes a mnemonic"] },
-            "&&Reload"
-          ),
+          label: nls.localize({ key: "reload", comment: ["&& denotes a mnemonic"] }, "&&Reload"),
           run: /* @__PURE__ */ __name(() => this._hostService.reload(), "run")
         }
       ]
@@ -98,11 +74,7 @@ RemoteConnectionFailureNotificationContribution = __decorateClass([
   __decorateParam(1, IDialogService),
   __decorateParam(2, IHostService)
 ], RemoteConnectionFailureNotificationContribution);
-registerWorkbenchContribution2(
-  RemoteConnectionFailureNotificationContribution.ID,
-  RemoteConnectionFailureNotificationContribution,
-  WorkbenchPhase.BlockRestore
-);
+registerWorkbenchContribution2(RemoteConnectionFailureNotificationContribution.ID, RemoteConnectionFailureNotificationContribution, WorkbenchPhase.BlockRestore);
 export {
   RemoteAgentService
 };

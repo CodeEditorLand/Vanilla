@@ -1,43 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { language } from "../../../../base/common/platform.js";
 import { localize } from "../../../../nls.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { language } from "../../../../base/common/platform.js";
 const ISpeechService = createDecorator("speechService");
-const HasSpeechProvider = new RawContextKey(
-  "hasSpeechProvider",
-  false,
-  {
-    type: "boolean",
-    description: localize(
-      "hasSpeechProvider",
-      "A speech provider is registered to the speech service."
-    )
-  }
-);
-const SpeechToTextInProgress = new RawContextKey(
-  "speechToTextInProgress",
-  false,
-  {
-    type: "boolean",
-    description: localize(
-      "speechToTextInProgress",
-      "A speech-to-text session is in progress."
-    )
-  }
-);
-const TextToSpeechInProgress = new RawContextKey(
-  "textToSpeechInProgress",
-  false,
-  {
-    type: "boolean",
-    description: localize(
-      "textToSpeechInProgress",
-      "A text-to-speech session is in progress."
-    )
-  }
-);
+const HasSpeechProvider = new RawContextKey("hasSpeechProvider", false, { type: "boolean", description: localize("hasSpeechProvider", "A speech provider is registered to the speech service.") });
+const SpeechToTextInProgress = new RawContextKey("speechToTextInProgress", false, { type: "boolean", description: localize("speechToTextInProgress", "A speech-to-text session is in progress.") });
+const TextToSpeechInProgress = new RawContextKey("textToSpeechInProgress", false, { type: "boolean", description: localize("textToSpeechInProgress", "A text-to-speech session is in progress.") });
 var SpeechToTextStatus = /* @__PURE__ */ ((SpeechToTextStatus2) => {
   SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
   SpeechToTextStatus2[SpeechToTextStatus2["Recognizing"] = 2] = "Recognizing";
@@ -140,10 +114,7 @@ const SPEECH_LANGUAGES = {
     name: localize("speechLanguage.zh-CN", "Chinese (Simplified, China)")
   },
   ["zh-HK"]: {
-    name: localize(
-      "speechLanguage.zh-HK",
-      "Chinese (Traditional, Hong Kong)"
-    )
+    name: localize("speechLanguage.zh-HK", "Chinese (Traditional, Hong Kong)")
   },
   ["zh-TW"]: {
     name: localize("speechLanguage.zh-TW", "Chinese (Traditional, Taiwan)")
@@ -154,12 +125,12 @@ function speechLanguageConfigToLanguage(config, lang = language) {
     if (config === "auto") {
       if (lang !== "en") {
         const langParts = lang.split("-");
-        return speechLanguageConfigToLanguage(
-          `${langParts[0]}-${(langParts[1] ?? langParts[0]).toUpperCase()}`
-        );
+        return speechLanguageConfigToLanguage(`${langParts[0]}-${(langParts[1] ?? langParts[0]).toUpperCase()}`);
       }
-    } else if (SPEECH_LANGUAGES[config]) {
-      return config;
+    } else {
+      if (SPEECH_LANGUAGES[config]) {
+        return config;
+      }
     }
   }
   return "en-US";

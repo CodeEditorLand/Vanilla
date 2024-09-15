@@ -1,4 +1,4 @@
-var snippet_default = "../../../../../Asset/snippet-VTHJ35O6.md";
+var snippet_default = "../../../../../Asset/snippet-QR2YUOGI.md";
 export {
   snippet_default as default
 };

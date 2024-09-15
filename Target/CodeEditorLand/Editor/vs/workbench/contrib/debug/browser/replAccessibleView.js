@@ -10,18 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider, IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { IReplElement } from "../common/debug.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { getReplView, Repl } from "./repl.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { Position } from "../../../../editor/common/core/position.js";
-import {
-  AccessibleViewProviderId,
-  AccessibleViewType,
-  IAccessibleViewService
-} from "../../../../platform/accessibility/browser/accessibleView.js";
-import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { getReplView } from "./repl.js";
 class ReplAccessibleView {
   static {
     __name(this, "ReplAccessibleView");
@@ -38,11 +37,7 @@ class ReplAccessibleView {
       return void 0;
     }
     const focusedElement = replView.getFocusedElement();
-    return new ReplOutputAccessibleViewProvider(
-      replView,
-      focusedElement,
-      accessibleViewService
-    );
+    return new ReplOutputAccessibleViewProvider(replView, focusedElement, accessibleViewService);
   }
 }
 let ReplOutputAccessibleViewProvider = class extends Disposable {
@@ -58,13 +53,9 @@ let ReplOutputAccessibleViewProvider = class extends Disposable {
   }
   id = AccessibleViewProviderId.Repl;
   _content;
-  _onDidChangeContent = this._register(
-    new Emitter()
-  );
+  _onDidChangeContent = this._register(new Emitter());
   onDidChangeContent = this._onDidChangeContent.event;
-  _onDidResolveChildren = this._register(
-    new Emitter()
-  );
+  _onDidResolveChildren = this._register(new Emitter());
   onDidResolveChildren = this._onDidResolveChildren.event;
   verbositySettingKey = AccessibilityVerbositySettingId.Debug;
   options = {
@@ -95,24 +86,17 @@ let ReplOutputAccessibleViewProvider = class extends Disposable {
     this._replView.getReplInput().focus();
   }
   onOpen() {
-    this._register(
-      this.onDidResolveChildren(() => {
-        this._onDidChangeContent.fire();
-        queueMicrotask(() => {
-          if (this._focusedElement) {
-            const position = this._elementPositionMap.get(
-              this._focusedElement.getId()
-            );
-            if (position) {
-              this._accessibleViewService.setPosition(
-                position,
-                true
-              );
-            }
+    this._register(this.onDidResolveChildren(() => {
+      this._onDidChangeContent.fire();
+      queueMicrotask(() => {
+        if (this._focusedElement) {
+          const position = this._elementPositionMap.get(this._focusedElement.getId());
+          if (position) {
+            this._accessibleViewService.setPosition(position, true);
           }
-        });
-      })
-    );
+        }
+      });
+    }));
   }
   async _updateContent(elements) {
     const dataSource = this._replView.getReplDataSource();

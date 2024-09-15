@@ -2,18 +2,14 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BugIndicatingError } from "../../../../base/common/errors.js";
 import { ensureNonNullable } from "../gpuUtils.js";
-import {
-  UsagePreviewColors
-} from "./atlas.js";
+import { UsagePreviewColors } from "./atlas.js";
 class TextureAtlasShelfAllocator {
   constructor(_canvas, _textureIndex) {
     this._canvas = _canvas;
     this._textureIndex = _textureIndex;
-    this._ctx = ensureNonNullable(
-      this._canvas.getContext("2d", {
-        willReadFrequently: true
-      })
-    );
+    this._ctx = ensureNonNullable(this._canvas.getContext("2d", {
+      willReadFrequently: true
+    }));
   }
   static {
     __name(this, "TextureAtlasShelfAllocator");
@@ -31,9 +27,7 @@ class TextureAtlasShelfAllocator {
     const glyphWidth = rasterizedGlyph.boundingBox.right - rasterizedGlyph.boundingBox.left + 1;
     const glyphHeight = rasterizedGlyph.boundingBox.bottom - rasterizedGlyph.boundingBox.top + 1;
     if (glyphWidth > this._canvas.width || glyphHeight > this._canvas.height) {
-      throw new BugIndicatingError(
-        "Glyph is too large for the atlas page"
-      );
+      throw new BugIndicatingError("Glyph is too large for the atlas page");
     }
     if (rasterizedGlyph.boundingBox.right - rasterizedGlyph.boundingBox.left + 1 > this._canvas.width - this._currentRow.x) {
       this._currentRow.x = 0;

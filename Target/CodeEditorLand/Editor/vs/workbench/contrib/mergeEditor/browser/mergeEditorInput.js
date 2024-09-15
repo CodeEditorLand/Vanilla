@@ -14,29 +14,22 @@ import { assertFn } from "../../../../base/common/assert.js";
 import { autorun } from "../../../../base/common/observable.js";
 import { isEqual } from "../../../../base/common/resources.js";
 import { isDefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
-import {
-  DEFAULT_EDITOR_ASSOCIATION,
-  EditorInputCapabilities,
-  isResourceMergeEditorInput
-} from "../../../common/editor.js";
-import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { DEFAULT_EDITOR_ASSOCIATION, EditorInputCapabilities, IResourceMergeEditorInput, IRevertOptions, isResourceMergeEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
+import { EditorInput, IEditorCloseHandler } from "../../../common/editor/editorInput.js";
 import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { IMergeEditorInputModel, TempFileMergeEditorModeFactory, WorkspaceMergeEditorModeFactory } from "./mergeEditorInputModel.js";
+import { MergeEditorTelemetry } from "./telemetry.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
-import {
-  ITextFileService
-} from "../../../services/textfile/common/textfiles.js";
-import {
-  TempFileMergeEditorModeFactory,
-  WorkspaceMergeEditorModeFactory
-} from "./mergeEditorInputModel.js";
-import { MergeEditorTelemetry } from "./telemetry.js";
+import { ILanguageSupport, ITextFileSaveOptions, ITextFileService } from "../../../services/textfile/common/textfiles.js";
 class MergeEditorInputData {
   constructor(uri, title, detail, description) {
     this.uri = uri;
@@ -50,17 +43,7 @@ class MergeEditorInputData {
 }
 let MergeEditorInput = class extends AbstractTextResourceEditorInput {
   constructor(base, input1, input2, result, _instaService, editorService, textFileService, labelService, fileService, configurationService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
-    super(
-      result,
-      void 0,
-      editorService,
-      textFileService,
-      labelService,
-      fileService,
-      filesConfigurationService,
-      textResourceConfigurationService,
-      customEditorLabelService
-    );
+    super(result, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
     this.base = base;
     this.input1 = input1;
     this.input2 = input2;
@@ -76,9 +59,7 @@ let MergeEditorInput = class extends AbstractTextResourceEditorInput {
   closeHandler = {
     showConfirm: /* @__PURE__ */ __name(() => this._inputModel?.shouldConfirmClose() ?? false, "showConfirm"),
     confirm: /* @__PURE__ */ __name(async (editors) => {
-      assertFn(
-        () => editors.every((e) => e.editor instanceof MergeEditorInput)
-      );
+      assertFn(() => editors.every((e) => e.editor instanceof MergeEditorInput));
       const inputModels = editors.map((e) => e.editor._inputModel).filter(isDefined);
       return await this._inputModel.confirmClose(inputModels);
     }, "confirm")
@@ -111,21 +92,17 @@ let MergeEditorInput = class extends AbstractTextResourceEditorInput {
   );
   async resolve() {
     if (!this._inputModel) {
-      const inputModel = this._register(
-        await this.mergeEditorModeFactory.createInputModel({
-          base: this.base,
-          input1: this.input1,
-          input2: this.input2,
-          result: this.result
-        })
-      );
+      const inputModel = this._register(await this.mergeEditorModeFactory.createInputModel({
+        base: this.base,
+        input1: this.input1,
+        input2: this.input2,
+        result: this.result
+      }));
       this._inputModel = inputModel;
-      this._register(
-        autorun((reader) => {
-          inputModel.isDirty.read(reader);
-          this._onDidChangeDirty.fire();
-        })
-      );
+      this._register(autorun((reader) => {
+        inputModel.isDirty.read(reader);
+        this._onDidChangeDirty.fire();
+      }));
       await this._inputModel.model.onInitialized;
     }
     return this._inputModel;
@@ -139,18 +116,8 @@ let MergeEditorInput = class extends AbstractTextResourceEditorInput {
   }
   toUntyped() {
     return {
-      input1: {
-        resource: this.input1.uri,
-        label: this.input1.title,
-        description: this.input1.description,
-        detail: this.input1.detail
-      },
-      input2: {
-        resource: this.input2.uri,
-        label: this.input2.title,
-        description: this.input2.description,
-        detail: this.input2.detail
-      },
+      input1: { resource: this.input1.uri, label: this.input1.title, description: this.input1.description, detail: this.input1.detail },
+      input2: { resource: this.input2.uri, label: this.input2.title, description: this.input2.description, detail: this.input2.detail },
       base: { resource: this.base },
       result: { resource: this.result },
       options: {

@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IElevatedFileService } from "../common/elevatedFileService.js";
 class BrowserElevatedFileService {
   static {
@@ -17,11 +17,7 @@ class BrowserElevatedFileService {
     throw new Error("Unsupported");
   }
 }
-registerSingleton(
-  IElevatedFileService,
-  BrowserElevatedFileService,
-  InstantiationType.Delayed
-);
+registerSingleton(IElevatedFileService, BrowserElevatedFileService, InstantiationType.Delayed);
 export {
   BrowserElevatedFileService
 };

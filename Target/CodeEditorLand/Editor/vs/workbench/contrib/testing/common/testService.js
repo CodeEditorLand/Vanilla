@@ -2,16 +2,22 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assert } from "../../../../base/common/assert.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import {
-  WellDefinedPrefixTree
-} from "../../../../base/common/prefixTree.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { IPrefixTreeNode, WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Location } from "../../../../editor/common/languages.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { MutableObservableValue } from "./observableValue.js";
+import { TestExclusions } from "./testExclusions.js";
 import { TestId } from "./testId.js";
-import {
-  TestItemExpandState
-} from "./testTypes.js";
+import { ITestResult } from "./testResult.js";
+import { AbstractIncrementalTestCollection, ICallProfileRunHandler, IncrementalTestCollectionItem, InternalTestItem, IStartControllerTests, IStartControllerTestsResult, ITestItemContext, ResolvedTestRunRequest, TestControllerCapability, TestItemExpandState, TestMessageFollowupRequest, TestMessageFollowupResponse, TestRunProfileBitset, TestsDiff } from "./testTypes.js";
 const ITestService = createDecorator("testService");
 const testCollectionIsEmpty = /* @__PURE__ */ __name((collection) => !Iterable.some(collection.rootItems, (r) => r.children.size > 0), "testCollectionIsEmpty");
 const getContextForTestItem = /* @__PURE__ */ __name((collection, id) => {
@@ -21,10 +27,7 @@ const getContextForTestItem = /* @__PURE__ */ __name((collection, id) => {
   if (id.isRoot) {
     return { controller: id.toString() };
   }
-  const context = {
-    $mid: MarshalledId.TestItemContext,
-    tests: []
-  };
+  const context = { $mid: MarshalledId.TestItemContext, tests: [] };
   for (const i of id.idsFromRoot()) {
     if (!i.isRoot) {
       const test = collection.getNodeById(i.toString());

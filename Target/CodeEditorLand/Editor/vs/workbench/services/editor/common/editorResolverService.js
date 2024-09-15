@@ -1,41 +1,38 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as glob from "../../../../base/common/glob.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { posix } from "../../../../base/common/path.js";
 import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  Extensions as ConfigurationExtensions
-} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { Extensions as ConfigurationExtensions, IConfigurationNode, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IResourceEditorInput, ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
-const IEditorResolverService = createDecorator(
-  "editorResolverService"
-);
+import { EditorInputWithOptions, EditorInputWithOptionsAndGroup, IResourceDiffEditorInput, IResourceMultiDiffEditorInput, IResourceMergeEditorInput, IUntitledTextResourceEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
+import { IEditorGroup } from "./editorGroupsService.js";
+import { PreferredGroup } from "./editorService.js";
+import { AtLeastOne } from "../../../../base/common/types.js";
+const IEditorResolverService = createDecorator("editorResolverService");
 const editorsAssociationsSettingId = "workbench.editorAssociations";
-const configurationRegistry = Registry.as(
-  ConfigurationExtensions.Configuration
-);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
 const editorAssociationsConfigurationNode = {
   ...workbenchConfigurationNodeBase,
   properties: {
     "workbench.editorAssociations": {
       type: "object",
-      markdownDescription: localize(
-        "editor.editorAssociations",
-        'Configure [glob patterns](https://aka.ms/vscode-glob-patterns) to editors (for example `"*.hex": "hexEditor.hexedit"`). These have precedence over the default behavior.'
-      ),
+      markdownDescription: localize("editor.editorAssociations", 'Configure [glob patterns](https://aka.ms/vscode-glob-patterns) to editors (for example `"*.hex": "hexEditor.hexedit"`). These have precedence over the default behavior.'),
       additionalProperties: {
         type: "string"
       }
     }
   }
 };
-configurationRegistry.registerConfiguration(
-  editorAssociationsConfigurationNode
-);
+configurationRegistry.registerConfiguration(editorAssociationsConfigurationNode);
 var RegisteredEditorPriority = /* @__PURE__ */ ((RegisteredEditorPriority2) => {
   RegisteredEditorPriority2["builtin"] = "builtin";
   RegisteredEditorPriority2["option"] = "option";
@@ -75,10 +72,7 @@ function globMatchesResource(globPattern, resource) {
   }
   const matchOnPath = typeof globPattern === "string" && globPattern.indexOf(posix.sep) >= 0;
   const target = matchOnPath ? `${resource.scheme}:${resource.path}` : basename(resource);
-  return glob.match(
-    typeof globPattern === "string" ? globPattern.toLowerCase() : globPattern,
-    target.toLowerCase()
-  );
+  return glob.match(typeof globPattern === "string" ? globPattern.toLowerCase() : globPattern, target.toLowerCase());
 }
 __name(globMatchesResource, "globMatchesResource");
 export {

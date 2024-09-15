@@ -13,23 +13,19 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { inputLatency } from "../../../../base/browser/performance.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { Event } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 let InputLatencyContrib = class extends Disposable {
   constructor(_editorService, _telemetryService) {
     super();
     this._editorService = _editorService;
     this._telemetryService = _telemetryService;
-    this._scheduler = this._register(
-      new RunOnceScheduler(() => {
-        this._logSamples();
-        this._setupListener();
-      }, 6e4)
-    );
+    this._scheduler = this._register(new RunOnceScheduler(() => {
+      this._logSamples();
+      this._setupListener();
+    }, 6e4));
     if (Math.random() <= 0.01) {
       this._setupListener();
     }
@@ -40,9 +36,7 @@ let InputLatencyContrib = class extends Disposable {
   _listener = this._register(new MutableDisposable());
   _scheduler;
   _setupListener() {
-    this._listener.value = Event.once(
-      this._editorService.onDidActiveEditorChange
-    )(() => this._scheduler.schedule());
+    this._listener.value = Event.once(this._editorService.onDidActiveEditorChange)(() => this._scheduler.schedule());
   }
   _logSamples() {
     const measurements = inputLatency.getAndClearMeasurements();

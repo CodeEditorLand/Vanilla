@@ -14,10 +14,7 @@ class TokenArray {
   forEach(cb) {
     let lengthSum = 0;
     for (const tokenInfo of this._tokenInfo) {
-      const range = new OffsetRange(
-        lengthSum,
-        lengthSum + tokenInfo.length
-      );
+      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.length);
       cb(range, tokenInfo);
       lengthSum += tokenInfo.length;
     }
@@ -34,12 +31,7 @@ class TokenArray {
         }
         const deltaBefore = Math.max(0, range.start - tokenStart);
         const deltaAfter = Math.max(0, tokenEndEx - range.endExclusive);
-        result.push(
-          new TokenInfo(
-            tokenInfo.length - deltaBefore - deltaAfter,
-            tokenInfo.metadata
-          )
-        );
+        result.push(new TokenInfo(tokenInfo.length - deltaBefore - deltaAfter, tokenInfo.metadata));
       }
       lengthSum += tokenInfo.length;
     }

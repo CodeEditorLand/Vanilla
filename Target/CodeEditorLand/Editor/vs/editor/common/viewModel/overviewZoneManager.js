@@ -158,9 +158,7 @@ class OverviewZoneManager {
     const totalHeight = Math.floor(this.getCanvasHeight());
     const outerHeight = Math.floor(this._outerHeight);
     const heightRatio = totalHeight / outerHeight;
-    const halfMinimumHeight = Math.floor(
-      4 /* MINIMUM_HEIGHT */ * this._pixelRatio / 2
-    );
+    const halfMinimumHeight = Math.floor(4 /* MINIMUM_HEIGHT */ * this._pixelRatio / 2);
     const allColorZones = [];
     for (let i = 0, len = this._zones.length; i < len; i++) {
       const zone = this._zones[i];
@@ -171,9 +169,7 @@ class OverviewZoneManager {
           continue;
         }
       }
-      const offset1 = this._getVerticalOffsetForLine(
-        zone.startLineNumber
-      );
+      const offset1 = this._getVerticalOffsetForLine(zone.startLineNumber);
       const offset2 = zone.heightInLines === 0 ? this._getVerticalOffsetForLine(zone.endLineNumber) + lineHeight : offset1 + zone.heightInLines * lineHeight;
       const y1 = Math.floor(heightRatio * offset1);
       const y2 = Math.floor(heightRatio * offset2);
@@ -195,11 +191,7 @@ class OverviewZoneManager {
         this._color2Id[color] = colorId;
         this._id2Color[colorId] = color;
       }
-      const colorZone = new ColorZone(
-        ycenter - halfHeight,
-        ycenter + halfHeight,
-        colorId
-      );
+      const colorZone = new ColorZone(ycenter - halfHeight, ycenter + halfHeight, colorId);
       zone.setColorZone(colorZone);
       allColorZones.push(colorZone);
     }

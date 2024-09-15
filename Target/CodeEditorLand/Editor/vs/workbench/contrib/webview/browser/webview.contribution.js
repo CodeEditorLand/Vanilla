@@ -1,25 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getActiveElement } from "../../../../base/browser/dom.js";
-import {
-  RedoCommand,
-  SelectAllCommand,
-  UndoCommand
-} from "../../../../editor/browser/editorExtensions.js";
-import {
-  CopyAction,
-  CutAction,
-  PasteAction
-} from "../../../../editor/contrib/clipboard/browser/clipboard.js";
+import { MultiCommand, RedoCommand, SelectAllCommand, UndoCommand } from "../../../../editor/browser/editorExtensions.js";
+import { CopyAction, CutAction, PasteAction } from "../../../../editor/contrib/clipboard/browser/clipboard.js";
 import * as nls from "../../../../nls.js";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../../platform/actions/common/actions.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWebviewService, IWebview } from "./webview.js";
 import { WebviewInput } from "../../webviewPanel/browser/webviewEditorInput.js";
-import { IWebviewService } from "./webview.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 const PRIORITY = 100;
 function overrideCommandForWebview(command, f) {
   command?.addImplementation(PRIORITY, "webview", (accessor) => {

@@ -3,10 +3,8 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { buffer, ExtractError } from "../../../base/node/zip.js";
 import { localize } from "../../../nls.js";
 import { toExtensionManagementError } from "../common/abstractExtensionManagementService.js";
-import {
-  ExtensionManagementError,
-  ExtensionManagementErrorCode
-} from "../common/extensionManagement.js";
+import { ExtensionManagementError, ExtensionManagementErrorCode } from "../common/extensionManagement.js";
+import { IExtensionManifest } from "../../extensions/common/extensions.js";
 function fromExtractError(e) {
   let errorCode = ExtensionManagementErrorCode.Extract;
   if (e instanceof ExtractError) {
@@ -29,13 +27,7 @@ async function getManifest(vsixPath) {
   try {
     return JSON.parse(data.toString("utf8"));
   } catch (err) {
-    throw new ExtensionManagementError(
-      localize(
-        "invalidManifest",
-        "VSIX invalid: package.json is not a JSON file."
-      ),
-      ExtensionManagementErrorCode.Invalid
-    );
+    throw new ExtensionManagementError(localize("invalidManifest", "VSIX invalid: package.json is not a JSON file."), ExtensionManagementErrorCode.Invalid);
   }
 }
 __name(getManifest, "getManifest");

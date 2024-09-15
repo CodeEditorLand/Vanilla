@@ -85,9 +85,7 @@ class Scanner {
     do {
       len += 1;
       ch = this.value.charCodeAt(pos + len);
-    } while (!isNaN(ch) && typeof Scanner._table[ch] === "undefined" && // not static token
-    !Scanner.isDigitCharacter(ch) && // not number
-    !Scanner.isVariableCharacter(ch));
+    } while (!isNaN(ch) && typeof Scanner._table[ch] === "undefined" && !Scanner.isDigitCharacter(ch) && !Scanner.isVariableCharacter(ch));
     this.pos += len;
     return { type, pos, len };
   }
@@ -263,16 +261,15 @@ class Transform extends Marker {
   static {
     __name(this, "Transform");
   }
-  regexp = /(?:)/;
+  regexp = new RegExp("");
   resolve(value) {
+    const _this = this;
     let didMatch = false;
-    let ret = value.replace(this.regexp, () => {
+    let ret = value.replace(this.regexp, function() {
       didMatch = true;
-      return this._replace(Array.prototype.slice.call(arguments, 0, -2));
+      return _this._replace(Array.prototype.slice.call(arguments, 0, -2));
     });
-    if (!didMatch && this._children.some(
-      (child) => child instanceof FormatString && Boolean(child.elseValue)
-    )) {
+    if (!didMatch && this._children.some((child) => child instanceof FormatString && Boolean(child.elseValue))) {
       ret = this._replace([]);
     }
     return ret;
@@ -298,10 +295,7 @@ class Transform extends Marker {
   }
   clone() {
     const ret = new Transform();
-    ret.regexp = new RegExp(
-      this.regexp.source,
-      (this.regexp.ignoreCase ? "i" : "") + (this.regexp.global ? "g" : "")
-    );
+    ret.regexp = new RegExp(this.regexp.source, (this.regexp.ignoreCase ? "i" : "") + (this.regexp.global ? "g" : ""));
     ret._children = this.children.map((child) => child.clone());
     return ret;
   }
@@ -319,15 +313,15 @@ class FormatString extends Marker {
   }
   resolve(value) {
     if (this.shorthandName === "upcase") {
-      return value ? value.toLocaleUpperCase() : "";
+      return !value ? "" : value.toLocaleUpperCase();
     } else if (this.shorthandName === "downcase") {
-      return value ? value.toLocaleLowerCase() : "";
+      return !value ? "" : value.toLocaleLowerCase();
     } else if (this.shorthandName === "capitalize") {
-      return value ? value[0].toLocaleUpperCase() + value.substr(1) : "";
+      return !value ? "" : value[0].toLocaleUpperCase() + value.substr(1);
     } else if (this.shorthandName === "pascalcase") {
-      return value ? this._toPascalCase(value) : "";
+      return !value ? "" : this._toPascalCase(value);
     } else if (this.shorthandName === "camelcase") {
-      return value ? this._toCamelCase(value) : "";
+      return !value ? "" : this._toCamelCase(value);
     } else if (Boolean(value) && typeof this.ifValue === "string") {
       return this.ifValue;
     } else if (!Boolean(value) && typeof this.elseValue === "string") {
@@ -373,12 +367,7 @@ class FormatString extends Marker {
     return value;
   }
   clone() {
-    const ret = new FormatString(
-      this.index,
-      this.shorthandName,
-      this.ifValue,
-      this.elseValue
-    );
+    const ret = new FormatString(this.index, this.shorthandName, this.ifValue, this.elseValue);
     return ret;
   }
 }
@@ -442,7 +431,7 @@ class TextmateSnippet extends Marker {
     if (!this._placeholders) {
       const all = [];
       let last;
-      this.walk((candidate) => {
+      this.walk(function(candidate) {
         if (candidate instanceof Placeholder) {
           all.push(candidate);
           last = !last || last.index < candidate.index ? candidate : last;
@@ -512,10 +501,7 @@ class TextmateSnippet extends Marker {
     return super.replace(child, others);
   }
   toTextmateString() {
-    return this.children.reduce(
-      (prev, cur) => prev + cur.toTextmateString(),
-      ""
-    );
+    return this.children.reduce((prev, cur) => prev + cur.toTextmateString(), "");
   }
   clone() {
     const ret = new TextmateSnippet();
@@ -548,11 +534,7 @@ class SnippetParser {
   parse(value, insertFinalTabstop, enforceFinalTabstop) {
     const snippet = new TextmateSnippet();
     this.parseFragment(value, snippet);
-    this.ensureFinalTabstop(
-      snippet,
-      enforceFinalTabstop ?? false,
-      insertFinalTabstop ?? false
-    );
+    this.ensureFinalTabstop(snippet, enforceFinalTabstop ?? false, insertFinalTabstop ?? false);
     return snippet;
   }
   parseFragment(value, snippet) {
@@ -576,9 +558,7 @@ class SnippetParser {
       return true;
     });
     const fillInIncompletePlaceholder = /* @__PURE__ */ __name((placeholder, stack2) => {
-      const defaultValues = placeholderDefaultValues.get(
-        placeholder.index
-      );
+      const defaultValues = placeholderDefaultValues.get(placeholder.index);
       if (!defaultValues) {
         return;
       }
@@ -603,9 +583,7 @@ class SnippetParser {
   }
   ensureFinalTabstop(snippet, enforceFinalTabstop, insertFinalTabstop) {
     if (enforceFinalTabstop || insertFinalTabstop && snippet.placeholders.length > 0) {
-      const finalTabstop = snippet.placeholders.find(
-        (p) => p.index === 0
-      );
+      const finalTabstop = snippet.placeholders.find((p) => p.index === 0);
       if (!finalTabstop) {
         snippet.appendChild(new Placeholder(0));
       }
@@ -613,7 +591,7 @@ class SnippetParser {
   }
   _accept(type, value) {
     if (type === void 0 || this._token.type === type) {
-      const ret = value ? this._scanner.tokenText(this._token) : true;
+      const ret = !value ? true : this._scanner.tokenText(this._token);
       this._token = this._scanner.next();
       return ret;
     }
@@ -871,27 +849,13 @@ class SnippetParser {
     } else if (this._accept(11 /* Plus */)) {
       const ifValue = this._until(4 /* CurlyClose */);
       if (ifValue) {
-        parent.appendChild(
-          new FormatString(
-            Number(index),
-            void 0,
-            ifValue,
-            void 0
-          )
-        );
+        parent.appendChild(new FormatString(Number(index), void 0, ifValue, void 0));
         return true;
       }
     } else if (this._accept(12 /* Dash */)) {
       const elseValue = this._until(4 /* CurlyClose */);
       if (elseValue) {
-        parent.appendChild(
-          new FormatString(
-            Number(index),
-            void 0,
-            void 0,
-            elseValue
-          )
-        );
+        parent.appendChild(new FormatString(Number(index), void 0, void 0, elseValue));
         return true;
       }
     } else if (this._accept(13 /* QuestionMark */)) {
@@ -899,28 +863,14 @@ class SnippetParser {
       if (ifValue) {
         const elseValue = this._until(4 /* CurlyClose */);
         if (elseValue) {
-          parent.appendChild(
-            new FormatString(
-              Number(index),
-              void 0,
-              ifValue,
-              elseValue
-            )
-          );
+          parent.appendChild(new FormatString(Number(index), void 0, ifValue, elseValue));
           return true;
         }
       }
     } else {
       const elseValue = this._until(4 /* CurlyClose */);
       if (elseValue) {
-        parent.appendChild(
-          new FormatString(
-            Number(index),
-            void 0,
-            void 0,
-            elseValue
-          )
-        );
+        parent.appendChild(new FormatString(Number(index), void 0, void 0, elseValue));
         return true;
       }
     }

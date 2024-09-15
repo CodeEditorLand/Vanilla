@@ -13,21 +13,12 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as DOM from "../../../../../../base/browser/dom.js";
 import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { localize } from "../../../../../../nls.js";
-import {
-  NotebookCellExecutionState
-} from "../../../common/notebookCommon.js";
-import {
-  INotebookExecutionStateService,
-  NotebookExecutionType
-} from "../../../common/notebookExecutionStateService.js";
-import {
-  errorStateIcon,
-  executingStateIcon,
-  pendingStateIcon,
-  successStateIcon
-} from "../../notebookIcons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
+import { errorStateIcon, executingStateIcon, pendingStateIcon, successStateIcon } from "../../notebookIcons.js";
+import { NotebookCellExecutionState, NotebookCellInternalMetadata } from "../../../common/notebookCommon.js";
+import { INotebookCellExecution, INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
 let CollapsedCodeCellExecutionIcon = class extends Disposable {
   constructor(_notebookEditor, _cell, _element, _executionStateService) {
     super();
@@ -35,16 +26,12 @@ let CollapsedCodeCellExecutionIcon = class extends Disposable {
     this._element = _element;
     this._executionStateService = _executionStateService;
     this._update();
-    this._register(
-      this._executionStateService.onDidChangeExecution((e) => {
-        if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
-          this._update();
-        }
-      })
-    );
-    this._register(
-      this._cell.model.onDidChangeInternalMetadata(() => this._update())
-    );
+    this._register(this._executionStateService.onDidChangeExecution((e) => {
+      if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
+        this._update();
+      }
+    }));
+    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
   }
   static {
     __name(this, "CollapsedCodeCellExecutionIcon");
@@ -58,13 +45,8 @@ let CollapsedCodeCellExecutionIcon = class extends Disposable {
     if (!this._visible) {
       return;
     }
-    const runState = this._executionStateService.getCellExecution(
-      this._cell.uri
-    );
-    const item = this._getItemForState(
-      runState,
-      this._cell.model.internalMetadata
-    );
+    const runState = this._executionStateService.getCellExecution(this._cell.uri);
+    const item = this._getItemForState(runState, this._cell.model.internalMetadata);
     if (item) {
       this._element.style.display = "";
       DOM.reset(this._element, ...renderLabelWithIcons(item.text));
@@ -96,10 +78,7 @@ let CollapsedCodeCellExecutionIcon = class extends Disposable {
       const icon = ThemeIcon.modify(executingStateIcon, "spin");
       return {
         text: `$(${icon.id})`,
-        tooltip: localize(
-          "notebook.cell.status.executing",
-          "Executing"
-        )
+        tooltip: localize("notebook.cell.status.executing", "Executing")
       };
     }
     return;

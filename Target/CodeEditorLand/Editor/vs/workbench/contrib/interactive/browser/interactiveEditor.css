@@ -9,6 +9,6 @@
 }
 .interactive-editor .input-cell-container .monaco-editor-background,
 .interactive-editor .input-cell-container .margin-view-overlays {
-  background-color: var( --vscode-notebook-cellEditorBackground, var(--vscode-editor-background) );
+  background-color: var(--vscode-notebook-cellEditorBackground, var(--vscode-editor-background));
 }
 /*# sourceMappingURL=interactiveEditor.css.map */

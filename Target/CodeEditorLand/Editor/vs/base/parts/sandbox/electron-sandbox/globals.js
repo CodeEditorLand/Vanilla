@@ -1,3 +1,6 @@
+import { INodeProcess, IProcessEnvironment } from "../../../common/platform.js";
+import { ISandboxConfiguration } from "../common/sandboxTypes.js";
+import { IpcRenderer, ProcessMemoryInfo, WebFrame, WebUtils } from "./electronTypes.js";
 const vscodeGlobal = globalThis.vscode;
 const ipcRenderer = vscodeGlobal.ipcRenderer;
 const ipcMessagePort = vscodeGlobal.ipcMessagePort;

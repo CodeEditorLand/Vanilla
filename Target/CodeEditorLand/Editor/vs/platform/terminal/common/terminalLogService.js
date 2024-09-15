@@ -10,35 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { joinPath } from "../../../base/common/resources.js";
+import { Event } from "../../../base/common/event.js";
 import { localize } from "../../../nls.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import {
-  ILoggerService,
-  LogLevel
-} from "../../log/common/log.js";
+import { ILogger, ILoggerService, LogLevel } from "../../log/common/log.js";
+import { ITerminalLogService } from "./terminal.js";
 import { IWorkspaceContextService } from "../../workspace/common/workspace.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { joinPath } from "../../../base/common/resources.js";
 let TerminalLogService = class extends Disposable {
   constructor(_loggerService, workspaceContextService, environmentService) {
     super();
     this._loggerService = _loggerService;
-    this._logger = this._loggerService.createLogger(
-      joinPath(environmentService.logsHome, "terminal.log"),
-      {
-        id: "terminal",
-        name: localize("terminalLoggerName", "Terminal")
-      }
-    );
-    this._register(
-      Event.runAndSubscribe(
-        workspaceContextService.onDidChangeWorkspaceFolders,
-        () => {
-          this._workspaceId = workspaceContextService.getWorkspace().id.substring(0, 7);
-        }
-      )
-    );
+    this._logger = this._loggerService.createLogger(joinPath(environmentService.logsHome, "terminal.log"), { id: "terminal", name: localize("terminalLoggerName", "Terminal") });
+    this._register(Event.runAndSubscribe(workspaceContextService.onDidChangeWorkspaceFolders, () => {
+      this._workspaceId = workspaceContextService.getWorkspace().id.substring(0, 7);
+    }));
   }
   static {
     __name(this, "TerminalLogService");

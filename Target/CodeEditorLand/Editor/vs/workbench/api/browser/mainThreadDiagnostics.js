@@ -10,38 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../base/common/uri.js";
-import {
-  IMarkerService
-} from "../../../platform/markers/common/markers.js";
+import { IMarkerService, IMarkerData } from "../../../platform/markers/common/markers.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { MainThreadDiagnosticsShape, MainContext, ExtHostDiagnosticsShape, ExtHostContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
 let MainThreadDiagnostics = class {
   constructor(extHostContext, _markerService, _uriIdentService) {
     this._markerService = _markerService;
     this._uriIdentService = _uriIdentService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostDiagnostics
-    );
-    this._markerListener = this._markerService.onMarkerChanged(
-      this._forwardMarkers,
-      this
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDiagnostics);
+    this._markerListener = this._markerService.onMarkerChanged(this._forwardMarkers, this);
   }
   _activeOwners = /* @__PURE__ */ new Set();
   _proxy;
   _markerListener;
   dispose() {
     this._markerListener.dispose();
-    this._activeOwners.forEach(
-      (owner) => this._markerService.changeAll(owner, [])
-    );
+    this._activeOwners.forEach((owner) => this._markerService.changeAll(owner, []));
     this._activeOwners.clear();
   }
   _forwardMarkers(resources) {
@@ -51,9 +38,7 @@ let MainThreadDiagnostics = class {
       if (allMarkerData.length === 0) {
         data.push([resource, []]);
       } else {
-        const forgeinMarkerData = allMarkerData.filter(
-          (marker) => !this._activeOwners.has(marker.owner)
-        );
+        const forgeinMarkerData = allMarkerData.filter((marker) => !this._activeOwners.has(marker.owner));
         if (forgeinMarkerData.length > 0) {
           data.push([resource, forgeinMarkerData]);
         }
@@ -70,9 +55,7 @@ let MainThreadDiagnostics = class {
         for (const marker of markers) {
           if (marker.relatedInformation) {
             for (const relatedInformation of marker.relatedInformation) {
-              relatedInformation.resource = URI.revive(
-                relatedInformation.resource
-              );
+              relatedInformation.resource = URI.revive(relatedInformation.resource);
             }
           }
           if (marker.code && typeof marker.code !== "string") {
@@ -80,11 +63,7 @@ let MainThreadDiagnostics = class {
           }
         }
       }
-      this._markerService.changeOne(
-        owner,
-        this._uriIdentService.asCanonicalUri(URI.revive(uri)),
-        markers
-      );
+      this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
     }
     this._activeOwners.add(owner);
   }

@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as DOM from "./dom.js";
+import { IKeyboardEvent } from "./keyboardEvent.js";
+import { IMouseEvent } from "./mouseEvent.js";
+import { DisposableStore } from "../common/lifecycle.js";
 function renderText(text, options = {}) {
   const element = createElement(options);
   element.textContent = text;
@@ -9,12 +12,7 @@ function renderText(text, options = {}) {
 __name(renderText, "renderText");
 function renderFormattedText(formattedText, options = {}) {
   const element = createElement(options);
-  _renderFormattedText(
-    element,
-    parseFormattedText(formattedText, !!options.renderCodeSegments),
-    options.actionHandler,
-    options.renderCodeSegments
-  );
+  _renderFormattedText(element, parseFormattedText(formattedText, !!options.renderCodeSegments), options.actionHandler, options.renderCodeSegments);
   return element;
 }
 __name(renderFormattedText, "renderFormattedText");
@@ -76,11 +74,9 @@ function _renderFormattedText(element, treeNode, actionHandler, renderCodeSegmen
     child = document.createElement("code");
   } else if (treeNode.type === 5 /* Action */ && actionHandler) {
     const a = document.createElement("a");
-    actionHandler.disposables.add(
-      DOM.addStandardDisposableListener(a, "click", (event) => {
-        actionHandler.callback(String(treeNode.index), event);
-      })
-    );
+    actionHandler.disposables.add(DOM.addStandardDisposableListener(a, "click", (event) => {
+      actionHandler.callback(String(treeNode.index), event);
+    }));
     child = a;
   } else if (treeNode.type === 8 /* NewLine */) {
     child = document.createElement("br");
@@ -92,12 +88,7 @@ function _renderFormattedText(element, treeNode, actionHandler, renderCodeSegmen
   }
   if (child && Array.isArray(treeNode.children)) {
     treeNode.children.forEach((nodeChild) => {
-      _renderFormattedText(
-        child,
-        nodeChild,
-        actionHandler,
-        renderCodeSegments
-      );
+      _renderFormattedText(child, nodeChild, actionHandler, renderCodeSegments);
     });
   }
 }
@@ -145,16 +136,18 @@ function parseFormattedText(content, parseCodeSegments) {
       current.children.push({
         type: 8 /* NewLine */
       });
-    } else if (current.type !== 2 /* Text */) {
-      const textCurrent = {
-        type: 2 /* Text */,
-        content: next
-      };
-      current.children.push(textCurrent);
-      stack.push(current);
-      current = textCurrent;
     } else {
-      current.content += next;
+      if (current.type !== 2 /* Text */) {
+        const textCurrent = {
+          type: 2 /* Text */,
+          content: next
+        };
+        current.children.push(textCurrent);
+        stack.push(current);
+        current = textCurrent;
+      } else {
+        current.content += next;
+      }
     }
   }
   if (current.type === 2 /* Text */) {

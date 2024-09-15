@@ -10,35 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import * as platform from "../../../../base/common/platform.js";
-import Severity from "../../../../base/common/severity.js";
 import { localize } from "../../../../nls.js";
-import {
-  IExtensionGalleryService,
-  IExtensionManagementService,
-  InstallOperation
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  INotificationService,
-  NeverShowAgainScope
-} from "../../../../platform/notification/common/notification.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { ILocaleService } from "../../../services/localization/common/locale.js";
+import * as platform from "../../../../base/common/platform.js";
+import { IExtensionManagementService, IExtensionGalleryService, InstallOperation, ILocalExtension, InstallExtensionResult, DidUninstallExtensionEvent } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { INotificationService, NeverShowAgainScope } from "../../../../platform/notification/common/notification.js";
+import Severity from "../../../../base/common/severity.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
-import { BaseLocalizationWorkbenchContribution } from "../common/localization.contribution.js";
 import { minimumTranslatedStrings } from "./minimalTranslations.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ILocaleService } from "../../../services/localization/common/locale.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { BaseLocalizationWorkbenchContribution } from "../common/localization.contribution.js";
 let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWorkbenchContribution {
   constructor(notificationService, localeService, productService, storageService, extensionManagementService, galleryService, extensionsWorkbenchService, telemetryService) {
     super();
@@ -51,16 +38,8 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.telemetryService = telemetryService;
     this.checkAndInstall();
-    this._register(
-      this.extensionManagementService.onDidInstallExtensions(
-        (e) => this.onDidInstallExtensions(e)
-      )
-    );
-    this._register(
-      this.extensionManagementService.onDidUninstallExtension(
-        (e) => this.onDidUninstallExtension(e)
-      )
-    );
+    this._register(this.extensionManagementService.onDidInstallExtensions((e) => this.onDidInstallExtensions(e)));
+    this._register(this.extensionManagementService.onDidUninstallExtension((e) => this.onDidUninstallExtension(e)));
   }
   static {
     __name(this, "NativeLocalizationWorkbenchContribution");
@@ -69,10 +48,7 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
   async onDidInstallExtensions(results) {
     for (const result of results) {
       if (result.operation === InstallOperation.Install && result.local) {
-        await this.onDidInstallExtension(
-          result.local,
-          !!result.context?.extensionsSync
-        );
+        await this.onDidInstallExtension(result.local, !!result.context?.extensionsSync);
       }
     }
   }
@@ -84,39 +60,22 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
     const { languageId, languageName } = localization;
     this.notificationService.prompt(
       Severity.Info,
-      localize(
-        "updateLocale",
-        "Would you like to change {0}'s display language to {1} and restart?",
-        this.productService.nameLong,
-        languageName || languageId
-      ),
-      [
-        {
-          label: localize(
-            "changeAndRestart",
-            "Change Language and Restart"
-          ),
-          run: /* @__PURE__ */ __name(async () => {
-            await this.localeService.setLocale(
-              {
-                id: languageId,
-                label: languageName ?? languageId,
-                extensionId: localExtension.identifier.id
-                // If settings sync installs the language pack, then we would have just shown the notification so no
-                // need to show the dialog.
-              },
-              true
-            );
-          }, "run")
-        }
-      ],
+      localize("updateLocale", "Would you like to change {0}'s display language to {1} and restart?", this.productService.nameLong, languageName || languageId),
+      [{
+        label: localize("changeAndRestart", "Change Language and Restart"),
+        run: /* @__PURE__ */ __name(async () => {
+          await this.localeService.setLocale({
+            id: languageId,
+            label: languageName ?? languageId,
+            extensionId: localExtension.identifier.id
+            // If settings sync installs the language pack, then we would have just shown the notification so no
+            // need to show the dialog.
+          }, true);
+        }, "run")
+      }],
       {
         sticky: true,
-        neverShowAgain: {
-          id: "langugage.update.donotask",
-          isSecondary: true,
-          scope: NeverShowAgainScope.APPLICATION
-        }
+        neverShowAgain: { id: "langugage.update.donotask", isSecondary: true, scope: NeverShowAgainScope.APPLICATION }
       }
     );
   }
@@ -152,40 +111,24 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
       return;
     }
     const fullLocale = locale;
-    let tagResult = await this.galleryService.query(
-      { text: `tag:lp-${locale}` },
-      CancellationToken.None
-    );
+    let tagResult = await this.galleryService.query({ text: `tag:lp-${locale}` }, CancellationToken.None);
     if (tagResult.total === 0) {
       locale = locale.split("-")[0];
-      tagResult = await this.galleryService.query(
-        { text: `tag:lp-${locale}` },
-        CancellationToken.None
-      );
+      tagResult = await this.galleryService.query({ text: `tag:lp-${locale}` }, CancellationToken.None);
       if (tagResult.total === 0) {
         return;
       }
     }
-    const extensionToInstall = tagResult.total === 1 ? tagResult.firstPage[0] : tagResult.firstPage.find(
-      (e) => e.publisher === "MS-CEINTL" && e.name.startsWith("vscode-language-pack")
-    );
+    const extensionToInstall = tagResult.total === 1 ? tagResult.firstPage[0] : tagResult.firstPage.find((e) => e.publisher === "MS-CEINTL" && e.name.startsWith("vscode-language-pack"));
     const extensionToFetchTranslationsFrom = extensionToInstall ?? tagResult.firstPage[0];
     if (!extensionToFetchTranslationsFrom.assets.manifest) {
       return;
     }
     const [manifest, translation] = await Promise.all([
-      this.galleryService.getManifest(
-        extensionToFetchTranslationsFrom,
-        CancellationToken.None
-      ),
-      this.galleryService.getCoreTranslation(
-        extensionToFetchTranslationsFrom,
-        locale
-      )
+      this.galleryService.getManifest(extensionToFetchTranslationsFrom, CancellationToken.None),
+      this.galleryService.getCoreTranslation(extensionToFetchTranslationsFrom, locale)
     ]);
-    const loc = manifest?.contributes?.localizations?.find(
-      (x) => locale.startsWith(x.languageId.toLowerCase())
-    );
+    const loc = manifest?.contributes?.localizations?.find((x) => locale.startsWith(x.languageId.toLowerCase()));
     const languageName = loc ? loc.languageName || locale : locale;
     const languageDisplayName = loc ? loc.localizedLanguageName || loc.languageName || locale : locale;
     const translationsFromPack = translation?.contents?.["vs/workbench/contrib/localization/electron-sandbox/minimalTranslations"] ?? {};
@@ -194,43 +137,32 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
     const translations = {};
     Object.keys(minimumTranslatedStrings).forEach((key) => {
       if (!translationsFromPack[key] || useEnglish) {
-        translations[key] = minimumTranslatedStrings[key].replace(
-          "{0}",
-          () => languageName
-        );
+        translations[key] = minimumTranslatedStrings[key].replace("{0}", () => languageName);
       } else {
         translations[key] = `${translationsFromPack[key].replace("{0}", () => languageDisplayName)} (${minimumTranslatedStrings[key].replace("{0}", () => languageName)})`;
       }
     });
     const logUserReaction = /* @__PURE__ */ __name((userReaction) => {
-      this.telemetryService.publicLog("languagePackSuggestion:popup", {
-        userReaction,
-        language: locale
-      });
+      this.telemetryService.publicLog("languagePackSuggestion:popup", { userReaction, language: locale });
     }, "logUserReaction");
     const searchAction = {
       label: translations["searchMarketplace"],
       run: /* @__PURE__ */ __name(async () => {
         logUserReaction("search");
-        await this.extensionsWorkbenchService.openSearch(
-          `tag:lp-${locale}`
-        );
+        await this.extensionsWorkbenchService.openSearch(`tag:lp-${locale}`);
       }, "run")
     };
     const installAndRestartAction = {
       label: translations["installAndRestart"],
       run: /* @__PURE__ */ __name(async () => {
         logUserReaction("installAndRestart");
-        await this.localeService.setLocale(
-          {
-            id: locale,
-            label: languageName,
-            extensionId: extensionToInstall?.identifier.id,
-            galleryExtension: extensionToInstall
-            // The user will be prompted if they want to install the language pack before this.
-          },
-          true
-        );
+        await this.localeService.setLocale({
+          id: locale,
+          label: languageName,
+          extensionId: extensionToInstall?.identifier.id,
+          galleryExtension: extensionToInstall
+          // The user will be prompted if they want to install the language pack before this.
+        }, true);
       }, "run")
     };
     const promptMessage = translations[promptMessageKey];
@@ -263,11 +195,7 @@ let NativeLocalizationWorkbenchContribution = class extends BaseLocalizationWork
   }
   async isLocaleInstalled(locale) {
     const installed = await this.extensionManagementService.getInstalled();
-    return installed.some(
-      (i) => !!i.manifest.contributes?.localizations?.length && i.manifest.contributes.localizations.some(
-        (l) => locale.startsWith(l.languageId.toLowerCase())
-      )
-    );
+    return installed.some((i) => !!i.manifest.contributes?.localizations?.length && i.manifest.contributes.localizations.some((l) => locale.startsWith(l.languageId.toLowerCase())));
   }
 };
 NativeLocalizationWorkbenchContribution = __decorateClass([
@@ -280,11 +208,6 @@ NativeLocalizationWorkbenchContribution = __decorateClass([
   __decorateParam(6, IExtensionsWorkbenchService),
   __decorateParam(7, ITelemetryService)
 ], NativeLocalizationWorkbenchContribution);
-const workbenchRegistry = Registry.as(
-  WorkbenchExtensions.Workbench
-);
-workbenchRegistry.registerWorkbenchContribution(
-  NativeLocalizationWorkbenchContribution,
-  LifecyclePhase.Eventually
-);
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchRegistry.registerWorkbenchContribution(NativeLocalizationWorkbenchContribution, LifecyclePhase.Eventually);
 //# sourceMappingURL=localization.contribution.js.map

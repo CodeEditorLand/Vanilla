@@ -56,9 +56,7 @@ class TextChange {
     return decodeUTF16LE(b, offset, len);
   }
   writeSize() {
-    return 4 + // oldPosition
-    4 + // newPosition
-    TextChange._writeStringSize(this.oldText) + TextChange._writeStringSize(this.newText);
+    return 4 + 4 + TextChange._writeStringSize(this.oldText) + TextChange._writeStringSize(this.newText);
   }
   write(b, offset) {
     buffer.writeUInt32BE(b, this.oldPosition, offset);
@@ -139,19 +137,13 @@ class TextChangeCompressor {
         continue;
       }
       if (currEdit.oldPosition < prevEdit.newPosition) {
-        const [e1, e2] = TextChangeCompressor._splitCurr(
-          currEdit,
-          prevEdit.newPosition - currEdit.oldPosition
-        );
+        const [e1, e2] = TextChangeCompressor._splitCurr(currEdit, prevEdit.newPosition - currEdit.oldPosition);
         this._acceptCurr(e1);
         currEdit = e2;
         continue;
       }
       if (prevEdit.newPosition < currEdit.oldPosition) {
-        const [e1, e2] = TextChangeCompressor._splitPrev(
-          prevEdit,
-          currEdit.oldPosition - prevEdit.newPosition
-        );
+        const [e1, e2] = TextChangeCompressor._splitPrev(prevEdit, currEdit.oldPosition - prevEdit.newPosition);
         this._acceptPrev(e1);
         prevEdit = e2;
         continue;
@@ -164,19 +156,13 @@ class TextChangeCompressor {
         prevEdit = this._getPrev(++prevIndex);
         currEdit = this._getCurr(++currIndex);
       } else if (currEdit.oldEnd < prevEdit.newEnd) {
-        const [e1, e2] = TextChangeCompressor._splitPrev(
-          prevEdit,
-          currEdit.oldLength
-        );
+        const [e1, e2] = TextChangeCompressor._splitPrev(prevEdit, currEdit.oldLength);
         mergePrev = e1;
         mergeCurr = currEdit;
         prevEdit = e2;
         currEdit = this._getCurr(++currIndex);
       } else {
-        const [e1, e2] = TextChangeCompressor._splitCurr(
-          currEdit,
-          prevEdit.newLength
-        );
+        const [e1, e2] = TextChangeCompressor._splitCurr(currEdit, prevEdit.newLength);
         mergePrev = prevEdit;
         mergeCurr = e1;
         prevEdit = this._getPrev(++prevIndex);
@@ -196,20 +182,14 @@ class TextChangeCompressor {
     return cleaned;
   }
   _acceptCurr(currEdit) {
-    this._result[this._resultLen++] = TextChangeCompressor._rebaseCurr(
-      this._prevDeltaOffset,
-      currEdit
-    );
+    this._result[this._resultLen++] = TextChangeCompressor._rebaseCurr(this._prevDeltaOffset, currEdit);
     this._currDeltaOffset += currEdit.newLength - currEdit.oldLength;
   }
   _getCurr(currIndex) {
     return currIndex < this._currLen ? this._currEdits[currIndex] : null;
   }
   _acceptPrev(prevEdit) {
-    this._result[this._resultLen++] = TextChangeCompressor._rebasePrev(
-      this._currDeltaOffset,
-      prevEdit
-    );
+    this._result[this._resultLen++] = TextChangeCompressor._rebasePrev(this._currDeltaOffset, prevEdit);
     this._prevDeltaOffset += prevEdit.newLength - prevEdit.oldLength;
   }
   _getPrev(prevIndex) {

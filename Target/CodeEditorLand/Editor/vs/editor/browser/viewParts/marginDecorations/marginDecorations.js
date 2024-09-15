@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./marginDecorations.css";
-import {
-  DecorationToRender,
-  DedupOverlay
-} from "../glyphMargin/glyphMargin.js";
+import { DecorationToRender, DedupOverlay } from "../glyphMargin/glyphMargin.js";
+import { RenderingContext } from "../../view/renderingContext.js";
+import { ViewContext } from "../../../common/viewModel/viewContext.js";
+import * as viewEvents from "../../../common/viewEvents.js";
 class MarginViewLineDecorationsOverlay extends DedupOverlay {
   static {
     __name(this, "MarginViewLineDecorationsOverlay");
@@ -57,13 +57,7 @@ class MarginViewLineDecorationsOverlay extends DedupOverlay {
       const marginClassName = d.options.marginClassName;
       const zIndex = d.options.zIndex;
       if (marginClassName) {
-        r[rLen++] = new DecorationToRender(
-          d.range.startLineNumber,
-          d.range.endLineNumber,
-          marginClassName,
-          null,
-          zIndex
-        );
+        r[rLen++] = new DecorationToRender(d.range.startLineNumber, d.range.endLineNumber, marginClassName, null, zIndex);
       }
     }
     return r;
@@ -71,11 +65,7 @@ class MarginViewLineDecorationsOverlay extends DedupOverlay {
   prepareRender(ctx) {
     const visibleStartLineNumber = ctx.visibleRange.startLineNumber;
     const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
-    const toRender = this._render(
-      visibleStartLineNumber,
-      visibleEndLineNumber,
-      this._getDecorations(ctx)
-    );
+    const toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));
     const output = [];
     for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
       const lineIndex = lineNumber - visibleStartLineNumber;

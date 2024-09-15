@@ -1,12 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { mainWindow } from "../../../../base/browser/window.js";
-import {
-  isRemoteDiagnosticError
-} from "../../../../platform/diagnostics/common/diagnostics.js";
-import {
-  IssueType
-} from "../common/issue.js";
+import { isRemoteDiagnosticError, SystemInfo } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { OldIssueType } from "../../../../platform/issue/common/issue.js";
+import { ISettingSearchResult, IssueReporterExtensionData, IssueType } from "../common/issue.js";
 class IssueReporterModel {
   static {
     __name(this, "IssueReporterModel");
@@ -26,16 +23,10 @@ class IssueReporterModel {
     this._data = initialData ? Object.assign(defaultData, initialData) : defaultData;
     mainWindow.addEventListener("message", async (event) => {
       if (event.data && event.data.sendChannel === "vscode:triggerIssueData") {
-        mainWindow.postMessage(
-          {
-            data: {
-              issueBody: this._data.issueDescription,
-              issueTitle: this._data.issueTitle
-            },
-            replyChannel: "vscode:triggerIssueDataResponse"
-          },
-          "*"
-        );
+        mainWindow.postMessage({
+          data: { issueBody: this._data.issueDescription, issueTitle: this._data.issueTitle },
+          replyChannel: "vscode:triggerIssueDataResponse"
+        }, "*");
       }
     });
   }
@@ -67,9 +58,7 @@ ${this.getInfos()}
   }
   getRemoteOSes() {
     if (this._data.systemInfo && this._data.systemInfo.remoteData.length) {
-      return this._data.systemInfo.remoteData.map(
-        (remote) => isRemoteDiagnosticError(remote) ? remote.errorMessage : `Remote OS version: ${remote.machineInfo.os}`
-      ).join("\n") + "\n";
+      return this._data.systemInfo.remoteData.map((remote) => isRemoteDiagnosticError(remote) ? remote.errorMessage : `Remote OS version: ${remote.machineInfo.os}`).join("\n") + "\n";
     }
     return "";
   }
@@ -141,9 +130,7 @@ Extension version: ${this._data.selectedExtension.version}`;
 `;
     if (this._data.systemInfo) {
       md += `|CPUs|${this._data.systemInfo.cpus}|
-|GPU Status|${Object.keys(this._data.systemInfo.gpuStatus).map(
-        (key) => `${key}: ${this._data.systemInfo.gpuStatus[key]}`
-      ).join("<br>")}|
+|GPU Status|${Object.keys(this._data.systemInfo.gpuStatus).map((key) => `${key}: ${this._data.systemInfo.gpuStatus[key]}`).join("<br>")}|
 |Load (avg)|${this._data.systemInfo.load}|
 |Memory (System)|${this._data.systemInfo.memory}|
 |Process Argv|${this._data.systemInfo.processArgs.replace(/\\/g, "\\\\")}|

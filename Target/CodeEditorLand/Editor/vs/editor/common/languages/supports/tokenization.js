@@ -1,12 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Color } from "../../../../base/common/color.js";
-import {
-  ColorId,
-  FontStyle,
-  MetadataConsts,
-  StandardTokenType
-} from "../../encodedTokenAttributes.js";
+import { LanguageId, FontStyle, ColorId, StandardTokenType, MetadataConsts } from "../../encodedTokenAttributes.js";
 class ParsedTokenThemeRule {
   static {
     __name(this, "ParsedTokenThemeRule");
@@ -106,20 +101,11 @@ function resolveParsedTokenThemeRules(parsedThemeRules, customTokenColors) {
   }
   const foregroundColorId = colorMap.getId(defaultForeground);
   const backgroundColorId = colorMap.getId(defaultBackground);
-  const defaults = new ThemeTrieElementRule(
-    defaultFontStyle,
-    foregroundColorId,
-    backgroundColorId
-  );
+  const defaults = new ThemeTrieElementRule(defaultFontStyle, foregroundColorId, backgroundColorId);
   const root = new ThemeTrieElement(defaults);
   for (let i = 0, len = parsedThemeRules.length; i < len; i++) {
     const rule = parsedThemeRules[i];
-    root.insert(
-      rule.token,
-      rule.fontStyle,
-      colorMap.getId(rule.foreground),
-      colorMap.getId(rule.background)
-    );
+    root.insert(rule.token, rule.fontStyle, colorMap.getId(rule.foreground), colorMap.getId(rule.background));
   }
   return new TokenTheme(colorMap, root);
 }
@@ -164,10 +150,7 @@ class TokenTheme {
     __name(this, "TokenTheme");
   }
   static createFromRawTokenTheme(source, customTokenColors) {
-    return this.createFromParsedTokenTheme(
-      parseTokenTheme(source),
-      customTokenColors
-    );
+    return this.createFromParsedTokenTheme(parseTokenTheme(source), customTokenColors);
   }
   static createFromParsedTokenTheme(source, customTokenColors) {
     return resolveParsedTokenThemeRules(source, customTokenColors);
@@ -248,11 +231,7 @@ class ThemeTrieElementRule {
     this.metadata = (this._fontStyle << MetadataConsts.FONT_STYLE_OFFSET | this._foreground << MetadataConsts.FOREGROUND_OFFSET | this._background << MetadataConsts.BACKGROUND_OFFSET) >>> 0;
   }
   clone() {
-    return new ThemeTrieElementRule(
-      this._fontStyle,
-      this._foreground,
-      this._background
-    );
+    return new ThemeTrieElementRule(this._fontStyle, this._foreground, this._background);
   }
   acceptOverwrite(fontStyle, foreground, background) {
     if (fontStyle !== FontStyle.NotSet) {
@@ -357,13 +336,9 @@ function generateTokensCSSForColorMap(colorMap) {
   }
   rules.push(".mtki { font-style: italic; }");
   rules.push(".mtkb { font-weight: bold; }");
-  rules.push(
-    ".mtku { text-decoration: underline; text-underline-position: under; }"
-  );
+  rules.push(".mtku { text-decoration: underline; text-underline-position: under; }");
   rules.push(".mtks { text-decoration: line-through; }");
-  rules.push(
-    ".mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }"
-  );
+  rules.push(".mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }");
   return rules.join("\n");
 }
 __name(generateTokensCSSForColorMap, "generateTokensCSSForColorMap");

@@ -5,23 +5,14 @@ import { isEqual } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { localize, localize2 } from "../../../../nls.js";
-import {
-  MenuId,
-  MenuRegistry
-} from "../../../../platform/actions/common/actions.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  KeybindingWeight,
-  KeybindingsRegistry
-} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import {
-  ActiveCompareEditorCanSwapContext,
-  TextCompareEditorActiveContext,
-  TextCompareEditorVisibleContext
-} from "../../../common/contextkeys.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { TextDiffEditor } from "./textDiffEditor.js";
+import { ActiveCompareEditorCanSwapContext, TextCompareEditorActiveContext, TextCompareEditorVisibleContext } from "../../../common/contextkeys.js";
 import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { TextDiffEditor } from "./textDiffEditor.js";
 const TOGGLE_DIFF_SIDE_BY_SIDE = "toggle.diff.renderSideBySide";
 const GOTO_NEXT_CHANGE = "workbench.action.compareEditor.nextChange";
 const GOTO_PREVIOUS_CHANGE = "workbench.action.compareEditor.previousChange";
@@ -61,10 +52,7 @@ function registerDiffEditorCommands() {
   function getActiveTextDiffEditor(accessor, args) {
     const editorService = accessor.get(IEditorService);
     const resource = args.length > 0 && args[0] instanceof URI ? args[0] : void 0;
-    for (const editor of [
-      editorService.activeEditorPane,
-      ...editorService.visibleEditorPanes
-    ]) {
+    for (const editor of [editorService.activeEditorPane, ...editorService.visibleEditorPanes]) {
       if (editor instanceof TextDiffEditor && (!resource || editor.input instanceof DiffEditorInput && isEqual(editor.input.primary.resource, resource))) {
         return editor;
       }
@@ -97,17 +85,9 @@ function registerDiffEditorCommands() {
           break;
         case 2 /* Toggle */:
           if (activeTextDiffEditor.getControl()?.getModifiedEditor().hasWidgetFocus()) {
-            return focusInDiffEditor(
-              accessor,
-              args,
-              0 /* Original */
-            );
+            return focusInDiffEditor(accessor, args, 0 /* Original */);
           } else {
-            return focusInDiffEditor(
-              accessor,
-              args,
-              1 /* Modified */
-            );
+            return focusInDiffEditor(accessor, args, 1 /* Modified */);
           }
       }
     }
@@ -145,47 +125,34 @@ function registerDiffEditorCommands() {
     if (!diffEditor || typeof activeGroup === "undefined" || !(diffInput instanceof DiffEditorInput) || !diffInput.modified.resource) {
       return;
     }
-    const untypedDiffInput = diffInput.toUntyped({
-      preserveViewState: activeGroup.id,
-      preserveResource: true
-    });
+    const untypedDiffInput = diffInput.toUntyped({ preserveViewState: activeGroup.id, preserveResource: true });
     if (!untypedDiffInput) {
       return;
     }
-    if (diffInput.modified.isModified() && editorService.findEditors({
-      resource: diffInput.modified.resource,
-      typeId: diffInput.modified.typeId,
-      editorId: diffInput.modified.editorId
-    }).length === 0) {
-      await editorService.openEditor(
-        {
-          ...untypedDiffInput.modified,
-          options: {
-            ...untypedDiffInput.modified.options,
-            pinned: true,
-            inactive: true
-          }
-        },
-        activeGroup
-      );
+    if (diffInput.modified.isModified() && editorService.findEditors({ resource: diffInput.modified.resource, typeId: diffInput.modified.typeId, editorId: diffInput.modified.editorId }).length === 0) {
+      await editorService.openEditor({
+        ...untypedDiffInput.modified,
+        options: {
+          ...untypedDiffInput.modified.options,
+          pinned: true,
+          inactive: true
+        }
+      }, activeGroup);
     }
-    await editorService.replaceEditors(
-      [
-        {
-          editor: diffInput,
-          replacement: {
-            ...untypedDiffInput,
-            original: untypedDiffInput.modified,
-            modified: untypedDiffInput.original,
-            options: {
-              ...untypedDiffInput.options,
-              pinned: true
-            }
+    await editorService.replaceEditors([
+      {
+        editor: diffInput,
+        replacement: {
+          ...untypedDiffInput,
+          original: untypedDiffInput.modified,
+          modified: untypedDiffInput.original,
+          options: {
+            ...untypedDiffInput.options,
+            pinned: true
           }
         }
-      ],
-      activeGroup
-    );
+      }
+    ], activeGroup);
   }
   __name(swapDiffSides, "swapDiffSides");
   KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -241,16 +208,10 @@ function registerDiffEditorCommands() {
   MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
     command: {
       id: DIFF_SWAP_SIDES,
-      title: localize2(
-        "swapDiffSides",
-        "Swap Left and Right Editor Side"
-      ),
+      title: localize2("swapDiffSides", "Swap Left and Right Editor Side"),
       category: localize("compare", "Compare")
     },
-    when: ContextKeyExpr.and(
-      TextCompareEditorActiveContext,
-      ActiveCompareEditorCanSwapContext
-    )
+    when: ContextKeyExpr.and(TextCompareEditorActiveContext, ActiveCompareEditorCanSwapContext)
   });
 }
 __name(registerDiffEditorCommands, "registerDiffEditorCommands");

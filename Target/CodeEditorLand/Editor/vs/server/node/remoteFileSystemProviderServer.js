@@ -1,13 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { delimiter, posix } from "../../base/common/path.js";
-import { URI } from "../../base/common/uri.js";
-import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
-import {
-  AbstractDiskFileSystemProviderChannel,
-  AbstractSessionFileWatcher
-} from "../../platform/files/node/diskFileSystemProviderServer.js";
+import { Emitter } from "../../base/common/event.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { IURITransformer } from "../../base/common/uriIpc.js";
+import { IFileChange } from "../../platform/files/common/files.js";
+import { ILogService } from "../../platform/log/common/log.js";
 import { createURITransformer } from "../../workbench/api/node/uriTransformer.js";
+import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
+import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
+import { posix, delimiter } from "../../base/common/path.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { AbstractDiskFileSystemProviderChannel, AbstractSessionFileWatcher, ISessionFileWatcher } from "../../platform/files/node/diskFileSystemProviderServer.js";
+import { IRecursiveWatcherOptions } from "../../platform/files/common/watcher.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
 class RemoteAgentFileSystemProviderChannel extends AbstractDiskFileSystemProviderChannel {
   constructor(logService, environmentService, configurationService) {
     super(new DiskFileSystemProvider(logService), logService);
@@ -29,22 +34,14 @@ class RemoteAgentFileSystemProviderChannel extends AbstractDiskFileSystemProvide
   }
   transformIncoming(uriTransformer, _resource, supportVSCodeResource = false) {
     if (supportVSCodeResource && _resource.path === "/vscode-resource" && _resource.query) {
-      const requestResourcePath = JSON.parse(
-        _resource.query
-      ).requestResourcePath;
+      const requestResourcePath = JSON.parse(_resource.query).requestResourcePath;
       return URI.from({ scheme: "file", path: requestResourcePath });
     }
     return URI.revive(uriTransformer.transformIncoming(_resource));
   }
   //#region File Watching
   createSessionFileWatcher(uriTransformer, emitter) {
-    return new SessionFileWatcher(
-      uriTransformer,
-      emitter,
-      this.logService,
-      this.environmentService,
-      this.configurationService
-    );
+    return new SessionFileWatcher(uriTransformer, emitter, this.logService, this.environmentService, this.configurationService);
   }
   //#endregion
 }
@@ -53,13 +50,7 @@ class SessionFileWatcher extends AbstractSessionFileWatcher {
     __name(this, "SessionFileWatcher");
   }
   constructor(uriTransformer, sessionEmitter, logService, environmentService, configurationService) {
-    super(
-      uriTransformer,
-      sessionEmitter,
-      logService,
-      environmentService,
-      configurationService
-    );
+    super(uriTransformer, sessionEmitter, logService, environmentService, configurationService);
   }
   getRecursiveWatcherOptions(environmentService) {
     const options = super.getRecursiveWatcherOptions(environmentService);

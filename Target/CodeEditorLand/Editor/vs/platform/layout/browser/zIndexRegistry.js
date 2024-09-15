@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  clearNode,
-  createCSSRule,
-  createStyleSheet
-} from "../../../base/browser/dom.js";
+import { clearNode, createCSSRule, createStyleSheet } from "../../../base/browser/dom.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
 var ZIndex = /* @__PURE__ */ ((ZIndex2) => {
   ZIndex2[ZIndex2["Base"] = 0] = "Base";
@@ -38,22 +34,15 @@ class ZIndexRegistry {
   constructor() {
     this.styleSheet = createStyleSheet();
     this.zIndexMap = /* @__PURE__ */ new Map();
-    this.scheduler = new RunOnceScheduler(
-      () => this.updateStyleElement(),
-      200
-    );
+    this.scheduler = new RunOnceScheduler(() => this.updateStyleElement(), 200);
   }
   registerZIndex(relativeLayer, z, name) {
     if (this.zIndexMap.get(name)) {
-      throw new Error(
-        `z-index with name ${name} has already been registered.`
-      );
+      throw new Error(`z-index with name ${name} has already been registered.`);
     }
     const proposedZValue = relativeLayer + z;
     if (findBase(proposedZValue) !== relativeLayer) {
-      throw new Error(
-        `Relative layer: ${relativeLayer} + z-index: ${z} exceeds next layer ${proposedZValue}.`
-      );
+      throw new Error(`Relative layer: ${relativeLayer} + z-index: ${z} exceeds next layer ${proposedZValue}.`);
     }
     this.zIndexMap.set(name, proposedZValue);
     this.scheduler.schedule();

@@ -1,46 +1,30 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { findFirstIdxMonotonousOrArrLen } from "../../../../base/common/arraysFind.js";
-import {
-  RunOnceScheduler,
-  TimeoutTimer
-} from "../../../../base/common/async.js";
+import { RunOnceScheduler, TimeoutTimer } from "../../../../base/common/async.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { DisposableStore, dispose } from "../../../../base/common/lifecycle.js";
 import { Constants } from "../../../../base/common/uint.js";
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  ReplaceCommand,
-  ReplaceCommandThatPreservesSelection
-} from "../../../common/commands/replaceCommand.js";
+import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
+import { ReplaceCommand, ReplaceCommandThatPreservesSelection } from "../../../common/commands/replaceCommand.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import { CursorChangeReason, ICursorPositionChangedEvent } from "../../../common/cursorEvents.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
 import { Selection } from "../../../common/core/selection.js";
-import {
-  CursorChangeReason
-} from "../../../common/cursorEvents.js";
-import { ScrollType } from "../../../common/editorCommon.js";
-import {
-  EndOfLinePreference
-} from "../../../common/model.js";
+import { ICommand, ScrollType } from "../../../common/editorCommon.js";
+import { EndOfLinePreference, FindMatch, ITextModel } from "../../../common/model.js";
 import { SearchParams } from "../../../common/model/textModelSearch.js";
 import { FindDecorations } from "./findDecorations.js";
+import { FindReplaceState, FindReplaceStateChangedEvent } from "./findState.js";
 import { ReplaceAllCommand } from "./replaceAllCommand.js";
-import { ReplacePattern, parseReplaceString } from "./replacePattern.js";
-const CONTEXT_FIND_WIDGET_VISIBLE = new RawContextKey(
-  "findWidgetVisible",
-  false
-);
+import { parseReplaceString, ReplacePattern } from "./replacePattern.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindings } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+const CONTEXT_FIND_WIDGET_VISIBLE = new RawContextKey("findWidgetVisible", false);
 const CONTEXT_FIND_WIDGET_NOT_VISIBLE = CONTEXT_FIND_WIDGET_VISIBLE.toNegated();
-const CONTEXT_FIND_INPUT_FOCUSED = new RawContextKey(
-  "findInputFocussed",
-  false
-);
-const CONTEXT_REPLACE_INPUT_FOCUSED = new RawContextKey(
-  "replaceInputFocussed",
-  false
-);
+const CONTEXT_FIND_INPUT_FOCUSED = new RawContextKey("findInputFocussed", false);
+const CONTEXT_REPLACE_INPUT_FOCUSED = new RawContextKey("replaceInputFocussed", false);
 const ToggleCaseSensitiveKeybinding = {
   primary: KeyMod.Alt | KeyCode.KeyC,
   mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyC }
@@ -109,35 +93,23 @@ class FindModelBoundToEditorModel {
       return this.research(false);
     }, 100);
     this._toDispose.add(this._updateDecorationsScheduler);
-    this._toDispose.add(
-      this._editor.onDidChangeCursorPosition(
-        (e) => {
-          if (e.reason === CursorChangeReason.Explicit || e.reason === CursorChangeReason.Undo || e.reason === CursorChangeReason.Redo) {
-            this._decorations.setStartPosition(
-              this._editor.getPosition()
-            );
-          }
-        }
-      )
-    );
-    this._ignoreModelContentChanged = false;
-    this._toDispose.add(
-      this._editor.onDidChangeModelContent((e) => {
-        if (this._ignoreModelContentChanged) {
-          return;
-        }
-        if (e.isFlush) {
-          this._decorations.reset();
-        }
+    this._toDispose.add(this._editor.onDidChangeCursorPosition((e) => {
+      if (e.reason === CursorChangeReason.Explicit || e.reason === CursorChangeReason.Undo || e.reason === CursorChangeReason.Redo) {
         this._decorations.setStartPosition(this._editor.getPosition());
-        this._updateDecorationsScheduler.schedule();
-      })
-    );
-    this._toDispose.add(
-      this._state.onFindReplaceStateChange(
-        (e) => this._onStateChanged(e)
-      )
-    );
+      }
+    }));
+    this._ignoreModelContentChanged = false;
+    this._toDispose.add(this._editor.onDidChangeModelContent((e) => {
+      if (this._ignoreModelContentChanged) {
+        return;
+      }
+      if (e.isFlush) {
+        this._decorations.reset();
+      }
+      this._decorations.setStartPosition(this._editor.getPosition());
+      this._updateDecorationsScheduler.schedule();
+    }));
+    this._toDispose.add(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
     this.research(false, this._state.searchScope);
   }
   dispose() {
@@ -163,10 +135,12 @@ class FindModelBoundToEditorModel {
             this.research(e.moveCursor);
           }
         }, RESEARCH_DELAY);
-      } else if (e.searchScope) {
-        this.research(e.moveCursor, this._state.searchScope);
       } else {
-        this.research(e.moveCursor);
+        if (e.searchScope) {
+          this.research(e.moveCursor, this._state.searchScope);
+        } else {
+          this.research(e.moveCursor);
+        }
       }
     }
   }
@@ -180,10 +154,10 @@ class FindModelBoundToEditorModel {
     let findScopes = null;
     if (typeof newFindScope !== "undefined") {
       if (newFindScope !== null) {
-        if (Array.isArray(newFindScope)) {
-          findScopes = newFindScope;
-        } else {
+        if (!Array.isArray(newFindScope)) {
           findScopes = [newFindScope];
+        } else {
+          findScopes = newFindScope;
         }
       }
     } else {
@@ -196,12 +170,7 @@ class FindModelBoundToEditorModel {
           if (findScope.endColumn === 1) {
             endLineNumber = endLineNumber - 1;
           }
-          return new Range(
-            findScope.startLineNumber,
-            1,
-            endLineNumber,
-            this._editor.getModel().getLineMaxColumn(endLineNumber)
-          );
+          return new Range(findScope.startLineNumber, 1, endLineNumber, this._editor.getModel().getLineMaxColumn(endLineNumber));
         }
         return findScope;
       });
@@ -211,10 +180,7 @@ class FindModelBoundToEditorModel {
     const editorSelection = this._editor.getSelection();
     let currentMatchesPosition = this._decorations.getCurrentMatchesPosition(editorSelection);
     if (currentMatchesPosition === 0 && findMatches.length > 0) {
-      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(
-        findMatches.map((match) => match.range),
-        (range) => Range.compareRangesUsingStarts(range, editorSelection) >= 0
-      );
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches.map((match) => match.range), (range) => Range.compareRangesUsingStarts(range, editorSelection) >= 0);
       currentMatchesPosition = matchAfterSelection > 0 ? matchAfterSelection - 1 + 1 : currentMatchesPosition;
     }
     this._state.changeMatchInfo(
@@ -233,10 +199,7 @@ class FindModelBoundToEditorModel {
     if (!this._hasMatches()) {
       const findScope = this._decorations.getFindScope();
       if (findScope) {
-        this._editor.revealRangeInCenterIfOutsideViewport(
-          findScope,
-          ScrollType.Smooth
-        );
+        this._editor.revealRangeInCenterIfOutsideViewport(findScope, ScrollType.Smooth);
       }
       return true;
     }
@@ -250,10 +213,7 @@ class FindModelBoundToEditorModel {
       match
     );
     this._editor.setSelection(match);
-    this._editor.revealRangeInCenterIfOutsideViewport(
-      match,
-      ScrollType.Smooth
-    );
+    this._editor.revealRangeInCenterIfOutsideViewport(match, ScrollType.Smooth);
   }
   _prevSearchPosition(before) {
     const isUsingLineStops = this._state.isRegex && (this._state.searchString.indexOf("^") >= 0 || this._state.searchString.indexOf("$") >= 0);
@@ -294,10 +254,7 @@ class FindModelBoundToEditorModel {
       return;
     }
     const findScope = this._decorations.getFindScope();
-    const searchRange = FindModelBoundToEditorModel._getSearchRange(
-      this._editor.getModel(),
-      findScope
-    );
+    const searchRange = FindModelBoundToEditorModel._getSearchRange(this._editor.getModel(), findScope);
     if (searchRange.getEndPosition().isBefore(before)) {
       before = searchRange.getEndPosition();
     }
@@ -307,33 +264,16 @@ class FindModelBoundToEditorModel {
     const { lineNumber, column } = before;
     const model = this._editor.getModel();
     let position = new Position(lineNumber, column);
-    let prevMatch = model.findPreviousMatch(
-      this._state.searchString,
-      position,
-      this._state.isRegex,
-      this._state.matchCase,
-      this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null,
-      false
-    );
+    let prevMatch = model.findPreviousMatch(this._state.searchString, position, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null, false);
     if (prevMatch && prevMatch.range.isEmpty() && prevMatch.range.getStartPosition().equals(position)) {
       position = this._prevSearchPosition(position);
-      prevMatch = model.findPreviousMatch(
-        this._state.searchString,
-        position,
-        this._state.isRegex,
-        this._state.matchCase,
-        this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null,
-        false
-      );
+      prevMatch = model.findPreviousMatch(this._state.searchString, position, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null, false);
     }
     if (!prevMatch) {
       return;
     }
     if (!isRecursed && !searchRange.containsRange(prevMatch.range)) {
-      return this._moveToPrevMatch(
-        prevMatch.range.getStartPosition(),
-        true
-      );
+      return this._moveToPrevMatch(prevMatch.range.getStartPosition(), true);
     }
     this._setCurrentFindMatch(prevMatch.range);
   }
@@ -385,10 +325,7 @@ class FindModelBoundToEditorModel {
       return null;
     }
     const findScope = this._decorations.getFindScope();
-    const searchRange = FindModelBoundToEditorModel._getSearchRange(
-      this._editor.getModel(),
-      findScope
-    );
+    const searchRange = FindModelBoundToEditorModel._getSearchRange(this._editor.getModel(), findScope);
     if (searchRange.getEndPosition().isBefore(after)) {
       after = searchRange.getStartPosition();
     }
@@ -398,35 +335,16 @@ class FindModelBoundToEditorModel {
     const { lineNumber, column } = after;
     const model = this._editor.getModel();
     let position = new Position(lineNumber, column);
-    let nextMatch = model.findNextMatch(
-      this._state.searchString,
-      position,
-      this._state.isRegex,
-      this._state.matchCase,
-      this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null,
-      captureMatches
-    );
+    let nextMatch = model.findNextMatch(this._state.searchString, position, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null, captureMatches);
     if (forceMove && nextMatch && nextMatch.range.isEmpty() && nextMatch.range.getStartPosition().equals(position)) {
       position = this._nextSearchPosition(position);
-      nextMatch = model.findNextMatch(
-        this._state.searchString,
-        position,
-        this._state.isRegex,
-        this._state.matchCase,
-        this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null,
-        captureMatches
-      );
+      nextMatch = model.findNextMatch(this._state.searchString, position, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null, captureMatches);
     }
     if (!nextMatch) {
       return null;
     }
     if (!isRecursed && !searchRange.containsRange(nextMatch.range)) {
-      return this._getNextMatch(
-        nextMatch.range.getEndPosition(),
-        captureMatches,
-        forceMove,
-        true
-      );
+      return this._getNextMatch(nextMatch.range.getEndPosition(), captureMatches, forceMove, true);
     }
     return nextMatch;
   }
@@ -454,25 +372,13 @@ class FindModelBoundToEditorModel {
     }
     const replacePattern = this._getReplacePattern();
     const selection = this._editor.getSelection();
-    const nextMatch = this._getNextMatch(
-      selection.getStartPosition(),
-      true,
-      false
-    );
+    const nextMatch = this._getNextMatch(selection.getStartPosition(), true, false);
     if (nextMatch) {
       if (selection.equalsRange(nextMatch.range)) {
-        const replaceString = replacePattern.buildReplaceString(
-          nextMatch.matches,
-          this._state.preserveCase
-        );
+        const replaceString = replacePattern.buildReplaceString(nextMatch.matches, this._state.preserveCase);
         const command = new ReplaceCommand(selection, replaceString);
         this._executeEditorCommand("replace", command);
-        this._decorations.setStartPosition(
-          new Position(
-            selection.startLineNumber,
-            selection.startColumn + replaceString.length
-          )
-        );
+        this._decorations.setStartPosition(new Position(selection.startLineNumber, selection.startColumn + replaceString.length));
         this.research(true);
       } else {
         this._decorations.setStartPosition(this._editor.getPosition());
@@ -482,20 +388,9 @@ class FindModelBoundToEditorModel {
   }
   _findMatches(findScopes, captureMatches, limitResultCount) {
     const searchRanges = (findScopes || [null]).map(
-      (scope) => FindModelBoundToEditorModel._getSearchRange(
-        this._editor.getModel(),
-        scope
-      )
+      (scope) => FindModelBoundToEditorModel._getSearchRange(this._editor.getModel(), scope)
     );
-    return this._editor.getModel().findMatches(
-      this._state.searchString,
-      searchRanges,
-      this._state.isRegex,
-      this._state.matchCase,
-      this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null,
-      captureMatches,
-      limitResultCount
-    );
+    return this._editor.getModel().findMatches(this._state.searchString, searchRanges, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null, captureMatches, limitResultCount);
   }
   replaceAll() {
     if (!this._hasMatches()) {
@@ -510,12 +405,7 @@ class FindModelBoundToEditorModel {
     this.research(false);
   }
   _largeReplaceAll() {
-    const searchParams = new SearchParams(
-      this._state.searchString,
-      this._state.isRegex,
-      this._state.matchCase,
-      this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null
-    );
+    const searchParams = new SearchParams(this._state.searchString, this._state.isRegex, this._state.matchCase, this._state.wholeWord ? this._editor.getOption(EditorOption.wordSeparators) : null);
     const searchData = searchParams.parseSearchRequest();
     if (!searchData) {
       return;
@@ -538,45 +428,23 @@ class FindModelBoundToEditorModel {
     let resultText;
     const preserveCase = this._state.preserveCase;
     if (replacePattern.hasReplacementPatterns || preserveCase) {
-      resultText = modelText.replace(
-        searchRegex,
-        () => replacePattern.buildReplaceString(
-          arguments,
-          preserveCase
-        )
-      );
+      resultText = modelText.replace(searchRegex, function() {
+        return replacePattern.buildReplaceString(arguments, preserveCase);
+      });
     } else {
-      resultText = modelText.replace(
-        searchRegex,
-        replacePattern.buildReplaceString(null, preserveCase)
-      );
+      resultText = modelText.replace(searchRegex, replacePattern.buildReplaceString(null, preserveCase));
     }
-    const command = new ReplaceCommandThatPreservesSelection(
-      fullModelRange,
-      resultText,
-      this._editor.getSelection()
-    );
+    const command = new ReplaceCommandThatPreservesSelection(fullModelRange, resultText, this._editor.getSelection());
     this._executeEditorCommand("replaceAll", command);
   }
   _regularReplaceAll(findScopes) {
     const replacePattern = this._getReplacePattern();
-    const matches = this._findMatches(
-      findScopes,
-      replacePattern.hasReplacementPatterns || this._state.preserveCase,
-      Constants.MAX_SAFE_SMALL_INTEGER
-    );
+    const matches = this._findMatches(findScopes, replacePattern.hasReplacementPatterns || this._state.preserveCase, Constants.MAX_SAFE_SMALL_INTEGER);
     const replaceStrings = [];
     for (let i = 0, len = matches.length; i < len; i++) {
-      replaceStrings[i] = replacePattern.buildReplaceString(
-        matches[i].matches,
-        this._state.preserveCase
-      );
+      replaceStrings[i] = replacePattern.buildReplaceString(matches[i].matches, this._state.preserveCase);
     }
-    const command = new ReplaceAllCommand(
-      this._editor.getSelection(),
-      matches.map((m) => m.range),
-      replaceStrings
-    );
+    const command = new ReplaceAllCommand(this._editor.getSelection(), matches.map((m) => m.range), replaceStrings);
     this._executeEditorCommand("replaceAll", command);
   }
   selectAllMatches() {
@@ -584,19 +452,8 @@ class FindModelBoundToEditorModel {
       return;
     }
     const findScopes = this._decorations.getFindScopes();
-    const matches = this._findMatches(
-      findScopes,
-      false,
-      Constants.MAX_SAFE_SMALL_INTEGER
-    );
-    let selections = matches.map(
-      (m) => new Selection(
-        m.range.startLineNumber,
-        m.range.startColumn,
-        m.range.endLineNumber,
-        m.range.endColumn
-      )
-    );
+    const matches = this._findMatches(findScopes, false, Constants.MAX_SAFE_SMALL_INTEGER);
+    let selections = matches.map((m) => new Selection(m.range.startLineNumber, m.range.startColumn, m.range.endLineNumber, m.range.endColumn));
     const editorSelection = this._editor.getSelection();
     for (let i = 0, len = selections.length; i < len; i++) {
       const sel = selections[i];

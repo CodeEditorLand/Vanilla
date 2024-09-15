@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/test/node/diffing/fixtures/ws-alignment/2.tsx"],
+  "sourcesContent": ["import { Nav } from '@fluentui/react';\nimport { View } from '../../layout/layout';\n\nexport const WelcomeView = () => {\n\treturn (\n\t\t<View title='VS Code Tools'>\n\t\t\t<Nav\n\t\t\t\tgroups={[\n\t\t\t\t\t{\n\t\t\t\t\t\tlinks: [\n\t\t\t\t\t\t\t{ name: 'VS Code Standup (Redmond)', url: 'https://vscode-standup.azurewebsites.net', icon: 'JoinOnlineMeeting', target: '_blank' },\n\t\t\t\t\t\t\t{ name: 'VS Code Standup (Zurich)', url: 'https://stand.azurewebsites.net/', icon: 'JoinOnlineMeeting', target: '_blank' },\n\t\t\t\t\t\t\t{ name: 'VS Code Errors', url: 'https://errors.code.visualstudio.com', icon: 'ErrorBadge', target: '_blank' },\n\t\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t]}>\n\t\t\t</Nav>\n\t\t</View>\n\t);\n}\n"],
+  "mappings": ";;AAAA,SAAS,WAAW;AACpB,SAAS,YAAY;AAEd,MAAM,cAAc,6BAAM;AAChC,SACC,oCAAC,QAAK,OAAM,mBACX;AAAA,IAAC;AAAA;AAAA,MACA,QAAQ;AAAA,QACP;AAAA,UACC,OAAO;AAAA,YACN,EAAE,MAAM,6BAA6B,KAAK,4CAA4C,MAAM,qBAAqB,QAAQ,SAAS;AAAA,YAClI,EAAE,MAAM,4BAA4B,KAAK,oCAAoC,MAAM,qBAAqB,QAAQ,SAAS;AAAA,YACzH,EAAE,MAAM,kBAAkB,KAAK,wCAAwC,MAAM,cAAc,QAAQ,SAAS;AAAA,UAC7G;AAAA,QACD;AAAA,MACD;AAAA;AAAA,EACD,CACD;AAEF,GAhB2B;",
+  "names": []
+}

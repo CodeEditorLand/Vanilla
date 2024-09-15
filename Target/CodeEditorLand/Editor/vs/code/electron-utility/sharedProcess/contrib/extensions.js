@@ -11,14 +11,8 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  IExtensionGalleryService,
-  IGlobalExtensionEnablementService
-} from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  ExtensionStorageService,
-  IExtensionStorageService
-} from "../../../../platform/extensionManagement/common/extensionStorage.js";
+import { IExtensionGalleryService, IGlobalExtensionEnablementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionStorageService, IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
 import { migrateUnsupportedExtensions } from "../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";
 import { INativeServerExtensionManagementService } from "../../../../platform/extensionManagement/node/extensionManagementService.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
@@ -30,17 +24,8 @@ let ExtensionsContributions = class extends Disposable {
   constructor(extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, storageService, logService) {
     super();
     extensionManagementService.cleanUp();
-    migrateUnsupportedExtensions(
-      extensionManagementService,
-      extensionGalleryService,
-      extensionStorageService,
-      extensionEnablementService,
-      logService
-    );
-    ExtensionStorageService.removeOutdatedExtensionVersions(
-      extensionManagementService,
-      storageService
-    );
+    migrateUnsupportedExtensions(extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService);
+    ExtensionStorageService.removeOutdatedExtensionVersions(extensionManagementService, storageService);
   }
 };
 ExtensionsContributions = __decorateClass([

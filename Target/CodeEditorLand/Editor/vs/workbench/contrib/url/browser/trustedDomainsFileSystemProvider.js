@@ -10,26 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { VSBuffer } from "../../../../base/common/buffer.js";
 import { Event } from "../../../../base/common/event.js";
 import { parse } from "../../../../base/common/json.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileType, IFileWriteOptions, IFileService, IStat, IWatchOptions, IFileSystemProviderWithFileReadWriteCapability } from "../../../../platform/files/common/files.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { readTrustedDomains, TRUSTED_DOMAINS_CONTENT_STORAGE_KEY, TRUSTED_DOMAINS_STORAGE_KEY } from "./trustedDomains.js";
 import { assertIsDefined } from "../../../../base/common/types.js";
-import {
-  FileSystemProviderCapabilities,
-  FileType,
-  IFileService
-} from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  TRUSTED_DOMAINS_CONTENT_STORAGE_KEY,
-  TRUSTED_DOMAINS_STORAGE_KEY,
-  readTrustedDomains
-} from "./trustedDomains.js";
 const TRUSTED_DOMAINS_SCHEMA = "trustedDomains";
 const TRUSTED_DOMAINS_STAT = {
   type: FileType.File,
@@ -108,14 +99,8 @@ let TrustedDomainsFileSystemProvider = class {
     );
     const configuring = resource.fragment;
     const { defaultTrustedDomains, trustedDomains } = await this.instantiationService.invokeFunction(readTrustedDomains);
-    if (!trustedDomainsContent || trustedDomainsContent.indexOf(CONFIG_HELP_TEXT_PRE) === -1 || trustedDomainsContent.indexOf(CONFIG_HELP_TEXT_AFTER) === -1 || trustedDomainsContent.indexOf(configuring ?? "") === -1 || [...defaultTrustedDomains, ...trustedDomains].some(
-      (d) => !assertIsDefined(trustedDomainsContent).includes(d)
-    )) {
-      trustedDomainsContent = computeTrustedDomainContent(
-        defaultTrustedDomains,
-        trustedDomains,
-        configuring
-      );
+    if (!trustedDomainsContent || trustedDomainsContent.indexOf(CONFIG_HELP_TEXT_PRE) === -1 || trustedDomainsContent.indexOf(CONFIG_HELP_TEXT_AFTER) === -1 || trustedDomainsContent.indexOf(configuring ?? "") === -1 || [...defaultTrustedDomains, ...trustedDomains].some((d) => !assertIsDefined(trustedDomainsContent).includes(d))) {
+      trustedDomainsContent = computeTrustedDomainContent(defaultTrustedDomains, trustedDomains, configuring);
     }
     const buffer = VSBuffer.fromString(trustedDomainsContent).buffer;
     return buffer;
@@ -124,12 +109,7 @@ let TrustedDomainsFileSystemProvider = class {
     try {
       const trustedDomainsContent = VSBuffer.wrap(content).toString();
       const trustedDomains = parse(trustedDomainsContent);
-      this.storageService.store(
-        TRUSTED_DOMAINS_CONTENT_STORAGE_KEY,
-        trustedDomainsContent,
-        StorageScope.APPLICATION,
-        StorageTarget.USER
-      );
+      this.storageService.store(TRUSTED_DOMAINS_CONTENT_STORAGE_KEY, trustedDomainsContent, StorageScope.APPLICATION, StorageTarget.USER);
       this.storageService.store(
         TRUSTED_DOMAINS_STORAGE_KEY,
         JSON.stringify(trustedDomains) || "",

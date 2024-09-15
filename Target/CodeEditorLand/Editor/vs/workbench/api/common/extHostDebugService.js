@@ -12,29 +12,21 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { coalesce } from "../../../base/common/arrays.js";
 import { asPromise } from "../../../base/common/async.js";
-import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable as DisposableCls,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable as DisposableCls, toDisposable } from "../../../base/common/lifecycle.js";
 import { ThemeIcon as ThemeIconUtils } from "../../../base/common/themables.js";
-import { URI } from "../../../base/common/uri.js";
-import {
-  ExtensionIdentifier
-} from "../../../platform/extensions/common/extensions.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { ISignService } from "../../../platform/sign/common/sign.js";
+import { IWorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
 import { AbstractDebugAdapter } from "../../contrib/debug/common/abstractDebugAdapter.js";
-import {
-  DebugVisualizationType
-} from "../../contrib/debug/common/debug.js";
-import {
-  convertToDAPaths,
-  convertToVSCPaths,
-  isDebuggerMainContribution
-} from "../../contrib/debug/common/debugUtils.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { DebugVisualizationType, IAdapterDescriptor, IConfig, IDebugAdapter, IDebugAdapterExecutable, IDebugAdapterImpl, IDebugAdapterNamedPipeServer, IDebugAdapterServer, IDebuggerContribution, IDebugVisualization, IDebugVisualizationContext, IDebugVisualizationTreeItem, MainThreadDebugVisualization } from "../../contrib/debug/common/debug.js";
+import { convertToDAPaths, convertToVSCPaths, isDebuggerMainContribution } from "../../contrib/debug/common/debugUtils.js";
+import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
+import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
+import { DebugSessionUUID, ExtHostDebugServiceShape, IBreakpointsDeltaDto, IDebugSessionDto, IFunctionBreakpointDto, ISourceMultiBreakpointDto, IStackFrameFocusDto, IThreadFocusDto, MainContext, MainThreadDebugServiceShape } from "./extHost.protocol.js";
 import { IExtHostCommands } from "./extHostCommands.js";
 import { IExtHostConfiguration } from "./extHostConfiguration.js";
 import { IExtHostEditorTabs } from "./extHostEditorTabs.js";
@@ -42,28 +34,10 @@ import { IExtHostExtensionService } from "./extHostExtensionService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { IExtHostTesting } from "./extHostTesting.js";
 import * as Convert from "./extHostTypeConverters.js";
-import {
-  DataBreakpoint,
-  DebugAdapterExecutable,
-  DebugAdapterInlineImplementation,
-  DebugAdapterNamedPipeServer,
-  DebugAdapterServer,
-  DebugConsoleMode,
-  DebugStackFrame,
-  DebugThread,
-  Disposable,
-  FunctionBreakpoint,
-  Location,
-  Position,
-  SourceBreakpoint,
-  ThemeIcon,
-  setBreakpointId
-} from "./extHostTypes.js";
+import { Breakpoint, DataBreakpoint, DebugAdapterExecutable, DebugAdapterInlineImplementation, DebugAdapterNamedPipeServer, DebugAdapterServer, DebugConsoleMode, DebugStackFrame, DebugThread, Disposable, FunctionBreakpoint, Location, Position, setBreakpointId, SourceBreakpoint, ThemeIcon } from "./extHostTypes.js";
 import { IExtHostVariableResolverProvider } from "./extHostVariableResolverService.js";
 import { IExtHostWorkspace } from "./extHostWorkspace.js";
-const IExtHostDebugService = createDecorator(
-  "IExtHostDebugService"
-);
+const IExtHostDebugService = createDecorator("IExtHostDebugService");
 let ExtHostDebugServiceBase = class extends DisposableCls {
   constructor(extHostRpcService, _workspaceService, _extensionService, _configurationService, _editorTabs, _variableResolver, _commands, _testing) {
     super();
@@ -82,37 +56,19 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     this._trackerFactories = [];
     this._debugAdapters = /* @__PURE__ */ new Map();
     this._debugAdaptersTrackers = /* @__PURE__ */ new Map();
-    this._onDidStartDebugSession = this._register(
-      new Emitter()
-    );
-    this._onDidTerminateDebugSession = this._register(
-      new Emitter()
-    );
-    this._onDidChangeActiveDebugSession = this._register(
-      new Emitter()
-    );
-    this._onDidReceiveDebugSessionCustomEvent = this._register(
-      new Emitter()
-    );
-    this._debugServiceProxy = extHostRpcService.getProxy(
-      MainContext.MainThreadDebugService
-    );
-    this._onDidChangeBreakpoints = this._register(
-      new Emitter()
-    );
-    this._onDidChangeActiveStackItem = this._register(
-      new Emitter()
-    );
-    this._activeDebugConsole = new ExtHostDebugConsole(
-      this._debugServiceProxy
-    );
+    this._onDidStartDebugSession = this._register(new Emitter());
+    this._onDidTerminateDebugSession = this._register(new Emitter());
+    this._onDidChangeActiveDebugSession = this._register(new Emitter());
+    this._onDidReceiveDebugSessionCustomEvent = this._register(new Emitter());
+    this._debugServiceProxy = extHostRpcService.getProxy(MainContext.MainThreadDebugService);
+    this._onDidChangeBreakpoints = this._register(new Emitter());
+    this._onDidChangeActiveStackItem = this._register(new Emitter());
+    this._activeDebugConsole = new ExtHostDebugConsole(this._debugServiceProxy);
     this._breakpoints = /* @__PURE__ */ new Map();
     this._extensionService.getExtensionRegistry().then((extensionRegistry) => {
-      this._register(
-        extensionRegistry.onDidChange((_) => {
-          this.registerAllDebugTypes(extensionRegistry);
-        })
-      );
+      this._register(extensionRegistry.onDidChange((_) => {
+        this.registerAllDebugTypes(extensionRegistry);
+      }));
       this.registerAllDebugTypes(extensionRegistry);
     });
   }
@@ -178,15 +134,10 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     const extensionId = ExtensionIdentifier.toKey(manifest.identifier);
     const key = this.extensionVisKey(extensionId, id);
     if (this._debugVisualizationProviders.has(key)) {
-      throw new Error(
-        `A debug visualization provider with id '${id}' is already registered`
-      );
+      throw new Error(`A debug visualization provider with id '${id}' is already registered`);
     }
     this._debugVisualizationTrees.set(key, provider);
-    this._debugServiceProxy.$registerDebugVisualizerTree(
-      key,
-      !!provider.editItem
-    );
+    this._debugServiceProxy.$registerDebugVisualizerTree(key, !!provider.editItem);
     return toDisposable(() => {
       this._debugServiceProxy.$unregisterDebugVisualizerTree(key);
       this._debugVisualizationTrees.delete(id);
@@ -217,9 +168,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     for (const children of queue) {
       if (children) {
         for (const child of children) {
-          queue.push(
-            this._debugVisualizationElements.get(child)?.children
-          );
+          queue.push(this._debugVisualizationElements.get(child)?.children);
           this._debugVisualizationElements.delete(child);
         }
       }
@@ -230,10 +179,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     if (!id) {
       id = this._debugVisualizationTreeItemIdsCounter++;
       this._debugVisualizationTreeItemIds.set(item, id);
-      this._debugVisualizationElements.set(id, {
-        provider: treeId,
-        item
-      });
+      this._debugVisualizationElements.set(id, { provider: treeId, item });
     }
     return Convert.DebugTreeItem.from(item, id);
   }
@@ -251,9 +197,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     } else if (source.path) {
       return URI.file(source.path);
     } else {
-      throw new Error(
-        `cannot create uri from DAP 'source' object; properties 'path' and 'sourceReference' are both missing.`
-      );
+      throw new Error(`cannot create uri from DAP 'source' object; properties 'path' and 'sourceReference' are both missing.`);
     }
   }
   registerAllDebugTypes(extensionRegistry) {
@@ -298,9 +242,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       visualizer.v = v;
     }
     if (!v.visualization) {
-      throw new Error(
-        `No visualization returned from resolveDebugVisualization in '${provider}'`
-      );
+      throw new Error(`No visualization returned from resolveDebugVisualization in '${provider}'`);
     }
     return this.serializeVisualization(extensionId, v.visualization);
   }
@@ -311,10 +253,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     }
     const command = visualizer.v.visualization;
     if (command && "command" in command) {
-      this._commands.executeCommand(
-        command.command,
-        ...command.arguments || []
-      );
+      this._commands.executeCommand(command.command, ...command.arguments || []);
     }
   }
   hydrateVisualizationContext(context) {
@@ -334,10 +273,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     if (!contextHydrated || !provider) {
       return [];
     }
-    const visualizations = await provider.provideDebugVisualization(
-      contextHydrated,
-      token
-    );
+    const visualizations = await provider.provideDebugVisualization(contextHydrated, token);
     if (!visualizations) {
       return [];
     }
@@ -350,10 +286,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         name: v.name,
         iconClass: icon?.iconClass,
         iconPath: icon?.iconPath,
-        visualization: this.serializeVisualization(
-          extensionId,
-          v.visualization
-        )
+        visualization: this.serializeVisualization(extensionId, v.visualization)
       };
     });
   }
@@ -364,16 +297,12 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
   }
   registerDebugVisualizationProvider(manifest, id, provider) {
     if (!manifest.contributes?.debugVisualizers?.some((r) => r.id === id)) {
-      throw new Error(
-        `Extensions may only call registerDebugVisualizationProvider() for renderers they contribute (got ${id})`
-      );
+      throw new Error(`Extensions may only call registerDebugVisualizationProvider() for renderers they contribute (got ${id})`);
     }
     const extensionId = ExtensionIdentifier.toKey(manifest.identifier);
     const key = this.extensionVisKey(extensionId, id);
     if (this._debugVisualizationProviders.has(key)) {
-      throw new Error(
-        `A debug visualization provider with id '${id}' is already registered`
-      );
+      throw new Error(`A debug visualization provider with id '${id}' is already registered`);
     }
     this._debugVisualizationProviders.set(key, provider);
     this._debugServiceProxy.$registerDebugVisualizer(extensionId, id);
@@ -432,9 +361,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     return this._debugServiceProxy.$registerBreakpoints(dtos);
   }
   removeBreakpoints(breakpoints0) {
-    const breakpoints = breakpoints0.filter(
-      (b) => this._breakpoints.delete(b.id)
-    );
+    const breakpoints = breakpoints0.filter((b) => this._breakpoints.delete(b.id));
     this.fireBreakpointChanges([], breakpoints, []);
     const ids = breakpoints.filter((bp) => bp instanceof SourceBreakpoint).map((bp) => bp.id);
     const fids = breakpoints.filter((bp) => bp instanceof FunctionBreakpoint).map((bp) => bp.id);
@@ -443,31 +370,25 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
   }
   startDebugging(folder, nameOrConfig, options) {
     const testRunMeta = options.testRun && this._testing.getMetadataForRun(options.testRun);
-    return this._debugServiceProxy.$startDebugging(
-      folder ? folder.uri : void 0,
-      nameOrConfig,
-      {
-        parentSessionID: options.parentSession ? options.parentSession.id : void 0,
-        lifecycleManagedByParent: options.lifecycleManagedByParent,
-        repl: options.consoleMode === DebugConsoleMode.MergeWithParent ? "mergeWithParent" : "separate",
-        noDebug: options.noDebug,
-        compact: options.compact,
-        suppressSaveBeforeStart: options.suppressSaveBeforeStart,
-        testRun: testRunMeta && {
-          runId: testRunMeta.runId,
-          taskId: testRunMeta.taskId
-        },
-        // Check debugUI for back-compat, #147264
-        suppressDebugStatusbar: options.suppressDebugStatusbar ?? options.debugUI?.simple,
-        suppressDebugToolbar: options.suppressDebugToolbar ?? options.debugUI?.simple,
-        suppressDebugView: options.suppressDebugView ?? options.debugUI?.simple
-      }
-    );
+    return this._debugServiceProxy.$startDebugging(folder ? folder.uri : void 0, nameOrConfig, {
+      parentSessionID: options.parentSession ? options.parentSession.id : void 0,
+      lifecycleManagedByParent: options.lifecycleManagedByParent,
+      repl: options.consoleMode === DebugConsoleMode.MergeWithParent ? "mergeWithParent" : "separate",
+      noDebug: options.noDebug,
+      compact: options.compact,
+      suppressSaveBeforeStart: options.suppressSaveBeforeStart,
+      testRun: testRunMeta && {
+        runId: testRunMeta.runId,
+        taskId: testRunMeta.taskId
+      },
+      // Check debugUI for back-compat, #147264
+      suppressDebugStatusbar: options.suppressDebugStatusbar ?? options.debugUI?.simple,
+      suppressDebugToolbar: options.suppressDebugToolbar ?? options.debugUI?.simple,
+      suppressDebugView: options.suppressDebugView ?? options.debugUI?.simple
+    });
   }
   stopDebugging(session) {
-    return this._debugServiceProxy.$stopDebugging(
-      session ? session.id : void 0
-    );
+    return this._debugServiceProxy.$stopDebugging(session ? session.id : void 0);
   }
   registerDebugConfigurationProvider(type, provider, trigger) {
     if (!provider) {
@@ -485,12 +406,8 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       handle
     );
     return new Disposable(() => {
-      this._configProviders = this._configProviders.filter(
-        (p) => p.provider !== provider
-      );
-      this._debugServiceProxy.$unregisterDebugConfigurationProvider(
-        handle
-      );
+      this._configProviders = this._configProviders.filter((p) => p.provider !== provider);
+      this._debugServiceProxy.$unregisterDebugConfigurationProvider(handle);
     });
   }
   registerDebugAdapterDescriptorFactory(extension, type, factory) {
@@ -499,28 +416,17 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       });
     }
     if (!this.definesDebugType(extension, type)) {
-      throw new Error(
-        `a DebugAdapterDescriptorFactory can only be registered from the extension that defines the '${type}' debugger.`
-      );
+      throw new Error(`a DebugAdapterDescriptorFactory can only be registered from the extension that defines the '${type}' debugger.`);
     }
     if (this.getAdapterDescriptorFactoryByType(type)) {
-      throw new Error(
-        `a DebugAdapterDescriptorFactory can only be registered once per a type.`
-      );
+      throw new Error(`a DebugAdapterDescriptorFactory can only be registered once per a type.`);
     }
     const handle = this._adapterFactoryHandleCounter++;
     this._adapterFactories.push({ type, handle, factory });
-    this._debugServiceProxy.$registerDebugAdapterDescriptorFactory(
-      type,
-      handle
-    );
+    this._debugServiceProxy.$registerDebugAdapterDescriptorFactory(type, handle);
     return new Disposable(() => {
-      this._adapterFactories = this._adapterFactories.filter(
-        (p) => p.factory !== factory
-      );
-      this._debugServiceProxy.$unregisterDebugAdapterDescriptorFactory(
-        handle
-      );
+      this._adapterFactories = this._adapterFactories.filter((p) => p.factory !== factory);
+      this._debugServiceProxy.$unregisterDebugAdapterDescriptorFactory(handle);
     });
   }
   registerDebugAdapterTrackerFactory(type, factory) {
@@ -531,9 +437,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     const handle = this._trackerFactoryHandleCounter++;
     this._trackerFactories.push({ type, handle, factory });
     return new Disposable(() => {
-      this._trackerFactories = this._trackerFactories.filter(
-        (p) => p.factory !== factory
-      );
+      this._trackerFactories = this._trackerFactories.filter((p) => p.factory !== factory);
     });
   }
   // RPC methods (ExtHostDebugServiceShape)
@@ -566,30 +470,21 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     return void 0;
   }
   async $startDASession(debugAdapterHandle, sessionDto) {
+    const mythis = this;
     const session = await this.getSession(sessionDto);
-    return this.getAdapterDescriptor(
-      this.getAdapterDescriptorFactoryByType(session.type),
-      session
-    ).then((daDescriptor) => {
+    return this.getAdapterDescriptor(this.getAdapterDescriptorFactoryByType(session.type), session).then((daDescriptor) => {
       if (!daDescriptor) {
-        throw new Error(
-          `Couldn't find a debug adapter descriptor for debug type '${session.type}' (extension might have failed to activate)`
-        );
+        throw new Error(`Couldn't find a debug adapter descriptor for debug type '${session.type}' (extension might have failed to activate)`);
       }
       const da = this.createDebugAdapter(daDescriptor, session);
       if (!da) {
-        throw new Error(
-          `Couldn't create a debug adapter for type '${session.type}'.`
-        );
+        throw new Error(`Couldn't create a debug adapter for type '${session.type}'.`);
       }
       const debugAdapter = da;
       this._debugAdapters.set(debugAdapterHandle, debugAdapter);
       return this.getDebugAdapterTrackers(session).then((tracker) => {
         if (tracker) {
-          this._debugAdaptersTrackers.set(
-            debugAdapterHandle,
-            tracker
-          );
+          this._debugAdaptersTrackers.set(debugAdapterHandle, tracker);
         }
         debugAdapter.onMessage(async (message) => {
           if (message.type === "request" && message.command === "handshake") {
@@ -606,9 +501,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
             }
             try {
               if (this._signService) {
-                const signature = await this._signService.sign(
-                  request.arguments.value
-                );
+                const signature = await this._signService.sign(request.arguments.value);
                 response.body = {
                   signature
                 };
@@ -626,32 +519,20 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
               tracker.onDidSendMessage(message);
             }
             message = convertToVSCPaths(message, true);
-            this._debugServiceProxy.$acceptDAMessage(
-              debugAdapterHandle,
-              message
-            );
+            mythis._debugServiceProxy.$acceptDAMessage(debugAdapterHandle, message);
           }
         });
         debugAdapter.onError((err) => {
           if (tracker && tracker.onError) {
             tracker.onError(err);
           }
-          this._debugServiceProxy.$acceptDAError(
-            debugAdapterHandle,
-            err.name,
-            err.message,
-            err.stack
-          );
+          this._debugServiceProxy.$acceptDAError(debugAdapterHandle, err.name, err.message, err.stack);
         });
         debugAdapter.onExit((code) => {
           if (tracker && tracker.onExit) {
             tracker.onExit(code ?? void 0, void 0);
           }
-          this._debugServiceProxy.$acceptDAExit(
-            debugAdapterHandle,
-            code ?? void 0,
-            void 0
-          );
+          this._debugServiceProxy.$acceptDAExit(debugAdapterHandle, code ?? void 0, void 0);
         });
         if (tracker && tracker.onWillStartSession) {
           tracker.onWillStartSession();
@@ -693,38 +574,12 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         if (id && !this._breakpoints.has(id)) {
           let bp;
           if (bpd.type === "function") {
-            bp = new FunctionBreakpoint(
-              bpd.functionName,
-              bpd.enabled,
-              bpd.condition,
-              bpd.hitCondition,
-              bpd.logMessage,
-              bpd.mode
-            );
+            bp = new FunctionBreakpoint(bpd.functionName, bpd.enabled, bpd.condition, bpd.hitCondition, bpd.logMessage, bpd.mode);
           } else if (bpd.type === "data") {
-            bp = new DataBreakpoint(
-              bpd.label,
-              bpd.dataId,
-              bpd.canPersist,
-              bpd.enabled,
-              bpd.hitCondition,
-              bpd.condition,
-              bpd.logMessage,
-              bpd.mode
-            );
+            bp = new DataBreakpoint(bpd.label, bpd.dataId, bpd.canPersist, bpd.enabled, bpd.hitCondition, bpd.condition, bpd.logMessage, bpd.mode);
           } else {
             const uri = URI.revive(bpd.uri);
-            bp = new SourceBreakpoint(
-              new Location(
-                uri,
-                new Position(bpd.line, bpd.character)
-              ),
-              bpd.enabled,
-              bpd.condition,
-              bpd.hitCondition,
-              bpd.logMessage,
-              bpd.mode
-            );
+            bp = new SourceBreakpoint(new Location(uri, new Position(bpd.line, bpd.character)), bpd.enabled, bpd.condition, bpd.hitCondition, bpd.logMessage, bpd.mode);
           }
           setBreakpointId(bp, id);
           this._breakpoints.set(id, bp);
@@ -759,10 +614,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
               sbp.condition = bpd.condition;
               sbp.hitCondition = bpd.hitCondition;
               sbp.logMessage = bpd.logMessage;
-              sbp.location = new Location(
-                URI.revive(bpd.uri),
-                new Position(bpd.line, bpd.character)
-              );
+              sbp.location = new Location(URI.revive(bpd.uri), new Position(bpd.line, bpd.character));
             }
             c.push(bp);
           }
@@ -778,11 +630,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       if (focusDto.kind === "thread") {
         focus = new DebugThread(session.api, focusDto.threadId);
       } else {
-        focus = new DebugStackFrame(
-          session.api,
-          focusDto.threadId,
-          focusDto.frameId
-        );
+        focus = new DebugStackFrame(session.api, focusDto.threadId, focusDto.frameId);
       }
     }
     this._activeStackItem = focus;
@@ -795,17 +643,13 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         throw new Error("no DebugConfigurationProvider found");
       }
       if (!provider.provideDebugConfigurations) {
-        throw new Error(
-          "DebugConfigurationProvider has no method provideDebugConfigurations"
-        );
+        throw new Error("DebugConfigurationProvider has no method provideDebugConfigurations");
       }
       const folder = await this.getFolder(folderUri);
       return provider.provideDebugConfigurations(folder, token);
     }).then((debugConfigurations) => {
       if (!debugConfigurations) {
-        throw new Error(
-          "nothing returned from DebugConfigurationProvider.provideDebugConfigurations"
-        );
+        throw new Error("nothing returned from DebugConfigurationProvider.provideDebugConfigurations");
       }
       return debugConfigurations;
     });
@@ -817,16 +661,10 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         throw new Error("no DebugConfigurationProvider found");
       }
       if (!provider.resolveDebugConfiguration) {
-        throw new Error(
-          "DebugConfigurationProvider has no method resolveDebugConfiguration"
-        );
+        throw new Error("DebugConfigurationProvider has no method resolveDebugConfiguration");
       }
       const folder = await this.getFolder(folderUri);
-      return provider.resolveDebugConfiguration(
-        folder,
-        debugConfiguration,
-        token
-      );
+      return provider.resolveDebugConfiguration(folder, debugConfiguration, token);
     });
   }
   $resolveDebugConfigurationWithSubstitutedVariables(configProviderHandle, folderUri, debugConfiguration, token) {
@@ -836,34 +674,21 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         throw new Error("no DebugConfigurationProvider found");
       }
       if (!provider.resolveDebugConfigurationWithSubstitutedVariables) {
-        throw new Error(
-          "DebugConfigurationProvider has no method resolveDebugConfigurationWithSubstitutedVariables"
-        );
+        throw new Error("DebugConfigurationProvider has no method resolveDebugConfigurationWithSubstitutedVariables");
       }
       const folder = await this.getFolder(folderUri);
-      return provider.resolveDebugConfigurationWithSubstitutedVariables(
-        folder,
-        debugConfiguration,
-        token
-      );
+      return provider.resolveDebugConfigurationWithSubstitutedVariables(folder, debugConfiguration, token);
     });
   }
   async $provideDebugAdapter(adapterFactoryHandle, sessionDto) {
     const adapterDescriptorFactory = this.getAdapterDescriptorFactoryByHandle(adapterFactoryHandle);
     if (!adapterDescriptorFactory) {
-      return Promise.reject(
-        new Error("no adapter descriptor factory found for handle")
-      );
+      return Promise.reject(new Error("no adapter descriptor factory found for handle"));
     }
     const session = await this.getSession(sessionDto);
-    return this.getAdapterDescriptor(
-      adapterDescriptorFactory,
-      session
-    ).then((adapterDescriptor) => {
+    return this.getAdapterDescriptor(adapterDescriptorFactory, session).then((adapterDescriptor) => {
       if (!adapterDescriptor) {
-        throw new Error(
-          `Couldn't find a debug adapter descriptor for debug type '${session.type}'`
-        );
+        throw new Error(`Couldn't find a debug adapter descriptor for debug type '${session.type}'`);
       }
       return this.convertToDto(adapterDescriptor);
     });
@@ -944,18 +769,14 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     return void 0;
   }
   getAdapterDescriptorFactoryByHandle(handle) {
-    const results = this._adapterFactories.filter(
-      (p) => p.handle === handle
-    );
+    const results = this._adapterFactories.filter((p) => p.handle === handle);
     if (results.length > 0) {
       return results[0].factory;
     }
     return void 0;
   }
   getConfigProviderByHandle(handle) {
-    const results = this._configProviders.filter(
-      (p) => p.handle === handle
-    );
+    const results = this._configProviders.filter((p) => p.handle === handle);
     if (results.length > 0) {
       return results[0].provider;
     }
@@ -979,14 +800,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
   getDebugAdapterTrackers(session) {
     const config = session.configuration;
     const type = config.type;
-    const promises = this._trackerFactories.filter((tuple) => tuple.type === type || tuple.type === "*").map(
-      (tuple) => asPromise(
-        () => tuple.factory.createDebugAdapterTracker(session.api)
-      ).then(
-        (p) => p,
-        (err) => null
-      )
-    );
+    const promises = this._trackerFactories.filter((tuple) => tuple.type === type || tuple.type === "*").map((tuple) => asPromise(() => tuple.factory.createDebugAdapterTracker(session.api)).then((p) => p, (err) => null));
     return Promise.race([
       Promise.all(promises).then((result) => {
         const trackers = coalesce(result);
@@ -995,9 +809,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         }
         return void 0;
       }),
-      new Promise(
-        (resolve) => setTimeout(() => resolve(void 0), 1e3)
-      )
+      new Promise((resolve) => setTimeout(() => resolve(void 0), 1e3))
     ]).catch((err) => {
       return void 0;
     });
@@ -1009,12 +821,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
     }
     if (adapterDescriptorFactory) {
       const extensionRegistry2 = await this._extensionService.getExtensionRegistry();
-      return asPromise(
-        () => adapterDescriptorFactory.createDebugAdapterDescriptor(
-          session.api,
-          this.daExecutableFromPackage(session, extensionRegistry2)
-        )
-      ).then((daDescriptor) => {
+      return asPromise(() => adapterDescriptorFactory.createDebugAdapterDescriptor(session.api, this.daExecutableFromPackage(session, extensionRegistry2))).then((daDescriptor) => {
         if (daDescriptor) {
           return daDescriptor;
         }
@@ -1022,22 +829,18 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       });
     }
     const extensionRegistry = await this._extensionService.getExtensionRegistry();
-    return Promise.resolve(
-      this.daExecutableFromPackage(session, extensionRegistry)
-    );
+    return Promise.resolve(this.daExecutableFromPackage(session, extensionRegistry));
   }
   daExecutableFromPackage(session, extensionRegistry) {
     return void 0;
   }
   fireBreakpointChanges(added, removed, changed) {
     if (added.length > 0 || removed.length > 0 || changed.length > 0) {
-      this._onDidChangeBreakpoints.fire(
-        Object.freeze({
-          added,
-          removed,
-          changed
-        })
-      );
+      this._onDidChangeBreakpoints.fire(Object.freeze({
+        added,
+        removed,
+        changed
+      }));
     }
   }
   async getSession(dto) {
@@ -1052,15 +855,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
         if (!ds) {
           const folder = await this.getFolder(dto.folderUri);
           const parent = dto.parent ? this._debugSessions.get(dto.parent) : void 0;
-          ds = new ExtHostDebugSession(
-            this._debugServiceProxy,
-            dto.id,
-            dto.type,
-            dto.name,
-            folder,
-            dto.configuration,
-            parent?.api
-          );
+          ds = new ExtHostDebugSession(this._debugServiceProxy, dto.id, dto.type, dto.name, folder, dto.configuration, parent?.api);
           this._debugSessions.set(ds.id, ds);
           this._debugServiceProxy.$sessionCached(ds.id);
         }
@@ -1087,10 +882,7 @@ let ExtHostDebugServiceBase = class extends DisposableCls {
       return { type: DebugVisualizationType.Command };
     }
     if ("treeId" in viz) {
-      return {
-        type: DebugVisualizationType.Tree,
-        id: `${extensionId}\0${viz.treeId}`
-      };
+      return { type: DebugVisualizationType.Tree, id: `${extensionId}\0${viz.treeId}` };
     }
     throw new Error("Unsupported debug visualization type");
   }
@@ -1160,17 +952,10 @@ class ExtHostDebugSession {
       workspaceFolder: that._workspaceFolder,
       configuration: that._configuration,
       customRequest(command, args) {
-        return that._debugServiceProxy.$customDebugAdapterRequest(
-          that._id,
-          command,
-          args
-        );
+        return that._debugServiceProxy.$customDebugAdapterRequest(that._id, command, args);
       },
       getDebugProtocolBreakpoint(breakpoint) {
-        return that._debugServiceProxy.$getDebugProtocolBreakpoint(
-          that._id,
-          breakpoint.id
-        );
+        return that._debugServiceProxy.$getDebugProtocolBreakpoint(that._id, breakpoint.id);
       }
     });
   }
@@ -1211,45 +996,31 @@ class MultiTracker {
     __name(this, "MultiTracker");
   }
   onWillStartSession() {
-    this.trackers.forEach(
-      (t) => t.onWillStartSession ? t.onWillStartSession() : void 0
-    );
+    this.trackers.forEach((t) => t.onWillStartSession ? t.onWillStartSession() : void 0);
   }
   onWillReceiveMessage(message) {
-    this.trackers.forEach(
-      (t) => t.onWillReceiveMessage ? t.onWillReceiveMessage(message) : void 0
-    );
+    this.trackers.forEach((t) => t.onWillReceiveMessage ? t.onWillReceiveMessage(message) : void 0);
   }
   onDidSendMessage(message) {
-    this.trackers.forEach(
-      (t) => t.onDidSendMessage ? t.onDidSendMessage(message) : void 0
-    );
+    this.trackers.forEach((t) => t.onDidSendMessage ? t.onDidSendMessage(message) : void 0);
   }
   onWillStopSession() {
-    this.trackers.forEach(
-      (t) => t.onWillStopSession ? t.onWillStopSession() : void 0
-    );
+    this.trackers.forEach((t) => t.onWillStopSession ? t.onWillStopSession() : void 0);
   }
   onError(error) {
-    this.trackers.forEach(
-      (t) => t.onError ? t.onError(error) : void 0
-    );
+    this.trackers.forEach((t) => t.onError ? t.onError(error) : void 0);
   }
   onExit(code, signal) {
-    this.trackers.forEach(
-      (t) => t.onExit ? t.onExit(code, signal) : void 0
-    );
+    this.trackers.forEach((t) => t.onExit ? t.onExit(code, signal) : void 0);
   }
 }
 class DirectDebugAdapter extends AbstractDebugAdapter {
   constructor(implementation) {
     super();
     this.implementation = implementation;
-    implementation.onDidSendMessage(
-      (message) => {
-        this.acceptMessage(message);
-      }
-    );
+    implementation.onDidSendMessage((message) => {
+      this.acceptMessage(message);
+    });
   }
   static {
     __name(this, "DirectDebugAdapter");
@@ -1270,16 +1041,7 @@ let WorkerExtHostDebugService = class extends ExtHostDebugServiceBase {
     __name(this, "WorkerExtHostDebugService");
   }
   constructor(extHostRpcService, workspaceService, extensionService, configurationService, editorTabs, variableResolver, commands, testing) {
-    super(
-      extHostRpcService,
-      workspaceService,
-      extensionService,
-      configurationService,
-      editorTabs,
-      variableResolver,
-      commands,
-      testing
-    );
+    super(extHostRpcService, workspaceService, extensionService, configurationService, editorTabs, variableResolver, commands, testing);
   }
 };
 WorkerExtHostDebugService = __decorateClass([

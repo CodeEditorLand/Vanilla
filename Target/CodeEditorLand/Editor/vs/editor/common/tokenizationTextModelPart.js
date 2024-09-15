@@ -1,6 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { OffsetEdit } from "./core/offsetEdit.js";
+import { OffsetRange } from "./core/offsetRange.js";
+import { Range } from "./core/range.js";
+import { StandardTokenType } from "./encodedTokenAttributes.js";
+import { LineTokens } from "./tokens/lineTokens.js";
+import { SparseMultilineTokens } from "./tokens/sparseMultilineTokens.js";
 class LineEditWithAdditionalLines {
   constructor(lineEdit, additionalLines) {
     this.lineEdit = lineEdit;

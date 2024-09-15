@@ -13,14 +13,12 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import electron from "electron";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import {
-  isLinux,
-  isMacintosh,
-  isWindows
-} from "../../../base/common/platform.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { IStateService } from "../../state/node/state.js";
+import { IPartsSplash } from "../common/themeService.js";
+import { IColorScheme } from "../../window/common/window.js";
 const DEFAULT_BG_LIGHT = "#FFFFFF";
 const DEFAULT_BG_DARK = "#1F1F1F";
 const DEFAULT_BG_HC_BLACK = "#000000";
@@ -40,37 +38,22 @@ let ThemeMainService = class extends Disposable {
     this.stateService = stateService;
     this.configurationService = configurationService;
     if (!isLinux) {
-      this._register(
-        this.configurationService.onDidChangeConfiguration((e) => {
-          if (e.affectsConfiguration(
-            ThemeSettings.SYSTEM_COLOR_THEME
-          ) || e.affectsConfiguration(
-            ThemeSettings.DETECT_COLOR_SCHEME
-          )) {
-            this.updateSystemColorTheme();
-          }
-        })
-      );
+      this._register(this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(ThemeSettings.SYSTEM_COLOR_THEME) || e.affectsConfiguration(ThemeSettings.DETECT_COLOR_SCHEME)) {
+          this.updateSystemColorTheme();
+        }
+      }));
     }
     this.updateSystemColorTheme();
-    this._register(
-      Event.fromNodeEventEmitter(
-        electron.nativeTheme,
-        "updated"
-      )(() => this._onDidChangeColorScheme.fire(this.getColorScheme()))
-    );
+    this._register(Event.fromNodeEventEmitter(electron.nativeTheme, "updated")(() => this._onDidChangeColorScheme.fire(this.getColorScheme())));
   }
   static {
     __name(this, "ThemeMainService");
   }
-  _onDidChangeColorScheme = this._register(
-    new Emitter()
-  );
+  _onDidChangeColorScheme = this._register(new Emitter());
   onDidChangeColorScheme = this._onDidChangeColorScheme.event;
   updateSystemColorTheme() {
-    if (isLinux || this.configurationService.getValue(
-      ThemeSettings.DETECT_COLOR_SCHEME
-    )) {
+    if (isLinux || this.configurationService.getValue(ThemeSettings.DETECT_COLOR_SCHEME)) {
       electron.nativeTheme.themeSource = "system";
     } else {
       switch (this.configurationService.getValue(ThemeSettings.SYSTEM_COLOR_THEME)) {
@@ -101,17 +84,11 @@ let ThemeMainService = class extends Disposable {
   getColorScheme() {
     if (isWindows) {
       if (electron.nativeTheme.shouldUseHighContrastColors) {
-        return {
-          dark: electron.nativeTheme.shouldUseInvertedColorScheme,
-          highContrast: true
-        };
+        return { dark: electron.nativeTheme.shouldUseInvertedColorScheme, highContrast: true };
       }
     } else if (isMacintosh) {
       if (electron.nativeTheme.shouldUseInvertedColorScheme || electron.nativeTheme.shouldUseHighContrastColors) {
-        return {
-          dark: electron.nativeTheme.shouldUseDarkColors,
-          highContrast: true
-        };
+        return { dark: electron.nativeTheme.shouldUseDarkColors, highContrast: true };
       }
     } else if (isLinux) {
       if (electron.nativeTheme.shouldUseHighContrastColors) {
@@ -128,10 +105,7 @@ let ThemeMainService = class extends Disposable {
     if (colorScheme.highContrast && this.configurationService.getValue("window.autoDetectHighContrast")) {
       return colorScheme.dark ? DEFAULT_BG_HC_BLACK : DEFAULT_BG_HC_LIGHT;
     }
-    let background = this.stateService.getItem(
-      THEME_BG_STORAGE_KEY,
-      null
-    );
+    let background = this.stateService.getItem(THEME_BG_STORAGE_KEY, null);
     if (!background) {
       switch (this.getBaseTheme()) {
         case "vs":

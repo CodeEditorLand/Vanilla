@@ -14,51 +14,29 @@ import * as cp from "child_process";
 import * as net from "net";
 import { VSBuffer } from "../../base/common/buffer.js";
 import { Emitter, Event } from "../../base/common/event.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, toDisposable } from "../../base/common/lifecycle.js";
 import { FileAccess } from "../../base/common/network.js";
 import { delimiter, join } from "../../base/common/path.js";
-import {
-  isWindows
-} from "../../base/common/platform.js";
+import { IProcessEnvironment, isWindows } from "../../base/common/platform.js";
 import { removeDangerousEnvVariables } from "../../base/common/processes.js";
-import {
-  NodeSocket,
-  createRandomIPCHandle
-} from "../../base/parts/ipc/node/ipc.net.js";
+import { createRandomIPCHandle, NodeSocket, WebSocketNodeSocket } from "../../base/parts/ipc/node/ipc.net.js";
 import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
 import { ILogService } from "../../platform/log/common/log.js";
+import { IRemoteExtensionHostStartParams } from "../../platform/remote/common/remoteAgentConnection.js";
 import { getResolvedShellEnv } from "../../platform/shell/node/shellEnv.js";
-import {
-  IPCExtHostConnection,
-  SocketExtHostConnection,
-  writeExtHostConnection
-} from "../../workbench/services/extensions/common/extensionHostEnv.js";
 import { IExtensionHostStatusService } from "./extensionHostStatusService.js";
 import { getNLSConfiguration } from "./remoteLanguagePacks.js";
 import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+import { IPCExtHostConnection, SocketExtHostConnection, writeExtHostConnection } from "../../workbench/services/extensions/common/extensionHostEnv.js";
+import { IExtHostReadyMessage, IExtHostReduceGraceTimeMessage, IExtHostSocketMessage } from "../../workbench/services/extensions/common/extensionHostProtocol.js";
 async function buildUserEnvironment(startParamsEnv = {}, withUserShellEnvironment, language, environmentService, logService, configurationService) {
-  const nlsConfig = await getNLSConfiguration(
-    language,
-    environmentService.userDataPath
-  );
+  const nlsConfig = await getNLSConfiguration(language, environmentService.userDataPath);
   let userShellEnv = {};
   if (withUserShellEnvironment) {
     try {
-      userShellEnv = await getResolvedShellEnv(
-        configurationService,
-        logService,
-        environmentService.args,
-        process.env
-      );
+      userShellEnv = await getResolvedShellEnv(configurationService, logService, environmentService.args, process.env);
     } catch (error) {
-      logService.error(
-        "ExtensionHostConnection#buildUserEnvironment resolving shell environment failed",
-        error
-      );
+      logService.error("ExtensionHostConnection#buildUserEnvironment resolving shell environment failed", error);
     }
   }
   const processEnv = process.env;
@@ -82,11 +60,7 @@ async function buildUserEnvironment(startParamsEnv = {}, withUserShellEnvironmen
   }
   setCaseInsensitive(env, "PATH", PATH);
   if (!environmentService.args["without-browser-env-var"]) {
-    env.BROWSER = join(
-      binFolder,
-      "helpers",
-      isWindows ? "browser.cmd" : "browser.sh"
-    );
+    env.BROWSER = join(binFolder, "helpers", isWindows ? "browser.cmd" : "browser.sh");
   }
   removeNulls(env);
   return env;
@@ -118,9 +92,7 @@ class ConnectionData {
     }
     return {
       type: "VSCODE_EXTHOST_IPC_SOCKET",
-      initialDataChunk: this.initialDataChunk.buffer.toString(
-        "base64"
-      ),
+      initialDataChunk: this.initialDataChunk.buffer.toString("base64"),
       skipWebSocketFrames,
       permessageDeflate,
       inflateBytes: inflateBytes.buffer.toString("base64")
@@ -168,45 +140,21 @@ let ExtensionHostConnection = class extends Disposable {
   async _pipeSockets(extHostSocket, connectionData) {
     const disposables = new DisposableStore();
     disposables.add(connectionData.socket);
-    disposables.add(
-      toDisposable(() => {
-        extHostSocket.destroy();
-      })
-    );
+    disposables.add(toDisposable(() => {
+      extHostSocket.destroy();
+    }));
     const stopAndCleanup = /* @__PURE__ */ __name(() => {
       disposables.dispose();
     }, "stopAndCleanup");
     disposables.add(connectionData.socket.onEnd(stopAndCleanup));
     disposables.add(connectionData.socket.onClose(stopAndCleanup));
-    disposables.add(
-      Event.fromNodeEventEmitter(
-        extHostSocket,
-        "end"
-      )(stopAndCleanup)
-    );
-    disposables.add(
-      Event.fromNodeEventEmitter(
-        extHostSocket,
-        "close"
-      )(stopAndCleanup)
-    );
-    disposables.add(
-      Event.fromNodeEventEmitter(
-        extHostSocket,
-        "error"
-      )(stopAndCleanup)
-    );
-    disposables.add(
-      connectionData.socket.onData((e) => extHostSocket.write(e.buffer))
-    );
-    disposables.add(
-      Event.fromNodeEventEmitter(
-        extHostSocket,
-        "data"
-      )((e) => {
-        connectionData.socket.write(VSBuffer.wrap(e));
-      })
-    );
+    disposables.add(Event.fromNodeEventEmitter(extHostSocket, "end")(stopAndCleanup));
+    disposables.add(Event.fromNodeEventEmitter(extHostSocket, "close")(stopAndCleanup));
+    disposables.add(Event.fromNodeEventEmitter(extHostSocket, "error")(stopAndCleanup));
+    disposables.add(connectionData.socket.onData((e) => extHostSocket.write(e.buffer)));
+    disposables.add(Event.fromNodeEventEmitter(extHostSocket, "data")((e) => {
+      connectionData.socket.write(VSBuffer.wrap(e));
+    }));
     if (connectionData.initialDataChunk.byteLength > 0) {
       extHostSocket.write(connectionData.initialDataChunk.buffer);
     }
@@ -239,10 +187,7 @@ let ExtensionHostConnection = class extends Disposable {
       this._connectionData = connectionData;
       return;
     }
-    this._sendSocketToExtensionHost(
-      this._extensionHostProcess,
-      connectionData
-    );
+    this._sendSocketToExtensionHost(this._extensionHostProcess, connectionData);
   }
   _cleanResources() {
     if (this._disposed) {
@@ -263,18 +208,9 @@ let ExtensionHostConnection = class extends Disposable {
     try {
       let execArgv = process.execArgv ? process.execArgv.filter((a) => !/^--inspect(-brk)?=/.test(a)) : [];
       if (startParams.port && !process.pkg) {
-        execArgv = [
-          `--inspect${startParams.break ? "-brk" : ""}=${startParams.port}`
-        ];
+        execArgv = [`--inspect${startParams.break ? "-brk" : ""}=${startParams.port}`];
       }
-      const env = await buildUserEnvironment(
-        startParams.env,
-        true,
-        startParams.language,
-        this._environmentService,
-        this._logService,
-        this._configurationService
-      );
+      const env = await buildUserEnvironment(startParams.env, true, startParams.language, this._environmentService, this._logService, this._configurationService);
       removeDangerousEnvVariables(env);
       let extHostNamedPipeServer;
       if (this._canSendSocket) {
@@ -294,23 +230,13 @@ let ExtensionHostConnection = class extends Disposable {
       const args = ["--type=extensionHost", `--transformURIs`];
       const useHostProxy = this._environmentService.args["use-host-proxy"];
       args.push(`--useHostProxy=${useHostProxy ? "true" : "false"}`);
-      this._extensionHostProcess = cp.fork(
-        FileAccess.asFileUri("bootstrap-fork").fsPath,
-        args,
-        opts
-      );
+      this._extensionHostProcess = cp.fork(FileAccess.asFileUri("bootstrap-fork").fsPath, args, opts);
       const pid = this._extensionHostProcess.pid;
       this._log(`<${pid}> Launched Extension Host Process.`);
       this._extensionHostProcess.stdout.setEncoding("utf8");
       this._extensionHostProcess.stderr.setEncoding("utf8");
-      const onStdout = Event.fromNodeEventEmitter(
-        this._extensionHostProcess.stdout,
-        "data"
-      );
-      const onStderr = Event.fromNodeEventEmitter(
-        this._extensionHostProcess.stderr,
-        "data"
-      );
+      const onStdout = Event.fromNodeEventEmitter(this._extensionHostProcess.stdout, "data");
+      const onStderr = Event.fromNodeEventEmitter(this._extensionHostProcess.stderr, "data");
       this._register(onStdout((e) => this._log(`<${pid}> ${e}`)));
       this._register(onStderr((e) => this._log(`<${pid}><stderr> ${e}`)));
       this._extensionHostProcess.on("error", (err) => {
@@ -318,19 +244,11 @@ let ExtensionHostConnection = class extends Disposable {
         this._logService.error(err);
         this._cleanResources();
       });
-      this._extensionHostProcess.on(
-        "exit",
-        (code, signal) => {
-          this._extensionHostStatusService.setExitInfo(
-            this._reconnectionToken,
-            { code, signal }
-          );
-          this._log(
-            `<${pid}> Extension Host Process exited with code: ${code}, signal: ${signal}.`
-          );
-          this._cleanResources();
-        }
-      );
+      this._extensionHostProcess.on("exit", (code, signal) => {
+        this._extensionHostStatusService.setExitInfo(this._reconnectionToken, { code, signal });
+        this._log(`<${pid}> Extension Host Process exited with code: ${code}, signal: ${signal}.`);
+        this._cleanResources();
+      });
       if (extHostNamedPipeServer) {
         extHostNamedPipeServer.on("connection", (socket) => {
           extHostNamedPipeServer.close();
@@ -339,14 +257,8 @@ let ExtensionHostConnection = class extends Disposable {
       } else {
         const messageListener = /* @__PURE__ */ __name((msg) => {
           if (msg.type === "VSCODE_EXTHOST_IPC_READY") {
-            this._extensionHostProcess.removeListener(
-              "message",
-              messageListener
-            );
-            this._sendSocketToExtensionHost(
-              this._extensionHostProcess,
-              this._connectionData
-            );
+            this._extensionHostProcess.removeListener("message", messageListener);
+            this._sendSocketToExtensionHost(this._extensionHostProcess, this._connectionData);
             this._connectionData = null;
           }
         }, "messageListener");
@@ -360,17 +272,15 @@ let ExtensionHostConnection = class extends Disposable {
     }
   }
   _listenOnPipe() {
-    return new Promise(
-      (resolve, reject) => {
-        const pipeName = createRandomIPCHandle();
-        const namedPipeServer = net.createServer();
-        namedPipeServer.on("error", reject);
-        namedPipeServer.listen(pipeName, () => {
-          namedPipeServer?.removeListener("error", reject);
-          resolve({ pipeName, namedPipeServer });
-        });
-      }
-    );
+    return new Promise((resolve, reject) => {
+      const pipeName = createRandomIPCHandle();
+      const namedPipeServer = net.createServer();
+      namedPipeServer.on("error", reject);
+      namedPipeServer.listen(pipeName, () => {
+        namedPipeServer?.removeListener("error", reject);
+        resolve({ pipeName, namedPipeServer });
+      });
+    });
   }
 };
 ExtensionHostConnection = __decorateClass([
@@ -380,17 +290,13 @@ ExtensionHostConnection = __decorateClass([
   __decorateParam(7, IConfigurationService)
 ], ExtensionHostConnection);
 function readCaseInsensitive(env, key) {
-  const pathKeys = Object.keys(env).filter(
-    (k) => k.toLowerCase() === key.toLowerCase()
-  );
+  const pathKeys = Object.keys(env).filter((k) => k.toLowerCase() === key.toLowerCase());
   const pathKey = pathKeys.length > 0 ? pathKeys[0] : key;
   return env[pathKey];
 }
 __name(readCaseInsensitive, "readCaseInsensitive");
 function setCaseInsensitive(env, key, value) {
-  const pathKeys = Object.keys(env).filter(
-    (k) => k.toLowerCase() === key.toLowerCase()
-  );
+  const pathKeys = Object.keys(env).filter((k) => k.toLowerCase() === key.toLowerCase());
   const pathKey = pathKeys.length > 0 ? pathKeys[0] : key;
   env[pathKey] = value;
 }

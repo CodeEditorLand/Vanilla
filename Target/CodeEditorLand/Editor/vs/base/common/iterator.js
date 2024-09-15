@@ -139,14 +139,9 @@ var Iterable;
       }
       consumed.push(next.value);
     }
-    return [
-      consumed,
-      {
-        [Symbol.iterator]() {
-          return iterator;
-        }
-      }
-    ];
+    return [consumed, { [Symbol.iterator]() {
+      return iterator;
+    } }];
   }
   Iterable2.consume = consume;
   __name(consume, "consume");

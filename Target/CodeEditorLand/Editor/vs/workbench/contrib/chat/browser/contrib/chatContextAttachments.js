@@ -1,23 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ChatWidget } from "../chatWidget.js";
+import { IChatWidget } from "../chat.js";
+import { ChatWidget, IChatWidgetContrib } from "../chatWidget.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
 class ChatContextAttachments extends Disposable {
   constructor(widget) {
     super();
     this.widget = widget;
-    this._register(
-      this.widget.onDidChangeContext((e) => {
-        if (e.removed) {
-          this._removeContext(e.removed);
-        }
-      })
-    );
-    this._register(
-      this.widget.onDidSubmitAgent(() => {
-        this._clearAttachedContext();
-      })
-    );
+    this._register(this.widget.onDidChangeContext((e) => {
+      if (e.removed) {
+        this._removeContext(e.removed);
+      }
+    }));
+    this._register(this.widget.onDidSubmitAgent(() => {
+      this._clearAttachedContext();
+    }));
   }
   static {
     __name(this, "ChatContextAttachments");
@@ -54,10 +52,7 @@ class ChatContextAttachments extends Disposable {
   }
   _removeContext(attachments) {
     if (attachments.length) {
-      attachments.forEach(
-        this._attachedContext.delete,
-        this._attachedContext
-      );
+      attachments.forEach(this._attachedContext.delete, this._attachedContext);
     }
   }
   _clearAttachedContext() {

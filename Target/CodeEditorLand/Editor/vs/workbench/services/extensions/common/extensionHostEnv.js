@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IProcessEnvironment } from "../../../../base/common/platform.js";
 var ExtHostConnectionType = /* @__PURE__ */ ((ExtHostConnectionType2) => {
   ExtHostConnectionType2[ExtHostConnectionType2["IPC"] = 1] = "IPC";
   ExtHostConnectionType2[ExtHostConnectionType2["Socket"] = 2] = "Socket";
@@ -52,10 +53,7 @@ function writeExtHostConnection(connection, env) {
 __name(writeExtHostConnection, "writeExtHostConnection");
 function readExtHostConnection(env) {
   if (env[IPCExtHostConnection.ENV_KEY]) {
-    return cleanAndReturn(
-      env,
-      new IPCExtHostConnection(env[IPCExtHostConnection.ENV_KEY])
-    );
+    return cleanAndReturn(env, new IPCExtHostConnection(env[IPCExtHostConnection.ENV_KEY]));
   }
   if (env[SocketExtHostConnection.ENV_KEY]) {
     return cleanAndReturn(env, new SocketExtHostConnection());

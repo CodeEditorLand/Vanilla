@@ -15,27 +15,13 @@ import { isLinux } from "../../../../base/common/platform.js";
 import Severity from "../../../../base/common/severity.js";
 import { localize } from "../../../../nls.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  IEncryptionService,
-  KnownStorageProvider,
-  PasswordStoreCLIOption,
-  isGnome,
-  isKwallet
-} from "../../../../platform/encryption/common/encryptionService.js";
+import { IEncryptionService, KnownStorageProvider, PasswordStoreCLIOption, isGnome, isKwallet } from "../../../../platform/encryption/common/encryptionService.js";
 import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  INotificationService
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, IPromptChoice } from "../../../../platform/notification/common/notification.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  BaseSecretStorageService,
-  ISecretStorageService
-} from "../../../../platform/secrets/common/secrets.js";
+import { BaseSecretStorageService, ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
 let NativeSecretStorageService = class extends BaseSecretStorageService {
@@ -59,63 +45,35 @@ let NativeSecretStorageService = class extends BaseSecretStorageService {
     this._sequencer.queue(key, async () => {
       await this.resolvedStorageService;
       if (this.type !== "persisted" && !this._environmentService.useInMemorySecretStorage) {
-        this._logService.trace(
-          "[NativeSecretStorageService] Notifying user that secrets are not being stored on disk."
-        );
+        this._logService.trace("[NativeSecretStorageService] Notifying user that secrets are not being stored on disk.");
         await this.notifyOfNoEncryptionOnce();
       }
     });
     return super.set(key, value);
   }
-  notifyOfNoEncryptionOnce = createSingleCallFunction(
-    () => this.notifyOfNoEncryption()
-  );
+  notifyOfNoEncryptionOnce = createSingleCallFunction(() => this.notifyOfNoEncryption());
   async notifyOfNoEncryption() {
     const buttons = [];
     const troubleshootingButton = {
-      label: localize(
-        "troubleshootingButton",
-        "Open troubleshooting guide"
-      ),
-      run: /* @__PURE__ */ __name(() => this._openerService.open(
-        "https://go.microsoft.com/fwlink/?linkid=2239490"
-      ), "run"),
+      label: localize("troubleshootingButton", "Open troubleshooting guide"),
+      run: /* @__PURE__ */ __name(() => this._openerService.open("https://go.microsoft.com/fwlink/?linkid=2239490"), "run"),
       // doesn't close dialogs
       keepOpen: true
     };
     buttons.push(troubleshootingButton);
-    let errorMessage = localize(
-      "encryptionNotAvailableJustTroubleshootingGuide",
-      "An OS keyring couldn't be identified for storing the encryption related data in your current desktop environment."
-    );
+    let errorMessage = localize("encryptionNotAvailableJustTroubleshootingGuide", "An OS keyring couldn't be identified for storing the encryption related data in your current desktop environment.");
     if (!isLinux) {
-      this._notificationService.prompt(
-        Severity.Error,
-        errorMessage,
-        buttons
-      );
+      this._notificationService.prompt(Severity.Error, errorMessage, buttons);
       return;
     }
     const provider = await this._encryptionService.getKeyStorageProvider();
     if (provider === KnownStorageProvider.basicText) {
-      const detail = localize(
-        "usePlainTextExtraSentence",
-        "Open the troubleshooting guide to address this or you can use weaker encryption that doesn't use the OS keyring."
-      );
+      const detail = localize("usePlainTextExtraSentence", "Open the troubleshooting guide to address this or you can use weaker encryption that doesn't use the OS keyring.");
       const usePlainTextButton = {
         label: localize("usePlainText", "Use weaker encryption"),
         run: /* @__PURE__ */ __name(async () => {
           await this._encryptionService.setUsePlainTextEncryption();
-          await this._jsonEditingService.write(
-            this._environmentService.argvResource,
-            [
-              {
-                path: ["password-store"],
-                value: PasswordStoreCLIOption.basic
-              }
-            ],
-            true
-          );
+          await this._jsonEditingService.write(this._environmentService.argvResource, [{ path: ["password-store"], value: PasswordStoreCLIOption.basic }], true);
           this.reinitialize();
         }, "run")
       };
@@ -129,15 +87,9 @@ let NativeSecretStorageService = class extends BaseSecretStorageService {
       return;
     }
     if (isGnome(provider)) {
-      errorMessage = localize(
-        "isGnome",
-        "You're running in a GNOME environment but the OS keyring is not available for encryption. Ensure you have gnome-keyring or another libsecret compatible implementation installed and running."
-      );
+      errorMessage = localize("isGnome", "You're running in a GNOME environment but the OS keyring is not available for encryption. Ensure you have gnome-keyring or another libsecret compatible implementation installed and running.");
     } else if (isKwallet(provider)) {
-      errorMessage = localize(
-        "isKwallet",
-        "You're running in a KDE environment but the OS keyring is not available for encryption. Ensure you have kwallet running."
-      );
+      errorMessage = localize("isKwallet", "You're running in a KDE environment but the OS keyring is not available for encryption. Ensure you have kwallet running.");
     }
     this._notificationService.prompt(Severity.Error, errorMessage, buttons);
   }
@@ -152,11 +104,7 @@ NativeSecretStorageService = __decorateClass([
   __decorateParam(6, IEncryptionService),
   __decorateParam(7, ILogService)
 ], NativeSecretStorageService);
-registerSingleton(
-  ISecretStorageService,
-  NativeSecretStorageService,
-  InstantiationType.Delayed
-);
+registerSingleton(ISecretStorageService, NativeSecretStorageService, InstantiationType.Delayed);
 export {
   NativeSecretStorageService
 };

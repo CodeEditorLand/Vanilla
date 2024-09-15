@@ -10,19 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { basename } from "../../../../base/common/path.js";
 import { isWindows } from "../../../../base/common/platform.js";
 import { localize } from "../../../../nls.js";
 import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  INotificationService,
-  NeverShowAgainScope,
-  Severity
-} from "../../../../platform/notification/common/notification.js";
+import { INotificationService, NeverShowAgainScope, Severity } from "../../../../platform/notification/common/notification.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { InstallRecommendedExtensionAction } from "../../extensions/browser/extensionsActions.js";
 import { ITerminalService } from "./terminal.js";
@@ -46,45 +40,29 @@ let TerminalWslRecommendationContribution = class extends Disposable {
         return extensions.some((e) => e.identifier.id === id);
       }
       __name(isExtensionInstalled, "isExtensionInstalled");
-      if (!instance.shellLaunchConfig.executable || basename(
-        instance.shellLaunchConfig.executable
-      ).toLowerCase() !== "wsl.exe") {
+      if (!instance.shellLaunchConfig.executable || basename(instance.shellLaunchConfig.executable).toLowerCase() !== "wsl.exe") {
         return;
       }
       listener?.dispose();
       listener = void 0;
-      const extId = Object.keys(
-        exeBasedExtensionTips.wsl.recommendations
-      ).find(
-        (extId2) => exeBasedExtensionTips.wsl.recommendations[extId2].important
-      );
+      const extId = Object.keys(exeBasedExtensionTips.wsl.recommendations).find((extId2) => exeBasedExtensionTips.wsl.recommendations[extId2].important);
       if (!extId || await isExtensionInstalled(extId)) {
         return;
       }
       notificationService.prompt(
         Severity.Info,
-        localize(
-          "useWslExtension.title",
-          "The '{0}' extension is recommended for opening a terminal in WSL.",
-          exeBasedExtensionTips.wsl.friendlyName
-        ),
+        localize("useWslExtension.title", "The '{0}' extension is recommended for opening a terminal in WSL.", exeBasedExtensionTips.wsl.friendlyName),
         [
           {
             label: localize("install", "Install"),
             run: /* @__PURE__ */ __name(() => {
-              instantiationService.createInstance(
-                InstallRecommendedExtensionAction,
-                extId
-              ).run();
+              instantiationService.createInstance(InstallRecommendedExtensionAction, extId).run();
             }, "run")
           }
         ],
         {
           sticky: true,
-          neverShowAgain: {
-            id: "terminalConfigHelper/launchRecommendationsIgnore",
-            scope: NeverShowAgainScope.APPLICATION
-          },
+          neverShowAgain: { id: "terminalConfigHelper/launchRecommendationsIgnore", scope: NeverShowAgainScope.APPLICATION },
           onCancel: /* @__PURE__ */ __name(() => {
           }, "onCancel")
         }

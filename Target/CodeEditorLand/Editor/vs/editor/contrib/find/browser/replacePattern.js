@@ -48,10 +48,7 @@ class ReplacePattern {
   buildReplaceString(matches, preserveCase) {
     if (this._state.kind === 0 /* StaticValue */) {
       if (preserveCase) {
-        return buildReplaceStringWithCasePreserved(
-          matches,
-          this._state.staticValue
-        );
+        return buildReplaceStringWithCasePreserved(matches, this._state.staticValue);
       } else {
         return this._state.staticValue;
       }
@@ -63,10 +60,7 @@ class ReplacePattern {
         result += piece.staticValue;
         continue;
       }
-      let match = ReplacePattern._substitute(
-        piece.matchIndex,
-        matches
-      );
+      let match = ReplacePattern._substitute(piece.matchIndex, matches);
       if (piece.caseOps !== null && piece.caseOps.length > 0) {
         const repl = [];
         const lenOps = piece.caseOps.length;
@@ -163,9 +157,7 @@ class ReplacePieceBuilder {
     this._currentStaticPiece = "";
   }
   emitUnchanged(toCharIndex) {
-    this._emitStatic(
-      this._source.substring(this._lastCharIndex, toCharIndex)
-    );
+    this._emitStatic(this._source.substring(this._lastCharIndex, toCharIndex));
     this._lastCharIndex = toCharIndex;
   }
   emitStatic(value, toCharIndex) {
@@ -180,9 +172,7 @@ class ReplacePieceBuilder {
   }
   emitMatchIndex(index, toCharIndex, caseOps) {
     if (this._currentStaticPiece.length !== 0) {
-      this._result[this._resultLen++] = ReplacePiece.staticValue(
-        this._currentStaticPiece
-      );
+      this._result[this._resultLen++] = ReplacePiece.staticValue(this._currentStaticPiece);
       this._currentStaticPiece = "";
     }
     this._result[this._resultLen++] = ReplacePiece.caseOps(index, caseOps);
@@ -191,9 +181,7 @@ class ReplacePieceBuilder {
   finalize() {
     this.emitUnchanged(this._source.length);
     if (this._currentStaticPiece.length !== 0) {
-      this._result[this._resultLen++] = ReplacePiece.staticValue(
-        this._currentStaticPiece
-      );
+      this._result[this._resultLen++] = ReplacePiece.staticValue(this._currentStaticPiece);
       this._currentStaticPiece = "";
     }
     return new ReplacePattern(this._result);

@@ -12,54 +12,31 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { RunOnceScheduler } from "../../../base/common/async.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { createSingleCallFunction } from "../../../base/common/functional.js";
 import { hash } from "../../../base/common/hash.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../base/common/marshallingIds.js";
 import { isDefined } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
+import { IPosition } from "../../../editor/common/core/position.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import { TestCommandId } from "../../contrib/testing/common/constants.js";
-import { TestId, TestPosition } from "../../contrib/testing/common/testId.js";
-import { InvalidTestItemError } from "../../contrib/testing/common/testItemCollection.js";
-import {
-  AbstractIncrementalTestCollection,
-  TestControllerCapability,
-  TestResultState,
-  TestRunProfileBitset,
-  TestsDiffOp,
-  isStartControllerTests
-} from "../../contrib/testing/common/testTypes.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { ExtHostTestingShape, ILocationDto, MainContext, MainThreadTestingShape } from "./extHost.protocol.js";
 import { IExtHostCommands } from "./extHostCommands.js";
 import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
-import {
-  ExtHostTestItemCollection,
-  TestItemImpl,
-  TestItemRootImpl,
-  toItemFromContext
-} from "./extHostTestItem.js";
+import { ExtHostTestItemCollection, TestItemImpl, TestItemRootImpl, toItemFromContext } from "./extHostTestItem.js";
 import * as Convert from "./extHostTypeConverters.js";
-import {
-  FileCoverage,
-  TestRunProfileKind,
-  TestRunRequest
-} from "./extHostTypes.js";
+import { FileCoverage, TestRunProfileKind, TestRunRequest } from "./extHostTypes.js";
+import { TestCommandId } from "../../contrib/testing/common/constants.js";
+import { TestId, TestPosition } from "../../contrib/testing/common/testId.js";
+import { InvalidTestItemError } from "../../contrib/testing/common/testItemCollection.js";
+import { AbstractIncrementalTestCollection, CoverageDetails, ICallProfileRunHandler, ISerializedTestResults, IStartControllerTests, IStartControllerTestsResult, ITestErrorMessage, ITestItem, ITestItemContext, ITestMessageMenuArgs, ITestRunProfile, IncrementalChangeCollector, IncrementalTestCollectionItem, InternalTestItem, TestControllerCapability, TestMessageFollowupRequest, TestMessageFollowupResponse, TestResultState, TestRunProfileBitset, TestsDiff, TestsDiffOp, isStartControllerTests } from "../../contrib/testing/common/testTypes.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 let followupCounter = 0;
 const testResultInternalIDs = /* @__PURE__ */ new WeakMap();
 const IExtHostTesting = createDecorator("IExtHostTesting");
@@ -78,22 +55,15 @@ let ExtHostTesting = class extends Disposable {
           case MarshalledId.TestItemContext: {
             const cast = arg;
             const targetTest = cast.tests[cast.tests.length - 1].item.extId;
-            const controller = this.controllers.get(
-              TestId.root(targetTest)
-            );
+            const controller = this.controllers.get(TestId.root(targetTest));
             return controller?.collection.tree.get(targetTest)?.actual ?? toItemFromContext(arg);
           }
           case MarshalledId.TestMessageMenuArgs: {
             const { test, message } = arg;
             const extId = test.item.extId;
             return {
-              test: this.controllers.get(TestId.root(extId))?.collection.tree.get(extId)?.actual ?? toItemFromContext({
-                $mid: MarshalledId.TestItemContext,
-                tests: [test]
-              }),
-              message: Convert.TestMessage.to(
-                message
-              )
+              test: this.controllers.get(TestId.root(extId))?.collection.tree.get(extId)?.actual ?? toItemFromContext({ $mid: MarshalledId.TestItemContext, tests: [test] }),
+              message: Convert.TestMessage.to(message)
             };
           }
           default:
@@ -101,38 +71,30 @@ let ExtHostTesting = class extends Disposable {
         }
       }, "processArgument")
     });
-    commands.registerCommand(
-      false,
-      "testing.getExplorerSelection",
-      async () => {
-        const inner = await commands.executeCommand(TestCommandId.GetExplorerSelection);
-        const lookup = /* @__PURE__ */ __name((i) => {
-          const controller = this.controllers.get(TestId.root(i));
-          if (!controller) {
-            return void 0;
-          }
-          return TestId.isRoot(i) ? controller.controller : controller.collection.tree.get(i)?.actual;
-        }, "lookup");
-        return {
-          include: inner?.include.map(lookup).filter(isDefined) || [],
-          exclude: inner?.exclude.map(lookup).filter(isDefined) || []
-        };
-      }
-    );
+    commands.registerCommand(false, "testing.getExplorerSelection", async () => {
+      const inner = await commands.executeCommand(TestCommandId.GetExplorerSelection);
+      const lookup = /* @__PURE__ */ __name((i) => {
+        const controller = this.controllers.get(TestId.root(i));
+        if (!controller) {
+          return void 0;
+        }
+        return TestId.isRoot(i) ? controller.controller : controller.collection.tree.get(i)?.actual;
+      }, "lookup");
+      return {
+        include: inner?.include.map(lookup).filter(isDefined) || [],
+        exclude: inner?.exclude.map(lookup).filter(isDefined) || []
+      };
+    });
   }
   static {
     __name(this, "ExtHostTesting");
   }
-  resultsChangedEmitter = this._register(
-    new Emitter()
-  );
+  resultsChangedEmitter = this._register(new Emitter());
   controllers = /* @__PURE__ */ new Map();
   proxy;
   runTracker;
   observer;
-  defaultProfilesChangedEmitter = this._register(
-    new Emitter()
-  );
+  defaultProfilesChangedEmitter = this._register(new Emitter());
   followupProviders = /* @__PURE__ */ new Set();
   testFollowups = /* @__PURE__ */ new Map();
   onResultsChanged = this.resultsChangedEmitter.event;
@@ -143,14 +105,10 @@ let ExtHostTesting = class extends Disposable {
    */
   createTestController(extension, controllerId, label, refreshHandler) {
     if (this.controllers.has(controllerId)) {
-      throw new Error(
-        `Attempt to insert a duplicate controller with ID "${controllerId}"`
-      );
+      throw new Error(`Attempt to insert a duplicate controller with ID "${controllerId}"`);
     }
     const disposable = new DisposableStore();
-    const collection = disposable.add(
-      new ExtHostTestItemCollection(controllerId, label, this.editors)
-    );
+    const collection = disposable.add(new ExtHostTestItemCollection(controllerId, label, this.editors));
     collection.root.label = label;
     const profiles = /* @__PURE__ */ new Map();
     const activeProfiles = /* @__PURE__ */ new Set();
@@ -186,9 +144,7 @@ let ExtHostTesting = class extends Disposable {
       },
       set refreshHandler(value) {
         refreshHandler = value;
-        proxy.$updateController(controllerId, {
-          capabilities: getCapability()
-        });
+        proxy.$updateController(controllerId, { capabilities: getCapability() });
       },
       get id() {
         return controllerId;
@@ -199,56 +155,27 @@ let ExtHostTesting = class extends Disposable {
       set relatedCodeProvider(value) {
         checkProposedApiEnabled(extension, "testRelatedCode");
         info.relatedCodeProvider = value;
-        proxy.$updateController(controllerId, {
-          capabilities: getCapability()
-        });
+        proxy.$updateController(controllerId, { capabilities: getCapability() });
       },
       createRunProfile: /* @__PURE__ */ __name((label2, group, runHandler, isDefault, tag, supportsContinuousRun) => {
         let profileId = hash(label2);
         while (profiles.has(profileId)) {
           profileId++;
         }
-        return new TestRunProfileImpl(
-          this.proxy,
-          profiles,
-          activeProfiles,
-          this.defaultProfilesChangedEmitter.event,
-          controllerId,
-          profileId,
-          label2,
-          group,
-          runHandler,
-          isDefault,
-          tag,
-          supportsContinuousRun
-        );
+        return new TestRunProfileImpl(this.proxy, profiles, activeProfiles, this.defaultProfilesChangedEmitter.event, controllerId, profileId, label2, group, runHandler, isDefault, tag, supportsContinuousRun);
       }, "createRunProfile"),
       createTestItem(id, label2, uri) {
         return new TestItemImpl(controllerId, id, label2, uri);
       },
       createTestRun: /* @__PURE__ */ __name((request, name, persist = true) => {
-        return this.runTracker.createTestRun(
-          extension,
-          controllerId,
-          collection,
-          request,
-          name,
-          persist
-        );
+        return this.runTracker.createTestRun(extension, controllerId, collection, request, name, persist);
       }, "createTestRun"),
       invalidateTestResults: /* @__PURE__ */ __name((items) => {
         if (items === void 0) {
           this.proxy.$markTestRetired(void 0);
         } else {
           const itemsArr = items instanceof Array ? items : [items];
-          this.proxy.$markTestRetired(
-            itemsArr.map(
-              (i) => TestId.fromExtHostTestItem(
-                i,
-                controllerId
-              ).toString()
-            )
-          );
+          this.proxy.$markTestRetired(itemsArr.map((i) => TestId.fromExtHostTestItem(i, controllerId).toString()));
         }
       }, "invalidateTestResults"),
       set resolveHandler(fn) {
@@ -261,29 +188,12 @@ let ExtHostTesting = class extends Disposable {
         disposable.dispose();
       }, "dispose")
     };
-    const info = {
-      controller,
-      collection,
-      profiles,
-      extension,
-      activeProfiles
-    };
+    const info = { controller, collection, profiles, extension, activeProfiles };
     proxy.$registerTestController(controllerId, label, getCapability());
-    disposable.add(
-      toDisposable(() => proxy.$unregisterTestController(controllerId))
-    );
+    disposable.add(toDisposable(() => proxy.$unregisterTestController(controllerId)));
     this.controllers.set(controllerId, info);
-    disposable.add(
-      toDisposable(() => this.controllers.delete(controllerId))
-    );
-    disposable.add(
-      collection.onDidGenerateDiff(
-        (diff) => proxy.$publishDiff(
-          controllerId,
-          diff.map(TestsDiffOp.serialize)
-        )
-      )
-    );
+    disposable.add(toDisposable(() => this.controllers.delete(controllerId)));
+    disposable.add(collection.onDidGenerateDiff((diff) => proxy.$publishDiff(controllerId, diff.map(TestsDiffOp.serialize))));
     return controller;
   }
   /**
@@ -298,45 +208,31 @@ let ExtHostTesting = class extends Disposable {
   async runTests(req, token = CancellationToken.None) {
     const profile = tryGetProfileFromTestRunReq(req);
     if (!profile) {
-      throw new Error(
-        "The request passed to `vscode.test.runTests` must include a profile"
-      );
+      throw new Error("The request passed to `vscode.test.runTests` must include a profile");
     }
     const controller = this.controllers.get(profile.controllerId);
     if (!controller) {
       throw new Error("Controller not found");
     }
-    await this.proxy.$runTests(
-      {
-        preserveFocus: req.preserveFocus ?? true,
-        group: profileGroupToBitset[profile.kind],
-        targets: [
-          {
-            testIds: req.include?.map(
-              (t) => TestId.fromExtHostTestItem(
-                t,
-                controller.collection.root.id
-              ).toString()
-            ) ?? [controller.collection.root.id],
-            profileId: profile.profileId,
-            controllerId: profile.controllerId
-          }
-        ],
-        exclude: req.exclude?.map((t) => t.id)
-      },
-      token
-    );
+    await this.proxy.$runTests({
+      preserveFocus: req.preserveFocus ?? true,
+      group: profileGroupToBitset[profile.kind],
+      targets: [{
+        testIds: req.include?.map((t) => TestId.fromExtHostTestItem(t, controller.collection.root.id).toString()) ?? [controller.collection.root.id],
+        profileId: profile.profileId,
+        controllerId: profile.controllerId
+      }],
+      exclude: req.exclude?.map((t) => t.id)
+    }, token);
   }
   /**
    * Implements vscode.test.registerTestFollowupProvider
    */
   registerTestFollowupProvider(provider) {
     this.followupProviders.add(provider);
-    return {
-      dispose: /* @__PURE__ */ __name(() => {
-        this.followupProviders.delete(provider);
-      }, "dispose")
-    };
+    return { dispose: /* @__PURE__ */ __name(() => {
+      this.followupProviders.delete(provider);
+    }, "dispose") };
   }
   //#endregion
   //#region RPC methods
@@ -350,36 +246,22 @@ let ExtHostTesting = class extends Disposable {
     }
     const position = Convert.Position.to(_position);
     const related = [];
-    await Promise.all(
-      [...this.controllers.values()].map(async (c) => {
-        let tests;
-        try {
-          tests = await c.relatedCodeProvider?.provideRelatedTests?.(
-            doc.document,
-            position,
-            token
-          );
-        } catch (e) {
-          if (!token.isCancellationRequested) {
-            this.logService.warn(
-              `Error thrown while providing related tests for ${c.controller.label}`,
-              e
-            );
-          }
+    await Promise.all([...this.controllers.values()].map(async (c) => {
+      let tests;
+      try {
+        tests = await c.relatedCodeProvider?.provideRelatedTests?.(doc.document, position, token);
+      } catch (e) {
+        if (!token.isCancellationRequested) {
+          this.logService.warn(`Error thrown while providing related tests for ${c.controller.label}`, e);
         }
-        if (tests) {
-          for (const test of tests) {
-            related.push(
-              TestId.fromExtHostTestItem(
-                test,
-                c.controller.id
-              ).toString()
-            );
-          }
-          c.collection.flushDiff();
+      }
+      if (tests) {
+        for (const test of tests) {
+          related.push(TestId.fromExtHostTestItem(test, c.controller.id).toString());
         }
-      })
-    );
+        c.collection.flushDiff();
+      }
+    }));
     return related;
   }
   /**
@@ -394,10 +276,7 @@ let ExtHostTesting = class extends Disposable {
     if (!test) {
       return [];
     }
-    const locations = await controller.relatedCodeProvider?.provideRelatedCode?.(
-      test.actual,
-      token
-    );
+    const locations = await controller.relatedCodeProvider?.provideRelatedCode?.(test.actual, token);
     return locations?.map(Convert.location.from) ?? [];
   }
   /**
@@ -413,11 +292,7 @@ let ExtHostTesting = class extends Disposable {
    * @inheritdoc
    */
   async $getCoverageDetails(coverageId, testId, token) {
-    const details = await this.runTracker.getCoverageDetails(
-      coverageId,
-      testId,
-      token
-    );
+    const details = await this.runTracker.getCoverageDetails(coverageId, testId, token);
     return details?.map(Convert.TestCoverage.fromDetails);
   }
   /**
@@ -439,12 +314,8 @@ let ExtHostTesting = class extends Disposable {
         continue;
       }
       const changes = /* @__PURE__ */ new Map();
-      const added = profileIds.filter(
-        (id) => !ctrl.activeProfiles.has(id)
-      );
-      const removed = [...ctrl.activeProfiles].filter(
-        (id) => !profileIds.includes(id)
-      );
+      const added = profileIds.filter((id) => !ctrl.activeProfiles.has(id));
+      const removed = [...ctrl.activeProfiles].filter((id) => !profileIds.includes(id));
       for (const id of added) {
         changes.set(id, true);
         ctrl.activeProfiles.add(id);
@@ -471,16 +342,9 @@ let ExtHostTesting = class extends Disposable {
     this.results = Object.freeze(
       results.map((r) => {
         const o = Convert.TestResults.to(r);
-        const taskWithCoverage = r.tasks.findIndex(
-          (t) => t.hasCoverage
-        );
+        const taskWithCoverage = r.tasks.findIndex((t) => t.hasCoverage);
         if (taskWithCoverage !== -1) {
-          o.getDetailedCoverage = (uri, token = CancellationToken.None) => this.proxy.$getCoverageDetails(
-            r.id,
-            taskWithCoverage,
-            uri,
-            token
-          ).then((r2) => r2.map(Convert.TestCoverage.to));
+          o.getDetailedCoverage = (uri, token = CancellationToken.None) => this.proxy.$getCoverageDetails(r.id, taskWithCoverage, uri, token).then((r2) => r2.map(Convert.TestCoverage.to));
         }
         testResultInternalIDs.set(o, r.id);
         return o;
@@ -493,14 +357,9 @@ let ExtHostTesting = class extends Disposable {
    * be treated as infinite.
    */
   async $expandTest(testId, levels) {
-    const collection = this.controllers.get(
-      TestId.fromString(testId).controllerId
-    )?.collection;
+    const collection = this.controllers.get(TestId.fromString(testId).controllerId)?.collection;
     if (collection) {
-      await collection.expand(
-        testId,
-        levels < 0 ? Number.POSITIVE_INFINITY : levels
-      );
+      await collection.expand(testId, levels < 0 ? Infinity : levels);
       collection.flushDiff();
     }
   }
@@ -509,11 +368,7 @@ let ExtHostTesting = class extends Disposable {
    * tests change.
    */
   $acceptDiff(diff) {
-    this.observer.applyDiff(
-      diff.map(
-        (d) => TestsDiffOp.deserialize({ asCanonicalUri: /* @__PURE__ */ __name((u) => u, "asCanonicalUri") }, d)
-      )
-    );
+    this.observer.applyDiff(diff.map((d) => TestsDiffOp.deserialize({ asCanonicalUri: /* @__PURE__ */ __name((u) => u, "asCanonicalUri") }, d)));
   }
   /**
    * Runs tests with the given set of IDs. Allows for test from multiple
@@ -521,9 +376,7 @@ let ExtHostTesting = class extends Disposable {
    * @inheritdoc
    */
   async $runControllerTests(reqs, token) {
-    return Promise.all(
-      reqs.map((req) => this.runControllerTestRequest(req, false, token))
-    );
+    return Promise.all(reqs.map((req) => this.runControllerTestRequest(req, false, token)));
   }
   /**
    * Starts continuous test runs with the given set of IDs. Allows for test from
@@ -532,11 +385,7 @@ let ExtHostTesting = class extends Disposable {
    */
   async $startContinuousRun(reqs, token) {
     const cts = new CancellationTokenSource(token);
-    const res = await Promise.all(
-      reqs.map(
-        (req) => this.runControllerTestRequest(req, true, cts.token)
-      )
-    );
+    const res = await Promise.all(reqs.map((req) => this.runControllerTestRequest(req, true, cts.token)));
     if (!token.isCancellationRequested && !res.some((r) => r.error)) {
       await new Promise((r) => token.onCancellationRequested(r));
     }
@@ -545,38 +394,22 @@ let ExtHostTesting = class extends Disposable {
   }
   /** @inheritdoc */
   async $provideTestFollowups(req, token) {
-    const results = this.results.find(
-      (r) => testResultInternalIDs.get(r) === req.resultId
-    );
-    const test = results && findTestInResultSnapshot(
-      TestId.fromString(req.extId),
-      results?.results
-    );
+    const results = this.results.find((r) => testResultInternalIDs.get(r) === req.resultId);
+    const test = results && findTestInResultSnapshot(TestId.fromString(req.extId), results?.results);
     if (!test) {
       return [];
     }
     let followups = [];
-    await Promise.all(
-      [...this.followupProviders].map(async (provider) => {
-        try {
-          const r = await provider.provideFollowup(
-            results,
-            test,
-            req.taskIndex,
-            req.messageIndex,
-            token
-          );
-          if (r) {
-            followups = followups.concat(r);
-          }
-        } catch (e) {
-          this.logService.error(
-            `Error thrown while providing followup for test message`,
-            e
-          );
+    await Promise.all([...this.followupProviders].map(async (provider) => {
+      try {
+        const r = await provider.provideFollowup(results, test, req.taskIndex, req.messageIndex, token);
+        if (r) {
+          followups = followups.concat(r);
         }
-      })
-    );
+      } catch (e) {
+        this.logService.error(`Error thrown while providing followup for test message`, e);
+      }
+    }));
     if (token.isCancellationRequested) {
       return [];
     }
@@ -596,10 +429,7 @@ let ExtHostTesting = class extends Disposable {
     if (!command) {
       return Promise.resolve();
     }
-    return this.commands.executeCommand(
-      command.command,
-      ...command.arguments || []
-    );
+    return this.commands.executeCommand(command.command, ...command.arguments || []);
   }
   /**
    * Cancels an ongoing test run.
@@ -632,11 +462,9 @@ let ExtHostTesting = class extends Disposable {
       return {};
     }
     const includeTests = req.testIds.map((testId) => collection.tree.get(testId)).filter(isDefined);
-    const excludeTests = req.excludeExtIds.map((id) => lookup.collection.tree.get(id)).filter(isDefined).filter(
-      (exclude) => includeTests.some(
-        (include) => include.fullId.compare(exclude.fullId) === TestPosition.IsChild
-      )
-    );
+    const excludeTests = req.excludeExtIds.map((id) => lookup.collection.tree.get(id)).filter(isDefined).filter((exclude) => includeTests.some(
+      (include) => include.fullId.compare(exclude.fullId) === TestPosition.IsChild
+    ));
     if (!includeTests.length) {
       return {};
     }
@@ -689,25 +517,14 @@ class TestRunTracker extends Disposable {
     this.profile = profile;
     this.extension = extension;
     this.cts = this._register(new CancellationTokenSource(parentToken));
-    const forciblyEnd = this._register(
-      new RunOnceScheduler(
-        () => this.forciblyEndTasks(),
-        RUN_CANCEL_DEADLINE
-      )
-    );
-    this._register(
-      this.cts.token.onCancellationRequested(
-        () => forciblyEnd.schedule()
-      )
-    );
+    const forciblyEnd = this._register(new RunOnceScheduler(() => this.forciblyEndTasks(), RUN_CANCEL_DEADLINE));
+    this._register(this.cts.token.onCancellationRequested(() => forciblyEnd.schedule()));
     const didDisposeEmitter = new Emitter();
     this.onDidDispose = didDisposeEmitter.event;
-    this._register(
-      toDisposable(() => {
-        didDisposeEmitter.fire();
-        didDisposeEmitter.dispose();
-      })
-    );
+    this._register(toDisposable(() => {
+      didDisposeEmitter.fire();
+      didDisposeEmitter.dispose();
+    }));
   }
   static {
     __name(this, "TestRunTracker");
@@ -776,12 +593,7 @@ class TestRunTracker extends Disposable {
       }
       testItem = report.fromTests[index];
     }
-    const details = testItem ? this.profile?.loadDetailedCoverageForTest?.(
-      task.run,
-      report,
-      testItem,
-      token
-    ) : this.profile?.loadDetailedCoverage?.(task.run, report, token);
+    const details = testItem ? this.profile?.loadDetailedCoverageForTest?.(task.run, report, testItem, token) : this.profile?.loadDetailedCoverage?.(task.run, report, token);
     return await details ?? [];
   }
   /** Creates the public test run interface to give to extensions. */
@@ -791,9 +603,7 @@ class TestRunTracker extends Disposable {
     const taskId = generateUuid();
     const guardTestMutation = /* @__PURE__ */ __name((fn) => (test, ...args) => {
       if (ended) {
-        this.logService.warn(
-          `Setting the state of test "${test.id}" is a no-op after the run ends.`
-        );
+        this.logService.warn(`Setting the state of test "${test.id}" is a no-op after the run ends.`);
         return;
       }
       this.ensureTestIsKnown(test);
@@ -802,20 +612,12 @@ class TestRunTracker extends Disposable {
     const appendMessages = /* @__PURE__ */ __name((test, messages) => {
       const converted = messages instanceof Array ? messages.map(Convert.TestMessage.from) : [Convert.TestMessage.from(messages)];
       if (test.uri && test.range) {
-        const defaultLocation = {
-          range: Convert.Range.from(test.range),
-          uri: test.uri
-        };
+        const defaultLocation = { range: Convert.Range.from(test.range), uri: test.uri };
         for (const message of converted) {
           message.location = message.location || defaultLocation;
         }
       }
-      this.proxy.$appendTestMessagesInRun(
-        runId,
-        taskId,
-        TestId.fromExtHostTestItem(test, ctrlId).toString(),
-        converted
-      );
+      this.proxy.$appendTestMessagesInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), converted);
     }, "appendMessages");
     let ended = false;
     const cts = this._register(new CancellationTokenSource(this.cts.token));
@@ -830,84 +632,36 @@ class TestRunTracker extends Disposable {
         }
         const fromTests = coverage instanceof FileCoverage ? coverage.fromTests : [];
         if (fromTests.length) {
-          checkProposedApiEnabled(
-            this.extension,
-            "attributableCoverage"
-          );
+          checkProposedApiEnabled(this.extension, "attributableCoverage");
           for (const test of fromTests) {
             this.ensureTestIsKnown(test);
           }
         }
         const uriStr = coverage.uri.toString();
         const id = new TestId([runId, taskId, uriStr]).toString();
-        this.publishedCoverage.set(id, {
-          report: coverage,
-          extIds: fromTests.map(
-            (t) => TestId.fromExtHostTestItem(t, ctrlId).toString()
-          )
-        });
-        this.proxy.$appendCoverage(
-          runId,
-          taskId,
-          Convert.TestCoverage.fromFile(ctrlId, id, coverage)
-        );
+        this.publishedCoverage.set(id, { report: coverage, extIds: fromTests.map((t) => TestId.fromExtHostTestItem(t, ctrlId).toString()) });
+        this.proxy.$appendCoverage(runId, taskId, Convert.TestCoverage.fromFile(ctrlId, id, coverage));
       }, "addCoverage"),
       //#region state mutation
       enqueued: guardTestMutation((test) => {
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(test, ctrlId).toString(),
-          TestResultState.Queued
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), TestResultState.Queued);
       }),
       skipped: guardTestMutation((test) => {
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(test, ctrlId).toString(),
-          TestResultState.Skipped
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), TestResultState.Skipped);
       }),
       started: guardTestMutation((test) => {
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(test, ctrlId).toString(),
-          TestResultState.Running
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), TestResultState.Running);
       }),
       errored: guardTestMutation((test, messages, duration) => {
         appendMessages(test, messages);
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(test, ctrlId).toString(),
-          TestResultState.Errored,
-          duration
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), TestResultState.Errored, duration);
       }),
       failed: guardTestMutation((test, messages, duration) => {
         appendMessages(test, messages);
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(test, ctrlId).toString(),
-          TestResultState.Failed,
-          duration
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), TestResultState.Failed, duration);
       }),
       passed: guardTestMutation((test, duration) => {
-        this.proxy.$updateTestStateInRun(
-          runId,
-          taskId,
-          TestId.fromExtHostTestItem(
-            test,
-            this.dto.controllerId
-          ).toString(),
-          TestResultState.Passed,
-          duration
-        );
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, this.dto.controllerId).toString(), TestResultState.Passed, duration);
       }),
       //#endregion
       appendOutput: /* @__PURE__ */ __name((output, location, test) => {
@@ -961,12 +715,7 @@ class TestRunTracker extends Disposable {
     if (!(test instanceof TestItemImpl)) {
       throw new InvalidTestItemError(test.id);
     }
-    if (this.sharedTestIds.has(
-      TestId.fromExtHostTestItem(
-        test,
-        this.dto.controllerId
-      ).toString()
-    )) {
+    if (this.sharedTestIds.has(TestId.fromExtHostTestItem(test, this.dto.controllerId).toString())) {
       return;
     }
     const chain = [];
@@ -1053,53 +802,26 @@ class TestRunCoordinator {
     if (existing) {
       return existing.createRun(name);
     }
-    const dto = TestRunDto.fromPublic(
-      controllerId,
-      collection,
-      request,
-      persist
-    );
+    const dto = TestRunDto.fromPublic(controllerId, collection, request, persist);
     const profile = tryGetProfileFromTestRunReq(request);
     this.proxy.$startedExtensionTestRun({
       controllerId,
       continuous: !!request.continuous,
-      profile: profile && {
-        group: profileGroupToBitset[profile.kind],
-        id: profile.profileId
-      },
-      exclude: request.exclude?.map(
-        (t) => TestId.fromExtHostTestItem(
-          t,
-          collection.root.id
-        ).toString()
-      ) ?? [],
+      profile: profile && { group: profileGroupToBitset[profile.kind], id: profile.profileId },
+      exclude: request.exclude?.map((t) => TestId.fromExtHostTestItem(t, collection.root.id).toString()) ?? [],
       id: dto.id,
-      include: request.include?.map(
-        (t) => TestId.fromExtHostTestItem(t, collection.root.id).toString()
-      ) ?? [collection.root.id],
+      include: request.include?.map((t) => TestId.fromExtHostTestItem(t, collection.root.id).toString()) ?? [collection.root.id],
       preserveFocus: request.preserveFocus ?? true,
       persist
     });
-    const tracker = this.getTracker(
-      request,
-      dto,
-      request.profile,
-      extension
-    );
+    const tracker = this.getTracker(request, dto, request.profile, extension);
     Event.once(tracker.onEnd)(() => {
       this.proxy.$finishedExtensionTestRun(dto.id);
     });
     return tracker.createRun(name);
   }
   getTracker(req, dto, profile, extension, token) {
-    const tracker = new TestRunTracker(
-      dto,
-      this.proxy,
-      this.logService,
-      profile,
-      extension,
-      token
-    );
+    const tracker = new TestRunTracker(dto, this.proxy, this.logService, profile, extension, token);
     this.tracked.set(req, tracker);
     this.trackedById.set(tracker.id, tracker);
     return tracker;
@@ -1110,9 +832,7 @@ const tryGetProfileFromTestRunReq = /* @__PURE__ */ __name((request) => {
     return void 0;
   }
   if (!(request.profile instanceof TestRunProfileImpl)) {
-    throw new Error(
-      `TestRunRequest.profile is not an instance created from TestController.createRunProfile`
-    );
+    throw new Error(`TestRunRequest.profile is not an instance created from TestController.createRunProfile`);
   }
   return request.profile;
 }, "tryGetProfileFromTestRunReq");
@@ -1372,9 +1092,7 @@ class TestRunProfileImpl {
   set supportsContinuousRun(supports) {
     if (supports !== this._supportsContinuousRun) {
       this._supportsContinuousRun = supports;
-      updateProfile(this, this.#proxy, this.#initialPublish, {
-        supportsContinuousRun: supports
-      });
+      updateProfile(this, this.#proxy, this.#initialPublish, { supportsContinuousRun: supports });
     }
   }
   get isDefault() {
@@ -1387,9 +1105,7 @@ class TestRunProfileImpl {
       } else {
         this.#activeProfiles.delete(this.profileId);
       }
-      updateProfile(this, this.#proxy, this.#initialPublish, {
-        isDefault
-      });
+      updateProfile(this, this.#proxy, this.#initialPublish, { isDefault });
     }
   }
   get tag() {
@@ -1409,17 +1125,13 @@ class TestRunProfileImpl {
   set configureHandler(handler) {
     if (handler !== this._configureHandler) {
       this._configureHandler = handler;
-      updateProfile(this, this.#proxy, this.#initialPublish, {
-        hasConfigurationHandler: !!handler
-      });
+      updateProfile(this, this.#proxy, this.#initialPublish, { hasConfigurationHandler: !!handler });
     }
   }
   get onDidChangeDefault() {
     return Event.chain(
       this.#onDidChangeDefaultProfiles,
-      ($) => $.map(
-        (ev) => ev.get(this.controllerId)?.get(this.profileId)
-      ).filter(isDefined)
+      ($) => $.map((ev) => ev.get(this.controllerId)?.get(this.profileId)).filter(isDefined)
     );
   }
   dispose() {

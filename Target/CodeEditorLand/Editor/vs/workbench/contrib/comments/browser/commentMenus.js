@@ -10,11 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IMenuService, MenuId, IMenu } from "../../../../platform/actions/common/actions.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { Comment } from "../../../../editor/common/languages.js";
 import { createAndFillInContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
 let CommentMenus = class {
   constructor(menuService) {
     this.menuService = menuService;
@@ -32,10 +33,7 @@ let CommentMenus = class {
     return this.getMenu(MenuId.CommentEditorActions, contextKeyService);
   }
   getCommentThreadAdditionalActions(contextKeyService) {
-    return this.getMenu(
-      MenuId.CommentThreadAdditionalActions,
-      contextKeyService
-    );
+    return this.getMenu(MenuId.CommentThreadAdditionalActions, contextKeyService);
   }
   getCommentTitleActions(comment, contextKeyService) {
     return this.getMenu(MenuId.CommentTitle, contextKeyService);
@@ -44,22 +42,14 @@ let CommentMenus = class {
     return this.getMenu(MenuId.CommentActions, contextKeyService);
   }
   getCommentThreadTitleContextActions(contextKeyService) {
-    return this.getMenu(
-      MenuId.CommentThreadTitleContext,
-      contextKeyService
-    );
+    return this.getMenu(MenuId.CommentThreadTitleContext, contextKeyService);
   }
   getMenu(menuId, contextKeyService) {
     const menu = this.menuService.createMenu(menuId, contextKeyService);
     const primary = [];
     const secondary = [];
     const result = { primary, secondary };
-    createAndFillInContextMenuActions(
-      menu,
-      { shouldForwardArgs: true },
-      result,
-      "inline"
-    );
+    createAndFillInContextMenuActions(menu, { shouldForwardArgs: true }, result, "inline");
     return menu;
   }
   dispose() {

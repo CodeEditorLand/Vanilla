@@ -8,41 +8,17 @@ import { Schemas, matchesScheme } from "../../../base/common/network.js";
 import Severity from "../../../base/common/severity.js";
 import { URI } from "../../../base/common/uri.js";
 import { TextEditorCursorStyle } from "../../../editor/common/config/editorOptions.js";
-import {
-  score,
-  targetsNotebooks
-} from "../../../editor/common/languageSelector.js";
+import { score, targetsNotebooks } from "../../../editor/common/languageSelector.js";
 import * as languageConfiguration from "../../../editor/common/languages/languageConfiguration.js";
 import { OverviewRulerLane } from "../../../editor/common/model.js";
-import {
-  ExtensionIdentifierSet
-} from "../../../platform/extensions/common/extensions.js";
+import { ExtensionIdentifierSet, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import * as files from "../../../platform/files/common/files.js";
-import {
-  ILogService,
-  ILoggerService,
-  LogLevel
-} from "../../../platform/log/common/log.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService, ILoggerService, LogLevel } from "../../../platform/log/common/log.js";
 import { getRemoteName } from "../../../platform/remote/common/remoteHosts.js";
 import { TelemetryTrustedValue } from "../../../platform/telemetry/common/telemetryUtils.js";
 import { EditSessionIdentityMatch } from "../../../platform/workspace/common/editSessions.js";
-import { DebugConfigurationProviderTriggerKind } from "../../contrib/debug/common/debug.js";
-import { UIKind } from "../../services/extensions/common/extensionHostProtocol.js";
-import {
-  checkProposedApiEnabled,
-  isProposedApiEnabled
-} from "../../services/extensions/common/extensions.js";
-import {
-  ExcludeSettingOptions,
-  TextSearchCompleteMessageType,
-  TextSearchContextNew,
-  TextSearchMatchNew
-} from "../../services/search/common/searchExtTypes.js";
-import {
-  CandidatePortSource,
-  ExtHostContext,
-  MainContext
-} from "./extHost.protocol.js";
+import { CandidatePortSource, ExtHostContext, ExtHostLogLevelServiceShape, MainContext } from "./extHost.protocol.js";
 import { ExtHostRelatedInformation } from "./extHostAiRelatedInformation.js";
 import { ExtHostApiCommands } from "./extHostApiCommands.js";
 import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
@@ -54,9 +30,7 @@ import { ExtHostClipboard } from "./extHostClipboard.js";
 import { ExtHostEditorInsets } from "./extHostCodeInsets.js";
 import { IExtHostCommands } from "./extHostCommands.js";
 import { createExtHostComments } from "./extHostComments.js";
-import {
-  IExtHostConfiguration
-} from "./extHostConfiguration.js";
+import { ExtHostConfigProvider, IExtHostConfiguration } from "./extHostConfiguration.js";
 import { ExtHostCustomEditors } from "./extHostCustomEditors.js";
 import { IExtHostDebugService } from "./extHostDebugService.js";
 import { IExtHostDecorations } from "./extHostDecorations.js";
@@ -69,15 +43,10 @@ import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
 import { IExtHostEditorTabs } from "./extHostEditorTabs.js";
 import { ExtHostEmbeddings } from "./extHostEmbedding.js";
 import { ExtHostAiEmbeddingVector } from "./extHostEmbeddingVector.js";
-import {
-  Extension,
-  IExtHostExtensionService
-} from "./extHostExtensionService.js";
+import { Extension, IExtHostExtensionService } from "./extHostExtensionService.js";
 import { ExtHostFileSystem } from "./extHostFileSystem.js";
 import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
-import {
-  ExtHostFileSystemEventService
-} from "./extHostFileSystemEventService.js";
+import { ExtHostFileSystemEventService, FileSystemWatcherCreateOptions } from "./extHostFileSystemEventService.js";
 import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { ExtHostInteractive } from "./extHostInteractive.js";
@@ -110,11 +79,7 @@ import { ExtHostStatusBar } from "./extHostStatusBar.js";
 import { IExtHostStorage } from "./extHostStorage.js";
 import { IExtensionStoragePaths } from "./extHostStoragePaths.js";
 import { IExtHostTask } from "./extHostTask.js";
-import {
-  ExtHostTelemetryLogger,
-  IExtHostTelemetry,
-  isNewAppInstall
-} from "./extHostTelemetry.js";
+import { ExtHostTelemetryLogger, IExtHostTelemetry, isNewAppInstall } from "./extHostTelemetry.js";
 import { IExtHostTerminalService } from "./extHostTerminalService.js";
 import { IExtHostTerminalShellIntegration } from "./extHostTerminalShellIntegration.js";
 import { IExtHostTesting } from "./extHostTesting.js";
@@ -133,6 +98,12 @@ import { ExtHostWebviewPanels } from "./extHostWebviewPanels.js";
 import { ExtHostWebviewViews } from "./extHostWebviewView.js";
 import { IExtHostWindow } from "./extHostWindow.js";
 import { IExtHostWorkspace } from "./extHostWorkspace.js";
+import { DebugConfigurationProviderTriggerKind } from "../../contrib/debug/common/debug.js";
+import { ExtensionDescriptionRegistry } from "../../services/extensions/common/extensionDescriptionRegistry.js";
+import { UIKind } from "../../services/extensions/common/extensionHostProtocol.js";
+import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { ProxyIdentifier } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExcludeSettingOptions, TextSearchCompleteMessageType, TextSearchContextNew, TextSearchMatchNew } from "../../services/search/common/searchExtTypes.js";
 function createApiFactoryAndRegisterActors(accessor) {
   const initData = accessor.get(IExtHostInitDataService);
   const extHostFileSystemInfo = accessor.get(IExtHostFileSystemInfo);
@@ -155,14 +126,8 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostManagedSockets = accessor.get(IExtHostManagedSockets);
   const extHostAuthentication = accessor.get(IExtHostAuthentication);
   const extHostLanguageModels = accessor.get(IExtHostLanguageModels);
-  rpcProtocol.set(
-    ExtHostContext.ExtHostFileSystemInfo,
-    extHostFileSystemInfo
-  );
-  rpcProtocol.set(
-    ExtHostContext.ExtHostLogLevelServiceShape,
-    extHostLoggerService
-  );
+  rpcProtocol.set(ExtHostContext.ExtHostFileSystemInfo, extHostFileSystemInfo);
+  rpcProtocol.set(ExtHostContext.ExtHostLogLevelServiceShape, extHostLoggerService);
   rpcProtocol.set(ExtHostContext.ExtHostWorkspace, extHostWorkspace);
   rpcProtocol.set(ExtHostContext.ExtHostConfiguration, extHostConfiguration);
   rpcProtocol.set(ExtHostContext.ExtHostExtensionService, extensionService);
@@ -172,348 +137,78 @@ function createApiFactoryAndRegisterActors(accessor) {
   rpcProtocol.set(ExtHostContext.ExtHostSecretState, extHostSecretState);
   rpcProtocol.set(ExtHostContext.ExtHostTelemetry, extHostTelemetry);
   rpcProtocol.set(ExtHostContext.ExtHostEditorTabs, extHostEditorTabs);
-  rpcProtocol.set(
-    ExtHostContext.ExtHostManagedSockets,
-    extHostManagedSockets
-  );
-  rpcProtocol.set(
-    ExtHostContext.ExtHostAuthentication,
-    extHostAuthentication
-  );
+  rpcProtocol.set(ExtHostContext.ExtHostManagedSockets, extHostManagedSockets);
+  rpcProtocol.set(ExtHostContext.ExtHostAuthentication, extHostAuthentication);
   rpcProtocol.set(ExtHostContext.ExtHostChatProvider, extHostLanguageModels);
-  const extHostDecorations = rpcProtocol.set(
-    ExtHostContext.ExtHostDecorations,
-    accessor.get(IExtHostDecorations)
-  );
-  const extHostDocumentsAndEditors = rpcProtocol.set(
-    ExtHostContext.ExtHostDocumentsAndEditors,
-    accessor.get(IExtHostDocumentsAndEditors)
-  );
-  const extHostCommands = rpcProtocol.set(
-    ExtHostContext.ExtHostCommands,
-    accessor.get(IExtHostCommands)
-  );
-  const extHostTerminalService = rpcProtocol.set(
-    ExtHostContext.ExtHostTerminalService,
-    accessor.get(IExtHostTerminalService)
-  );
-  const extHostTerminalShellIntegration = rpcProtocol.set(
-    ExtHostContext.ExtHostTerminalShellIntegration,
-    accessor.get(IExtHostTerminalShellIntegration)
-  );
-  const extHostDebugService = rpcProtocol.set(
-    ExtHostContext.ExtHostDebugService,
-    accessor.get(IExtHostDebugService)
-  );
-  const extHostSearch = rpcProtocol.set(
-    ExtHostContext.ExtHostSearch,
-    accessor.get(IExtHostSearch)
-  );
-  const extHostTask = rpcProtocol.set(
-    ExtHostContext.ExtHostTask,
-    accessor.get(IExtHostTask)
-  );
-  const extHostOutputService = rpcProtocol.set(
-    ExtHostContext.ExtHostOutputService,
-    accessor.get(IExtHostOutputService)
-  );
-  const extHostLocalization = rpcProtocol.set(
-    ExtHostContext.ExtHostLocalization,
-    accessor.get(IExtHostLocalizationService)
-  );
-  const extHostUrls = rpcProtocol.set(
-    ExtHostContext.ExtHostUrls,
-    new ExtHostUrls(rpcProtocol)
-  );
-  const extHostDocuments = rpcProtocol.set(
-    ExtHostContext.ExtHostDocuments,
-    new ExtHostDocuments(rpcProtocol, extHostDocumentsAndEditors)
-  );
-  const extHostDocumentContentProviders = rpcProtocol.set(
-    ExtHostContext.ExtHostDocumentContentProviders,
-    new ExtHostDocumentContentProvider(
-      rpcProtocol,
-      extHostDocumentsAndEditors,
-      extHostLogService
-    )
-  );
-  const extHostDocumentSaveParticipant = rpcProtocol.set(
-    ExtHostContext.ExtHostDocumentSaveParticipant,
-    new ExtHostDocumentSaveParticipant(
-      extHostLogService,
-      extHostDocuments,
-      rpcProtocol.getProxy(MainContext.MainThreadBulkEdits)
-    )
-  );
-  const extHostNotebook = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebook,
-    new ExtHostNotebookController(
-      rpcProtocol,
-      extHostCommands,
-      extHostDocumentsAndEditors,
-      extHostDocuments,
-      extHostConsumerFileSystem,
-      extHostSearch,
-      extHostLogService
-    )
-  );
-  const extHostNotebookDocuments = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebookDocuments,
-    new ExtHostNotebookDocuments(extHostNotebook)
-  );
-  const extHostNotebookEditors = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebookEditors,
-    new ExtHostNotebookEditors(extHostLogService, extHostNotebook)
-  );
-  const extHostNotebookKernels = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebookKernels,
-    new ExtHostNotebookKernels(
-      rpcProtocol,
-      initData,
-      extHostNotebook,
-      extHostCommands,
-      extHostLogService
-    )
-  );
-  const extHostNotebookRenderers = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebookRenderers,
-    new ExtHostNotebookRenderers(rpcProtocol, extHostNotebook)
-  );
-  const extHostNotebookDocumentSaveParticipant = rpcProtocol.set(
-    ExtHostContext.ExtHostNotebookDocumentSaveParticipant,
-    new ExtHostNotebookDocumentSaveParticipant(
-      extHostLogService,
-      extHostNotebook,
-      rpcProtocol.getProxy(MainContext.MainThreadBulkEdits)
-    )
-  );
-  const extHostEditors = rpcProtocol.set(
-    ExtHostContext.ExtHostEditors,
-    new ExtHostEditors(rpcProtocol, extHostDocumentsAndEditors)
-  );
-  const extHostTreeViews = rpcProtocol.set(
-    ExtHostContext.ExtHostTreeViews,
-    new ExtHostTreeViews(
-      rpcProtocol.getProxy(MainContext.MainThreadTreeViews),
-      extHostCommands,
-      extHostLogService
-    )
-  );
-  const extHostEditorInsets = rpcProtocol.set(
-    ExtHostContext.ExtHostEditorInsets,
-    new ExtHostEditorInsets(
-      rpcProtocol.getProxy(MainContext.MainThreadEditorInsets),
-      extHostEditors,
-      initData.remote
-    )
-  );
-  const extHostDiagnostics = rpcProtocol.set(
-    ExtHostContext.ExtHostDiagnostics,
-    new ExtHostDiagnostics(
-      rpcProtocol,
-      extHostLogService,
-      extHostFileSystemInfo,
-      extHostDocumentsAndEditors
-    )
-  );
-  const extHostLanguages = rpcProtocol.set(
-    ExtHostContext.ExtHostLanguages,
-    new ExtHostLanguages(
-      rpcProtocol,
-      extHostDocuments,
-      extHostCommands.converter,
-      uriTransformer
-    )
-  );
-  const extHostLanguageFeatures = rpcProtocol.set(
-    ExtHostContext.ExtHostLanguageFeatures,
-    new ExtHostLanguageFeatures(
-      rpcProtocol,
-      uriTransformer,
-      extHostDocuments,
-      extHostCommands,
-      extHostDiagnostics,
-      extHostLogService,
-      extHostApiDeprecation,
-      extHostTelemetry
-    )
-  );
-  const extHostFileSystem = rpcProtocol.set(
-    ExtHostContext.ExtHostFileSystem,
-    new ExtHostFileSystem(rpcProtocol, extHostLanguageFeatures)
-  );
-  const extHostFileSystemEvent = rpcProtocol.set(
-    ExtHostContext.ExtHostFileSystemEventService,
-    new ExtHostFileSystemEventService(
-      rpcProtocol,
-      extHostLogService,
-      extHostDocumentsAndEditors
-    )
-  );
-  const extHostQuickOpen = rpcProtocol.set(
-    ExtHostContext.ExtHostQuickOpen,
-    createExtHostQuickOpen(rpcProtocol, extHostWorkspace, extHostCommands)
-  );
-  const extHostSCM = rpcProtocol.set(
-    ExtHostContext.ExtHostSCM,
-    new ExtHostSCM(
-      rpcProtocol,
-      extHostCommands,
-      extHostDocuments,
-      extHostLogService
-    )
-  );
-  const extHostQuickDiff = rpcProtocol.set(
-    ExtHostContext.ExtHostQuickDiff,
-    new ExtHostQuickDiff(rpcProtocol, uriTransformer)
-  );
-  const extHostShare = rpcProtocol.set(
-    ExtHostContext.ExtHostShare,
-    new ExtHostShare(rpcProtocol, uriTransformer)
-  );
-  const extHostComment = rpcProtocol.set(
-    ExtHostContext.ExtHostComments,
-    createExtHostComments(rpcProtocol, extHostCommands, extHostDocuments)
-  );
-  const extHostProgress = rpcProtocol.set(
-    ExtHostContext.ExtHostProgress,
-    new ExtHostProgress(
-      rpcProtocol.getProxy(MainContext.MainThreadProgress)
-    )
-  );
-  const extHostLabelService = rpcProtocol.set(
-    ExtHostContext.ExtHostLabelService,
-    new ExtHostLabelService(rpcProtocol)
-  );
-  const extHostTheming = rpcProtocol.set(
-    ExtHostContext.ExtHostTheming,
-    new ExtHostTheming(rpcProtocol)
-  );
-  const extHostTimeline = rpcProtocol.set(
-    ExtHostContext.ExtHostTimeline,
-    new ExtHostTimeline(rpcProtocol, extHostCommands)
-  );
-  const extHostWebviews = rpcProtocol.set(
-    ExtHostContext.ExtHostWebviews,
-    new ExtHostWebviews(
-      rpcProtocol,
-      initData.remote,
-      extHostWorkspace,
-      extHostLogService,
-      extHostApiDeprecation
-    )
-  );
-  const extHostWebviewPanels = rpcProtocol.set(
-    ExtHostContext.ExtHostWebviewPanels,
-    new ExtHostWebviewPanels(
-      rpcProtocol,
-      extHostWebviews,
-      extHostWorkspace
-    )
-  );
-  const extHostCustomEditors = rpcProtocol.set(
-    ExtHostContext.ExtHostCustomEditors,
-    new ExtHostCustomEditors(
-      rpcProtocol,
-      extHostDocuments,
-      extensionStoragePaths,
-      extHostWebviews,
-      extHostWebviewPanels
-    )
-  );
-  const extHostWebviewViews = rpcProtocol.set(
-    ExtHostContext.ExtHostWebviewViews,
-    new ExtHostWebviewViews(rpcProtocol, extHostWebviews)
-  );
-  const extHostTesting = rpcProtocol.set(
-    ExtHostContext.ExtHostTesting,
-    accessor.get(IExtHostTesting)
-  );
-  const extHostUriOpeners = rpcProtocol.set(
-    ExtHostContext.ExtHostUriOpeners,
-    new ExtHostUriOpeners(rpcProtocol)
-  );
-  const extHostProfileContentHandlers = rpcProtocol.set(
-    ExtHostContext.ExtHostProfileContentHandlers,
-    new ExtHostProfileContentHandlers(rpcProtocol)
-  );
-  rpcProtocol.set(
-    ExtHostContext.ExtHostInteractive,
-    new ExtHostInteractive(
-      rpcProtocol,
-      extHostNotebook,
-      extHostDocumentsAndEditors,
-      extHostCommands,
-      extHostLogService
-    )
-  );
-  const extHostChatAgents2 = rpcProtocol.set(
-    ExtHostContext.ExtHostChatAgents2,
-    new ExtHostChatAgents2(
-      rpcProtocol,
-      extHostLogService,
-      extHostCommands,
-      extHostDocuments
-    )
-  );
-  const extHostChatVariables = rpcProtocol.set(
-    ExtHostContext.ExtHostChatVariables,
-    new ExtHostChatVariables(rpcProtocol)
-  );
-  const extHostLanguageModelTools = rpcProtocol.set(
-    ExtHostContext.ExtHostLanguageModelTools,
-    new ExtHostLanguageModelTools(rpcProtocol)
-  );
-  const extHostAiRelatedInformation = rpcProtocol.set(
-    ExtHostContext.ExtHostAiRelatedInformation,
-    new ExtHostRelatedInformation(rpcProtocol)
-  );
-  const extHostAiEmbeddingVector = rpcProtocol.set(
-    ExtHostContext.ExtHostAiEmbeddingVector,
-    new ExtHostAiEmbeddingVector(rpcProtocol)
-  );
-  const extHostStatusBar = rpcProtocol.set(
-    ExtHostContext.ExtHostStatusBar,
-    new ExtHostStatusBar(rpcProtocol, extHostCommands.converter)
-  );
-  const extHostSpeech = rpcProtocol.set(
-    ExtHostContext.ExtHostSpeech,
-    new ExtHostSpeech(rpcProtocol)
-  );
-  const extHostEmbeddings = rpcProtocol.set(
-    ExtHostContext.ExtHostEmbeddings,
-    new ExtHostEmbeddings(rpcProtocol)
-  );
+  const extHostDecorations = rpcProtocol.set(ExtHostContext.ExtHostDecorations, accessor.get(IExtHostDecorations));
+  const extHostDocumentsAndEditors = rpcProtocol.set(ExtHostContext.ExtHostDocumentsAndEditors, accessor.get(IExtHostDocumentsAndEditors));
+  const extHostCommands = rpcProtocol.set(ExtHostContext.ExtHostCommands, accessor.get(IExtHostCommands));
+  const extHostTerminalService = rpcProtocol.set(ExtHostContext.ExtHostTerminalService, accessor.get(IExtHostTerminalService));
+  const extHostTerminalShellIntegration = rpcProtocol.set(ExtHostContext.ExtHostTerminalShellIntegration, accessor.get(IExtHostTerminalShellIntegration));
+  const extHostDebugService = rpcProtocol.set(ExtHostContext.ExtHostDebugService, accessor.get(IExtHostDebugService));
+  const extHostSearch = rpcProtocol.set(ExtHostContext.ExtHostSearch, accessor.get(IExtHostSearch));
+  const extHostTask = rpcProtocol.set(ExtHostContext.ExtHostTask, accessor.get(IExtHostTask));
+  const extHostOutputService = rpcProtocol.set(ExtHostContext.ExtHostOutputService, accessor.get(IExtHostOutputService));
+  const extHostLocalization = rpcProtocol.set(ExtHostContext.ExtHostLocalization, accessor.get(IExtHostLocalizationService));
+  const extHostUrls = rpcProtocol.set(ExtHostContext.ExtHostUrls, new ExtHostUrls(rpcProtocol));
+  const extHostDocuments = rpcProtocol.set(ExtHostContext.ExtHostDocuments, new ExtHostDocuments(rpcProtocol, extHostDocumentsAndEditors));
+  const extHostDocumentContentProviders = rpcProtocol.set(ExtHostContext.ExtHostDocumentContentProviders, new ExtHostDocumentContentProvider(rpcProtocol, extHostDocumentsAndEditors, extHostLogService));
+  const extHostDocumentSaveParticipant = rpcProtocol.set(ExtHostContext.ExtHostDocumentSaveParticipant, new ExtHostDocumentSaveParticipant(extHostLogService, extHostDocuments, rpcProtocol.getProxy(MainContext.MainThreadBulkEdits)));
+  const extHostNotebook = rpcProtocol.set(ExtHostContext.ExtHostNotebook, new ExtHostNotebookController(rpcProtocol, extHostCommands, extHostDocumentsAndEditors, extHostDocuments, extHostConsumerFileSystem, extHostSearch, extHostLogService));
+  const extHostNotebookDocuments = rpcProtocol.set(ExtHostContext.ExtHostNotebookDocuments, new ExtHostNotebookDocuments(extHostNotebook));
+  const extHostNotebookEditors = rpcProtocol.set(ExtHostContext.ExtHostNotebookEditors, new ExtHostNotebookEditors(extHostLogService, extHostNotebook));
+  const extHostNotebookKernels = rpcProtocol.set(ExtHostContext.ExtHostNotebookKernels, new ExtHostNotebookKernels(rpcProtocol, initData, extHostNotebook, extHostCommands, extHostLogService));
+  const extHostNotebookRenderers = rpcProtocol.set(ExtHostContext.ExtHostNotebookRenderers, new ExtHostNotebookRenderers(rpcProtocol, extHostNotebook));
+  const extHostNotebookDocumentSaveParticipant = rpcProtocol.set(ExtHostContext.ExtHostNotebookDocumentSaveParticipant, new ExtHostNotebookDocumentSaveParticipant(extHostLogService, extHostNotebook, rpcProtocol.getProxy(MainContext.MainThreadBulkEdits)));
+  const extHostEditors = rpcProtocol.set(ExtHostContext.ExtHostEditors, new ExtHostEditors(rpcProtocol, extHostDocumentsAndEditors));
+  const extHostTreeViews = rpcProtocol.set(ExtHostContext.ExtHostTreeViews, new ExtHostTreeViews(rpcProtocol.getProxy(MainContext.MainThreadTreeViews), extHostCommands, extHostLogService));
+  const extHostEditorInsets = rpcProtocol.set(ExtHostContext.ExtHostEditorInsets, new ExtHostEditorInsets(rpcProtocol.getProxy(MainContext.MainThreadEditorInsets), extHostEditors, initData.remote));
+  const extHostDiagnostics = rpcProtocol.set(ExtHostContext.ExtHostDiagnostics, new ExtHostDiagnostics(rpcProtocol, extHostLogService, extHostFileSystemInfo, extHostDocumentsAndEditors));
+  const extHostLanguages = rpcProtocol.set(ExtHostContext.ExtHostLanguages, new ExtHostLanguages(rpcProtocol, extHostDocuments, extHostCommands.converter, uriTransformer));
+  const extHostLanguageFeatures = rpcProtocol.set(ExtHostContext.ExtHostLanguageFeatures, new ExtHostLanguageFeatures(rpcProtocol, uriTransformer, extHostDocuments, extHostCommands, extHostDiagnostics, extHostLogService, extHostApiDeprecation, extHostTelemetry));
+  const extHostFileSystem = rpcProtocol.set(ExtHostContext.ExtHostFileSystem, new ExtHostFileSystem(rpcProtocol, extHostLanguageFeatures));
+  const extHostFileSystemEvent = rpcProtocol.set(ExtHostContext.ExtHostFileSystemEventService, new ExtHostFileSystemEventService(rpcProtocol, extHostLogService, extHostDocumentsAndEditors));
+  const extHostQuickOpen = rpcProtocol.set(ExtHostContext.ExtHostQuickOpen, createExtHostQuickOpen(rpcProtocol, extHostWorkspace, extHostCommands));
+  const extHostSCM = rpcProtocol.set(ExtHostContext.ExtHostSCM, new ExtHostSCM(rpcProtocol, extHostCommands, extHostDocuments, extHostLogService));
+  const extHostQuickDiff = rpcProtocol.set(ExtHostContext.ExtHostQuickDiff, new ExtHostQuickDiff(rpcProtocol, uriTransformer));
+  const extHostShare = rpcProtocol.set(ExtHostContext.ExtHostShare, new ExtHostShare(rpcProtocol, uriTransformer));
+  const extHostComment = rpcProtocol.set(ExtHostContext.ExtHostComments, createExtHostComments(rpcProtocol, extHostCommands, extHostDocuments));
+  const extHostProgress = rpcProtocol.set(ExtHostContext.ExtHostProgress, new ExtHostProgress(rpcProtocol.getProxy(MainContext.MainThreadProgress)));
+  const extHostLabelService = rpcProtocol.set(ExtHostContext.ExtHostLabelService, new ExtHostLabelService(rpcProtocol));
+  const extHostTheming = rpcProtocol.set(ExtHostContext.ExtHostTheming, new ExtHostTheming(rpcProtocol));
+  const extHostTimeline = rpcProtocol.set(ExtHostContext.ExtHostTimeline, new ExtHostTimeline(rpcProtocol, extHostCommands));
+  const extHostWebviews = rpcProtocol.set(ExtHostContext.ExtHostWebviews, new ExtHostWebviews(rpcProtocol, initData.remote, extHostWorkspace, extHostLogService, extHostApiDeprecation));
+  const extHostWebviewPanels = rpcProtocol.set(ExtHostContext.ExtHostWebviewPanels, new ExtHostWebviewPanels(rpcProtocol, extHostWebviews, extHostWorkspace));
+  const extHostCustomEditors = rpcProtocol.set(ExtHostContext.ExtHostCustomEditors, new ExtHostCustomEditors(rpcProtocol, extHostDocuments, extensionStoragePaths, extHostWebviews, extHostWebviewPanels));
+  const extHostWebviewViews = rpcProtocol.set(ExtHostContext.ExtHostWebviewViews, new ExtHostWebviewViews(rpcProtocol, extHostWebviews));
+  const extHostTesting = rpcProtocol.set(ExtHostContext.ExtHostTesting, accessor.get(IExtHostTesting));
+  const extHostUriOpeners = rpcProtocol.set(ExtHostContext.ExtHostUriOpeners, new ExtHostUriOpeners(rpcProtocol));
+  const extHostProfileContentHandlers = rpcProtocol.set(ExtHostContext.ExtHostProfileContentHandlers, new ExtHostProfileContentHandlers(rpcProtocol));
+  rpcProtocol.set(ExtHostContext.ExtHostInteractive, new ExtHostInteractive(rpcProtocol, extHostNotebook, extHostDocumentsAndEditors, extHostCommands, extHostLogService));
+  const extHostChatAgents2 = rpcProtocol.set(ExtHostContext.ExtHostChatAgents2, new ExtHostChatAgents2(rpcProtocol, extHostLogService, extHostCommands, extHostDocuments));
+  const extHostChatVariables = rpcProtocol.set(ExtHostContext.ExtHostChatVariables, new ExtHostChatVariables(rpcProtocol));
+  const extHostLanguageModelTools = rpcProtocol.set(ExtHostContext.ExtHostLanguageModelTools, new ExtHostLanguageModelTools(rpcProtocol));
+  const extHostAiRelatedInformation = rpcProtocol.set(ExtHostContext.ExtHostAiRelatedInformation, new ExtHostRelatedInformation(rpcProtocol));
+  const extHostAiEmbeddingVector = rpcProtocol.set(ExtHostContext.ExtHostAiEmbeddingVector, new ExtHostAiEmbeddingVector(rpcProtocol));
+  const extHostStatusBar = rpcProtocol.set(ExtHostContext.ExtHostStatusBar, new ExtHostStatusBar(rpcProtocol, extHostCommands.converter));
+  const extHostSpeech = rpcProtocol.set(ExtHostContext.ExtHostSpeech, new ExtHostSpeech(rpcProtocol));
+  const extHostEmbeddings = rpcProtocol.set(ExtHostContext.ExtHostEmbeddings, new ExtHostEmbeddings(rpcProtocol));
   const expected = Object.values(ExtHostContext);
   rpcProtocol.assertRegistered(expected);
-  const extHostBulkEdits = new ExtHostBulkEdits(
-    rpcProtocol,
-    extHostDocumentsAndEditors
-  );
+  const extHostBulkEdits = new ExtHostBulkEdits(rpcProtocol, extHostDocumentsAndEditors);
   const extHostClipboard = new ExtHostClipboard(rpcProtocol);
-  const extHostMessageService = new ExtHostMessageService(
-    rpcProtocol,
-    extHostLogService
-  );
+  const extHostMessageService = new ExtHostMessageService(rpcProtocol, extHostLogService);
   const extHostDialogs = new ExtHostDialogs(rpcProtocol);
   ExtHostApiCommands.register(extHostCommands);
-  return (extension, extensionInfo, configProvider) => {
+  return function(extension, extensionInfo, configProvider) {
     function _asExtensionEvent(actual) {
       return (listener, thisArgs, disposables) => {
         const handle = actual((e) => {
           try {
             listener.call(thisArgs, e);
           } catch (err) {
-            errors.onUnexpectedExternalError(
-              new Error(
-                `[ExtensionListenerError] Extension '${extension.identifier.value}' FAILED to handle event: ${err.toString()}`,
-                { cause: err }
-              )
-            );
-            extHostTelemetry.onExtensionError(
-              extension.identifier,
-              err
-            );
+            errors.onUnexpectedExternalError(new Error(`[ExtensionListenerError] Extension '${extension.identifier.value}' FAILED to handle event: ${err.toString()}`, { cause: err }));
+            extHostTelemetry.onExtensionError(extension.identifier, err);
           }
         });
         disposables?.push(handle);
@@ -521,13 +216,11 @@ function createApiFactoryAndRegisterActors(accessor) {
       };
     }
     __name(_asExtensionEvent, "_asExtensionEvent");
-    const checkSelector = (() => {
+    const checkSelector = function() {
       let done = !extension.isUnderDevelopment;
       function informOnce() {
         if (!done) {
-          extHostLogService.info(
-            `Extension '${extension.identifier.value}' uses a document selector without scheme. Learn more about this: https://go.microsoft.com/fwlink/?linkid=872305`
-          );
+          extHostLogService.info(`Extension '${extension.identifier.value}' uses a document selector without scheme. Learn more about this: https://go.microsoft.com/fwlink/?linkid=872305`);
           done = true;
         }
       }
@@ -543,26 +236,18 @@ function createApiFactoryAndRegisterActors(accessor) {
             informOnce();
           }
           if (typeof filter.exclusive === "boolean") {
-            checkProposedApiEnabled(
-              extension,
-              "documentFiltersExclusive"
-            );
+            checkProposedApiEnabled(extension, "documentFiltersExclusive");
           }
         }
         return selector;
       }, "perform");
-    })();
+    }();
     const authentication = {
       getSession(providerId, scopes, options) {
         if (typeof options?.forceNewSession === "object" && options.forceNewSession.learnMore) {
           checkProposedApiEnabled(extension, "authLearnMore");
         }
-        return extHostAuthentication.getSession(
-          extension,
-          providerId,
-          scopes,
-          options
-        );
+        return extHostAuthentication.getSession(extension, providerId, scopes, options);
       },
       getAccounts(providerId) {
         return extHostAuthentication.getAccounts(providerId);
@@ -570,99 +255,48 @@ function createApiFactoryAndRegisterActors(accessor) {
       // TODO: remove this after GHPR and Codespaces move off of it
       async hasSession(providerId, scopes) {
         checkProposedApiEnabled(extension, "authSession");
-        return !!await extHostAuthentication.getSession(
-          extension,
-          providerId,
-          scopes,
-          { silent: true }
-        );
+        return !!await extHostAuthentication.getSession(extension, providerId, scopes, { silent: true });
       },
       get onDidChangeSessions() {
-        return _asExtensionEvent(
-          extHostAuthentication.onDidChangeSessions
-        );
+        return _asExtensionEvent(extHostAuthentication.onDidChangeSessions);
       },
       registerAuthenticationProvider(id, label, provider, options) {
-        return extHostAuthentication.registerAuthenticationProvider(
-          id,
-          label,
-          provider,
-          options
-        );
+        return extHostAuthentication.registerAuthenticationProvider(id, label, provider, options);
       }
     };
     const commands = {
       registerCommand(id, command, thisArgs) {
-        return extHostCommands.registerCommand(
-          true,
-          id,
-          command,
-          thisArgs,
-          void 0,
-          extension
-        );
+        return extHostCommands.registerCommand(true, id, command, thisArgs, void 0, extension);
       },
       registerTextEditorCommand(id, callback, thisArg) {
-        return extHostCommands.registerCommand(
-          true,
-          id,
-          (...args) => {
-            const activeTextEditor = extHostEditors.getActiveTextEditor();
-            if (!activeTextEditor) {
-              extHostLogService.warn(
-                "Cannot execute " + id + " because there is no active text editor."
-              );
-              return void 0;
+        return extHostCommands.registerCommand(true, id, (...args) => {
+          const activeTextEditor = extHostEditors.getActiveTextEditor();
+          if (!activeTextEditor) {
+            extHostLogService.warn("Cannot execute " + id + " because there is no active text editor.");
+            return void 0;
+          }
+          return activeTextEditor.edit((edit) => {
+            callback.apply(thisArg, [activeTextEditor, edit, ...args]);
+          }).then((result) => {
+            if (!result) {
+              extHostLogService.warn("Edits from command " + id + " were not applied.");
             }
-            return activeTextEditor.edit((edit) => {
-              callback.apply(thisArg, [
-                activeTextEditor,
-                edit,
-                ...args
-              ]);
-            }).then(
-              (result) => {
-                if (!result) {
-                  extHostLogService.warn(
-                    "Edits from command " + id + " were not applied."
-                  );
-                }
-              },
-              (err) => {
-                extHostLogService.warn(
-                  "An error occurred while running command " + id,
-                  err
-                );
-              }
-            );
-          },
-          void 0,
-          void 0,
-          extension
-        );
+          }, (err) => {
+            extHostLogService.warn("An error occurred while running command " + id, err);
+          });
+        }, void 0, void 0, extension);
       },
       registerDiffInformationCommand: /* @__PURE__ */ __name((id, callback, thisArg) => {
         checkProposedApiEnabled(extension, "diffCommand");
-        return extHostCommands.registerCommand(
-          true,
-          id,
-          async (...args) => {
-            const activeTextEditor = extHostDocumentsAndEditors.activeEditor(true);
-            if (!activeTextEditor) {
-              extHostLogService.warn(
-                "Cannot execute " + id + " because there is no active text editor."
-              );
-              return void 0;
-            }
-            const diff = await extHostEditors.getDiffInformation(
-              activeTextEditor.id
-            );
-            callback.apply(thisArg, [diff, ...args]);
-          },
-          void 0,
-          void 0,
-          extension
-        );
+        return extHostCommands.registerCommand(true, id, async (...args) => {
+          const activeTextEditor = extHostDocumentsAndEditors.activeEditor(true);
+          if (!activeTextEditor) {
+            extHostLogService.warn("Cannot execute " + id + " because there is no active text editor.");
+            return void 0;
+          }
+          const diff = await extHostEditors.getDiffInformation(activeTextEditor.id);
+          callback.apply(thisArg, [diff, ...args]);
+        }, void 0, void 0, extension);
       }, "registerDiffInformationCommand"),
       executeCommand(id, ...args) {
         return extHostCommands.executeCommand(id, ...args);
@@ -700,17 +334,13 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostTerminalService.getDefaultShell(false);
       },
       get onDidChangeShell() {
-        return _asExtensionEvent(
-          extHostTerminalService.onDidChangeShell
-        );
+        return _asExtensionEvent(extHostTerminalService.onDidChangeShell);
       },
       get isTelemetryEnabled() {
         return extHostTelemetry.getTelemetryConfiguration();
       },
       get onDidChangeTelemetryEnabled() {
-        return _asExtensionEvent(
-          extHostTelemetry.onDidChangeTelemetryEnabled
-        );
+        return _asExtensionEvent(extHostTelemetry.onDidChangeTelemetryEnabled);
       },
       get telemetryConfiguration() {
         checkProposedApiEnabled(extension, "telemetry");
@@ -718,20 +348,14 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       get onDidChangeTelemetryConfiguration() {
         checkProposedApiEnabled(extension, "telemetry");
-        return _asExtensionEvent(
-          extHostTelemetry.onDidChangeTelemetryConfiguration
-        );
+        return _asExtensionEvent(extHostTelemetry.onDidChangeTelemetryConfiguration);
       },
       get isNewAppInstall() {
         return isNewAppInstall(initData.telemetryInfo.firstSessionDate);
       },
       createTelemetryLogger(sender, options) {
         ExtHostTelemetryLogger.validateSender(sender);
-        return extHostTelemetry.instantiateLogger(
-          extension,
-          sender,
-          options
-        );
+        return extHostTelemetry.instantiateLogger(extension, sender, options);
       },
       openExternal(uri, options) {
         return extHostWindow.openUri(uri, {
@@ -744,9 +368,7 @@ function createApiFactoryAndRegisterActors(accessor) {
           return extHostUrls.createAppUri(uri);
         }
         try {
-          return await extHostWindow.asExternalUri(uri, {
-            allowTunneling: !!initData.remote.authority
-          });
+          return await extHostWindow.asExternalUri(uri, { allowTunneling: !!initData.remote.authority });
         } catch (err) {
           if (matchesScheme(uri, Schemas.http) || matchesScheme(uri, Schemas.https)) {
             return uri;
@@ -784,12 +406,7 @@ function createApiFactoryAndRegisterActors(accessor) {
     }
     const tests = {
       createTestController(provider, label, refreshHandler) {
-        return extHostTesting.createTestController(
-          extension,
-          provider,
-          label,
-          refreshHandler
-        );
+        return extHostTesting.createTestController(extension, provider, label, refreshHandler);
       },
       createTestObserver() {
         checkProposedApiEnabled(extension, "testObserver");
@@ -820,24 +437,12 @@ function createApiFactoryAndRegisterActors(accessor) {
         }
         const mine = extensionInfo.mine.getExtensionDescription(extensionId);
         if (mine) {
-          return new Extension(
-            extensionService,
-            extension.identifier,
-            mine,
-            extensionKind,
-            false
-          );
+          return new Extension(extensionService, extension.identifier, mine, extensionKind, false);
         }
         if (includeFromDifferentExtensionHosts) {
           const foreign = extensionInfo.all.getExtensionDescription(extensionId);
           if (foreign) {
-            return new Extension(
-              extensionService,
-              extension.identifier,
-              foreign,
-              extensionKind,
-              true
-            );
+            return new Extension(extensionService, extension.identifier, foreign, extensionKind, true);
           }
         }
         return void 0;
@@ -845,63 +450,33 @@ function createApiFactoryAndRegisterActors(accessor) {
       get all() {
         const result = [];
         for (const desc of extensionInfo.mine.getAllExtensionDescriptions()) {
-          result.push(
-            new Extension(
-              extensionService,
-              extension.identifier,
-              desc,
-              extensionKind,
-              false
-            )
-          );
+          result.push(new Extension(extensionService, extension.identifier, desc, extensionKind, false));
         }
         return result;
       },
       get allAcrossExtensionHosts() {
         checkProposedApiEnabled(extension, "extensionsAny");
-        const local = new ExtensionIdentifierSet(
-          extensionInfo.mine.getAllExtensionDescriptions().map((desc) => desc.identifier)
-        );
+        const local = new ExtensionIdentifierSet(extensionInfo.mine.getAllExtensionDescriptions().map((desc) => desc.identifier));
         const result = [];
         for (const desc of extensionInfo.all.getAllExtensionDescriptions()) {
-          const isFromDifferentExtensionHost = !local.has(
-            desc.identifier
-          );
-          result.push(
-            new Extension(
-              extensionService,
-              extension.identifier,
-              desc,
-              extensionKind,
-              isFromDifferentExtensionHost
-            )
-          );
+          const isFromDifferentExtensionHost = !local.has(desc.identifier);
+          result.push(new Extension(extensionService, extension.identifier, desc, extensionKind, isFromDifferentExtensionHost));
         }
         return result;
       },
       get onDidChange() {
         if (isProposedApiEnabled(extension, "extensionsAny")) {
-          return _asExtensionEvent(
-            Event.any(
-              extensionInfo.mine.onDidChange,
-              extensionInfo.all.onDidChange
-            )
-          );
+          return _asExtensionEvent(Event.any(extensionInfo.mine.onDidChange, extensionInfo.all.onDidChange));
         }
         return _asExtensionEvent(extensionInfo.mine.onDidChange);
       }
     };
     const languages = {
       createDiagnosticCollection(name) {
-        return extHostDiagnostics.createDiagnosticCollection(
-          extension.identifier,
-          name
-        );
+        return extHostDiagnostics.createDiagnosticCollection(extension.identifier, name);
       },
       get onDidChangeDiagnostics() {
-        return _asExtensionEvent(
-          extHostDiagnostics.onDidChangeDiagnostics
-        );
+        return _asExtensionEvent(extHostDiagnostics.onDidChangeDiagnostics);
       },
       getDiagnostics: /* @__PURE__ */ __name((resource) => {
         return extHostDiagnostics.getDiagnostics(resource);
@@ -910,331 +485,145 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostLanguages.getLanguages();
       },
       setTextDocumentLanguage(document, languageId) {
-        return extHostLanguages.changeLanguage(
-          document.uri,
-          languageId
-        );
+        return extHostLanguages.changeLanguage(document.uri, languageId);
       },
       match(selector, document) {
         const interalSelector = typeConverters.LanguageSelector.from(selector);
         let notebook;
         if (targetsNotebooks(interalSelector)) {
-          notebook = extHostNotebook.notebookDocuments.find(
-            (value) => value.apiNotebook.getCells().find((c) => c.document === document)
-          )?.apiNotebook;
+          notebook = extHostNotebook.notebookDocuments.find((value) => value.apiNotebook.getCells().find((c) => c.document === document))?.apiNotebook;
         }
-        return score(
-          interalSelector,
-          document.uri,
-          document.languageId,
-          true,
-          notebook?.uri,
-          notebook?.notebookType
-        );
+        return score(interalSelector, document.uri, document.languageId, true, notebook?.uri, notebook?.notebookType);
       },
       registerCodeActionsProvider(selector, provider, metadata) {
-        return extHostLanguageFeatures.registerCodeActionProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          metadata
-        );
+        return extHostLanguageFeatures.registerCodeActionProvider(extension, checkSelector(selector), provider, metadata);
       },
       registerDocumentPasteEditProvider(selector, provider, metadata) {
         checkProposedApiEnabled(extension, "documentPaste");
-        return extHostLanguageFeatures.registerDocumentPasteEditProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          metadata
-        );
+        return extHostLanguageFeatures.registerDocumentPasteEditProvider(extension, checkSelector(selector), provider, metadata);
       },
       registerCodeLensProvider(selector, provider) {
-        return extHostLanguageFeatures.registerCodeLensProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerCodeLensProvider(extension, checkSelector(selector), provider);
       },
       registerDefinitionProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDefinitionProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDefinitionProvider(extension, checkSelector(selector), provider);
       },
       registerDeclarationProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDeclarationProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDeclarationProvider(extension, checkSelector(selector), provider);
       },
       registerImplementationProvider(selector, provider) {
-        return extHostLanguageFeatures.registerImplementationProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerImplementationProvider(extension, checkSelector(selector), provider);
       },
       registerTypeDefinitionProvider(selector, provider) {
-        return extHostLanguageFeatures.registerTypeDefinitionProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerTypeDefinitionProvider(extension, checkSelector(selector), provider);
       },
       registerHoverProvider(selector, provider) {
-        return extHostLanguageFeatures.registerHoverProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          extension.identifier
-        );
+        return extHostLanguageFeatures.registerHoverProvider(extension, checkSelector(selector), provider, extension.identifier);
       },
       registerEvaluatableExpressionProvider(selector, provider) {
-        return extHostLanguageFeatures.registerEvaluatableExpressionProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          extension.identifier
-        );
+        return extHostLanguageFeatures.registerEvaluatableExpressionProvider(extension, checkSelector(selector), provider, extension.identifier);
       },
       registerInlineValuesProvider(selector, provider) {
-        return extHostLanguageFeatures.registerInlineValuesProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          extension.identifier
-        );
+        return extHostLanguageFeatures.registerInlineValuesProvider(extension, checkSelector(selector), provider, extension.identifier);
       },
       registerDocumentHighlightProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDocumentHighlightProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDocumentHighlightProvider(extension, checkSelector(selector), provider);
       },
       registerMultiDocumentHighlightProvider(selector, provider) {
-        return extHostLanguageFeatures.registerMultiDocumentHighlightProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerMultiDocumentHighlightProvider(extension, checkSelector(selector), provider);
       },
       registerLinkedEditingRangeProvider(selector, provider) {
-        return extHostLanguageFeatures.registerLinkedEditingRangeProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerLinkedEditingRangeProvider(extension, checkSelector(selector), provider);
       },
       registerReferenceProvider(selector, provider) {
-        return extHostLanguageFeatures.registerReferenceProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerReferenceProvider(extension, checkSelector(selector), provider);
       },
       registerRenameProvider(selector, provider) {
-        return extHostLanguageFeatures.registerRenameProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerRenameProvider(extension, checkSelector(selector), provider);
       },
       registerNewSymbolNamesProvider(selector, provider) {
         checkProposedApiEnabled(extension, "newSymbolNamesProvider");
-        return extHostLanguageFeatures.registerNewSymbolNamesProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerNewSymbolNamesProvider(extension, checkSelector(selector), provider);
       },
       registerDocumentSymbolProvider(selector, provider, metadata) {
-        return extHostLanguageFeatures.registerDocumentSymbolProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          metadata
-        );
+        return extHostLanguageFeatures.registerDocumentSymbolProvider(extension, checkSelector(selector), provider, metadata);
       },
       registerWorkspaceSymbolProvider(provider) {
-        return extHostLanguageFeatures.registerWorkspaceSymbolProvider(
-          extension,
-          provider
-        );
+        return extHostLanguageFeatures.registerWorkspaceSymbolProvider(extension, provider);
       },
       registerDocumentFormattingEditProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDocumentFormattingEditProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDocumentFormattingEditProvider(extension, checkSelector(selector), provider);
       },
       registerDocumentRangeFormattingEditProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDocumentRangeFormattingEditProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDocumentRangeFormattingEditProvider(extension, checkSelector(selector), provider);
       },
       registerOnTypeFormattingEditProvider(selector, provider, firstTriggerCharacter, ...moreTriggerCharacters) {
-        return extHostLanguageFeatures.registerOnTypeFormattingEditProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          [firstTriggerCharacter].concat(moreTriggerCharacters)
-        );
+        return extHostLanguageFeatures.registerOnTypeFormattingEditProvider(extension, checkSelector(selector), provider, [firstTriggerCharacter].concat(moreTriggerCharacters));
       },
       registerDocumentSemanticTokensProvider(selector, provider, legend) {
-        return extHostLanguageFeatures.registerDocumentSemanticTokensProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          legend
-        );
+        return extHostLanguageFeatures.registerDocumentSemanticTokensProvider(extension, checkSelector(selector), provider, legend);
       },
       registerDocumentRangeSemanticTokensProvider(selector, provider, legend) {
-        return extHostLanguageFeatures.registerDocumentRangeSemanticTokensProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          legend
-        );
+        return extHostLanguageFeatures.registerDocumentRangeSemanticTokensProvider(extension, checkSelector(selector), provider, legend);
       },
       registerSignatureHelpProvider(selector, provider, firstItem, ...remaining) {
         if (typeof firstItem === "object") {
-          return extHostLanguageFeatures.registerSignatureHelpProvider(
-            extension,
-            checkSelector(selector),
-            provider,
-            firstItem
-          );
+          return extHostLanguageFeatures.registerSignatureHelpProvider(extension, checkSelector(selector), provider, firstItem);
         }
-        return extHostLanguageFeatures.registerSignatureHelpProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          typeof firstItem === "undefined" ? [] : [firstItem, ...remaining]
-        );
+        return extHostLanguageFeatures.registerSignatureHelpProvider(extension, checkSelector(selector), provider, typeof firstItem === "undefined" ? [] : [firstItem, ...remaining]);
       },
       registerCompletionItemProvider(selector, provider, ...triggerCharacters) {
-        return extHostLanguageFeatures.registerCompletionItemProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          triggerCharacters
-        );
+        return extHostLanguageFeatures.registerCompletionItemProvider(extension, checkSelector(selector), provider, triggerCharacters);
       },
       registerInlineCompletionItemProvider(selector, provider, metadata) {
         if (provider.handleDidShowCompletionItem) {
-          checkProposedApiEnabled(
-            extension,
-            "inlineCompletionsAdditions"
-          );
+          checkProposedApiEnabled(extension, "inlineCompletionsAdditions");
         }
         if (provider.handleDidPartiallyAcceptCompletionItem) {
-          checkProposedApiEnabled(
-            extension,
-            "inlineCompletionsAdditions"
-          );
+          checkProposedApiEnabled(extension, "inlineCompletionsAdditions");
         }
         if (metadata) {
-          checkProposedApiEnabled(
-            extension,
-            "inlineCompletionsAdditions"
-          );
+          checkProposedApiEnabled(extension, "inlineCompletionsAdditions");
         }
-        return extHostLanguageFeatures.registerInlineCompletionsProvider(
-          extension,
-          checkSelector(selector),
-          provider,
-          metadata
-        );
+        return extHostLanguageFeatures.registerInlineCompletionsProvider(extension, checkSelector(selector), provider, metadata);
       },
       registerInlineEditProvider(selector, provider) {
         checkProposedApiEnabled(extension, "inlineEdit");
-        return extHostLanguageFeatures.registerInlineEditProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerInlineEditProvider(extension, checkSelector(selector), provider);
       },
       registerDocumentLinkProvider(selector, provider) {
-        return extHostLanguageFeatures.registerDocumentLinkProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerDocumentLinkProvider(extension, checkSelector(selector), provider);
       },
       registerColorProvider(selector, provider) {
-        return extHostLanguageFeatures.registerColorProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerColorProvider(extension, checkSelector(selector), provider);
       },
       registerFoldingRangeProvider(selector, provider) {
-        return extHostLanguageFeatures.registerFoldingRangeProvider(
-          extension,
-          checkSelector(selector),
-          provider
-        );
+        return extHostLanguageFeatures.registerFoldingRangeProvider(extension, checkSelector(selector), provider);
       },
       registerSelectionRangeProvider(selector, provider) {
-        return extHostLanguageFeatures.registerSelectionRangeProvider(
-          extension,
-          selector,
-          provider
-        );
+        return extHostLanguageFeatures.registerSelectionRangeProvider(extension, selector, provider);
       },
       registerCallHierarchyProvider(selector, provider) {
-        return extHostLanguageFeatures.registerCallHierarchyProvider(
-          extension,
-          selector,
-          provider
-        );
+        return extHostLanguageFeatures.registerCallHierarchyProvider(extension, selector, provider);
       },
       registerTypeHierarchyProvider(selector, provider) {
-        return extHostLanguageFeatures.registerTypeHierarchyProvider(
-          extension,
-          selector,
-          provider
-        );
+        return extHostLanguageFeatures.registerTypeHierarchyProvider(extension, selector, provider);
       },
       setLanguageConfiguration: /* @__PURE__ */ __name((language, configuration) => {
-        return extHostLanguageFeatures.setLanguageConfiguration(
-          extension,
-          language,
-          configuration
-        );
+        return extHostLanguageFeatures.setLanguageConfiguration(extension, language, configuration);
       }, "setLanguageConfiguration"),
       getTokenInformationAtPosition(doc, pos) {
         checkProposedApiEnabled(extension, "tokenInformation");
         return extHostLanguages.tokenAtPosition(doc, pos);
       },
       registerInlayHintsProvider(selector, provider) {
-        return extHostLanguageFeatures.registerInlayHintsProvider(
-          extension,
-          selector,
-          provider
-        );
+        return extHostLanguageFeatures.registerInlayHintsProvider(extension, selector, provider);
       },
       createLanguageStatusItem(id, selector) {
-        return extHostLanguages.createLanguageStatusItem(
-          extension,
-          id,
-          selector
-        );
+        return extHostLanguages.createLanguageStatusItem(extension, id, selector);
       },
       registerDocumentDropEditProvider(selector, provider, metadata) {
-        return extHostLanguageFeatures.registerDocumentOnDropEditProvider(
-          extension,
-          selector,
-          provider,
-          isProposedApiEnabled(extension, "documentPaste") ? metadata : void 0
-        );
+        return extHostLanguageFeatures.registerDocumentOnDropEditProvider(extension, selector, provider, isProposedApiEnabled(extension, "documentPaste") ? metadata : void 0);
       }
     };
     const window = {
@@ -1252,155 +641,82 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       async showTextDocument(documentOrUri, columnOrOptions, preserveFocus) {
         if (URI.isUri(documentOrUri) && documentOrUri.scheme === Schemas.vscodeRemote && !documentOrUri.authority) {
-          extHostApiDeprecation.report(
-            "workspace.showTextDocument",
-            extension,
-            `A URI of 'vscode-remote' scheme requires an authority.`
-          );
+          extHostApiDeprecation.report("workspace.showTextDocument", extension, `A URI of 'vscode-remote' scheme requires an authority.`);
         }
         const document = await (URI.isUri(documentOrUri) ? Promise.resolve(workspace.openTextDocument(documentOrUri)) : Promise.resolve(documentOrUri));
-        return extHostEditors.showTextDocument(
-          document,
-          columnOrOptions,
-          preserveFocus
-        );
+        return extHostEditors.showTextDocument(document, columnOrOptions, preserveFocus);
       },
       createTextEditorDecorationType(options) {
-        return extHostEditors.createTextEditorDecorationType(
-          extension,
-          options
-        );
+        return extHostEditors.createTextEditorDecorationType(extension, options);
       },
       onDidChangeActiveTextEditor(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeActiveTextEditor
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeActiveTextEditor)(listener, thisArg, disposables);
       },
       onDidChangeVisibleTextEditors(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeVisibleTextEditors
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeVisibleTextEditors)(listener, thisArg, disposables);
       },
       onDidChangeTextEditorSelection(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeTextEditorSelection
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeTextEditorSelection)(listener, thisArgs, disposables);
       },
       onDidChangeTextEditorOptions(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeTextEditorOptions
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeTextEditorOptions)(listener, thisArgs, disposables);
       },
       onDidChangeTextEditorVisibleRanges(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeTextEditorVisibleRanges
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeTextEditorVisibleRanges)(listener, thisArgs, disposables);
       },
       onDidChangeTextEditorViewColumn(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostEditors.onDidChangeTextEditorViewColumn
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostEditors.onDidChangeTextEditorViewColumn)(listener, thisArg, disposables);
       },
       onDidCloseTerminal(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalService.onDidCloseTerminal
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidCloseTerminal)(listener, thisArg, disposables);
       },
       onDidOpenTerminal(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalService.onDidOpenTerminal
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidOpenTerminal)(listener, thisArg, disposables);
       },
       onDidChangeActiveTerminal(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalService.onDidChangeActiveTerminal
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidChangeActiveTerminal)(listener, thisArg, disposables);
       },
       onDidChangeTerminalDimensions(listener, thisArg, disposables) {
         checkProposedApiEnabled(extension, "terminalDimensions");
-        return _asExtensionEvent(
-          extHostTerminalService.onDidChangeTerminalDimensions
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidChangeTerminalDimensions)(listener, thisArg, disposables);
       },
       onDidChangeTerminalState(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalService.onDidChangeTerminalState
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidChangeTerminalState)(listener, thisArg, disposables);
       },
       onDidWriteTerminalData(listener, thisArg, disposables) {
         checkProposedApiEnabled(extension, "terminalDataWriteEvent");
-        return _asExtensionEvent(
-          extHostTerminalService.onDidWriteTerminalData
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalService.onDidWriteTerminalData)(listener, thisArg, disposables);
       },
       onDidExecuteTerminalCommand(listener, thisArg, disposables) {
-        checkProposedApiEnabled(
-          extension,
-          "terminalExecuteCommandEvent"
-        );
-        return _asExtensionEvent(
-          extHostTerminalService.onDidExecuteTerminalCommand
-        )(listener, thisArg, disposables);
+        checkProposedApiEnabled(extension, "terminalExecuteCommandEvent");
+        return _asExtensionEvent(extHostTerminalService.onDidExecuteTerminalCommand)(listener, thisArg, disposables);
       },
       onDidChangeTerminalShellIntegration(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalShellIntegration.onDidChangeTerminalShellIntegration
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalShellIntegration.onDidChangeTerminalShellIntegration)(listener, thisArg, disposables);
       },
       onDidStartTerminalShellExecution(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalShellIntegration.onDidStartTerminalShellExecution
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalShellIntegration.onDidStartTerminalShellExecution)(listener, thisArg, disposables);
       },
       onDidEndTerminalShellExecution(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTerminalShellIntegration.onDidEndTerminalShellExecution
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTerminalShellIntegration.onDidEndTerminalShellExecution)(listener, thisArg, disposables);
       },
       get state() {
         return extHostWindow.getState();
       },
       onDidChangeWindowState(listener, thisArg, disposables) {
-        return _asExtensionEvent(extHostWindow.onDidChangeWindowState)(
-          listener,
-          thisArg,
-          disposables
-        );
+        return _asExtensionEvent(extHostWindow.onDidChangeWindowState)(listener, thisArg, disposables);
       },
       showInformationMessage(message, ...rest) {
-        return extHostMessageService.showMessage(
-          extension,
-          Severity.Info,
-          message,
-          rest[0],
-          rest.slice(1)
-        );
+        return extHostMessageService.showMessage(extension, Severity.Info, message, rest[0], rest.slice(1));
       },
       showWarningMessage(message, ...rest) {
-        return extHostMessageService.showMessage(
-          extension,
-          Severity.Warning,
-          message,
-          rest[0],
-          rest.slice(1)
-        );
+        return extHostMessageService.showMessage(extension, Severity.Warning, message, rest[0], rest.slice(1));
       },
       showErrorMessage(message, ...rest) {
-        return extHostMessageService.showMessage(
-          extension,
-          Severity.Error,
-          message,
-          rest[0],
-          rest.slice(1)
-        );
+        return extHostMessageService.showMessage(extension, Severity.Error, message, rest[0], rest.slice(1));
       },
       showQuickPick(items, options, token) {
-        return extHostQuickOpen.showQuickPick(
-          extension,
-          items,
-          options,
-          token
-        );
+        return extHostQuickOpen.showQuickPick(extension, items, options, token);
       },
       showWorkspaceFolderPick(options) {
         return extHostQuickOpen.showWorkspaceFolderPick(options);
@@ -1426,18 +742,10 @@ function createApiFactoryAndRegisterActors(accessor) {
           alignment = alignmentOrId;
           priority = priorityOrAlignment;
         }
-        return extHostStatusBar.createStatusBarEntry(
-          extension,
-          id,
-          alignment,
-          priority
-        );
+        return extHostStatusBar.createStatusBarEntry(extension, id, alignment, priority);
       },
       setStatusBarMessage(text, timeoutOrThenable) {
-        return extHostStatusBar.setStatusBarMessage(
-          text,
-          timeoutOrThenable
-        );
+        return extHostStatusBar.setStatusBarMessage(text, timeoutOrThenable);
       },
       withScmProgress(task) {
         extHostApiDeprecation.report(
@@ -1445,113 +753,55 @@ function createApiFactoryAndRegisterActors(accessor) {
           extension,
           `Use 'withProgress' instead.`
         );
-        return extHostProgress.withProgress(
-          extension,
-          { location: extHostTypes.ProgressLocation.SourceControl },
-          (progress, token) => task({
-            report(n) {
-            }
-          })
-        );
+        return extHostProgress.withProgress(extension, { location: extHostTypes.ProgressLocation.SourceControl }, (progress, token) => task({ report(n) {
+        } }));
       },
       withProgress(options, task) {
         return extHostProgress.withProgress(extension, options, task);
       },
       createOutputChannel(name, options) {
-        return extHostOutputService.createOutputChannel(
-          name,
-          options,
-          extension
-        );
+        return extHostOutputService.createOutputChannel(name, options, extension);
       },
       createWebviewPanel(viewType, title, showOptions, options) {
-        return extHostWebviewPanels.createWebviewPanel(
-          extension,
-          viewType,
-          title,
-          showOptions,
-          options
-        );
+        return extHostWebviewPanels.createWebviewPanel(extension, viewType, title, showOptions, options);
       },
       createWebviewTextEditorInset(editor, line, height, options) {
         checkProposedApiEnabled(extension, "editorInsets");
-        return extHostEditorInsets.createWebviewEditorInset(
-          editor,
-          line,
-          height,
-          options,
-          extension
-        );
+        return extHostEditorInsets.createWebviewEditorInset(editor, line, height, options, extension);
       },
       createTerminal(nameOrOptions, shellPath, shellArgs) {
         if (typeof nameOrOptions === "object") {
           if ("pty" in nameOrOptions) {
-            return extHostTerminalService.createExtensionTerminal(
-              nameOrOptions
-            );
+            return extHostTerminalService.createExtensionTerminal(nameOrOptions);
           }
-          return extHostTerminalService.createTerminalFromOptions(
-            nameOrOptions
-          );
+          return extHostTerminalService.createTerminalFromOptions(nameOrOptions);
         }
-        return extHostTerminalService.createTerminal(
-          nameOrOptions,
-          shellPath,
-          shellArgs
-        );
+        return extHostTerminalService.createTerminal(nameOrOptions, shellPath, shellArgs);
       },
       registerTerminalLinkProvider(provider) {
         return extHostTerminalService.registerLinkProvider(provider);
       },
       registerTerminalProfileProvider(id, provider) {
-        return extHostTerminalService.registerProfileProvider(
-          extension,
-          id,
-          provider
-        );
+        return extHostTerminalService.registerProfileProvider(extension, id, provider);
       },
       registerTerminalQuickFixProvider(id, provider) {
         checkProposedApiEnabled(extension, "terminalQuickFixProvider");
-        return extHostTerminalService.registerTerminalQuickFixProvider(
-          id,
-          extension.identifier.value,
-          provider
-        );
+        return extHostTerminalService.registerTerminalQuickFixProvider(id, extension.identifier.value, provider);
       },
       registerTreeDataProvider(viewId, treeDataProvider) {
-        return extHostTreeViews.registerTreeDataProvider(
-          viewId,
-          treeDataProvider,
-          extension
-        );
+        return extHostTreeViews.registerTreeDataProvider(viewId, treeDataProvider, extension);
       },
       createTreeView(viewId, options) {
-        return extHostTreeViews.createTreeView(
-          viewId,
-          options,
-          extension
-        );
+        return extHostTreeViews.createTreeView(viewId, options, extension);
       },
       registerWebviewPanelSerializer: /* @__PURE__ */ __name((viewType, serializer) => {
-        return extHostWebviewPanels.registerWebviewPanelSerializer(
-          extension,
-          viewType,
-          serializer
-        );
+        return extHostWebviewPanels.registerWebviewPanelSerializer(extension, viewType, serializer);
       }, "registerWebviewPanelSerializer"),
       registerCustomEditorProvider: /* @__PURE__ */ __name((viewType, provider, options = {}) => {
-        return extHostCustomEditors.registerCustomEditorProvider(
-          extension,
-          viewType,
-          provider,
-          options
-        );
+        return extHostCustomEditors.registerCustomEditorProvider(extension, viewType, provider, options);
       }, "registerCustomEditorProvider"),
       registerFileDecorationProvider(provider) {
-        return extHostDecorations.registerFileDecorationProvider(
-          provider,
-          extension
-        );
+        return extHostDecorations.registerFileDecorationProvider(provider, extension);
       },
       registerUriHandler(handler) {
         return extHostUrls.registerUriHandler(extension, handler);
@@ -1566,82 +816,50 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostTheming.activeColorTheme;
       },
       onDidChangeActiveColorTheme(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostTheming.onDidChangeActiveColorTheme
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTheming.onDidChangeActiveColorTheme)(listener, thisArg, disposables);
       },
       registerWebviewViewProvider(viewId, provider, options) {
-        return extHostWebviewViews.registerWebviewViewProvider(
-          extension,
-          viewId,
-          provider,
-          options?.webviewOptions
-        );
+        return extHostWebviewViews.registerWebviewViewProvider(extension, viewId, provider, options?.webviewOptions);
       },
       get activeNotebookEditor() {
         return extHostNotebook.activeNotebookEditor;
       },
       onDidChangeActiveNotebookEditor(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostNotebook.onDidChangeActiveNotebookEditor
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostNotebook.onDidChangeActiveNotebookEditor)(listener, thisArgs, disposables);
       },
       get visibleNotebookEditors() {
         return extHostNotebook.visibleNotebookEditors;
       },
       get onDidChangeVisibleNotebookEditors() {
-        return _asExtensionEvent(
-          extHostNotebook.onDidChangeVisibleNotebookEditors
-        );
+        return _asExtensionEvent(extHostNotebook.onDidChangeVisibleNotebookEditors);
       },
       onDidChangeNotebookEditorSelection(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostNotebookEditors.onDidChangeNotebookEditorSelection
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostNotebookEditors.onDidChangeNotebookEditorSelection)(listener, thisArgs, disposables);
       },
       onDidChangeNotebookEditorVisibleRanges(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostNotebookEditors.onDidChangeNotebookEditorVisibleRanges
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostNotebookEditors.onDidChangeNotebookEditorVisibleRanges)(listener, thisArgs, disposables);
       },
       showNotebookDocument(document, options) {
         return extHostNotebook.showNotebookDocument(document, options);
       },
       registerExternalUriOpener(id, opener, metadata) {
         checkProposedApiEnabled(extension, "externalUriOpener");
-        return extHostUriOpeners.registerExternalUriOpener(
-          extension.identifier,
-          id,
-          opener,
-          metadata
-        );
+        return extHostUriOpeners.registerExternalUriOpener(extension.identifier, id, opener, metadata);
       },
       registerProfileContentHandler(id, handler) {
         checkProposedApiEnabled(extension, "profileContentHandlers");
-        return extHostProfileContentHandlers.registerProfileContentHandler(
-          extension,
-          id,
-          handler
-        );
+        return extHostProfileContentHandlers.registerProfileContentHandler(extension, id, handler);
       },
       registerQuickDiffProvider(selector, quickDiffProvider, label, rootUri) {
         checkProposedApiEnabled(extension, "quickDiffProvider");
-        return extHostQuickDiff.registerQuickDiffProvider(
-          checkSelector(selector),
-          quickDiffProvider,
-          label,
-          rootUri
-        );
+        return extHostQuickDiff.registerQuickDiffProvider(checkSelector(selector), quickDiffProvider, label, rootUri);
       },
       get tabGroups() {
         return extHostEditorTabs.tabGroups;
       },
       registerShareProvider(selector, provider) {
         checkProposedApiEnabled(extension, "shareProvider");
-        return extHostShare.registerShareProvider(
-          checkSelector(selector),
-          provider
-        );
+        return extHostShare.registerShareProvider(checkSelector(selector), provider);
       }
     };
     const workspace = {
@@ -1675,50 +893,24 @@ function createApiFactoryAndRegisterActors(accessor) {
         throw new errors.ReadonlyError("workspaceFile");
       },
       updateWorkspaceFolders: /* @__PURE__ */ __name((index, deleteCount, ...workspaceFoldersToAdd) => {
-        return extHostWorkspace.updateWorkspaceFolders(
-          extension,
-          index,
-          deleteCount || 0,
-          ...workspaceFoldersToAdd
-        );
+        return extHostWorkspace.updateWorkspaceFolders(extension, index, deleteCount || 0, ...workspaceFoldersToAdd);
       }, "updateWorkspaceFolders"),
-      onDidChangeWorkspaceFolders: /* @__PURE__ */ __name((listener, thisArgs, disposables) => _asExtensionEvent(extHostWorkspace.onDidChangeWorkspace)(
-        listener,
-        thisArgs,
-        disposables
-      ), "onDidChangeWorkspaceFolders"),
+      onDidChangeWorkspaceFolders: /* @__PURE__ */ __name(function(listener, thisArgs, disposables) {
+        return _asExtensionEvent(extHostWorkspace.onDidChangeWorkspace)(listener, thisArgs, disposables);
+      }, "onDidChangeWorkspaceFolders"),
       asRelativePath: /* @__PURE__ */ __name((pathOrUri, includeWorkspace) => {
-        return extHostWorkspace.getRelativePath(
-          pathOrUri,
-          includeWorkspace
-        );
+        return extHostWorkspace.getRelativePath(pathOrUri, includeWorkspace);
       }, "asRelativePath"),
       findFiles: /* @__PURE__ */ __name((include, exclude, maxResults, token) => {
-        return extHostWorkspace.findFiles(
-          include,
-          exclude,
-          maxResults,
-          extension.identifier,
-          token
-        );
+        return extHostWorkspace.findFiles(include, exclude, maxResults, extension.identifier, token);
       }, "findFiles"),
       findFiles2: /* @__PURE__ */ __name((filePattern, options, token) => {
         checkProposedApiEnabled(extension, "findFiles2");
-        return extHostWorkspace.findFiles2(
-          filePattern,
-          options,
-          extension.identifier,
-          token
-        );
+        return extHostWorkspace.findFiles2(filePattern, options, extension.identifier, token);
       }, "findFiles2"),
       findFiles2New: /* @__PURE__ */ __name((filePattern, options, token) => {
         checkProposedApiEnabled(extension, "findFiles2New");
-        return extHostWorkspace.findFiles2New(
-          filePattern,
-          options,
-          extension.identifier,
-          token
-        );
+        return extHostWorkspace.findFiles2New(filePattern, options, extension.identifier, token);
       }, "findFiles2New"),
       findTextInFiles: /* @__PURE__ */ __name((query, optionsOrCallback, callbackOrToken, token) => {
         checkProposedApiEnabled(extension, "findTextInFiles");
@@ -1732,23 +924,12 @@ function createApiFactoryAndRegisterActors(accessor) {
           callback = optionsOrCallback;
           token = callbackOrToken;
         }
-        return extHostWorkspace.findTextInFiles(
-          query,
-          options || {},
-          callback,
-          extension.identifier,
-          token
-        );
+        return extHostWorkspace.findTextInFiles(query, options || {}, callback, extension.identifier, token);
       }, "findTextInFiles"),
       findTextInFilesNew: /* @__PURE__ */ __name((query, options, token) => {
         checkProposedApiEnabled(extension, "findTextInFilesNew");
         checkProposedApiEnabled(extension, "textSearchProviderNew");
-        return extHostWorkspace.findTextInFilesNew(
-          query,
-          options,
-          extension.identifier,
-          token
-        );
+        return extHostWorkspace.findTextInFilesNew(query, options, extension.identifier, token);
       }, "findTextInFilesNew"),
       save: /* @__PURE__ */ __name((uri) => {
         return extHostWorkspace.save(uri);
@@ -1760,14 +941,10 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostWorkspace.saveAll(includeUntitled);
       }, "saveAll"),
       applyEdit(edit, metadata) {
-        return extHostBulkEdits.applyWorkspaceEdit(
-          edit,
-          extension,
-          metadata
-        );
+        return extHostBulkEdits.applyWorkspaceEdit(edit, extension, metadata);
       },
       createFileSystemWatcher: /* @__PURE__ */ __name((pattern, optionsOrIgnoreCreate, ignoreChange, ignoreDelete) => {
-        let options;
+        let options = void 0;
         if (typeof optionsOrIgnoreCreate === "boolean") {
           options = {
             ignoreCreateEvents: Boolean(optionsOrIgnoreCreate),
@@ -1776,21 +953,13 @@ function createApiFactoryAndRegisterActors(accessor) {
             correlate: false
           };
         } else if (optionsOrIgnoreCreate) {
-          checkProposedApiEnabled(
-            extension,
-            "createFileSystemWatcher"
-          );
+          checkProposedApiEnabled(extension, "createFileSystemWatcher");
           options = {
             ...optionsOrIgnoreCreate,
             correlate: true
           };
         }
-        return extHostFileSystemEvent.createFileSystemWatcher(
-          extHostWorkspace,
-          extension,
-          pattern,
-          options
-        );
+        return extHostFileSystemEvent.createFileSystemWatcher(extHostWorkspace, extension, pattern, options);
       }, "createFileSystemWatcher"),
       get textDocuments() {
         return extHostDocuments.getAllDocumentData().map((data) => data.document);
@@ -1802,28 +971,18 @@ function createApiFactoryAndRegisterActors(accessor) {
         let uriPromise;
         const options = uriOrFileNameOrOptions;
         if (typeof uriOrFileNameOrOptions === "string") {
-          uriPromise = Promise.resolve(
-            URI.file(uriOrFileNameOrOptions)
-          );
+          uriPromise = Promise.resolve(URI.file(uriOrFileNameOrOptions));
         } else if (URI.isUri(uriOrFileNameOrOptions)) {
           uriPromise = Promise.resolve(uriOrFileNameOrOptions);
         } else if (!options || typeof options === "object") {
           uriPromise = extHostDocuments.createDocumentData(options);
         } else {
-          throw new Error(
-            "illegal argument - uriOrFileNameOrOptions"
-          );
+          throw new Error("illegal argument - uriOrFileNameOrOptions");
         }
         return uriPromise.then((uri) => {
-          extHostLogService.trace(
-            `openTextDocument from ${extension.identifier}`
-          );
+          extHostLogService.trace(`openTextDocument from ${extension.identifier}`);
           if (uri.scheme === Schemas.vscodeRemote && !uri.authority) {
-            extHostApiDeprecation.report(
-              "workspace.openTextDocument",
-              extension,
-              `A URI of 'vscode-remote' scheme requires an authority.`
-            );
+            extHostApiDeprecation.report("workspace.openTextDocument", extension, `A URI of 'vscode-remote' scheme requires an authority.`);
           }
           return extHostDocuments.ensureDocumentData(uri).then((documentData) => {
             return documentData.document;
@@ -1831,44 +990,22 @@ function createApiFactoryAndRegisterActors(accessor) {
         });
       },
       onDidOpenTextDocument: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostDocuments.onDidAddDocument)(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostDocuments.onDidAddDocument)(listener, thisArgs, disposables);
       }, "onDidOpenTextDocument"),
       onDidCloseTextDocument: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostDocuments.onDidRemoveDocument)(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostDocuments.onDidRemoveDocument)(listener, thisArgs, disposables);
       }, "onDidCloseTextDocument"),
       onDidChangeTextDocument: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostDocuments.onDidChangeDocument)(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostDocuments.onDidChangeDocument)(listener, thisArgs, disposables);
       }, "onDidChangeTextDocument"),
       onDidSaveTextDocument: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostDocuments.onDidSaveDocument)(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostDocuments.onDidSaveDocument)(listener, thisArgs, disposables);
       }, "onDidSaveTextDocument"),
       onWillSaveTextDocument: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(
-          extHostDocumentSaveParticipant.getOnWillSaveTextDocumentEvent(
-            extension
-          )
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostDocumentSaveParticipant.getOnWillSaveTextDocumentEvent(extension))(listener, thisArgs, disposables);
       }, "onWillSaveTextDocument"),
       get notebookDocuments() {
-        return extHostNotebook.notebookDocuments.map(
-          (d) => d.apiNotebook
-        );
+        return extHostNotebook.notebookDocuments.map((d) => d.apiNotebook);
       },
       async openNotebookDocument(uriOrType, content) {
         let uri;
@@ -1876,71 +1013,39 @@ function createApiFactoryAndRegisterActors(accessor) {
           uri = uriOrType;
           await extHostNotebook.openNotebookDocument(uriOrType);
         } else if (typeof uriOrType === "string") {
-          uri = URI.revive(
-            await extHostNotebook.createNotebookDocument({
-              viewType: uriOrType,
-              content
-            })
-          );
+          uri = URI.revive(await extHostNotebook.createNotebookDocument({ viewType: uriOrType, content }));
         } else {
           throw new Error("Invalid arguments");
         }
         return extHostNotebook.getNotebookDocument(uri).apiNotebook;
       },
       onDidSaveNotebookDocument(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostNotebookDocuments.onDidSaveNotebookDocument
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostNotebookDocuments.onDidSaveNotebookDocument)(listener, thisArg, disposables);
       },
       onDidChangeNotebookDocument(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostNotebookDocuments.onDidChangeNotebookDocument
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostNotebookDocuments.onDidChangeNotebookDocument)(listener, thisArg, disposables);
       },
       onWillSaveNotebookDocument(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostNotebookDocumentSaveParticipant.getOnWillSaveNotebookDocumentEvent(
-            extension
-          )
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostNotebookDocumentSaveParticipant.getOnWillSaveNotebookDocumentEvent(extension))(listener, thisArg, disposables);
       },
       get onDidOpenNotebookDocument() {
-        return _asExtensionEvent(
-          extHostNotebook.onDidOpenNotebookDocument
-        );
+        return _asExtensionEvent(extHostNotebook.onDidOpenNotebookDocument);
       },
       get onDidCloseNotebookDocument() {
-        return _asExtensionEvent(
-          extHostNotebook.onDidCloseNotebookDocument
-        );
+        return _asExtensionEvent(extHostNotebook.onDidCloseNotebookDocument);
       },
       registerNotebookSerializer(viewType, serializer, options, registration) {
-        return extHostNotebook.registerNotebookSerializer(
-          extension,
-          viewType,
-          serializer,
-          options,
-          isProposedApiEnabled(extension, "notebookLiveShare") ? registration : void 0
-        );
+        return extHostNotebook.registerNotebookSerializer(extension, viewType, serializer, options, isProposedApiEnabled(extension, "notebookLiveShare") ? registration : void 0);
       },
       onDidChangeConfiguration: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(
-          configProvider.onDidChangeConfiguration
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(configProvider.onDidChangeConfiguration)(listener, thisArgs, disposables);
       }, "onDidChangeConfiguration"),
       getConfiguration(section, scope) {
         scope = arguments.length === 1 ? void 0 : scope;
-        return configProvider.getConfiguration(
-          section,
-          scope,
-          extension
-        );
+        return configProvider.getConfiguration(section, scope, extension);
       },
       registerTextDocumentContentProvider(scheme, provider) {
-        return extHostDocumentContentProviders.registerTextDocumentContentProvider(
-          scheme,
-          provider
-        );
+        return extHostDocumentContentProviders.registerTextDocumentContentProvider(scheme, provider);
       },
       registerTaskProvider: /* @__PURE__ */ __name((type, provider) => {
         extHostApiDeprecation.report(
@@ -1948,25 +1053,12 @@ function createApiFactoryAndRegisterActors(accessor) {
           extension,
           `Use the corresponding function on the 'tasks' namespace instead`
         );
-        return extHostTask.registerTaskProvider(
-          extension,
-          type,
-          provider
-        );
+        return extHostTask.registerTaskProvider(extension, type, provider);
       }, "registerTaskProvider"),
       registerFileSystemProvider(scheme, provider, options) {
         return combinedDisposable(
-          extHostFileSystem.registerFileSystemProvider(
-            extension,
-            scheme,
-            provider,
-            options
-          ),
-          extHostConsumerFileSystem.addFileSystemProvider(
-            scheme,
-            provider,
-            options
-          )
+          extHostFileSystem.registerFileSystemProvider(extension, scheme, provider, options),
+          extHostConsumerFileSystem.addFileSystemProvider(scheme, provider, options)
         );
       },
       get fs() {
@@ -1974,94 +1066,59 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       registerFileSearchProvider: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "fileSearchProvider");
-        return extHostSearch.registerFileSearchProviderOld(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerFileSearchProviderOld(scheme, provider);
       }, "registerFileSearchProvider"),
       registerTextSearchProvider: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "textSearchProvider");
-        return extHostSearch.registerTextSearchProviderOld(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerTextSearchProviderOld(scheme, provider);
       }, "registerTextSearchProvider"),
       registerAITextSearchProvider: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "aiTextSearchProvider");
         checkProposedApiEnabled(extension, "textSearchProvider");
-        return extHostSearch.registerAITextSearchProviderOld(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerAITextSearchProviderOld(scheme, provider);
       }, "registerAITextSearchProvider"),
       registerFileSearchProviderNew: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "fileSearchProviderNew");
-        return extHostSearch.registerFileSearchProvider(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerFileSearchProvider(scheme, provider);
       }, "registerFileSearchProviderNew"),
       registerTextSearchProviderNew: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "textSearchProviderNew");
-        return extHostSearch.registerTextSearchProvider(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerTextSearchProvider(scheme, provider);
       }, "registerTextSearchProviderNew"),
       registerAITextSearchProviderNew: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "aiTextSearchProviderNew");
         checkProposedApiEnabled(extension, "textSearchProviderNew");
-        return extHostSearch.registerAITextSearchProvider(
-          scheme,
-          provider
-        );
+        return extHostSearch.registerAITextSearchProvider(scheme, provider);
       }, "registerAITextSearchProviderNew"),
       registerRemoteAuthorityResolver: /* @__PURE__ */ __name((authorityPrefix, resolver) => {
         checkProposedApiEnabled(extension, "resolvers");
-        return extensionService.registerRemoteAuthorityResolver(
-          authorityPrefix,
-          resolver
-        );
+        return extensionService.registerRemoteAuthorityResolver(authorityPrefix, resolver);
       }, "registerRemoteAuthorityResolver"),
       registerResourceLabelFormatter: /* @__PURE__ */ __name((formatter) => {
         checkProposedApiEnabled(extension, "resolvers");
-        return extHostLabelService.$registerResourceLabelFormatter(
-          formatter
-        );
+        return extHostLabelService.$registerResourceLabelFormatter(formatter);
       }, "registerResourceLabelFormatter"),
       getRemoteExecServer: /* @__PURE__ */ __name((authority) => {
         checkProposedApiEnabled(extension, "resolvers");
         return extensionService.getRemoteExecServer(authority);
       }, "getRemoteExecServer"),
       onDidCreateFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.onDidCreateFile
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.onDidCreateFile)(listener, thisArg, disposables);
       }, "onDidCreateFiles"),
       onDidDeleteFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.onDidDeleteFile
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.onDidDeleteFile)(listener, thisArg, disposables);
       }, "onDidDeleteFiles"),
       onDidRenameFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.onDidRenameFile
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.onDidRenameFile)(listener, thisArg, disposables);
       }, "onDidRenameFiles"),
       onWillCreateFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.getOnWillCreateFileEvent(extension)
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.getOnWillCreateFileEvent(extension))(listener, thisArg, disposables);
       }, "onWillCreateFiles"),
       onWillDeleteFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.getOnWillDeleteFileEvent(extension)
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.getOnWillDeleteFileEvent(extension))(listener, thisArg, disposables);
       }, "onWillDeleteFiles"),
       onWillRenameFiles: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
-        return _asExtensionEvent(
-          extHostFileSystemEvent.getOnWillRenameFileEvent(extension)
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostFileSystemEvent.getOnWillRenameFileEvent(extension))(listener, thisArg, disposables);
       }, "onWillRenameFiles"),
       openTunnel: /* @__PURE__ */ __name((forward) => {
         checkProposedApiEnabled(extension, "tunnels");
@@ -2078,32 +1135,19 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       onDidChangeTunnels: /* @__PURE__ */ __name((listener, thisArg, disposables) => {
         checkProposedApiEnabled(extension, "tunnels");
-        return _asExtensionEvent(
-          extHostTunnelService.onDidChangeTunnels
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostTunnelService.onDidChangeTunnels)(listener, thisArg, disposables);
       }, "onDidChangeTunnels"),
       registerPortAttributesProvider: /* @__PURE__ */ __name((portSelector, provider) => {
         checkProposedApiEnabled(extension, "portsAttributes");
-        return extHostTunnelService.registerPortsAttributesProvider(
-          portSelector,
-          provider
-        );
+        return extHostTunnelService.registerPortsAttributesProvider(portSelector, provider);
       }, "registerPortAttributesProvider"),
       registerTunnelProvider: /* @__PURE__ */ __name((tunnelProvider, information) => {
         checkProposedApiEnabled(extension, "tunnelFactory");
-        return extHostTunnelService.registerTunnelProvider(
-          tunnelProvider,
-          information
-        );
+        return extHostTunnelService.registerTunnelProvider(tunnelProvider, information);
       }, "registerTunnelProvider"),
       registerTimelineProvider: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "timeline");
-        return extHostTimeline.registerTimelineProvider(
-          scheme,
-          provider,
-          extension.identifier,
-          extHostCommands.converter
-        );
+        return extHostTimeline.registerTimelineProvider(scheme, provider, extension.identifier, extHostCommands.converter);
       }, "registerTimelineProvider"),
       get isTrusted() {
         return extHostWorkspace.trusted;
@@ -2113,45 +1157,23 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostWorkspace.requestWorkspaceTrust(options);
       }, "requestWorkspaceTrust"),
       onDidGrantWorkspaceTrust: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return _asExtensionEvent(
-          extHostWorkspace.onDidGrantWorkspaceTrust
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostWorkspace.onDidGrantWorkspaceTrust)(listener, thisArgs, disposables);
       }, "onDidGrantWorkspaceTrust"),
       registerEditSessionIdentityProvider: /* @__PURE__ */ __name((scheme, provider) => {
-        checkProposedApiEnabled(
-          extension,
-          "editSessionIdentityProvider"
-        );
-        return extHostWorkspace.registerEditSessionIdentityProvider(
-          scheme,
-          provider
-        );
+        checkProposedApiEnabled(extension, "editSessionIdentityProvider");
+        return extHostWorkspace.registerEditSessionIdentityProvider(scheme, provider);
       }, "registerEditSessionIdentityProvider"),
       onWillCreateEditSessionIdentity: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        checkProposedApiEnabled(
-          extension,
-          "editSessionIdentityProvider"
-        );
-        return _asExtensionEvent(
-          extHostWorkspace.getOnWillCreateEditSessionIdentityEvent(
-            extension
-          )
-        )(listener, thisArgs, disposables);
+        checkProposedApiEnabled(extension, "editSessionIdentityProvider");
+        return _asExtensionEvent(extHostWorkspace.getOnWillCreateEditSessionIdentityEvent(extension))(listener, thisArgs, disposables);
       }, "onWillCreateEditSessionIdentity"),
       registerCanonicalUriProvider: /* @__PURE__ */ __name((scheme, provider) => {
         checkProposedApiEnabled(extension, "canonicalUriProvider");
-        return extHostWorkspace.registerCanonicalUriProvider(
-          scheme,
-          provider
-        );
+        return extHostWorkspace.registerCanonicalUriProvider(scheme, provider);
       }, "registerCanonicalUriProvider"),
       getCanonicalUri: /* @__PURE__ */ __name((uri, options, token) => {
         checkProposedApiEnabled(extension, "canonicalUriProvider");
-        return extHostWorkspace.provideCanonicalUri(
-          uri,
-          options,
-          token
-        );
+        return extHostWorkspace.provideCanonicalUri(uri, options, token);
       }, "getCanonicalUri")
     };
     const scm = {
@@ -2164,21 +1186,12 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostSCM.getLastInputBox(extension);
       },
       createSourceControl(id, label, rootUri) {
-        return extHostSCM.createSourceControl(
-          extension,
-          id,
-          label,
-          rootUri
-        );
+        return extHostSCM.createSourceControl(extension, id, label, rootUri);
       }
     };
     const comments = {
       createCommentController(id, label) {
-        return extHostComment.createCommentController(
-          extension,
-          id,
-          label
-        );
+        return extHostComment.createCommentController(extension, id, label);
       }
     };
     const debug = {
@@ -2196,83 +1209,44 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       registerDebugVisualizationProvider(id, provider) {
         checkProposedApiEnabled(extension, "debugVisualization");
-        return extHostDebugService.registerDebugVisualizationProvider(
-          extension,
-          id,
-          provider
-        );
+        return extHostDebugService.registerDebugVisualizationProvider(extension, id, provider);
       },
       registerDebugVisualizationTreeProvider(id, provider) {
         checkProposedApiEnabled(extension, "debugVisualization");
-        return extHostDebugService.registerDebugVisualizationTree(
-          extension,
-          id,
-          provider
-        );
+        return extHostDebugService.registerDebugVisualizationTree(extension, id, provider);
       },
       onDidStartDebugSession(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidStartDebugSession
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidStartDebugSession)(listener, thisArg, disposables);
       },
       onDidTerminateDebugSession(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidTerminateDebugSession
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidTerminateDebugSession)(listener, thisArg, disposables);
       },
       onDidChangeActiveDebugSession(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidChangeActiveDebugSession
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidChangeActiveDebugSession)(listener, thisArg, disposables);
       },
       onDidReceiveDebugSessionCustomEvent(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidReceiveDebugSessionCustomEvent
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidReceiveDebugSessionCustomEvent)(listener, thisArg, disposables);
       },
       onDidChangeBreakpoints(listener, thisArgs, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidChangeBreakpoints
-        )(listener, thisArgs, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidChangeBreakpoints)(listener, thisArgs, disposables);
       },
       onDidChangeActiveStackItem(listener, thisArg, disposables) {
-        return _asExtensionEvent(
-          extHostDebugService.onDidChangeActiveStackItem
-        )(listener, thisArg, disposables);
+        return _asExtensionEvent(extHostDebugService.onDidChangeActiveStackItem)(listener, thisArg, disposables);
       },
       registerDebugConfigurationProvider(debugType, provider, triggerKind) {
-        return extHostDebugService.registerDebugConfigurationProvider(
-          debugType,
-          provider,
-          triggerKind || DebugConfigurationProviderTriggerKind.Initial
-        );
+        return extHostDebugService.registerDebugConfigurationProvider(debugType, provider, triggerKind || DebugConfigurationProviderTriggerKind.Initial);
       },
       registerDebugAdapterDescriptorFactory(debugType, factory) {
-        return extHostDebugService.registerDebugAdapterDescriptorFactory(
-          extension,
-          debugType,
-          factory
-        );
+        return extHostDebugService.registerDebugAdapterDescriptorFactory(extension, debugType, factory);
       },
       registerDebugAdapterTrackerFactory(debugType, factory) {
-        return extHostDebugService.registerDebugAdapterTrackerFactory(
-          debugType,
-          factory
-        );
+        return extHostDebugService.registerDebugAdapterTrackerFactory(debugType, factory);
       },
       startDebugging(folder, nameOrConfig, parentSessionOrOptions) {
         if (!parentSessionOrOptions || typeof parentSessionOrOptions === "object" && "configuration" in parentSessionOrOptions) {
-          return extHostDebugService.startDebugging(
-            folder,
-            nameOrConfig,
-            { parentSession: parentSessionOrOptions }
-          );
+          return extHostDebugService.startDebugging(folder, nameOrConfig, { parentSession: parentSessionOrOptions });
         }
-        return extHostDebugService.startDebugging(
-          folder,
-          nameOrConfig,
-          parentSessionOrOptions || {}
-        );
+        return extHostDebugService.startDebugging(folder, nameOrConfig, parentSessionOrOptions || {});
       },
       stopDebugging(session) {
         return extHostDebugService.stopDebugging(session);
@@ -2289,11 +1263,7 @@ function createApiFactoryAndRegisterActors(accessor) {
     };
     const tasks = {
       registerTaskProvider: /* @__PURE__ */ __name((type, provider) => {
-        return extHostTask.registerTaskProvider(
-          extension,
-          type,
-          provider
-        );
+        return extHostTask.registerTaskProvider(extension, type, provider);
       }, "registerTaskProvider"),
       fetchTasks: /* @__PURE__ */ __name((filter) => {
         return extHostTask.fetchTasks(filter);
@@ -2305,81 +1275,39 @@ function createApiFactoryAndRegisterActors(accessor) {
         return extHostTask.taskExecutions;
       },
       onDidStartTask: /* @__PURE__ */ __name((listeners, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostTask.onDidStartTask)(
-          listeners,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostTask.onDidStartTask)(listeners, thisArgs, disposables);
       }, "onDidStartTask"),
       onDidEndTask: /* @__PURE__ */ __name((listeners, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostTask.onDidEndTask)(
-          listeners,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostTask.onDidEndTask)(listeners, thisArgs, disposables);
       }, "onDidEndTask"),
       onDidStartTaskProcess: /* @__PURE__ */ __name((listeners, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostTask.onDidStartTaskProcess)(
-          listeners,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostTask.onDidStartTaskProcess)(listeners, thisArgs, disposables);
       }, "onDidStartTaskProcess"),
       onDidEndTaskProcess: /* @__PURE__ */ __name((listeners, thisArgs, disposables) => {
-        return _asExtensionEvent(extHostTask.onDidEndTaskProcess)(
-          listeners,
-          thisArgs,
-          disposables
-        );
+        return _asExtensionEvent(extHostTask.onDidEndTaskProcess)(listeners, thisArgs, disposables);
       }, "onDidEndTaskProcess")
     };
     const notebooks = {
       createNotebookController(id, notebookType, label, handler, rendererScripts) {
-        return extHostNotebookKernels.createNotebookController(
-          extension,
-          id,
-          notebookType,
-          label,
-          handler,
-          isProposedApiEnabled(extension, "notebookMessaging") ? rendererScripts : void 0
-        );
+        return extHostNotebookKernels.createNotebookController(extension, id, notebookType, label, handler, isProposedApiEnabled(extension, "notebookMessaging") ? rendererScripts : void 0);
       },
       registerNotebookCellStatusBarItemProvider: /* @__PURE__ */ __name((notebookType, provider) => {
-        return extHostNotebook.registerNotebookCellStatusBarItemProvider(
-          extension,
-          notebookType,
-          provider
-        );
+        return extHostNotebook.registerNotebookCellStatusBarItemProvider(extension, notebookType, provider);
       }, "registerNotebookCellStatusBarItemProvider"),
       createRendererMessaging(rendererId) {
-        return extHostNotebookRenderers.createRendererMessaging(
-          extension,
-          rendererId
-        );
+        return extHostNotebookRenderers.createRendererMessaging(extension, rendererId);
       },
       createNotebookControllerDetectionTask(notebookType) {
         checkProposedApiEnabled(extension, "notebookKernelSource");
-        return extHostNotebookKernels.createNotebookControllerDetectionTask(
-          extension,
-          notebookType
-        );
+        return extHostNotebookKernels.createNotebookControllerDetectionTask(extension, notebookType);
       },
       registerKernelSourceActionProvider(notebookType, provider) {
         checkProposedApiEnabled(extension, "notebookKernelSource");
-        return extHostNotebookKernels.registerKernelSourceActionProvider(
-          extension,
-          notebookType,
-          provider
-        );
+        return extHostNotebookKernels.registerKernelSourceActionProvider(extension, notebookType, provider);
       },
       onDidChangeNotebookCellExecutionState(listener, thisArgs, disposables) {
-        checkProposedApiEnabled(
-          extension,
-          "notebookCellExecutionState"
-        );
-        return _asExtensionEvent(
-          extHostNotebookKernels.onDidChangeNotebookCellExecutionState
-        )(listener, thisArgs, disposables);
+        checkProposedApiEnabled(extension, "notebookCellExecutionState");
+        return _asExtensionEvent(extHostNotebookKernels.onDidChangeNotebookCellExecutionState)(listener, thisArgs, disposables);
       }
     };
     const l10n = {
@@ -2387,28 +1315,15 @@ function createApiFactoryAndRegisterActors(accessor) {
         if (typeof params[0] === "string") {
           const key = params.shift();
           const argsFormatted = !params || typeof params[0] !== "object" ? params : params[0];
-          return extHostLocalization.getMessage(
-            extension.identifier.value,
-            {
-              message: key,
-              args: argsFormatted
-            }
-          );
+          return extHostLocalization.getMessage(extension.identifier.value, { message: key, args: argsFormatted });
         }
-        return extHostLocalization.getMessage(
-          extension.identifier.value,
-          params[0]
-        );
+        return extHostLocalization.getMessage(extension.identifier.value, params[0]);
       },
       get bundle() {
-        return extHostLocalization.getBundle(
-          extension.identifier.value
-        );
+        return extHostLocalization.getBundle(extension.identifier.value);
       },
       get uri() {
-        return extHostLocalization.getBundleUri(
-          extension.identifier.value
-        );
+        return extHostLocalization.getBundleUri(extension.identifier.value);
       }
     };
     const interactive = {
@@ -2420,106 +1335,52 @@ function createApiFactoryAndRegisterActors(accessor) {
     const ai = {
       getRelatedInformation(query, types) {
         checkProposedApiEnabled(extension, "aiRelatedInformation");
-        return extHostAiRelatedInformation.getRelatedInformation(
-          extension,
-          query,
-          types
-        );
+        return extHostAiRelatedInformation.getRelatedInformation(extension, query, types);
       },
       registerRelatedInformationProvider(type, provider) {
         checkProposedApiEnabled(extension, "aiRelatedInformation");
-        return extHostAiRelatedInformation.registerRelatedInformationProvider(
-          extension,
-          type,
-          provider
-        );
+        return extHostAiRelatedInformation.registerRelatedInformationProvider(extension, type, provider);
       },
       registerEmbeddingVectorProvider(model, provider) {
         checkProposedApiEnabled(extension, "aiRelatedInformation");
-        return extHostAiEmbeddingVector.registerEmbeddingVectorProvider(
-          extension,
-          model,
-          provider
-        );
+        return extHostAiEmbeddingVector.registerEmbeddingVectorProvider(extension, model, provider);
       }
     };
     const chat = {
       registerChatResponseProvider(id, provider, metadata) {
         checkProposedApiEnabled(extension, "chatProvider");
-        return extHostLanguageModels.registerLanguageModel(
-          extension,
-          id,
-          provider,
-          metadata
-        );
+        return extHostLanguageModels.registerLanguageModel(extension, id, provider, metadata);
       },
       registerChatVariableResolver(id, name, userDescription, modelDescription, isSlow, resolver, fullName, icon) {
         checkProposedApiEnabled(extension, "chatVariableResolver");
-        return extHostChatVariables.registerVariableResolver(
-          extension,
-          id,
-          name,
-          userDescription,
-          modelDescription,
-          isSlow,
-          resolver,
-          fullName,
-          icon?.id
-        );
+        return extHostChatVariables.registerVariableResolver(extension, id, name, userDescription, modelDescription, isSlow, resolver, fullName, icon?.id);
       },
       registerMappedEditsProvider(selector, provider) {
         checkProposedApiEnabled(extension, "mappedEditsProvider");
-        return extHostLanguageFeatures.registerMappedEditsProvider(
-          extension,
-          selector,
-          provider
-        );
+        return extHostLanguageFeatures.registerMappedEditsProvider(extension, selector, provider);
       },
       createChatParticipant(id, handler) {
-        return extHostChatAgents2.createChatAgent(
-          extension,
-          id,
-          handler
-        );
+        return extHostChatAgents2.createChatAgent(extension, id, handler);
       },
       createDynamicChatParticipant(id, dynamicProps, handler) {
         checkProposedApiEnabled(extension, "chatParticipantPrivate");
-        return extHostChatAgents2.createDynamicChatAgent(
-          extension,
-          id,
-          dynamicProps,
-          handler
-        );
+        return extHostChatAgents2.createDynamicChatAgent(extension, id, dynamicProps, handler);
       },
       registerChatParticipantDetectionProvider(provider) {
         checkProposedApiEnabled(extension, "chatParticipantAdditions");
-        return extHostChatAgents2.registerChatParticipantDetectionProvider(
-          provider
-        );
+        return extHostChatAgents2.registerChatParticipantDetectionProvider(provider);
       }
     };
     const lm = {
       selectChatModels: /* @__PURE__ */ __name((selector) => {
-        return extHostLanguageModels.selectLanguageModels(
-          extension,
-          selector ?? {}
-        );
+        return extHostLanguageModels.selectLanguageModels(extension, selector ?? {});
       }, "selectChatModels"),
       onDidChangeChatModels: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
-        return extHostLanguageModels.onDidChangeProviders(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return extHostLanguageModels.onDidChangeProviders(listener, thisArgs, disposables);
       }, "onDidChangeChatModels"),
       registerChatModelProvider: /* @__PURE__ */ __name((id, provider, metadata) => {
         checkProposedApiEnabled(extension, "chatProvider");
-        return extHostLanguageModels.registerLanguageModel(
-          extension,
-          id,
-          provider,
-          metadata
-        );
+        return extHostLanguageModels.registerLanguageModel(extension, id, provider, metadata);
       }, "registerChatModelProvider"),
       // --- embeddings
       get embeddingModels() {
@@ -2528,51 +1389,27 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       onDidChangeEmbeddingModels: /* @__PURE__ */ __name((listener, thisArgs, disposables) => {
         checkProposedApiEnabled(extension, "embeddings");
-        return extHostEmbeddings.onDidChange(
-          listener,
-          thisArgs,
-          disposables
-        );
+        return extHostEmbeddings.onDidChange(listener, thisArgs, disposables);
       }, "onDidChangeEmbeddingModels"),
       registerEmbeddingsProvider(embeddingsModel, provider) {
         checkProposedApiEnabled(extension, "embeddings");
-        return extHostEmbeddings.registerEmbeddingsProvider(
-          extension,
-          embeddingsModel,
-          provider
-        );
+        return extHostEmbeddings.registerEmbeddingsProvider(extension, embeddingsModel, provider);
       },
       async computeEmbeddings(embeddingsModel, input, token) {
         checkProposedApiEnabled(extension, "embeddings");
         if (typeof input === "string") {
-          return extHostEmbeddings.computeEmbeddings(
-            embeddingsModel,
-            input,
-            token
-          );
+          return extHostEmbeddings.computeEmbeddings(embeddingsModel, input, token);
         } else {
-          return extHostEmbeddings.computeEmbeddings(
-            embeddingsModel,
-            input,
-            token
-          );
+          return extHostEmbeddings.computeEmbeddings(embeddingsModel, input, token);
         }
       },
       registerTool(toolId, tool) {
         checkProposedApiEnabled(extension, "lmTools");
-        return extHostLanguageModelTools.registerTool(
-          extension,
-          toolId,
-          tool
-        );
+        return extHostLanguageModelTools.registerTool(extension, toolId, tool);
       },
       invokeTool(toolId, parameters, token) {
         checkProposedApiEnabled(extension, "lmTools");
-        return extHostLanguageModelTools.invokeTool(
-          toolId,
-          parameters,
-          token
-        );
+        return extHostLanguageModelTools.invokeTool(toolId, parameters, token);
       },
       get tools() {
         checkProposedApiEnabled(extension, "lmTools");
@@ -2582,11 +1419,7 @@ function createApiFactoryAndRegisterActors(accessor) {
     const speech = {
       registerSpeechProvider(id, provider) {
         checkProposedApiEnabled(extension, "speech");
-        return extHostSpeech.registerProvider(
-          extension.identifier,
-          id,
-          provider
-        );
+        return extHostSpeech.registerProvider(extension.identifier, id, provider);
       }
     };
     return {

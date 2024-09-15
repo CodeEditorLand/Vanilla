@@ -11,82 +11,51 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/editortabscontrol.css";
-import { isFirefox } from "../../../../base/browser/browser.js";
-import { DataTransfers, applyDragImage } from "../../../../base/browser/dnd.js";
-import {
-  getActiveWindow,
-  getWindow,
-  isMouseEvent
-} from "../../../../base/browser/dom.js";
-import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import {
-  ActionsOrientation,
-  prepareActions
-} from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { ActionRunner } from "../../../../base/common/actions.js";
-import { isCancellationError } from "../../../../base/common/errors.js";
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import {
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { isMacintosh } from "../../../../base/common/platform.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
+import { applyDragImage, DataTransfers } from "../../../../base/browser/dnd.js";
+import { Dimension, getActiveWindow, getWindow, isMouseEvent } from "../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { ActionsOrientation, IActionViewItem, prepareActions } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IAction, ActionRunner } from "../../../../base/common/actions.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
 import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
 import { MenuId } from "../../../../platform/actions/common/actions.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextKeyService, IContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { LocalSelectionTransfer } from "../../../../platform/dnd/browser/dnd.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import {
-  listActiveSelectionBackground,
-  listActiveSelectionForeground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService,
-  Themable
-} from "../../../../platform/theme/common/themeService.js";
-import {
-  ActiveEditorAvailableEditorIdsContext,
-  ActiveEditorCanSplitInGroupContext,
-  ActiveEditorFirstInGroupContext,
-  ActiveEditorGroupLockedContext,
-  ActiveEditorLastInGroupContext,
-  ActiveEditorPinnedContext,
-  ActiveEditorStickyContext,
-  ResourceContextKey,
-  SideBySideEditorActiveContext,
-  applyAvailableEditorIds
-} from "../../../common/contextkeys.js";
-import {
-  EditorInputCapabilities,
-  EditorResourceAccessor,
-  EditorsOrder,
-  SideBySideEditor,
-  Verbosity
-} from "../../../common/editor.js";
-import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
-import {
-  MergeGroupMode
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import {
-  DraggedEditorGroupIdentifier,
-  fillEditorsDragData,
-  isWindowDraggedOver
-} from "../../dnd.js";
-import { EDITOR_CORE_NAVIGATION_COMMANDS } from "./editorCommands.js";
+import { listActiveSelectionBackground, listActiveSelectionForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { DraggedEditorGroupIdentifier, DraggedEditorIdentifier, fillEditorsDragData, isWindowDraggedOver } from "../../dnd.js";
 import { EditorPane } from "./editorPane.js";
+import { IEditorGroupsView, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
+import { IEditorCommandsContext, EditorResourceAccessor, IEditorPartOptions, SideBySideEditor, EditorsOrder, EditorInputCapabilities, IToolbarActions, GroupIdentifier, Verbosity } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ResourceContextKey, ActiveEditorPinnedContext, ActiveEditorStickyContext, ActiveEditorGroupLockedContext, ActiveEditorCanSplitInGroupContext, SideBySideEditorActiveContext, ActiveEditorFirstInGroupContext, ActiveEditorAvailableEditorIdsContext, applyAvailableEditorIds, ActiveEditorLastInGroupContext } from "../../../common/contextkeys.js";
+import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { isFirefox } from "../../../../base/browser/browser.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { LocalSelectionTransfer } from "../../../../platform/dnd/browser/dnd.js";
+import { DraggedTreeItemsIdentifier } from "../../../../editor/common/services/treeViewsDnd.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
+import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { EDITOR_CORE_NAVIGATION_COMMANDS } from "./editorCommands.js";
+import { IAuxiliaryEditorPart, MergeGroupMode } from "../../../services/editor/common/editorGroupsService.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IManagedHoverTooltipMarkdownString } from "../../../../base/browser/ui/hover/hover.js";
 class EditorCommandsContextActionRunner extends ActionRunner {
   constructor(context) {
     super();
@@ -151,12 +120,8 @@ let EditorTabsControl = class extends Themable {
   };
   editorActionsToolbarContainer;
   editorActionsToolbar;
-  editorActionsToolbarDisposables = this._register(
-    new DisposableStore()
-  );
-  editorActionsDisposables = this._register(
-    new DisposableStore()
-  );
+  editorActionsToolbarDisposables = this._register(new DisposableStore());
+  editorActionsDisposables = this._register(new DisposableStore());
   contextMenuContextKeyService;
   resourceContext;
   editorPinnedContext;
@@ -179,9 +144,7 @@ let EditorTabsControl = class extends Themable {
     this.editorActionsToolbarContainer = document.createElement("div");
     this.editorActionsToolbarContainer.classList.add(...classes);
     parent.appendChild(this.editorActionsToolbarContainer);
-    this.handleEditorActionToolBarVisibility(
-      this.editorActionsToolbarContainer
-    );
+    this.handleEditorActionToolBarVisibility(this.editorActionsToolbarContainer);
   }
   handleEditorActionToolBarVisibility(container) {
     const editorActionsEnabled = this.editorActionsEnabled;
@@ -198,41 +161,25 @@ let EditorTabsControl = class extends Themable {
   }
   doCreateEditorActionsToolBar(container) {
     const context = { groupId: this.groupView.id };
-    this.editorActionsToolbar = this.editorActionsToolbarDisposables.add(
-      this.instantiationService.createInstance(
-        WorkbenchToolBar,
-        container,
-        {
-          actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
-          orientation: ActionsOrientation.HORIZONTAL,
-          ariaLabel: localize(
-            "ariaLabelEditorActions",
-            "Editor actions"
-          ),
-          getKeyBinding: /* @__PURE__ */ __name((action) => this.getKeybinding(action), "getKeyBinding"),
-          actionRunner: this.editorActionsToolbarDisposables.add(
-            new EditorCommandsContextActionRunner(context)
-          ),
-          anchorAlignmentProvider: /* @__PURE__ */ __name(() => AnchorAlignment.RIGHT, "anchorAlignmentProvider"),
-          renderDropdownAsChildElement: this.renderDropdownAsChildElement,
-          telemetrySource: "editorPart",
-          resetMenu: MenuId.EditorTitle,
-          overflowBehavior: {
-            maxItems: 9,
-            exempted: EDITOR_CORE_NAVIGATION_COMMANDS
-          },
-          highlightToggledItems: true
-        }
-      )
-    );
+    this.editorActionsToolbar = this.editorActionsToolbarDisposables.add(this.instantiationService.createInstance(WorkbenchToolBar, container, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
+      orientation: ActionsOrientation.HORIZONTAL,
+      ariaLabel: localize("ariaLabelEditorActions", "Editor actions"),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.getKeybinding(action), "getKeyBinding"),
+      actionRunner: this.editorActionsToolbarDisposables.add(new EditorCommandsContextActionRunner(context)),
+      anchorAlignmentProvider: /* @__PURE__ */ __name(() => AnchorAlignment.RIGHT, "anchorAlignmentProvider"),
+      renderDropdownAsChildElement: this.renderDropdownAsChildElement,
+      telemetrySource: "editorPart",
+      resetMenu: MenuId.EditorTitle,
+      overflowBehavior: { maxItems: 9, exempted: EDITOR_CORE_NAVIGATION_COMMANDS },
+      highlightToggledItems: true
+    }));
     this.editorActionsToolbar.context = context;
-    this.editorActionsToolbarDisposables.add(
-      this.editorActionsToolbar.actionRunner.onDidRun((e) => {
-        if (e.error && !isCancellationError(e.error)) {
-          this.notificationService.error(e.error);
-        }
-      })
-    );
+    this.editorActionsToolbarDisposables.add(this.editorActionsToolbar.actionRunner.onDidRun((e) => {
+      if (e.error && !isCancellationError(e.error)) {
+        this.notificationService.error(e.error);
+      }
+    }));
   }
   actionViewItemProvider(action, options) {
     const activeEditorPane = this.groupView.activeEditorPane;
@@ -242,30 +189,18 @@ let EditorTabsControl = class extends Themable {
         return result;
       }
     }
-    return createActionViewItem(this.instantiationService, action, {
-      ...options,
-      menuAsChild: this.renderDropdownAsChildElement
-    });
+    return createActionViewItem(this.instantiationService, action, { ...options, menuAsChild: this.renderDropdownAsChildElement });
   }
   updateEditorActionsToolbar() {
     if (!this.editorActionsEnabled) {
       return;
     }
     this.editorActionsDisposables.clear();
-    const editorActions = this.groupView.createEditorActions(
-      this.editorActionsDisposables
-    );
-    this.editorActionsDisposables.add(
-      editorActions.onDidChange(() => this.updateEditorActionsToolbar())
-    );
+    const editorActions = this.groupView.createEditorActions(this.editorActionsDisposables);
+    this.editorActionsDisposables.add(editorActions.onDidChange(() => this.updateEditorActionsToolbar()));
     const editorActionsToolbar = assertIsDefined(this.editorActionsToolbar);
-    const { primary, secondary } = this.prepareEditorActions(
-      editorActions.actions
-    );
-    editorActionsToolbar.setActions(
-      prepareActions(primary),
-      prepareActions(secondary)
-    );
+    const { primary, secondary } = this.prepareEditorActions(editorActions.actions);
+    editorActionsToolbar.setActions(prepareActions(primary), prepareActions(secondary));
   }
   getEditorPaneAwareContextKeyService() {
     return this.groupView.activeEditorPane?.scopedContextKeyService ?? this.contextKeyService;
@@ -282,50 +217,27 @@ let EditorTabsControl = class extends Themable {
       return false;
     }
     const isNewWindowOperation = this.isNewWindowOperation(e);
-    this.groupTransfer.setData(
-      [new DraggedEditorGroupIdentifier(this.groupView.id)],
-      DraggedEditorGroupIdentifier.prototype
-    );
+    this.groupTransfer.setData([new DraggedEditorGroupIdentifier(this.groupView.id)], DraggedEditorGroupIdentifier.prototype);
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = "copyMove";
     }
     let hasDataTransfer = false;
     if (this.groupsView.partOptions.showTabs === "multiple") {
-      hasDataTransfer = this.doFillResourceDataTransfers(
-        this.groupView.getEditors(EditorsOrder.SEQUENTIAL),
-        e,
-        isNewWindowOperation
-      );
-    } else if (this.groupView.activeEditor) {
-      hasDataTransfer = this.doFillResourceDataTransfers(
-        [this.groupView.activeEditor],
-        e,
-        isNewWindowOperation
-      );
+      hasDataTransfer = this.doFillResourceDataTransfers(this.groupView.getEditors(EditorsOrder.SEQUENTIAL), e, isNewWindowOperation);
+    } else {
+      if (this.groupView.activeEditor) {
+        hasDataTransfer = this.doFillResourceDataTransfers([this.groupView.activeEditor], e, isNewWindowOperation);
+      }
     }
     if (!hasDataTransfer && isFirefox) {
-      e.dataTransfer?.setData(
-        DataTransfers.TEXT,
-        String(this.groupView.label)
-      );
+      e.dataTransfer?.setData(DataTransfers.TEXT, String(this.groupView.label));
     }
     if (this.groupView.activeEditor) {
       let label = this.groupView.activeEditor.getName();
       if (this.groupsView.partOptions.showTabs === "multiple" && this.groupView.count > 1) {
-        label = localize(
-          "draggedEditorGroup",
-          "{0} (+{1})",
-          label,
-          this.groupView.count - 1
-        );
+        label = localize("draggedEditorGroup", "{0} (+{1})", label, this.groupView.count - 1);
       }
-      applyDragImage(
-        e,
-        label,
-        "monaco-editor-group-drag-image",
-        this.getColor(listActiveSelectionBackground),
-        this.getColor(listActiveSelectionForeground)
-      );
+      applyDragImage(e, label, "monaco-editor-group-drag-image", this.getColor(listActiveSelectionBackground), this.getColor(listActiveSelectionForeground));
     }
     return isNewWindowOperation;
   }
@@ -334,10 +246,7 @@ let EditorTabsControl = class extends Themable {
     if (e.target !== element || !isNewWindowOperation || isWindowDraggedOver()) {
       return;
     }
-    const auxiliaryEditorPart = await this.maybeCreateAuxiliaryEditorPartAt(
-      e,
-      element
-    );
+    const auxiliaryEditorPart = await this.maybeCreateAuxiliaryEditorPartAt(e, element);
     if (!auxiliaryEditorPart) {
       return;
     }
@@ -348,9 +257,7 @@ let EditorTabsControl = class extends Themable {
     targetGroup.focus();
   }
   async maybeCreateAuxiliaryEditorPartAt(e, offsetElement) {
-    const { point, display } = await this.hostService.getCursorScreenPoint() ?? {
-      point: { x: e.screenX, y: e.screenY }
-    };
+    const { point, display } = await this.hostService.getCursorScreenPoint() ?? { point: { x: e.screenX, y: e.screenY } };
     const window = getActiveWindow();
     if (window.document.visibilityState === "visible" && window.document.hasFocus()) {
       if (point.x >= window.screenX && point.x <= window.screenX + window.outerWidth && point.y >= window.screenY && point.y <= window.screenY + window.outerHeight) {
@@ -388,41 +295,21 @@ let EditorTabsControl = class extends Themable {
   }
   doFillResourceDataTransfers(editors, e, disableStandardTransfer) {
     if (editors.length) {
-      this.instantiationService.invokeFunction(
-        fillEditorsDragData,
-        editors.map((editor) => ({
-          editor,
-          groupId: this.groupView.id
-        })),
-        e,
-        { disableStandardTransfer }
-      );
+      this.instantiationService.invokeFunction(fillEditorsDragData, editors.map((editor) => ({ editor, groupId: this.groupView.id })), e, { disableStandardTransfer });
       return true;
     }
     return false;
   }
   onTabContextMenu(editor, e, node) {
-    this.resourceContext.set(
-      EditorResourceAccessor.getOriginalUri(editor, {
-        supportSideBySide: SideBySideEditor.PRIMARY
-      })
-    );
+    this.resourceContext.set(EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY }));
     this.editorPinnedContext.set(this.tabsModel.isPinned(editor));
     this.editorIsFirstContext.set(this.tabsModel.isFirst(editor));
     this.editorIsLastContext.set(this.tabsModel.isLast(editor));
     this.editorStickyContext.set(this.tabsModel.isSticky(editor));
     this.groupLockedContext.set(this.tabsModel.isLocked);
-    this.editorCanSplitInGroupContext.set(
-      editor.hasCapability(EditorInputCapabilities.CanSplitInGroup)
-    );
-    this.sideBySideEditorContext.set(
-      editor.typeId === SideBySideEditorInput.ID
-    );
-    applyAvailableEditorIds(
-      this.editorAvailableEditorIds,
-      editor,
-      this.editorResolverService
-    );
+    this.editorCanSplitInGroupContext.set(editor.hasCapability(EditorInputCapabilities.CanSplitInGroup));
+    this.sideBySideEditorContext.set(editor.typeId === SideBySideEditorInput.ID);
+    applyAvailableEditorIds(this.editorAvailableEditorIds, editor, this.editorResolverService);
     let anchor = node;
     if (isMouseEvent(e)) {
       anchor = new StandardMouseEvent(getWindow(node), e);
@@ -430,28 +317,16 @@ let EditorTabsControl = class extends Themable {
     this.contextMenuService.showContextMenu({
       getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
       menuId: MenuId.EditorTitleContext,
-      menuActionOptions: {
-        shouldForwardArgs: true,
-        arg: this.resourceContext.get()
-      },
+      menuActionOptions: { shouldForwardArgs: true, arg: this.resourceContext.get() },
       contextKeyService: this.contextMenuContextKeyService,
-      getActionsContext: /* @__PURE__ */ __name(() => ({
-        groupId: this.groupView.id,
-        editorIndex: this.groupView.getIndexOfEditor(editor)
-      }), "getActionsContext"),
-      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(
-        action.id,
-        this.contextMenuContextKeyService
-      ), "getKeyBinding"),
+      getActionsContext: /* @__PURE__ */ __name(() => ({ groupId: this.groupView.id, editorIndex: this.groupView.getIndexOfEditor(editor) }), "getActionsContext"),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id, this.contextMenuContextKeyService), "getKeyBinding"),
       onHide: /* @__PURE__ */ __name(() => this.groupsView.activeGroup.focus(), "onHide")
       // restore focus to active group
     });
   }
   getKeybinding(action) {
-    return this.keybindingService.lookupKeybinding(
-      action.id,
-      this.getEditorPaneAwareContextKeyService()
-    );
+    return this.keybindingService.lookupKeybinding(action.id, this.getEditorPaneAwareContextKeyService());
   }
   getKeybindingLabel(action) {
     const keybinding = this.getKeybinding(action);
@@ -464,12 +339,7 @@ let EditorTabsControl = class extends Themable {
     const title = editor.getTitle(Verbosity.LONG);
     if (!this.tabsModel.isPinned(editor)) {
       return {
-        markdown: new MarkdownString("", {
-          supportThemeIcons: true,
-          isTrusted: true
-        }).appendText(title).appendMarkdown(
-          ' (_preview_ [$(gear)](command:workbench.action.openSettings?%5B%22workbench.editor.enablePreview%22%5D "Configure Preview Mode"))'
-        ),
+        markdown: new MarkdownString("", { supportThemeIcons: true, isTrusted: true }).appendText(title).appendMarkdown(' (_preview_ [$(gear)](command:workbench.action.openSettings?%5B%22workbench.editor.enablePreview%22%5D "Configure Preview Mode"))'),
         markdownNotSupportedFallback: title + " (preview)"
       };
     }
@@ -479,10 +349,7 @@ let EditorTabsControl = class extends Themable {
     return this.tabsHoverDelegate;
   }
   updateTabHeight() {
-    this.parent.style.setProperty(
-      "--editor-group-tab-height",
-      `${this.tabHeight}px`
-    );
+    this.parent.style.setProperty("--editor-group-tab-height", `${this.tabHeight}px`);
   }
   updateOptions(oldOptions, newOptions) {
     if (oldOptions.tabHeight !== newOptions.tabHeight) {
@@ -490,9 +357,7 @@ let EditorTabsControl = class extends Themable {
     }
     if (oldOptions.editorActionsLocation !== newOptions.editorActionsLocation || oldOptions.showTabs !== newOptions.showTabs) {
       if (this.editorActionsToolbarContainer) {
-        this.handleEditorActionToolBarVisibility(
-          this.editorActionsToolbarContainer
-        );
+        this.handleEditorActionToolBarVisibility(this.editorActionsToolbarContainer);
         this.updateEditorActionsToolbar();
       }
     }

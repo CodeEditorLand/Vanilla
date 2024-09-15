@@ -10,88 +10,46 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Promises } from "../../../../base/common/async.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { localize } from "../../../../nls.js";
-import {
-  IDialogService,
-  IFileDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  IFileService
-} from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IDecorationsService } from "../../decorations/common/decorations.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
-import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
-import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
-import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { IUntitledTextEditorService } from "../../untitled/common/untitledTextEditorService.js";
-import { IWorkingCopyFileService } from "../../workingCopy/common/workingCopyFileService.js";
 import { AbstractTextFileService } from "../browser/textFileService.js";
-import {
-  ITextFileService,
-  TextFileEditorModelState
-} from "../common/textfiles.js";
+import { ITextFileService, ITextFileStreamContent, ITextFileContent, IReadTextFileOptions, TextFileEditorModelState, ITextFileEditorModel } from "../common/textfiles.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService, IFileReadLimits } from "../../../../platform/files/common/files.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IUntitledTextEditorService } from "../../untitled/common/untitledTextEditorService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IDialogService, IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IWorkingCopyFileService } from "../../workingCopy/common/workingCopyFileService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Promises } from "../../../../base/common/async.js";
+import { IDecorationsService } from "../../decorations/common/decorations.js";
 let NativeTextFileService = class extends AbstractTextFileService {
   static {
     __name(this, "NativeTextFileService");
   }
   environmentService;
   constructor(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, elevatedFileService, logService, decorationsService) {
-    super(
-      fileService,
-      untitledTextEditorService,
-      lifecycleService,
-      instantiationService,
-      modelService,
-      environmentService,
-      dialogService,
-      fileDialogService,
-      textResourceConfigurationService,
-      filesConfigurationService,
-      codeEditorService,
-      pathService,
-      workingCopyFileService,
-      uriIdentityService,
-      languageService,
-      logService,
-      elevatedFileService,
-      decorationsService
-    );
+    super(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService);
     this.environmentService = environmentService;
     this.registerListeners();
   }
   registerListeners() {
-    this._register(
-      this.lifecycleService.onWillShutdown(
-        (event) => event.join(this.onWillShutdown(), {
-          id: "join.textFiles",
-          label: localize("join.textFiles", "Saving text files")
-        })
-      )
-    );
+    this._register(this.lifecycleService.onWillShutdown((event) => event.join(this.onWillShutdown(), { id: "join.textFiles", label: localize("join.textFiles", "Saving text files") })));
   }
   async onWillShutdown() {
     let modelsPendingToSave;
-    while ((modelsPendingToSave = this.files.models.filter(
-      (model) => model.hasState(TextFileEditorModelState.PENDING_SAVE)
-    )).length > 0) {
-      await Promises.settled(
-        modelsPendingToSave.map(
-          (model) => model.joinState(TextFileEditorModelState.PENDING_SAVE)
-        )
-      );
+    while ((modelsPendingToSave = this.files.models.filter((model) => model.hasState(TextFileEditorModelState.PENDING_SAVE))).length > 0) {
+      await Promises.settled(modelsPendingToSave.map((model) => model.joinState(TextFileEditorModelState.PENDING_SAVE)));
     }
   }
   async read(resource, options) {
@@ -104,20 +62,20 @@ let NativeTextFileService = class extends AbstractTextFileService {
   }
   ensureLimits(options) {
     let ensuredOptions;
-    if (options) {
-      ensuredOptions = options;
-    } else {
+    if (!options) {
       ensuredOptions = /* @__PURE__ */ Object.create(null);
+    } else {
+      ensuredOptions = options;
     }
     let ensuredLimits;
-    if (ensuredOptions.limits) {
-      ensuredLimits = ensuredOptions.limits;
-    } else {
+    if (!ensuredOptions.limits) {
       ensuredLimits = /* @__PURE__ */ Object.create(null);
       ensuredOptions = {
         ...ensuredOptions,
         limits: ensuredLimits
       };
+    } else {
+      ensuredLimits = ensuredOptions.limits;
     }
     return ensuredOptions;
   }
@@ -142,11 +100,7 @@ NativeTextFileService = __decorateClass([
   __decorateParam(16, ILogService),
   __decorateParam(17, IDecorationsService)
 ], NativeTextFileService);
-registerSingleton(
-  ITextFileService,
-  NativeTextFileService,
-  InstantiationType.Eager
-);
+registerSingleton(ITextFileService, NativeTextFileService, InstantiationType.Eager);
 export {
   NativeTextFileService
 };

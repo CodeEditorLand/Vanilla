@@ -1,9 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { Event } from "../../../../base/common/event.js";
+import { IMatch } from "../../../../base/common/filters.js";
+import { IJSONSchema, IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { ConfigurationDefaultValueSource, ConfigurationScope, EditPresentationTypes, IExtensionInfo } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  DEFAULT_EDITOR_ASSOCIATION
-} from "../../../common/editor.js";
+import { ResolvedKeybindingItem } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
+import { DEFAULT_EDITOR_ASSOCIATION, IEditorPane } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { Settings2EditorModel } from "./preferencesModels.js";
 var SettingValueType = /* @__PURE__ */ ((SettingValueType2) => {
   SettingValueType2["Null"] = "null";
   SettingValueType2["Enum"] = "enum";

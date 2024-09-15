@@ -12,65 +12,39 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { distinct } from "../../../../base/common/arrays.js";
 import { sequence } from "../../../../base/common/async.js";
-import {
-  CancellationToken,
-  CancellationTokenSource
-} from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import * as json from "../../../../base/common/json.js";
-import {
-  DisposableStore,
-  dispose
-} from "../../../../base/common/lifecycle.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import { DisposableStore, IDisposable, dispose } from "../../../../base/common/lifecycle.js";
 import * as objects from "../../../../base/common/objects.js";
 import * as resources from "../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI as uri } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import {
-  ConfigurationTarget,
-  IConfigurationService
-} from "../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  Extensions as JSONExtensions
-} from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { IJSONContributionRegistry, Extensions as JSONExtensions } from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  IWorkspaceContextService,
-  WorkbenchState
-} from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceContextService, IWorkspaceFolder, IWorkspaceFoldersChangeEvent, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorPane } from "../../../common/editor.js";
+import { debugConfigure } from "./debugIcons.js";
+import { CONTEXT_DEBUG_CONFIGURATION_TYPE, DebugConfigurationProviderTriggerKind, IAdapterManager, ICompound, IConfig, IConfigPresentation, IConfigurationManager, IDebugConfigurationProvider, IGlobalConfig, ILaunch } from "../common/debug.js";
+import { launchSchema } from "../common/debugSchemas.js";
+import { getVisibleAndSorted } from "../common/debugUtils.js";
 import { launchSchemaId } from "../../../services/configuration/common/configuration.js";
-import {
-  ACTIVE_GROUP,
-  IEditorService
-} from "../../../services/editor/common/editorService.js";
+import { ACTIVE_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IHistoryService } from "../../../services/history/common/history.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import {
-  CONTEXT_DEBUG_CONFIGURATION_TYPE,
-  DebugConfigurationProviderTriggerKind
-} from "../common/debug.js";
-import { launchSchema } from "../common/debugSchemas.js";
-import { getVisibleAndSorted } from "../common/debugUtils.js";
-import { debugConfigure } from "./debugIcons.js";
-const jsonRegistry = Registry.as(
-  JSONExtensions.JSONContribution
-);
+const jsonRegistry = Registry.as(JSONExtensions.JSONContribution);
 jsonRegistry.registerSchema(launchSchemaId, launchSchema);
 const DEBUG_SELECTED_CONFIG_NAME_KEY = "debug.selectedconfigname";
 const DEBUG_SELECTED_ROOT = "debug.selectedroot";
@@ -93,37 +67,16 @@ let ConfigurationManager = class {
     this.initLaunches();
     this.setCompoundSchemaValues();
     this.registerListeners();
-    const previousSelectedRoot = this.storageService.get(
-      DEBUG_SELECTED_ROOT,
-      StorageScope.WORKSPACE
-    );
-    const previousSelectedType = this.storageService.get(
-      DEBUG_SELECTED_TYPE,
-      StorageScope.WORKSPACE
-    );
-    const previousSelectedLaunch = this.launches.find(
-      (l) => l.uri.toString() === previousSelectedRoot
-    );
-    const previousSelectedName = this.storageService.get(
-      DEBUG_SELECTED_CONFIG_NAME_KEY,
-      StorageScope.WORKSPACE
-    );
+    const previousSelectedRoot = this.storageService.get(DEBUG_SELECTED_ROOT, StorageScope.WORKSPACE);
+    const previousSelectedType = this.storageService.get(DEBUG_SELECTED_TYPE, StorageScope.WORKSPACE);
+    const previousSelectedLaunch = this.launches.find((l) => l.uri.toString() === previousSelectedRoot);
+    const previousSelectedName = this.storageService.get(DEBUG_SELECTED_CONFIG_NAME_KEY, StorageScope.WORKSPACE);
     this.debugConfigurationTypeContext = CONTEXT_DEBUG_CONFIGURATION_TYPE.bindTo(contextKeyService);
     const dynamicConfig = previousSelectedType ? { type: previousSelectedType } : void 0;
     if (previousSelectedLaunch && previousSelectedLaunch.getConfigurationNames().length) {
-      this.selectConfiguration(
-        previousSelectedLaunch,
-        previousSelectedName,
-        void 0,
-        dynamicConfig
-      );
+      this.selectConfiguration(previousSelectedLaunch, previousSelectedName, void 0, dynamicConfig);
     } else if (this.launches.length > 0) {
-      this.selectConfiguration(
-        void 0,
-        previousSelectedName,
-        void 0,
-        dynamicConfig
-      );
+      this.selectConfiguration(void 0, previousSelectedName, void 0, dynamicConfig);
     }
   }
   static {
@@ -146,9 +99,7 @@ let ConfigurationManager = class {
     this._onDidChangeConfigurationProviders.fire();
     return {
       dispose: /* @__PURE__ */ __name(() => {
-        this.unregisterDebugConfigurationProvider(
-          debugConfigurationProvider
-        );
+        this.unregisterDebugConfigurationProvider(debugConfigurationProvider);
         this._onDidChangeConfigurationProviders.fire();
       }, "dispose")
     };
@@ -166,26 +117,17 @@ let ConfigurationManager = class {
     if (triggerKind === void 0) {
       triggerKind = DebugConfigurationProviderTriggerKind.Initial;
     }
-    const provider = this.configProviders.find(
-      (p) => p.provideDebugConfigurations && p.type === debugType && p.triggerKind === triggerKind
-    );
+    const provider = this.configProviders.find((p) => p.provideDebugConfigurations && p.type === debugType && p.triggerKind === triggerKind);
     return !!provider;
   }
   async resolveConfigurationByProviders(folderUri, type, config, token) {
     const resolveDebugConfigurationForType = /* @__PURE__ */ __name(async (type2, config2) => {
       if (type2 !== "*") {
-        await this.adapterManager.activateDebuggers(
-          "onDebugResolve",
-          type2
-        );
+        await this.adapterManager.activateDebuggers("onDebugResolve", type2);
       }
       for (const p of this.configProviders) {
         if (p.type === type2 && p.resolveDebugConfiguration && config2) {
-          config2 = await p.resolveDebugConfiguration(
-            folderUri,
-            config2,
-            token
-          );
+          config2 = await p.resolveDebugConfiguration(folderUri, config2, token);
         }
       }
       return config2;
@@ -194,46 +136,25 @@ let ConfigurationManager = class {
     let result = config;
     for (let seen = /* @__PURE__ */ new Set(); result && !seen.has(resolvedType); ) {
       seen.add(resolvedType);
-      result = await resolveDebugConfigurationForType(
-        resolvedType,
-        result
-      );
+      result = await resolveDebugConfigurationForType(resolvedType, result);
       result = await resolveDebugConfigurationForType("*", result);
       resolvedType = result?.type ?? type;
     }
     return result;
   }
   async resolveDebugConfigurationWithSubstitutedVariables(folderUri, type, config, token) {
-    const providers = this.configProviders.filter(
-      (p) => p.type === type && p.resolveDebugConfigurationWithSubstitutedVariables
-    ).concat(
-      this.configProviders.filter(
-        (p) => p.type === "*" && p.resolveDebugConfigurationWithSubstitutedVariables
-      )
-    );
+    const providers = this.configProviders.filter((p) => p.type === type && p.resolveDebugConfigurationWithSubstitutedVariables).concat(this.configProviders.filter((p) => p.type === "*" && p.resolveDebugConfigurationWithSubstitutedVariables));
     let result = config;
-    await sequence(
-      providers.map((provider) => async () => {
-        if (result) {
-          result = await provider.resolveDebugConfigurationWithSubstitutedVariables(
-            folderUri,
-            result,
-            token
-          );
-        }
-      })
-    );
+    await sequence(providers.map((provider) => async () => {
+      if (result) {
+        result = await provider.resolveDebugConfigurationWithSubstitutedVariables(folderUri, result, token);
+      }
+    }));
     return result;
   }
   async provideDebugConfigurations(folderUri, type, token) {
-    await this.adapterManager.activateDebuggers(
-      "onDebugInitialConfigurations"
-    );
-    const results = await Promise.all(
-      this.configProviders.filter(
-        (p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Initial && p.provideDebugConfigurations
-      ).map((p) => p.provideDebugConfigurations(folderUri, token))
-    );
+    await this.adapterManager.activateDebuggers("onDebugInitialConfigurations");
+    const results = await Promise.all(this.configProviders.filter((p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Initial && p.provideDebugConfigurations).map((p) => p.provideDebugConfigurations(folderUri, token)));
     return results.reduce((first, second) => first.concat(second), []);
   }
   async getDynamicProviders() {
@@ -249,11 +170,7 @@ let ConfigurationManager = class {
         if (event === onDebugDynamicConfigurationsName) {
           hasGenericEvent = true;
         } else if (event.startsWith(`${onDebugDynamicConfigurationsName}:`)) {
-          explicitTypes.push(
-            event.slice(
-              onDebugDynamicConfigurationsName.length + 1
-            )
-          );
+          explicitTypes.push(event.slice(onDebugDynamicConfigurationsName.length + 1));
         }
       }
       if (explicitTypes.length) {
@@ -275,93 +192,44 @@ let ConfigurationManager = class {
       return {
         label: this.adapterManager.getDebuggerLabel(type),
         getProvider: /* @__PURE__ */ __name(async () => {
-          await this.adapterManager.activateDebuggers(
-            onDebugDynamicConfigurationsName,
-            type
-          );
-          return this.configProviders.find(
-            (p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Dynamic && p.provideDebugConfigurations
-          );
+          await this.adapterManager.activateDebuggers(onDebugDynamicConfigurationsName, type);
+          return this.configProviders.find((p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Dynamic && p.provideDebugConfigurations);
         }, "getProvider"),
         type,
         pick: /* @__PURE__ */ __name(async () => {
-          await this.adapterManager.activateDebuggers(
-            onDebugDynamicConfigurationsName,
-            type
-          );
+          await this.adapterManager.activateDebuggers(onDebugDynamicConfigurationsName, type);
           const token = new CancellationTokenSource();
           const picks = [];
-          const provider = this.configProviders.find(
-            (p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Dynamic && p.provideDebugConfigurations
-          );
+          const provider = this.configProviders.find((p) => p.type === type && p.triggerKind === DebugConfigurationProviderTriggerKind.Dynamic && p.provideDebugConfigurations);
           this.getLaunches().forEach((launch) => {
             if (launch.workspace && provider) {
-              picks.push(
-                provider.provideDebugConfigurations(
-                  launch.workspace.uri,
-                  token.token
-                ).then(
-                  (configurations) => configurations.map((config) => ({
-                    label: config.name,
-                    description: launch.name,
-                    config,
-                    buttons: [
-                      {
-                        iconClass: ThemeIcon.asClassName(
-                          debugConfigure
-                        ),
-                        tooltip: nls.localize(
-                          "editLaunchConfig",
-                          "Edit Debug Configuration in launch.json"
-                        )
-                      }
-                    ],
-                    launch
-                  }))
-                )
-              );
+              picks.push(provider.provideDebugConfigurations(launch.workspace.uri, token.token).then((configurations) => configurations.map((config) => ({
+                label: config.name,
+                description: launch.name,
+                config,
+                buttons: [{
+                  iconClass: ThemeIcon.asClassName(debugConfigure),
+                  tooltip: nls.localize("editLaunchConfig", "Edit Debug Configuration in launch.json")
+                }],
+                launch
+              }))));
             }
           });
           const disposables = new DisposableStore();
-          const input = disposables.add(
-            this.quickInputService.createQuickPick()
-          );
+          const input = disposables.add(this.quickInputService.createQuickPick());
           input.busy = true;
-          input.placeholder = nls.localize(
-            "selectConfiguration",
-            "Select Launch Configuration"
-          );
+          input.placeholder = nls.localize("selectConfiguration", "Select Launch Configuration");
           const chosenPromise = new Promise((resolve) => {
-            disposables.add(
-              input.onDidAccept(
-                () => resolve(input.activeItems[0])
-              )
-            );
-            disposables.add(
-              input.onDidTriggerItemButton(async (context) => {
-                resolve(void 0);
-                const { launch, config } = context.item;
-                await launch.openConfigFile({
-                  preserveFocus: false,
-                  type: config.type,
-                  suppressInitialConfigs: true
-                });
-                await launch.writeConfiguration(
-                  config
-                );
-                await this.selectConfiguration(
-                  launch,
-                  config.name
-                );
-                this.removeRecentDynamicConfigurations(
-                  config.name,
-                  config.type
-                );
-              })
-            );
-            disposables.add(
-              input.onDidHide(() => resolve(void 0))
-            );
+            disposables.add(input.onDidAccept(() => resolve(input.activeItems[0])));
+            disposables.add(input.onDidTriggerItemButton(async (context) => {
+              resolve(void 0);
+              const { launch, config } = context.item;
+              await launch.openConfigFile({ preserveFocus: false, type: config.type, suppressInitialConfigs: true });
+              await launch.writeConfiguration(config);
+              await this.selectConfiguration(launch, config.name);
+              this.removeRecentDynamicConfigurations(config.name, config.type);
+            }));
+            disposables.add(input.onDidHide(() => resolve(void 0)));
           });
           let nestedPicks;
           try {
@@ -392,26 +260,15 @@ let ConfigurationManager = class {
       for (const name of l.getConfigurationNames()) {
         const config = l.getConfiguration(name) || l.getCompound(name);
         if (config) {
-          all.push({
-            launch: l,
-            name,
-            presentation: config.presentation
-          });
+          all.push({ launch: l, name, presentation: config.presentation });
         }
       }
     }
     return getVisibleAndSorted(all);
   }
   removeRecentDynamicConfigurations(name, type) {
-    const remaining = this.getRecentDynamicConfigurations().filter(
-      (c) => c.name !== name || c.type !== type
-    );
-    this.storageService.store(
-      DEBUG_RECENT_DYNAMIC_CONFIGURATIONS,
-      JSON.stringify(remaining),
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    const remaining = this.getRecentDynamicConfigurations().filter((c) => c.name !== name || c.type !== type);
+    this.storageService.store(DEBUG_RECENT_DYNAMIC_CONFIGURATIONS, JSON.stringify(remaining), StorageScope.WORKSPACE, StorageTarget.MACHINE);
     if (this.selectedConfiguration.name === name && this.selectedType === type && this.selectedDynamic) {
       this.selectConfiguration(void 0, void 0);
     } else {
@@ -419,64 +276,30 @@ let ConfigurationManager = class {
     }
   }
   getRecentDynamicConfigurations() {
-    return JSON.parse(
-      this.storageService.get(
-        DEBUG_RECENT_DYNAMIC_CONFIGURATIONS,
-        StorageScope.WORKSPACE,
-        "[]"
-      )
-    );
+    return JSON.parse(this.storageService.get(DEBUG_RECENT_DYNAMIC_CONFIGURATIONS, StorageScope.WORKSPACE, "[]"));
   }
   registerListeners() {
-    this.toDispose.push(
-      Event.any(
-        this.contextService.onDidChangeWorkspaceFolders,
-        this.contextService.onDidChangeWorkbenchState
-      )(() => {
-        this.initLaunches();
-        this.selectConfiguration(void 0);
+    this.toDispose.push(Event.any(this.contextService.onDidChangeWorkspaceFolders, this.contextService.onDidChangeWorkbenchState)(() => {
+      this.initLaunches();
+      this.selectConfiguration(void 0);
+      this.setCompoundSchemaValues();
+    }));
+    this.toDispose.push(this.configurationService.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration("launch")) {
+        await this.selectConfiguration(void 0);
         this.setCompoundSchemaValues();
-      })
-    );
-    this.toDispose.push(
-      this.configurationService.onDidChangeConfiguration(async (e) => {
-        if (e.affectsConfiguration("launch")) {
-          await this.selectConfiguration(void 0);
-          this.setCompoundSchemaValues();
-        }
-      })
-    );
-    this.toDispose.push(
-      this.adapterManager.onDidDebuggersExtPointRead(() => {
-        this.setCompoundSchemaValues();
-      })
-    );
+      }
+    }));
+    this.toDispose.push(this.adapterManager.onDidDebuggersExtPointRead(() => {
+      this.setCompoundSchemaValues();
+    }));
   }
   initLaunches() {
-    this.launches = this.contextService.getWorkspace().folders.map(
-      (folder) => this.instantiationService.createInstance(
-        Launch,
-        this,
-        this.adapterManager,
-        folder
-      )
-    );
+    this.launches = this.contextService.getWorkspace().folders.map((folder) => this.instantiationService.createInstance(Launch, this, this.adapterManager, folder));
     if (this.contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
-      this.launches.push(
-        this.instantiationService.createInstance(
-          WorkspaceLaunch,
-          this,
-          this.adapterManager
-        )
-      );
+      this.launches.push(this.instantiationService.createInstance(WorkspaceLaunch, this, this.adapterManager));
     }
-    this.launches.push(
-      this.instantiationService.createInstance(
-        UserLaunch,
-        this,
-        this.adapterManager
-      )
-    );
+    this.launches.push(this.instantiationService.createInstance(UserLaunch, this, this.adapterManager));
     if (this.selectedLaunch && this.launches.indexOf(this.selectedLaunch) === -1) {
       this.selectConfiguration(void 0);
     }
@@ -497,12 +320,7 @@ let ConfigurationManager = class {
     if (!uri.isUri(workspaceUri)) {
       return void 0;
     }
-    return this.launches.find(
-      (l) => l.workspace && this.uriIdentityService.extUri.isEqual(
-        l.workspace.uri,
-        workspaceUri
-      )
-    );
+    return this.launches.find((l) => l.workspace && this.uriIdentityService.extUri.isEqual(l.workspace.uri, workspaceUri));
   }
   get selectedConfiguration() {
     return {
@@ -526,9 +344,7 @@ let ConfigurationManager = class {
       const rootUri = this.historyService.getLastActiveWorkspaceRoot();
       launch = this.getLaunch(rootUri);
       if (!launch || launch.getConfigurationNames().length === 0) {
-        launch = this.launches.find(
-          (l) => !!(l && l.getConfigurationNames().length)
-        ) || launch || this.launches[0];
+        launch = this.launches.find((l) => !!(l && l.getConfigurationNames().length)) || launch || this.launches[0];
       }
     }
     const previousLaunch = this.selectedLaunch;
@@ -536,17 +352,9 @@ let ConfigurationManager = class {
     const previousSelectedDynamic = this.selectedDynamic;
     this.selectedLaunch = launch;
     if (this.selectedLaunch) {
-      this.storageService.store(
-        DEBUG_SELECTED_ROOT,
-        this.selectedLaunch.uri.toString(),
-        StorageScope.WORKSPACE,
-        StorageTarget.MACHINE
-      );
+      this.storageService.store(DEBUG_SELECTED_ROOT, this.selectedLaunch.uri.toString(), StorageScope.WORKSPACE, StorageTarget.MACHINE);
     } else {
-      this.storageService.remove(
-        DEBUG_SELECTED_ROOT,
-        StorageScope.WORKSPACE
-      );
+      this.storageService.remove(DEBUG_SELECTED_ROOT, StorageScope.WORKSPACE);
     }
     const names = launch ? launch.getConfigurationNames() : [];
     this.getSelectedConfig = () => {
@@ -559,23 +367,14 @@ let ConfigurationManager = class {
     } else if (dynamicConfig && dynamicConfig.type) {
       type = dynamicConfig.type;
       if (!config) {
-        const providers = (await this.getDynamicProviders()).filter(
-          (p) => p.type === type
-        );
+        const providers = (await this.getDynamicProviders()).filter((p) => p.type === type);
         this.getSelectedConfig = async () => {
-          const activatedProviders = await Promise.all(
-            providers.map((p) => p.getProvider())
-          );
+          const activatedProviders = await Promise.all(providers.map((p) => p.getProvider()));
           const provider = activatedProviders.length > 0 ? activatedProviders[0] : void 0;
           if (provider && launch && launch.workspace) {
             const token = new CancellationTokenSource();
-            const dynamicConfigs = await provider.provideDebugConfigurations(
-              launch.workspace.uri,
-              token.token
-            );
-            const dynamicConfig2 = dynamicConfigs.find(
-              (c) => c.name === name
-            );
+            const dynamicConfigs = await provider.provideDebugConfigurations(launch.workspace.uri, token.token);
+            const dynamicConfig2 = dynamicConfigs.find((c) => c.name === name);
             if (dynamicConfig2) {
               return dynamicConfig2;
             }
@@ -586,20 +385,9 @@ let ConfigurationManager = class {
       this.setSelectedLaunchName(name);
       let recentDynamicProviders = this.getRecentDynamicConfigurations();
       if (name && dynamicConfig.type) {
-        recentDynamicProviders.unshift({
-          name,
-          type: dynamicConfig.type
-        });
-        recentDynamicProviders = distinct(
-          recentDynamicProviders,
-          (t) => `${t.name} : ${t.type}`
-        );
-        this.storageService.store(
-          DEBUG_RECENT_DYNAMIC_CONFIGURATIONS,
-          JSON.stringify(recentDynamicProviders),
-          StorageScope.WORKSPACE,
-          StorageTarget.MACHINE
-        );
+        recentDynamicProviders.unshift({ name, type: dynamicConfig.type });
+        recentDynamicProviders = distinct(recentDynamicProviders, (t) => `${t.name} : ${t.type}`);
+        this.storageService.store(DEBUG_RECENT_DYNAMIC_CONFIGURATIONS, JSON.stringify(recentDynamicProviders), StorageScope.WORKSPACE, StorageTarget.MACHINE);
       }
     } else if (!this.selectedName || names.indexOf(this.selectedName) === -1) {
       const nameToSet = names.length ? names[0] : void 0;
@@ -611,12 +399,7 @@ let ConfigurationManager = class {
     }
     this.selectedType = dynamicConfig?.type || config?.type;
     this.selectedDynamic = !!dynamicConfig;
-    this.storageService.store(
-      DEBUG_SELECTED_TYPE,
-      dynamicConfig ? this.selectedType : void 0,
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    this.storageService.store(DEBUG_SELECTED_TYPE, dynamicConfig ? this.selectedType : void 0, StorageScope.WORKSPACE, StorageTarget.MACHINE);
     if (type) {
       this.debugConfigurationTypeContext.set(type);
     } else {
@@ -629,17 +412,9 @@ let ConfigurationManager = class {
   setSelectedLaunchName(selectedName) {
     this.selectedName = selectedName;
     if (this.selectedName) {
-      this.storageService.store(
-        DEBUG_SELECTED_CONFIG_NAME_KEY,
-        this.selectedName,
-        StorageScope.WORKSPACE,
-        StorageTarget.MACHINE
-      );
+      this.storageService.store(DEBUG_SELECTED_CONFIG_NAME_KEY, this.selectedName, StorageScope.WORKSPACE, StorageTarget.MACHINE);
     } else {
-      this.storageService.remove(
-        DEBUG_SELECTED_CONFIG_NAME_KEY,
-        StorageScope.WORKSPACE
-      );
+      this.storageService.remove(DEBUG_SELECTED_CONFIG_NAME_KEY, StorageScope.WORKSPACE);
     }
   }
   dispose() {
@@ -680,21 +455,13 @@ class AbstractLaunch {
     } else {
       const configurations = [];
       if (config.configurations) {
-        configurations.push(
-          ...config.configurations.filter(
-            (cfg) => cfg && typeof cfg.name === "string"
-          )
-        );
+        configurations.push(...config.configurations.filter((cfg) => cfg && typeof cfg.name === "string"));
       }
       if (ignoreCompoundsAndPresentation) {
         return configurations.map((c) => c.name);
       }
       if (config.compounds) {
-        configurations.push(
-          ...config.compounds.filter(
-            (compound) => typeof compound.name === "string" && compound.configurations && compound.configurations.length
-          )
-        );
+        configurations.push(...config.compounds.filter((compound) => typeof compound.name === "string" && compound.configurations && compound.configurations.length));
       }
       return getVisibleAndSorted(configurations).map((c) => c.name);
     }
@@ -704,9 +471,7 @@ class AbstractLaunch {
     if (!config || !config.configurations) {
       return void 0;
     }
-    const configuration = config.configurations.find(
-      (config2) => config2 && config2.name === name
-    );
+    const configuration = config.configurations.find((config2) => config2 && config2.name === name);
     if (configuration) {
       if (this instanceof UserLaunch) {
         configuration.__configurationTarget = ConfigurationTarget.USER;
@@ -722,11 +487,7 @@ class AbstractLaunch {
     let content = "";
     const adapter = type ? this.adapterManager.getEnabledDebugger(type) : await this.adapterManager.guessDebugger(true);
     if (adapter) {
-      const initialConfigs = useInitialConfigs ? await this.configurationManager.provideDebugConfigurations(
-        folderUri,
-        adapter.type,
-        token || CancellationToken.None
-      ) : [];
+      const initialConfigs = useInitialConfigs ? await this.configurationManager.provideDebugConfigurations(folderUri, adapter.type, token || CancellationToken.None) : [];
       content = await adapter.getInitialConfigurationContent(initialConfigs);
     }
     return content;
@@ -754,15 +515,9 @@ let Launch = class extends AbstractLaunch {
     return this.workspace.name;
   }
   getConfig() {
-    return this.configurationService.inspect("launch", {
-      resource: this.workspace.uri
-    }).workspaceFolderValue;
+    return this.configurationService.inspect("launch", { resource: this.workspace.uri }).workspaceFolderValue;
   }
-  async openConfigFile({
-    preserveFocus,
-    type,
-    suppressInitialConfigs
-  }, token) {
+  async openConfigFile({ preserveFocus, type, suppressInitialConfigs }, token) {
     const resource = this.uri;
     let created = false;
     let content = "";
@@ -770,12 +525,7 @@ let Launch = class extends AbstractLaunch {
       const fileContent = await this.fileService.readFile(resource);
       content = fileContent.value.toString();
     } catch {
-      content = await this.getInitialConfigurationContent(
-        this.workspace.uri,
-        type,
-        !suppressInitialConfigs,
-        token
-      );
+      content = await this.getInitialConfigurationContent(this.workspace.uri, type, !suppressInitialConfigs, token);
       if (!content) {
         return { editor: null, created: false };
       }
@@ -783,18 +533,10 @@ let Launch = class extends AbstractLaunch {
       try {
         await this.textFileService.write(resource, content);
       } catch (error) {
-        throw new Error(
-          nls.localize(
-            "DebugConfig.failed",
-            "Unable to create 'launch.json' file inside the '.vscode' folder ({0}).",
-            error.message
-          )
-        );
+        throw new Error(nls.localize("DebugConfig.failed", "Unable to create 'launch.json' file inside the '.vscode' folder ({0}).", error.message));
       }
     }
-    const index = content.indexOf(
-      `"${this.configurationManager.selectedConfiguration.name}"`
-    );
+    const index = content.indexOf(`"${this.configurationManager.selectedConfiguration.name}"`);
     let startLineNumber = 1;
     for (let i = 0; i < index; i++) {
       if (content.charAt(i) === "\n") {
@@ -802,18 +544,15 @@ let Launch = class extends AbstractLaunch {
       }
     }
     const selection = startLineNumber > 1 ? { startLineNumber, startColumn: 4 } : void 0;
-    const editor = await this.editorService.openEditor(
-      {
-        resource,
-        options: {
-          selection,
-          preserveFocus,
-          pinned: created,
-          revealIfVisible: true
-        }
-      },
-      ACTIVE_GROUP
-    );
+    const editor = await this.editorService.openEditor({
+      resource,
+      options: {
+        selection,
+        preserveFocus,
+        pinned: created,
+        revealIfVisible: true
+      }
+    }, ACTIVE_GROUP);
     return {
       editor: editor ?? null,
       created
@@ -825,12 +564,7 @@ let Launch = class extends AbstractLaunch {
       fullConfig.configurations = [];
     }
     fullConfig.configurations.push(configuration);
-    await this.configurationService.updateValue(
-      "launch",
-      fullConfig,
-      { resource: this.workspace.uri },
-      ConfigurationTarget.WORKSPACE_FOLDER
-    );
+    await this.configurationService.updateValue("launch", fullConfig, { resource: this.workspace.uri }, ConfigurationTarget.WORKSPACE_FOLDER);
   }
 };
 Launch = __decorateClass([
@@ -861,36 +595,20 @@ let WorkspaceLaunch = class extends AbstractLaunch {
   getConfig() {
     return this.configurationService.inspect("launch").workspaceValue;
   }
-  async openConfigFile({
-    preserveFocus,
-    type,
-    useInitialConfigs
-  }, token) {
+  async openConfigFile({ preserveFocus, type, useInitialConfigs }, token) {
     const launchExistInFile = !!this.getConfig();
     if (!launchExistInFile) {
-      const content = await this.getInitialConfigurationContent(
-        void 0,
-        type,
-        useInitialConfigs,
-        token
-      );
+      const content = await this.getInitialConfigurationContent(void 0, type, useInitialConfigs, token);
       if (content) {
-        await this.configurationService.updateValue(
-          "launch",
-          json.parse(content),
-          ConfigurationTarget.WORKSPACE
-        );
+        await this.configurationService.updateValue("launch", json.parse(content), ConfigurationTarget.WORKSPACE);
       } else {
         return { editor: null, created: false };
       }
     }
-    const editor = await this.editorService.openEditor(
-      {
-        resource: this.contextService.getWorkspace().configuration,
-        options: { preserveFocus }
-      },
-      ACTIVE_GROUP
-    );
+    const editor = await this.editorService.openEditor({
+      resource: this.contextService.getWorkspace().configuration,
+      options: { preserveFocus }
+    }, ACTIVE_GROUP);
     return {
       editor: editor ?? null,
       created: false
@@ -926,16 +644,8 @@ let UserLaunch = class extends AbstractLaunch {
   getConfig() {
     return this.configurationService.inspect("launch").userValue;
   }
-  async openConfigFile({
-    preserveFocus,
-    type,
-    useInitialContent
-  }) {
-    const editor = await this.preferencesService.openUserSettings({
-      jsonEditor: true,
-      preserveFocus,
-      revealSetting: { key: "launch" }
-    });
+  async openConfigFile({ preserveFocus, type, useInitialContent }) {
+    const editor = await this.preferencesService.openUserSettings({ jsonEditor: true, preserveFocus, revealSetting: { key: "launch" } });
     return {
       editor: editor ?? null,
       created: false

@@ -14,21 +14,14 @@ import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
+import { IPosition } from "../../../common/core/position.js";
+import { ITextModel } from "../../../common/model.js";
+import { CompletionItemKind, CompletionItemKinds } from "../../../common/languages.js";
+import { CompletionItem } from "./suggest.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget,
-  WillSaveStateReason
-} from "../../../../platform/storage/common/storage.js";
-import {
-  CompletionItemKinds
-} from "../../../common/languages.js";
+import { IStorageService, StorageScope, StorageTarget, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
 class Memory {
   constructor(name) {
     this.name = name;
@@ -193,13 +186,11 @@ let SuggestMemoryService = class {
     this._storageService = _storageService;
     this._configService = _configService;
     this._persistSoon = new RunOnceScheduler(() => this._saveState(), 500);
-    this._disposables.add(
-      _storageService.onWillSaveState((e) => {
-        if (e.reason === WillSaveStateReason.SHUTDOWN) {
-          this._saveState();
-        }
-      })
-    );
+    this._disposables.add(_storageService.onWillSaveState((e) => {
+      if (e.reason === WillSaveStateReason.SHUTDOWN) {
+        this._saveState();
+      }
+    }));
   }
   static {
     __name(this, "SuggestMemoryService");
@@ -226,29 +217,18 @@ let SuggestMemoryService = class {
     return this._withStrategy(model, pos).select(model, pos, items);
   }
   _withStrategy(model, pos) {
-    const mode = this._configService.getValue(
-      "editor.suggestSelection",
-      {
-        overrideIdentifier: model.getLanguageIdAtPosition(
-          pos.lineNumber,
-          pos.column
-        ),
-        resource: model.uri
-      }
-    );
+    const mode = this._configService.getValue("editor.suggestSelection", {
+      overrideIdentifier: model.getLanguageIdAtPosition(pos.lineNumber, pos.column),
+      resource: model.uri
+    });
     if (this._strategy?.name !== mode) {
       this._saveState();
       const ctor = SuggestMemoryService._strategyCtors.get(mode) || NoMemory;
       this._strategy = new ctor();
       try {
-        const share = this._configService.getValue(
-          "editor.suggest.shareSuggestSelections"
-        );
+        const share = this._configService.getValue("editor.suggest.shareSuggestSelections");
         const scope = share ? StorageScope.PROFILE : StorageScope.WORKSPACE;
-        const raw = this._storageService.get(
-          `${SuggestMemoryService._storagePrefix}/${mode}`,
-          scope
-        );
+        const raw = this._storageService.get(`${SuggestMemoryService._storagePrefix}/${mode}`, scope);
         if (raw) {
           this._strategy.fromJSON(JSON.parse(raw));
         }
@@ -259,17 +239,10 @@ let SuggestMemoryService = class {
   }
   _saveState() {
     if (this._strategy) {
-      const share = this._configService.getValue(
-        "editor.suggest.shareSuggestSelections"
-      );
+      const share = this._configService.getValue("editor.suggest.shareSuggestSelections");
       const scope = share ? StorageScope.PROFILE : StorageScope.WORKSPACE;
       const raw = JSON.stringify(this._strategy);
-      this._storageService.store(
-        `${SuggestMemoryService._storagePrefix}/${this._strategy.name}`,
-        raw,
-        scope,
-        StorageTarget.MACHINE
-      );
+      this._storageService.store(`${SuggestMemoryService._storagePrefix}/${this._strategy.name}`, raw, scope, StorageTarget.MACHINE);
     }
   }
 };
@@ -278,11 +251,7 @@ SuggestMemoryService = __decorateClass([
   __decorateParam(1, IConfigurationService)
 ], SuggestMemoryService);
 const ISuggestMemoryService = createDecorator("ISuggestMemories");
-registerSingleton(
-  ISuggestMemoryService,
-  SuggestMemoryService,
-  InstantiationType.Delayed
-);
+registerSingleton(ISuggestMemoryService, SuggestMemoryService, InstantiationType.Delayed);
 export {
   ISuggestMemoryService,
   LRUMemory,

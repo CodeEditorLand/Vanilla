@@ -11,16 +11,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { throttle } from "../../../../../../base/common/decorators.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../../../base/common/lifecycle.js";
-import { IUserActivityService } from "../../../../../services/userActivity/common/userActivityService.js";
-import { NotebookCellExecutionState } from "../../../common/notebookCommon.js";
-import {
-  INotebookExecutionStateService
-} from "../../../common/notebookExecutionStateService.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
 import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { NotebookCellExecutionState } from "../../../common/notebookCommon.js";
+import { INotebookCellExecution, INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { IUserActivityService } from "../../../../../services/userActivity/common/userActivityService.js";
 let ExecutionEditorProgressController = class extends Disposable {
   constructor(_notebookEditor, _notebookExecutionStateService, _userActivity) {
     super();
@@ -28,14 +24,12 @@ let ExecutionEditorProgressController = class extends Disposable {
     this._notebookExecutionStateService = _notebookExecutionStateService;
     this._userActivity = _userActivity;
     this._register(_notebookEditor.onDidScroll(() => this._update()));
-    this._register(
-      _notebookExecutionStateService.onDidChangeExecution((e) => {
-        if (e.notebook.toString() !== this._notebookEditor.textModel?.uri.toString()) {
-          return;
-        }
-        this._update();
-      })
-    );
+    this._register(_notebookExecutionStateService.onDidChangeExecution((e) => {
+      if (e.notebook.toString() !== this._notebookEditor.textModel?.uri.toString()) {
+        return;
+      }
+      this._update();
+    }));
     this._register(_notebookEditor.onDidChangeModel(() => this._update()));
   }
   static {
@@ -47,17 +41,11 @@ let ExecutionEditorProgressController = class extends Disposable {
     if (!this._notebookEditor.hasModel()) {
       return;
     }
-    const cellExecutions = this._notebookExecutionStateService.getCellExecutionsForNotebook(this._notebookEditor.textModel?.uri).filter(
-      (exe) => exe.state === NotebookCellExecutionState.Executing
-    );
-    const notebookExecution = this._notebookExecutionStateService.getExecution(
-      this._notebookEditor.textModel?.uri
-    );
+    const cellExecutions = this._notebookExecutionStateService.getCellExecutionsForNotebook(this._notebookEditor.textModel?.uri).filter((exe) => exe.state === NotebookCellExecutionState.Executing);
+    const notebookExecution = this._notebookExecutionStateService.getExecution(this._notebookEditor.textModel?.uri);
     const executionIsVisible = /* @__PURE__ */ __name((exe) => {
       for (const range of this._notebookEditor.visibleRanges) {
-        for (const cell of this._notebookEditor.getCellsInRange(
-          range
-        )) {
+        for (const cell of this._notebookEditor.getCellsInRange(range)) {
           if (cell.handle === exe.cellHandle) {
             const top = this._notebookEditor.getAbsoluteTopOfElement(cell);
             if (this._notebookEditor.scrollTop < top + 5) {
@@ -90,10 +78,7 @@ ExecutionEditorProgressController = __decorateClass([
   __decorateParam(1, INotebookExecutionStateService),
   __decorateParam(2, IUserActivityService)
 ], ExecutionEditorProgressController);
-registerNotebookContribution(
-  ExecutionEditorProgressController.id,
-  ExecutionEditorProgressController
-);
+registerNotebookContribution(ExecutionEditorProgressController.id, ExecutionEditorProgressController);
 export {
   ExecutionEditorProgressController
 };

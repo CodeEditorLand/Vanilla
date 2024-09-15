@@ -1,51 +1,33 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Gesture } from "../../../../base/browser/touch.js";
-import { mixin } from "../../../../base/common/objects.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import * as Platform from "../../../../base/common/platform.js";
 import * as uuid from "../../../../base/common/uuid.js";
-import {
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  firstSessionDateStorageKey,
-  lastSessionDateStorageKey,
-  machineIdKey
-} from "../../../../platform/telemetry/common/telemetry.js";
 import { cleanRemoteAuthority } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { mixin } from "../../../../base/common/objects.js";
+import { ICommonProperties, firstSessionDateStorageKey, lastSessionDateStorageKey, machineIdKey } from "../../../../platform/telemetry/common/telemetry.js";
+import { Gesture } from "../../../../base/browser/touch.js";
 function cleanUserAgent(userAgent) {
   return userAgent.replace(/(\d+\.\d+)(\.\d+)+/g, "$1");
 }
 __name(cleanUserAgent, "cleanUserAgent");
 function resolveWorkbenchCommonProperties(storageService, commit, version, isInternalTelemetry, remoteAuthority, productIdentifier, removeMachineId, resolveAdditionalProperties) {
   const result = /* @__PURE__ */ Object.create(null);
-  const firstSessionDate = storageService.get(
-    firstSessionDateStorageKey,
-    StorageScope.APPLICATION
-  );
-  const lastSessionDate = storageService.get(
-    lastSessionDateStorageKey,
-    StorageScope.APPLICATION
-  );
+  const firstSessionDate = storageService.get(firstSessionDateStorageKey, StorageScope.APPLICATION);
+  const lastSessionDate = storageService.get(lastSessionDateStorageKey, StorageScope.APPLICATION);
   let machineId;
-  if (removeMachineId) {
-    machineId = `Redacted-${productIdentifier ?? "web"}`;
-  } else {
+  if (!removeMachineId) {
     machineId = storageService.get(machineIdKey, StorageScope.APPLICATION);
     if (!machineId) {
       machineId = uuid.generateUuid();
-      storageService.store(
-        machineIdKey,
-        machineId,
-        StorageScope.APPLICATION,
-        StorageTarget.MACHINE
-      );
+      storageService.store(machineIdKey, machineId, StorageScope.APPLICATION, StorageTarget.MACHINE);
     }
+  } else {
+    machineId = `Redacted-${productIdentifier ?? "web"}`;
   }
   result["common.firstSessionDate"] = firstSessionDate;
   result["common.lastSessionDate"] = lastSessionDate || "";
-  result["common.isNewSession"] = lastSessionDate ? "0" : "1";
+  result["common.isNewSession"] = !lastSessionDate ? "1" : "0";
   result["common.remoteAuthority"] = cleanRemoteAuthority(remoteAuthority);
   result["common.machineId"] = machineId;
   result["sessionID"] = uuid.generateUuid() + Date.now();
@@ -62,7 +44,7 @@ function resolveWorkbenchCommonProperties(storageService, commit, version, isInt
   const startTime = Date.now();
   Object.defineProperties(result, {
     // __GDPR__COMMON__ "timestamp" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
-    timestamp: {
+    "timestamp": {
       get: /* @__PURE__ */ __name(() => /* @__PURE__ */ new Date(), "get"),
       enumerable: true
     },

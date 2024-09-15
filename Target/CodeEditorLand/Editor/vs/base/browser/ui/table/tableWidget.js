@@ -1,31 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../common/event.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../common/lifecycle.js";
-import {
-  ScrollbarVisibility
-} from "../../../common/scrollable.js";
-import {
-  $,
-  append,
-  clearNode,
-  createStyleSheet,
-  getContentHeight,
-  getContentWidth
-} from "../../dom.js";
+import { $, append, clearNode, createStyleSheet, getContentHeight, getContentWidth } from "../../dom.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
-import {
-  List,
-  unthemedListStyles
-} from "../list/listWidget.js";
-import {
-  Orientation,
-  SplitView
-} from "../splitview/splitview.js";
+import { IListRenderer, IListVirtualDelegate } from "../list/list.js";
+import { IListOptions, IListOptionsUpdate, IListStyles, List, unthemedListStyles } from "../list/listWidget.js";
+import { ISplitViewDescriptor, IView, Orientation, SplitView } from "../splitview/splitview.js";
+import { ITableColumn, ITableContextMenuEvent, ITableEvent, ITableGestureEvent, ITableMouseEvent, ITableRenderer, ITableTouchEvent, ITableVirtualDelegate } from "./table.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import { ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
+import { ISpliceable } from "../../../common/sequence.js";
 import "./table.css";
 class TableListRenderer {
   constructor(columns, renderers, getColumnSize) {
@@ -36,9 +21,7 @@ class TableListRenderer {
     for (const column of columns) {
       const renderer = rendererMap.get(column.templateId);
       if (!renderer) {
-        throw new Error(
-          `Table cell renderer for template id ${column.templateId} not found.`
-        );
+        throw new Error(`Table cell renderer for template id ${column.templateId} not found.`);
       }
       this.renderers.push(renderer);
     }
@@ -56,10 +39,7 @@ class TableListRenderer {
     const cellTemplateData = [];
     for (let i = 0; i < this.columns.length; i++) {
       const renderer = this.renderers[i];
-      const cellContainer = append(
-        rowContainer,
-        $(".monaco-table-td", { "data-col-index": i })
-      );
+      const cellContainer = append(rowContainer, $(".monaco-table-td", { "data-col-index": i }));
       cellContainer.style.width = `${this.getColumnSize(i)}px`;
       cellContainers.push(cellContainer);
       cellTemplateData.push(renderer.renderTemplate(cellContainer));
@@ -73,12 +53,7 @@ class TableListRenderer {
       const column = this.columns[i];
       const cell = column.project(element);
       const renderer = this.renderers[i];
-      renderer.renderElement(
-        cell,
-        index,
-        templateData.cellTemplateData[i],
-        height
-      );
+      renderer.renderElement(cell, index, templateData.cellTemplateData[i], height);
     }
   }
   disposeElement(element, index, templateData, height) {
@@ -87,12 +62,7 @@ class TableListRenderer {
       if (renderer.disposeElement) {
         const column = this.columns[i];
         const cell = column.project(element);
-        renderer.disposeElement(
-          cell,
-          index,
-          templateData.cellTemplateData[i],
-          height
-        );
+        renderer.disposeElement(cell, index, templateData.cellTemplateData[i], height);
       }
     }
   }
@@ -126,19 +96,9 @@ class ColumnHeader extends Disposable {
     super();
     this.column = column;
     this.index = index;
-    this.element = $(
-      ".monaco-table-th",
-      { "data-col-index": index },
-      column.label
-    );
+    this.element = $(".monaco-table-th", { "data-col-index": index }, column.label);
     if (column.tooltip) {
-      this._register(
-        getBaseLayerHoverDelegate().setupManagedHover(
-          getDefaultHoverDelegate("mouse"),
-          this.element,
-          column.tooltip
-        )
-      );
+      this._register(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), this.element, column.tooltip));
     }
   }
   static {
@@ -165,51 +125,27 @@ class Table {
     this.virtualDelegate = virtualDelegate;
     this.columns = columns;
     this.domNode = append(container, $(`.monaco-table.${this.domId}`));
-    const headers = columns.map(
-      (c, i) => this.disposables.add(new ColumnHeader(c, i))
-    );
+    const headers = columns.map((c, i) => this.disposables.add(new ColumnHeader(c, i)));
     const descriptor = {
       size: headers.reduce((a, b) => a + b.column.weight, 0),
       views: headers.map((view) => ({ size: view.column.weight, view }))
     };
-    this.splitview = this.disposables.add(
-      new SplitView(this.domNode, {
-        orientation: Orientation.HORIZONTAL,
-        scrollbarVisibility: ScrollbarVisibility.Hidden,
-        getSashOrthogonalSize: /* @__PURE__ */ __name(() => this.cachedHeight, "getSashOrthogonalSize"),
-        descriptor
-      })
-    );
+    this.splitview = this.disposables.add(new SplitView(this.domNode, {
+      orientation: Orientation.HORIZONTAL,
+      scrollbarVisibility: ScrollbarVisibility.Hidden,
+      getSashOrthogonalSize: /* @__PURE__ */ __name(() => this.cachedHeight, "getSashOrthogonalSize"),
+      descriptor
+    }));
     this.splitview.el.style.height = `${virtualDelegate.headerRowHeight}px`;
     this.splitview.el.style.lineHeight = `${virtualDelegate.headerRowHeight}px`;
-    const renderer = new TableListRenderer(
-      columns,
-      renderers,
-      (i) => this.splitview.getViewSize(i)
-    );
-    this.list = this.disposables.add(
-      new List(
-        user,
-        this.domNode,
-        asListVirtualDelegate(virtualDelegate),
-        [renderer],
-        _options
-      )
-    );
-    Event.any(...headers.map((h) => h.onDidLayout))(
-      ([index, size]) => renderer.layoutColumn(index, size),
-      null,
-      this.disposables
-    );
-    this.splitview.onDidSashReset(
-      (index) => {
-        const totalWeight = columns.reduce((r, c) => r + c.weight, 0);
-        const size = columns[index].weight / totalWeight * this.cachedWidth;
-        this.splitview.resizeView(index, size);
-      },
-      null,
-      this.disposables
-    );
+    const renderer = new TableListRenderer(columns, renderers, (i) => this.splitview.getViewSize(i));
+    this.list = this.disposables.add(new List(user, this.domNode, asListVirtualDelegate(virtualDelegate), [renderer], _options));
+    Event.any(...headers.map((h) => h.onDidLayout))(([index, size]) => renderer.layoutColumn(index, size), null, this.disposables);
+    this.splitview.onDidSashReset((index) => {
+      const totalWeight = columns.reduce((r, c) => r + c.weight, 0);
+      const size = columns[index].weight / totalWeight * this.cachedWidth;
+      this.splitview.resizeView(index, size);
+    }, null, this.disposables);
     this.styleElement = createStyleSheet(this.domNode);
     this.style(unthemedListStyles);
   }

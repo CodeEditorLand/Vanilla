@@ -10,68 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { match } from "../../../../base/common/glob.js";
-import { getPathLabel, tildify } from "../../../../base/common/labels.js";
-import {
-  Disposable,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { posix, sep, win32 } from "../../../../base/common/path.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
-import {
-  basename,
-  basenameOrAuthority,
-  dirname,
-  joinPath
-} from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  ILabelService,
-  Verbosity
-} from "../../../../platform/label/common/label.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IDisposable, Disposable, dispose } from "../../../../base/common/lifecycle.js";
+import { posix, sep, win32 } from "../../../../base/common/path.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, IWorkbenchContribution } from "../../../common/contributions.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  IWorkspaceContextService,
-  WORKSPACE_EXTENSION,
-  isSingleFolderWorkspaceIdentifier,
-  isTemporaryWorkspace,
-  isUntitledWorkspace,
-  isWorkspace,
-  isWorkspaceIdentifier,
-  toWorkspaceIdentifier
-} from "../../../../platform/workspace/common/workspace.js";
-import {
-  Extensions as WorkbenchExtensions
-} from "../../../common/contributions.js";
-import { Memento } from "../../../common/memento.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { isProposedApiEnabled } from "../../extensions/common/extensions.js";
+import { IWorkspaceContextService, IWorkspace, isWorkspace, ISingleFolderWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, IWorkspaceIdentifier, toWorkspaceIdentifier, WORKSPACE_EXTENSION, isUntitledWorkspace, isTemporaryWorkspace } from "../../../../platform/workspace/common/workspace.js";
+import { basenameOrAuthority, basename, joinPath, dirname } from "../../../../base/common/resources.js";
+import { tildify, getPathLabel } from "../../../../base/common/labels.js";
+import { ILabelService, ResourceLabelFormatter, ResourceLabelFormatting, IFormatterChangeEvent, Verbosity } from "../../../../platform/label/common/label.js";
 import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
-import {
-  ILifecycleService,
-  LifecyclePhase
-} from "../../lifecycle/common/lifecycle.js";
+import { match } from "../../../../base/common/glob.js";
+import { ILifecycleService, LifecyclePhase } from "../../lifecycle/common/lifecycle.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IPathService } from "../../path/common/pathService.js";
+import { isProposedApiEnabled } from "../../extensions/common/extensions.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../common/memento.js";
 const resourceLabelFormattersExtPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "resourceLabelFormatters",
   jsonSchema: {
-    description: localize(
-      "vscode.extension.contributes.resourceLabelFormatters",
-      "Contributes resource label formatting rules."
-    ),
+    description: localize("vscode.extension.contributes.resourceLabelFormatters", "Contributes resource label formatting rules."),
     type: "array",
     items: {
       type: "object",
@@ -79,59 +44,35 @@ const resourceLabelFormattersExtPoint = ExtensionsRegistry.registerExtensionPoin
       properties: {
         scheme: {
           type: "string",
-          description: localize(
-            "vscode.extension.contributes.resourceLabelFormatters.scheme",
-            'URI scheme on which to match the formatter on. For example "file". Simple glob patterns are supported.'
-          )
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.scheme", 'URI scheme on which to match the formatter on. For example "file". Simple glob patterns are supported.')
         },
         authority: {
           type: "string",
-          description: localize(
-            "vscode.extension.contributes.resourceLabelFormatters.authority",
-            "URI authority on which to match the formatter on. Simple glob patterns are supported."
-          )
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.authority", "URI authority on which to match the formatter on. Simple glob patterns are supported.")
         },
         formatting: {
-          description: localize(
-            "vscode.extension.contributes.resourceLabelFormatters.formatting",
-            "Rules for formatting uri resource labels."
-          ),
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.formatting", "Rules for formatting uri resource labels."),
           type: "object",
           properties: {
             label: {
               type: "string",
-              description: localize(
-                "vscode.extension.contributes.resourceLabelFormatters.label",
-                "Label rules to display. For example: myLabel:/${path}. ${path}, ${scheme}, ${authority} and ${authoritySuffix} are supported as variables."
-              )
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.label", "Label rules to display. For example: myLabel:/${path}. ${path}, ${scheme}, ${authority} and ${authoritySuffix} are supported as variables.")
             },
             separator: {
               type: "string",
-              description: localize(
-                "vscode.extension.contributes.resourceLabelFormatters.separator",
-                "Separator to be used in the uri label display. '/' or '' as an example."
-              )
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.separator", "Separator to be used in the uri label display. '/' or '' as an example.")
             },
             stripPathStartingSeparator: {
               type: "boolean",
-              description: localize(
-                "vscode.extension.contributes.resourceLabelFormatters.stripPathStartingSeparator",
-                "Controls whether `${path}` substitutions should have starting separator characters stripped."
-              )
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.stripPathStartingSeparator", "Controls whether `${path}` substitutions should have starting separator characters stripped.")
             },
             tildify: {
               type: "boolean",
-              description: localize(
-                "vscode.extension.contributes.resourceLabelFormatters.tildify",
-                "Controls if the start of the uri label should be tildified when possible."
-              )
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.tildify", "Controls if the start of the uri label should be tildified when possible.")
             },
             workspaceSuffix: {
               type: "string",
-              description: localize(
-                "vscode.extension.contributes.resourceLabelFormatters.formatting.workspaceSuffix",
-                "Suffix appended to the workspace label."
-              )
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.formatting.workspaceSuffix", "Suffix appended to the workspace label.")
             }
           }
         }
@@ -161,16 +102,10 @@ let ResourceLabelFormattersHandler = class {
           if (typeof formatter.formatting.separator !== `string`) {
             formatter.formatting.separator = sep;
           }
-          if (!isProposedApiEnabled(
-            added.description,
-            "contribLabelFormatterWorkspaceTooltip"
-          ) && formatter.formatting.workspaceTooltip) {
+          if (!isProposedApiEnabled(added.description, "contribLabelFormatterWorkspaceTooltip") && formatter.formatting.workspaceTooltip) {
             formatter.formatting.workspaceTooltip = void 0;
           }
-          this.formattersDisposables.set(
-            formatter,
-            labelService.registerFormatter(formatter)
-          );
+          this.formattersDisposables.set(formatter, labelService.registerFormatter(formatter));
         }
       }
       for (const removed of delta.removed) {
@@ -184,12 +119,7 @@ let ResourceLabelFormattersHandler = class {
 ResourceLabelFormattersHandler = __decorateClass([
   __decorateParam(0, ILabelService)
 ], ResourceLabelFormattersHandler);
-Registry.as(
-  WorkbenchExtensions.Workbench
-).registerWorkbenchContribution(
-  ResourceLabelFormattersHandler,
-  LifecyclePhase.Restored
-);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(ResourceLabelFormattersHandler, LifecyclePhase.Restored);
 const FORMATTER_CACHE_SIZE = 50;
 let LabelService = class extends Disposable {
   constructor(environmentService, contextService, pathService, remoteAgentService, storageService, lifecycleService) {
@@ -200,14 +130,8 @@ let LabelService = class extends Disposable {
     this.remoteAgentService = remoteAgentService;
     this.os = OS;
     this.userHome = pathService.defaultUriScheme === Schemas.file ? this.pathService.userHome({ preferLocal: true }) : void 0;
-    const memento = this.storedFormattersMemento = new Memento(
-      "cachedResourceLabelFormatters2",
-      storageService
-    );
-    this.storedFormatters = memento.getMemento(
-      StorageScope.PROFILE,
-      StorageTarget.MACHINE
-    );
+    const memento = this.storedFormattersMemento = new Memento("cachedResourceLabelFormatters2", storageService);
+    this.storedFormatters = memento.getMemento(StorageScope.PROFILE, StorageTarget.MACHINE);
     this.formatters = this.storedFormatters?.formatters?.slice() || [];
     this.resolveRemoteEnvironment();
   }
@@ -215,9 +139,7 @@ let LabelService = class extends Disposable {
     __name(this, "LabelService");
   }
   formatters;
-  _onDidChangeFormatters = this._register(
-    new Emitter({ leakWarningThreshold: 400 })
-  );
+  _onDidChangeFormatters = this._register(new Emitter({ leakWarningThreshold: 400 }));
   onDidChangeFormatters = this._onDidChangeFormatters.event;
   storedFormattersMemento;
   storedFormatters;
@@ -239,10 +161,7 @@ let LabelService = class extends Disposable {
         if (!formatter.authority) {
           continue;
         }
-        if (match(
-          formatter.authority.toLowerCase(),
-          resource.authority.toLowerCase()
-        ) && (!bestResult || !bestResult.authority || formatter.authority.length > bestResult.authority.length || formatter.authority.length === bestResult.authority.length && formatter.priority)) {
+        if (match(formatter.authority.toLowerCase(), resource.authority.toLowerCase()) && (!bestResult || !bestResult.authority || formatter.authority.length > bestResult.authority.length || formatter.authority.length === bestResult.authority.length && formatter.priority)) {
           bestResult = formatter;
         }
       }
@@ -268,9 +187,7 @@ let LabelService = class extends Disposable {
         relative: options.relative ? {
           noPrefix: options.noPrefix,
           getWorkspace: /* @__PURE__ */ __name(() => this.contextService.getWorkspace(), "getWorkspace"),
-          getWorkspaceFolder: /* @__PURE__ */ __name((resource2) => this.contextService.getWorkspaceFolder(
-            resource2
-          ), "getWorkspaceFolder")
+          getWorkspaceFolder: /* @__PURE__ */ __name((resource2) => this.contextService.getWorkspaceFolder(resource2), "getWorkspaceFolder")
         } : void 0
       });
     }
@@ -280,22 +197,12 @@ let LabelService = class extends Disposable {
         const workspace = this.contextService.getWorkspace();
         const firstFolder = workspace.folders.at(0);
         if (firstFolder && resource.scheme !== firstFolder.uri.scheme && resource.path.startsWith(posix.sep)) {
-          folder = this.contextService.getWorkspaceFolder(
-            firstFolder.uri.with({ path: resource.path })
-          );
+          folder = this.contextService.getWorkspaceFolder(firstFolder.uri.with({ path: resource.path }));
         }
       }
       if (folder) {
-        const folderLabel = this.formatUri(
-          folder.uri,
-          formatting,
-          options.noPrefix
-        );
-        let relativeLabel = this.formatUri(
-          resource,
-          formatting,
-          options.noPrefix
-        );
+        const folderLabel = this.formatUri(folder.uri, formatting, options.noPrefix);
+        let relativeLabel = this.formatUri(resource, formatting, options.noPrefix);
         let overlap = 0;
         while (relativeLabel[overlap] && relativeLabel[overlap] === folderLabel[overlap]) {
           overlap++;
@@ -356,10 +263,7 @@ let LabelService = class extends Disposable {
     }
     let filename = basename(workspaceUri);
     if (filename.endsWith(WORKSPACE_EXTENSION)) {
-      filename = filename.substr(
-        0,
-        filename.length - WORKSPACE_EXTENSION.length - 1
-      );
+      filename = filename.substr(0, filename.length - WORKSPACE_EXTENSION.length - 1);
     }
     let label;
     switch (options?.verbose) {
@@ -367,11 +271,7 @@ let LabelService = class extends Disposable {
         label = filename;
         break;
       case Verbosity.LONG:
-        label = localize(
-          "workspaceNameVerbose",
-          "{0} (Workspace)",
-          this.getUriLabel(joinPath(dirname(workspaceUri), filename))
-        );
+        label = localize("workspaceNameVerbose", "{0} (Workspace)", this.getUriLabel(joinPath(dirname(workspaceUri), filename)));
         break;
       case Verbosity.MEDIUM:
       default:
@@ -414,9 +314,7 @@ let LabelService = class extends Disposable {
   }
   registerCachedFormatter(formatter) {
     const list = this.storedFormatters.formatters ??= [];
-    let replace = list.findIndex(
-      (f) => f.scheme === formatter.scheme && f.authority === formatter.authority
-    );
+    let replace = list.findIndex((f) => f.scheme === formatter.scheme && f.authority === formatter.authority);
     if (replace === -1 && list.length >= FORMATTER_CACHE_SIZE) {
       replace = FORMATTER_CACHE_SIZE - 1;
     }
@@ -436,45 +334,38 @@ let LabelService = class extends Disposable {
     this._onDidChangeFormatters.fire({ scheme: formatter.scheme });
     return {
       dispose: /* @__PURE__ */ __name(() => {
-        this.formatters = this.formatters.filter(
-          (f) => f !== formatter
-        );
+        this.formatters = this.formatters.filter((f) => f !== formatter);
         this._onDidChangeFormatters.fire({ scheme: formatter.scheme });
       }, "dispose")
     };
   }
   formatUri(resource, formatting, forceNoTildify) {
-    let label = formatting.label.replace(
-      labelMatchingRegexp,
-      (match2, token, qsToken, qsValue) => {
-        switch (token) {
-          case "scheme":
-            return resource.scheme;
-          case "authority":
-            return resource.authority;
-          case "authoritySuffix": {
-            const i = resource.authority.indexOf("+");
-            return i === -1 ? resource.authority : resource.authority.slice(i + 1);
-          }
-          case "path":
-            return formatting.stripPathStartingSeparator ? resource.path.slice(
-              resource.path[0] === formatting.separator ? 1 : 0
-            ) : resource.path;
-          default: {
-            if (qsToken === "query") {
-              const { query } = resource;
-              if (query && query[0] === "{" && query[query.length - 1] === "}") {
-                try {
-                  return JSON.parse(query)[qsValue] || "";
-                } catch {
-                }
+    let label = formatting.label.replace(labelMatchingRegexp, (match2, token, qsToken, qsValue) => {
+      switch (token) {
+        case "scheme":
+          return resource.scheme;
+        case "authority":
+          return resource.authority;
+        case "authoritySuffix": {
+          const i = resource.authority.indexOf("+");
+          return i === -1 ? resource.authority : resource.authority.slice(i + 1);
+        }
+        case "path":
+          return formatting.stripPathStartingSeparator ? resource.path.slice(resource.path[0] === formatting.separator ? 1 : 0) : resource.path;
+        default: {
+          if (qsToken === "query") {
+            const { query } = resource;
+            if (query && query[0] === "{" && query[query.length - 1] === "}") {
+              try {
+                return JSON.parse(query)[qsValue] || "";
+              } catch {
               }
             }
-            return "";
           }
+          return "";
         }
       }
-    );
+    });
     if (formatting.normalizeDriveLetter && hasDriveLetterIgnorePlatform(label)) {
       label = label.charAt(1).toUpperCase() + label.substr(2);
     }

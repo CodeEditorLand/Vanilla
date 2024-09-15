@@ -1,11 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../../base/common/buffer.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import {
-  compressOutputItemStreams,
-  isTextStreamMime
-} from "../notebookCommon.js";
+import { ICellOutput, IOutputDto, IOutputItemDto, compressOutputItemStreams, isTextStreamMime } from "../notebookCommon.js";
 class NotebookCellOutputTextModel extends Disposable {
   constructor(_rawOutput) {
     super();
@@ -88,9 +86,7 @@ class NotebookCellOutputTextModel extends Disposable {
       });
       this.outputs.length = 0;
       mimeTypes.forEach((mime) => {
-        const compressionResult = compressOutputItemStreams(
-          mimeOutputs.get(mime)
-        );
+        const compressionResult = compressOutputItemStreams(mimeOutputs.get(mime));
         this.outputs.push({
           mime,
           data: compressionResult.data

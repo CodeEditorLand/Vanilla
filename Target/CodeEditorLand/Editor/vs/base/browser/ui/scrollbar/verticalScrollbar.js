@@ -1,15 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Codicon } from "../../../common/codicons.js";
-import {
-  ScrollbarVisibility
-} from "../../../common/scrollable.js";
 import { StandardWheelEvent } from "../../mouseEvent.js";
-import {
-  AbstractScrollbar
-} from "./abstractScrollbar.js";
+import { AbstractScrollbar, ISimplifiedPointerEvent, ScrollbarHost } from "./abstractScrollbar.js";
+import { ScrollableElementResolvedOptions } from "./scrollableElementOptions.js";
 import { ARROW_IMG_SIZE } from "./scrollbarArrow.js";
 import { ScrollbarState } from "./scrollbarState.js";
+import { Codicon } from "../../../common/codicons.js";
+import { INewScrollPosition, Scrollable, ScrollbarVisibility, ScrollEvent } from "../../../common/scrollable.js";
 class VerticalScrollbar extends AbstractScrollbar {
   static {
     __name(this, "VerticalScrollbar");
@@ -57,19 +54,10 @@ class VerticalScrollbar extends AbstractScrollbar {
         right: void 0,
         bgWidth: options.verticalScrollbarSize,
         bgHeight: options.arrowSize,
-        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(
-          new StandardWheelEvent(null, 0, -1)
-        ), "onActivate")
+        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(new StandardWheelEvent(null, 0, -1)), "onActivate")
       });
     }
-    this._createSlider(
-      0,
-      Math.floor(
-        (options.verticalScrollbarSize - options.verticalSliderSize) / 2
-      ),
-      options.verticalSliderSize,
-      void 0
-    );
+    this._createSlider(0, Math.floor((options.verticalScrollbarSize - options.verticalSliderSize) / 2), options.verticalSliderSize, void 0);
   }
   _updateSlider(sliderSize, sliderPosition) {
     this.slider.setHeight(sliderSize);
@@ -103,9 +91,7 @@ class VerticalScrollbar extends AbstractScrollbar {
     target.scrollTop = scrollPosition;
   }
   updateOptions(options) {
-    this.updateScrollbarSize(
-      options.vertical === ScrollbarVisibility.Hidden ? 0 : options.verticalScrollbarSize
-    );
+    this.updateScrollbarSize(options.vertical === ScrollbarVisibility.Hidden ? 0 : options.verticalScrollbarSize);
     this._scrollbarState.setOppositeScrollbarSize(0);
     this._visibilityController.setVisibility(options.vertical);
     this._scrollByPage = options.scrollByPage;

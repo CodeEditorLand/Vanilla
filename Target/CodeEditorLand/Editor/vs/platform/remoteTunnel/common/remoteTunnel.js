@@ -1,19 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../nls.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IRemoteTunnelService = createDecorator(
-  "IRemoteTunnelService"
-);
+import { Event } from "../../../base/common/event.js";
+import { localize } from "../../../nls.js";
+const IRemoteTunnelService = createDecorator("IRemoteTunnelService");
 const INACTIVE_TUNNEL_MODE = { active: false };
 var TunnelStates;
 ((TunnelStates2) => {
   TunnelStates2.disconnected = /* @__PURE__ */ __name((onTokenFailed) => ({ type: "disconnected", onTokenFailed }), "disconnected");
   TunnelStates2.connected = /* @__PURE__ */ __name((info, serviceInstallFailed) => ({ type: "connected", info, serviceInstallFailed }), "connected");
-  TunnelStates2.connecting = /* @__PURE__ */ __name((progress) => ({
-    type: "connecting",
-    progress
-  }), "connecting");
+  TunnelStates2.connecting = /* @__PURE__ */ __name((progress) => ({ type: "connecting", progress }), "connecting");
   TunnelStates2.uninitialized = { type: "uninitialized" };
 })(TunnelStates || (TunnelStates = {}));
 const CONFIGURATION_KEY_PREFIX = "remote.tunnels.access";

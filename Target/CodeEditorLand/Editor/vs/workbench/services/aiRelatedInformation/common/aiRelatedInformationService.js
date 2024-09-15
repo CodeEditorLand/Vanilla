@@ -10,19 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  createCancelablePromise,
-  raceTimeout
-} from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { CancelablePromise, createCancelablePromise, raceTimeout } from "../../../../base/common/async.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IAiRelatedInformationService
-} from "./aiRelatedInformation.js";
+import { IAiRelatedInformationService, IAiRelatedInformationProvider, RelatedInformationType, RelatedInformationResult } from "./aiRelatedInformation.js";
 let AiRelatedInformationService = class {
   constructor(logService) {
     this.logService = logService;
@@ -66,18 +60,13 @@ let AiRelatedInformationService = class {
       }
     }
     if (providers.length === 0) {
-      throw new Error(
-        "No related information providers registered for the given types"
-      );
+      throw new Error("No related information providers registered for the given types");
     }
     const stopwatch = StopWatch.create();
     const cancellablePromises = providers.map((provider) => {
       return createCancelablePromise(async (t) => {
         try {
-          const result = await provider.provideAiRelatedInformation(
-            query,
-            t
-          );
+          const result = await provider.provideAiRelatedInformation(query, t);
           return result.filter((r) => types.includes(r.type));
         } catch (e) {
         }
@@ -90,34 +79,24 @@ let AiRelatedInformationService = class {
         AiRelatedInformationService.DEFAULT_TIMEOUT,
         () => {
           cancellablePromises.forEach((p) => p.cancel());
-          this.logService.warn(
-            "[AiRelatedInformationService]: Related information provider timed out"
-          );
+          this.logService.warn("[AiRelatedInformationService]: Related information provider timed out");
         }
       );
       if (!results) {
         return [];
       }
-      const result = results.filter((r) => r.status === "fulfilled").flatMap(
-        (r) => r.value
-      );
+      const result = results.filter((r) => r.status === "fulfilled").flatMap((r) => r.value);
       return result;
     } finally {
       stopwatch.stop();
-      this.logService.trace(
-        `[AiRelatedInformationService]: getRelatedInformation took ${stopwatch.elapsed()}ms`
-      );
+      this.logService.trace(`[AiRelatedInformationService]: getRelatedInformation took ${stopwatch.elapsed()}ms`);
     }
   }
 };
 AiRelatedInformationService = __decorateClass([
   __decorateParam(0, ILogService)
 ], AiRelatedInformationService);
-registerSingleton(
-  IAiRelatedInformationService,
-  AiRelatedInformationService,
-  InstantiationType.Delayed
-);
+registerSingleton(IAiRelatedInformationService, AiRelatedInformationService, InstantiationType.Delayed);
 export {
   AiRelatedInformationService
 };

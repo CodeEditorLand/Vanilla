@@ -1,17 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { filterValidationDecorations } from "../config/editorOptions.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
 import { Position } from "../core/position.js";
 import { Range } from "../core/range.js";
+import { IEditorConfiguration } from "../config/editorConfiguration.js";
+import { IModelDecoration, ITextModel, PositionAffinity } from "../model.js";
+import { IViewModelLines } from "./viewModelLines.js";
+import { ICoordinatesConverter, InlineDecoration, InlineDecorationType, ViewModelDecoration } from "../viewModel.js";
+import { filterValidationDecorations } from "../config/editorOptions.js";
 import { StandardTokenType } from "../encodedTokenAttributes.js";
-import {
-  PositionAffinity
-} from "../model.js";
-import {
-  InlineDecoration,
-  InlineDecorationType,
-  ViewModelDecoration
-} from "../viewModel.js";
 class ViewModelDecorations {
   static {
     __name(this, "ViewModelDecorations");
@@ -62,32 +59,11 @@ class ViewModelDecorations {
       const options = modelDecoration.options;
       let viewRange;
       if (options.isWholeLine) {
-        const start = this._coordinatesConverter.convertModelPositionToViewPosition(
-          new Position(modelRange.startLineNumber, 1),
-          PositionAffinity.Left,
-          false,
-          true
-        );
-        const end = this._coordinatesConverter.convertModelPositionToViewPosition(
-          new Position(
-            modelRange.endLineNumber,
-            this.model.getLineMaxColumn(
-              modelRange.endLineNumber
-            )
-          ),
-          PositionAffinity.Right
-        );
-        viewRange = new Range(
-          start.lineNumber,
-          start.column,
-          end.lineNumber,
-          end.column
-        );
+        const start = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.startLineNumber, 1), PositionAffinity.Left, false, true);
+        const end = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.endLineNumber, this.model.getLineMaxColumn(modelRange.endLineNumber)), PositionAffinity.Right);
+        viewRange = new Range(start.lineNumber, start.column, end.lineNumber, end.column);
       } else {
-        viewRange = this._coordinatesConverter.convertModelRangeToViewRange(
-          modelRange,
-          PositionAffinity.Right
-        );
+        viewRange = this._coordinatesConverter.convertModelRangeToViewRange(modelRange, PositionAffinity.Right);
       }
       r = new ViewModelDecoration(viewRange, options);
       this._decorationsCache[id] = r;
@@ -99,40 +75,19 @@ class ViewModelDecorations {
   }
   getDecorationsViewportData(viewRange) {
     let cacheIsValid = this._cachedModelDecorationsResolver !== null;
-    cacheIsValid = cacheIsValid && viewRange.equalsRange(
-      this._cachedModelDecorationsResolverViewRange
-    );
+    cacheIsValid = cacheIsValid && viewRange.equalsRange(this._cachedModelDecorationsResolverViewRange);
     if (!cacheIsValid) {
-      this._cachedModelDecorationsResolver = this._getDecorationsInRange(
-        viewRange,
-        false,
-        false
-      );
+      this._cachedModelDecorationsResolver = this._getDecorationsInRange(viewRange, false, false);
       this._cachedModelDecorationsResolverViewRange = viewRange;
     }
     return this._cachedModelDecorationsResolver;
   }
   getInlineDecorationsOnLine(lineNumber, onlyMinimapDecorations = false, onlyMarginDecorations = false) {
-    const range = new Range(
-      lineNumber,
-      this._linesCollection.getViewLineMinColumn(lineNumber),
-      lineNumber,
-      this._linesCollection.getViewLineMaxColumn(lineNumber)
-    );
-    return this._getDecorationsInRange(
-      range,
-      onlyMinimapDecorations,
-      onlyMarginDecorations
-    ).inlineDecorations[0];
+    const range = new Range(lineNumber, this._linesCollection.getViewLineMinColumn(lineNumber), lineNumber, this._linesCollection.getViewLineMaxColumn(lineNumber));
+    return this._getDecorationsInRange(range, onlyMinimapDecorations, onlyMarginDecorations).inlineDecorations[0];
   }
   _getDecorationsInRange(viewRange, onlyMinimapDecorations, onlyMarginDecorations) {
-    const modelDecorations = this._linesCollection.getDecorationsInRange(
-      viewRange,
-      this.editorId,
-      filterValidationDecorations(this.configuration.options),
-      onlyMinimapDecorations,
-      onlyMarginDecorations
-    );
+    const modelDecorations = this._linesCollection.getDecorationsInRange(viewRange, this.editorId, filterValidationDecorations(this.configuration.options), onlyMinimapDecorations, onlyMarginDecorations);
     const startLineNumber = viewRange.startLineNumber;
     const endLineNumber = viewRange.endLineNumber;
     const decorationsInViewport = [];
@@ -151,34 +106,17 @@ class ViewModelDecorations {
       const viewRange2 = viewModelDecoration.range;
       decorationsInViewport[decorationsInViewportLen++] = viewModelDecoration;
       if (decorationOptions.inlineClassName) {
-        const inlineDecoration = new InlineDecoration(
-          viewRange2,
-          decorationOptions.inlineClassName,
-          decorationOptions.inlineClassNameAffectsLetterSpacing ? InlineDecorationType.RegularAffectingLetterSpacing : InlineDecorationType.Regular
-        );
-        const intersectedStartLineNumber = Math.max(
-          startLineNumber,
-          viewRange2.startLineNumber
-        );
-        const intersectedEndLineNumber = Math.min(
-          endLineNumber,
-          viewRange2.endLineNumber
-        );
+        const inlineDecoration = new InlineDecoration(viewRange2, decorationOptions.inlineClassName, decorationOptions.inlineClassNameAffectsLetterSpacing ? InlineDecorationType.RegularAffectingLetterSpacing : InlineDecorationType.Regular);
+        const intersectedStartLineNumber = Math.max(startLineNumber, viewRange2.startLineNumber);
+        const intersectedEndLineNumber = Math.min(endLineNumber, viewRange2.endLineNumber);
         for (let j = intersectedStartLineNumber; j <= intersectedEndLineNumber; j++) {
-          inlineDecorations[j - startLineNumber].push(
-            inlineDecoration
-          );
+          inlineDecorations[j - startLineNumber].push(inlineDecoration);
         }
       }
       if (decorationOptions.beforeContentClassName) {
         if (startLineNumber <= viewRange2.startLineNumber && viewRange2.startLineNumber <= endLineNumber) {
           const inlineDecoration = new InlineDecoration(
-            new Range(
-              viewRange2.startLineNumber,
-              viewRange2.startColumn,
-              viewRange2.startLineNumber,
-              viewRange2.startColumn
-            ),
+            new Range(viewRange2.startLineNumber, viewRange2.startColumn, viewRange2.startLineNumber, viewRange2.startColumn),
             decorationOptions.beforeContentClassName,
             InlineDecorationType.Before
           );
@@ -188,12 +126,7 @@ class ViewModelDecorations {
       if (decorationOptions.afterContentClassName) {
         if (startLineNumber <= viewRange2.endLineNumber && viewRange2.endLineNumber <= endLineNumber) {
           const inlineDecoration = new InlineDecoration(
-            new Range(
-              viewRange2.endLineNumber,
-              viewRange2.endColumn,
-              viewRange2.endLineNumber,
-              viewRange2.endColumn
-            ),
+            new Range(viewRange2.endLineNumber, viewRange2.endColumn, viewRange2.endLineNumber, viewRange2.endColumn),
             decorationOptions.afterContentClassName,
             InlineDecorationType.After
           );
@@ -246,9 +179,7 @@ function testTokensInRange(model, range, callback) {
           break;
         }
       }
-      const callbackResult = callback(
-        lineTokens.getStandardTokenType(tokenIdx)
-      );
+      const callbackResult = callback(lineTokens.getStandardTokenType(tokenIdx));
       if (!callbackResult) {
         return false;
       }

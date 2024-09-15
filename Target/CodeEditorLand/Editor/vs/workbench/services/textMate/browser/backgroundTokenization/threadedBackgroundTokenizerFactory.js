@@ -10,27 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createWebWorker } from "../../../../../base/browser/defaultWorkerFactory.js";
 import { canASAR } from "../../../../../base/common/amd.js";
-import {
-  DisposableStore,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
-import {
-  FileAccess,
-  nodeModulesAsarPath,
-  nodeModulesPath
-} from "../../../../../base/common/network.js";
+import { DisposableStore, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { AppResourcePath, FileAccess, nodeModulesAsarPath, nodeModulesPath } from "../../../../../base/common/network.js";
+import { IObservable } from "../../../../../base/common/observable.js";
 import { isWeb } from "../../../../../base/common/platform.js";
-import { URI } from "../../../../../base/common/uri.js";
+import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { IBackgroundTokenizationStore, IBackgroundTokenizer } from "../../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IEnvironmentService } from "../../../../../platform/environment/common/environment.js";
 import { IExtensionResourceLoaderService } from "../../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
 import { INotificationService } from "../../../../../platform/notification/common/notification.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { TextMateWorkerTokenizerController } from "./textMateWorkerTokenizerController.js";
+import { ICreateData, StateDeltas, TextMateTokenizationWorker } from "./worker/textMateTokenizationWorker.worker.js";
 import { TextMateWorkerHost } from "./worker/textMateWorkerHost.js";
+import { TextMateWorkerTokenizerController } from "./textMateWorkerTokenizerController.js";
+import { IValidGrammarDefinition } from "../../common/TMScopeRegistry.js";
+import { createWebWorker } from "../../../../../base/browser/defaultWorkerFactory.js";
+import { IWorkerClient, Proxied } from "../../../../../base/common/worker/simpleWorker.js";
 let ThreadedBackgroundTokenizerFactory = class {
   constructor(_reportTokenizationTime, _shouldTokenizeAsync, _extensionResourceLoaderService, _configurationService, _languageService, _environmentService, _notificationService, _telemetryService) {
     this._reportTokenizationTime = _reportTokenizationTime;
@@ -62,42 +61,23 @@ let ThreadedBackgroundTokenizerFactory = class {
       return void 0;
     }
     const store = new DisposableStore();
-    const controllerContainer = this._getWorkerProxy().then(
-      (workerProxy) => {
-        if (store.isDisposed || !workerProxy) {
-          return void 0;
-        }
-        const controllerContainer2 = {
-          controller: void 0,
-          worker: this._worker
-        };
-        store.add(
-          keepAliveWhenAttached(textModel, () => {
-            const controller = new TextMateWorkerTokenizerController(
-              textModel,
-              workerProxy,
-              this._languageService.languageIdCodec,
-              tokenStore,
-              this._configurationService,
-              maxTokenizationLineLength
-            );
-            controllerContainer2.controller = controller;
-            this._workerTokenizerControllers.set(
-              controller.controllerId,
-              controller
-            );
-            return toDisposable(() => {
-              controllerContainer2.controller = void 0;
-              this._workerTokenizerControllers.delete(
-                controller.controllerId
-              );
-              controller.dispose();
-            });
-          })
-        );
-        return controllerContainer2;
+    const controllerContainer = this._getWorkerProxy().then((workerProxy) => {
+      if (store.isDisposed || !workerProxy) {
+        return void 0;
       }
-    );
+      const controllerContainer2 = { controller: void 0, worker: this._worker };
+      store.add(keepAliveWhenAttached(textModel, () => {
+        const controller = new TextMateWorkerTokenizerController(textModel, workerProxy, this._languageService.languageIdCodec, tokenStore, this._configurationService, maxTokenizationLineLength);
+        controllerContainer2.controller = controller;
+        this._workerTokenizerControllers.set(controller.controllerId, controller);
+        return toDisposable(() => {
+          controllerContainer2.controller = void 0;
+          this._workerTokenizerControllers.delete(controller.controllerId);
+          controller.dispose();
+        });
+      }));
+      return controllerContainer2;
+    });
     return {
       dispose() {
         store.dispose();
@@ -105,10 +85,7 @@ let ThreadedBackgroundTokenizerFactory = class {
       requestTokens: /* @__PURE__ */ __name(async (startLineNumber, endLineNumberExclusive) => {
         const container = await controllerContainer;
         if (container?.controller && container.worker === this._worker) {
-          container.controller.requestTokens(
-            startLineNumber,
-            endLineNumberExclusive
-          );
+          container.controller.requestTokens(startLineNumber, endLineNumberExclusive);
         }
       }, "requestTokens"),
       reportMismatchingTokens: /* @__PURE__ */ __name((lineNumber) => {
@@ -132,10 +109,7 @@ let ThreadedBackgroundTokenizerFactory = class {
     this._currentTheme = theme;
     this._currentTokenColorMap = colorMap;
     if (this._currentTheme && this._currentTokenColorMap && this._workerProxy) {
-      this._workerProxy.$acceptTheme(
-        this._currentTheme,
-        this._currentTokenColorMap
-      );
+      this._workerProxy.$acceptTheme(this._currentTheme, this._currentTokenColorMap);
     }
   }
   _getWorkerProxy() {
@@ -161,29 +135,16 @@ let ThreadedBackgroundTokenizerFactory = class {
     TextMateWorkerHost.setChannel(worker, {
       $readFile: /* @__PURE__ */ __name(async (_resource) => {
         const resource = URI.revive(_resource);
-        return this._extensionResourceLoaderService.readExtensionResource(
-          resource
-        );
+        return this._extensionResourceLoaderService.readExtensionResource(resource);
       }, "$readFile"),
       $setTokensAndStates: /* @__PURE__ */ __name(async (controllerId, versionId, tokens, lineEndStateDeltas) => {
         const controller = this._workerTokenizerControllers.get(controllerId);
         if (controller) {
-          controller.setTokensAndStates(
-            controllerId,
-            versionId,
-            tokens,
-            lineEndStateDeltas
-          );
+          controller.setTokensAndStates(controllerId, versionId, tokens, lineEndStateDeltas);
         }
       }, "$setTokensAndStates"),
       $reportTokenizationTime: /* @__PURE__ */ __name((timeMs, languageId, sourceExtensionId, lineLength, isRandomSample) => {
-        this._reportTokenizationTime(
-          timeMs,
-          languageId,
-          sourceExtensionId,
-          lineLength,
-          isRandomSample
-        );
+        this._reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, isRandomSample);
       }, "$reportTokenizationTime")
     });
     await worker.proxy.$init(createData);
@@ -192,10 +153,7 @@ let ThreadedBackgroundTokenizerFactory = class {
     }
     this._workerProxy = worker.proxy;
     if (this._currentTheme && this._currentTokenColorMap) {
-      this._workerProxy.$acceptTheme(
-        this._currentTheme,
-        this._currentTokenColorMap
-      );
+      this._workerProxy.$acceptTheme(this._currentTheme, this._currentTokenColorMap);
     }
     return worker.proxy;
   }
@@ -232,11 +190,9 @@ function keepAliveWhenAttached(textModel, factory) {
   }
   __name(checkAttached, "checkAttached");
   checkAttached();
-  disposableStore.add(
-    textModel.onDidChangeAttached(() => {
-      checkAttached();
-    })
-  );
+  disposableStore.add(textModel.onDidChangeAttached(() => {
+    checkAttached();
+  }));
   return disposableStore;
 }
 __name(keepAliveWhenAttached, "keepAliveWhenAttached");

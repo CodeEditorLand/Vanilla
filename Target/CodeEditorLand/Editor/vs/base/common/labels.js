@@ -2,9 +2,10 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { hasDriveLetter, toSlashes } from "./extpath.js";
 import { posix, sep, win32 } from "./path.js";
-import { OS, OperatingSystem, isMacintosh, isWindows } from "./platform.js";
+import { isMacintosh, isWindows, OperatingSystem, OS } from "./platform.js";
 import { extUri, extUriIgnorePathCase } from "./resources.js";
 import { rtrim, startsWithIgnoreCase } from "./strings.js";
+import { URI } from "./uri.js";
 function getPathLabel(resource, formatting) {
   const { os, tildify: tildifier, relative: relatifier } = formatting;
   if (relatifier) {
@@ -23,18 +24,14 @@ function getPathLabel(resource, formatting) {
     const userHome = tildifier.userHome.fsPath;
     let userHomeCandidate;
     if (resource.scheme !== tildifier.userHome.scheme && resource.path[0] === posix.sep && resource.path[1] !== posix.sep) {
-      userHomeCandidate = tildifier.userHome.with({
-        path: resource.path
-      }).fsPath;
+      userHomeCandidate = tildifier.userHome.with({ path: resource.path }).fsPath;
     } else {
       userHomeCandidate = absolutePath;
     }
     absolutePath = tildify(userHomeCandidate, userHome, os);
   }
   const pathLib = os === OperatingSystem.Windows ? win32 : posix;
-  return pathLib.normalize(
-    normalizeDriveLetter(absolutePath, os === OperatingSystem.Windows)
-  );
+  return pathLib.normalize(normalizeDriveLetter(absolutePath, os === OperatingSystem.Windows));
 }
 __name(getPathLabel, "getPathLabel");
 function getRelativePathLabel(resource, relativePathProvider, os) {
@@ -52,7 +49,7 @@ function getRelativePathLabel(resource, relativePathProvider, os) {
   if (!folder) {
     return void 0;
   }
-  let relativePathLabel;
+  let relativePathLabel = void 0;
   if (extUriLib.isEqual(folder.uri, resource)) {
     relativePathLabel = "";
   } else {
@@ -87,10 +84,7 @@ function tildify(path, userHome, os = OS) {
       normalizedUserHome = toSlashes(normalizedUserHome);
     }
     normalizedUserHome = `${rtrim(normalizedUserHome, posix.sep)}${posix.sep}`;
-    normalizedUserHomeCached = {
-      original: userHome,
-      normalized: normalizedUserHome
-    };
+    normalizedUserHomeCached = { original: userHome, normalized: normalizedUserHome };
   }
   let normalizedPath = path;
   if (isWindows) {
@@ -126,29 +120,14 @@ function shorten(paths, pathSeparator = sep) {
     let prefix = "";
     let trimmedPath = originalPath;
     if (trimmedPath.indexOf(unc) === 0) {
-      prefix = trimmedPath.substr(
-        0,
-        trimmedPath.indexOf(unc) + unc.length
-      );
-      trimmedPath = trimmedPath.substr(
-        trimmedPath.indexOf(unc) + unc.length
-      );
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(unc) + unc.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(unc) + unc.length);
     } else if (trimmedPath.indexOf(pathSeparator) === 0) {
-      prefix = trimmedPath.substr(
-        0,
-        trimmedPath.indexOf(pathSeparator) + pathSeparator.length
-      );
-      trimmedPath = trimmedPath.substr(
-        trimmedPath.indexOf(pathSeparator) + pathSeparator.length
-      );
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(pathSeparator) + pathSeparator.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(pathSeparator) + pathSeparator.length);
     } else if (trimmedPath.indexOf(home) === 0) {
-      prefix = trimmedPath.substr(
-        0,
-        trimmedPath.indexOf(home) + home.length
-      );
-      trimmedPath = trimmedPath.substr(
-        trimmedPath.indexOf(home) + home.length
-      );
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(home) + home.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(home) + home.length);
     }
     const segments = trimmedPath.split(pathSeparator);
     for (let subpathLength = 1; match && subpathLength <= segments.length; subpathLength++) {
@@ -220,10 +199,7 @@ function template(template2, values = /* @__PURE__ */ Object.create(null)) {
       } else if (resolved) {
         const prevSegment = segments[segments.length - 1];
         if (!prevSegment || prevSegment.type !== 2 /* SEPARATOR */) {
-          segments.push({
-            value: resolved.label,
-            type: 2 /* SEPARATOR */
-          });
+          segments.push({ value: resolved.label, type: 2 /* SEPARATOR */ });
         }
       }
       curVal = "";
@@ -239,9 +215,7 @@ function template(template2, values = /* @__PURE__ */ Object.create(null)) {
     if (segment.type === 2 /* SEPARATOR */) {
       const left = segments[index - 1];
       const right = segments[index + 1];
-      return [left, right].every(
-        (segment2) => segment2 && (segment2.type === 1 /* VARIABLE */ || segment2.type === 0 /* TEXT */) && segment2.value.length > 0
-      );
+      return [left, right].every((segment2) => segment2 && (segment2.type === 1 /* VARIABLE */ || segment2.type === 0 /* TEXT */) && segment2.value.length > 0);
     }
     return true;
   }).map((segment) => segment.value).join("");
@@ -270,21 +244,11 @@ function unmnemonicLabel(label) {
 __name(unmnemonicLabel, "unmnemonicLabel");
 function splitRecentLabel(recentLabel) {
   if (recentLabel.endsWith("]")) {
-    const lastIndexOfSquareBracket = recentLabel.lastIndexOf(
-      " [",
-      recentLabel.length - 2
-    );
+    const lastIndexOfSquareBracket = recentLabel.lastIndexOf(" [", recentLabel.length - 2);
     if (lastIndexOfSquareBracket !== -1) {
-      const split = splitName(
-        recentLabel.substring(0, lastIndexOfSquareBracket)
-      );
-      const remoteNameWithSpace = recentLabel.substring(
-        lastIndexOfSquareBracket
-      );
-      return {
-        name: split.name + remoteNameWithSpace,
-        parentPath: split.parentPath
-      };
+      const split = splitName(recentLabel.substring(0, lastIndexOfSquareBracket));
+      const remoteNameWithSpace = recentLabel.substring(lastIndexOfSquareBracket);
+      return { name: split.name + remoteNameWithSpace, parentPath: split.parentPath };
     }
   }
   return splitName(recentLabel);

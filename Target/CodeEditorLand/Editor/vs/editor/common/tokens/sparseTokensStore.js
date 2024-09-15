@@ -1,8 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../../base/common/arrays.js";
-import { MetadataConsts } from "../encodedTokenAttributes.js";
+import { IRange, Range } from "../core/range.js";
 import { LineTokens } from "./lineTokens.js";
+import { SparseMultilineTokens } from "./sparseMultilineTokens.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { MetadataConsts } from "../encodedTokenAttributes.js";
 class SparseTokensStore {
   static {
     __name(this, "SparseTokensStore");
@@ -75,11 +78,7 @@ class SparseTokensStore {
     }
     insertPosition = insertPosition || { index: this._pieces.length };
     if (pieces.length > 0) {
-      this._pieces = arrays.arrayInsert(
-        this._pieces,
-        insertPosition.index,
-        pieces
-      );
+      this._pieces = arrays.arrayInsert(this._pieces, insertPosition.index, pieces);
     }
     return range;
   }
@@ -94,10 +93,7 @@ class SparseTokensStore {
     if (pieces.length === 0) {
       return aTokens;
     }
-    const pieceIndex = SparseTokensStore._findFirstPieceWithLine(
-      pieces,
-      lineNumber
-    );
+    const pieceIndex = SparseTokensStore._findFirstPieceWithLine(pieces, lineNumber);
     const bTokens = pieces[pieceIndex].getLineTokens(lineNumber);
     if (!bTokens) {
       return aTokens;
@@ -123,50 +119,31 @@ class SparseTokensStore {
       const bMask = ((bMetadata & MetadataConsts.SEMANTIC_USE_ITALIC ? MetadataConsts.ITALIC_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_BOLD ? MetadataConsts.BOLD_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_UNDERLINE ? MetadataConsts.UNDERLINE_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_STRIKETHROUGH ? MetadataConsts.STRIKETHROUGH_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_FOREGROUND ? MetadataConsts.FOREGROUND_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_BACKGROUND ? MetadataConsts.BACKGROUND_MASK : 0)) >>> 0;
       const aMask = ~bMask >>> 0;
       while (aIndex < aLen && aTokens.getEndOffset(aIndex) <= bStartCharacter) {
-        emitToken(
-          aTokens.getEndOffset(aIndex),
-          aTokens.getMetadata(aIndex)
-        );
+        emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex));
         aIndex++;
       }
       if (aIndex < aLen && aTokens.getStartOffset(aIndex) < bStartCharacter) {
         emitToken(bStartCharacter, aTokens.getMetadata(aIndex));
       }
       while (aIndex < aLen && aTokens.getEndOffset(aIndex) < bEndCharacter) {
-        emitToken(
-          aTokens.getEndOffset(aIndex),
-          aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask
-        );
+        emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask);
         aIndex++;
       }
       if (aIndex < aLen) {
-        emitToken(
-          bEndCharacter,
-          aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask
-        );
+        emitToken(bEndCharacter, aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask);
         if (aTokens.getEndOffset(aIndex) === bEndCharacter) {
           aIndex++;
         }
       } else {
         const aMergeIndex = Math.min(Math.max(0, aIndex - 1), aLen - 1);
-        emitToken(
-          bEndCharacter,
-          aTokens.getMetadata(aMergeIndex) & aMask | bMetadata & bMask
-        );
+        emitToken(bEndCharacter, aTokens.getMetadata(aMergeIndex) & aMask | bMetadata & bMask);
       }
     }
     while (aIndex < aLen) {
-      emitToken(
-        aTokens.getEndOffset(aIndex),
-        aTokens.getMetadata(aIndex)
-      );
+      emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex));
       aIndex++;
     }
-    return new LineTokens(
-      new Uint32Array(result),
-      aTokens.getLineContent(),
-      this._languageIdCodec
-    );
+    return new LineTokens(new Uint32Array(result), aTokens.getLineContent(), this._languageIdCodec);
   }
   static _findFirstPieceWithLine(pieces, lineNumber) {
     let low = 0;
@@ -188,13 +165,7 @@ class SparseTokensStore {
   }
   acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode) {
     for (const piece of this._pieces) {
-      piece.acceptEdit(
-        range,
-        eolCount,
-        firstLineLength,
-        lastLineLength,
-        firstCharCode
-      );
+      piece.acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode);
     }
   }
 }

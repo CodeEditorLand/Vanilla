@@ -2,10 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  KeyMod as ConstKeyMod,
-  KeyChord
-} from "../../../base/common/keyCodes.js";
+import { KeyChord, KeyMod as ConstKeyMod } from "../../../base/common/keyCodes.js";
 import { URI } from "../../../base/common/uri.js";
 import { Position } from "../core/position.js";
 import { Range } from "../core/range.js";

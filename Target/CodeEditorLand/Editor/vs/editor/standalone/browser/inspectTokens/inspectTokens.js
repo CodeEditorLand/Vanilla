@@ -16,40 +16,24 @@ import { CharCode } from "../../../../base/common/charCode.js";
 import { Color } from "../../../../base/common/color.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../browser/editorBrowser.js";
-import {
-  EditorAction,
-  EditorContributionInstantiation,
-  registerEditorAction,
-  registerEditorContribution
-} from "../../../browser/editorExtensions.js";
-import {
-  FontStyle,
-  StandardTokenType,
-  TokenMetadata
-} from "../../../common/encodedTokenAttributes.js";
-import {
-  TokenizationRegistry
-} from "../../../common/languages.js";
+import { ContentWidgetPositionPreference, IActiveCodeEditor, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor, registerEditorAction, registerEditorContribution, EditorContributionInstantiation } from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { IEditorContribution } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
+import { IState, ITokenizationSupport, TokenizationRegistry, ILanguageIdCodec, Token } from "../../../common/languages.js";
+import { FontStyle, StandardTokenType, TokenMetadata } from "../../../common/encodedTokenAttributes.js";
+import { NullState, nullTokenize, nullTokenizeEncoded } from "../../../common/languages/nullTokenize.js";
 import { ILanguageService } from "../../../common/languages/language.js";
-import {
-  NullState,
-  nullTokenize,
-  nullTokenizeEncoded
-} from "../../../common/languages/nullTokenize.js";
-import { InspectTokensNLS } from "../../../common/standaloneStrings.js";
 import { IStandaloneThemeService } from "../../common/standaloneTheme.js";
+import { InspectTokensNLS } from "../../../common/standaloneStrings.js";
 let InspectTokensController = class extends Disposable {
   static {
     __name(this, "InspectTokensController");
   }
   static ID = "editor.contrib.inspectTokens";
   static get(editor) {
-    return editor.getContribution(
-      InspectTokensController.ID
-    );
+    return editor.getContribution(InspectTokensController.ID);
   }
   _editor;
   _languageService;
@@ -60,15 +44,9 @@ let InspectTokensController = class extends Disposable {
     this._languageService = languageService;
     this._widget = null;
     this._register(this._editor.onDidChangeModel((e) => this.stop()));
-    this._register(
-      this._editor.onDidChangeModelLanguage((e) => this.stop())
-    );
+    this._register(this._editor.onDidChangeModelLanguage((e) => this.stop()));
     this._register(TokenizationRegistry.onDidChange((e) => this.stop()));
-    this._register(
-      this._editor.onKeyUp(
-        (e) => e.keyCode === KeyCode.Escape && this.stop()
-      )
-    );
+    this._register(this._editor.onKeyUp((e) => e.keyCode === KeyCode.Escape && this.stop()));
   }
   dispose() {
     this.stop();
@@ -81,10 +59,7 @@ let InspectTokensController = class extends Disposable {
     if (!this._editor.hasModel()) {
       return;
     }
-    this._widget = new InspectTokensWidget(
-      this._editor,
-      this._languageService
-    );
+    this._widget = new InspectTokensWidget(this._editor, this._languageService);
   }
   stop() {
     if (this._widget) {
@@ -164,16 +139,9 @@ class InspectTokensWidget extends Disposable {
     this._model = this._editor.getModel();
     this._domNode = document.createElement("div");
     this._domNode.className = "tokens-inspect-widget";
-    this._tokenizationSupport = getSafeTokenizationSupport(
-      this._languageService.languageIdCodec,
-      this._model.getLanguageId()
-    );
+    this._tokenizationSupport = getSafeTokenizationSupport(this._languageService.languageIdCodec, this._model.getLanguageId());
     this._compute(this._editor.getPosition());
-    this._register(
-      this._editor.onDidChangeCursorPosition(
-        (e) => this._compute(this._editor.getPosition())
-      )
-    );
+    this._register(this._editor.onDidChangeCursorPosition((e) => this._compute(this._editor.getPosition())));
     this._editor.addContentWidget(this);
   }
   dispose() {
@@ -213,97 +181,52 @@ class InspectTokensWidget extends Disposable {
         "h2.tm-token",
         void 0,
         renderTokenText(tokenText),
-        $(
-          "span.tm-token-length",
-          void 0,
-          `${tokenText.length} ${tokenText.length === 1 ? "char" : "chars"}`
-        )
+        $("span.tm-token-length", void 0, `${tokenText.length} ${tokenText.length === 1 ? "char" : "chars"}`)
       )
     );
-    append(
-      this._domNode,
-      $("hr.tokens-inspect-separator", { style: "clear:both" })
-    );
+    append(this._domNode, $("hr.tokens-inspect-separator", { "style": "clear:both" }));
     const metadata = (token2Index << 1) + 1 < data.tokens2.length ? this._decodeMetadata(data.tokens2[(token2Index << 1) + 1]) : null;
-    append(
-      this._domNode,
+    append(this._domNode, $(
+      "table.tm-metadata-table",
+      void 0,
       $(
-        "table.tm-metadata-table",
+        "tbody",
         void 0,
         $(
-          "tbody",
+          "tr",
           void 0,
-          $(
-            "tr",
-            void 0,
-            $("td.tm-metadata-key", void 0, "language"),
-            $(
-              "td.tm-metadata-value",
-              void 0,
-              `${metadata ? metadata.languageId : "-?-"}`
-            )
-          ),
-          $(
-            "tr",
-            void 0,
-            $(
-              "td.tm-metadata-key",
-              void 0,
-              "token type"
-            ),
-            $(
-              "td.tm-metadata-value",
-              void 0,
-              `${metadata ? this._tokenTypeToString(metadata.tokenType) : "-?-"}`
-            )
-          ),
-          $(
-            "tr",
-            void 0,
-            $(
-              "td.tm-metadata-key",
-              void 0,
-              "font style"
-            ),
-            $(
-              "td.tm-metadata-value",
-              void 0,
-              `${metadata ? this._fontStyleToString(metadata.fontStyle) : "-?-"}`
-            )
-          ),
-          $(
-            "tr",
-            void 0,
-            $("td.tm-metadata-key", void 0, "foreground"),
-            $(
-              "td.tm-metadata-value",
-              void 0,
-              `${metadata ? Color.Format.CSS.formatHex(metadata.foreground) : "-?-"}`
-            )
-          ),
-          $(
-            "tr",
-            void 0,
-            $("td.tm-metadata-key", void 0, "background"),
-            $(
-              "td.tm-metadata-value",
-              void 0,
-              `${metadata ? Color.Format.CSS.formatHex(metadata.background) : "-?-"}`
-            )
-          )
+          $("td.tm-metadata-key", void 0, "language"),
+          $("td.tm-metadata-value", void 0, `${metadata ? metadata.languageId : "-?-"}`)
+        ),
+        $(
+          "tr",
+          void 0,
+          $("td.tm-metadata-key", void 0, "token type"),
+          $("td.tm-metadata-value", void 0, `${metadata ? this._tokenTypeToString(metadata.tokenType) : "-?-"}`)
+        ),
+        $(
+          "tr",
+          void 0,
+          $("td.tm-metadata-key", void 0, "font style"),
+          $("td.tm-metadata-value", void 0, `${metadata ? this._fontStyleToString(metadata.fontStyle) : "-?-"}`)
+        ),
+        $(
+          "tr",
+          void 0,
+          $("td.tm-metadata-key", void 0, "foreground"),
+          $("td.tm-metadata-value", void 0, `${metadata ? Color.Format.CSS.formatHex(metadata.foreground) : "-?-"}`)
+        ),
+        $(
+          "tr",
+          void 0,
+          $("td.tm-metadata-key", void 0, "background"),
+          $("td.tm-metadata-value", void 0, `${metadata ? Color.Format.CSS.formatHex(metadata.background) : "-?-"}`)
         )
       )
-    );
+    ));
     append(this._domNode, $("hr.tokens-inspect-separator"));
     if (token1Index < data.tokens1.length) {
-      append(
-        this._domNode,
-        $(
-          "span.tm-token-type",
-          void 0,
-          data.tokens1[token1Index].type
-        )
-      );
+      append(this._domNode, $("span.tm-token-type", void 0, data.tokens1[token1Index].type));
     }
     this._editor.layoutContentWidget(this);
   }
@@ -315,9 +238,7 @@ class InspectTokensWidget extends Disposable {
     const foreground = TokenMetadata.getForeground(metadata);
     const background = TokenMetadata.getBackground(metadata);
     return {
-      languageId: this._languageService.languageIdCodec.decodeLanguageId(
-        languageId
-      ),
+      languageId: this._languageService.languageIdCodec.decodeLanguageId(languageId),
       tokenType,
       fontStyle,
       foreground: colorMap[foreground],
@@ -359,16 +280,8 @@ class InspectTokensWidget extends Disposable {
   }
   _getTokensAtLine(lineNumber) {
     const stateBeforeLine = this._getStateBeforeLine(lineNumber);
-    const tokenizationResult1 = this._tokenizationSupport.tokenize(
-      this._model.getLineContent(lineNumber),
-      true,
-      stateBeforeLine
-    );
-    const tokenizationResult2 = this._tokenizationSupport.tokenizeEncoded(
-      this._model.getLineContent(lineNumber),
-      true,
-      stateBeforeLine
-    );
+    const tokenizationResult1 = this._tokenizationSupport.tokenize(this._model.getLineContent(lineNumber), true, stateBeforeLine);
+    const tokenizationResult2 = this._tokenizationSupport.tokenizeEncoded(this._model.getLineContent(lineNumber), true, stateBeforeLine);
     return {
       startState: stateBeforeLine,
       tokens1: tokenizationResult1.tokens,
@@ -379,11 +292,7 @@ class InspectTokensWidget extends Disposable {
   _getStateBeforeLine(lineNumber) {
     let state = this._tokenizationSupport.getInitialState();
     for (let i = 1; i < lineNumber; i++) {
-      const tokenizationResult = this._tokenizationSupport.tokenize(
-        this._model.getLineContent(i),
-        true,
-        state
-      );
+      const tokenizationResult = this._tokenizationSupport.tokenize(this._model.getLineContent(i), true, state);
       state = tokenizationResult.endState;
     }
     return state;
@@ -394,17 +303,10 @@ class InspectTokensWidget extends Disposable {
   getPosition() {
     return {
       position: this._editor.getPosition(),
-      preference: [
-        ContentWidgetPositionPreference.BELOW,
-        ContentWidgetPositionPreference.ABOVE
-      ]
+      preference: [ContentWidgetPositionPreference.BELOW, ContentWidgetPositionPreference.ABOVE]
     };
   }
 }
-registerEditorContribution(
-  InspectTokensController.ID,
-  InspectTokensController,
-  EditorContributionInstantiation.Lazy
-);
+registerEditorContribution(InspectTokensController.ID, InspectTokensController, EditorContributionInstantiation.Lazy);
 registerEditorAction(InspectTokens);
 //# sourceMappingURL=inspectTokens.js.map

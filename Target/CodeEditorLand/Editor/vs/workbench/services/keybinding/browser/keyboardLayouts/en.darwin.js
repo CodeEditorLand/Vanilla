@@ -1,43 +1,14 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.apple.keylayout.US",
-    lang: "en",
-    localizedName: "U.S.",
-    isUSStandard: true
-  },
+  layout: { id: "com.apple.keylayout.US", lang: "en", localizedName: "U.S.", isUSStandard: true },
   secondaryLayouts: [
     { id: "com.apple.keylayout.ABC", lang: "en", localizedName: "ABC" },
-    {
-      id: "com.sogou.inputmethod.sogou.pinyin",
-      lang: "zh-Hans",
-      localizedName: "Pinyin - Simplified"
-    },
-    {
-      id: "com.apple.inputmethod.Kotoeri.Roman",
-      lang: "en",
-      localizedName: "Romaji"
-    },
-    {
-      id: "com.apple.inputmethod.Kotoeri.Japanese",
-      lang: "ja",
-      localizedName: "Hiragana"
-    },
-    {
-      id: "com.apple.keylayout.Australian",
-      lang: "en",
-      localizedName: "Australian"
-    },
-    {
-      id: "com.apple.keylayout.Canadian",
-      lang: "en",
-      localizedName: "Canadian English"
-    },
-    {
-      id: "com.apple.keylayout.Brazilian",
-      lang: "pt",
-      localizedName: "Brazilian"
-    }
+    { id: "com.sogou.inputmethod.sogou.pinyin", lang: "zh-Hans", localizedName: "Pinyin - Simplified" },
+    { id: "com.apple.inputmethod.Kotoeri.Roman", lang: "en", localizedName: "Romaji" },
+    { id: "com.apple.inputmethod.Kotoeri.Japanese", lang: "ja", localizedName: "Hiragana" },
+    { id: "com.apple.keylayout.Australian", lang: "en", localizedName: "Australian" },
+    { id: "com.apple.keylayout.Canadian", lang: "en", localizedName: "Canadian English" },
+    { id: "com.apple.keylayout.Brazilian", lang: "pt", localizedName: "Brazilian" }
   ],
   mapping: {
     KeyA: ["a", "A", "\xE5", "\xC5", 0],

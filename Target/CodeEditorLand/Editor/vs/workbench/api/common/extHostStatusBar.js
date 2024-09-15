@@ -1,33 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { isNumber } from "../../../base/common/types.js";
+import { StatusBarAlignment as ExtHostStatusBarAlignment, Disposable, ThemeColor, asStatusBarItemIdentifier } from "./extHostTypes.js";
+import { MainContext, MainThreadStatusBarShape, IMainContext, ICommandDto, ExtHostStatusBarShape, StatusBarItemDto } from "./extHost.protocol.js";
 import { localize } from "../../../nls.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { CommandsConverter } from "./extHostCommands.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { MarkdownString } from "./extHostTypeConverters.js";
-import {
-  Disposable,
-  StatusBarAlignment as ExtHostStatusBarAlignment,
-  ThemeColor,
-  asStatusBarItemIdentifier
-} from "./extHostTypes.js";
+import { isNumber } from "../../../base/common/types.js";
 class ExtHostStatusBarEntry {
   static {
     __name(this, "ExtHostStatusBarEntry");
   }
   static ID_GEN = 0;
-  static ALLOWED_BACKGROUND_COLORS = /* @__PURE__ */ new Map([
+  static ALLOWED_BACKGROUND_COLORS = /* @__PURE__ */ new Map(
     [
-      "statusBarItem.errorBackground",
-      new ThemeColor("statusBarItem.errorForeground")
-    ],
-    [
-      "statusBarItem.warningBackground",
-      new ThemeColor("statusBarItem.warningForeground")
+      ["statusBarItem.errorBackground", new ThemeColor("statusBarItem.errorForeground")],
+      ["statusBarItem.warningBackground", new ThemeColor("statusBarItem.warningForeground")]
     ]
-  ]);
+  );
   #proxy;
   #commands;
   _entryId;
@@ -142,26 +133,18 @@ class ExtHostStatusBarEntry {
       return;
     }
     if (this._latestCommandRegistration) {
-      this._staleCommandRegistrations.add(
-        this._latestCommandRegistration
-      );
+      this._staleCommandRegistrations.add(this._latestCommandRegistration);
     }
     this._latestCommandRegistration = new DisposableStore();
     if (typeof command === "string") {
       this._command = {
         fromApi: command,
-        internal: this.#commands.toInternal(
-          { title: "", command },
-          this._latestCommandRegistration
-        )
+        internal: this.#commands.toInternal({ title: "", command }, this._latestCommandRegistration)
       };
     } else if (command) {
       this._command = {
         fromApi: command,
-        internal: this.#commands.toInternal(
-          command,
-          this._latestCommandRegistration
-        )
+        internal: this.#commands.toInternal(command, this._latestCommandRegistration)
       };
     } else {
       this._command = void 0;
@@ -202,17 +185,11 @@ class ExtHostStatusBarEntry {
       if (this._name) {
         name = this._name;
       } else {
-        name = localize(
-          "extensionLabel",
-          "{0} (Extension)",
-          this._extension.displayName || this._extension.name
-        );
+        name = localize("extensionLabel", "{0} (Extension)", this._extension.displayName || this._extension.name);
       }
       let color = this._color;
       if (this._backgroundColor) {
-        color = ExtHostStatusBarEntry.ALLOWED_BACKGROUND_COLORS.get(
-          this._backgroundColor.id
-        );
+        color = ExtHostStatusBarEntry.ALLOWED_BACKGROUND_COLORS.get(this._backgroundColor.id);
       }
       const tooltip = MarkdownString.fromStrict(this._tooltip);
       this.#proxy.$setEntry(
@@ -244,16 +221,8 @@ class StatusBarMessage {
   _item;
   _messages = [];
   constructor(statusBar) {
-    this._item = statusBar.createStatusBarEntry(
-      void 0,
-      "status.extensionMessage",
-      ExtHostStatusBarAlignment.Left,
-      Number.MIN_VALUE
-    );
-    this._item.name = localize(
-      "status.extensionMessage",
-      "Extension Status"
-    );
+    this._item = statusBar.createStatusBarEntry(void 0, "status.extensionMessage", ExtHostStatusBarAlignment.Left, Number.MIN_VALUE);
+    this._item.name = localize("status.extensionMessage", "Extension Status");
   }
   dispose() {
     this._messages.length = 0;
@@ -299,15 +268,7 @@ class ExtHostStatusBar {
     }
   }
   createStatusBarEntry(extension, id, alignment, priority) {
-    return new ExtHostStatusBarEntry(
-      this._proxy,
-      this._commands,
-      this._existingItems,
-      extension,
-      id,
-      alignment,
-      priority
-    );
+    return new ExtHostStatusBarEntry(this._proxy, this._commands, this._existingItems, extension, id, alignment, priority);
   }
   setStatusBarMessage(text, timeoutOrThenable) {
     const d = this._statusMessage.setMessage(text);
@@ -315,10 +276,7 @@ class ExtHostStatusBar {
     if (typeof timeoutOrThenable === "number") {
       handle = setTimeout(() => d.dispose(), timeoutOrThenable);
     } else if (typeof timeoutOrThenable !== "undefined") {
-      timeoutOrThenable.then(
-        () => d.dispose(),
-        () => d.dispose()
-      );
+      timeoutOrThenable.then(() => d.dispose(), () => d.dispose());
     }
     return new Disposable(() => {
       d.dispose();

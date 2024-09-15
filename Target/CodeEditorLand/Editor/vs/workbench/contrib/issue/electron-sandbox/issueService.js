@@ -13,56 +13,22 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { getZoomLevel } from "../../../../base/browser/browser.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { ipcRenderer } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import {
-  ExtensionIdentifier,
-  ExtensionIdentifierSet,
-  ExtensionType
-} from "../../../../platform/extensions/common/extensions.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  IIssueMainService
-} from "../../../../platform/issue/common/issue.js";
-import {
-  buttonBackground,
-  buttonForeground,
-  buttonHoverBackground,
-  foreground,
-  inputActiveOptionBorder,
-  inputBackground,
-  inputBorder,
-  inputForeground,
-  inputValidationErrorBackground,
-  inputValidationErrorBorder,
-  inputValidationErrorForeground,
-  scrollbarSliderActiveBackground,
-  scrollbarSliderBackground,
-  scrollbarSliderHoverBackground,
-  textLinkActiveForeground,
-  textLinkForeground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService
-} from "../../../../platform/theme/common/themeService.js";
+import { ExtensionIdentifier, ExtensionIdentifierSet, ExtensionType } from "../../../../platform/extensions/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IIssueMainService, OldIssueReporterData, OldIssueReporterExtensionData, OldIssueReporterStyles } from "../../../../platform/issue/common/issue.js";
+import { buttonBackground, buttonForeground, buttonHoverBackground, foreground, inputActiveOptionBorder, inputBackground, inputBorder, inputForeground, inputValidationErrorBackground, inputValidationErrorBorder, inputValidationErrorForeground, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground, textLinkActiveForeground, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { SIDE_BAR_BACKGROUND } from "../../../common/theme.js";
+import { IIssueFormService, IssueReporterData, IssueReporterExtensionData, IssueReporterStyles, IWorkbenchIssueService } from "../common/issue.js";
 import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
 import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
 import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { IIntegrityService } from "../../../services/integrity/common/integrity.js";
-import {
-  IIssueFormService,
-  IWorkbenchIssueService
-} from "../common/issue.js";
 let NativeIssueService = class {
   constructor(issueMainService, issueFormService, themeService, extensionManagementService, extensionEnablementService, workspaceTrustManagementService, experimentService, authenticationService, integrityService, menuService, contextKeyService, configurationService) {
     this.issueMainService = issueMainService;
@@ -79,9 +45,7 @@ let NativeIssueService = class {
     this.configurationService = configurationService;
     ipcRenderer.on("vscode:triggerReporterMenu", async (event, arg) => {
       const extensionId = arg.extensionId;
-      const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, {
-        renderShortTitle: true
-      }).flatMap((entry) => entry[1]);
+      const actions = this.menuService.getMenuActions(MenuId.IssueReporter, this.contextKeyService, { renderShortTitle: true }).flatMap((entry) => entry[1]);
       actions.forEach(async (action) => {
         try {
           if (action.item && "source" in action.item && action.item.source?.id === extensionId) {
@@ -93,10 +57,7 @@ let NativeIssueService = class {
         }
       });
       if (!this.extensionIdentifierSet.has(extensionId)) {
-        ipcRenderer.send(
-          `vscode:triggerReporterMenuResponse:${extensionId}`,
-          void 0
-        );
+        ipcRenderer.send(`vscode:triggerReporterMenuResponse:${extensionId}`, void 0);
       }
     });
   }
@@ -110,57 +71,47 @@ let NativeIssueService = class {
     const oldDataOverrides = dataOverrides;
     try {
       const extensions = await this.extensionManagementService.getInstalled();
-      const enabledExtensions = extensions.filter(
-        (extension) => this.extensionEnablementService.isEnabled(extension) || dataOverrides.extensionId && extension.identifier.id === dataOverrides.extensionId
-      );
-      extensionData.push(
-        ...enabledExtensions.map(
-          (extension) => {
-            const { manifest } = extension;
-            const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
-            const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
-            const isBuiltin = extension.type === ExtensionType.System;
-            return {
-              name: manifest.name,
-              publisher: manifest.publisher,
-              version: manifest.version,
-              repositoryUrl: manifest.repository && manifest.repository.url,
-              bugsUrl: manifest.bugs && manifest.bugs.url,
-              displayName: manifest.displayName,
-              id: extension.identifier.id,
-              data: dataOverrides.data,
-              uri: dataOverrides.uri,
-              isTheme,
-              isBuiltin,
-              extensionData: "Extensions data loading"
-            };
-          }
-        )
-      );
-      oldExtensionData.push(
-        ...enabledExtensions.map(
-          (extension) => {
-            const { manifest } = extension;
-            const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
-            const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
-            const isBuiltin = extension.type === ExtensionType.System;
-            return {
-              name: manifest.name,
-              publisher: manifest.publisher,
-              version: manifest.version,
-              repositoryUrl: manifest.repository && manifest.repository.url,
-              bugsUrl: manifest.bugs && manifest.bugs.url,
-              displayName: manifest.displayName,
-              id: extension.identifier.id,
-              data: dataOverrides.data,
-              uri: dataOverrides.uri,
-              isTheme,
-              isBuiltin,
-              extensionData: "Extensions data loading"
-            };
-          }
-        )
-      );
+      const enabledExtensions = extensions.filter((extension) => this.extensionEnablementService.isEnabled(extension) || dataOverrides.extensionId && extension.identifier.id === dataOverrides.extensionId);
+      extensionData.push(...enabledExtensions.map((extension) => {
+        const { manifest } = extension;
+        const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
+        const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
+        const isBuiltin = extension.type === ExtensionType.System;
+        return {
+          name: manifest.name,
+          publisher: manifest.publisher,
+          version: manifest.version,
+          repositoryUrl: manifest.repository && manifest.repository.url,
+          bugsUrl: manifest.bugs && manifest.bugs.url,
+          displayName: manifest.displayName,
+          id: extension.identifier.id,
+          data: dataOverrides.data,
+          uri: dataOverrides.uri,
+          isTheme,
+          isBuiltin,
+          extensionData: "Extensions data loading"
+        };
+      }));
+      oldExtensionData.push(...enabledExtensions.map((extension) => {
+        const { manifest } = extension;
+        const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
+        const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
+        const isBuiltin = extension.type === ExtensionType.System;
+        return {
+          name: manifest.name,
+          publisher: manifest.publisher,
+          version: manifest.version,
+          repositoryUrl: manifest.repository && manifest.repository.url,
+          bugsUrl: manifest.bugs && manifest.bugs.url,
+          displayName: manifest.displayName,
+          id: extension.identifier.id,
+          data: dataOverrides.data,
+          uri: dataOverrides.uri,
+          isTheme,
+          isBuiltin,
+          extensionData: "Extensions data loading"
+        };
+      }));
     } catch (e) {
       extensionData.push({
         name: "Workbench Issue Service",
@@ -191,9 +142,7 @@ let NativeIssueService = class {
     let githubAccessToken = "";
     try {
       const githubSessions = await this.authenticationService.getSessions("github");
-      const potentialSessions = githubSessions.filter(
-        (session) => session.scopes.includes("repo")
-      );
+      const potentialSessions = githubSessions.filter((session) => session.scopes.includes("repo"));
       githubAccessToken = potentialSessions[0]?.accessToken;
     } catch (e) {
     }
@@ -203,55 +152,35 @@ let NativeIssueService = class {
     } catch (e) {
     }
     const theme = this.themeService.getColorTheme();
-    const issueReporterData = Object.assign(
-      {
-        styles: getIssueReporterStyles(theme),
-        zoomLevel: getZoomLevel(mainWindow),
-        enabledExtensions: extensionData,
-        experiments: experiments?.join("\n"),
-        restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
-        isUnsupported,
-        githubAccessToken
-      },
-      dataOverrides
-    );
-    const oldIssueReporterData = Object.assign(
-      {
-        styles: oldGetIssueReporterStyles(theme),
-        zoomLevel: getZoomLevel(mainWindow),
-        enabledExtensions: oldExtensionData,
-        experiments: experiments?.join("\n"),
-        restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
-        isUnsupported,
-        githubAccessToken
-      },
-      oldDataOverrides
-    );
+    const issueReporterData = Object.assign({
+      styles: getIssueReporterStyles(theme),
+      zoomLevel: getZoomLevel(mainWindow),
+      enabledExtensions: extensionData,
+      experiments: experiments?.join("\n"),
+      restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
+      isUnsupported,
+      githubAccessToken
+    }, dataOverrides);
+    const oldIssueReporterData = Object.assign({
+      styles: oldGetIssueReporterStyles(theme),
+      zoomLevel: getZoomLevel(mainWindow),
+      enabledExtensions: oldExtensionData,
+      experiments: experiments?.join("\n"),
+      restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
+      isUnsupported,
+      githubAccessToken
+    }, oldDataOverrides);
     if (issueReporterData.extensionId) {
-      const extensionExists = extensionData.some(
-        (extension) => ExtensionIdentifier.equals(
-          extension.id,
-          issueReporterData.extensionId
-        )
-      );
+      const extensionExists = extensionData.some((extension) => ExtensionIdentifier.equals(extension.id, issueReporterData.extensionId));
       if (!extensionExists) {
-        console.error(
-          `Extension with ID ${issueReporterData.extensionId} does not exist.`
-        );
+        console.error(`Extension with ID ${issueReporterData.extensionId} does not exist.`);
       }
     }
     if (issueReporterData.extensionId && this.extensionIdentifierSet.has(issueReporterData.extensionId)) {
-      ipcRenderer.send(
-        `vscode:triggerReporterMenuResponse:${issueReporterData.extensionId}`,
-        issueReporterData
-      );
-      this.extensionIdentifierSet.delete(
-        new ExtensionIdentifier(issueReporterData.extensionId)
-      );
+      ipcRenderer.send(`vscode:triggerReporterMenuResponse:${issueReporterData.extensionId}`, issueReporterData);
+      this.extensionIdentifierSet.delete(new ExtensionIdentifier(issueReporterData.extensionId));
     }
-    if (this.configurationService.getValue(
-      "issueReporter.experimental.auxWindow"
-    )) {
+    if (this.configurationService.getValue("issueReporter.experimental.auxWindow")) {
       return this.issueFormService.openReporter(issueReporterData);
     }
     return this.issueMainService.openReporter(oldIssueReporterData);
@@ -320,11 +249,7 @@ function getColor(theme, key) {
   return color ? color.toString() : void 0;
 }
 __name(getColor, "getColor");
-registerSingleton(
-  IWorkbenchIssueService,
-  NativeIssueService,
-  InstantiationType.Delayed
-);
+registerSingleton(IWorkbenchIssueService, NativeIssueService, InstantiationType.Delayed);
 export {
   NativeIssueService,
   getIssueReporterStyles,

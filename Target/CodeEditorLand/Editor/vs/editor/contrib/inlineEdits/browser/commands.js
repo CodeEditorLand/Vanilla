@@ -2,24 +2,15 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../base/common/codicons.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import {
-  asyncTransaction,
-  transaction
-} from "../../../../base/common/observable.js";
+import { asyncTransaction, transaction } from "../../../../base/common/observable.js";
 import * as nls from "../../../../nls.js";
 import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import {
-  EditorAction
-} from "../../../browser/editorExtensions.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import { EmbeddedCodeEditorWidget } from "../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import {
-  inlineEditAcceptId,
-  inlineEditVisible,
-  showNextInlineEditActionId,
-  showPreviousInlineEditActionId
-} from "./consts.js";
+import { inlineEditAcceptId, inlineEditVisible, showNextInlineEditActionId, showPreviousInlineEditActionId } from "./consts.js";
 import { InlineEditsController } from "./inlineEditsController.js";
 function labelAndAlias(str) {
   return {
@@ -36,16 +27,8 @@ class ShowNextInlineEditAction extends EditorAction {
   constructor() {
     super({
       id: ShowNextInlineEditAction.ID,
-      ...labelAndAlias(
-        nls.localize2(
-          "action.inlineEdits.showNext",
-          "Show Next Inline Edit"
-        )
-      ),
-      precondition: ContextKeyExpr.and(
-        EditorContextKeys.writable,
-        inlineEditVisible
-      ),
+      ...labelAndAlias(nls.localize2("action.inlineEdits.showNext", "Show Next Inline Edit")),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, inlineEditVisible),
       kbOpts: {
         weight: 100,
         primary: KeyMod.Alt | KeyCode.BracketRight
@@ -65,16 +48,8 @@ class ShowPreviousInlineEditAction extends EditorAction {
   constructor() {
     super({
       id: ShowPreviousInlineEditAction.ID,
-      ...labelAndAlias(
-        nls.localize2(
-          "action.inlineEdits.showPrevious",
-          "Show Previous Inline Edit"
-        )
-      ),
-      precondition: ContextKeyExpr.and(
-        EditorContextKeys.writable,
-        inlineEditVisible
-      ),
+      ...labelAndAlias(nls.localize2("action.inlineEdits.showPrevious", "Show Previous Inline Edit")),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, inlineEditVisible),
       kbOpts: {
         weight: 100,
         primary: KeyMod.Alt | KeyCode.BracketLeft
@@ -93,12 +68,7 @@ class TriggerInlineEditAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineEdits.trigger",
-      ...labelAndAlias(
-        nls.localize2(
-          "action.inlineEdits.trigger",
-          "Trigger Inline Edit"
-        )
-      ),
+      ...labelAndAlias(nls.localize2("action.inlineEdits.trigger", "Trigger Inline Edit")),
       precondition: EditorContextKeys.writable
     });
   }
@@ -116,12 +86,7 @@ class AcceptInlineEdit extends EditorAction {
   constructor() {
     super({
       id: inlineEditAcceptId,
-      ...labelAndAlias(
-        nls.localize2(
-          "action.inlineEdits.accept",
-          "Accept Inline Edit"
-        )
-      ),
+      ...labelAndAlias(nls.localize2("action.inlineEdits.accept", "Accept Inline Edit")),
       precondition: inlineEditVisible,
       menuOpts: {
         menuId: MenuId.InlineEditsActions,
@@ -156,9 +121,7 @@ class HideInlineEdit extends EditorAction {
   constructor() {
     super({
       id: HideInlineEdit.ID,
-      ...labelAndAlias(
-        nls.localize2("action.inlineEdits.hide", "Hide Inline Edit")
-      ),
+      ...labelAndAlias(nls.localize2("action.inlineEdits.hide", "Hide Inline Edit")),
       precondition: inlineEditVisible,
       kbOpts: {
         weight: 100,

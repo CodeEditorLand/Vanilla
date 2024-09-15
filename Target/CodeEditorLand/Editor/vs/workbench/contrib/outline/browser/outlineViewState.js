@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
-import {
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import { OutlineSortOrder } from "./outline.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { IOutlineViewState, OutlineSortOrder } from "./outline.js";
 class OutlineViewState {
   static {
     __name(this, "OutlineViewState");
@@ -46,16 +43,11 @@ class OutlineViewState {
     return this._sortBy;
   }
   persist(storageService) {
-    storageService.store(
-      "outline/state",
-      JSON.stringify({
-        followCursor: this.followCursor,
-        sortBy: this.sortBy,
-        filterOnType: this.filterOnType
-      }),
-      StorageScope.WORKSPACE,
-      StorageTarget.MACHINE
-    );
+    storageService.store("outline/state", JSON.stringify({
+      followCursor: this.followCursor,
+      sortBy: this.sortBy,
+      filterOnType: this.filterOnType
+    }), StorageScope.WORKSPACE, StorageTarget.MACHINE);
   }
   restore(storageService) {
     const raw = storageService.get("outline/state", StorageScope.WORKSPACE);

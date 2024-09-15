@@ -10,23 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
-const IExtensionStoragePaths = createDecorator(
-  "IExtensionStoragePaths"
-);
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IEnvironment, IStaticWorkspaceData } from "../../services/extensions/common/extensionHostProtocol.js";
+import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
+import { URI } from "../../../base/common/uri.js";
+const IExtensionStoragePaths = createDecorator("IExtensionStoragePaths");
 let ExtensionStoragePaths = class {
   constructor(initData, _logService, _extHostFileSystem) {
     this._logService = _logService;
     this._extHostFileSystem = _extHostFileSystem;
     this._workspace = initData.workspace ?? void 0;
     this._environment = initData.environment;
-    this.whenReady = this._getOrCreateWorkspaceStoragePath().then(
-      (value) => this._value = value
-    );
+    this.whenReady = this._getOrCreateWorkspaceStoragePath().then((value) => this._value = value);
   }
   static {
     __name(this, "ExtensionStoragePaths");
@@ -37,10 +35,7 @@ let ExtensionStoragePaths = class {
   whenReady;
   _value;
   async _getWorkspaceStorageURI(storageName) {
-    return URI.joinPath(
-      this._environment.workspaceStorageHome,
-      storageName
-    );
+    return URI.joinPath(this._environment.workspaceStorageHome, storageName);
   }
   async _getOrCreateWorkspaceStoragePath() {
     if (!this._workspace) {
@@ -50,34 +45,20 @@ let ExtensionStoragePaths = class {
     const storageUri = await this._getWorkspaceStorageURI(storageName);
     try {
       await this._extHostFileSystem.value.stat(storageUri);
-      this._logService.trace(
-        "[ExtHostStorage] storage dir already exists",
-        storageUri
-      );
+      this._logService.trace("[ExtHostStorage] storage dir already exists", storageUri);
       return storageUri;
     } catch {
     }
     try {
-      this._logService.trace(
-        "[ExtHostStorage] creating dir and metadata-file",
-        storageUri
-      );
+      this._logService.trace("[ExtHostStorage] creating dir and metadata-file", storageUri);
       await this._extHostFileSystem.value.createDirectory(storageUri);
       await this._extHostFileSystem.value.writeFile(
         URI.joinPath(storageUri, "meta.json"),
-        new TextEncoder().encode(
-          JSON.stringify(
-            {
-              id: this._workspace.id,
-              configuration: URI.revive(
-                this._workspace.configuration
-              )?.toString(),
-              name: this._workspace.name
-            },
-            void 0,
-            2
-          )
-        )
+        new TextEncoder().encode(JSON.stringify({
+          id: this._workspace.id,
+          configuration: URI.revive(this._workspace.configuration)?.toString(),
+          name: this._workspace.name
+        }, void 0, 2))
       );
       return storageUri;
     } catch (e) {
@@ -92,10 +73,7 @@ let ExtensionStoragePaths = class {
     return void 0;
   }
   globalValue(extension) {
-    return URI.joinPath(
-      this._environment.globalStorageHome,
-      extension.identifier.value.toLowerCase()
-    );
+    return URI.joinPath(this._environment.globalStorageHome, extension.identifier.value.toLowerCase());
   }
   onWillDeactivateAll() {
   }

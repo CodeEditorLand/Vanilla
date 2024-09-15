@@ -34,11 +34,7 @@ function fromLittleEndianBuffer(buff) {
     reverseEndianness(uint8Arr);
   }
   if (uint8Arr.byteOffset % 4 === 0) {
-    return new Uint32Array(
-      uint8Arr.buffer,
-      uint8Arr.byteOffset,
-      uint8Arr.length / 4
-    );
+    return new Uint32Array(uint8Arr.buffer, uint8Arr.byteOffset, uint8Arr.length / 4);
   } else {
     const data = new Uint8Array(uint8Arr.byteLength);
     data.set(uint8Arr);
@@ -75,17 +71,12 @@ function encodeSemanticTokensDto(semanticTokens) {
 __name(encodeSemanticTokensDto, "encodeSemanticTokensDto");
 function encodeSemanticTokensDtoSize(semanticTokens) {
   let result = 0;
-  result += 1 + // id
-  1;
+  result += 1 + 1;
   if (semanticTokens.type === "full") {
-    result += 1 + // data length
-    semanticTokens.data.length;
+    result += 1 + semanticTokens.data.length;
   } else {
     result += 1;
-    result += (1 + // start
-    1 + // deleteCount
-    1) * // data length
-    semanticTokens.deltas.length;
+    result += (1 + 1 + 1) * semanticTokens.deltas.length;
     for (const delta of semanticTokens.deltas) {
       if (delta.data) {
         result += delta.data.length;

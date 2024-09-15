@@ -1,15 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
 import { compare } from "../../../../base/common/strings.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { Command } from "../../../../editor/common/languages.js";
 import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { LanguageSelector } from "../../../../editor/common/languageSelector.js";
+import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const ILanguageStatusService = createDecorator(
-  "ILanguageStatusService"
-);
+const ILanguageStatusService = createDecorator("ILanguageStatusService");
 class LanguageStatusServiceImpl {
   static {
     __name(this, "LanguageStatusServiceImpl");
@@ -32,11 +35,7 @@ class LanguageStatusServiceImpl {
     });
   }
 }
-registerSingleton(
-  ILanguageStatusService,
-  LanguageStatusServiceImpl,
-  InstantiationType.Delayed
-);
+registerSingleton(ILanguageStatusService, LanguageStatusServiceImpl, InstantiationType.Delayed);
 export {
   ILanguageStatusService
 };

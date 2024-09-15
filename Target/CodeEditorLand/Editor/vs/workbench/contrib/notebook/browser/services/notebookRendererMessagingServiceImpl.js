@@ -12,6 +12,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { INotebookRendererMessagingService, IScopedRendererMessaging } from "../../common/notebookRendererMessagingService.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
 let NotebookRendererMessagingService = class extends Disposable {
   constructor(extensionService) {
@@ -27,16 +28,12 @@ let NotebookRendererMessagingService = class extends Disposable {
    */
   activations = /* @__PURE__ */ new Map();
   scopedMessaging = /* @__PURE__ */ new Map();
-  postMessageEmitter = this._register(
-    new Emitter()
-  );
+  postMessageEmitter = this._register(new Emitter());
   onShouldPostMessage = this.postMessageEmitter.event;
   /** @inheritdoc */
   receiveMessage(editorId, rendererId, message) {
     if (editorId === void 0) {
-      const sends = [...this.scopedMessaging.values()].map(
-        (e) => e.receiveMessageHandler?.(rendererId, message)
-      );
+      const sends = [...this.scopedMessaging.values()].map((e) => e.receiveMessageHandler?.(rendererId, message));
       return Promise.all(sends).then((s) => s.some((s2) => !!s2));
     }
     return this.scopedMessaging.get(editorId)?.receiveMessageHandler?.(rendererId, message) ?? Promise.resolve(false);

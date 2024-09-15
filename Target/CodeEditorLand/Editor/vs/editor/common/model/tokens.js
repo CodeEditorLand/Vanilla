@@ -2,12 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { equals } from "../../../base/common/arrays.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { LineRange } from "../core/lineRange.js";
-import {
-  BackgroundTokenizationState
-} from "../tokenizationTextModelPart.js";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import { ILanguageIdCodec } from "../languages.js";
+import { IAttachedView } from "../model.js";
+import { TextModel } from "./textModel.js";
+import { IModelContentChangedEvent, IModelTokensChangedEvent } from "../textModelEvents.js";
+import { BackgroundTokenizationState, ITokenizeLineWithEditResult, LineEditWithAdditionalLines } from "../tokenizationTextModelPart.js";
+import { LineTokens } from "../tokens/lineTokens.js";
 class AttachedViews {
   static {
     __name(this, "AttachedViews");
@@ -35,9 +39,7 @@ class AttachedViewImpl {
     __name(this, "AttachedViewImpl");
   }
   setVisibleLines(visibleLines, stabilized) {
-    const visibleLineRanges = visibleLines.map(
-      (line) => new LineRange(line.startLineNumber, line.endLineNumber + 1)
-    );
+    const visibleLineRanges = visibleLines.map((line) => new LineRange(line.startLineNumber, line.endLineNumber + 1));
     this.handleStateChange({ visibleLineRanges, stabilized });
   }
 }
@@ -49,20 +51,14 @@ class AttachedViewHandler extends Disposable {
   static {
     __name(this, "AttachedViewHandler");
   }
-  runner = this._register(
-    new RunOnceScheduler(() => this.update(), 50)
-  );
+  runner = this._register(new RunOnceScheduler(() => this.update(), 50));
   _computedLineRanges = [];
   _lineRanges = [];
   get lineRanges() {
     return this._lineRanges;
   }
   update() {
-    if (equals(
-      this._computedLineRanges,
-      this._lineRanges,
-      (a, b) => a.equals(b)
-    )) {
+    if (equals(this._computedLineRanges, this._lineRanges, (a, b) => a.equals(b))) {
       return;
     }
     this._computedLineRanges = this._lineRanges;
@@ -92,14 +88,10 @@ class AbstractTokens extends Disposable {
   get backgroundTokenizationState() {
     return this._backgroundTokenizationState;
   }
-  _onDidChangeBackgroundTokenizationState = this._register(
-    new Emitter()
-  );
+  _onDidChangeBackgroundTokenizationState = this._register(new Emitter());
   /** @internal, should not be exposed by the text model! */
   onDidChangeBackgroundTokenizationState = this._onDidChangeBackgroundTokenizationState.event;
-  _onDidChangeTokens = this._register(
-    new Emitter()
-  );
+  _onDidChangeTokens = this._register(new Emitter());
   /** @internal, should not be exposed by the text model! */
   onDidChangeTokens = this._onDidChangeTokens.event;
   tokenizeIfCheap(lineNumber) {

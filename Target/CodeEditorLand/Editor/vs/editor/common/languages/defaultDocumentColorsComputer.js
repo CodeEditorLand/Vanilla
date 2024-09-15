@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Color, HSLA } from "../../../base/common/color.js";
+import { IPosition } from "../core/position.js";
+import { IRange } from "../core/range.js";
+import { IColor, IColorInformation } from "../languages.js";
 function _parseCaptureGroups(captureGroups) {
   const values = [];
   for (const captureGroup of captureGroups) {
@@ -47,12 +50,7 @@ function _findHexColorInformation(range, hexValue) {
   }
   return {
     range,
-    color: _toIColor(
-      parsedHexColor.rgba.r,
-      parsedHexColor.rgba.g,
-      parsedHexColor.rgba.b,
-      parsedHexColor.rgba.a
-    )
+    color: _toIColor(parsedHexColor.rgba.r, parsedHexColor.rgba.g, parsedHexColor.rgba.b, parsedHexColor.rgba.a)
   };
 }
 __name(_findHexColorInformation, "_findHexColorInformation");
@@ -65,12 +63,7 @@ function _findRGBColorInformation(range, matches, isAlpha) {
   const parsedRegex = _parseCaptureGroups(captureGroups);
   return {
     range,
-    color: _toIColor(
-      parsedRegex[0],
-      parsedRegex[1],
-      parsedRegex[2],
-      isAlpha ? parsedRegex[3] : 1
-    )
+    color: _toIColor(parsedRegex[0], parsedRegex[1], parsedRegex[2], isAlpha ? parsedRegex[3] : 1)
   };
 }
 __name(_findRGBColorInformation, "_findRGBColorInformation");
@@ -81,22 +74,10 @@ function _findHSLColorInformation(range, matches, isAlpha) {
   const match = matches[0];
   const captureGroups = match.values();
   const parsedRegex = _parseCaptureGroups(captureGroups);
-  const colorEquivalent = new Color(
-    new HSLA(
-      parsedRegex[0],
-      parsedRegex[1] / 100,
-      parsedRegex[2] / 100,
-      isAlpha ? parsedRegex[3] : 1
-    )
-  );
+  const colorEquivalent = new Color(new HSLA(parsedRegex[0], parsedRegex[1] / 100, parsedRegex[2] / 100, isAlpha ? parsedRegex[3] : 1));
   return {
     range,
-    color: _toIColor(
-      colorEquivalent.rgba.r,
-      colorEquivalent.rgba.g,
-      colorEquivalent.rgba.b,
-      colorEquivalent.rgba.a
-    )
+    color: _toIColor(colorEquivalent.rgba.r, colorEquivalent.rgba.g, colorEquivalent.rgba.b, colorEquivalent.rgba.a)
   };
 }
 __name(_findHSLColorInformation, "_findHSLColorInformation");
@@ -110,16 +91,11 @@ function _findMatches(model, regex) {
 __name(_findMatches, "_findMatches");
 function computeColors(model) {
   const result = [];
-  const initialValidationRegex = /\b(rgb|rgba|hsl|hsla)(\([0-9\s,.%]*\))|(#)([A-Fa-f0-9]{3})\b|(#)([A-Fa-f0-9]{4})\b|(#)([A-Fa-f0-9]{6})\b|(#)([A-Fa-f0-9]{8})\b/gm;
-  const initialValidationMatches = _findMatches(
-    model,
-    initialValidationRegex
-  );
+  const initialValidationRegex = /\b(rgb|rgba|hsl|hsla)(\([0-9\s,.\%]*\))|(#)([A-Fa-f0-9]{3})\b|(#)([A-Fa-f0-9]{4})\b|(#)([A-Fa-f0-9]{6})\b|(#)([A-Fa-f0-9]{8})\b/gm;
+  const initialValidationMatches = _findMatches(model, initialValidationRegex);
   if (initialValidationMatches.length > 0) {
     for (const initialMatch of initialValidationMatches) {
-      const initialCaptureGroups = initialMatch.filter(
-        (captureGroup) => captureGroup !== void 0
-      );
+      const initialCaptureGroups = initialMatch.filter((captureGroup) => captureGroup !== void 0);
       const colorScheme = initialCaptureGroups[1];
       const colorParameters = initialCaptureGroups[2];
       if (!colorParameters) {
@@ -128,37 +104,18 @@ function computeColors(model) {
       let colorInformation;
       if (colorScheme === "rgb") {
         const regexParameters = /^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*\)$/gm;
-        colorInformation = _findRGBColorInformation(
-          _findRange(model, initialMatch),
-          _findMatches(colorParameters, regexParameters),
-          false
-        );
+        colorInformation = _findRGBColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), false);
       } else if (colorScheme === "rgba") {
         const regexParameters = /^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*,\s*(0[.][0-9]+|[.][0-9]+|[01][.]|[01])\s*\)$/gm;
-        colorInformation = _findRGBColorInformation(
-          _findRange(model, initialMatch),
-          _findMatches(colorParameters, regexParameters),
-          true
-        );
+        colorInformation = _findRGBColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), true);
       } else if (colorScheme === "hsl") {
         const regexParameters = /^\(\s*(36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])\s*,\s*(100|\d{1,2}[.]\d*|\d{1,2})%\s*,\s*(100|\d{1,2}[.]\d*|\d{1,2})%\s*\)$/gm;
-        colorInformation = _findHSLColorInformation(
-          _findRange(model, initialMatch),
-          _findMatches(colorParameters, regexParameters),
-          false
-        );
+        colorInformation = _findHSLColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), false);
       } else if (colorScheme === "hsla") {
         const regexParameters = /^\(\s*(36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])\s*,\s*(100|\d{1,2}[.]\d*|\d{1,2})%\s*,\s*(100|\d{1,2}[.]\d*|\d{1,2})%\s*,\s*(0[.][0-9]+|[.][0-9]+|[01][.]|[01])\s*\)$/gm;
-        colorInformation = _findHSLColorInformation(
-          _findRange(model, initialMatch),
-          _findMatches(colorParameters, regexParameters),
-          true
-        );
+        colorInformation = _findHSLColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), true);
       } else if (colorScheme === "#") {
-        colorInformation = _findHexColorInformation(
-          _findRange(model, initialMatch),
-          colorScheme + colorParameters
-        );
+        colorInformation = _findHexColorInformation(_findRange(model, initialMatch), colorScheme + colorParameters);
       }
       if (colorInformation) {
         result.push(colorInformation);

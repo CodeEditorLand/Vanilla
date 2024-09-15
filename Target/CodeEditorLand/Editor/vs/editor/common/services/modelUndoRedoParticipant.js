@@ -10,16 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  Disposable,
-  dispose
-} from "../../../base/common/lifecycle.js";
-import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
-import {
-  MultiModelEditStackElement
-} from "../model/editStack.js";
 import { IModelService } from "./model.js";
 import { ITextModelService } from "./resolverService.js";
+import { Disposable, IDisposable, dispose } from "../../../base/common/lifecycle.js";
+import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
+import { IUndoRedoDelegate, MultiModelEditStackElement } from "../model/editStack.js";
 let ModelUndoRedoParticipant = class extends Disposable {
   constructor(_modelService, _textModelService, _undoRedoService) {
     super();

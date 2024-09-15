@@ -11,18 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as objects from "../../../../base/common/objects.js";
+import { ICodeEditor } from "../../editorBrowser.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from "./codeEditorWidget.js";
+import { ConfigurationChangedEvent, IEditorOptions } from "../../../common/config/editorOptions.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ICodeEditorService } from "../../services/codeEditorService.js";
-import {
-  CodeEditorWidget
-} from "./codeEditorWidget.js";
 let EmbeddedCodeEditorWidget = class extends CodeEditorWidget {
   static {
     __name(this, "EmbeddedCodeEditorWidget");
@@ -30,31 +30,11 @@ let EmbeddedCodeEditorWidget = class extends CodeEditorWidget {
   _parentEditor;
   _overwriteOptions;
   constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
-    super(
-      domElement,
-      {
-        ...parentEditor.getRawOptions(),
-        overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode()
-      },
-      codeEditorWidgetOptions,
-      instantiationService,
-      codeEditorService,
-      commandService,
-      contextKeyService,
-      themeService,
-      notificationService,
-      accessibilityService,
-      languageConfigurationService,
-      languageFeaturesService
-    );
+    super(domElement, { ...parentEditor.getRawOptions(), overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode() }, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
     this._parentEditor = parentEditor;
     this._overwriteOptions = options;
     super.updateOptions(this._overwriteOptions);
-    this._register(
-      parentEditor.onDidChangeConfiguration(
-        (e) => this._onParentConfigurationChanged(e)
-      )
-    );
+    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
   }
   getParentEditor() {
     return this._parentEditor;

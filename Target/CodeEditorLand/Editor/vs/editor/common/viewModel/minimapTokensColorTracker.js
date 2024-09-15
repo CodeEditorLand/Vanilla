@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
 import { Disposable, markAsSingleton } from "../../../base/common/lifecycle.js";
 import { RGBA8 } from "../core/rgba.js";
-import { ColorId } from "../encodedTokenAttributes.js";
 import { TokenizationRegistry } from "../languages.js";
+import { ColorId } from "../encodedTokenAttributes.js";
 class MinimapTokensColorTracker extends Disposable {
   static {
     __name(this, "MinimapTokensColorTracker");
@@ -23,13 +23,11 @@ class MinimapTokensColorTracker extends Disposable {
   constructor() {
     super();
     this._updateColorMap();
-    this._register(
-      TokenizationRegistry.onDidChange((e) => {
-        if (e.changedColorMap) {
-          this._updateColorMap();
-        }
-      })
-    );
+    this._register(TokenizationRegistry.onDidChange((e) => {
+      if (e.changedColorMap) {
+        this._updateColorMap();
+      }
+    }));
   }
   _updateColorMap() {
     const colorMap = TokenizationRegistry.getColorMap();
@@ -41,12 +39,7 @@ class MinimapTokensColorTracker extends Disposable {
     this._colors = [RGBA8.Empty];
     for (let colorId = 1; colorId < colorMap.length; colorId++) {
       const source = colorMap[colorId].rgba;
-      this._colors[colorId] = new RGBA8(
-        source.r,
-        source.g,
-        source.b,
-        Math.round(source.a * 255)
-      );
+      this._colors[colorId] = new RGBA8(source.r, source.g, source.b, Math.round(source.a * 255));
     }
     const backgroundLuminosity = colorMap[ColorId.DefaultBackground].getRelativeLuminance();
     this._backgroundIsLight = backgroundLuminosity >= 0.5;

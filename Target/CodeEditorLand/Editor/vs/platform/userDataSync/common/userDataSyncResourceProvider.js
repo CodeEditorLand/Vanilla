@@ -10,48 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toFormattedString } from "../../../base/common/jsonFormatter.js";
-import { trim } from "../../../base/common/strings.js";
+import { IExtUri } from "../../../base/common/resources.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
 import { IFileService } from "../../files/common/files.js";
-import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
 import { IStorageService } from "../../storage/common/storage.js";
 import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import {
-  IUserDataProfilesService
-} from "../../userDataProfile/common/userDataProfile.js";
+import { ISyncData, ISyncResourceHandle, IUserData, IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, SyncResource, UserDataSyncError, UserDataSyncErrorCode, USER_DATA_SYNC_SCHEME, IUserDataSyncResourceProviderService, ISyncUserDataProfile, CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM, IUserDataSyncResource } from "./userDataSync.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 import { isSyncData } from "./abstractSynchronizer.js";
-import {
-  LocalExtensionsProvider,
-  parseExtensions,
-  stringify as stringifyExtensions
-} from "./extensionsSync.js";
-import {
-  LocalGlobalStateProvider,
-  stringify as stringifyGlobalState
-} from "./globalStateSync.js";
-import { getKeybindingsContentFromSyncContent } from "./keybindingsSync.js";
-import { parseSettingsSyncContent } from "./settingsSync.js";
 import { parseSnippets } from "./snippetsSync.js";
+import { parseSettingsSyncContent } from "./settingsSync.js";
+import { getKeybindingsContentFromSyncContent } from "./keybindingsSync.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { getTasksContentFromSyncContent } from "./tasksSync.js";
-import {
-  parseUserDataProfilesManifest,
-  stringifyLocalProfiles
-} from "./userDataProfilesManifestSync.js";
-import {
-  CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM,
-  IUserDataSyncLocalStoreService,
-  IUserDataSyncLogService,
-  IUserDataSyncStoreService,
-  SyncResource,
-  USER_DATA_SYNC_SCHEME,
-  UserDataSyncError,
-  UserDataSyncErrorCode
-} from "./userDataSync.js";
+import { LocalExtensionsProvider, parseExtensions, stringify as stringifyExtensions } from "./extensionsSync.js";
+import { LocalGlobalStateProvider, stringify as stringifyGlobalState } from "./globalStateSync.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { parseUserDataProfilesManifest, stringifyLocalProfiles } from "./userDataProfilesManifestSync.js";
+import { toFormattedString } from "../../../base/common/jsonFormatter.js";
+import { trim } from "../../../base/common/strings.js";
+import { IMachinesData, IUserDataSyncMachine } from "./userDataSyncMachines.js";
 let UserDataSyncResourceProviderService = class {
   constructor(userDataSyncStoreService, userDataSyncLocalStoreService, logService, uriIdentityService, environmentService, storageService, fileService, userDataProfilesService, configurationService, instantiationService) {
     this.userDataSyncStoreService = userDataSyncStoreService;
@@ -74,71 +55,37 @@ let UserDataSyncResourceProviderService = class {
   static LOCAL_BACKUP_AUTHORITY = "local-backup";
   extUri;
   async getRemoteSyncedProfiles() {
-    const userData = await this.userDataSyncStoreService.readResource(
-      SyncResource.Profiles,
-      null,
-      void 0
-    );
+    const userData = await this.userDataSyncStoreService.readResource(SyncResource.Profiles, null, void 0);
     if (userData.content) {
-      const syncData = this.parseSyncData(
-        userData.content,
-        SyncResource.Profiles
-      );
+      const syncData = this.parseSyncData(userData.content, SyncResource.Profiles);
       return parseUserDataProfilesManifest(syncData);
     }
     return [];
   }
   async getLocalSyncedProfiles(location) {
-    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs(
-      SyncResource.Profiles,
-      void 0,
-      location
-    );
+    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs(SyncResource.Profiles, void 0, location);
     if (refs.length) {
-      const content = await this.userDataSyncLocalStoreService.resolveResourceContent(
-        SyncResource.Profiles,
-        refs[0].ref,
-        void 0,
-        location
-      );
+      const content = await this.userDataSyncLocalStoreService.resolveResourceContent(SyncResource.Profiles, refs[0].ref, void 0, location);
       if (content) {
-        const syncData = this.parseSyncData(
-          content,
-          SyncResource.Profiles
-        );
+        const syncData = this.parseSyncData(content, SyncResource.Profiles);
         return parseUserDataProfilesManifest(syncData);
       }
     }
     return [];
   }
   async getLocalSyncedMachines(location) {
-    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs(
-      "machines",
-      void 0,
-      location
-    );
+    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs("machines", void 0, location);
     if (refs.length) {
-      const content = await this.userDataSyncLocalStoreService.resolveResourceContent(
-        "machines",
-        refs[0].ref,
-        void 0,
-        location
-      );
+      const content = await this.userDataSyncLocalStoreService.resolveResourceContent("machines", refs[0].ref, void 0, location);
       if (content) {
         const machinesData = JSON.parse(content);
-        return machinesData.machines.map((m) => ({
-          ...m,
-          isCurrent: false
-        }));
+        return machinesData.machines.map((m) => ({ ...m, isCurrent: false }));
       }
     }
     return [];
   }
   async getRemoteSyncResourceHandles(syncResource, profile) {
-    const handles = await this.userDataSyncStoreService.getAllResourceRefs(
-      syncResource,
-      profile?.collection
-    );
+    const handles = await this.userDataSyncStoreService.getAllResourceRefs(syncResource, profile?.collection);
     return handles.map(({ created, ref }) => ({
       created,
       uri: this.toUri({
@@ -153,11 +100,7 @@ let UserDataSyncResourceProviderService = class {
     }));
   }
   async getLocalSyncResourceHandles(syncResource, profile, location) {
-    const handles = await this.userDataSyncLocalStoreService.getAllResourceRefs(
-      syncResource,
-      profile?.collection,
-      location
-    );
+    const handles = await this.userDataSyncLocalStoreService.getAllResourceRefs(syncResource, profile?.collection, location);
     return handles.map(({ created, ref }) => ({
       created,
       uri: this.toUri({
@@ -171,25 +114,17 @@ let UserDataSyncResourceProviderService = class {
       })
     }));
   }
-  resolveUserDataSyncResource({
-    uri
-  }) {
+  resolveUserDataSyncResource({ uri }) {
     const resolved = this.resolveUri(uri);
-    const profile = resolved ? this.userDataProfilesService.profiles.find(
-      (p) => p.id === resolved.profile
-    ) : void 0;
+    const profile = resolved ? this.userDataProfilesService.profiles.find((p) => p.id === resolved.profile) : void 0;
     return resolved && profile ? { profile, syncResource: resolved?.syncResource } : void 0;
   }
-  async getAssociatedResources({
-    uri
-  }) {
+  async getAssociatedResources({ uri }) {
     const resolved = this.resolveUri(uri);
     if (!resolved) {
       return [];
     }
-    const profile = this.userDataProfilesService.profiles.find(
-      (p) => p.id === resolved.profile
-    );
+    const profile = this.userDataProfilesService.profiles.find((p) => p.id === resolved.profile);
     switch (resolved.syncResource) {
       case SyncResource.Settings:
         return this.getSettingsAssociatedResources(uri, profile);
@@ -209,25 +144,16 @@ let UserDataSyncResourceProviderService = class {
         return [];
     }
   }
-  async getMachineId({
-    uri
-  }) {
+  async getMachineId({ uri }) {
     const resolved = this.resolveUri(uri);
     if (!resolved) {
       return void 0;
     }
     if (resolved.remote) {
       if (resolved.ref) {
-        const { content } = await this.getUserData(
-          resolved.syncResource,
-          resolved.ref,
-          resolved.collection
-        );
+        const { content } = await this.getUserData(resolved.syncResource, resolved.ref, resolved.collection);
         if (content) {
-          const syncData = this.parseSyncData(
-            content,
-            resolved.syncResource
-          );
+          const syncData = this.parseSyncData(content, resolved.syncResource);
           return syncData?.machineId;
         }
       }
@@ -235,27 +161,15 @@ let UserDataSyncResourceProviderService = class {
     }
     if (resolved.location) {
       if (resolved.ref) {
-        const content = await this.userDataSyncLocalStoreService.resolveResourceContent(
-          resolved.syncResource,
-          resolved.ref,
-          resolved.collection,
-          resolved.location
-        );
+        const content = await this.userDataSyncLocalStoreService.resolveResourceContent(resolved.syncResource, resolved.ref, resolved.collection, resolved.location);
         if (content) {
-          const syncData = this.parseSyncData(
-            content,
-            resolved.syncResource
-          );
+          const syncData = this.parseSyncData(content, resolved.syncResource);
           return syncData?.machineId;
         }
       }
       return void 0;
     }
-    return getServiceMachineId(
-      this.environmentService,
-      this.fileService,
-      this.storageService
-    );
+    return getServiceMachineId(this.environmentService, this.fileService, this.storageService);
   }
   async resolveContent(uri) {
     const resolved = this.resolveUri(uri);
@@ -266,45 +180,23 @@ let UserDataSyncResourceProviderService = class {
       return null;
     }
     if (resolved.ref) {
-      const content = await this.getContentFromStore(
-        resolved.remote,
-        resolved.syncResource,
-        resolved.collection,
-        resolved.ref,
-        resolved.location
-      );
+      const content = await this.getContentFromStore(resolved.remote, resolved.syncResource, resolved.collection, resolved.ref, resolved.location);
       if (resolved.node && content) {
-        return this.resolveNodeContent(
-          resolved.syncResource,
-          content,
-          resolved.node
-        );
+        return this.resolveNodeContent(resolved.syncResource, content, resolved.node);
       }
       return content;
     }
     if (!resolved.remote && !resolved.node) {
-      return this.resolveLatestContent(
-        resolved.syncResource,
-        resolved.profile
-      );
+      return this.resolveLatestContent(resolved.syncResource, resolved.profile);
     }
     return null;
   }
   async getContentFromStore(remote, syncResource, collection, ref, location) {
     if (remote) {
-      const { content } = await this.getUserData(
-        syncResource,
-        ref,
-        collection
-      );
+      const { content } = await this.getUserData(syncResource, ref, collection);
       return content;
     }
-    return this.userDataSyncLocalStoreService.resolveResourceContent(
-      syncResource,
-      ref,
-      collection,
-      location
-    );
+    return this.userDataSyncLocalStoreService.resolveResourceContent(syncResource, ref, collection, location);
   }
   resolveNodeContent(syncResource, content, node) {
     const syncData = this.parseSyncData(content, syncResource);
@@ -328,9 +220,7 @@ let UserDataSyncResourceProviderService = class {
     }
   }
   async resolveLatestContent(syncResource, profileId) {
-    const profile = this.userDataProfilesService.profiles.find(
-      (p) => p.id === profileId
-    );
+    const profile = this.userDataProfilesService.profiles.find((p) => p.id === profileId);
     if (!profile) {
       return null;
     }
@@ -355,10 +245,7 @@ let UserDataSyncResourceProviderService = class {
   }
   getSettingsAssociatedResources(uri, profile) {
     const resource = this.extUri.joinPath(uri, "settings.json");
-    const comparableResource = profile ? profile.settingsResource : this.extUri.joinPath(
-      uri,
-      UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-    );
+    const comparableResource = profile ? profile.settingsResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
     return [{ resource, comparableResource }];
   }
   resolveSettingsNodeContent(syncData, node) {
@@ -370,40 +257,25 @@ let UserDataSyncResourceProviderService = class {
   }
   getKeybindingsAssociatedResources(uri, profile) {
     const resource = this.extUri.joinPath(uri, "keybindings.json");
-    const comparableResource = profile ? profile.keybindingsResource : this.extUri.joinPath(
-      uri,
-      UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-    );
+    const comparableResource = profile ? profile.keybindingsResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
     return [{ resource, comparableResource }];
   }
   resolveKeybindingsNodeContent(syncData, node) {
     switch (node) {
       case "keybindings.json":
-        return getKeybindingsContentFromSyncContent(
-          syncData.content,
-          !!this.configurationService.getValue(
-            CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM
-          ),
-          this.logService
-        );
+        return getKeybindingsContentFromSyncContent(syncData.content, !!this.configurationService.getValue(CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM), this.logService);
     }
     return null;
   }
   getTasksAssociatedResources(uri, profile) {
     const resource = this.extUri.joinPath(uri, "tasks.json");
-    const comparableResource = profile ? profile.tasksResource : this.extUri.joinPath(
-      uri,
-      UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-    );
+    const comparableResource = profile ? profile.tasksResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
     return [{ resource, comparableResource }];
   }
   resolveTasksNodeContent(syncData, node) {
     switch (node) {
       case "tasks.json":
-        return getTasksContentFromSyncContent(
-          syncData.content,
-          this.logService
-        );
+        return getTasksContentFromSyncContent(syncData.content, this.logService);
     }
     return null;
   }
@@ -416,10 +288,7 @@ let UserDataSyncResourceProviderService = class {
         const result = [];
         for (const snippet of Object.keys(snippets)) {
           const resource = this.extUri.joinPath(uri, snippet);
-          const comparableResource = profile ? this.extUri.joinPath(profile.snippetsHome, snippet) : this.extUri.joinPath(
-            uri,
-            UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-          );
+          const comparableResource = profile ? this.extUri.joinPath(profile.snippetsHome, snippet) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
           result.push({ resource, comparableResource });
         }
         return result;
@@ -440,10 +309,7 @@ let UserDataSyncResourceProviderService = class {
       collection: void 0,
       ref: void 0,
       node: void 0
-    }) : this.extUri.joinPath(
-      uri,
-      UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-    );
+    }) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
     return [{ resource, comparableResource }];
   }
   resolveExtensionsNodeContent(syncData, node) {
@@ -467,10 +333,7 @@ let UserDataSyncResourceProviderService = class {
       collection: void 0,
       ref: void 0,
       node: void 0
-    }) : this.extUri.joinPath(
-      uri,
-      UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE
-    );
+    }) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService.NOT_EXISTING_RESOURCE);
     return [{ resource, comparableResource }];
   }
   resolveGlobalStateNodeContent(syncData, node) {
@@ -505,12 +368,7 @@ let UserDataSyncResourceProviderService = class {
     return null;
   }
   async resolveLatestProfilesContent(profile) {
-    return stringifyLocalProfiles(
-      this.userDataProfilesService.profiles.filter(
-        (p) => !p.isDefault && !p.isTransient
-      ),
-      true
-    );
+    return stringifyLocalProfiles(this.userDataProfilesService.profiles.filter((p) => !p.isDefault && !p.isTransient), true);
   }
   toUri(syncResourceUriInfo) {
     const authority = syncResourceUriInfo.remote ? UserDataSyncResourceProviderService.REMOTE_BACKUP_AUTHORITY : UserDataSyncResourceProviderService.LOCAL_BACKUP_AUTHORITY;
@@ -531,16 +389,7 @@ let UserDataSyncResourceProviderService = class {
     if (syncResourceUriInfo.node) {
       paths.push(syncResourceUriInfo.node);
     }
-    return this.extUri.joinPath(
-      URI.from({
-        scheme: USER_DATA_SYNC_SCHEME,
-        authority,
-        path: `/`,
-        query: syncResourceUriInfo.location?.query,
-        fragment: syncResourceUriInfo.location?.fragment
-      }),
-      ...paths
-    );
+    return this.extUri.joinPath(URI.from({ scheme: USER_DATA_SYNC_SCHEME, authority, path: `/`, query: syncResourceUriInfo.location?.query, fragment: syncResourceUriInfo.location?.fragment }), ...paths);
   }
   resolveUri(uri) {
     if (uri.scheme !== USER_DATA_SYNC_SCHEME) {
@@ -570,19 +419,17 @@ let UserDataSyncResourceProviderService = class {
       } else if (path.startsWith("authority:")) {
         authority = path.substring("authority:".length);
       } else if (path.startsWith("syncResource:")) {
-        syncResource = path.substring(
-          "syncResource:".length
-        );
+        syncResource = path.substring("syncResource:".length);
       } else if (path.startsWith("profile:")) {
         profile = path.substring("profile:".length);
       } else if (path.startsWith("collection:")) {
         collection = path.substring("collection:".length);
       } else if (path.startsWith("ref:")) {
         ref = path.substring("ref:".length);
-      } else if (syncResource) {
-        node = path;
-      } else {
+      } else if (!syncResource) {
         locationPaths.push(path);
+      } else {
+        node = path;
       }
     }
     return {
@@ -592,16 +439,7 @@ let UserDataSyncResourceProviderService = class {
       collection,
       ref,
       node,
-      location: scheme && authority !== void 0 ? this.extUri.joinPath(
-        URI.from({
-          scheme,
-          authority,
-          query: uri.query,
-          fragment: uri.fragment,
-          path: "/"
-        }),
-        ...locationPaths
-      ) : void 0
+      location: scheme && authority !== void 0 ? this.extUri.joinPath(URI.from({ scheme, authority, query: uri.query, fragment: uri.fragment, path: "/" }), ...locationPaths) : void 0
     };
   }
   parseSyncData(content, syncResource) {
@@ -613,21 +451,10 @@ let UserDataSyncResourceProviderService = class {
     } catch (error) {
       this.logService.error(error);
     }
-    throw new UserDataSyncError(
-      localize(
-        "incompatible sync data",
-        "Cannot parse sync data as it is not compatible with the current version."
-      ),
-      UserDataSyncErrorCode.IncompatibleRemoteContent,
-      syncResource
-    );
+    throw new UserDataSyncError(localize("incompatible sync data", "Cannot parse sync data as it is not compatible with the current version."), UserDataSyncErrorCode.IncompatibleRemoteContent, syncResource);
   }
   async getUserData(syncResource, ref, collection) {
-    const content = await this.userDataSyncStoreService.resolveResourceContent(
-      syncResource,
-      ref,
-      collection
-    );
+    const content = await this.userDataSyncStoreService.resolveResourceContent(syncResource, ref, collection);
     return { ref, content };
   }
 };

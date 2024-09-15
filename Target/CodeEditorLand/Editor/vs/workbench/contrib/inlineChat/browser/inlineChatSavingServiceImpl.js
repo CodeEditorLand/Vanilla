@@ -11,36 +11,32 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Queue, raceCancellation } from "../../../../base/common/async.js";
-import { Event } from "../../../../base/common/event.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  DisposableStore,
-  MutableDisposable,
-  combinedDisposable,
-  dispose
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { compare } from "../../../../base/common/strings.js";
-import {
-  isCodeEditor
-} from "../../../../editor/browser/editorBrowser.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore, IDisposable, MutableDisposable, combinedDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import { ICodeEditor, isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgress, IProgressStep } from "../../../../platform/progress/common/progress.js";
 import { SaveReason } from "../../../common/editor.js";
-import {
-  GroupsOrder,
-  IEditorGroupsService
-} from "../../../services/editor/common/editorGroupsService.js";
+import { Session } from "./inlineChatSession.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { InlineChatConfigKeys } from "../common/inlineChat.js";
+import { GroupsOrder, IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IWorkingCopyFileService } from "../../../services/workingCopy/common/workingCopyFileService.js";
-import { getNotebookEditorFromEditorPane } from "../../notebook/browser/notebookBrowser.js";
+import { IInlineChatSavingService } from "./inlineChatSavingService.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
+import { Schemas } from "../../../../base/common/network.js";
 import { CellUri } from "../../notebook/common/notebookCommon.js";
-import { InlineChatConfigKeys } from "../common/inlineChat.js";
+import { getNotebookEditorFromEditorPane } from "../../notebook/browser/notebookBrowser.js";
+import { compare } from "../../../../base/common/strings.js";
+import { IWorkingCopyFileService } from "../../../services/workingCopy/common/workingCopyFileService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Event } from "../../../../base/common/event.js";
 import { InlineChatController } from "./inlineChatController.js";
-import { IInlineChatSessionService } from "./inlineChatSessionService.js";
 let InlineChatSavingServiceImpl = class {
   constructor(_fileConfigService, _editorGroupService, _textFileService, _editorService, _inlineChatSessionService, _configService, _workingCopyFileService, _logService) {
     this._fileConfigService = _fileConfigService;
@@ -51,22 +47,15 @@ let InlineChatSavingServiceImpl = class {
     this._configService = _configService;
     this._workingCopyFileService = _workingCopyFileService;
     this._logService = _logService;
-    this._store.add(
-      Event.any(
-        _inlineChatSessionService.onDidEndSession,
-        _inlineChatSessionService.onDidStashSession
-      )((e) => {
-        this._sessionData.get(e.session)?.dispose();
-      })
-    );
+    this._store.add(Event.any(_inlineChatSessionService.onDidEndSession, _inlineChatSessionService.onDidStashSession)((e) => {
+      this._sessionData.get(e.session)?.dispose();
+    }));
   }
   static {
     __name(this, "InlineChatSavingServiceImpl");
   }
   _store = new DisposableStore();
-  _saveParticipant = this._store.add(
-    new MutableDisposable()
-  );
+  _saveParticipant = this._store.add(new MutableDisposable());
   _sessionData = /* @__PURE__ */ new Map();
   dispose() {
     this._store.dispose();
@@ -104,26 +93,12 @@ let InlineChatSavingServiceImpl = class {
     const queue = new Queue();
     const d1 = this._textFileService.files.addSaveParticipant({
       participate: /* @__PURE__ */ __name((model, ctx, progress, token) => {
-        return queue.queue(
-          () => this._participate(
-            ctx.savedFrom ?? model.textEditorModel?.uri,
-            ctx.reason,
-            progress,
-            token
-          )
-        );
+        return queue.queue(() => this._participate(ctx.savedFrom ?? model.textEditorModel?.uri, ctx.reason, progress, token));
       }, "participate")
     });
     const d2 = this._workingCopyFileService.addSaveParticipant({
       participate: /* @__PURE__ */ __name((workingCopy, ctx, progress, token) => {
-        return queue.queue(
-          () => this._participate(
-            ctx.savedFrom ?? workingCopy.resource,
-            ctx.reason,
-            progress,
-            token
-          )
-        );
+        return queue.queue(() => this._participate(ctx.savedFrom ?? workingCopy.resource, ctx.reason, progress, token));
       }, "participate")
     });
     this._saveParticipant.value = combinedDisposable(d1, d2, queue);
@@ -132,9 +107,7 @@ let InlineChatSavingServiceImpl = class {
     if (reason !== SaveReason.EXPLICIT) {
       return;
     }
-    if (!this._configService.getValue(
-      InlineChatConfigKeys.AcceptedOrDiscardBeforeSave
-    )) {
+    if (!this._configService.getValue(InlineChatConfigKeys.AcceptedOrDiscardBeforeSave)) {
       return;
     }
     const sessions = /* @__PURE__ */ new Map();
@@ -147,47 +120,21 @@ let InlineChatSavingServiceImpl = class {
       return;
     }
     progress.report({
-      message: sessions.size === 1 ? localize(
-        "inlineChat",
-        "Waiting for Inline Chat changes to be Accepted or Discarded..."
-      ) : localize(
-        "inlineChat.N",
-        "Waiting for Inline Chat changes in {0} editors to be Accepted or Discarded...",
-        sessions.size
-      )
+      message: sessions.size === 1 ? localize("inlineChat", "Waiting for Inline Chat changes to be Accepted or Discarded...") : localize("inlineChat.N", "Waiting for Inline Chat changes in {0} editors to be Accepted or Discarded...", sessions.size)
     });
-    const { groups, orphans } = this._getGroupsAndOrphans(
-      sessions.values()
-    );
-    const editorsOpenedAndSessionsEnded = this._openAndWait(
-      groups,
-      token
-    ).then(() => {
+    const { groups, orphans } = this._getGroupsAndOrphans(sessions.values());
+    const editorsOpenedAndSessionsEnded = this._openAndWait(groups, token).then(() => {
       if (token.isCancellationRequested) {
         return;
       }
-      return this._openAndWait(
-        Iterable.map(orphans, (s) => [
-          this._editorGroupService.activeGroup,
-          s
-        ]),
-        token
-      );
+      return this._openAndWait(Iterable.map(orphans, (s) => [this._editorGroupService.activeGroup, s]), token);
     });
-    const allSessionsEnded = this._whenSessionsEnded(
-      Iterable.concat(
-        groups.map((tuple) => tuple[1]),
-        orphans
-      ),
-      token
-    );
+    const allSessionsEnded = this._whenSessionsEnded(Iterable.concat(groups.map((tuple) => tuple[1]), orphans), token);
     await Promise.race([allSessionsEnded, editorsOpenedAndSessionsEnded]);
   }
   _getGroupsAndOrphans(sessions) {
     const groupByEditor = /* @__PURE__ */ new Map();
-    for (const group of this._editorGroupService.getGroups(
-      GroupsOrder.MOST_RECENTLY_ACTIVE
-    )) {
+    for (const group of this._editorGroupService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE)) {
       const candidate = group.activeEditorPane?.getControl();
       if (isCodeEditor(candidate)) {
         groupByEditor.set(candidate, group);
@@ -196,9 +143,7 @@ let InlineChatSavingServiceImpl = class {
     const groups = [];
     const orphans = /* @__PURE__ */ new Set();
     for (const data of sessions) {
-      const editor = this._inlineChatSessionService.getCodeEditor(
-        data.session
-      );
+      const editor = this._inlineChatSessionService.getCodeEditor(data.session);
       const group = groupByEditor.get(editor);
       if (group) {
         groups.push([group, data]);
@@ -224,52 +169,33 @@ let InlineChatSavingServiceImpl = class {
       if (token.isCancellationRequested) {
         break;
       }
-      array.sort(
-        (a, b) => compare(
-          a.session.targetUri.toString(),
-          b.session.targetUri.toString()
-        )
-      );
+      array.sort((a, b) => compare(a.session.targetUri.toString(), b.session.targetUri.toString()));
       for (const data of array) {
-        const input = {
-          resource: data.resourceUri
-        };
+        const input = { resource: data.resourceUri };
         const pane = await this._editorService.openEditor(input, group);
         let editor;
         if (data.session.targetUri.scheme === Schemas.vscodeNotebookCell) {
           const notebookEditor = getNotebookEditorFromEditorPane(pane);
           const uriData = CellUri.parse(data.session.targetUri);
           if (notebookEditor && notebookEditor.hasModel() && uriData) {
-            const cell = notebookEditor.getCellByHandle(
-              uriData.handle
-            );
+            const cell = notebookEditor.getCellByHandle(uriData.handle);
             if (cell) {
-              await notebookEditor.revealRangeInCenterIfOutsideViewportAsync(
-                cell,
-                data.session.wholeRange.value
-              );
+              await notebookEditor.revealRangeInCenterIfOutsideViewportAsync(cell, data.session.wholeRange.value);
             }
-            const tuple = notebookEditor.codeEditors.find(
-              (tuple2) => tuple2[1].getModel()?.uri.toString() === data.session.targetUri.toString()
-            );
+            const tuple = notebookEditor.codeEditors.find((tuple2) => tuple2[1].getModel()?.uri.toString() === data.session.targetUri.toString());
             editor = tuple?.[1];
           }
-        } else if (isCodeEditor(pane?.getControl())) {
-          editor = pane.getControl();
+        } else {
+          if (isCodeEditor(pane?.getControl())) {
+            editor = pane.getControl();
+          }
         }
         if (!editor) {
           break;
         }
-        this._inlineChatSessionService.moveSession(
-          data.session,
-          editor
-        );
+        this._inlineChatSessionService.moveSession(data.session, editor);
         InlineChatController.get(editor)?.showSaveHint();
-        this._logService.info(
-          "WAIT for session to end",
-          editor.getId(),
-          data.session.targetUri.toString()
-        );
+        this._logService.info("WAIT for session to end", editor.getId(), data.session.targetUri.toString());
         await this._whenSessionsEnded(Iterable.single(data), token);
       }
     }
@@ -284,10 +210,7 @@ let InlineChatSavingServiceImpl = class {
     }
     let listener;
     const whenEnded = new Promise((resolve) => {
-      listener = Event.any(
-        this._inlineChatSessionService.onDidEndSession,
-        this._inlineChatSessionService.onDidStashSession
-      )((e) => {
+      listener = Event.any(this._inlineChatSessionService.onDidEndSession, this._inlineChatSessionService.onDidStashSession)((e) => {
         const data = sessions.get(e.session);
         if (data) {
           data.dispose();

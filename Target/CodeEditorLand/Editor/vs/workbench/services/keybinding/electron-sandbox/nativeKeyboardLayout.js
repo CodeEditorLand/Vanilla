@@ -10,57 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OS, OperatingSystem } from "../../../../base/common/platform.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import {
-  DispatchConfig,
-  readKeyboardConfig
-} from "../../../../platform/keyboardLayout/common/keyboardConfig.js";
-import {
-  IKeyboardLayoutService
-} from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
-import {
-  CachedKeyboardMapper
-} from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { IKeyboardLayoutInfo, IKeyboardLayoutService, IKeyboardMapping, ILinuxKeyboardLayoutInfo, IMacKeyboardLayoutInfo, IMacLinuxKeyboardMapping, IWindowsKeyboardLayoutInfo, IWindowsKeyboardMapping } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
+import { CachedKeyboardMapper, IKeyboardMapper } from "../../../../platform/keyboardLayout/common/keyboardMapper.js";
+import { WindowsKeyboardMapper } from "../common/windowsKeyboardMapper.js";
 import { FallbackKeyboardMapper } from "../common/fallbackKeyboardMapper.js";
 import { MacLinuxKeyboardMapper } from "../common/macLinuxKeyboardMapper.js";
-import { WindowsKeyboardMapper } from "../common/windowsKeyboardMapper.js";
+import { DispatchConfig, readKeyboardConfig } from "../../../../platform/keyboardLayout/common/keyboardConfig.js";
+import { IKeyboardEvent } from "../../../../platform/keybinding/common/keybinding.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { INativeKeyboardLayoutService } from "./nativeKeyboardLayoutService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 let KeyboardLayoutService = class extends Disposable {
   constructor(_nativeKeyboardLayoutService, _configurationService) {
     super();
     this._nativeKeyboardLayoutService = _nativeKeyboardLayoutService;
     this._configurationService = _configurationService;
     this._keyboardMapper = null;
-    this._register(
-      this._nativeKeyboardLayoutService.onDidChangeKeyboardLayout(
-        async () => {
-          this._keyboardMapper = null;
-          this._onDidChangeKeyboardLayout.fire();
-        }
-      )
-    );
-    this._register(
-      _configurationService.onDidChangeConfiguration(async (e) => {
-        if (e.affectsConfiguration("keyboard")) {
-          this._keyboardMapper = null;
-          this._onDidChangeKeyboardLayout.fire();
-        }
-      })
-    );
+    this._register(this._nativeKeyboardLayoutService.onDidChangeKeyboardLayout(async () => {
+      this._keyboardMapper = null;
+      this._onDidChangeKeyboardLayout.fire();
+    }));
+    this._register(_configurationService.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration("keyboard")) {
+        this._keyboardMapper = null;
+        this._onDidChangeKeyboardLayout.fire();
+      }
+    }));
   }
   static {
     __name(this, "KeyboardLayoutService");
   }
-  _onDidChangeKeyboardLayout = this._register(
-    new Emitter()
-  );
+  _onDidChangeKeyboardLayout = this._register(new Emitter());
   onDidChangeKeyboardLayout = this._onDidChangeKeyboardLayout.event;
   _keyboardMapper;
   getRawKeyboardMapping() {
@@ -78,13 +61,7 @@ let KeyboardLayoutService = class extends Disposable {
       return new FallbackKeyboardMapper(config.mapAltGrToCtrlAlt, OS);
     }
     if (!this._keyboardMapper) {
-      this._keyboardMapper = new CachedKeyboardMapper(
-        createKeyboardMapper(
-          this.getCurrentKeyboardLayout(),
-          this.getRawKeyboardMapping(),
-          config.mapAltGrToCtrlAlt
-        )
-      );
+      this._keyboardMapper = new CachedKeyboardMapper(createKeyboardMapper(this.getCurrentKeyboardLayout(), this.getRawKeyboardMapping(), config.mapAltGrToCtrlAlt));
     }
     return this._keyboardMapper;
   }
@@ -99,11 +76,7 @@ KeyboardLayoutService = __decorateClass([
 function createKeyboardMapper(layoutInfo, rawMapping, mapAltGrToCtrlAlt) {
   const _isUSStandard = isUSStandard(layoutInfo);
   if (OS === OperatingSystem.Windows) {
-    return new WindowsKeyboardMapper(
-      _isUSStandard,
-      rawMapping,
-      mapAltGrToCtrlAlt
-    );
+    return new WindowsKeyboardMapper(_isUSStandard, rawMapping, mapAltGrToCtrlAlt);
   }
   if (!rawMapping || Object.keys(rawMapping).length === 0) {
     return new FallbackKeyboardMapper(mapAltGrToCtrlAlt, OS);
@@ -114,12 +87,7 @@ function createKeyboardMapper(layoutInfo, rawMapping, mapAltGrToCtrlAlt) {
       return new FallbackKeyboardMapper(mapAltGrToCtrlAlt, OS);
     }
   }
-  return new MacLinuxKeyboardMapper(
-    _isUSStandard,
-    rawMapping,
-    mapAltGrToCtrlAlt,
-    OS
-  );
+  return new MacLinuxKeyboardMapper(_isUSStandard, rawMapping, mapAltGrToCtrlAlt, OS);
 }
 __name(createKeyboardMapper, "createKeyboardMapper");
 function isUSStandard(_kbInfo) {
@@ -142,11 +110,7 @@ function isUSStandard(_kbInfo) {
   return false;
 }
 __name(isUSStandard, "isUSStandard");
-registerSingleton(
-  IKeyboardLayoutService,
-  KeyboardLayoutService,
-  InstantiationType.Delayed
-);
+registerSingleton(IKeyboardLayoutService, KeyboardLayoutService, InstantiationType.Delayed);
 export {
   KeyboardLayoutService
 };

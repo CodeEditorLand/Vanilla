@@ -10,22 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas } from "../../../base/common/network.js";
-import { isLinux } from "../../../base/common/platform.js";
-import { FilePermission } from "../../../platform/files/common/files.js";
-import { DiskFileSystemProvider } from "../../../platform/files/node/diskFileSystemProvider.js";
-import { ILogService } from "../../../platform/log/common/log.js";
 import { IExtHostConsumerFileSystem } from "../common/extHostFileSystemConsumer.js";
+import { Schemas } from "../../../base/common/network.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { DiskFileSystemProvider } from "../../../platform/files/node/diskFileSystemProvider.js";
+import { FilePermission } from "../../../platform/files/common/files.js";
+import { isLinux } from "../../../base/common/platform.js";
 let ExtHostDiskFileSystemProvider = class {
   static {
     __name(this, "ExtHostDiskFileSystemProvider");
   }
   constructor(extHostConsumerFileSystem, logService) {
-    extHostConsumerFileSystem.addFileSystemProvider(
-      Schemas.file,
-      new DiskFileSystemProviderAdapter(logService),
-      { isCaseSensitive: isLinux }
-    );
+    extHostConsumerFileSystem.addFileSystemProvider(Schemas.file, new DiskFileSystemProviderAdapter(logService), { isCaseSensitive: isLinux });
   }
 };
 ExtHostDiskFileSystemProvider = __decorateClass([
@@ -60,18 +56,10 @@ class DiskFileSystemProviderAdapter {
     return this.impl.readFile(uri);
   }
   writeFile(uri, content, options) {
-    return this.impl.writeFile(uri, content, {
-      ...options,
-      unlock: false,
-      atomic: false
-    });
+    return this.impl.writeFile(uri, content, { ...options, unlock: false, atomic: false });
   }
   delete(uri, options) {
-    return this.impl.delete(uri, {
-      ...options,
-      useTrash: false,
-      atomic: false
-    });
+    return this.impl.delete(uri, { ...options, useTrash: false, atomic: false });
   }
   rename(oldUri, newUri, options) {
     return this.impl.rename(oldUri, newUri, options);

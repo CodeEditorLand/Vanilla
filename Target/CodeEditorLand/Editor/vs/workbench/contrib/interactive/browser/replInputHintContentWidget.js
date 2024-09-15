@@ -14,14 +14,11 @@ import * as dom from "../../../../base/browser/dom.js";
 import { status } from "../../../../base/browser/ui/aria/aria.js";
 import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
 import { Event } from "../../../../base/common/event.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { OS } from "../../../../base/common/platform.js";
-import {
-  ContentWidgetPositionPreference
-} from "../../../../editor/browser/editorBrowser.js";
-import {
-  EditorOption
-} from "../../../../editor/common/config/editorOptions.js";
+import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../../editor/browser/editorBrowser.js";
+import { ConfigurationChangedEvent, EditorOption } from "../../../../editor/common/config/editorOptions.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
@@ -33,38 +30,22 @@ let ReplInputHintContentWidget = class extends Disposable {
     this.editor = editor;
     this.configurationService = configurationService;
     this.keybindingService = keybindingService;
-    this._register(
-      this.editor.onDidChangeConfiguration(
-        (e) => {
-          if (this.domNode && e.hasChanged(EditorOption.fontInfo)) {
-            this.editor.applyFontInfo(this.domNode);
-          }
-        }
-      )
-    );
-    const onDidFocusEditorText = Event.debounce(
-      this.editor.onDidFocusEditorText,
-      () => void 0,
-      500
-    );
-    this._register(
-      onDidFocusEditorText(() => {
-        if (this.editor.hasTextFocus() && this.ariaLabel && configurationService.getValue(
-          AccessibilityVerbositySettingId.ReplInputHint
-        )) {
-          status(this.ariaLabel);
-        }
-      })
-    );
-    this._register(
-      configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(
-          InteractiveWindowSetting.executeWithShiftEnter
-        )) {
-          this.setHint();
-        }
-      })
-    );
+    this._register(this.editor.onDidChangeConfiguration((e) => {
+      if (this.domNode && e.hasChanged(EditorOption.fontInfo)) {
+        this.editor.applyFontInfo(this.domNode);
+      }
+    }));
+    const onDidFocusEditorText = Event.debounce(this.editor.onDidFocusEditorText, () => void 0, 500);
+    this._register(onDidFocusEditorText(() => {
+      if (this.editor.hasTextFocus() && this.ariaLabel && configurationService.getValue(AccessibilityVerbositySettingId.ReplInputHint)) {
+        status(this.ariaLabel);
+      }
+    }));
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(InteractiveWindowSetting.executeWithShiftEnter)) {
+        this.setHint();
+      }
+    }));
     this.editor.addContentWidget(this);
   }
   static {
@@ -88,11 +69,9 @@ let ReplInputHintContentWidget = class extends Disposable {
       this.domNode.style.width = "max-content";
       this.domNode.style.paddingLeft = "4px";
       this.setHint();
-      this._register(
-        dom.addDisposableListener(this.domNode, "click", () => {
-          this.editor.focus();
-        })
-      );
+      this._register(dom.addDisposableListener(this.domNode, "click", () => {
+        this.editor.focus();
+      }));
       this.editor.applyFontInfo(this.domNode);
     }
     return this.domNode;
@@ -110,11 +89,7 @@ let ReplInputHintContentWidget = class extends Disposable {
     const keybinding = this.getKeybinding();
     const keybindingHintLabel = keybinding?.getLabel();
     if (keybinding && keybindingHintLabel) {
-      const actionPart = localize(
-        "emptyHintText",
-        "Press {0} to execute. ",
-        keybindingHintLabel
-      );
+      const actionPart = localize("emptyHintText", "Press {0} to execute. ", keybindingHintLabel);
       const [before, after] = actionPart.split(keybindingHintLabel).map((fragment) => {
         const hintPart = dom.$("span", void 0, fragment);
         hintPart.style.fontStyle = "italic";
@@ -127,22 +102,12 @@ let ReplInputHintContentWidget = class extends Disposable {
       label.element.style.display = "inline";
       hintElement.appendChild(after);
       this.domNode.append(hintElement);
-      this.ariaLabel = actionPart.concat(
-        localize(
-          "disableHint",
-          " Toggle {0} in settings to disable this hint.",
-          AccessibilityVerbositySettingId.ReplInputHint
-        )
-      );
+      this.ariaLabel = actionPart.concat(localize("disableHint", " Toggle {0} in settings to disable this hint.", AccessibilityVerbositySettingId.ReplInputHint));
     }
   }
   getKeybinding() {
-    const keybindings = this.keybindingService.lookupKeybindings(
-      "interactive.execute"
-    );
-    const shiftEnterConfig = this.configurationService.getValue(
-      InteractiveWindowSetting.executeWithShiftEnter
-    );
+    const keybindings = this.keybindingService.lookupKeybindings("interactive.execute");
+    const shiftEnterConfig = this.configurationService.getValue(InteractiveWindowSetting.executeWithShiftEnter);
     const hasEnterChord = /* @__PURE__ */ __name((kb, modifier = "") => {
       const chords = kb.getDispatchChords();
       const chord = modifier + "Enter";
@@ -150,9 +115,7 @@ let ReplInputHintContentWidget = class extends Disposable {
       return chords.length === 1 && (chords[0] === chord || chords[0] === chordAlt);
     }, "hasEnterChord");
     if (shiftEnterConfig) {
-      const keybinding = keybindings.find(
-        (kb) => hasEnterChord(kb, "shift+")
-      );
+      const keybinding = keybindings.find((kb) => hasEnterChord(kb, "shift+"));
       if (keybinding) {
         return keybinding;
       }

@@ -10,37 +10,30 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
 import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
-import {
-  IWebviewViewService
-} from "../../contrib/webviewView/browser/webviewViewService.js";
+import { MainThreadWebviews, reviveWebviewExtension } from "./mainThreadWebviews.js";
 import * as extHostProtocol from "../common/extHost.protocol.js";
-import {
-  reviveWebviewExtension
-} from "./mainThreadWebviews.js";
+import { IViewBadge } from "../../common/views.js";
+import { IWebviewViewService, WebviewView } from "../../contrib/webviewView/browser/webviewViewService.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadWebviewsViews = class extends Disposable {
   constructor(context, mainThreadWebviews, _telemetryService, _webviewViewService) {
     super();
     this.mainThreadWebviews = mainThreadWebviews;
     this._telemetryService = _telemetryService;
     this._webviewViewService = _webviewViewService;
-    this._proxy = context.getProxy(
-      extHostProtocol.ExtHostContext.ExtHostWebviewViews
-    );
+    this._proxy = context.getProxy(extHostProtocol.ExtHostContext.ExtHostWebviewViews);
   }
   static {
     __name(this, "MainThreadWebviewsViews");
   }
   _proxy;
-  _webviewViews = this._register(
-    new DisposableMap()
-  );
-  _webviewViewProviders = this._register(
-    new DisposableMap()
-  );
+  _webviewViews = this._register(new DisposableMap());
+  _webviewViewProviders = this._register(new DisposableMap());
   $setWebviewViewTitle(handle, value) {
     const webviewView = this.getWebviewView(handle);
     webviewView.title = value;
@@ -66,23 +59,13 @@ let MainThreadWebviewsViews = class extends Disposable {
       resolve: /* @__PURE__ */ __name(async (webviewView, cancellation) => {
         const handle = generateUuid();
         this._webviewViews.set(handle, webviewView);
-        this.mainThreadWebviews.addWebview(
-          handle,
-          webviewView.webview,
-          {
-            serializeBuffersForPostMessage: options.serializeBuffersForPostMessage
-          }
-        );
-        let state;
+        this.mainThreadWebviews.addWebview(handle, webviewView.webview, { serializeBuffersForPostMessage: options.serializeBuffersForPostMessage });
+        let state = void 0;
         if (webviewView.webview.state) {
           try {
             state = JSON.parse(webviewView.webview.state);
           } catch (e) {
-            console.error(
-              "Could not load webview state",
-              e,
-              webviewView.webview.state
-            );
+            console.error("Could not load webview state", e, webviewView.webview.state);
           }
         }
         webviewView.webview.extension = extension;
@@ -90,10 +73,7 @@ let MainThreadWebviewsViews = class extends Disposable {
           webviewView.webview.options = options;
         }
         webviewView.onDidChangeVisibility((visible) => {
-          this._proxy.$onDidChangeWebviewViewVisibility(
-            handle,
-            visible
-          );
+          this._proxy.$onDidChangeWebviewViewVisibility(handle, visible);
         });
         webviewView.onDispose(() => {
           this._proxy.$disposeWebviewView(handle);
@@ -104,20 +84,10 @@ let MainThreadWebviewsViews = class extends Disposable {
           id: viewType
         });
         try {
-          await this._proxy.$resolveWebviewView(
-            handle,
-            viewType,
-            webviewView.title,
-            state,
-            cancellation
-          );
+          await this._proxy.$resolveWebviewView(handle, viewType, webviewView.title, state, cancellation);
         } catch (error) {
           onUnexpectedError(error);
-          webviewView.webview.setHtml(
-            this.mainThreadWebviews.getWebviewResolvedFailedContent(
-              viewType
-            )
-          );
+          webviewView.webview.setHtml(this.mainThreadWebviews.getWebviewResolvedFailedContent(viewType));
         }
       }, "resolve")
     });

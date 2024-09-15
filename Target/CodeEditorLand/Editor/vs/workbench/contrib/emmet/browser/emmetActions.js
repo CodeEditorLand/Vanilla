@@ -1,15 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  EditorAction
-} from "../../../../editor/browser/editorExtensions.js";
+import { EditorAction, ServicesAccessor, IActionOptions } from "../../../../editor/browser/editorExtensions.js";
+import { grammarsExtPoint, ITMSyntaxExtensionPoint } from "../../../services/textMate/common/TMGrammars.js";
+import { IExtensionService, ExtensionPointContribution } from "../../../services/extensions/common/extensions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import {
-  IExtensionService
-} from "../../../services/extensions/common/extensions.js";
-import {
-  grammarsExtPoint
-} from "../../../services/textMate/common/TMGrammars.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
 class GrammarContributions {
   static {
     __name(this, "GrammarContributions");
@@ -42,22 +37,7 @@ class EmmetEditorAction extends EditorAction {
     super(opts);
     this.emmetActionName = opts.actionName;
   }
-  static emmetSupportedModes = [
-    "html",
-    "css",
-    "xml",
-    "xsl",
-    "haml",
-    "jade",
-    "jsx",
-    "slim",
-    "scss",
-    "sass",
-    "less",
-    "stylus",
-    "styl",
-    "svg"
-  ];
+  static emmetSupportedModes = ["html", "css", "xml", "xsl", "haml", "jade", "jsx", "slim", "scss", "sass", "less", "stylus", "styl", "svg"];
   _lastGrammarContributions = null;
   _lastExtensionService = null;
   _withGrammarContributions(extensionService) {
@@ -72,20 +52,12 @@ class EmmetEditorAction extends EditorAction {
   run(accessor, editor) {
     const extensionService = accessor.get(IExtensionService);
     const commandService = accessor.get(ICommandService);
-    return this._withGrammarContributions(extensionService).then(
-      (grammarContributions) => {
-        if (this.id === "editor.emmet.action.expandAbbreviation" && grammarContributions) {
-          return commandService.executeCommand(
-            "emmet.expandAbbreviation",
-            EmmetEditorAction.getLanguage(
-              editor,
-              grammarContributions
-            )
-          );
-        }
-        return void 0;
+    return this._withGrammarContributions(extensionService).then((grammarContributions) => {
+      if (this.id === "editor.emmet.action.expandAbbreviation" && grammarContributions) {
+        return commandService.executeCommand("emmet.expandAbbreviation", EmmetEditorAction.getLanguage(editor, grammarContributions));
       }
-    );
+      return void 0;
+    });
   }
   static getLanguage(editor, grammars) {
     const model = editor.getModel();
@@ -95,10 +67,7 @@ class EmmetEditorAction extends EditorAction {
     }
     const position = selection.getStartPosition();
     model.tokenization.tokenizeIfCheap(position.lineNumber);
-    const languageId = model.getLanguageIdAtPosition(
-      position.lineNumber,
-      position.column
-    );
+    const languageId = model.getLanguageIdAtPosition(position.lineNumber, position.column);
     const syntax = languageId.split(".").pop();
     if (!syntax) {
       return null;

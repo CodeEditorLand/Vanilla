@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { splitLines } from "../../../base/common/strings.js";
+import { URI } from "../../../base/common/uri.js";
 import { Position } from "../core/position.js";
+import { IRange } from "../core/range.js";
+import { IModelContentChange } from "../textModelEvents.js";
 import { PrefixSumComputer } from "./prefixSumComputer.js";
 class MirrorTextModel {
   static {
@@ -41,13 +44,7 @@ class MirrorTextModel {
     const changes = e.changes;
     for (const change of changes) {
       this._acceptDeleteRange(change.range);
-      this._acceptInsertText(
-        new Position(
-          change.range.startLineNumber,
-          change.range.startColumn
-        ),
-        change.text
-      );
+      this._acceptInsertText(new Position(change.range.startLineNumber, change.range.startColumn), change.text);
     }
     this._versionId = e.versionId;
     this._cachedTextValue = null;
@@ -69,10 +66,7 @@ class MirrorTextModel {
   _setLineText(lineIndex, newValue) {
     this._lines[lineIndex] = newValue;
     if (this._lineStarts) {
-      this._lineStarts.setValue(
-        lineIndex,
-        this._lines[lineIndex].length + this._eol.length
-      );
+      this._lineStarts.setValue(lineIndex, this._lines[lineIndex].length + this._eol.length);
     }
   }
   _acceptDeleteRange(range) {
@@ -82,33 +76,17 @@ class MirrorTextModel {
       }
       this._setLineText(
         range.startLineNumber - 1,
-        this._lines[range.startLineNumber - 1].substring(
-          0,
-          range.startColumn - 1
-        ) + this._lines[range.startLineNumber - 1].substring(
-          range.endColumn - 1
-        )
+        this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1) + this._lines[range.startLineNumber - 1].substring(range.endColumn - 1)
       );
       return;
     }
     this._setLineText(
       range.startLineNumber - 1,
-      this._lines[range.startLineNumber - 1].substring(
-        0,
-        range.startColumn - 1
-      ) + this._lines[range.endLineNumber - 1].substring(
-        range.endColumn - 1
-      )
+      this._lines[range.startLineNumber - 1].substring(0, range.startColumn - 1) + this._lines[range.endLineNumber - 1].substring(range.endColumn - 1)
     );
-    this._lines.splice(
-      range.startLineNumber,
-      range.endLineNumber - range.startLineNumber
-    );
+    this._lines.splice(range.startLineNumber, range.endLineNumber - range.startLineNumber);
     if (this._lineStarts) {
-      this._lineStarts.removeValues(
-        range.startLineNumber,
-        range.endLineNumber - range.startLineNumber
-      );
+      this._lineStarts.removeValues(range.startLineNumber, range.endLineNumber - range.startLineNumber);
     }
   }
   _acceptInsertText(position, insertText) {
@@ -119,22 +97,14 @@ class MirrorTextModel {
     if (insertLines.length === 1) {
       this._setLineText(
         position.lineNumber - 1,
-        this._lines[position.lineNumber - 1].substring(
-          0,
-          position.column - 1
-        ) + insertLines[0] + this._lines[position.lineNumber - 1].substring(
-          position.column - 1
-        )
+        this._lines[position.lineNumber - 1].substring(0, position.column - 1) + insertLines[0] + this._lines[position.lineNumber - 1].substring(position.column - 1)
       );
       return;
     }
     insertLines[insertLines.length - 1] += this._lines[position.lineNumber - 1].substring(position.column - 1);
     this._setLineText(
       position.lineNumber - 1,
-      this._lines[position.lineNumber - 1].substring(
-        0,
-        position.column - 1
-      ) + insertLines[0]
+      this._lines[position.lineNumber - 1].substring(0, position.column - 1) + insertLines[0]
     );
     const newLengths = new Uint32Array(insertLines.length - 1);
     for (let i = 1; i < insertLines.length; i++) {

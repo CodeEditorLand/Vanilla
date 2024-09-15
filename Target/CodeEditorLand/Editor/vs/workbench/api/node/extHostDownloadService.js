@@ -10,13 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { tmpdir } from "os";
-import { Disposable } from "../../../base/common/lifecycle.js";
 import { join } from "../../../base/common/path.js";
-import { URI } from "../../../base/common/uri.js";
+import { tmpdir } from "os";
 import { generateUuid } from "../../../base/common/uuid.js";
-import { MainContext } from "../common/extHost.protocol.js";
 import { IExtHostCommands } from "../common/extHostCommands.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { MainContext } from "../common/extHost.protocol.js";
+import { URI } from "../../../base/common/uri.js";
 import { IExtHostRpcService } from "../common/extHostRpcService.js";
 let ExtHostDownloadService = class extends Disposable {
   static {
@@ -24,18 +24,12 @@ let ExtHostDownloadService = class extends Disposable {
   }
   constructor(extHostRpc, commands) {
     super();
-    const proxy = extHostRpc.getProxy(
-      MainContext.MainThreadDownloadService
-    );
-    commands.registerCommand(
-      false,
-      "_workbench.downloadResource",
-      async (resource) => {
-        const location = URI.file(join(tmpdir(), generateUuid()));
-        await proxy.$download(resource, location);
-        return location;
-      }
-    );
+    const proxy = extHostRpc.getProxy(MainContext.MainThreadDownloadService);
+    commands.registerCommand(false, "_workbench.downloadResource", async (resource) => {
+      const location = URI.file(join(tmpdir(), generateUuid()));
+      await proxy.$download(resource, location);
+      return location;
+    });
   }
 };
 ExtHostDownloadService = __decorateClass([

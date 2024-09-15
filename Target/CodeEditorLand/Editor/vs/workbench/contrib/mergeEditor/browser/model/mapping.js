@@ -1,25 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  compareBy,
-  numberComparator
-} from "../../../../../base/common/arrays.js";
+import { compareBy, numberComparator } from "../../../../../base/common/arrays.js";
 import { findLast } from "../../../../../base/common/arraysFind.js";
-import {
-  assertFn,
-  checkAdjacentItems
-} from "../../../../../base/common/assert.js";
+import { assertFn, checkAdjacentItems } from "../../../../../base/common/assert.js";
 import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { Position } from "../../../../../editor/common/core/position.js";
 import { Range } from "../../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
 import { concatArrays } from "../utils.js";
 import { LineRangeEdit } from "./editing.js";
 import { LineRange } from "./lineRange.js";
-import {
-  addLength,
-  lengthBetweenPositions,
-  rangeContainsPosition,
-  rangeIsBeforeOrTouching
-} from "./rangeUtils.js";
+import { addLength, lengthBetweenPositions, rangeContainsPosition, rangeIsBeforeOrTouching } from "./rangeUtils.js";
 class LineRangeMapping {
   constructor(inputRange, outputRange) {
     this.inputRange = inputRange;
@@ -29,10 +20,7 @@ class LineRangeMapping {
     __name(this, "LineRangeMapping");
   }
   static join(mappings) {
-    return mappings.reduce(
-      (acc, cur) => acc ? acc.join(cur) : cur,
-      void 0
-    );
+    return mappings.reduce((acc, cur) => acc ? acc.join(cur) : cur, void 0);
   }
   extendInputRange(extendedInputRange) {
     if (!extendedInputRange.containsRange(this.inputRange)) {
@@ -91,20 +79,12 @@ class DocumentLineRangeMap {
     __name(this, "DocumentLineRangeMap");
   }
   static betweenOutputs(inputToOutput1, inputToOutput2, inputLineCount) {
-    const alignments = MappingAlignment.compute(
-      inputToOutput1,
-      inputToOutput2
-    );
-    const mappings = alignments.map(
-      (m) => new LineRangeMapping(m.output1Range, m.output2Range)
-    );
+    const alignments = MappingAlignment.compute(inputToOutput1, inputToOutput2);
+    const mappings = alignments.map((m) => new LineRangeMapping(m.output1Range, m.output2Range));
     return new DocumentLineRangeMap(mappings, inputLineCount);
   }
   project(lineNumber) {
-    const lastBefore = findLast(
-      this.lineRangeMappings,
-      (r) => r.inputRange.startLineNumber <= lineNumber
-    );
+    const lastBefore = findLast(this.lineRangeMappings, (r) => r.inputRange.startLineNumber <= lineNumber);
     if (!lastBefore) {
       return new LineRangeMapping(
         new LineRange(lineNumber, 1),
@@ -157,14 +137,8 @@ class MappingAlignment {
     const deltaFromBaseToInput = [0, 0];
     const alignments = new Array();
     function pushAndReset(inputRange) {
-      const mapping1 = LineRangeMapping.join(currentDiffs[0]) || new LineRangeMapping(
-        inputRange,
-        inputRange.delta(deltaFromBaseToInput[0])
-      );
-      const mapping2 = LineRangeMapping.join(currentDiffs[1]) || new LineRangeMapping(
-        inputRange,
-        inputRange.delta(deltaFromBaseToInput[1])
-      );
+      const mapping1 = LineRangeMapping.join(currentDiffs[0]) || new LineRangeMapping(inputRange, inputRange.delta(deltaFromBaseToInput[0]));
+      const mapping2 = LineRangeMapping.join(currentDiffs[1]) || new LineRangeMapping(inputRange, inputRange.delta(deltaFromBaseToInput[1]));
       alignments.push(
         new MappingAlignment(
           currentInputRange,
@@ -203,21 +177,13 @@ class DetailedLineRangeMapping extends LineRangeMapping {
     super(inputRange, outputRange);
     this.inputTextModel = inputTextModel;
     this.outputTextModel = outputTextModel;
-    this.rangeMappings = rangeMappings || [
-      new RangeMapping(
-        this.inputRange.toRange(),
-        this.outputRange.toRange()
-      )
-    ];
+    this.rangeMappings = rangeMappings || [new RangeMapping(this.inputRange.toRange(), this.outputRange.toRange())];
   }
   static {
     __name(this, "DetailedLineRangeMapping");
   }
   static join(mappings) {
-    return mappings.reduce(
-      (acc, cur) => acc ? acc.join(cur) : cur,
-      void 0
-    );
+    return mappings.reduce((acc, cur) => acc ? acc.join(cur) : cur, void 0);
   }
   rangeMappings;
   addOutputLineDelta(delta) {
@@ -304,21 +270,20 @@ class DocumentRangeMap {
   constructor(rangeMappings, inputLineCount) {
     this.rangeMappings = rangeMappings;
     this.inputLineCount = inputLineCount;
-    assertFn(
-      () => checkAdjacentItems(
-        rangeMappings,
-        (m1, m2) => rangeIsBeforeOrTouching(m1.inputRange, m2.inputRange) && rangeIsBeforeOrTouching(m1.outputRange, m2.outputRange)
-      )
-    );
+    assertFn(() => checkAdjacentItems(
+      rangeMappings,
+      (m1, m2) => rangeIsBeforeOrTouching(m1.inputRange, m2.inputRange) && rangeIsBeforeOrTouching(m1.outputRange, m2.outputRange)
+      /*&&
+      lengthBetweenPositions(m1.inputRange.getEndPosition(), m2.inputRange.getStartPosition()).equals(
+      	lengthBetweenPositions(m1.outputRange.getEndPosition(), m2.outputRange.getStartPosition())
+      )*/
+    ));
   }
   static {
     __name(this, "DocumentRangeMap");
   }
   project(position) {
-    const lastBefore = findLast(
-      this.rangeMappings,
-      (r) => r.inputRange.getStartPosition().isBeforeOrEqual(position)
-    );
+    const lastBefore = findLast(this.rangeMappings, (r) => r.inputRange.getStartPosition().isBeforeOrEqual(position));
     if (!lastBefore) {
       return new RangeMapping(
         Range.fromPositions(position, position),
@@ -328,14 +293,8 @@ class DocumentRangeMap {
     if (rangeContainsPosition(lastBefore.inputRange, position)) {
       return lastBefore;
     }
-    const dist = lengthBetweenPositions(
-      lastBefore.inputRange.getEndPosition(),
-      position
-    );
-    const outputPos = addLength(
-      lastBefore.outputRange.getEndPosition(),
-      dist
-    );
+    const dist = lengthBetweenPositions(lastBefore.inputRange.getEndPosition(), position);
+    const outputPos = addLength(lastBefore.outputRange.getEndPosition(), dist);
     return new RangeMapping(
       Range.fromPositions(position),
       Range.fromPositions(outputPos)

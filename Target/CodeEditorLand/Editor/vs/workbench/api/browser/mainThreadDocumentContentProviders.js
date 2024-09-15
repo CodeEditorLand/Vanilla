@@ -10,32 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
-import { DisposableMap, dispose } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
+import { dispose, DisposableMap } from "../../../base/common/lifecycle.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { EditOperation } from "../../../editor/common/core/editOperation.js";
 import { Range } from "../../../editor/common/core/range.js";
-import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../editor/common/model.js";
 import { IEditorWorkerService } from "../../../editor/common/services/editorWorker.js";
 import { IModelService } from "../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
 import { ITextModelService } from "../../../editor/common/services/resolverService.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, ExtHostDocumentContentProvidersShape, MainContext, MainThreadDocumentContentProvidersShape } from "../common/extHost.protocol.js";
+import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 let MainThreadDocumentContentProviders = class {
   constructor(extHostContext, _textModelResolverService, _languageService, _modelService, _editorWorkerService) {
     this._textModelResolverService = _textModelResolverService;
     this._languageService = _languageService;
     this._modelService = _modelService;
     this._editorWorkerService = _editorWorkerService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostDocumentContentProviders
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentContentProviders);
   }
   _resourceContentProvider = new DisposableMap();
   _pendingUpdate = /* @__PURE__ */ new Map();
@@ -45,31 +39,18 @@ let MainThreadDocumentContentProviders = class {
     dispose(this._pendingUpdate.values());
   }
   $registerTextContentProvider(handle, scheme) {
-    const registration = this._textModelResolverService.registerTextModelContentProvider(
-      scheme,
-      {
-        provideTextContent: /* @__PURE__ */ __name((uri) => {
-          return this._proxy.$provideTextDocumentContent(handle, uri).then((value) => {
-            if (typeof value === "string") {
-              const firstLineText = value.substr(
-                0,
-                1 + value.search(/\r?\n/)
-              );
-              const languageSelection = this._languageService.createByFilepathOrFirstLine(
-                uri,
-                firstLineText
-              );
-              return this._modelService.createModel(
-                value,
-                languageSelection,
-                uri
-              );
-            }
-            return null;
-          });
-        }, "provideTextContent")
-      }
-    );
+    const registration = this._textModelResolverService.registerTextModelContentProvider(scheme, {
+      provideTextContent: /* @__PURE__ */ __name((uri) => {
+        return this._proxy.$provideTextDocumentContent(handle, uri).then((value) => {
+          if (typeof value === "string") {
+            const firstLineText = value.substr(0, 1 + value.search(/\r?\n/));
+            const languageSelection = this._languageService.createByFilepathOrFirstLine(uri, firstLineText);
+            return this._modelService.createModel(value, languageSelection, uri);
+          }
+          return null;
+        });
+      }, "provideTextContent")
+    });
     this._resourceContentProvider.set(handle, registration);
   }
   $unregisterTextContentProvider(handle) {
@@ -85,23 +66,13 @@ let MainThreadDocumentContentProviders = class {
     const myToken = new CancellationTokenSource();
     this._pendingUpdate.set(model.id, myToken);
     try {
-      const edits = await this._editorWorkerService.computeMoreMinimalEdits(
-        model.uri,
-        [{ text: value, range: model.getFullModelRange() }]
-      );
+      const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
       this._pendingUpdate.delete(model.id);
       if (myToken.token.isCancellationRequested) {
         return;
       }
       if (edits && edits.length > 0) {
-        model.applyEdits(
-          edits.map(
-            (edit) => EditOperation.replace(
-              Range.lift(edit.range),
-              edit.text
-            )
-          )
-        );
+        model.applyEdits(edits.map((edit) => EditOperation.replace(Range.lift(edit.range), edit.text)));
       }
     } catch (error) {
       onUnexpectedError(error);

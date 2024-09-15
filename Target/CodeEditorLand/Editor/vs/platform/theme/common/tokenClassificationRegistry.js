@@ -2,12 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { RunOnceScheduler } from "../../../base/common/async.js";
 import { Color } from "../../../base/common/color.js";
-import { Emitter } from "../../../base/common/event.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IJSONSchema, IJSONSchemaMap } from "../../../base/common/jsonSchema.js";
 import * as nls from "../../../nls.js";
-import {
-  Extensions as JSONExtensions
-} from "../../jsonschemas/common/jsonContributionRegistry.js";
+import { Extensions as JSONExtensions, IJSONContributionRegistry } from "../../jsonschemas/common/jsonContributionRegistry.js";
 import * as platform from "../../registry/common/platform.js";
+import { IColorTheme } from "./themeService.js";
 const TOKEN_TYPE_WILDCARD = "*";
 const TOKEN_CLASSIFIER_LANGUAGE_SEPARATOR = ":";
 const CLASSIFIER_MODIFIER_SEPARATOR = ".";
@@ -69,18 +69,12 @@ class TokenStyle {
   TokenStyle2.is = is;
   __name(is, "is");
   function fromData(data) {
-    return new TokenStyle2(
-      data.foreground,
-      data.bold,
-      data.underline,
-      data.strikethrough,
-      data.italic
-    );
+    return new TokenStyle2(data.foreground, data.bold, data.underline, data.strikethrough, data.italic);
   }
   TokenStyle2.fromData = fromData;
   __name(fromData, "fromData");
   function fromSettings(foreground, fontStyle, bold, underline, strikethrough, italic) {
-    let foregroundColor;
+    let foregroundColor = void 0;
     if (foreground !== void 0) {
       foregroundColor = Color.fromHex(foreground);
     }
@@ -105,13 +99,7 @@ class TokenStyle {
         }
       }
     }
-    return new TokenStyle2(
-      foregroundColor,
-      bold,
-      underline,
-      strikethrough,
-      italic
-    );
+    return new TokenStyle2(foregroundColor, bold, underline, strikethrough, italic);
   }
   TokenStyle2.fromSettings = fromSettings;
   __name(fromSettings, "fromSettings");
@@ -123,10 +111,7 @@ var SemanticTokenRule;
       const style = TokenStyle.fromJSONObject(o._style);
       if (style) {
         try {
-          return {
-            selector: registry.parseTokenSelector(o._selector),
-            style
-          };
+          return { selector: registry.parseTokenSelector(o._selector), style };
         } catch (_ignore) {
         }
       }
@@ -183,46 +168,25 @@ class TokenClassificationRegistry {
     definitions: {
       style: {
         type: "object",
-        description: nls.localize(
-          "schema.token.settings",
-          "Colors and styles for the token."
-        ),
+        description: nls.localize("schema.token.settings", "Colors and styles for the token."),
         properties: {
           foreground: {
             type: "string",
-            description: nls.localize(
-              "schema.token.foreground",
-              "Foreground color for the token."
-            ),
+            description: nls.localize("schema.token.foreground", "Foreground color for the token."),
             format: "color-hex",
             default: "#ff0000"
           },
           background: {
             type: "string",
-            deprecationMessage: nls.localize(
-              "schema.token.background.warning",
-              "Token background colors are currently not supported."
-            )
+            deprecationMessage: nls.localize("schema.token.background.warning", "Token background colors are currently not supported.")
           },
           fontStyle: {
             type: "string",
-            description: nls.localize(
-              "schema.token.fontStyle",
-              "Sets the all font styles of the rule: 'italic', 'bold', 'underline' or 'strikethrough' or a combination. All styles that are not listed are unset. The empty string unsets all styles."
-            ),
+            description: nls.localize("schema.token.fontStyle", "Sets the all font styles of the rule: 'italic', 'bold', 'underline' or 'strikethrough' or a combination. All styles that are not listed are unset. The empty string unsets all styles."),
             pattern: fontStylePattern,
-            patternErrorMessage: nls.localize(
-              "schema.fontStyle.error",
-              "Font style must be 'italic', 'bold', 'underline' or 'strikethrough' or a combination. The empty string unsets all styles."
-            ),
+            patternErrorMessage: nls.localize("schema.fontStyle.error", "Font style must be 'italic', 'bold', 'underline' or 'strikethrough' or a combination. The empty string unsets all styles."),
             defaultSnippets: [
-              {
-                label: nls.localize(
-                  "schema.token.fontStyle.none",
-                  "None (clear inherited style)"
-                ),
-                bodyText: '""'
-              },
+              { label: nls.localize("schema.token.fontStyle.none", "None (clear inherited style)"), bodyText: '""' },
               { body: "italic" },
               { body: "bold" },
               { body: "underline" },
@@ -242,41 +206,22 @@ class TokenClassificationRegistry {
           },
           bold: {
             type: "boolean",
-            description: nls.localize(
-              "schema.token.bold",
-              "Sets or unsets the font style to bold. Note, the presence of 'fontStyle' overrides this setting."
-            )
+            description: nls.localize("schema.token.bold", "Sets or unsets the font style to bold. Note, the presence of 'fontStyle' overrides this setting.")
           },
           italic: {
             type: "boolean",
-            description: nls.localize(
-              "schema.token.italic",
-              "Sets or unsets the font style to italic. Note, the presence of 'fontStyle' overrides this setting."
-            )
+            description: nls.localize("schema.token.italic", "Sets or unsets the font style to italic. Note, the presence of 'fontStyle' overrides this setting.")
           },
           underline: {
             type: "boolean",
-            description: nls.localize(
-              "schema.token.underline",
-              "Sets or unsets the font style to underline. Note, the presence of 'fontStyle' overrides this setting."
-            )
+            description: nls.localize("schema.token.underline", "Sets or unsets the font style to underline. Note, the presence of 'fontStyle' overrides this setting.")
           },
           strikethrough: {
             type: "boolean",
-            description: nls.localize(
-              "schema.token.strikethrough",
-              "Sets or unsets the font style to strikethrough. Note, the presence of 'fontStyle' overrides this setting."
-            )
+            description: nls.localize("schema.token.strikethrough", "Sets or unsets the font style to strikethrough. Note, the presence of 'fontStyle' overrides this setting.")
           }
         },
-        defaultSnippets: [
-          {
-            body: {
-              foreground: "${1:#FF0000}",
-              fontStyle: "${2:bold}"
-            }
-          }
-        ]
+        defaultSnippets: [{ body: { foreground: "${1:#FF0000}", fontStyle: "${2:bold}" } }]
       }
     }
   };
@@ -293,18 +238,9 @@ class TokenClassificationRegistry {
       throw new Error("Invalid token super type id.");
     }
     const num = this.currentTypeNumber++;
-    const tokenStyleContribution = {
-      num,
-      id,
-      superType,
-      description,
-      deprecationMessage
-    };
+    const tokenStyleContribution = { num, id, superType, description, deprecationMessage };
     this.tokenTypeById[id] = tokenStyleContribution;
-    const stylingSchemeEntry = getStylingSchemeEntry(
-      description,
-      deprecationMessage
-    );
+    const stylingSchemeEntry = getStylingSchemeEntry(description, deprecationMessage);
     this.tokenStylingSchema.properties[id] = stylingSchemeEntry;
     this.typeHierarchy = /* @__PURE__ */ Object.create(null);
   }
@@ -314,17 +250,9 @@ class TokenClassificationRegistry {
     }
     const num = this.currentModifierBit;
     this.currentModifierBit = this.currentModifierBit * 2;
-    const tokenStyleContribution = {
-      num,
-      id,
-      description,
-      deprecationMessage
-    };
+    const tokenStyleContribution = { num, id, description, deprecationMessage };
     this.tokenModifierById[id] = tokenStyleContribution;
-    this.tokenStylingSchema.properties[`*.${id}`] = getStylingSchemeEntry(
-      description,
-      deprecationMessage
-    );
+    this.tokenStylingSchema.properties[`*.${id}`] = getStylingSchemeEntry(description, deprecationMessage);
   }
   parseTokenSelector(selectorString, language) {
     const selector = parseClassifierString(selectorString, language);
@@ -366,9 +294,7 @@ class TokenClassificationRegistry {
   }
   deregisterTokenStyleDefault(selector) {
     const selectorString = selector.id;
-    this.tokenStylingDefaultRules = this.tokenStylingDefaultRules.filter(
-      (r) => r.selector.id !== selectorString
-    );
+    this.tokenStylingDefaultRules = this.tokenStylingDefaultRules.filter((r) => r.selector.id !== selectorString);
   }
   deregisterTokenType(id) {
     delete this.tokenTypeById[id];
@@ -380,14 +306,10 @@ class TokenClassificationRegistry {
     delete this.tokenStylingSchema.properties[`*.${id}`];
   }
   getTokenTypes() {
-    return Object.keys(this.tokenTypeById).map(
-      (id) => this.tokenTypeById[id]
-    );
+    return Object.keys(this.tokenTypeById).map((id) => this.tokenTypeById[id]);
   }
   getTokenModifiers() {
-    return Object.keys(this.tokenModifierById).map(
-      (id) => this.tokenModifierById[id]
-    );
+    return Object.keys(this.tokenModifierById).map((id) => this.tokenModifierById[id]);
   }
   getTokenStylingSchema() {
     return this.tokenStylingSchema;
@@ -442,19 +364,11 @@ function parseClassifierString(s, defaultLanguage) {
 }
 __name(parseClassifierString, "parseClassifierString");
 const tokenClassificationRegistry = createDefaultTokenClassificationRegistry();
-platform.Registry.add(
-  Extensions.TokenClassificationContribution,
-  tokenClassificationRegistry
-);
+platform.Registry.add(Extensions.TokenClassificationContribution, tokenClassificationRegistry);
 function createDefaultTokenClassificationRegistry() {
   const registry = new TokenClassificationRegistry();
   function registerTokenType(id, description, scopesToProbe = [], superType, deprecationMessage) {
-    registry.registerTokenType(
-      id,
-      description,
-      superType,
-      deprecationMessage
-    );
+    registry.registerTokenType(id, description, superType, deprecationMessage);
     if (scopesToProbe) {
       registerTokenStyleDefault(id, scopesToProbe);
     }
@@ -470,188 +384,48 @@ function createDefaultTokenClassificationRegistry() {
     }
   }
   __name(registerTokenStyleDefault, "registerTokenStyleDefault");
-  registerTokenType(
-    "comment",
-    nls.localize("comment", "Style for comments."),
-    [["comment"]]
-  );
-  registerTokenType("string", nls.localize("string", "Style for strings."), [
-    ["string"]
-  ]);
-  registerTokenType(
-    "keyword",
-    nls.localize("keyword", "Style for keywords."),
-    [["keyword.control"]]
-  );
-  registerTokenType("number", nls.localize("number", "Style for numbers."), [
-    ["constant.numeric"]
-  ]);
-  registerTokenType(
-    "regexp",
-    nls.localize("regexp", "Style for expressions."),
-    [["constant.regexp"]]
-  );
-  registerTokenType(
-    "operator",
-    nls.localize("operator", "Style for operators."),
-    [["keyword.operator"]]
-  );
-  registerTokenType(
-    "namespace",
-    nls.localize("namespace", "Style for namespaces."),
-    [["entity.name.namespace"]]
-  );
-  registerTokenType("type", nls.localize("type", "Style for types."), [
-    ["entity.name.type"],
-    ["support.type"]
-  ]);
-  registerTokenType("struct", nls.localize("struct", "Style for structs."), [
-    ["entity.name.type.struct"]
-  ]);
-  registerTokenType("class", nls.localize("class", "Style for classes."), [
-    ["entity.name.type.class"],
-    ["support.class"]
-  ]);
-  registerTokenType(
-    "interface",
-    nls.localize("interface", "Style for interfaces."),
-    [["entity.name.type.interface"]]
-  );
-  registerTokenType("enum", nls.localize("enum", "Style for enums."), [
-    ["entity.name.type.enum"]
-  ]);
-  registerTokenType(
-    "typeParameter",
-    nls.localize("typeParameter", "Style for type parameters."),
-    [["entity.name.type.parameter"]]
-  );
-  registerTokenType(
-    "function",
-    nls.localize("function", "Style for functions"),
-    [["entity.name.function"], ["support.function"]]
-  );
-  registerTokenType(
-    "member",
-    nls.localize("member", "Style for member functions"),
-    [],
-    "method",
-    "Deprecated use `method` instead"
-  );
-  registerTokenType(
-    "method",
-    nls.localize("method", "Style for method (member functions)"),
-    [["entity.name.function.member"], ["support.function"]]
-  );
-  registerTokenType("macro", nls.localize("macro", "Style for macros."), [
-    ["entity.name.function.preprocessor"]
-  ]);
-  registerTokenType(
-    "variable",
-    nls.localize("variable", "Style for variables."),
-    [["variable.other.readwrite"], ["entity.name.variable"]]
-  );
-  registerTokenType(
-    "parameter",
-    nls.localize("parameter", "Style for parameters."),
-    [["variable.parameter"]]
-  );
-  registerTokenType(
-    "property",
-    nls.localize("property", "Style for properties."),
-    [["variable.other.property"]]
-  );
-  registerTokenType(
-    "enumMember",
-    nls.localize("enumMember", "Style for enum members."),
-    [["variable.other.enummember"]]
-  );
-  registerTokenType("event", nls.localize("event", "Style for events."), [
-    ["variable.other.event"]
-  ]);
-  registerTokenType(
-    "decorator",
-    nls.localize("decorator", "Style for decorators & annotations."),
-    [["entity.name.decorator"], ["entity.name.function"]]
-  );
-  registerTokenType(
-    "label",
-    nls.localize("labels", "Style for labels. "),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "declaration",
-    nls.localize("declaration", "Style for all symbol declarations."),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "documentation",
-    nls.localize(
-      "documentation",
-      "Style to use for references in documentation."
-    ),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "static",
-    nls.localize("static", "Style to use for symbols that are static."),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "abstract",
-    nls.localize("abstract", "Style to use for symbols that are abstract."),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "deprecated",
-    nls.localize(
-      "deprecated",
-      "Style to use for symbols that are deprecated."
-    ),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "modification",
-    nls.localize("modification", "Style to use for write accesses."),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "async",
-    nls.localize("async", "Style to use for symbols that are async."),
-    void 0
-  );
-  registry.registerTokenModifier(
-    "readonly",
-    nls.localize(
-      "readonly",
-      "Style to use for symbols that are read-only."
-    ),
-    void 0
-  );
-  registerTokenStyleDefault("variable.readonly", [
-    ["variable.other.constant"]
-  ]);
-  registerTokenStyleDefault("property.readonly", [
-    ["variable.other.constant.property"]
-  ]);
+  registerTokenType("comment", nls.localize("comment", "Style for comments."), [["comment"]]);
+  registerTokenType("string", nls.localize("string", "Style for strings."), [["string"]]);
+  registerTokenType("keyword", nls.localize("keyword", "Style for keywords."), [["keyword.control"]]);
+  registerTokenType("number", nls.localize("number", "Style for numbers."), [["constant.numeric"]]);
+  registerTokenType("regexp", nls.localize("regexp", "Style for expressions."), [["constant.regexp"]]);
+  registerTokenType("operator", nls.localize("operator", "Style for operators."), [["keyword.operator"]]);
+  registerTokenType("namespace", nls.localize("namespace", "Style for namespaces."), [["entity.name.namespace"]]);
+  registerTokenType("type", nls.localize("type", "Style for types."), [["entity.name.type"], ["support.type"]]);
+  registerTokenType("struct", nls.localize("struct", "Style for structs."), [["entity.name.type.struct"]]);
+  registerTokenType("class", nls.localize("class", "Style for classes."), [["entity.name.type.class"], ["support.class"]]);
+  registerTokenType("interface", nls.localize("interface", "Style for interfaces."), [["entity.name.type.interface"]]);
+  registerTokenType("enum", nls.localize("enum", "Style for enums."), [["entity.name.type.enum"]]);
+  registerTokenType("typeParameter", nls.localize("typeParameter", "Style for type parameters."), [["entity.name.type.parameter"]]);
+  registerTokenType("function", nls.localize("function", "Style for functions"), [["entity.name.function"], ["support.function"]]);
+  registerTokenType("member", nls.localize("member", "Style for member functions"), [], "method", "Deprecated use `method` instead");
+  registerTokenType("method", nls.localize("method", "Style for method (member functions)"), [["entity.name.function.member"], ["support.function"]]);
+  registerTokenType("macro", nls.localize("macro", "Style for macros."), [["entity.name.function.preprocessor"]]);
+  registerTokenType("variable", nls.localize("variable", "Style for variables."), [["variable.other.readwrite"], ["entity.name.variable"]]);
+  registerTokenType("parameter", nls.localize("parameter", "Style for parameters."), [["variable.parameter"]]);
+  registerTokenType("property", nls.localize("property", "Style for properties."), [["variable.other.property"]]);
+  registerTokenType("enumMember", nls.localize("enumMember", "Style for enum members."), [["variable.other.enummember"]]);
+  registerTokenType("event", nls.localize("event", "Style for events."), [["variable.other.event"]]);
+  registerTokenType("decorator", nls.localize("decorator", "Style for decorators & annotations."), [["entity.name.decorator"], ["entity.name.function"]]);
+  registerTokenType("label", nls.localize("labels", "Style for labels. "), void 0);
+  registry.registerTokenModifier("declaration", nls.localize("declaration", "Style for all symbol declarations."), void 0);
+  registry.registerTokenModifier("documentation", nls.localize("documentation", "Style to use for references in documentation."), void 0);
+  registry.registerTokenModifier("static", nls.localize("static", "Style to use for symbols that are static."), void 0);
+  registry.registerTokenModifier("abstract", nls.localize("abstract", "Style to use for symbols that are abstract."), void 0);
+  registry.registerTokenModifier("deprecated", nls.localize("deprecated", "Style to use for symbols that are deprecated."), void 0);
+  registry.registerTokenModifier("modification", nls.localize("modification", "Style to use for write accesses."), void 0);
+  registry.registerTokenModifier("async", nls.localize("async", "Style to use for symbols that are async."), void 0);
+  registry.registerTokenModifier("readonly", nls.localize("readonly", "Style to use for symbols that are read-only."), void 0);
+  registerTokenStyleDefault("variable.readonly", [["variable.other.constant"]]);
+  registerTokenStyleDefault("property.readonly", [["variable.other.constant.property"]]);
   registerTokenStyleDefault("type.defaultLibrary", [["support.type"]]);
   registerTokenStyleDefault("class.defaultLibrary", [["support.class"]]);
   registerTokenStyleDefault("interface.defaultLibrary", [["support.class"]]);
-  registerTokenStyleDefault("variable.defaultLibrary", [
-    ["support.variable"],
-    ["support.other.variable"]
-  ]);
-  registerTokenStyleDefault("variable.defaultLibrary.readonly", [
-    ["support.constant"]
-  ]);
-  registerTokenStyleDefault("property.defaultLibrary", [
-    ["support.variable.property"]
-  ]);
-  registerTokenStyleDefault("property.defaultLibrary.readonly", [
-    ["support.constant.property"]
-  ]);
-  registerTokenStyleDefault("function.defaultLibrary", [
-    ["support.function"]
-  ]);
+  registerTokenStyleDefault("variable.defaultLibrary", [["support.variable"], ["support.other.variable"]]);
+  registerTokenStyleDefault("variable.defaultLibrary.readonly", [["support.constant"]]);
+  registerTokenStyleDefault("property.defaultLibrary", [["support.variable.property"]]);
+  registerTokenStyleDefault("property.defaultLibrary.readonly", [["support.constant.property"]]);
+  registerTokenStyleDefault("function.defaultLibrary", [["support.function"]]);
   registerTokenStyleDefault("member.defaultLibrary", [["support.function"]]);
   return registry;
 }
@@ -678,17 +452,9 @@ function getStylingSchemeEntry(description, deprecationMessage) {
 }
 __name(getStylingSchemeEntry, "getStylingSchemeEntry");
 const tokenStylingSchemaId = "vscode://schemas/token-styling";
-const schemaRegistry = platform.Registry.as(
-  JSONExtensions.JSONContribution
-);
-schemaRegistry.registerSchema(
-  tokenStylingSchemaId,
-  tokenClassificationRegistry.getTokenStylingSchema()
-);
-const delayer = new RunOnceScheduler(
-  () => schemaRegistry.notifySchemaChanged(tokenStylingSchemaId),
-  200
-);
+const schemaRegistry = platform.Registry.as(JSONExtensions.JSONContribution);
+schemaRegistry.registerSchema(tokenStylingSchemaId, tokenClassificationRegistry.getTokenStylingSchema());
+const delayer = new RunOnceScheduler(() => schemaRegistry.notifySchemaChanged(tokenStylingSchemaId), 200);
 tokenClassificationRegistry.onDidChangeSchema(() => {
   if (!delayer.isScheduled()) {
     delayer.schedule();

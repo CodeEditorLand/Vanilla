@@ -4,8 +4,9 @@ import "../colorPicker.css";
 import * as dom from "../../../../../base/browser/dom.js";
 import { GlobalPointerMoveMonitor } from "../../../../../base/browser/globalPointerMoveMonitor.js";
 import { Color, HSVA } from "../../../../../base/common/color.js";
-import { Emitter } from "../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ColorPickerModel } from "../colorPickerModel.js";
 const $ = dom.$;
 class SaturationBox extends Disposable {
   constructor(container, model, pixelRatio) {
@@ -20,16 +21,8 @@ class SaturationBox extends Disposable {
     this.selection = $(".saturation-selection");
     dom.append(this._domNode, this.selection);
     this.layout();
-    this._register(
-      dom.addDisposableListener(
-        this._domNode,
-        dom.EventType.POINTER_DOWN,
-        (e) => this.onPointerDown(e)
-      )
-    );
-    this._register(
-      this.model.onDidChangeColor(this.onDidChangeColor, this)
-    );
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.POINTER_DOWN, (e) => this.onPointerDown(e)));
+    this._register(this.model.onDidChangeColor(this.onDidChangeColor, this));
     this.monitor = null;
   }
   static {
@@ -60,29 +53,15 @@ class SaturationBox extends Disposable {
     if (e.target !== this.selection) {
       this.onDidChangePosition(e.offsetX, e.offsetY);
     }
-    this.monitor.startMonitoring(
-      e.target,
-      e.pointerId,
-      e.buttons,
-      (event) => this.onDidChangePosition(
-        event.pageX - origin.left,
-        event.pageY - origin.top
-      ),
-      () => null
-    );
-    const pointerUpListener = dom.addDisposableListener(
-      e.target.ownerDocument,
-      dom.EventType.POINTER_UP,
-      () => {
-        this._onColorFlushed.fire();
-        pointerUpListener.dispose();
-        if (this.monitor) {
-          this.monitor.stopMonitoring(true);
-          this.monitor = null;
-        }
-      },
-      true
-    );
+    this.monitor.startMonitoring(e.target, e.pointerId, e.buttons, (event) => this.onDidChangePosition(event.pageX - origin.left, event.pageY - origin.top), () => null);
+    const pointerUpListener = dom.addDisposableListener(e.target.ownerDocument, dom.EventType.POINTER_UP, () => {
+      this._onColorFlushed.fire();
+      pointerUpListener.dispose();
+      if (this.monitor) {
+        this.monitor.stopMonitoring(true);
+        this.monitor = null;
+      }
+    }, true);
   }
   onDidChangePosition(left, top) {
     const s = Math.max(0, Math.min(1, left / this.width));
@@ -103,21 +82,11 @@ class SaturationBox extends Disposable {
     const hsva = this.model.color.hsva;
     const saturatedColor = new Color(new HSVA(hsva.h, 1, 1, 1));
     const ctx = this._canvas.getContext("2d");
-    const whiteGradient = ctx.createLinearGradient(
-      0,
-      0,
-      this._canvas.width,
-      0
-    );
+    const whiteGradient = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
     whiteGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
     whiteGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.5)");
     whiteGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-    const blackGradient = ctx.createLinearGradient(
-      0,
-      0,
-      0,
-      this._canvas.height
-    );
+    const blackGradient = ctx.createLinearGradient(0, 0, 0, this._canvas.height);
     blackGradient.addColorStop(0, "rgba(0, 0, 0, 0)");
     blackGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
     ctx.rect(0, 0, this._canvas.width, this._canvas.height);

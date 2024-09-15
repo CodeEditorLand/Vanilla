@@ -1,17 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { AstNodeKind } from "./bracketPairsTree/ast.js";
+import { ILanguageConfigurationService } from "../../languages/languageConfigurationRegistry.js";
+import { AstNode, AstNodeKind } from "./bracketPairsTree/ast.js";
 import { LanguageAgnosticBracketTokens } from "./bracketPairsTree/brackets.js";
-import {
-  lengthAdd,
-  lengthGetColumnCountIfZeroLineCount,
-  lengthZero
-} from "./bracketPairsTree/length.js";
+import { Length, lengthAdd, lengthGetColumnCountIfZeroLineCount, lengthZero } from "./bracketPairsTree/length.js";
 import { parseDocument } from "./bracketPairsTree/parser.js";
 import { DenseKeyProvider } from "./bracketPairsTree/smallImmutableSet.js";
-import {
-  TextBufferTokenizer
-} from "./bracketPairsTree/tokenizer.js";
+import { ITokenizerSource, TextBufferTokenizer } from "./bracketPairsTree/tokenizer.js";
+import { IViewLineTokens } from "../../tokens/lineTokens.js";
 function fixBracketsInLine(tokens, languageConfigurationService) {
   const denseKeyProvider = new DenseKeyProvider();
   const bracketTokens = new LanguageAgnosticBracketTokens(
@@ -37,21 +33,15 @@ function fixBracketsInLine(tokens, languageConfigurationService) {
         processNode(node2.closingBracket, offset);
         offset = lengthAdd(offset, node2.closingBracket.length);
       } else {
-        const singleLangBracketTokens = bracketTokens.getSingleLanguageBracketTokens(
-          node2.openingBracket.languageId
-        );
-        const closingTokenText = singleLangBracketTokens.findClosingTokenText(
-          node2.openingBracket.bracketIds
-        );
+        const singleLangBracketTokens = bracketTokens.getSingleLanguageBracketTokens(node2.openingBracket.languageId);
+        const closingTokenText = singleLangBracketTokens.findClosingTokenText(node2.openingBracket.bracketIds);
         str += closingTokenText;
       }
     } else if (node2.kind === AstNodeKind.UnexpectedClosingBracket) {
     } else if (node2.kind === AstNodeKind.Text || node2.kind === AstNodeKind.Bracket) {
       str += line.substring(
         lengthGetColumnCountIfZeroLineCount(offset),
-        lengthGetColumnCountIfZeroLineCount(
-          lengthAdd(offset, node2.length)
-        )
+        lengthGetColumnCountIfZeroLineCount(lengthAdd(offset, node2.length))
       );
     } else if (node2.kind === AstNodeKind.List) {
       for (const child of node2.children) {

@@ -10,10 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IBreakpointContribution } from "./debug.js";
 let Breakpoints = class {
   constructor(breakpointContribution, contextKeyService) {
     this.breakpointContribution = breakpointContribution;

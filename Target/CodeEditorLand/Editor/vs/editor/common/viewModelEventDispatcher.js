@@ -1,14 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ViewEventHandler } from "./viewEventHandler.js";
+import { ViewEvent } from "./viewEvents.js";
+import { IContentSizeChangedEvent } from "./editorCommon.js";
 import { Emitter } from "../../base/common/event.js";
+import { Selection } from "./core/selection.js";
 import { Disposable } from "../../base/common/lifecycle.js";
+import { CursorChangeReason } from "./cursorEvents.js";
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "./textModelEvents.js";
 class ViewModelEventDispatcher extends Disposable {
   static {
     __name(this, "ViewModelEventDispatcher");
   }
-  _onEvent = this._register(
-    new Emitter()
-  );
+  _onEvent = this._register(new Emitter());
   onEvent = this._onEvent.event;
   _eventHandlers;
   _viewEventQueue;
@@ -54,10 +58,7 @@ class ViewModelEventDispatcher extends Disposable {
   addViewEventHandler(eventHandler) {
     for (let i = 0, len = this._eventHandlers.length; i < len; i++) {
       if (this._eventHandlers[i] === eventHandler) {
-        console.warn(
-          "Detected duplicate listener in ViewEventDispatcher",
-          eventHandler
-        );
+        console.warn("Detected duplicate listener in ViewEventDispatcher", eventHandler);
       }
     }
     this._eventHandlers.push(eventHandler);
@@ -188,12 +189,7 @@ class ContentSizeChangedEvent {
     if (other.kind !== this.kind) {
       return null;
     }
-    return new ContentSizeChangedEvent(
-      this._oldContentWidth,
-      this._oldContentHeight,
-      other.contentWidth,
-      other.contentHeight
-    );
+    return new ContentSizeChangedEvent(this._oldContentWidth, this._oldContentHeight, other.contentWidth, other.contentHeight);
   }
 }
 class FocusChangedEvent {
@@ -342,10 +338,7 @@ class CursorStateChangedEvent {
     return true;
   }
   isNoOp() {
-    return CursorStateChangedEvent._selectionsAreEqual(
-      this.oldSelections,
-      this.selections
-    ) && this.oldModelVersionId === this.modelVersionId;
+    return CursorStateChangedEvent._selectionsAreEqual(this.oldSelections, this.selections) && this.oldModelVersionId === this.modelVersionId;
   }
   attemptToMerge(other) {
     if (other.kind !== this.kind) {

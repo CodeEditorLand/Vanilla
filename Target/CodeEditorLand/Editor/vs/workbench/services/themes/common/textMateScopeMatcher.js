@@ -106,11 +106,11 @@ function createMatchers(selector, matchesName, results) {
 }
 __name(createMatchers, "createMatchers");
 function isIdentifier(token) {
-  return !!token && !!token.match(/[\w.:]+/);
+  return !!token && !!token.match(/[\w\.:]+/);
 }
 __name(isIdentifier, "isIdentifier");
 function newTokenizer(input) {
-  const regex = /([LR]:|[\w.:][\w.:-]*|[,|\-()])/g;
+  const regex = /([LR]:|[\w\.:][\w\.:\-]*|[\,\|\-\(\)])/g;
   let match = regex.exec(input);
   return {
     next: /* @__PURE__ */ __name(() => {

@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { StoredValue } from "./storedValue.js";
 const staticObservableValue = /* @__PURE__ */ __name((value) => ({
   onDidChange: Event.None,
   value

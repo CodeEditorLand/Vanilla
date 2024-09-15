@@ -1,28 +1,23 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import {
-  illegalArgument,
-  onUnexpectedExternalError
-} from "../../../../base/common/errors.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { illegalArgument, onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../common/core/range.js";
+import { ITextModel } from "../../../common/model.js";
+import { DocumentColorProvider, IColorInformation, IColorPresentation } from "../../../common/languages.js";
 import { IModelService } from "../../../common/services/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
 import { DefaultDocumentColorProvider } from "./defaultDocumentColorProvider.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../browser/editorExtensions.js";
 async function getColors(colorProviderRegistry, model, token, isDefaultColorDecoratorsEnabled = true) {
-  return _findColorData(
-    new ColorDataCollector(),
-    colorProviderRegistry,
-    model,
-    token,
-    isDefaultColorDecoratorsEnabled
-  );
+  return _findColorData(new ColorDataCollector(), colorProviderRegistry, model, token, isDefaultColorDecoratorsEnabled);
 }
 __name(getColors, "getColors");
 function getColorPresentations(model, colorInfo, provider, token) {
-  return Promise.resolve(
-    provider.provideColorPresentations(model, colorInfo, token)
-  );
+  return Promise.resolve(provider.provideColorPresentations(model, colorInfo, token));
 }
 __name(getColorPresentations, "getColorPresentations");
 class ColorDataCollector {
@@ -32,10 +27,7 @@ class ColorDataCollector {
   constructor() {
   }
   async compute(provider, model, token, colors) {
-    const documentColors = await provider.provideDocumentColors(
-      model,
-      token
-    );
+    const documentColors = await provider.provideDocumentColors(model, token);
     if (Array.isArray(documentColors)) {
       for (const colorInfo of documentColors) {
         colors.push({ colorInfo, provider });
@@ -51,21 +43,10 @@ class ExtColorDataCollector {
   constructor() {
   }
   async compute(provider, model, token, colors) {
-    const documentColors = await provider.provideDocumentColors(
-      model,
-      token
-    );
+    const documentColors = await provider.provideDocumentColors(model, token);
     if (Array.isArray(documentColors)) {
       for (const colorInfo of documentColors) {
-        colors.push({
-          range: colorInfo.range,
-          color: [
-            colorInfo.color.red,
-            colorInfo.color.green,
-            colorInfo.color.blue,
-            colorInfo.color.alpha
-          ]
-        });
+        colors.push({ range: colorInfo.range, color: [colorInfo.color.red, colorInfo.color.green, colorInfo.color.blue, colorInfo.color.alpha] });
       }
     }
     return Array.isArray(documentColors);
@@ -79,11 +60,7 @@ class ColorPresentationsCollector {
     __name(this, "ColorPresentationsCollector");
   }
   async compute(provider, model, _token, colors) {
-    const documentColors = await provider.provideColorPresentations(
-      model,
-      this.colorInfo,
-      CancellationToken.None
-    );
+    const documentColors = await provider.provideColorPresentations(model, this.colorInfo, CancellationToken.None);
     if (Array.isArray(documentColors)) {
       colors.push(...documentColors);
     }
@@ -120,9 +97,7 @@ async function _findColorData(collector, colorProviderRegistry, model, token, is
 }
 __name(_findColorData, "_findColorData");
 function _setupColorCommand(accessor, resource) {
-  const { colorProvider: colorProviderRegistry } = accessor.get(
-    ILanguageFeaturesService
-  );
+  const { colorProvider: colorProviderRegistry } = accessor.get(ILanguageFeaturesService);
   const model = accessor.get(IModelService).getModel(resource);
   if (!model) {
     throw illegalArgument();

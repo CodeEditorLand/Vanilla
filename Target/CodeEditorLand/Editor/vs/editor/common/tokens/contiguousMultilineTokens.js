@@ -2,10 +2,11 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as arrays from "../../../base/common/arrays.js";
 import { readUInt32BE, writeUInt32BE } from "../../../base/common/buffer.js";
-import { countEOL } from "../core/eolCounter.js";
-import { LineRange } from "../core/lineRange.js";
 import { Position } from "../core/position.js";
+import { IRange } from "../core/range.js";
+import { countEOL } from "../core/eolCounter.js";
 import { ContiguousTokensEditing } from "./contiguousTokensEditing.js";
+import { LineRange } from "../core/lineRange.js";
 class ContiguousMultilineTokens {
   static {
     __name(this, "ContiguousMultilineTokens");
@@ -20,9 +21,7 @@ class ContiguousMultilineTokens {
     for (let i = 0; i < count; i++) {
       const byteCount = readUInt32BE(buff, offset);
       offset += 4;
-      tokens.push(
-        view32.subarray(offset / 4, offset / 4 + byteCount / 4)
-      );
+      tokens.push(view32.subarray(offset / 4, offset / 4 + byteCount / 4));
       offset += byteCount;
     }
     result.push(new ContiguousMultilineTokens(startLineNumber, tokens));
@@ -59,10 +58,7 @@ class ContiguousMultilineTokens {
     this._tokens = tokens;
   }
   getLineRange() {
-    return new LineRange(
-      this._startLineNumber,
-      this._startLineNumber + this._tokens.length
-    );
+    return new LineRange(this._startLineNumber, this._startLineNumber + this._tokens.length);
   }
   /**
    * @see {@link _tokens}
@@ -107,11 +103,7 @@ class ContiguousMultilineTokens {
   applyEdit(range, text) {
     const [eolCount, firstLineLength] = countEOL(text);
     this._acceptDeleteRange(range);
-    this._acceptInsertText(
-      new Position(range.startLineNumber, range.startColumn),
-      eolCount,
-      firstLineLength
-    );
+    this._acceptInsertText(new Position(range.startLineNumber, range.startColumn), eolCount, firstLineLength);
   }
   _acceptDeleteRange(range) {
     if (range.startLineNumber === range.endLineNumber && range.startColumn === range.endColumn) {
@@ -133,45 +125,23 @@ class ContiguousMultilineTokens {
       return;
     }
     if (firstLineIndex === lastLineIndex) {
-      this._tokens[firstLineIndex] = ContiguousTokensEditing.delete(
-        this._tokens[firstLineIndex],
-        range.startColumn - 1,
-        range.endColumn - 1
-      );
+      this._tokens[firstLineIndex] = ContiguousTokensEditing.delete(this._tokens[firstLineIndex], range.startColumn - 1, range.endColumn - 1);
       return;
     }
     if (firstLineIndex >= 0) {
-      this._tokens[firstLineIndex] = ContiguousTokensEditing.deleteEnding(
-        this._tokens[firstLineIndex],
-        range.startColumn - 1
-      );
+      this._tokens[firstLineIndex] = ContiguousTokensEditing.deleteEnding(this._tokens[firstLineIndex], range.startColumn - 1);
       if (lastLineIndex < this._tokens.length) {
-        const lastLineTokens = ContiguousTokensEditing.deleteBeginning(
-          this._tokens[lastLineIndex],
-          range.endColumn - 1
-        );
-        this._tokens[firstLineIndex] = ContiguousTokensEditing.append(
-          this._tokens[firstLineIndex],
-          lastLineTokens
-        );
-        this._tokens.splice(
-          firstLineIndex + 1,
-          lastLineIndex - firstLineIndex
-        );
+        const lastLineTokens = ContiguousTokensEditing.deleteBeginning(this._tokens[lastLineIndex], range.endColumn - 1);
+        this._tokens[firstLineIndex] = ContiguousTokensEditing.append(this._tokens[firstLineIndex], lastLineTokens);
+        this._tokens.splice(firstLineIndex + 1, lastLineIndex - firstLineIndex);
       } else {
-        this._tokens[firstLineIndex] = ContiguousTokensEditing.append(
-          this._tokens[firstLineIndex],
-          null
-        );
+        this._tokens[firstLineIndex] = ContiguousTokensEditing.append(this._tokens[firstLineIndex], null);
         this._tokens = this._tokens.slice(0, firstLineIndex + 1);
       }
     } else {
       const deletedBefore = -firstLineIndex;
       this._startLineNumber -= deletedBefore;
-      this._tokens[lastLineIndex] = ContiguousTokensEditing.deleteBeginning(
-        this._tokens[lastLineIndex],
-        range.endColumn - 1
-      );
+      this._tokens[lastLineIndex] = ContiguousTokensEditing.deleteBeginning(this._tokens[lastLineIndex], range.endColumn - 1);
       this._tokens = this._tokens.slice(lastLineIndex);
     }
   }
@@ -188,22 +158,11 @@ class ContiguousMultilineTokens {
       return;
     }
     if (eolCount === 0) {
-      this._tokens[lineIndex] = ContiguousTokensEditing.insert(
-        this._tokens[lineIndex],
-        position.column - 1,
-        firstLineLength
-      );
+      this._tokens[lineIndex] = ContiguousTokensEditing.insert(this._tokens[lineIndex], position.column - 1, firstLineLength);
       return;
     }
-    this._tokens[lineIndex] = ContiguousTokensEditing.deleteEnding(
-      this._tokens[lineIndex],
-      position.column - 1
-    );
-    this._tokens[lineIndex] = ContiguousTokensEditing.insert(
-      this._tokens[lineIndex],
-      position.column - 1,
-      firstLineLength
-    );
+    this._tokens[lineIndex] = ContiguousTokensEditing.deleteEnding(this._tokens[lineIndex], position.column - 1);
+    this._tokens[lineIndex] = ContiguousTokensEditing.insert(this._tokens[lineIndex], position.column - 1, firstLineLength);
     this._insertLines(position.lineNumber, eolCount);
   }
   _insertLines(insertIndex, insertCount) {
@@ -214,11 +173,7 @@ class ContiguousMultilineTokens {
     for (let i = 0; i < insertCount; i++) {
       lineTokens[i] = null;
     }
-    this._tokens = arrays.arrayInsert(
-      this._tokens,
-      insertIndex,
-      lineTokens
-    );
+    this._tokens = arrays.arrayInsert(this._tokens, insertIndex, lineTokens);
   }
 }
 export {

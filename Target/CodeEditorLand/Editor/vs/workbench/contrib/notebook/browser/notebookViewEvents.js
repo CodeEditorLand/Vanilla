@@ -1,5 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FontInfo } from "../../../../editor/common/config/fontInfo.js";
+import { NotebookCellTextModel } from "../common/model/notebookCellTextModel.js";
+import { NotebookDocumentMetadata } from "../common/notebookCommon.js";
 var NotebookViewEventType = /* @__PURE__ */ ((NotebookViewEventType2) => {
   NotebookViewEventType2[NotebookViewEventType2["LayoutChanged"] = 1] = "LayoutChanged";
   NotebookViewEventType2[NotebookViewEventType2["MetadataChanged"] = 2] = "MetadataChanged";

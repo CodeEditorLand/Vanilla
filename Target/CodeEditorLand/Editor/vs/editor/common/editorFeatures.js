@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BrandedService, IConstructorSignature } from "../../platform/instantiation/common/instantiation.js";
 const editorFeatures = [];
 function registerEditorFeature(ctor) {
   editorFeatures.push(ctor);

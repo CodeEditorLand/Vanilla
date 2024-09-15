@@ -1,30 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  autorun,
-  autorunOpts,
-  autorunWithStoreHandleChanges
-} from "./autorun.js";
-import {
-  BaseObservable,
-  ConvenientObservable,
-  _setKeepObserved,
-  _setRecomputeInitiallyAndOnChange,
-  observableValue,
-  subtransaction,
-  transaction
-} from "./base.js";
-import {
-  BugIndicatingError,
-  DisposableStore,
-  Event,
-  strictEquals,
-  toDisposable
-} from "./commonFacade/deps.js";
-import {
-  DebugNameData,
-  getDebugName
-} from "./debugName.js";
+import { autorun, autorunOpts, autorunWithStoreHandleChanges } from "./autorun.js";
+import { BaseObservable, ConvenientObservable, IObservable, IObserver, IReader, ITransaction, _setKeepObserved, _setRecomputeInitiallyAndOnChange, observableValue, subtransaction, transaction } from "./base.js";
+import { DebugNameData, DebugOwner, IDebugNameData, getDebugName } from "./debugName.js";
+import { BugIndicatingError, DisposableStore, EqualityComparer, Event, IDisposable, IValueWithChangeEvent, strictEquals, toDisposable } from "./commonFacade/deps.js";
 import { derived, derivedOpts } from "./derived.js";
 import { getLogger } from "./logging.js";
 function constObservable(value) {
@@ -81,11 +60,7 @@ function observableFromEvent(...args) {
 __name(observableFromEvent, "observableFromEvent");
 function observableFromEventOpts(options, event, getValue) {
   return new FromEventObservable(
-    new DebugNameData(
-      options.owner,
-      options.debugName,
-      options.debugReferenceFn ?? getValue
-    ),
+    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? getValue),
     event,
     getValue,
     () => FromEventObservable.globalTransaction,
@@ -131,13 +106,7 @@ class FromEventObservable extends BaseObservable {
         subtransaction(
           this._getTransaction(),
           (tx) => {
-            getLogger()?.handleFromEventObservableTriggered(this, {
-              oldValue,
-              newValue,
-              change: void 0,
-              didChange,
-              hadValue: this.hasValue
-            });
+            getLogger()?.handleFromEventObservableTriggered(this, { oldValue, newValue, change: void 0, didChange, hadValue: this.hasValue });
             for (const o of this.observers) {
               tx.updateObserver(o, this);
               o.handleChange(this, void 0);
@@ -152,13 +121,7 @@ class FromEventObservable extends BaseObservable {
       this.hasValue = true;
     }
     if (!didRunTransaction) {
-      getLogger()?.handleFromEventObservableTriggered(this, {
-        oldValue,
-        newValue,
-        change: void 0,
-        didChange,
-        hadValue: this.hasValue
-      });
+      getLogger()?.handleFromEventObservableTriggered(this, { oldValue, newValue, change: void 0, didChange, hadValue: this.hasValue });
     }
   }, "handleEvent");
   onLastObserverRemoved() {
@@ -251,23 +214,16 @@ class ObservableSignal extends BaseObservable {
     __name(this, "ObservableSignal");
   }
   get debugName() {
-    return new DebugNameData(
-      this._owner,
-      this._debugName,
-      void 0
-    ).getDebugName(this) ?? "Observable Signal";
+    return new DebugNameData(this._owner, this._debugName, void 0).getDebugName(this) ?? "Observable Signal";
   }
   toString() {
     return this.debugName;
   }
   trigger(tx, change) {
     if (!tx) {
-      transaction(
-        (tx2) => {
-          this.trigger(tx2, change);
-        },
-        () => `Trigger signal ${this.debugName}`
-      );
+      transaction((tx2) => {
+        this.trigger(tx2, change);
+      }, () => `Trigger signal ${this.debugName}`);
       return;
     }
     for (const o of this.observers) {
@@ -279,92 +235,79 @@ class ObservableSignal extends BaseObservable {
   }
 }
 function signalFromObservable(owner, observable) {
-  return derivedOpts(
-    {
-      owner,
-      equalsFn: /* @__PURE__ */ __name(() => false, "equalsFn")
-    },
-    (reader) => {
-      observable.read(reader);
-    }
-  );
+  return derivedOpts({
+    owner,
+    equalsFn: /* @__PURE__ */ __name(() => false, "equalsFn")
+  }, (reader) => {
+    observable.read(reader);
+  });
 }
 __name(signalFromObservable, "signalFromObservable");
 function debouncedObservable(observable, debounceMs, disposableStore) {
-  const debouncedObservable3 = observableValue(
-    "debounced",
-    void 0
-  );
-  let timeout;
-  disposableStore.add(
-    autorun((reader) => {
-      const value = observable.read(reader);
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(() => {
-        transaction((tx) => {
-          debouncedObservable3.set(value, tx);
-        });
-      }, debounceMs);
-    })
-  );
+  const debouncedObservable3 = observableValue("debounced", void 0);
+  let timeout = void 0;
+  disposableStore.add(autorun((reader) => {
+    const value = observable.read(reader);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      transaction((tx) => {
+        debouncedObservable3.set(value, tx);
+      });
+    }, debounceMs);
+  }));
   return debouncedObservable3;
 }
 __name(debouncedObservable, "debouncedObservable");
 function debouncedObservable2(observable, debounceMs) {
   let hasValue = false;
   let lastValue;
-  let timeout;
-  return observableFromEvent(
-    (cb) => {
-      const d = autorun((reader) => {
-        const value = observable.read(reader);
-        if (hasValue) {
-          if (timeout) {
-            clearTimeout(timeout);
-          }
-          timeout = setTimeout(() => {
-            lastValue = value;
-            cb();
-          }, debounceMs);
-        } else {
-          hasValue = true;
-          lastValue = value;
-        }
-      });
-      return {
-        dispose() {
-          d.dispose();
-          hasValue = false;
-          lastValue = void 0;
-        }
-      };
-    },
-    () => {
-      if (hasValue) {
-        return lastValue;
+  let timeout = void 0;
+  return observableFromEvent((cb) => {
+    const d = autorun((reader) => {
+      const value = observable.read(reader);
+      if (!hasValue) {
+        hasValue = true;
+        lastValue = value;
       } else {
-        return observable.get();
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+          lastValue = value;
+          cb();
+        }, debounceMs);
       }
+    });
+    return {
+      dispose() {
+        d.dispose();
+        hasValue = false;
+        lastValue = void 0;
+      }
+    };
+  }, () => {
+    if (hasValue) {
+      return lastValue;
+    } else {
+      return observable.get();
     }
-  );
+  });
 }
 __name(debouncedObservable2, "debouncedObservable2");
 function wasEventTriggeredRecently(event, timeoutMs, disposableStore) {
   const observable = observableValue("triggeredRecently", false);
-  let timeout;
-  disposableStore.add(
-    event(() => {
-      observable.set(true, void 0);
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(() => {
-        observable.set(false, void 0);
-      }, timeoutMs);
-    })
-  );
+  let timeout = void 0;
+  disposableStore.add(event(() => {
+    observable.set(true, void 0);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      observable.set(false, void 0);
+    }, timeoutMs);
+  }));
   return observable;
 }
 __name(wasEventTriggeredRecently, "wasEventTriggeredRecently");
@@ -419,19 +362,16 @@ class KeepAliveObserver {
   }
 }
 function derivedObservableWithCache(owner, computeFn) {
-  let lastValue;
-  const observable = derivedOpts(
-    { owner, debugReferenceFn: computeFn },
-    (reader) => {
-      lastValue = computeFn(reader, lastValue);
-      return lastValue;
-    }
-  );
+  let lastValue = void 0;
+  const observable = derivedOpts({ owner, debugReferenceFn: computeFn }, (reader) => {
+    lastValue = computeFn(reader, lastValue);
+    return lastValue;
+  });
   return observable;
 }
 __name(derivedObservableWithCache, "derivedObservableWithCache");
 function derivedObservableWithWritableCache(owner, computeFn) {
-  let lastValue;
+  let lastValue = void 0;
   const onChange = observableSignal("derivedObservableWithWritableCache");
   const observable = derived(owner, (reader) => {
     onChange.read(reader);
@@ -452,20 +392,17 @@ function derivedObservableWithWritableCache(owner, computeFn) {
 __name(derivedObservableWithWritableCache, "derivedObservableWithWritableCache");
 function mapObservableArrayCached(owner, items, map, keySelector) {
   let m = new ArrayMap(map, keySelector);
-  const self = derivedOpts(
-    {
-      debugReferenceFn: map,
-      owner,
-      onLastObserverRemoved: /* @__PURE__ */ __name(() => {
-        m.dispose();
-        m = new ArrayMap(map);
-      }, "onLastObserverRemoved")
-    },
-    (reader) => {
-      m.setItems(items.read(reader));
-      return m.getItems();
-    }
-  );
+  const self = derivedOpts({
+    debugReferenceFn: map,
+    owner,
+    onLastObserverRemoved: /* @__PURE__ */ __name(() => {
+      m.dispose();
+      m = new ArrayMap(map);
+    }, "onLastObserverRemoved")
+  }, (reader) => {
+    m.setItems(items.read(reader));
+    return m.getItems();
+  });
   return self;
 }
 __name(mapObservableArrayCached, "mapObservableArrayCached");
@@ -489,13 +426,13 @@ class ArrayMap {
     for (const item of items) {
       const key = this._keySelector ? this._keySelector(item) : item;
       let entry = this._cache.get(key);
-      if (entry) {
-        itemsToRemove.delete(key);
-      } else {
+      if (!entry) {
         const store = new DisposableStore();
         const out = this._map(item, store);
         entry = { out, store };
         this._cache.set(key, entry);
+      } else {
+        itemsToRemove.delete(key);
       }
       newItems.push(entry.out);
     }
@@ -536,99 +473,67 @@ function latestChangedValue(owner, observables) {
     throw new BugIndicatingError();
   }
   let hasLastChangedValue = false;
-  let lastChangedValue;
-  const result = observableFromEvent(
-    owner,
-    (cb) => {
-      const store = new DisposableStore();
-      for (const o of observables) {
-        store.add(
-          autorunOpts(
-            {
-              debugName: /* @__PURE__ */ __name(() => getDebugName(
-                result,
-                new DebugNameData(
-                  owner,
-                  void 0,
-                  void 0
-                )
-              ) + ".updateLastChangedValue", "debugName")
-            },
-            (reader) => {
-              hasLastChangedValue = true;
-              lastChangedValue = o.read(reader);
-              cb();
-            }
-          )
-        );
-      }
-      store.add({
-        dispose() {
-          hasLastChangedValue = false;
-          lastChangedValue = void 0;
-        }
-      });
-      return store;
-    },
-    () => {
-      if (hasLastChangedValue) {
-        return lastChangedValue;
-      } else {
-        return observables[observables.length - 1].get();
-      }
+  let lastChangedValue = void 0;
+  const result = observableFromEvent(owner, (cb) => {
+    const store = new DisposableStore();
+    for (const o of observables) {
+      store.add(autorunOpts({ debugName: /* @__PURE__ */ __name(() => getDebugName(result, new DebugNameData(owner, void 0, void 0)) + ".updateLastChangedValue", "debugName") }, (reader) => {
+        hasLastChangedValue = true;
+        lastChangedValue = o.read(reader);
+        cb();
+      }));
     }
-  );
+    store.add({
+      dispose() {
+        hasLastChangedValue = false;
+        lastChangedValue = void 0;
+      }
+    });
+    return store;
+  }, () => {
+    if (hasLastChangedValue) {
+      return lastChangedValue;
+    } else {
+      return observables[observables.length - 1].get();
+    }
+  });
   return result;
 }
 __name(latestChangedValue, "latestChangedValue");
 function derivedConstOnceDefined(owner, fn) {
-  return derivedObservableWithCache(
-    owner,
-    (reader, lastValue) => lastValue ?? fn(reader)
-  );
+  return derivedObservableWithCache(owner, (reader, lastValue) => lastValue ?? fn(reader));
 }
 __name(derivedConstOnceDefined, "derivedConstOnceDefined");
 function runOnChange(observable, cb) {
   let _previousValue;
-  return autorunWithStoreHandleChanges(
-    {
-      createEmptyChangeSummary: /* @__PURE__ */ __name(() => ({
-        deltas: [],
-        didChange: false
-      }), "createEmptyChangeSummary"),
-      handleChange: /* @__PURE__ */ __name((context, changeSummary) => {
-        if (context.didChange(observable)) {
-          const e = context.change;
-          if (e !== void 0) {
-            changeSummary.deltas.push(
-              e
-            );
-          }
-          changeSummary.didChange = true;
+  return autorunWithStoreHandleChanges({
+    createEmptyChangeSummary: /* @__PURE__ */ __name(() => ({ deltas: [], didChange: false }), "createEmptyChangeSummary"),
+    handleChange: /* @__PURE__ */ __name((context, changeSummary) => {
+      if (context.didChange(observable)) {
+        const e = context.change;
+        if (e !== void 0) {
+          changeSummary.deltas.push(e);
         }
-        return true;
-      }, "handleChange")
-    },
-    (reader, changeSummary) => {
-      const value = observable.read(reader);
-      const previousValue = _previousValue;
-      if (changeSummary.didChange) {
-        _previousValue = value;
-        cb(value, previousValue, changeSummary.deltas);
+        changeSummary.didChange = true;
       }
+      return true;
+    }, "handleChange")
+  }, (reader, changeSummary) => {
+    const value = observable.read(reader);
+    const previousValue = _previousValue;
+    if (changeSummary.didChange) {
+      _previousValue = value;
+      cb(value, previousValue, changeSummary.deltas);
     }
-  );
+  });
 }
 __name(runOnChange, "runOnChange");
 function runOnChangeWithStore(observable, cb) {
   const store = new DisposableStore();
-  const disposable = runOnChange(
-    observable,
-    (value, previousValue, deltas) => {
-      store.clear();
-      cb(value, previousValue, deltas, store);
-    }
-  );
+  const disposable = runOnChange(observable, (value, previousValue, deltas) => {
+    store.clear();
+    cb(value, previousValue, deltas, store);
+  });
   return {
     dispose() {
       disposable.dispose();

@@ -1,16 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { NotSupportedError } from "../../../../base/common/errors.js";
+import { FileSystemProviderCapabilities, IStat, FileType, IFileDeleteOptions, IFileOverwriteOptions, IFileWriteOptions, FileSystemProviderErrorCode, IFileSystemProviderWithFileReadWriteCapability, createFileSystemProviderError } from "../../../../platform/files/common/files.js";
 import { Event } from "../../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../../base/common/lifecycle.js";
-import {
-  FileSystemProviderCapabilities,
-  FileSystemProviderErrorCode,
-  FileType,
-  createFileSystemProviderError
-} from "../../../../platform/files/common/files.js";
+import { IDisposable, Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { NotSupportedError } from "../../../../base/common/errors.js";
 class FetchFileSystemProvider {
   static {
     __name(this, "FetchFileSystemProvider");
@@ -25,15 +19,9 @@ class FetchFileSystemProvider {
       if (res.status === 200) {
         return new Uint8Array(await res.arrayBuffer());
       }
-      throw createFileSystemProviderError(
-        res.statusText,
-        FileSystemProviderErrorCode.Unknown
-      );
+      throw createFileSystemProviderError(res.statusText, FileSystemProviderErrorCode.Unknown);
     } catch (err) {
-      throw createFileSystemProviderError(
-        err,
-        FileSystemProviderErrorCode.Unknown
-      );
+      throw createFileSystemProviderError(err, FileSystemProviderErrorCode.Unknown);
     }
   }
   // fake implementations

@@ -1,13 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { Event } from "../../../base/common/event.js";
+import { IProcessEnvironment, OperatingSystem } from "../../../base/common/platform.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { IPtyHostProcessReplayEvent, ISerializedCommandDetectionCapability, ITerminalCapabilityStore } from "./capabilities/capabilities.js";
+import { IGetTerminalLayoutInfoArgs, IProcessDetails, ISetTerminalLayoutInfoArgs } from "./terminalProcess.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { ISerializableEnvironmentVariableCollections } from "./environmentVariable.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IWorkspaceFolder } from "../../workspace/common/workspace.js";
 import { Registry } from "../../registry/common/platform.js";
-const terminalTabFocusModeContextKey = new RawContextKey(
-  "terminalTabFocusMode",
-  false,
-  true
-);
+import { ILogService } from "../../log/common/log.js";
+const terminalTabFocusModeContextKey = new RawContextKey("terminalTabFocusMode", false, true);
 var TerminalSettingPrefix = /* @__PURE__ */ ((TerminalSettingPrefix2) => {
   TerminalSettingPrefix2["AutomationProfile"] = "terminal.integrated.automationProfile.";
   TerminalSettingPrefix2["DefaultProfile"] = "terminal.integrated.defaultProfile.";
@@ -223,16 +228,12 @@ class TerminalBackendRegistry {
   registerTerminalBackend(backend) {
     const key = this._sanitizeRemoteAuthority(backend.remoteAuthority);
     if (this._backends.has(key)) {
-      throw new Error(
-        `A terminal backend with remote authority '${key}' was already registered.`
-      );
+      throw new Error(`A terminal backend with remote authority '${key}' was already registered.`);
     }
     this._backends.set(key, backend);
   }
   getTerminalBackend(remoteAuthority) {
-    return this._backends.get(
-      this._sanitizeRemoteAuthority(remoteAuthority)
-    );
+    return this._backends.get(this._sanitizeRemoteAuthority(remoteAuthority));
   }
   _sanitizeRemoteAuthority(remoteAuthority) {
     return remoteAuthority?.toLowerCase() ?? "";

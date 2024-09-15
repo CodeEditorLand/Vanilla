@@ -13,9 +13,8 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Promises } from "../../../base/common/async.js";
 import { canceled } from "../../../base/common/errors.js";
 import { Event } from "../../../base/common/event.js";
-import {
-  Disposable
-} from "../../../base/common/lifecycle.js";
+import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { IExtensionHostProcessOptions, IExtensionHostStarter } from "../common/extensionHostStarter.js";
 import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
@@ -28,12 +27,10 @@ let ExtensionHostStarter = class extends Disposable {
     this._lifecycleMainService = _lifecycleMainService;
     this._windowsMainService = _windowsMainService;
     this._telemetryService = _telemetryService;
-    this._register(
-      this._lifecycleMainService.onWillShutdown((e) => {
-        this._shutdown = true;
-        e.join("extHostStarter", this._waitForAllExit(6e3));
-      })
-    );
+    this._register(this._lifecycleMainService.onWillShutdown((e) => {
+      this._shutdown = true;
+      e.join("extHostStarter", this._waitForAllExit(6e3));
+    }));
   }
   static {
     __name(this, "ExtensionHostStarter");
@@ -69,18 +66,11 @@ let ExtensionHostStarter = class extends Disposable {
       throw canceled();
     }
     const id = String(++ExtensionHostStarter._lastId);
-    const extHost = new WindowUtilityProcess(
-      this._logService,
-      this._windowsMainService,
-      this._telemetryService,
-      this._lifecycleMainService
-    );
+    const extHost = new WindowUtilityProcess(this._logService, this._windowsMainService, this._telemetryService, this._lifecycleMainService);
     this._extHosts.set(id, extHost);
     const disposable = extHost.onExit(({ pid, code, signal }) => {
       disposable.dispose();
-      this._logService.info(
-        `Extension host with pid ${pid} exited with code: ${code}, signal: ${signal}.`
-      );
+      this._logService.info(`Extension host with pid ${pid} exited with code: ${code}, signal: ${signal}.`);
       setTimeout(() => {
         extHost.dispose();
         this._extHosts.delete(id);
@@ -88,9 +78,7 @@ let ExtensionHostStarter = class extends Disposable {
       setTimeout(() => {
         try {
           process.kill(pid, 0);
-          this._logService.error(
-            `Extension host with pid ${pid} still exists, forcefully killing it...`
-          );
+          this._logService.error(`Extension host with pid ${pid} still exists, forcefully killing it...`);
           process.kill(pid);
         } catch (er) {
         }

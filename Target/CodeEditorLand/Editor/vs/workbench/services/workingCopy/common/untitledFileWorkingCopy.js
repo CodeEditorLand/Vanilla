@@ -10,20 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { raceCancellation } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter } from "../../../../base/common/event.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { VSBufferReadableStream } from "../../../../base/common/buffer.js";
+import { IWorkingCopyBackup, IWorkingCopySaveEvent, WorkingCopyCapabilities } from "./workingCopy.js";
+import { IFileWorkingCopy, IFileWorkingCopyModel, IFileWorkingCopyModelFactory, SnapshotContext } from "./fileWorkingCopy.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { emptyStream } from "../../../../base/common/stream.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  SnapshotContext
-} from "./fileWorkingCopy.js";
-import {
-  WorkingCopyCapabilities
-} from "./workingCopy.js";
-import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { URI } from "../../../../base/common/uri.js";
 import { IWorkingCopyService } from "./workingCopyService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ISaveOptions } from "../../../common/editor.js";
+import { raceCancellation } from "../../../../base/common/async.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { emptyStream } from "../../../../base/common/stream.js";
 let UntitledFileWorkingCopy = class extends Disposable {
   //#endregion
   constructor(typeId, resource, name, hasAssociatedFilePath, isScratchpad, initialContents, modelFactory, saveDelegate, workingCopyService, workingCopyBackupService, logService) {
@@ -53,18 +52,14 @@ let UntitledFileWorkingCopy = class extends Disposable {
   onDidChangeContent = this._onDidChangeContent.event;
   _onDidChangeDirty = this._register(new Emitter());
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidSave = this._register(
-    new Emitter()
-  );
+  _onDidSave = this._register(new Emitter());
   onDidSave = this._onDidSave.event;
   _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
   _onWillDispose = this._register(new Emitter());
   onWillDispose = this._onWillDispose.event;
   //#region Dirty/Modified
-  modified = this.hasAssociatedFilePath || Boolean(
-    this.initialContents && this.initialContents.markModified !== false
-  );
+  modified = this.hasAssociatedFilePath || Boolean(this.initialContents && this.initialContents.markModified !== false);
   isDirty() {
     return this.modified && !this.isScratchpad;
   }
@@ -101,30 +96,18 @@ let UntitledFileWorkingCopy = class extends Disposable {
       untitledContents = emptyStream();
     }
     await this.doCreateModel(untitledContents);
-    this.setModified(
-      this.hasAssociatedFilePath || !!backup || Boolean(
-        this.initialContents && this.initialContents.markModified !== false
-      )
-    );
+    this.setModified(this.hasAssociatedFilePath || !!backup || Boolean(this.initialContents && this.initialContents.markModified !== false));
     if (!!backup || this.initialContents) {
       this._onDidChangeContent.fire();
     }
   }
   async doCreateModel(contents) {
     this.trace("doCreateModel()");
-    this._model = this._register(
-      await this.modelFactory.createModel(
-        this.resource,
-        contents,
-        CancellationToken.None
-      )
-    );
+    this._model = this._register(await this.modelFactory.createModel(this.resource, contents, CancellationToken.None));
     this.installModelListeners(this._model);
   }
   installModelListeners(model) {
-    this._register(
-      model.onDidChangeContent((e) => this.onModelContentChanged(e))
-    );
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(e)));
     this._register(model.onWillDispose(() => this.dispose()));
   }
   onModelContentChanged(e) {
@@ -144,12 +127,9 @@ let UntitledFileWorkingCopy = class extends Disposable {
     return this.model?.configuration?.backupDelay;
   }
   async backup(token) {
-    let content;
+    let content = void 0;
     if (this.isResolved()) {
-      content = await raceCancellation(
-        this.model.snapshot(SnapshotContext.Backup, token),
-        token
-      );
+      content = await raceCancellation(this.model.snapshot(SnapshotContext.Backup, token), token);
     } else if (this.initialContents) {
       content = this.initialContents.value;
     }
@@ -161,10 +141,7 @@ let UntitledFileWorkingCopy = class extends Disposable {
     this.trace("save()");
     const result = await this.saveDelegate(this, options);
     if (result) {
-      this._onDidSave.fire({
-        reason: options?.reason,
-        source: options?.source
-      });
+      this._onDidSave.fire({ reason: options?.reason, source: options?.source });
     }
     return result;
   }
@@ -183,11 +160,7 @@ let UntitledFileWorkingCopy = class extends Disposable {
     super.dispose();
   }
   trace(msg) {
-    this.logService.trace(
-      `[untitled file working copy] ${msg}`,
-      this.resource.toString(),
-      this.typeId
-    );
+    this.logService.trace(`[untitled file working copy] ${msg}`, this.resource.toString(), this.typeId);
   }
 };
 UntitledFileWorkingCopy = __decorateClass([

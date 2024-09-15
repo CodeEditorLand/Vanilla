@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
+import { ITextModel } from "../../../common/model.js";
 class ReplaceAllCommand {
   static {
     __name(this, "ReplaceAllCommand");
@@ -43,9 +46,7 @@ class ReplaceAllCommand {
         builder.addEditOperation(op.range, op.text);
       }
     }
-    this._trackedEditorSelectionId = builder.trackSelection(
-      this._editorSelection
-    );
+    this._trackedEditorSelectionId = builder.trackSelection(this._editorSelection);
   }
   computeCursorState(model, helper) {
     return helper.getTrackedSelection(this._trackedEditorSelectionId);

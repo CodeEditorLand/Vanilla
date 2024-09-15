@@ -1,23 +1,23 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as dom from "../../../../base/browser/dom.js";
-import { BugIndicatingError } from "../../../../base/common/errors.js";
-import {
-  Disposable,
-  DisposableStore,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
+import { IEditorHoverContext, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverParts, RenderedHoverParts } from "./hoverTypes.js";
+import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { EditorHoverStatusBar } from "./contentHoverStatusBar.js";
+import { HoverStartSource } from "./hoverOperation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import { HoverColorPickerParticipant } from "../../colorPicker/browser/hoverColorPicker/hoverColorPickerParticipant.js";
-import { InlayHintsHover } from "../../inlayHints/browser/inlayHintsHover.js";
-import { EditorHoverStatusBar } from "./contentHoverStatusBar.js";
-import {
-  RenderedHoverParts
-} from "./hoverTypes.js";
+import { ContentHoverResult } from "./contentHoverTypes.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { HoverVerbosityAction } from "../../../common/languages.js";
 import { MarkdownHoverParticipant } from "./markdownHoverParticipant.js";
+import { HoverColorPickerParticipant } from "../../colorPicker/browser/hoverColorPicker/hoverColorPickerParticipant.js";
+import { localize } from "../../../../nls.js";
+import { InlayHintsHover } from "../../inlayHints/browser/inlayHintsHover.js";
+import { BugIndicatingError } from "../../../../base/common/errors.js";
+import { HoverAction } from "../../../../base/browser/ui/hover/hoverWidget.js";
 class RenderedContentHover extends Disposable {
   static {
     __name(this, "RenderedContentHover");
@@ -34,22 +34,16 @@ class RenderedContentHover extends Disposable {
   constructor(editor, hoverResult, participants, context, keybindingService) {
     super();
     const parts = hoverResult.hoverParts;
-    this._renderedHoverParts = this._register(
-      new RenderedContentHoverParts(
-        editor,
-        participants,
-        parts,
-        keybindingService,
-        context
-      )
-    );
+    this._renderedHoverParts = this._register(new RenderedContentHoverParts(
+      editor,
+      participants,
+      parts,
+      keybindingService,
+      context
+    ));
     const contentHoverComputerOptions = hoverResult.options;
     const anchor = contentHoverComputerOptions.anchor;
-    const { showAtPosition, showAtSecondaryPosition } = RenderedContentHover.computeHoverPositions(
-      editor,
-      anchor.range,
-      parts
-    );
+    const { showAtPosition, showAtSecondaryPosition } = RenderedContentHover.computeHoverPositions(editor, anchor.range, parts);
     this.shouldAppearBeforeContent = parts.some((m) => m.isBeforeContent);
     this.showAtPosition = showAtPosition;
     this.showAtSecondaryPosition = showAtSecondaryPosition;
@@ -77,17 +71,10 @@ class RenderedContentHover extends Disposable {
     return this._renderedHoverParts.getAccessibleHoverContentAtIndex(index);
   }
   async updateHoverVerbosityLevel(action, index, focus) {
-    this._renderedHoverParts.updateHoverVerbosityLevel(
-      action,
-      index,
-      focus
-    );
+    this._renderedHoverParts.updateHoverVerbosityLevel(action, index, focus);
   }
   doesHoverAtIndexSupportVerbosityAction(index, action) {
-    return this._renderedHoverParts.doesHoverAtIndexSupportVerbosityAction(
-      index,
-      action
-    );
+    return this._renderedHoverParts.doesHoverAtIndexSupportVerbosityAction(index, action);
   }
   isColorPickerVisible() {
     return this._renderedHoverParts.isColorPickerVisible();
@@ -98,16 +85,9 @@ class RenderedContentHover extends Disposable {
       const viewModel = editor._getViewModel();
       const coordinatesConverter = viewModel.coordinatesConverter;
       const anchorViewRange = coordinatesConverter.convertModelRangeToViewRange(anchorRange);
-      const anchorViewMinColumn = viewModel.getLineMinColumn(
-        anchorViewRange.startLineNumber
-      );
-      const anchorViewRangeStart = new Position(
-        anchorViewRange.startLineNumber,
-        anchorViewMinColumn
-      );
-      startColumnBoundary = coordinatesConverter.convertViewPositionToModelPosition(
-        anchorViewRangeStart
-      ).column;
+      const anchorViewMinColumn = viewModel.getLineMinColumn(anchorViewRange.startLineNumber);
+      const anchorViewRangeStart = new Position(anchorViewRange.startLineNumber, anchorViewMinColumn);
+      startColumnBoundary = coordinatesConverter.convertViewPositionToModelPosition(anchorViewRangeStart).column;
     }
     const anchorStartLineNumber = anchorRange.startLineNumber;
     let secondaryPositionColumn = anchorRange.startColumn;
@@ -119,14 +99,8 @@ class RenderedContentHover extends Disposable {
       const hoverPartRangeIsOnAnchorLine = hoverPartRangeOnAnchorStartLine && hoverPartRangeOnAnchorEndLine;
       if (hoverPartRangeIsOnAnchorLine) {
         const hoverPartStartColumn = hoverPartRange.startColumn;
-        const minSecondaryPositionColumn = Math.min(
-          secondaryPositionColumn,
-          hoverPartStartColumn
-        );
-        secondaryPositionColumn = Math.max(
-          minSecondaryPositionColumn,
-          startColumnBoundary
-        );
+        const minSecondaryPositionColumn = Math.min(secondaryPositionColumn, hoverPartStartColumn);
+        secondaryPositionColumn = Math.max(minSecondaryPositionColumn, startColumnBoundary);
       }
       if (hoverPart.forceShowAtRange) {
         forceShowAtRange = hoverPartRange;
@@ -140,10 +114,7 @@ class RenderedContentHover extends Disposable {
       showAtSecondaryPosition = forceShowAtPosition;
     } else {
       showAtPosition = anchorRange.getStartPosition();
-      showAtSecondaryPosition = new Position(
-        anchorStartLineNumber,
-        secondaryPositionColumn
-      );
+      showAtSecondaryPosition = new Position(anchorStartLineNumber, secondaryPositionColumn);
     }
     return {
       showAtPosition,
@@ -187,14 +158,7 @@ class RenderedContentHoverParts extends Disposable {
     super();
     this._context = context;
     this._fragment = document.createDocumentFragment();
-    this._register(
-      this._renderParts(
-        participants,
-        hoverParts,
-        context,
-        keybindingService
-      )
-    );
+    this._register(this._renderParts(participants, hoverParts, context, keybindingService));
     this._register(this._registerListenersOnRenderedParts());
     this._register(this._createEditorDecorations(editor, hoverParts));
     this._updateMarkdownAndColorParticipantInfo(participants);
@@ -209,12 +173,10 @@ class RenderedContentHoverParts extends Disposable {
       highlightRange = Range.plusRange(highlightRange, hoverPartRange);
     }
     const highlightDecoration = editor.createDecorationsCollection();
-    highlightDecoration.set([
-      {
-        range: highlightRange,
-        options: RenderedContentHoverParts._DECORATION_OPTIONS
-      }
-    ]);
+    highlightDecoration.set([{
+      range: highlightRange,
+      options: RenderedContentHoverParts._DECORATION_OPTIONS
+    }]);
     return toDisposable(() => {
       highlightDecoration.clear();
     });
@@ -228,11 +190,7 @@ class RenderedContentHoverParts extends Disposable {
     };
     const disposables = new DisposableStore();
     for (const participant of participants) {
-      const renderedHoverParts = this._renderHoverPartsForParticipant(
-        hoverParts,
-        participant,
-        hoverRenderingContext
-      );
+      const renderedHoverParts = this._renderHoverPartsForParticipant(hoverParts, participant, hoverRenderingContext);
       disposables.add(renderedHoverParts);
       for (const renderedHoverPart of renderedHoverParts.renderedHoverParts) {
         this._renderedParts.push({
@@ -243,10 +201,7 @@ class RenderedContentHoverParts extends Disposable {
         });
       }
     }
-    const renderedStatusBar = this._renderStatusBar(
-      this._fragment,
-      statusBar
-    );
+    const renderedStatusBar = this._renderStatusBar(this._fragment, statusBar);
     if (renderedStatusBar) {
       disposables.add(renderedStatusBar);
       this._renderedParts.push({
@@ -260,17 +215,12 @@ class RenderedContentHoverParts extends Disposable {
     });
   }
   _renderHoverPartsForParticipant(hoverParts, participant, hoverRenderingContext) {
-    const hoverPartsForParticipant = hoverParts.filter(
-      (hoverPart) => hoverPart.owner === participant
-    );
+    const hoverPartsForParticipant = hoverParts.filter((hoverPart) => hoverPart.owner === participant);
     const hasHoverPartsForParticipant = hoverPartsForParticipant.length > 0;
     if (!hasHoverPartsForParticipant) {
       return new RenderedHoverParts([]);
     }
-    return participant.renderHoverParts(
-      hoverRenderingContext,
-      hoverPartsForParticipant
-    );
+    return participant.renderHoverParts(hoverRenderingContext, hoverPartsForParticipant);
   }
   _renderStatusBar(fragment, statusBar) {
     if (!statusBar.hasContent) {
@@ -280,32 +230,18 @@ class RenderedContentHoverParts extends Disposable {
   }
   _registerListenersOnRenderedParts() {
     const disposables = new DisposableStore();
-    this._renderedParts.forEach(
-      (renderedPart, index) => {
-        const element = renderedPart.hoverElement;
-        element.tabIndex = 0;
-        disposables.add(
-          dom.addDisposableListener(
-            element,
-            dom.EventType.FOCUS_IN,
-            (event) => {
-              event.stopPropagation();
-              this._focusedHoverPartIndex = index;
-            }
-          )
-        );
-        disposables.add(
-          dom.addDisposableListener(
-            element,
-            dom.EventType.FOCUS_OUT,
-            (event) => {
-              event.stopPropagation();
-              this._focusedHoverPartIndex = -1;
-            }
-          )
-        );
-      }
-    );
+    this._renderedParts.forEach((renderedPart, index) => {
+      const element = renderedPart.hoverElement;
+      element.tabIndex = 0;
+      disposables.add(dom.addDisposableListener(element, dom.EventType.FOCUS_IN, (event) => {
+        event.stopPropagation();
+        this._focusedHoverPartIndex = index;
+      }));
+      disposables.add(dom.addDisposableListener(element, dom.EventType.FOCUS_OUT, (event) => {
+        event.stopPropagation();
+        this._focusedHoverPartIndex = -1;
+      }));
+    });
     return disposables;
   }
   _updateMarkdownAndColorParticipantInfo(participants) {
@@ -315,9 +251,7 @@ class RenderedContentHoverParts extends Disposable {
     if (markdownHoverParticipant) {
       this._markdownHoverParticipant = markdownHoverParticipant;
     }
-    this._colorHoverParticipant = participants.find(
-      (p) => p instanceof HoverColorPickerParticipant
-    );
+    this._colorHoverParticipant = participants.find((p) => p instanceof HoverColorPickerParticipant);
   }
   focusHoverPartWithIndex(index) {
     if (index < 0 || index >= this._renderedParts.length) {
@@ -338,55 +272,28 @@ class RenderedContentHoverParts extends Disposable {
       return "";
     }
     if (renderedPart.type === "statusBar") {
-      const statusBarDescription = [
-        localize(
-          "hoverAccessibilityStatusBar",
-          "This is a hover status bar."
-        )
-      ];
+      const statusBarDescription = [localize("hoverAccessibilityStatusBar", "This is a hover status bar.")];
       for (const action of renderedPart.actions) {
         const keybinding = action.actionKeybindingLabel;
         if (keybinding) {
-          statusBarDescription.push(
-            localize(
-              "hoverAccessibilityStatusBarActionWithKeybinding",
-              "It has an action with label {0} and keybinding {1}.",
-              action.actionLabel,
-              keybinding
-            )
-          );
+          statusBarDescription.push(localize("hoverAccessibilityStatusBarActionWithKeybinding", "It has an action with label {0} and keybinding {1}.", action.actionLabel, keybinding));
         } else {
-          statusBarDescription.push(
-            localize(
-              "hoverAccessibilityStatusBarActionWithoutKeybinding",
-              "It has an action with label {0}.",
-              action.actionLabel
-            )
-          );
+          statusBarDescription.push(localize("hoverAccessibilityStatusBarActionWithoutKeybinding", "It has an action with label {0}.", action.actionLabel));
         }
       }
       return statusBarDescription.join("\n");
     }
-    return renderedPart.participant.getAccessibleContent(
-      renderedPart.hoverPart
-    );
+    return renderedPart.participant.getAccessibleContent(renderedPart.hoverPart);
   }
   async updateHoverVerbosityLevel(action, index, focus) {
     if (!this._markdownHoverParticipant) {
       return;
     }
-    const normalizedMarkdownHoverIndex = this._normalizedIndexToMarkdownHoverIndexRange(
-      this._markdownHoverParticipant,
-      index
-    );
+    const normalizedMarkdownHoverIndex = this._normalizedIndexToMarkdownHoverIndexRange(this._markdownHoverParticipant, index);
     if (normalizedMarkdownHoverIndex === void 0) {
       return;
     }
-    const renderedPart = await this._markdownHoverParticipant.updateMarkdownHoverVerbosityLevel(
-      action,
-      normalizedMarkdownHoverIndex,
-      focus
-    );
+    const renderedPart = await this._markdownHoverParticipant.updateMarkdownHoverVerbosityLevel(action, normalizedMarkdownHoverIndex, focus);
     if (!renderedPart) {
       return;
     }
@@ -402,17 +309,11 @@ class RenderedContentHoverParts extends Disposable {
     if (!this._markdownHoverParticipant) {
       return false;
     }
-    const normalizedMarkdownHoverIndex = this._normalizedIndexToMarkdownHoverIndexRange(
-      this._markdownHoverParticipant,
-      index
-    );
+    const normalizedMarkdownHoverIndex = this._normalizedIndexToMarkdownHoverIndexRange(this._markdownHoverParticipant, index);
     if (normalizedMarkdownHoverIndex === void 0) {
       return false;
     }
-    return this._markdownHoverParticipant.doesMarkdownHoverAtIndexSupportVerbosityAction(
-      normalizedMarkdownHoverIndex,
-      action
-    );
+    return this._markdownHoverParticipant.doesMarkdownHoverAtIndexSupportVerbosityAction(normalizedMarkdownHoverIndex, action);
   }
   isColorPickerVisible() {
     return this._colorHoverParticipant?.isColorPickerVisible() ?? false;

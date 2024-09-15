@@ -10,21 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { CodeActionKind } from "../../../../editor/contrib/codeAction/common/types.js";
-import {
-  ContextKeyExpr,
-  IContextKeyService
-} from "../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, ContextKeyExpression, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { DocumentationExtensionPoint } from "../common/documentationExtensionPoint.js";
+import { IExtensionPoint } from "../../../services/extensions/common/extensionsRegistry.js";
 let CodeActionDocumentationContribution = class extends Disposable {
   constructor(extensionPoint, contextKeyService, languageFeaturesService) {
     super();
     this.contextKeyService = contextKeyService;
-    this._register(
-      languageFeaturesService.codeActionProvider.register("*", this)
-    );
+    this._register(languageFeaturesService.codeActionProvider.register("*", this));
     extensionPoint.setHandler((points) => {
       this.contributions = [];
       for (const documentation of points) {
@@ -32,9 +35,7 @@ let CodeActionDocumentationContribution = class extends Disposable {
           continue;
         }
         for (const contribution of documentation.value.refactoring) {
-          const precondition = ContextKeyExpr.deserialize(
-            contribution.when
-          );
+          const precondition = ContextKeyExpr.deserialize(contribution.when);
           if (!precondition) {
             continue;
           }
@@ -61,17 +62,11 @@ let CodeActionDocumentationContribution = class extends Disposable {
   }
   _getAdditionalMenuItems(context, actions) {
     if (context.only !== CodeActionKind.Refactor.value) {
-      if (!actions.some(
-        (action) => action.kind && CodeActionKind.Refactor.contains(
-          new HierarchicalKind(action.kind)
-        )
-      )) {
+      if (!actions.some((action) => action.kind && CodeActionKind.Refactor.contains(new HierarchicalKind(action.kind)))) {
         return [];
       }
     }
-    return this.contributions.filter(
-      (contribution) => this.contextKeyService.contextMatchesRules(contribution.when)
-    ).map((contribution) => {
+    return this.contributions.filter((contribution) => this.contextKeyService.contextMatchesRules(contribution.when)).map((contribution) => {
       return {
         id: contribution.command,
         title: contribution.title

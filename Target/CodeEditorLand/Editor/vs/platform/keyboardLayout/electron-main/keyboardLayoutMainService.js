@@ -10,22 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as platform from "../../../base/common/platform.js";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import * as platform from "../../../base/common/platform.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import {
-  ILifecycleMainService,
-  LifecycleMainPhase
-} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { IKeyboardLayoutData, INativeKeyboardLayoutService } from "../common/keyboardLayoutService.js";
+import { ILifecycleMainService, LifecycleMainPhase } from "../../lifecycle/electron-main/lifecycleMainService.js";
 const IKeyboardLayoutMainService = createDecorator("keyboardLayoutMainService");
 let KeyboardLayoutMainService = class extends Disposable {
   static {
     __name(this, "KeyboardLayoutMainService");
   }
-  _onDidChangeKeyboardLayout = this._register(
-    new Emitter()
-  );
+  _onDidChangeKeyboardLayout = this._register(new Emitter());
   onDidChangeKeyboardLayout = this._onDidChangeKeyboardLayout.event;
   _initPromise;
   _keyboardLayoutData;

@@ -1,10 +1,6 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: {
-    id: "com.google.inputmethod.Japanese.Roman",
-    lang: "en",
-    localizedName: "Alphanumeric (Google)"
-  },
+  layout: { id: "com.google.inputmethod.Japanese.Roman", lang: "en", localizedName: "Alphanumeric (Google)" },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xAF", "\u0304", 4],

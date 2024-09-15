@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { toUint8 } from "../../../../base/common/uint.js";
 import { MinimapCharRenderer } from "./minimapCharRenderer.js";
-import { Constants, allCharCodes } from "./minimapCharSheet.js";
+import { allCharCodes, Constants } from "./minimapCharSheet.js";
 import { prebakedMiniMaps } from "./minimapPreBaked.js";
+import { toUint8 } from "../../../../base/common/uint.js";
 class MinimapCharRendererFactory {
   static {
     __name(this, "MinimapCharRendererFactory");
@@ -45,19 +45,10 @@ class MinimapCharRendererFactory {
     ctx.textBaseline = "middle";
     let x = 0;
     for (const code of allCharCodes) {
-      ctx.fillText(
-        String.fromCharCode(code),
-        x,
-        Constants.SAMPLED_CHAR_HEIGHT / 2
-      );
+      ctx.fillText(String.fromCharCode(code), x, Constants.SAMPLED_CHAR_HEIGHT / 2);
       x += Constants.SAMPLED_CHAR_WIDTH;
     }
-    return ctx.getImageData(
-      0,
-      0,
-      Constants.CHAR_COUNT * Constants.SAMPLED_CHAR_WIDTH,
-      Constants.SAMPLED_CHAR_HEIGHT
-    );
+    return ctx.getImageData(0, 0, Constants.CHAR_COUNT * Constants.SAMPLED_CHAR_WIDTH, Constants.SAMPLED_CHAR_HEIGHT);
   }
   /**
    * Creates a character renderer from the canvas sample data.
@@ -109,16 +100,7 @@ class MinimapCharRendererFactory {
     let sourceOffset = 0;
     let brightest = 0;
     for (let charIndex = 0; charIndex < Constants.CHAR_COUNT; charIndex++) {
-      brightest = Math.max(
-        brightest,
-        this._downsampleChar(
-          data,
-          sourceOffset,
-          result,
-          resultOffset,
-          scale
-        )
-      );
+      brightest = Math.max(brightest, this._downsampleChar(data, sourceOffset, result, resultOffset, scale));
       resultOffset += pixelsPerCharacter;
       sourceOffset += Constants.SAMPLED_CHAR_WIDTH * Constants.RGBA_CHANNELS_CNT;
     }

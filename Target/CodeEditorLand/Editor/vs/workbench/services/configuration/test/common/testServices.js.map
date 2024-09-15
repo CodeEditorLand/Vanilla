@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/services/configuration/test/common/testServices.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { URI } from '../../../../../base/common/uri.js';\nimport { IJSONEditingService, IJSONValue } from '../../common/jsonEditing.js';\n\nexport class TestJSONEditingService implements IJSONEditingService {\n\t_serviceBrand: any;\n\n\tasync write(resource: URI, values: IJSONValue[], save: boolean): Promise<void> { }\n}\n"],
+  "mappings": ";;AAKA,SAAS,WAAW;AACpB,SAAS,qBAAqB,kBAAkB;AAEzC,MAAM,uBAAsD;AAAA,EARnE,OAQmE;AAAA;AAAA;AAAA,EAClE;AAAA,EAEA,MAAM,MAAM,UAAe,QAAsB,MAA8B;AAAA,EAAE;AAClF;",
+  "names": []
+}

@@ -1,7 +1,7 @@
 .monaco-editor div.inline-edits-widget {
   --widget-color: var(--vscode-notifications-background);
   .promptEditor .monaco-editor {
-    --vscode-editor-placeholder-foreground: var( --vscode-editorGhostText-foreground );
+    --vscode-editor-placeholder-foreground: var(--vscode-editorGhostText-foreground);
   }
   .toolbar,
   .promptEditor {

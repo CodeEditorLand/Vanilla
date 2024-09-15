@@ -10,25 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Event, Emitter } from "../../../../../base/common/event.js";
 import { localize } from "../../../../../nls.js";
-import {
-  listDeemphasizedForeground,
-  listInvalidItemForeground
-} from "../../../../../platform/theme/common/colorRegistry.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { IExplorerService } from "../files.js";
+import { IDecorationsProvider, IDecorationData } from "../../../../services/decorations/common/decorations.js";
+import { listInvalidItemForeground, listDeemphasizedForeground } from "../../../../../platform/theme/common/colorRegistry.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { explorerRootErrorEmitter } from "./explorerViewer.js";
+import { ExplorerItem } from "../../common/explorerModel.js";
+import { IExplorerService } from "../files.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
 function provideDecorations(fileStat) {
   if (fileStat.isRoot && fileStat.error) {
     return {
-      tooltip: localize(
-        "canNotResolve",
-        "Unable to resolve workspace folder ({0})",
-        toErrorMessage(fileStat.error)
-      ),
+      tooltip: localize("canNotResolve", "Unable to resolve workspace folder ({0})", toErrorMessage(fileStat.error)),
       letter: "!",
       color: listInvalidItemForeground
     };
@@ -57,18 +53,12 @@ let ExplorerDecorationsProvider = class {
   constructor(explorerService, contextService) {
     this.explorerService = explorerService;
     this.toDispose.add(this._onDidChange);
-    this.toDispose.add(
-      contextService.onDidChangeWorkspaceFolders((e) => {
-        this._onDidChange.fire(
-          e.changed.concat(e.added).map((wf) => wf.uri)
-        );
-      })
-    );
-    this.toDispose.add(
-      explorerRootErrorEmitter.event((resource) => {
-        this._onDidChange.fire([resource]);
-      })
-    );
+    this.toDispose.add(contextService.onDidChangeWorkspaceFolders((e) => {
+      this._onDidChange.fire(e.changed.concat(e.added).map((wf) => wf.uri));
+    }));
+    this.toDispose.add(explorerRootErrorEmitter.event((resource) => {
+      this._onDidChange.fire([resource]);
+    }));
   }
   static {
     __name(this, "ExplorerDecorationsProvider");

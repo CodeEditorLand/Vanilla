@@ -10,10 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { AddFirstParameterToFunctions } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
 import { IBackupMainService } from "../../backup/electron-main/backup.js";
 import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IEnterWorkspaceResult, IRecent, IRecentlyOpened, IWorkspaceFolderCreationData, IWorkspacesService } from "../common/workspaces.js";
+import { IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 import { IWorkspacesHistoryMainService } from "./workspacesHistoryMainService.js";
 import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
+import { IWorkspaceBackupInfo, IFolderBackupInfo } from "../../backup/common/backup.js";
 let WorkspacesMainService = class {
   constructor(workspacesManagementMainService, windowsMainService, workspacesHistoryMainService, backupMainService) {
     this.workspacesManagementMainService = workspacesManagementMainService;
@@ -28,29 +33,18 @@ let WorkspacesMainService = class {
   async enterWorkspace(windowId, path) {
     const window = this.windowsMainService.getWindowById(windowId);
     if (window) {
-      return this.workspacesManagementMainService.enterWorkspace(
-        window,
-        this.windowsMainService.getWindows(),
-        path
-      );
+      return this.workspacesManagementMainService.enterWorkspace(window, this.windowsMainService.getWindows(), path);
     }
     return void 0;
   }
   createUntitledWorkspace(windowId, folders, remoteAuthority) {
-    return this.workspacesManagementMainService.createUntitledWorkspace(
-      folders,
-      remoteAuthority
-    );
+    return this.workspacesManagementMainService.createUntitledWorkspace(folders, remoteAuthority);
   }
   deleteUntitledWorkspace(windowId, workspace) {
-    return this.workspacesManagementMainService.deleteUntitledWorkspace(
-      workspace
-    );
+    return this.workspacesManagementMainService.deleteUntitledWorkspace(workspace);
   }
   getWorkspaceIdentifier(windowId, workspacePath) {
-    return this.workspacesManagementMainService.getWorkspaceIdentifier(
-      workspacePath
-    );
+    return this.workspacesManagementMainService.getWorkspaceIdentifier(workspacePath);
   }
   //#endregion
   //#region Workspaces History

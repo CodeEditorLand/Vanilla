@@ -11,26 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { addDisposableListener } from "../../../../../base/browser/dom.js";
-import {
-  Disposable,
-  MutableDisposable,
-  combinedDisposable,
-  toDisposable
-} from "../../../../../base/common/lifecycle.js";
+import { combinedDisposable, Disposable, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { listInactiveSelectionBackground } from "../../../../../platform/theme/common/colorRegistry.js";
-import {
-  registerColor,
-  transparent
-} from "../../../../../platform/theme/common/colorUtils.js";
+import { registerColor, transparent } from "../../../../../platform/theme/common/colorUtils.js";
 import { PANEL_BORDER } from "../../../../common/theme.js";
+import { IDetachedTerminalInstance, ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
 import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
-import {
-  TerminalCommandGuideSettingId,
-  terminalCommandGuideConfigSection
-} from "../common/terminalCommandGuideConfiguration.js";
+import { TerminalWidgetManager } from "../../../terminal/browser/widgets/widgetManager.js";
+import { ITerminalProcessInfo, ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { terminalCommandGuideConfigSection, TerminalCommandGuideSettingId } from "../common/terminalCommandGuideConfiguration.js";
 let TerminalCommandGuideContribution = class extends Disposable {
   constructor(_instance, processManager, widgetManager, _configurationService) {
     super();
@@ -42,21 +34,15 @@ let TerminalCommandGuideContribution = class extends Disposable {
   }
   static ID = "terminal.highlight";
   static get(instance) {
-    return instance.getContribution(
-      TerminalCommandGuideContribution.ID
-    );
+    return instance.getContribution(TerminalCommandGuideContribution.ID);
   }
   _xterm;
-  _activeCommandGuide = this._register(
-    new MutableDisposable()
-  );
+  _activeCommandGuide = this._register(new MutableDisposable());
   xtermOpen(xterm) {
     this._xterm = xterm;
     this._refreshActivatedState();
     this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(
-        TerminalCommandGuideSettingId.ShowCommandGuide
-      )) {
+      if (e.affectsConfiguration(TerminalCommandGuideSettingId.ShowCommandGuide)) {
         this._refreshActivatedState();
       }
     });
@@ -66,40 +52,22 @@ let TerminalCommandGuideContribution = class extends Disposable {
     if (!xterm) {
       return;
     }
-    const showCommandGuide = this._configurationService.getValue(
-      terminalCommandGuideConfigSection
-    ).showCommandGuide;
+    const showCommandGuide = this._configurationService.getValue(terminalCommandGuideConfigSection).showCommandGuide;
     if (!!this._activeCommandGuide.value === showCommandGuide) {
       return;
     }
-    if (showCommandGuide) {
+    if (!showCommandGuide) {
+      this._activeCommandGuide.clear();
+    } else {
       const screenElement = xterm.raw.element.querySelector(".xterm-screen");
       const viewportElement = xterm.raw.element.querySelector(".xterm-viewport");
       this._activeCommandGuide.value = combinedDisposable(
-        addDisposableListener(
-          screenElement,
-          "mousemove",
-          (e) => this._tryShowHighlight(screenElement, xterm, e)
-        ),
-        addDisposableListener(
-          viewportElement,
-          "mousemove",
-          (e) => this._tryShowHighlight(screenElement, xterm, e)
-        ),
-        addDisposableListener(
-          xterm.raw.element,
-          "mouseout",
-          () => xterm.markTracker.showCommandGuide(void 0)
-        ),
-        xterm.raw.onData(
-          () => xterm.markTracker.showCommandGuide(void 0)
-        ),
-        toDisposable(
-          () => xterm.markTracker.showCommandGuide(void 0)
-        )
+        addDisposableListener(screenElement, "mousemove", (e) => this._tryShowHighlight(screenElement, xterm, e)),
+        addDisposableListener(viewportElement, "mousemove", (e) => this._tryShowHighlight(screenElement, xterm, e)),
+        addDisposableListener(xterm.raw.element, "mouseout", () => xterm.markTracker.showCommandGuide(void 0)),
+        xterm.raw.onData(() => xterm.markTracker.showCommandGuide(void 0)),
+        toDisposable(() => xterm.markTracker.showCommandGuide(void 0))
       );
-    } else {
-      this._activeCommandGuide.clear();
     }
   }
   _tryShowHighlight(element, xterm, e) {
@@ -107,12 +75,8 @@ let TerminalCommandGuideContribution = class extends Disposable {
     if (!rect) {
       return;
     }
-    const mouseCursorY = Math.floor(
-      e.offsetY / (rect.height / xterm.raw.rows)
-    );
-    const command = this._instance.capabilities.get(TerminalCapability.CommandDetection)?.getCommandForLine(
-      xterm.raw.buffer.active.viewportY + mouseCursorY
-    );
+    const mouseCursorY = Math.floor(e.offsetY / (rect.height / xterm.raw.rows));
+    const command = this._instance.capabilities.get(TerminalCapability.CommandDetection)?.getCommandForLine(xterm.raw.buffer.active.viewportY + mouseCursorY);
     if (command && "getOutput" in command) {
       xterm.markTracker.showCommandGuide(command);
     } else {
@@ -123,24 +87,13 @@ let TerminalCommandGuideContribution = class extends Disposable {
 TerminalCommandGuideContribution = __decorateClass([
   __decorateParam(3, IConfigurationService)
 ], TerminalCommandGuideContribution);
-registerTerminalContribution(
-  TerminalCommandGuideContribution.ID,
-  TerminalCommandGuideContribution,
-  false
-);
-const TERMINAL_COMMAND_GUIDE_COLOR = registerColor(
-  "terminalCommandGuide.foreground",
-  {
-    dark: transparent(listInactiveSelectionBackground, 1),
-    light: transparent(listInactiveSelectionBackground, 1),
-    hcDark: PANEL_BORDER,
-    hcLight: PANEL_BORDER
-  },
-  localize(
-    "terminalCommandGuide.foreground",
-    "The foreground color of the terminal command guide that appears to the left of a command and its output on hover."
-  )
-);
+registerTerminalContribution(TerminalCommandGuideContribution.ID, TerminalCommandGuideContribution, false);
+const TERMINAL_COMMAND_GUIDE_COLOR = registerColor("terminalCommandGuide.foreground", {
+  dark: transparent(listInactiveSelectionBackground, 1),
+  light: transparent(listInactiveSelectionBackground, 1),
+  hcDark: PANEL_BORDER,
+  hcLight: PANEL_BORDER
+}, localize("terminalCommandGuide.foreground", "The foreground color of the terminal command guide that appears to the left of a command and its output on hover."));
 export {
   TERMINAL_COMMAND_GUIDE_COLOR
 };

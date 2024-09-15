@@ -2,19 +2,18 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getErrorMessage } from "../../../base/common/errors.js";
 import { Emitter } from "../../../base/common/event.js";
-import {
-  Disposable,
-  DisposableMap,
-  combinedDisposable
-} from "../../../base/common/lifecycle.js";
+import { combinedDisposable, Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
 import { ResourceSet } from "../../../base/common/map.js";
-import {
-  ExtensionIdentifier
-} from "../../extensions/common/extensions.js";
-import {
-  FileChangeType
-} from "../../files/common/files.js";
+import { URI } from "../../../base/common/uri.js";
 import { getIdAndVersion } from "../common/extensionManagementUtil.js";
+import { DidAddProfileExtensionsEvent, DidRemoveProfileExtensionsEvent, IExtensionsProfileScannerService, ProfileExtensionsEvent } from "../common/extensionsProfileScannerService.js";
+import { IExtensionsScannerService } from "../common/extensionsScannerService.js";
+import { INativeServerExtensionManagementService } from "./extensionManagementService.js";
+import { ExtensionIdentifier, IExtension, IExtensionIdentifier } from "../../extensions/common/extensions.js";
+import { FileChangesEvent, FileChangeType, IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfile, IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
 class ExtensionsWatcher extends Disposable {
   constructor(extensionManagementService, extensionsScannerService, userDataProfilesService, extensionsProfileScannerService, uriIdentityService, fileService, logService) {
     super();
@@ -25,25 +24,15 @@ class ExtensionsWatcher extends Disposable {
     this.uriIdentityService = uriIdentityService;
     this.fileService = fileService;
     this.logService = logService;
-    this.initialize().then(
-      null,
-      (error) => logService.error(
-        "Error while initializing Extensions Watcher",
-        getErrorMessage(error)
-      )
-    );
+    this.initialize().then(null, (error) => logService.error("Error while initializing Extensions Watcher", getErrorMessage(error)));
   }
   static {
     __name(this, "ExtensionsWatcher");
   }
-  _onDidChangeExtensionsByAnotherSource = this._register(
-    new Emitter()
-  );
+  _onDidChangeExtensionsByAnotherSource = this._register(new Emitter());
   onDidChangeExtensionsByAnotherSource = this._onDidChangeExtensionsByAnotherSource.event;
   allExtensions = /* @__PURE__ */ new Map();
-  extensionsProfileWatchDisposables = this._register(
-    new DisposableMap()
-  );
+  extensionsProfileWatchDisposables = this._register(new DisposableMap());
   async initialize() {
     await this.extensionsScannerService.initializeDefaultProfileExtensions();
     await this.onDidChangeProfiles(this.userDataProfilesService.profiles);
@@ -51,59 +40,24 @@ class ExtensionsWatcher extends Disposable {
     await this.uninstallExtensionsNotInProfiles();
   }
   registerListeners() {
-    this._register(
-      this.userDataProfilesService.onDidChangeProfiles(
-        (e) => this.onDidChangeProfiles(e.added)
-      )
-    );
-    this._register(
-      this.extensionsProfileScannerService.onAddExtensions(
-        (e) => this.onAddExtensions(e)
-      )
-    );
-    this._register(
-      this.extensionsProfileScannerService.onDidAddExtensions(
-        (e) => this.onDidAddExtensions(e)
-      )
-    );
-    this._register(
-      this.extensionsProfileScannerService.onRemoveExtensions(
-        (e) => this.onRemoveExtensions(e)
-      )
-    );
-    this._register(
-      this.extensionsProfileScannerService.onDidRemoveExtensions(
-        (e) => this.onDidRemoveExtensions(e)
-      )
-    );
-    this._register(
-      this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e))
-    );
+    this._register(this.userDataProfilesService.onDidChangeProfiles((e) => this.onDidChangeProfiles(e.added)));
+    this._register(this.extensionsProfileScannerService.onAddExtensions((e) => this.onAddExtensions(e)));
+    this._register(this.extensionsProfileScannerService.onDidAddExtensions((e) => this.onDidAddExtensions(e)));
+    this._register(this.extensionsProfileScannerService.onRemoveExtensions((e) => this.onRemoveExtensions(e)));
+    this._register(this.extensionsProfileScannerService.onDidRemoveExtensions((e) => this.onDidRemoveExtensions(e)));
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
   }
   async onDidChangeProfiles(added) {
     try {
       if (added.length) {
-        await Promise.all(
-          added.map((profile) => {
-            this.extensionsProfileWatchDisposables.set(
-              profile.id,
-              combinedDisposable(
-                this.fileService.watch(
-                  this.uriIdentityService.extUri.dirname(
-                    profile.extensionsResource
-                  )
-                ),
-                // Also listen to the resource incase the resource is a symlink - https://github.com/microsoft/vscode/issues/118134
-                this.fileService.watch(
-                  profile.extensionsResource
-                )
-              )
-            );
-            return this.populateExtensionsFromProfile(
-              profile.extensionsResource
-            );
-          })
-        );
+        await Promise.all(added.map((profile) => {
+          this.extensionsProfileWatchDisposables.set(profile.id, combinedDisposable(
+            this.fileService.watch(this.uriIdentityService.extUri.dirname(profile.extensionsResource)),
+            // Also listen to the resource incase the resource is a symlink - https://github.com/microsoft/vscode/issues/118134
+            this.fileService.watch(profile.extensionsResource)
+          ));
+          return this.populateExtensionsFromProfile(profile.extensionsResource);
+        }));
       }
     } catch (error) {
       this.logService.error(error);
@@ -112,10 +66,7 @@ class ExtensionsWatcher extends Disposable {
   }
   async onAddExtensions(e) {
     for (const extension of e.extensions) {
-      this.addExtensionWithKey(
-        this.getKey(extension.identifier, extension.version),
-        e.profileLocation
-      );
+      this.addExtensionWithKey(this.getKey(extension.identifier, extension.version), e.profileLocation);
     }
   }
   async onDidAddExtensions(e) {
@@ -130,10 +81,7 @@ class ExtensionsWatcher extends Disposable {
   }
   async onRemoveExtensions(e) {
     for (const extension of e.extensions) {
-      this.removeExtensionWithKey(
-        this.getKey(extension.identifier, extension.version),
-        e.profileLocation
-      );
+      this.removeExtensionWithKey(this.getKey(extension.identifier, extension.version), e.profileLocation);
     }
   }
   async onDidRemoveExtensions(e) {
@@ -146,37 +94,21 @@ class ExtensionsWatcher extends Disposable {
       } else {
         this.removeExtensionWithKey(key, e.profileLocation);
         if (!this.allExtensions.has(key)) {
-          this.logService.debug(
-            "Extension is removed from all profiles",
-            extension.identifier.id,
-            extension.version
-          );
-          promises.push(
-            this.extensionManagementService.scanInstalledExtensionAtLocation(
-              extension.location
-            ).then(
-              (result) => {
-                if (result) {
-                  extensionsToUninstall.push(result);
-                } else {
-                  this.logService.info(
-                    "Extension not found at the location",
-                    extension.location.toString()
-                  );
-                }
-              },
-              (error) => this.logService.error(error)
-            )
-          );
+          this.logService.debug("Extension is removed from all profiles", extension.identifier.id, extension.version);
+          promises.push(this.extensionManagementService.scanInstalledExtensionAtLocation(extension.location).then((result) => {
+            if (result) {
+              extensionsToUninstall.push(result);
+            } else {
+              this.logService.info("Extension not found at the location", extension.location.toString());
+            }
+          }, (error) => this.logService.error(error)));
         }
       }
     }
     try {
       await Promise.all(promises);
       if (extensionsToUninstall.length) {
-        await this.uninstallExtensionsNotInProfiles(
-          extensionsToUninstall
-        );
+        await this.uninstallExtensionsNotInProfiles(extensionsToUninstall);
       }
     } catch (error) {
       this.logService.error(error);
@@ -184,20 +116,14 @@ class ExtensionsWatcher extends Disposable {
   }
   onDidFilesChange(e) {
     for (const profile of this.userDataProfilesService.profiles) {
-      if (e.contains(
-        profile.extensionsResource,
-        FileChangeType.UPDATED,
-        FileChangeType.ADDED
-      )) {
+      if (e.contains(profile.extensionsResource, FileChangeType.UPDATED, FileChangeType.ADDED)) {
         this.onDidExtensionsProfileChange(profile.extensionsResource);
       }
     }
   }
   async onDidExtensionsProfileChange(profileLocation) {
     const added = [], removed = [];
-    const extensions = await this.extensionsProfileScannerService.scanProfileExtensions(
-      profileLocation
-    );
+    const extensions = await this.extensionsProfileScannerService.scanProfileExtensions(profileLocation);
     const extensionKeys = /* @__PURE__ */ new Set();
     const cached = /* @__PURE__ */ new Set();
     for (const [key, profiles] of this.allExtensions) {
@@ -223,50 +149,28 @@ class ExtensionsWatcher extends Disposable {
       }
     }
     if (added.length || removed.length) {
-      this._onDidChangeExtensionsByAnotherSource.fire({
-        added: added.length ? { extensions: added, profileLocation } : void 0,
-        removed: removed.length ? { extensions: removed, profileLocation } : void 0
-      });
+      this._onDidChangeExtensionsByAnotherSource.fire({ added: added.length ? { extensions: added, profileLocation } : void 0, removed: removed.length ? { extensions: removed, profileLocation } : void 0 });
     }
   }
   async populateExtensionsFromProfile(extensionsProfileLocation) {
-    const extensions = await this.extensionsProfileScannerService.scanProfileExtensions(
-      extensionsProfileLocation
-    );
+    const extensions = await this.extensionsProfileScannerService.scanProfileExtensions(extensionsProfileLocation);
     for (const extension of extensions) {
-      this.addExtensionWithKey(
-        this.getKey(extension.identifier, extension.version),
-        extensionsProfileLocation
-      );
+      this.addExtensionWithKey(this.getKey(extension.identifier, extension.version), extensionsProfileLocation);
     }
   }
   async uninstallExtensionsNotInProfiles(toUninstall) {
     if (!toUninstall) {
       const installed = await this.extensionManagementService.scanAllUserInstalledExtensions();
-      toUninstall = installed.filter(
-        (installedExtension) => !this.allExtensions.has(
-          this.getKey(
-            installedExtension.identifier,
-            installedExtension.manifest.version
-          )
-        )
-      );
+      toUninstall = installed.filter((installedExtension) => !this.allExtensions.has(this.getKey(installedExtension.identifier, installedExtension.manifest.version)));
     }
     if (toUninstall.length) {
-      await this.extensionManagementService.markAsUninstalled(
-        ...toUninstall
-      );
+      await this.extensionManagementService.markAsUninstalled(...toUninstall);
     }
   }
   addExtensionWithKey(key, extensionsProfileLocation) {
     let profiles = this.allExtensions.get(key);
     if (!profiles) {
-      this.allExtensions.set(
-        key,
-        profiles = new ResourceSet(
-          (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
-        )
-      );
+      this.allExtensions.set(key, profiles = new ResourceSet((uri) => this.uriIdentityService.extUri.getComparisonKey(uri)));
     }
     profiles.add(extensionsProfileLocation);
   }

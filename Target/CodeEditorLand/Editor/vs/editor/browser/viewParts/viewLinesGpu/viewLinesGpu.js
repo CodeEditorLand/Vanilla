@@ -20,10 +20,7 @@ import { TextureAtlasPage } from "../../gpu/atlas/textureAtlasPage.js";
 import { FullFileRenderStrategy } from "../../gpu/fullFileRenderStrategy.js";
 import { BindingId } from "../../gpu/gpu.js";
 import { GPULifecycle } from "../../gpu/gpuDisposable.js";
-import {
-  observeDevicePixelDimensions,
-  quadVertices
-} from "../../gpu/gpuUtils.js";
+import { observeDevicePixelDimensions, quadVertices } from "../../gpu/gpuUtils.js";
 import { ViewGpuContext } from "../../gpu/viewGpuContext.js";
 import { ViewPart } from "../../view/viewPart.js";
 import { ViewLineOptions } from "../viewLines/viewLineOptions.js";
@@ -68,14 +65,12 @@ let ViewLinesGpu = class extends ViewPart {
       return;
     }
     const atlas = ViewGpuContext.atlas;
-    this._register(
-      atlas.onDidDeleteGlyphs(() => {
-        this._atlasGpuTextureVersions.length = 0;
-        this._atlasGpuTextureVersions[0] = 0;
-        this._atlasGpuTextureVersions[1] = 0;
-        this._renderStrategy.reset();
-      })
-    );
+    this._register(atlas.onDidDeleteGlyphs(() => {
+      this._atlasGpuTextureVersions.length = 0;
+      this._atlasGpuTextureVersions[0] = 0;
+      this._atlasGpuTextureVersions[1] = 0;
+      this._renderStrategy.reset();
+    }));
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     this._viewGpuContext.ctx.configure({
       device: this._device,
@@ -109,40 +104,20 @@ let ViewLinesGpu = class extends ViewPart {
       const updateBufferValues = /* @__PURE__ */ __name((canvasDevicePixelWidth = this.canvas.width, canvasDevicePixelHeight = this.canvas.height) => {
         bufferValues[0 /* Offset_CanvasWidth____ */] = canvasDevicePixelWidth;
         bufferValues[1 /* Offset_CanvasHeight___ */] = canvasDevicePixelHeight;
-        bufferValues[2 /* Offset_ViewportOffsetX */] = Math.ceil(
-          this._context.configuration.options.get(
-            EditorOption.layoutInfo
-          ).contentLeft * getActiveWindow().devicePixelRatio
-        );
+        bufferValues[2 /* Offset_ViewportOffsetX */] = Math.ceil(this._context.configuration.options.get(EditorOption.layoutInfo).contentLeft * getActiveWindow().devicePixelRatio);
         bufferValues[3 /* Offset_ViewportOffsetY */] = 0;
         bufferValues[4 /* Offset_ViewportWidth__ */] = bufferValues[0 /* Offset_CanvasWidth____ */] - bufferValues[2 /* Offset_ViewportOffsetX */];
         bufferValues[5 /* Offset_ViewportHeight_ */] = bufferValues[1 /* Offset_CanvasHeight___ */] - bufferValues[3 /* Offset_ViewportOffsetY */];
         return bufferValues;
       }, "updateBufferValues");
-      layoutInfoUniformBuffer = this._register(
-        GPULifecycle.createBuffer(
-          this._device,
-          {
-            label: "Monaco uniform buffer",
-            size: 24 /* BytesPerEntry */,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-          },
-          () => updateBufferValues()
-        )
-      ).object;
-      this._register(
-        observeDevicePixelDimensions(
-          this.canvas,
-          getActiveWindow(),
-          (w, h) => {
-            this._device.queue.writeBuffer(
-              layoutInfoUniformBuffer,
-              0,
-              updateBufferValues(w, h)
-            );
-          }
-        )
-      );
+      layoutInfoUniformBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+        label: "Monaco uniform buffer",
+        size: 24 /* BytesPerEntry */,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      }, () => updateBufferValues())).object;
+      this._register(observeDevicePixelDimensions(this.canvas, getActiveWindow(), (w, h) => {
+        this._device.queue.writeBuffer(layoutInfoUniformBuffer, 0, updateBufferValues(w, h));
+      }));
     }
     let atlasInfoUniformBuffer;
     {
@@ -153,74 +128,44 @@ let ViewLinesGpu = class extends ViewPart {
         Info2[Info2["Offset_Width_"] = 0] = "Offset_Width_";
         Info2[Info2["Offset_Height"] = 1] = "Offset_Height";
       })(Info || (Info = {}));
-      atlasInfoUniformBuffer = this._register(
-        GPULifecycle.createBuffer(
-          this._device,
-          {
-            label: "Monaco atlas info uniform buffer",
-            size: 8 /* BytesPerEntry */,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-          },
-          () => {
-            const values = new Float32Array(2 /* FloatsPerEntry */);
-            values[0 /* Offset_Width_ */] = atlas.pageSize;
-            values[1 /* Offset_Height */] = atlas.pageSize;
-            return values;
-          }
-        )
-      ).object;
+      atlasInfoUniformBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+        label: "Monaco atlas info uniform buffer",
+        size: 8 /* BytesPerEntry */,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      }, () => {
+        const values = new Float32Array(2 /* FloatsPerEntry */);
+        values[0 /* Offset_Width_ */] = atlas.pageSize;
+        values[1 /* Offset_Height */] = atlas.pageSize;
+        return values;
+      })).object;
     }
-    this._renderStrategy = this._register(
-      this._instantiationService.createInstance(
-        FullFileRenderStrategy,
-        this._context,
-        this._device,
-        this.canvas,
-        atlas
-      )
-    );
-    this._glyphStorageBuffer[0] = this._register(
-      GPULifecycle.createBuffer(this._device, {
-        label: "Monaco glyph storage buffer",
-        size: 24 /* BytesPerEntry */ * TextureAtlasPage.maximumGlyphCount,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-      })
-    ).object;
-    this._glyphStorageBuffer[1] = this._register(
-      GPULifecycle.createBuffer(this._device, {
-        label: "Monaco glyph storage buffer",
-        size: 24 /* BytesPerEntry */ * TextureAtlasPage.maximumGlyphCount,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-      })
-    ).object;
+    this._renderStrategy = this._register(this._instantiationService.createInstance(FullFileRenderStrategy, this._context, this._device, this.canvas, atlas));
+    this._glyphStorageBuffer[0] = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco glyph storage buffer",
+      size: 24 /* BytesPerEntry */ * TextureAtlasPage.maximumGlyphCount,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    })).object;
+    this._glyphStorageBuffer[1] = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco glyph storage buffer",
+      size: 24 /* BytesPerEntry */ * TextureAtlasPage.maximumGlyphCount,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    })).object;
     this._atlasGpuTextureVersions[0] = 0;
     this._atlasGpuTextureVersions[1] = 0;
-    this._atlasGpuTexture = this._register(
-      GPULifecycle.createTexture(this._device, {
-        label: "Monaco atlas texture",
-        format: "rgba8unorm",
-        // TODO: Dynamically grow/shrink layer count
-        size: {
-          width: atlas.pageSize,
-          height: atlas.pageSize,
-          depthOrArrayLayers: 2
-        },
-        dimension: "2d",
-        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
-      })
-    ).object;
+    this._atlasGpuTexture = this._register(GPULifecycle.createTexture(this._device, {
+      label: "Monaco atlas texture",
+      format: "rgba8unorm",
+      // TODO: Dynamically grow/shrink layer count
+      size: { width: atlas.pageSize, height: atlas.pageSize, depthOrArrayLayers: 2 },
+      dimension: "2d",
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    })).object;
     this._updateAtlasStorageBufferAndTexture();
-    this._vertexBuffer = this._register(
-      GPULifecycle.createBuffer(
-        this._device,
-        {
-          label: "Monaco vertex buffer",
-          size: quadVertices.byteLength,
-          usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-        },
-        quadVertices
-      )
-    ).object;
+    this._vertexBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco vertex buffer",
+      size: quadVertices.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+    }, quadVertices)).object;
     const module = this._device.createShaderModule({
       label: "Monaco shader module",
       code: this._renderStrategy.wgsl
@@ -236,11 +181,7 @@ let ViewLinesGpu = class extends ViewPart {
             arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
             // 2 floats, 4 bytes each
             attributes: [
-              {
-                shaderLocation: 0,
-                offset: 0,
-                format: "float32x2"
-              }
+              { shaderLocation: 0, offset: 0, format: "float32x2" }
               // position
             ]
           }
@@ -271,14 +212,8 @@ let ViewLinesGpu = class extends ViewPart {
       layout: this._pipeline.getBindGroupLayout(0),
       entries: [
         // TODO: Pass in generically as array?
-        {
-          binding: BindingId.GlyphInfo0,
-          resource: { buffer: this._glyphStorageBuffer[0] }
-        },
-        {
-          binding: BindingId.GlyphInfo1,
-          resource: { buffer: this._glyphStorageBuffer[1] }
-        },
+        { binding: BindingId.GlyphInfo0, resource: { buffer: this._glyphStorageBuffer[0] } },
+        { binding: BindingId.GlyphInfo1, resource: { buffer: this._glyphStorageBuffer[1] } },
         {
           binding: BindingId.TextureSampler,
           resource: this._device.createSampler({
@@ -287,18 +222,9 @@ let ViewLinesGpu = class extends ViewPart {
             minFilter: "nearest"
           })
         },
-        {
-          binding: BindingId.Texture,
-          resource: this._atlasGpuTexture.createView()
-        },
-        {
-          binding: BindingId.ViewportUniform,
-          resource: { buffer: layoutInfoUniformBuffer }
-        },
-        {
-          binding: BindingId.AtlasDimensionsUniform,
-          resource: { buffer: atlasInfoUniformBuffer }
-        },
+        { binding: BindingId.Texture, resource: this._atlasGpuTexture.createView() },
+        { binding: BindingId.ViewportUniform, resource: { buffer: layoutInfoUniformBuffer } },
+        { binding: BindingId.AtlasDimensionsUniform, resource: { buffer: atlasInfoUniformBuffer } },
         ...this._renderStrategy.bindGroupEntries
       ]
     });
@@ -309,17 +235,8 @@ let ViewLinesGpu = class extends ViewPart {
       if (page.version === this._atlasGpuTextureVersions[layerIndex]) {
         continue;
       }
-      this._logService.trace(
-        "Updating atlas page[",
-        layerIndex,
-        "] from version ",
-        this._atlasGpuTextureVersions[layerIndex],
-        " to version ",
-        page.version
-      );
-      const values = new Float32Array(
-        6 /* FloatsPerEntry */ * TextureAtlasPage.maximumGlyphCount
-      );
+      this._logService.trace("Updating atlas page[", layerIndex, "] from version ", this._atlasGpuTextureVersions[layerIndex], " to version ", page.version);
+      const values = new Float32Array(6 /* FloatsPerEntry */ * TextureAtlasPage.maximumGlyphCount);
       let entryOffset = 0;
       for (const glyph of page.glyphs) {
         values[entryOffset + 0 /* Offset_TexturePosition */] = glyph.x;
@@ -331,15 +248,9 @@ let ViewLinesGpu = class extends ViewPart {
         entryOffset += 6 /* FloatsPerEntry */;
       }
       if (entryOffset / 6 /* FloatsPerEntry */ > TextureAtlasPage.maximumGlyphCount) {
-        throw new Error(
-          `Attempting to write more glyphs (${entryOffset / 6 /* FloatsPerEntry */}) than the GPUBuffer can hold (${TextureAtlasPage.maximumGlyphCount})`
-        );
+        throw new Error(`Attempting to write more glyphs (${entryOffset / 6 /* FloatsPerEntry */}) than the GPUBuffer can hold (${TextureAtlasPage.maximumGlyphCount})`);
       }
-      this._device.queue.writeBuffer(
-        this._glyphStorageBuffer[layerIndex],
-        0,
-        values
-      );
+      this._device.queue.writeBuffer(this._glyphStorageBuffer[layerIndex], 0, values);
       if (page.usedArea.right - page.usedArea.left > 0 && page.usedArea.bottom - page.usedArea.top > 0) {
         this._device.queue.copyExternalImageToTexture(
           { source: page.source },
@@ -383,18 +294,10 @@ let ViewLinesGpu = class extends ViewPart {
     }
   }
   _renderText(viewportData) {
-    const options = new ViewLineOptions(
-      this._context.configuration,
-      this._context.theme.type
-    );
-    const visibleObjectCount = this._renderStrategy.update(
-      viewportData,
-      options
-    );
+    const options = new ViewLineOptions(this._context.configuration, this._context.theme.type);
+    const visibleObjectCount = this._renderStrategy.update(viewportData, options);
     this._updateAtlasStorageBufferAndTexture();
-    const encoder = this._device.createCommandEncoder({
-      label: "Monaco command encoder"
-    });
+    const encoder = this._device.createCommandEncoder({ label: "Monaco command encoder" });
     this._renderPassColorAttachment.view = this._viewGpuContext.ctx.getCurrentTexture().createView({ label: "Monaco canvas texture view" });
     const pass = encoder.beginRenderPass(this._renderPassDescriptor);
     pass.setPipeline(this._pipeline);

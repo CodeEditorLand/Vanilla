@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IndentationRule } from "../languageConfiguration.js";
 var IndentConsts = /* @__PURE__ */ ((IndentConsts2) => {
   IndentConsts2[IndentConsts2["INCREASE_MASK"] = 1] = "INCREASE_MASK";
   IndentConsts2[IndentConsts2["DECREASE_MASK"] = 2] = "DECREASE_MASK";
@@ -24,9 +25,7 @@ class IndentRulesSupport {
   }
   shouldIncrease(text) {
     if (this._indentationRules) {
-      if (this._indentationRules.increaseIndentPattern && resetGlobalRegex(
-        this._indentationRules.increaseIndentPattern
-      ) && this._indentationRules.increaseIndentPattern.test(text)) {
+      if (this._indentationRules.increaseIndentPattern && resetGlobalRegex(this._indentationRules.increaseIndentPattern) && this._indentationRules.increaseIndentPattern.test(text)) {
         return true;
       }
     }

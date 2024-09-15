@@ -1,14 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  AccessibleContentProvider,
-  AccessibleViewProviderId,
-  AccessibleViewType
-} from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibleViewProviderId, AccessibleViewType, AccessibleContentProvider } from "../../../../../platform/accessibility/browser/accessibleView.js";
 import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
 import { ITerminalService } from "../../../terminal/browser/terminal.js";
-import { TerminalChatContextKeys } from "../../../terminal/terminalContribExports.js";
 import { TerminalChatController } from "./terminalChatController.js";
+import { IAccessibleViewImplentation } from "../../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { TerminalChatContextKeys } from "../../../terminal/terminalContribExports.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 class TerminalInlineChatAccessibleView {
   static {
     __name(this, "TerminalInlineChatAccessibleView");
@@ -19,9 +17,7 @@ class TerminalInlineChatAccessibleView {
   when = TerminalChatContextKeys.focused;
   getProvider(accessor) {
     const terminalService = accessor.get(ITerminalService);
-    const controller = terminalService.activeInstance?.getContribution(
-      TerminalChatController.ID
-    ) ?? void 0;
+    const controller = terminalService.activeInstance?.getContribution(TerminalChatController.ID) ?? void 0;
     if (!controller?.lastResponseContent) {
       return;
     }

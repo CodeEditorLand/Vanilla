@@ -11,36 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import {
-  IExtensionHostDebugService
-} from "../../../../platform/debug/common/extensionHostDebug.js";
-import {
-  ExtensionHostDebugBroadcastChannel,
-  ExtensionHostDebugChannelClient
-} from "../../../../platform/debug/common/extensionHostDebugIpc.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IExtensionHostDebugService, IOpenExtensionWindowResult } from "../../../../platform/debug/common/extensionHostDebug.js";
+import { ExtensionHostDebugBroadcastChannel, ExtensionHostDebugChannelClient } from "../../../../platform/debug/common/extensionHostDebugIpc.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import {
-  IStorageService,
-  StorageScope,
-  StorageTarget
-} from "../../../../platform/storage/common/storage.js";
-import {
-  isFolderToOpen,
-  isWorkspaceToOpen
-} from "../../../../platform/window/common/window.js";
-import {
-  IWorkspaceContextService,
-  hasWorkspaceFileExtension,
-  isSingleFolderWorkspaceIdentifier,
-  isWorkspaceIdentifier,
-  toWorkspaceIdentifier
-} from "../../../../platform/workspace/common/workspace.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { isFolderToOpen, isWorkspaceToOpen } from "../../../../platform/window/common/window.js";
+import { IWorkspaceContextService, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier, hasWorkspaceFileExtension } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspace, IWorkspaceProvider } from "../../../browser/web.api.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
@@ -56,14 +37,9 @@ let BrowserExtensionHostDebugService = class extends ExtensionHostDebugChannelCl
     const connection = remoteAgentService.getConnection();
     let channel;
     if (connection) {
-      channel = connection.getChannel(
-        ExtensionHostDebugBroadcastChannel.ChannelName
-      );
+      channel = connection.getChannel(ExtensionHostDebugBroadcastChannel.ChannelName);
     } else {
-      channel = {
-        call: /* @__PURE__ */ __name(async () => void 0, "call"),
-        listen: /* @__PURE__ */ __name(() => Event.None, "listen")
-      };
+      channel = { call: /* @__PURE__ */ __name(async () => void 0, "call"), listen: /* @__PURE__ */ __name(() => Event.None, "listen") };
     }
     super(channel);
     this.storageService = storageService;
@@ -71,48 +47,26 @@ let BrowserExtensionHostDebugService = class extends ExtensionHostDebugChannelCl
     if (environmentService.options && environmentService.options.workspaceProvider) {
       this.workspaceProvider = environmentService.options.workspaceProvider;
     } else {
-      this.workspaceProvider = {
-        open: /* @__PURE__ */ __name(async () => true, "open"),
-        workspace: void 0,
-        trusted: void 0
-      };
-      logService.warn(
-        "Extension Host Debugging not available due to missing workspace provider."
-      );
+      this.workspaceProvider = { open: /* @__PURE__ */ __name(async () => true, "open"), workspace: void 0, trusted: void 0 };
+      logService.warn("Extension Host Debugging not available due to missing workspace provider.");
     }
-    this._register(
-      this.onReload((event) => {
-        if (environmentService.isExtensionDevelopment && environmentService.debugExtensionHost.debugId === event.sessionId) {
-          hostService.reload();
-        }
-      })
-    );
-    this._register(
-      this.onClose((event) => {
-        if (environmentService.isExtensionDevelopment && environmentService.debugExtensionHost.debugId === event.sessionId) {
-          hostService.close();
-        }
-      })
-    );
+    this._register(this.onReload((event) => {
+      if (environmentService.isExtensionDevelopment && environmentService.debugExtensionHost.debugId === event.sessionId) {
+        hostService.reload();
+      }
+    }));
+    this._register(this.onClose((event) => {
+      if (environmentService.isExtensionDevelopment && environmentService.debugExtensionHost.debugId === event.sessionId) {
+        hostService.close();
+      }
+    }));
     if (environmentService.isExtensionDevelopment && !environmentService.extensionTestsLocationURI) {
-      const workspaceId = toWorkspaceIdentifier(
-        contextService.getWorkspace()
-      );
+      const workspaceId = toWorkspaceIdentifier(contextService.getWorkspace());
       if (isSingleFolderWorkspaceIdentifier(workspaceId) || isWorkspaceIdentifier(workspaceId)) {
-        const serializedWorkspace = isSingleFolderWorkspaceIdentifier(
-          workspaceId
-        ) ? { folderUri: workspaceId.uri.toJSON() } : { workspaceUri: workspaceId.configPath.toJSON() };
-        storageService.store(
-          BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY,
-          JSON.stringify(serializedWorkspace),
-          StorageScope.PROFILE,
-          StorageTarget.MACHINE
-        );
+        const serializedWorkspace = isSingleFolderWorkspaceIdentifier(workspaceId) ? { folderUri: workspaceId.uri.toJSON() } : { workspaceUri: workspaceId.configPath.toJSON() };
+        storageService.store(BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY, JSON.stringify(serializedWorkspace), StorageScope.PROFILE, StorageTarget.MACHINE);
       } else {
-        storageService.remove(
-          BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY,
-          StorageScope.PROFILE
-        );
+        storageService.remove(BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY, StorageScope.PROFILE);
       }
     }
   }
@@ -136,7 +90,7 @@ let BrowserExtensionHostDebugService = class extends ExtensionHostDebugChannelCl
         environment.set(argName, value);
       }
     }
-    let debugWorkspace;
+    let debugWorkspace = void 0;
     const folderUriArg = this.findArgument("folder-uri", args);
     if (folderUriArg) {
       debugWorkspace = { folderUri: URI.parse(folderUriArg) };
@@ -146,30 +100,16 @@ let BrowserExtensionHostDebugService = class extends ExtensionHostDebugChannelCl
         debugWorkspace = { workspaceUri: URI.parse(fileUriArg2) };
       }
     }
-    const extensionTestsPath = this.findArgument(
-      "extensionTestsPath",
-      args
-    );
+    const extensionTestsPath = this.findArgument("extensionTestsPath", args);
     if (!debugWorkspace && !extensionTestsPath) {
-      const lastExtensionDevelopmentWorkspace = this.storageService.get(
-        BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY,
-        StorageScope.PROFILE
-      );
+      const lastExtensionDevelopmentWorkspace = this.storageService.get(BrowserExtensionHostDebugService.LAST_EXTENSION_DEVELOPMENT_WORKSPACE_KEY, StorageScope.PROFILE);
       if (lastExtensionDevelopmentWorkspace) {
         try {
           const serializedWorkspace = JSON.parse(lastExtensionDevelopmentWorkspace);
           if (serializedWorkspace.workspaceUri) {
-            debugWorkspace = {
-              workspaceUri: URI.revive(
-                serializedWorkspace.workspaceUri
-              )
-            };
+            debugWorkspace = { workspaceUri: URI.revive(serializedWorkspace.workspaceUri) };
           } else if (serializedWorkspace.folderUri) {
-            debugWorkspace = {
-              folderUri: URI.revive(
-                serializedWorkspace.folderUri
-              )
-            };
+            debugWorkspace = { folderUri: URI.revive(serializedWorkspace.folderUri) };
           }
         } catch (error) {
         }
@@ -178,9 +118,7 @@ let BrowserExtensionHostDebugService = class extends ExtensionHostDebugChannelCl
     if (debugWorkspace) {
       const debugWorkspaceResource = isFolderToOpen(debugWorkspace) ? debugWorkspace.folderUri : isWorkspaceToOpen(debugWorkspace) ? debugWorkspace.workspaceUri : void 0;
       if (debugWorkspaceResource) {
-        const workspaceExists = await this.fileService.exists(
-          debugWorkspaceResource
-        );
+        const workspaceExists = await this.fileService.exists(debugWorkspaceResource);
         if (!workspaceExists) {
           debugWorkspace = void 0;
         }
@@ -213,9 +151,5 @@ BrowserExtensionHostDebugService = __decorateClass([
   __decorateParam(5, IStorageService),
   __decorateParam(6, IFileService)
 ], BrowserExtensionHostDebugService);
-registerSingleton(
-  IExtensionHostDebugService,
-  BrowserExtensionHostDebugService,
-  InstantiationType.Delayed
-);
+registerSingleton(IExtensionHostDebugService, BrowserExtensionHostDebugService, InstantiationType.Delayed);
 //# sourceMappingURL=extensionHostDebugService.js.map

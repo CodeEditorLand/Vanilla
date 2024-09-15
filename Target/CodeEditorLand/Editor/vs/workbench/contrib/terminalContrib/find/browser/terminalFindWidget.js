@@ -11,111 +11,72 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
+import { SimpleFindWidget } from "../../../codeEditor/browser/find/simpleFindWidget.js";
+import { IContextMenuService, IContextViewService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IContextKeyService, IContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDetachedTerminalInstance, ITerminalInstance, IXtermTerminal, XtermTerminalConstants } from "../../../terminal/browser/terminal.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { Event } from "../../../../../base/common/event.js";
 import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import {
-  IContextKeyService
-} from "../../../../../platform/contextkey/common/contextkey.js";
-import {
-  IContextMenuService,
-  IContextViewService
-} from "../../../../../platform/contextview/browser/contextView.js";
-import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
-import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { SimpleFindWidget } from "../../../codeEditor/browser/find/simpleFindWidget.js";
-import {
-  XtermTerminalConstants
-} from "../../../terminal/browser/terminal.js";
-import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
-import { TerminalFindCommandId } from "../common/terminal.find.js";
 import { openContextMenu } from "./textInputContextMenu.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { TerminalFindCommandId } from "../common/terminal.find.js";
 const TERMINAL_FIND_WIDGET_INITIAL_WIDTH = 419;
 let TerminalFindWidget = class extends SimpleFindWidget {
   constructor(_instance, _contextViewService, keybindingService, _contextKeyService, _contextMenuService, _clipboardService, hoverService, _themeService, _configurationService) {
-    super(
-      {
-        showCommonFindToggles: true,
-        checkImeCompletionState: true,
-        showResultCount: true,
-        initialWidth: TERMINAL_FIND_WIDGET_INITIAL_WIDTH,
-        enableSash: true,
-        appendCaseSensitiveActionId: TerminalFindCommandId.ToggleFindCaseSensitive,
-        appendRegexActionId: TerminalFindCommandId.ToggleFindRegex,
-        appendWholeWordsActionId: TerminalFindCommandId.ToggleFindWholeWord,
-        previousMatchActionId: TerminalFindCommandId.FindPrevious,
-        nextMatchActionId: TerminalFindCommandId.FindNext,
-        closeWidgetActionId: TerminalFindCommandId.FindHide,
-        type: "Terminal",
-        matchesLimit: XtermTerminalConstants.SearchHighlightLimit
-      },
-      _contextViewService,
-      _contextKeyService,
-      hoverService,
-      keybindingService
-    );
+    super({
+      showCommonFindToggles: true,
+      checkImeCompletionState: true,
+      showResultCount: true,
+      initialWidth: TERMINAL_FIND_WIDGET_INITIAL_WIDTH,
+      enableSash: true,
+      appendCaseSensitiveActionId: TerminalFindCommandId.ToggleFindCaseSensitive,
+      appendRegexActionId: TerminalFindCommandId.ToggleFindRegex,
+      appendWholeWordsActionId: TerminalFindCommandId.ToggleFindWholeWord,
+      previousMatchActionId: TerminalFindCommandId.FindPrevious,
+      nextMatchActionId: TerminalFindCommandId.FindNext,
+      closeWidgetActionId: TerminalFindCommandId.FindHide,
+      type: "Terminal",
+      matchesLimit: XtermTerminalConstants.SearchHighlightLimit
+    }, _contextViewService, _contextKeyService, hoverService, keybindingService);
     this._instance = _instance;
     this._contextKeyService = _contextKeyService;
     this._themeService = _themeService;
     this._configurationService = _configurationService;
-    this._register(
-      this.state.onFindReplaceStateChange(() => {
-        this.show();
-      })
-    );
-    this._findInputFocused = TerminalContextKeys.findInputFocus.bindTo(
-      this._contextKeyService
-    );
-    this._findWidgetFocused = TerminalContextKeys.findFocus.bindTo(
-      this._contextKeyService
-    );
-    this._findWidgetVisible = TerminalContextKeys.findVisible.bindTo(
-      this._contextKeyService
-    );
+    this._register(this.state.onFindReplaceStateChange(() => {
+      this.show();
+    }));
+    this._findInputFocused = TerminalContextKeys.findInputFocus.bindTo(this._contextKeyService);
+    this._findWidgetFocused = TerminalContextKeys.findFocus.bindTo(this._contextKeyService);
+    this._findWidgetVisible = TerminalContextKeys.findVisible.bindTo(this._contextKeyService);
     const innerDom = this.getDomNode().firstChild;
     if (innerDom) {
-      this._register(
-        dom.addDisposableListener(innerDom, "mousedown", (event) => {
-          event.stopPropagation();
-        })
-      );
-      this._register(
-        dom.addDisposableListener(innerDom, "contextmenu", (event) => {
-          event.stopPropagation();
-        })
-      );
+      this._register(dom.addDisposableListener(innerDom, "mousedown", (event) => {
+        event.stopPropagation();
+      }));
+      this._register(dom.addDisposableListener(innerDom, "contextmenu", (event) => {
+        event.stopPropagation();
+      }));
     }
     const findInputDomNode = this.getFindInputDomNode();
-    this._register(
-      dom.addDisposableListener(
-        findInputDomNode,
-        "contextmenu",
-        (event) => {
-          openContextMenu(
-            dom.getWindow(findInputDomNode),
-            event,
-            _clipboardService,
-            _contextMenuService
-          );
-          event.stopPropagation();
-        }
-      )
-    );
-    this._register(
-      this._themeService.onDidColorThemeChange(() => {
-        if (this.isVisible()) {
-          this.find(true, true);
-        }
-      })
-    );
-    this._register(
-      this._configurationService.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration("workbench.colorCustomizations") && this.isVisible()) {
-          this.find(true, true);
-        }
-      })
-    );
+    this._register(dom.addDisposableListener(findInputDomNode, "contextmenu", (event) => {
+      openContextMenu(dom.getWindow(findInputDomNode), event, _clipboardService, _contextMenuService);
+      event.stopPropagation();
+    }));
+    this._register(this._themeService.onDidColorThemeChange(() => {
+      if (this.isVisible()) {
+        this.find(true, true);
+      }
+    }));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("workbench.colorCustomizations") && this.isVisible()) {
+        this.find(true, true);
+      }
+    }));
     this.updateResultCount();
   }
   static {
@@ -131,18 +92,9 @@ let TerminalFindWidget = class extends SimpleFindWidget {
       return;
     }
     if (previous) {
-      this._findPreviousWithEvent(xterm, this.inputValue, {
-        regex: this._getRegexValue(),
-        wholeWord: this._getWholeWordValue(),
-        caseSensitive: this._getCaseSensitiveValue(),
-        incremental: update
-      });
+      this._findPreviousWithEvent(xterm, this.inputValue, { regex: this._getRegexValue(), wholeWord: this._getWholeWordValue(), caseSensitive: this._getCaseSensitiveValue(), incremental: update });
     } else {
-      this._findNextWithEvent(xterm, this.inputValue, {
-        regex: this._getRegexValue(),
-        wholeWord: this._getWholeWordValue(),
-        caseSensitive: this._getCaseSensitiveValue()
-      });
+      this._findNextWithEvent(xterm, this.inputValue, { regex: this._getRegexValue(), wholeWord: this._getWholeWordValue(), caseSensitive: this._getCaseSensitiveValue() });
     }
   }
   reveal() {
@@ -150,18 +102,9 @@ let TerminalFindWidget = class extends SimpleFindWidget {
     const inputValue = initialInput ?? this.inputValue;
     const xterm = this._instance.xterm;
     if (xterm && inputValue && inputValue !== "") {
-      this._findPreviousWithEvent(xterm, inputValue, {
-        incremental: true,
-        regex: this._getRegexValue(),
-        wholeWord: this._getWholeWordValue(),
-        caseSensitive: this._getCaseSensitiveValue()
-      }).then((foundMatch) => {
+      this._findPreviousWithEvent(xterm, inputValue, { incremental: true, regex: this._getRegexValue(), wholeWord: this._getWholeWordValue(), caseSensitive: this._getCaseSensitiveValue() }).then((foundMatch) => {
         this.updateButtons(foundMatch);
-        this._register(
-          Event.once(xterm.onDidChangeSelection)(
-            () => xterm.clearActiveSearchDecoration()
-          )
-        );
+        this._register(Event.once(xterm.onDidChangeSelection)(() => xterm.clearActiveSearchDecoration()));
       });
     }
     this.updateButtons(false);
@@ -185,12 +128,7 @@ let TerminalFindWidget = class extends SimpleFindWidget {
   _onInputChanged() {
     const xterm = this._instance.xterm;
     if (xterm) {
-      this._findPreviousWithEvent(xterm, this.inputValue, {
-        regex: this._getRegexValue(),
-        wholeWord: this._getWholeWordValue(),
-        caseSensitive: this._getCaseSensitiveValue(),
-        incremental: true
-      }).then((foundMatch) => {
+      this._findPreviousWithEvent(xterm, this.inputValue, { regex: this._getRegexValue(), wholeWord: this._getWholeWordValue(), caseSensitive: this._getCaseSensitiveValue(), incremental: true }).then((foundMatch) => {
         this.updateButtons(foundMatch);
       });
     }
@@ -220,30 +158,18 @@ let TerminalFindWidget = class extends SimpleFindWidget {
     }
     const xterm = instance.xterm;
     if (xterm) {
-      this._findPreviousWithEvent(xterm, this.inputValue, {
-        regex: this._getRegexValue(),
-        wholeWord: this._getWholeWordValue(),
-        caseSensitive: this._getCaseSensitiveValue()
-      });
+      this._findPreviousWithEvent(xterm, this.inputValue, { regex: this._getRegexValue(), wholeWord: this._getWholeWordValue(), caseSensitive: this._getCaseSensitiveValue() });
     }
   }
   async _findNextWithEvent(xterm, term, options) {
     return xterm.findNext(term, options).then((foundMatch) => {
-      this._register(
-        Event.once(xterm.onDidChangeSelection)(
-          () => xterm.clearActiveSearchDecoration()
-        )
-      );
+      this._register(Event.once(xterm.onDidChangeSelection)(() => xterm.clearActiveSearchDecoration()));
       return foundMatch;
     });
   }
   async _findPreviousWithEvent(xterm, term, options) {
     return xterm.findPrevious(term, options).then((foundMatch) => {
-      this._register(
-        Event.once(xterm.onDidChangeSelection)(
-          () => xterm.clearActiveSearchDecoration()
-        )
-      );
+      this._register(Event.once(xterm.onDidChangeSelection)(() => xterm.clearActiveSearchDecoration()));
       return foundMatch;
     });
   }

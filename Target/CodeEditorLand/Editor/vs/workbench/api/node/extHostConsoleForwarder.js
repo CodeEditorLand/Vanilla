@@ -10,10 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { NativeLogMarkers } from "../../services/extensions/common/extensionHostProtocol.js";
 import { AbstractExtHostConsoleForwarder } from "../common/extHostConsoleForwarder.js";
 import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
 import { IExtHostRpcService } from "../common/extHostRpcService.js";
+import { NativeLogMarkers } from "../../services/extensions/common/extensionHostProtocol.js";
 const MAX_STREAM_BUFFER_LENGTH = 1024 * 1024;
 let ExtHostConsoleForwarder = class extends AbstractExtHostConsoleForwarder {
   static {

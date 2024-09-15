@@ -2,9 +2,14 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import {
-  ScrollType
-} from "../../../common/editorCommon.js";
+import { CodeEditorWidget } from "../codeEditor/codeEditorWidget.js";
+import { IEditorOptions } from "../../../common/config/editorOptions.js";
+import { IDimension } from "../../../common/core/dimension.js";
+import { IPosition, Position } from "../../../common/core/position.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { ISelection, Selection } from "../../../common/core/selection.js";
+import { IDiffEditorViewModel, IEditor, IEditorAction, IEditorDecorationsCollection, IEditorModel, IEditorViewState, ScrollType } from "../../../common/editorCommon.js";
+import { IModelDecorationsChangeAccessor, IModelDeltaDecoration } from "../../../common/model.js";
 class DelegatingEditor extends Disposable {
   static {
     __name(this, "DelegatingEditor");
@@ -36,10 +41,7 @@ class DelegatingEditor extends Disposable {
     this._targetEditor.revealLineInCenter(lineNumber, scrollType);
   }
   revealLineInCenterIfOutsideViewport(lineNumber, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealLineInCenterIfOutsideViewport(
-      lineNumber,
-      scrollType
-    );
+    this._targetEditor.revealLineInCenterIfOutsideViewport(lineNumber, scrollType);
   }
   revealLineNearTop(lineNumber, scrollType = ScrollType.Smooth) {
     this._targetEditor.revealLineNearTop(lineNumber, scrollType);
@@ -51,10 +53,7 @@ class DelegatingEditor extends Disposable {
     this._targetEditor.revealPositionInCenter(position, scrollType);
   }
   revealPositionInCenterIfOutsideViewport(position, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealPositionInCenterIfOutsideViewport(
-      position,
-      scrollType
-    );
+    this._targetEditor.revealPositionInCenterIfOutsideViewport(position, scrollType);
   }
   revealPositionNearTop(position, scrollType = ScrollType.Smooth) {
     this._targetEditor.revealPositionNearTop(position, scrollType);
@@ -72,58 +71,31 @@ class DelegatingEditor extends Disposable {
     this._targetEditor.setSelections(ranges, source);
   }
   revealLines(startLineNumber, endLineNumber, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealLines(
-      startLineNumber,
-      endLineNumber,
-      scrollType
-    );
+    this._targetEditor.revealLines(startLineNumber, endLineNumber, scrollType);
   }
   revealLinesInCenter(startLineNumber, endLineNumber, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealLinesInCenter(
-      startLineNumber,
-      endLineNumber,
-      scrollType
-    );
+    this._targetEditor.revealLinesInCenter(startLineNumber, endLineNumber, scrollType);
   }
   revealLinesInCenterIfOutsideViewport(startLineNumber, endLineNumber, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealLinesInCenterIfOutsideViewport(
-      startLineNumber,
-      endLineNumber,
-      scrollType
-    );
+    this._targetEditor.revealLinesInCenterIfOutsideViewport(startLineNumber, endLineNumber, scrollType);
   }
   revealLinesNearTop(startLineNumber, endLineNumber, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealLinesNearTop(
-      startLineNumber,
-      endLineNumber,
-      scrollType
-    );
+    this._targetEditor.revealLinesNearTop(startLineNumber, endLineNumber, scrollType);
   }
   revealRange(range, scrollType = ScrollType.Smooth, revealVerticalInCenter = false, revealHorizontal = true) {
-    this._targetEditor.revealRange(
-      range,
-      scrollType,
-      revealVerticalInCenter,
-      revealHorizontal
-    );
+    this._targetEditor.revealRange(range, scrollType, revealVerticalInCenter, revealHorizontal);
   }
   revealRangeInCenter(range, scrollType = ScrollType.Smooth) {
     this._targetEditor.revealRangeInCenter(range, scrollType);
   }
   revealRangeInCenterIfOutsideViewport(range, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealRangeInCenterIfOutsideViewport(
-      range,
-      scrollType
-    );
+    this._targetEditor.revealRangeInCenterIfOutsideViewport(range, scrollType);
   }
   revealRangeNearTop(range, scrollType = ScrollType.Smooth) {
     this._targetEditor.revealRangeNearTop(range, scrollType);
   }
   revealRangeNearTopIfOutsideViewport(range, scrollType = ScrollType.Smooth) {
-    this._targetEditor.revealRangeNearTopIfOutsideViewport(
-      range,
-      scrollType
-    );
+    this._targetEditor.revealRangeNearTopIfOutsideViewport(range, scrollType);
   }
   revealRangeAtTop(range, scrollType = ScrollType.Smooth) {
     this._targetEditor.revealRangeAtTop(range, scrollType);

@@ -11,152 +11,60 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/editorgroupview.css";
-import {
-  Dimension,
-  EventHelper,
-  EventType,
-  addDisposableListener,
-  findParentWithClass,
-  getActiveElement,
-  getWindow,
-  isActiveElement,
-  isAncestor,
-  isMouseEvent,
-  trackFocus
-} from "../../../../base/browser/dom.js";
-import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import {
-  EventType as TouchEventType
-} from "../../../../base/browser/touch.js";
-import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
-import { coalesce } from "../../../../base/common/arrays.js";
-import {
-  DeferredPromise,
-  Promises,
-  RunOnceWorker
-} from "../../../../base/common/async.js";
+import { EditorGroupModel, IEditorOpenOptions, IGroupModelChangeEvent, ISerializedEditorGroupModel, isGroupEditorCloseEvent, isGroupEditorOpenEvent, isSerializedEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
+import { GroupIdentifier, CloseDirection, IEditorCloseEvent, IEditorPane, SaveReason, IEditorPartOptionsChangeEvent, EditorsOrder, IVisibleEditorPane, EditorResourceAccessor, EditorInputCapabilities, IUntypedEditorInput, DEFAULT_EDITOR_ASSOCIATION, SideBySideEditor, EditorCloseContext, IEditorWillMoveEvent, IEditorWillOpenEvent, IMatchEditorOptions, GroupModelChangeKind, IActiveEditorChangeEvent, IFindEditorOptions, IToolbarActions, TEXT_DIFF_EDITOR_ID } from "../../../common/editor.js";
+import { ActiveEditorGroupLockedContext, ActiveEditorDirtyContext, EditorGroupEditorsCountContext, ActiveEditorStickyContext, ActiveEditorPinnedContext, ActiveEditorLastInGroupContext, ActiveEditorFirstInGroupContext, ResourceContextKey, applyAvailableEditorIds, ActiveEditorAvailableEditorIdsContext, ActiveEditorCanSplitInGroupContext, SideBySideEditorActiveContext, TextCompareEditorVisibleContext, TextCompareEditorActiveContext, ActiveEditorContext, ActiveEditorReadonlyContext, ActiveEditorCanRevertContext, ActiveEditorCanToggleReadonlyContext, ActiveCompareEditorCanSwapContext, MultipleEditorsSelectedInGroupContext, TwoEditorsSelectedInGroupContext, SelectedEditorsInGroupFileOrUntitledResourceContextKey } from "../../../common/contextkeys.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
 import { Emitter, Relay } from "../../../../base/common/event.js";
-import { hash } from "../../../../base/common/hash.js";
-import {
-  MutableDisposable,
-  toDisposable
-} from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import {
-  isLinux,
-  isMacintosh,
-  isNative,
-  isWindows
-} from "../../../../base/common/platform.js";
-import { extname, isEqual } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { getMimeTypes } from "../../../../editor/common/services/languagesAssociations.js";
-import { localize } from "../../../../nls.js";
-import { createAndFillInActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import {
-  IMenuService,
-  MenuId
-} from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import {
-  ConfirmResult,
-  IDialogService,
-  IFileDialogService
-} from "../../../../platform/dialogs/common/dialogs.js";
-import {
-  EditorActivation
-} from "../../../../platform/editor/common/editor.js";
-import {
-  FileSystemProviderCapabilities,
-  IFileService
-} from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Dimension, trackFocus, addDisposableListener, EventType, EventHelper, findParentWithClass, isAncestor, IDomNodePagePosition, isMouseEvent, isActiveElement, getWindow, getActiveElement } from "../../../../base/browser/dom.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { editorBackground, contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { EDITOR_GROUP_HEADER_TABS_BACKGROUND, EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND, EDITOR_GROUP_EMPTY_BACKGROUND, EDITOR_GROUP_HEADER_BORDER } from "../../../common/theme.js";
+import { ICloseEditorsFilter, GroupsOrder, ICloseEditorOptions, ICloseAllEditorsOptions, IEditorReplacement, IActiveEditorActions } from "../../../services/editor/common/editorGroupsService.js";
+import { EditorPanes } from "./editorPanes.js";
 import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { EditorProgressIndicator } from "../../../services/progress/browser/progressIndicator.js";
+import { localize } from "../../../../nls.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { DeferredPromise, Promises, RunOnceWorker } from "../../../../base/common/async.js";
+import { EventType as TouchEventType, GestureEvent } from "../../../../base/browser/touch.js";
+import { IEditorGroupsView, IEditorGroupView, fillActiveEditorViewState, EditorServiceImpl, IEditorGroupTitleHeight, IInternalEditorOpenOptions, IInternalMoveCopyOptions, IInternalEditorCloseOptions, IInternalEditorTitleControlOptions, IEditorPartsView, IEditorGroupViewOptions } from "./editor.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IAction, SubmenuAction } from "../../../../base/common/actions.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { createAndFillInActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { hash } from "../../../../base/common/hash.js";
+import { getMimeTypes } from "../../../../editor/common/services/languagesAssociations.js";
+import { extname, isEqual } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { EditorActivation, IEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { IFileDialogService, ConfirmResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFilesConfigurationService, AutoSaveMode } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { isLinux, isMacintosh, isNative, isWindows } from "../../../../base/common/platform.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { TelemetryTrustedValue } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import {
-  contrastBorder,
-  editorBackground
-} from "../../../../platform/theme/common/colorRegistry.js";
-import {
-  IThemeService,
-  Themable
-} from "../../../../platform/theme/common/themeService.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import {
-  ActiveCompareEditorCanSwapContext,
-  ActiveEditorAvailableEditorIdsContext,
-  ActiveEditorCanRevertContext,
-  ActiveEditorCanSplitInGroupContext,
-  ActiveEditorCanToggleReadonlyContext,
-  ActiveEditorContext,
-  ActiveEditorDirtyContext,
-  ActiveEditorFirstInGroupContext,
-  ActiveEditorGroupLockedContext,
-  ActiveEditorLastInGroupContext,
-  ActiveEditorPinnedContext,
-  ActiveEditorReadonlyContext,
-  ActiveEditorStickyContext,
-  EditorGroupEditorsCountContext,
-  MultipleEditorsSelectedInGroupContext,
-  ResourceContextKey,
-  SelectedEditorsInGroupFileOrUntitledResourceContextKey,
-  SideBySideEditorActiveContext,
-  TextCompareEditorActiveContext,
-  TextCompareEditorVisibleContext,
-  TwoEditorsSelectedInGroupContext,
-  applyAvailableEditorIds
-} from "../../../common/contextkeys.js";
-import {
-  CloseDirection,
-  DEFAULT_EDITOR_ASSOCIATION,
-  EditorCloseContext,
-  EditorInputCapabilities,
-  EditorResourceAccessor,
-  EditorsOrder,
-  GroupModelChangeKind,
-  SaveReason,
-  SideBySideEditor,
-  TEXT_DIFF_EDITOR_ID
-} from "../../../common/editor.js";
-import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import {
-  EditorGroupModel,
-  isGroupEditorCloseEvent,
-  isGroupEditorOpenEvent,
-  isSerializedEditorGroupModel
-} from "../../../common/editor/editorGroupModel.js";
-import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
-import {
-  EDITOR_GROUP_EMPTY_BACKGROUND,
-  EDITOR_GROUP_HEADER_BORDER,
-  EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND,
-  EDITOR_GROUP_HEADER_TABS_BACKGROUND
-} from "../../../common/theme.js";
-import {
-  GroupsOrder
-} from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import {
-  AutoSaveMode,
-  IFilesConfigurationService
-} from "../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { IHostService } from "../../../services/host/browser/host.js";
-import { EditorProgressIndicator } from "../../../services/progress/browser/progressIndicator.js";
-import {
-  fillActiveEditorViewState
-} from "./editor.js";
+import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
 import { EditorGroupWatermark } from "./editorGroupWatermark.js";
-import { EditorPane } from "./editorPane.js";
-import { EditorPanes } from "./editorPanes.js";
 import { EditorTitleControl } from "./editorTitleControl.js";
+import { EditorPane } from "./editorPane.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
+import { FileSystemProviderCapabilities, IFileService } from "../../../../platform/files/common/files.js";
 let EditorGroupView = class extends Themable {
   constructor(from, editorPartsView, groupsView, groupsLabel, _index, options, instantiationService, contextKeyService, themeService, telemetryService, keybindingService, menuService, contextMenuService, fileDialogService, editorService, filesConfigurationService, uriIdentityService, logService, editorResolverService, hostService, dialogService, fileService) {
     super(themeService);
@@ -226,37 +134,13 @@ let EditorGroupView = class extends Themable {
   }
   //#region factory
   static createNew(editorPartsView, groupsView, groupsLabel, groupIndex, instantiationService, options) {
-    return instantiationService.createInstance(
-      EditorGroupView,
-      null,
-      editorPartsView,
-      groupsView,
-      groupsLabel,
-      groupIndex,
-      options
-    );
+    return instantiationService.createInstance(EditorGroupView, null, editorPartsView, groupsView, groupsLabel, groupIndex, options);
   }
   static createFromSerialized(serialized, editorPartsView, groupsView, groupsLabel, groupIndex, instantiationService, options) {
-    return instantiationService.createInstance(
-      EditorGroupView,
-      serialized,
-      editorPartsView,
-      groupsView,
-      groupsLabel,
-      groupIndex,
-      options
-    );
+    return instantiationService.createInstance(EditorGroupView, serialized, editorPartsView, groupsView, groupsLabel, groupIndex, options);
   }
   static createCopy(copyFrom, editorPartsView, groupsView, groupsLabel, groupIndex, instantiationService, options) {
-    return instantiationService.createInstance(
-      EditorGroupView,
-      copyFrom,
-      editorPartsView,
-      groupsView,
-      groupsLabel,
-      groupIndex,
-      options
-    );
+    return instantiationService.createInstance(EditorGroupView, copyFrom, editorPartsView, groupsView, groupsLabel, groupIndex, options);
   }
   //#endregion
   /**
@@ -268,33 +152,19 @@ let EditorGroupView = class extends Themable {
   onDidFocus = this._onDidFocus.event;
   _onWillDispose = this._register(new Emitter());
   onWillDispose = this._onWillDispose.event;
-  _onDidModelChange = this._register(
-    new Emitter()
-  );
+  _onDidModelChange = this._register(new Emitter());
   onDidModelChange = this._onDidModelChange.event;
-  _onDidActiveEditorChange = this._register(
-    new Emitter()
-  );
+  _onDidActiveEditorChange = this._register(new Emitter());
   onDidActiveEditorChange = this._onDidActiveEditorChange.event;
-  _onDidOpenEditorFail = this._register(
-    new Emitter()
-  );
+  _onDidOpenEditorFail = this._register(new Emitter());
   onDidOpenEditorFail = this._onDidOpenEditorFail.event;
-  _onWillCloseEditor = this._register(
-    new Emitter()
-  );
+  _onWillCloseEditor = this._register(new Emitter());
   onWillCloseEditor = this._onWillCloseEditor.event;
-  _onDidCloseEditor = this._register(
-    new Emitter()
-  );
+  _onDidCloseEditor = this._register(new Emitter());
   onDidCloseEditor = this._onDidCloseEditor.event;
-  _onWillMoveEditor = this._register(
-    new Emitter()
-  );
+  _onWillMoveEditor = this._register(new Emitter());
   onWillMoveEditor = this._onWillMoveEditor.event;
-  _onWillOpenEditor = this._register(
-    new Emitter()
-  );
+  _onWillOpenEditor = this._register(new Emitter());
   onWillOpenEditor = this._onWillOpenEditor.event;
   //#endregion
   model;
@@ -307,88 +177,30 @@ let EditorGroupView = class extends Themable {
   progressBar;
   editorContainer;
   editorPane;
-  disposedEditorsWorker = this._register(
-    new RunOnceWorker(
-      (editors) => this.handleDisposedEditors(editors),
-      0
-    )
-  );
+  disposedEditorsWorker = this._register(new RunOnceWorker((editors) => this.handleDisposedEditors(editors), 0));
   mapEditorToPendingConfirmation = /* @__PURE__ */ new Map();
-  containerToolBarMenuDisposable = this._register(
-    new MutableDisposable()
-  );
+  containerToolBarMenuDisposable = this._register(new MutableDisposable());
   whenRestoredPromise = new DeferredPromise();
   whenRestored = this.whenRestoredPromise.p;
   handleGroupContextKeys() {
-    const groupActiveEditorDirtyContext = this.editorPartsView.bind(
-      ActiveEditorDirtyContext,
-      this
-    );
-    const groupActiveEditorPinnedContext = this.editorPartsView.bind(
-      ActiveEditorPinnedContext,
-      this
-    );
-    const groupActiveEditorFirstContext = this.editorPartsView.bind(
-      ActiveEditorFirstInGroupContext,
-      this
-    );
-    const groupActiveEditorLastContext = this.editorPartsView.bind(
-      ActiveEditorLastInGroupContext,
-      this
-    );
-    const groupActiveEditorStickyContext = this.editorPartsView.bind(
-      ActiveEditorStickyContext,
-      this
-    );
-    const groupEditorsCountContext = this.editorPartsView.bind(
-      EditorGroupEditorsCountContext,
-      this
-    );
-    const groupLockedContext = this.editorPartsView.bind(
-      ActiveEditorGroupLockedContext,
-      this
-    );
-    const multipleEditorsSelectedContext = MultipleEditorsSelectedInGroupContext.bindTo(
-      this.scopedContextKeyService
-    );
-    const twoEditorsSelectedContext = TwoEditorsSelectedInGroupContext.bindTo(
-      this.scopedContextKeyService
-    );
-    const selectedEditorsHaveFileOrUntitledResourceContext = SelectedEditorsInGroupFileOrUntitledResourceContextKey.bindTo(
-      this.scopedContextKeyService
-    );
-    const groupActiveEditorContext = this.editorPartsView.bind(
-      ActiveEditorContext,
-      this
-    );
-    const groupActiveEditorIsReadonly = this.editorPartsView.bind(
-      ActiveEditorReadonlyContext,
-      this
-    );
-    const groupActiveEditorCanRevert = this.editorPartsView.bind(
-      ActiveEditorCanRevertContext,
-      this
-    );
-    const groupActiveEditorCanToggleReadonly = this.editorPartsView.bind(
-      ActiveEditorCanToggleReadonlyContext,
-      this
-    );
-    const groupActiveCompareEditorCanSwap = this.editorPartsView.bind(
-      ActiveCompareEditorCanSwapContext,
-      this
-    );
-    const groupTextCompareEditorVisibleContext = this.editorPartsView.bind(
-      TextCompareEditorVisibleContext,
-      this
-    );
-    const groupTextCompareEditorActiveContext = this.editorPartsView.bind(
-      TextCompareEditorActiveContext,
-      this
-    );
-    const groupActiveEditorAvailableEditorIds = this.editorPartsView.bind(
-      ActiveEditorAvailableEditorIdsContext,
-      this
-    );
+    const groupActiveEditorDirtyContext = this.editorPartsView.bind(ActiveEditorDirtyContext, this);
+    const groupActiveEditorPinnedContext = this.editorPartsView.bind(ActiveEditorPinnedContext, this);
+    const groupActiveEditorFirstContext = this.editorPartsView.bind(ActiveEditorFirstInGroupContext, this);
+    const groupActiveEditorLastContext = this.editorPartsView.bind(ActiveEditorLastInGroupContext, this);
+    const groupActiveEditorStickyContext = this.editorPartsView.bind(ActiveEditorStickyContext, this);
+    const groupEditorsCountContext = this.editorPartsView.bind(EditorGroupEditorsCountContext, this);
+    const groupLockedContext = this.editorPartsView.bind(ActiveEditorGroupLockedContext, this);
+    const multipleEditorsSelectedContext = MultipleEditorsSelectedInGroupContext.bindTo(this.scopedContextKeyService);
+    const twoEditorsSelectedContext = TwoEditorsSelectedInGroupContext.bindTo(this.scopedContextKeyService);
+    const selectedEditorsHaveFileOrUntitledResourceContext = SelectedEditorsInGroupFileOrUntitledResourceContextKey.bindTo(this.scopedContextKeyService);
+    const groupActiveEditorContext = this.editorPartsView.bind(ActiveEditorContext, this);
+    const groupActiveEditorIsReadonly = this.editorPartsView.bind(ActiveEditorReadonlyContext, this);
+    const groupActiveEditorCanRevert = this.editorPartsView.bind(ActiveEditorCanRevertContext, this);
+    const groupActiveEditorCanToggleReadonly = this.editorPartsView.bind(ActiveEditorCanToggleReadonlyContext, this);
+    const groupActiveCompareEditorCanSwap = this.editorPartsView.bind(ActiveCompareEditorCanSwapContext, this);
+    const groupTextCompareEditorVisibleContext = this.editorPartsView.bind(TextCompareEditorVisibleContext, this);
+    const groupTextCompareEditorActiveContext = this.editorPartsView.bind(TextCompareEditorActiveContext, this);
+    const groupActiveEditorAvailableEditorIds = this.editorPartsView.bind(ActiveEditorAvailableEditorIdsContext, this);
     const groupActiveEditorCanSplitInGroupContext = this.editorPartsView.bind(ActiveEditorCanSplitInGroupContext, this);
     const groupActiveEditorIsSideBySideEditorContext = this.editorPartsView.bind(SideBySideEditorActiveContext, this);
     const activeEditorListener = this._register(new MutableDisposable());
@@ -397,35 +209,15 @@ let EditorGroupView = class extends Themable {
       this.scopedContextKeyService.bufferChangeEvents(() => {
         const activeEditor = this.activeEditor;
         const activeEditorPane = this.activeEditorPane;
-        this.resourceContext.set(
-          EditorResourceAccessor.getOriginalUri(activeEditor, {
-            supportSideBySide: SideBySideEditor.PRIMARY
-          })
-        );
-        applyAvailableEditorIds(
-          groupActiveEditorAvailableEditorIds,
-          activeEditor,
-          this.editorResolverService
-        );
+        this.resourceContext.set(EditorResourceAccessor.getOriginalUri(activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY }));
+        applyAvailableEditorIds(groupActiveEditorAvailableEditorIds, activeEditor, this.editorResolverService);
         if (activeEditor) {
-          groupActiveEditorCanSplitInGroupContext.set(
-            activeEditor.hasCapability(
-              EditorInputCapabilities.CanSplitInGroup
-            )
-          );
-          groupActiveEditorIsSideBySideEditorContext.set(
-            activeEditor.typeId === SideBySideEditorInput.ID
-          );
-          groupActiveEditorDirtyContext.set(
-            activeEditor.isDirty() && !activeEditor.isSaving()
-          );
-          activeEditorListener.value = activeEditor.onDidChangeDirty(
-            () => {
-              groupActiveEditorDirtyContext.set(
-                activeEditor.isDirty() && !activeEditor.isSaving()
-              );
-            }
-          );
+          groupActiveEditorCanSplitInGroupContext.set(activeEditor.hasCapability(EditorInputCapabilities.CanSplitInGroup));
+          groupActiveEditorIsSideBySideEditorContext.set(activeEditor.typeId === SideBySideEditorInput.ID);
+          groupActiveEditorDirtyContext.set(activeEditor.isDirty() && !activeEditor.isSaving());
+          activeEditorListener.value = activeEditor.onDidChangeDirty(() => {
+            groupActiveEditorDirtyContext.set(activeEditor.isDirty() && !activeEditor.isSaving());
+          });
         } else {
           groupActiveEditorCanSplitInGroupContext.set(false);
           groupActiveEditorIsSideBySideEditorContext.set(false);
@@ -433,44 +225,15 @@ let EditorGroupView = class extends Themable {
         }
         if (activeEditorPane) {
           groupActiveEditorContext.set(activeEditorPane.getId());
-          groupActiveEditorCanRevert.set(
-            !activeEditorPane.input.hasCapability(
-              EditorInputCapabilities.Untitled
-            )
-          );
-          groupActiveEditorIsReadonly.set(
-            !!activeEditorPane.input.isReadonly()
-          );
-          const primaryEditorResource = EditorResourceAccessor.getOriginalUri(
-            activeEditorPane.input,
-            { supportSideBySide: SideBySideEditor.PRIMARY }
-          );
-          const secondaryEditorResource = EditorResourceAccessor.getOriginalUri(
-            activeEditorPane.input,
-            { supportSideBySide: SideBySideEditor.SECONDARY }
-          );
-          groupActiveCompareEditorCanSwap.set(
-            activeEditorPane.input instanceof DiffEditorInput && !activeEditorPane.input.original.isReadonly() && !!primaryEditorResource && (this.fileService.hasProvider(
-              primaryEditorResource
-            ) || primaryEditorResource.scheme === Schemas.untitled) && !!secondaryEditorResource && (this.fileService.hasProvider(
-              secondaryEditorResource
-            ) || secondaryEditorResource.scheme === Schemas.untitled)
-          );
-          groupActiveEditorCanToggleReadonly.set(
-            !!primaryEditorResource && this.fileService.hasProvider(
-              primaryEditorResource
-            ) && !this.fileService.hasCapability(
-              primaryEditorResource,
-              FileSystemProviderCapabilities.Readonly
-            )
-          );
+          groupActiveEditorCanRevert.set(!activeEditorPane.input.hasCapability(EditorInputCapabilities.Untitled));
+          groupActiveEditorIsReadonly.set(!!activeEditorPane.input.isReadonly());
+          const primaryEditorResource = EditorResourceAccessor.getOriginalUri(activeEditorPane.input, { supportSideBySide: SideBySideEditor.PRIMARY });
+          const secondaryEditorResource = EditorResourceAccessor.getOriginalUri(activeEditorPane.input, { supportSideBySide: SideBySideEditor.SECONDARY });
+          groupActiveCompareEditorCanSwap.set(activeEditorPane.input instanceof DiffEditorInput && !activeEditorPane.input.original.isReadonly() && !!primaryEditorResource && (this.fileService.hasProvider(primaryEditorResource) || primaryEditorResource.scheme === Schemas.untitled) && !!secondaryEditorResource && (this.fileService.hasProvider(secondaryEditorResource) || secondaryEditorResource.scheme === Schemas.untitled));
+          groupActiveEditorCanToggleReadonly.set(!!primaryEditorResource && this.fileService.hasProvider(primaryEditorResource) && !this.fileService.hasCapability(primaryEditorResource, FileSystemProviderCapabilities.Readonly));
           const activePaneDiffEditor = activeEditorPane?.getId() === TEXT_DIFF_EDITOR_ID;
-          groupTextCompareEditorActiveContext.set(
-            activePaneDiffEditor
-          );
-          groupTextCompareEditorVisibleContext.set(
-            activePaneDiffEditor
-          );
+          groupTextCompareEditorActiveContext.set(activePaneDiffEditor);
+          groupTextCompareEditorVisibleContext.set(activePaneDiffEditor);
         } else {
           groupActiveEditorContext.reset();
           groupActiveEditorCanRevert.reset();
@@ -486,124 +249,75 @@ let EditorGroupView = class extends Themable {
           groupLockedContext.set(this.isLocked);
           break;
         case GroupModelChangeKind.EDITOR_ACTIVE:
-          groupActiveEditorFirstContext.set(
-            this.model.isFirst(this.model.activeEditor)
-          );
-          groupActiveEditorLastContext.set(
-            this.model.isLast(this.model.activeEditor)
-          );
-          groupActiveEditorPinnedContext.set(
-            this.model.activeEditor ? this.model.isPinned(this.model.activeEditor) : false
-          );
-          groupActiveEditorStickyContext.set(
-            this.model.activeEditor ? this.model.isSticky(this.model.activeEditor) : false
-          );
+          groupActiveEditorFirstContext.set(this.model.isFirst(this.model.activeEditor));
+          groupActiveEditorLastContext.set(this.model.isLast(this.model.activeEditor));
+          groupActiveEditorPinnedContext.set(this.model.activeEditor ? this.model.isPinned(this.model.activeEditor) : false);
+          groupActiveEditorStickyContext.set(this.model.activeEditor ? this.model.isSticky(this.model.activeEditor) : false);
           break;
         case GroupModelChangeKind.EDITOR_CLOSE:
-          groupActiveEditorPinnedContext.set(
-            this.model.activeEditor ? this.model.isPinned(this.model.activeEditor) : false
-          );
-          groupActiveEditorStickyContext.set(
-            this.model.activeEditor ? this.model.isSticky(this.model.activeEditor) : false
-          );
+          groupActiveEditorPinnedContext.set(this.model.activeEditor ? this.model.isPinned(this.model.activeEditor) : false);
+          groupActiveEditorStickyContext.set(this.model.activeEditor ? this.model.isSticky(this.model.activeEditor) : false);
         case GroupModelChangeKind.EDITOR_OPEN:
         case GroupModelChangeKind.EDITOR_MOVE:
-          groupActiveEditorFirstContext.set(
-            this.model.isFirst(this.model.activeEditor)
-          );
-          groupActiveEditorLastContext.set(
-            this.model.isLast(this.model.activeEditor)
-          );
+          groupActiveEditorFirstContext.set(this.model.isFirst(this.model.activeEditor));
+          groupActiveEditorLastContext.set(this.model.isLast(this.model.activeEditor));
           break;
         case GroupModelChangeKind.EDITOR_PIN:
           if (e.editor && e.editor === this.model.activeEditor) {
-            groupActiveEditorPinnedContext.set(
-              this.model.isPinned(this.model.activeEditor)
-            );
+            groupActiveEditorPinnedContext.set(this.model.isPinned(this.model.activeEditor));
           }
           break;
         case GroupModelChangeKind.EDITOR_STICKY:
           if (e.editor && e.editor === this.model.activeEditor) {
-            groupActiveEditorStickyContext.set(
-              this.model.isSticky(this.model.activeEditor)
-            );
+            groupActiveEditorStickyContext.set(this.model.isSticky(this.model.activeEditor));
           }
           break;
         case GroupModelChangeKind.EDITORS_SELECTION:
-          multipleEditorsSelectedContext.set(
-            this.model.selectedEditors.length > 1
-          );
-          twoEditorsSelectedContext.set(
-            this.model.selectedEditors.length === 2
-          );
-          selectedEditorsHaveFileOrUntitledResourceContext.set(
-            this.model.selectedEditors.every(
-              (e2) => e2.resource && (this.fileService.hasProvider(e2.resource) || e2.resource.scheme === Schemas.untitled)
-            )
-          );
+          multipleEditorsSelectedContext.set(this.model.selectedEditors.length > 1);
+          twoEditorsSelectedContext.set(this.model.selectedEditors.length === 2);
+          selectedEditorsHaveFileOrUntitledResourceContext.set(this.model.selectedEditors.every((e2) => e2.resource && (this.fileService.hasProvider(e2.resource) || e2.resource.scheme === Schemas.untitled)));
           break;
       }
       groupEditorsCountContext.set(this.count);
     }, "updateGroupContextKeys");
     this._register(this.onDidModelChange((e) => updateGroupContextKeys(e)));
-    this._register(
-      this.onDidActiveEditorChange(() => observeActiveEditor())
-    );
+    this._register(this.onDidActiveEditorChange(() => observeActiveEditor()));
     observeActiveEditor();
     updateGroupContextKeys({ kind: GroupModelChangeKind.EDITOR_ACTIVE });
     updateGroupContextKeys({ kind: GroupModelChangeKind.GROUP_LOCKED });
   }
   registerContainerListeners() {
-    this._register(
-      addDisposableListener(this.element, EventType.DBLCLICK, (e) => {
-        if (this.isEmpty) {
-          EventHelper.stop(e);
-          this.editorService.openEditor(
-            {
-              resource: void 0,
-              options: {
-                pinned: true,
-                override: DEFAULT_EDITOR_ASSOCIATION.id
-              }
-            },
-            this.id
-          );
-        }
-      })
-    );
-    this._register(
-      addDisposableListener(this.element, EventType.AUXCLICK, (e) => {
-        if (this.isEmpty && e.button === 1) {
-          EventHelper.stop(e, true);
-          this.groupsView.removeGroup(this);
-        }
-      })
-    );
+    this._register(addDisposableListener(this.element, EventType.DBLCLICK, (e) => {
+      if (this.isEmpty) {
+        EventHelper.stop(e);
+        this.editorService.openEditor({
+          resource: void 0,
+          options: {
+            pinned: true,
+            override: DEFAULT_EDITOR_ASSOCIATION.id
+          }
+        }, this.id);
+      }
+    }));
+    this._register(addDisposableListener(this.element, EventType.AUXCLICK, (e) => {
+      if (this.isEmpty && e.button === 1) {
+        EventHelper.stop(e, true);
+        this.groupsView.removeGroup(this);
+      }
+    }));
   }
   createContainerToolbar() {
     const toolbarContainer = document.createElement("div");
     toolbarContainer.classList.add("editor-group-container-toolbar");
     this.element.appendChild(toolbarContainer);
-    const containerToolbar = this._register(
-      new ActionBar(toolbarContainer, {
-        ariaLabel: localize(
-          "ariaLabelGroupActions",
-          "Empty editor group actions"
-        ),
-        highlightToggledItems: true
-      })
-    );
-    const containerToolbarMenu = this._register(
-      this.menuService.createMenu(
-        MenuId.EmptyEditorGroup,
-        this.scopedContextKeyService
-      )
-    );
+    const containerToolbar = this._register(new ActionBar(toolbarContainer, {
+      ariaLabel: localize("ariaLabelGroupActions", "Empty editor group actions"),
+      highlightToggledItems: true
+    }));
+    const containerToolbarMenu = this._register(this.menuService.createMenu(MenuId.EmptyEditorGroup, this.scopedContextKeyService));
     const updateContainerToolbar = /* @__PURE__ */ __name(() => {
       const actions = { primary: [], secondary: [] };
-      this.containerToolBarMenuDisposable.value = toDisposable(
-        () => containerToolbar.clear()
-      );
+      this.containerToolBarMenuDisposable.value = toDisposable(() => containerToolbar.clear());
       createAndFillInActionBarActions(
         containerToolbarMenu,
         { arg: { groupId: this.id }, shouldForwardArgs: true },
@@ -611,36 +325,16 @@ let EditorGroupView = class extends Themable {
         "navigation"
       );
       for (const action of [...actions.primary, ...actions.secondary]) {
-        const keybinding = this.keybindingService.lookupKeybinding(
-          action.id
-        );
-        containerToolbar.push(action, {
-          icon: true,
-          label: false,
-          keybinding: keybinding?.getLabel()
-        });
+        const keybinding = this.keybindingService.lookupKeybinding(action.id);
+        containerToolbar.push(action, { icon: true, label: false, keybinding: keybinding?.getLabel() });
       }
     }, "updateContainerToolbar");
     updateContainerToolbar();
-    this._register(
-      containerToolbarMenu.onDidChange(updateContainerToolbar)
-    );
+    this._register(containerToolbarMenu.onDidChange(updateContainerToolbar));
   }
   createContainerContextMenu() {
-    this._register(
-      addDisposableListener(
-        this.element,
-        EventType.CONTEXT_MENU,
-        (e) => this.onShowContainerContextMenu(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.element,
-        TouchEventType.Contextmenu,
-        () => this.onShowContainerContextMenu()
-      )
-    );
+    this._register(addDisposableListener(this.element, EventType.CONTEXT_MENU, (e) => this.onShowContainerContextMenu(e)));
+    this._register(addDisposableListener(this.element, TouchEventType.Contextmenu, () => this.onShowContainerContextMenu()));
   }
   onShowContainerContextMenu(e) {
     if (!this.isEmpty) {
@@ -661,13 +355,11 @@ let EditorGroupView = class extends Themable {
   }
   doTrackFocus() {
     const containerFocusTracker = this._register(trackFocus(this.element));
-    this._register(
-      containerFocusTracker.onDidFocus(() => {
-        if (this.isEmpty) {
-          this._onDidFocus.fire();
-        }
-      })
-    );
+    this._register(containerFocusTracker.onDidFocus(() => {
+      if (this.isEmpty) {
+        this._onDidFocus.fire();
+      }
+    }));
     const handleTitleClickOrTouch = /* @__PURE__ */ __name((e) => {
       let target;
       if (isMouseEvent(e)) {
@@ -678,49 +370,24 @@ let EditorGroupView = class extends Themable {
       } else {
         target = e.initialTarget;
       }
-      if (findParentWithClass(
-        target,
-        "monaco-action-bar",
-        this.titleContainer
-      ) || findParentWithClass(
-        target,
-        "monaco-breadcrumb-item",
-        this.titleContainer
-      )) {
+      if (findParentWithClass(target, "monaco-action-bar", this.titleContainer) || findParentWithClass(target, "monaco-breadcrumb-item", this.titleContainer)) {
         return;
       }
       setTimeout(() => {
         this.focus();
       });
     }, "handleTitleClickOrTouch");
-    this._register(
-      addDisposableListener(
-        this.titleContainer,
-        EventType.MOUSE_DOWN,
-        (e) => handleTitleClickOrTouch(e)
-      )
-    );
-    this._register(
-      addDisposableListener(
-        this.titleContainer,
-        TouchEventType.Tap,
-        (e) => handleTitleClickOrTouch(e)
-      )
-    );
-    this._register(
-      this.editorPane.onDidFocus(() => {
-        this._onDidFocus.fire();
-      })
-    );
+    this._register(addDisposableListener(this.titleContainer, EventType.MOUSE_DOWN, (e) => handleTitleClickOrTouch(e)));
+    this._register(addDisposableListener(this.titleContainer, TouchEventType.Tap, (e) => handleTitleClickOrTouch(e)));
+    this._register(this.editorPane.onDidFocus(() => {
+      this._onDidFocus.fire();
+    }));
   }
   updateContainer() {
     if (this.isEmpty) {
       this.element.classList.add("empty");
       this.element.tabIndex = 0;
-      this.element.setAttribute(
-        "aria-label",
-        localize("emptyEditorGroup", "{0} (empty)", this.ariaLabel)
-      );
+      this.element.setAttribute("aria-label", localize("emptyEditorGroup", "{0} (empty)", this.ariaLabel));
     } else {
       this.element.classList.remove("empty");
       this.element.removeAttribute("tabIndex");
@@ -729,14 +396,8 @@ let EditorGroupView = class extends Themable {
     this.updateStyles();
   }
   updateTitleContainer() {
-    this.titleContainer.classList.toggle(
-      "tabs",
-      this.groupsView.partOptions.showTabs === "multiple"
-    );
-    this.titleContainer.classList.toggle(
-      "show-file-icons",
-      this.groupsView.partOptions.showIcons
-    );
+    this.titleContainer.classList.toggle("tabs", this.groupsView.partOptions.showTabs === "multiple");
+    this.titleContainer.classList.toggle("show-file-icons", this.groupsView.partOptions.showIcons);
   }
   restoreEditors(from, groupViewOptions) {
     if (this.count === 0) {
@@ -762,16 +423,11 @@ let EditorGroupView = class extends Themable {
       // update the title later for all editors at once
     };
     const activeElement = getActiveElement();
-    const result = this.doShowEditor(
-      activeEditor,
-      {
-        active: true,
-        isNew: false
-        /* restored */
-      },
-      options,
-      internalOptions
-    ).then(() => {
+    const result = this.doShowEditor(activeEditor, {
+      active: true,
+      isNew: false
+      /* restored */
+    }, options, internalOptions).then(() => {
       if (this.groupsView.activeGroup === this && activeElement && isActiveElement(activeElement) && !groupViewOptions?.preserveFocus) {
         this.focus();
       }
@@ -781,19 +437,9 @@ let EditorGroupView = class extends Themable {
   }
   //#region event handling
   registerListeners() {
-    this._register(
-      this.model.onDidModelChange((e) => this.onDidGroupModelChange(e))
-    );
-    this._register(
-      this.groupsView.onDidChangeEditorPartOptions(
-        (e) => this.onDidChangeEditorPartOptions(e)
-      )
-    );
-    this._register(
-      this.groupsView.onDidVisibilityChange(
-        (e) => this.onDidVisibilityChange(e)
-      )
-    );
+    this._register(this.model.onDidModelChange((e) => this.onDidGroupModelChange(e)));
+    this._register(this.groupsView.onDidChangeEditorPartOptions((e) => this.onDidChangeEditorPartOptions(e)));
+    this._register(this.groupsView.onDidVisibilityChange((e) => this.onDidVisibilityChange(e)));
     this._register(this.onDidFocus(() => this.onDidGainFocus()));
   }
   onDidGroupModelChange(e) {
@@ -817,12 +463,7 @@ let EditorGroupView = class extends Themable {
         break;
       case GroupModelChangeKind.EDITOR_CLOSE:
         if (isGroupEditorCloseEvent(e)) {
-          this.handleOnDidCloseEditor(
-            e.editor,
-            e.editorIndex,
-            e.context,
-            e.sticky
-          );
+          this.handleOnDidCloseEditor(e.editor, e.editorIndex, e.context, e.sticky);
         }
         break;
       case GroupModelChangeKind.EDITOR_WILL_DISPOSE:
@@ -840,20 +481,11 @@ let EditorGroupView = class extends Themable {
     }
   }
   onDidOpenEditor(editor, editorIndex) {
-    this.telemetryService.publicLog(
-      "editorOpened",
-      this.toEditorTelemetryDescriptor(editor)
-    );
+    this.telemetryService.publicLog("editorOpened", this.toEditorTelemetryDescriptor(editor));
     this.updateContainer();
   }
   handleOnDidCloseEditor(editor, editorIndex, context, sticky) {
-    this._onWillCloseEditor.fire({
-      groupId: this.id,
-      editor,
-      context,
-      index: editorIndex,
-      sticky
-    });
+    this._onWillCloseEditor.fire({ groupId: this.id, editor, context, index: editorIndex, sticky });
     const editorsToClose = [editor];
     if (editor instanceof SideBySideEditorInput) {
       editorsToClose.push(editor.primary, editor.secondary);
@@ -863,18 +495,9 @@ let EditorGroupView = class extends Themable {
         editor2.dispose();
       }
     }
-    this.telemetryService.publicLog(
-      "editorClosed",
-      this.toEditorTelemetryDescriptor(editor)
-    );
+    this.telemetryService.publicLog("editorClosed", this.toEditorTelemetryDescriptor(editor));
     this.updateContainer();
-    this._onDidCloseEditor.fire({
-      groupId: this.id,
-      editor,
-      context,
-      index: editorIndex,
-      sticky
-    });
+    this._onDidCloseEditor.fire({ groupId: this.id, editor, context, index: editorIndex, sticky });
   }
   canDispose(editor) {
     for (const groupView of this.editorPartsView.groups) {
@@ -901,9 +524,7 @@ let EditorGroupView = class extends Themable {
     const queryStringLocation = resourceExt.indexOf("?");
     resourceExt = queryStringLocation !== -1 ? resourceExt.substr(0, queryStringLocation) : resourceExt;
     return {
-      mimeType: new TelemetryTrustedValue(
-        getMimeTypes(resource).join(", ")
-      ),
+      mimeType: new TelemetryTrustedValue(getMimeTypes(resource).join(", ")),
       scheme: resource.scheme,
       ext: resourceExt,
       path: hash(path)
@@ -911,17 +532,13 @@ let EditorGroupView = class extends Themable {
   }
   toEditorTelemetryDescriptor(editor) {
     const descriptor = editor.getTelemetryDescriptor();
-    const resource = EditorResourceAccessor.getOriginalUri(editor, {
-      supportSideBySide: SideBySideEditor.BOTH
-    });
+    const resource = EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH });
     if (URI.isUri(resource)) {
       descriptor["resource"] = this.toResourceTelemetryDescriptor(resource);
       return descriptor;
     } else if (resource) {
       if (resource.primary) {
-        descriptor["resource"] = this.toResourceTelemetryDescriptor(
-          resource.primary
-        );
+        descriptor["resource"] = this.toResourceTelemetryDescriptor(resource.primary);
       }
       if (resource.secondary) {
         descriptor["resourceSecondary"] = this.toResourceTelemetryDescriptor(resource.secondary);
@@ -960,16 +577,11 @@ let EditorGroupView = class extends Themable {
   }
   onDidChangeEditorPartOptions(event) {
     this.updateTitleContainer();
-    this.titleControl.updateOptions(
-      event.oldPartOptions,
-      event.newPartOptions
-    );
+    this.titleControl.updateOptions(event.oldPartOptions, event.newPartOptions);
     if (event.oldPartOptions.showTabs !== event.newPartOptions.showTabs || event.oldPartOptions.tabHeight !== event.newPartOptions.tabHeight || event.oldPartOptions.showTabs === "multiple" && event.oldPartOptions.pinnedTabsOnSeparateRow !== event.newPartOptions.pinnedTabsOnSeparateRow) {
       this.relayout();
       if (this.model.activeEditor) {
-        this.titleControl.openEditors(
-          this.model.getEditors(EditorsOrder.SEQUENTIAL)
-        );
+        this.titleControl.openEditors(this.model.getEditors(EditorsOrder.SEQUENTIAL));
       }
     }
     this.updateStyles();
@@ -1010,23 +622,13 @@ let EditorGroupView = class extends Themable {
   }
   get label() {
     if (this.groupsLabel) {
-      return localize(
-        "groupLabelLong",
-        "{0}: Group {1}",
-        this.groupsLabel,
-        this._index + 1
-      );
+      return localize("groupLabelLong", "{0}: Group {1}", this.groupsLabel, this._index + 1);
     }
     return localize("groupLabel", "Group {0}", this._index + 1);
   }
   get ariaLabel() {
     if (this.groupsLabel) {
-      return localize(
-        "groupAriaLabelLong",
-        "{0}: Editor Group {1}",
-        this.groupsLabel,
-        this._index + 1
-      );
+      return localize("groupAriaLabelLong", "{0}: Editor Group {1}", this.groupsLabel, this._index + 1);
     }
     return localize("groupAriaLabel", "Editor Group {0}", this._index + 1);
   }
@@ -1111,17 +713,10 @@ let EditorGroupView = class extends Themable {
     return this.model.isActive(editor);
   }
   async setSelection(activeSelectedEditor, inactiveSelectedEditors) {
-    if (this.isActive(activeSelectedEditor)) {
-      this.model.setSelection(
-        activeSelectedEditor,
-        inactiveSelectedEditors
-      );
+    if (!this.isActive(activeSelectedEditor)) {
+      await this.openEditor(activeSelectedEditor, { activation: EditorActivation.ACTIVATE }, { inactiveSelection: inactiveSelectedEditors });
     } else {
-      await this.openEditor(
-        activeSelectedEditor,
-        { activation: EditorActivation.ACTIVATE },
-        { inactiveSelection: inactiveSelectedEditors }
-      );
+      this.model.setSelection(activeSelectedEditor, inactiveSelectedEditors);
     }
   }
   contains(candidate, options) {
@@ -1137,18 +732,13 @@ let EditorGroupView = class extends Themable {
         return true;
       }
       if (options?.supportSideBySide === SideBySideEditor.PRIMARY || options?.supportSideBySide === SideBySideEditor.ANY) {
-        const primaryResource = EditorResourceAccessor.getCanonicalUri(
-          editor,
-          { supportSideBySide: SideBySideEditor.PRIMARY }
-        );
+        const primaryResource = EditorResourceAccessor.getCanonicalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY });
         if (primaryResource && isEqual(primaryResource, canonicalResource)) {
           return true;
         }
       }
       if (options?.supportSideBySide === SideBySideEditor.SECONDARY || options?.supportSideBySide === SideBySideEditor.ANY) {
-        const secondaryResource = EditorResourceAccessor.getCanonicalUri(editor, {
-          supportSideBySide: SideBySideEditor.SECONDARY
-        });
+        const secondaryResource = EditorResourceAccessor.getCanonicalUri(editor, { supportSideBySide: SideBySideEditor.SECONDARY });
         if (secondaryResource && isEqual(secondaryResource, canonicalResource)) {
           return true;
         }
@@ -1199,12 +789,7 @@ let EditorGroupView = class extends Themable {
       }
       const newIndexOfEditor = this.getIndexOfEditor(editor);
       if (newIndexOfEditor !== oldIndexOfEditor) {
-        this.titleControl.moveEditor(
-          editor,
-          oldIndexOfEditor,
-          newIndexOfEditor,
-          true
-        );
+        this.titleControl.moveEditor(editor, oldIndexOfEditor, newIndexOfEditor, true);
       }
       if (sticky) {
         this.titleControl.stickEditor(editor);
@@ -1262,25 +847,15 @@ let EditorGroupView = class extends Themable {
         this.doMoveEditorInsideGroup(editor, openEditorOptions);
       }
     }
-    const { editor: openedEditor, isNew } = this.model.openEditor(
-      editor,
-      openEditorOptions
-    );
+    const { editor: openedEditor, isNew } = this.model.openEditor(editor, openEditorOptions);
     if (isNew && // only if this editor was new for the group
     this.count === 1 && // only when this editor was the first editor in the group
     this.editorPartsView.groups.length > 1) {
-      if (openedEditor.editorId && this.groupsView.partOptions.autoLockGroups?.has(
-        openedEditor.editorId
-      )) {
+      if (openedEditor.editorId && this.groupsView.partOptions.autoLockGroups?.has(openedEditor.editorId)) {
         this.lock(true);
       }
     }
-    const showEditorResult = this.doShowEditor(
-      openedEditor,
-      { active: !!openEditorOptions.active, isNew },
-      options,
-      internalOptions
-    );
+    const showEditorResult = this.doShowEditor(openedEditor, { active: !!openEditorOptions.active, isNew }, options, internalOptions);
     if (activateGroup) {
       this.groupsView.activateGroup(this);
     } else if (restoreGroup) {
@@ -1292,12 +867,7 @@ let EditorGroupView = class extends Themable {
     let openEditorPromise;
     if (context.active) {
       openEditorPromise = (async () => {
-        const { pane, changed, cancelled, error } = await this.editorPane.openEditor(
-          editor,
-          options,
-          internalOptions,
-          { newInGroup: context.isNew }
-        );
+        const { pane, changed, cancelled, error } = await this.editorPane.openEditor(editor, options, internalOptions, { newInGroup: context.isNew });
         if (cancelled) {
           return void 0;
         }
@@ -1308,9 +878,7 @@ let EditorGroupView = class extends Themable {
           this._onDidOpenEditorFail.fire(editor);
         }
         if (!pane && this.activeEditor === editor) {
-          this.doCloseEditor(editor, options?.preserveFocus, {
-            fromError: true
-          });
+          this.doCloseEditor(editor, options?.preserveFocus, { fromError: true });
         }
         return pane;
       })();
@@ -1325,9 +893,7 @@ let EditorGroupView = class extends Themable {
   //#endregion
   //#region openEditors()
   async openEditors(editors) {
-    const editorsToOpen = coalesce(editors).filter(
-      ({ editor }) => !editor.isDisposed()
-    );
+    const editorsToOpen = coalesce(editors).filter(({ editor }) => !editor.isDisposed());
     const firstEditor = editorsToOpen.at(0);
     if (!firstEditor) {
       return;
@@ -1338,35 +904,23 @@ let EditorGroupView = class extends Themable {
       // do not want to open a new editor but reuse that one.
       supportSideBySide: SideBySideEditor.BOTH
     };
-    await this.doOpenEditor(
-      firstEditor.editor,
-      firstEditor.options,
-      openEditorsOptions
-    );
+    await this.doOpenEditor(firstEditor.editor, firstEditor.options, openEditorsOptions);
     const inactiveEditors = editorsToOpen.slice(1);
     const startingIndex = this.getIndexOfEditor(firstEditor.editor) + 1;
-    await Promises.settled(
-      inactiveEditors.map(({ editor, options }, index) => {
-        return this.doOpenEditor(
-          editor,
-          {
-            ...options,
-            inactive: true,
-            pinned: true,
-            index: startingIndex + index
-          },
-          {
-            ...openEditorsOptions,
-            // optimization: update the title control later
-            // https://github.com/microsoft/vscode/issues/130634
-            skipTitleUpdate: true
-          }
-        );
-      })
-    );
-    this.titleControl.openEditors(
-      inactiveEditors.map(({ editor }) => editor)
-    );
+    await Promises.settled(inactiveEditors.map(({ editor, options }, index) => {
+      return this.doOpenEditor(editor, {
+        ...options,
+        inactive: true,
+        pinned: true,
+        index: startingIndex + index
+      }, {
+        ...openEditorsOptions,
+        // optimization: update the title control later
+        // https://github.com/microsoft/vscode/issues/130634
+        skipTitleUpdate: true
+      });
+    }));
+    this.titleControl.openEditors(inactiveEditors.map(({ editor }) => editor));
     return this.editorPane.activeEditorPane ?? void 0;
   }
   //#endregion
@@ -1395,12 +949,7 @@ let EditorGroupView = class extends Themable {
       this.doMoveEditorInsideGroup(editor, options);
       return true;
     } else {
-      return this.doMoveOrCopyEditorAcrossGroups(
-        editor,
-        target,
-        options,
-        { ...internalOptions, keepCopy: false }
-      );
+      return this.doMoveOrCopyEditorAcrossGroups(editor, target, options, { ...internalOptions, keepCopy: false });
     }
   }
   doMoveEditorInsideGroup(candidate, options) {
@@ -1417,12 +966,7 @@ let EditorGroupView = class extends Themable {
       const oldStickyCount = this.model.stickyCount;
       this.model.moveEditor(editor, moveToIndex);
       this.model.pin(editor);
-      this.titleControl.moveEditor(
-        editor,
-        currentIndex,
-        moveToIndex,
-        oldStickyCount !== this.model.stickyCount
-      );
+      this.titleControl.moveEditor(editor, currentIndex, moveToIndex, oldStickyCount !== this.model.stickyCount);
       this.titleControl.pinEditor(editor);
     }
     if (options?.sticky) {
@@ -1431,18 +975,10 @@ let EditorGroupView = class extends Themable {
   }
   doMoveOrCopyEditorAcrossGroups(editor, target, openOptions, internalOptions) {
     const keepCopy = internalOptions?.keepCopy;
-    if (!keepCopy || editor.hasCapability(
-      EditorInputCapabilities.Singleton
-    )) {
+    if (!keepCopy || editor.hasCapability(EditorInputCapabilities.Singleton)) {
       const canMoveVeto = editor.canMove(this.id, target.id);
       if (typeof canMoveVeto === "string") {
-        this.dialogService.error(
-          canMoveVeto,
-          localize(
-            "moveErrorDetails",
-            "Try saving or reverting the editor first and then try again."
-          )
-        );
+        this.dialogService.error(canMoveVeto, localize("moveErrorDetails", "Try saving or reverting the editor first and then try again."));
         return false;
       }
     }
@@ -1460,17 +996,9 @@ let EditorGroupView = class extends Themable {
         target: target.id
       });
     }
-    target.doOpenEditor(
-      keepCopy ? editor.copy() : editor,
-      options,
-      internalOptions
-    );
+    target.doOpenEditor(keepCopy ? editor.copy() : editor, options, internalOptions);
     if (!keepCopy) {
-      this.doCloseEditor(
-        editor,
-        true,
-        { ...internalOptions, context: EditorCloseContext.MOVE }
-      );
+      this.doCloseEditor(editor, true, { ...internalOptions, context: EditorCloseContext.MOVE });
     }
     return true;
   }
@@ -1492,10 +1020,7 @@ let EditorGroupView = class extends Themable {
     if (this === target) {
       this.doMoveEditorInsideGroup(editor, options);
     } else {
-      this.doMoveOrCopyEditorAcrossGroups(editor, target, options, {
-        ...internalOptions,
-        keepCopy: true
-      });
+      this.doMoveOrCopyEditorAcrossGroups(editor, target, options, { ...internalOptions, keepCopy: true });
     }
   }
   //#endregion
@@ -1532,9 +1057,7 @@ let EditorGroupView = class extends Themable {
     const restoreFocus = !preserveFocus && this.shouldRestoreFocus(this.element);
     const closeEmptyGroup = this.groupsView.partOptions.closeEmptyGroups;
     if (closeEmptyGroup && this.active && this.count === 1) {
-      const mostRecentlyActiveGroups = this.groupsView.getGroups(
-        GroupsOrder.MOST_RECENTLY_ACTIVE
-      );
+      const mostRecentlyActiveGroups = this.groupsView.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
       const nextActiveGroup = mostRecentlyActiveGroups[1];
       if (nextActiveGroup) {
         if (restoreFocus) {
@@ -1549,7 +1072,7 @@ let EditorGroupView = class extends Themable {
     }
     const nextActiveEditor = this.model.activeEditor;
     if (nextActiveEditor) {
-      let activation;
+      let activation = void 0;
       if (preserveFocus && this.groupsView.activeGroup !== this) {
         activation = EditorActivation.PRESERVE;
       }
@@ -1569,11 +1092,7 @@ let EditorGroupView = class extends Themable {
         // window so we explicitly disable window reordering in this case.
         preserveWindowOrder: true
       };
-      this.doOpenEditor(
-        nextActiveEditor,
-        options,
-        internalEditorOpenOptions
-      );
+      this.doOpenEditor(nextActiveEditor, options, internalEditorOpenOptions);
     } else {
       if (editorToClose) {
         this.editorPane.closeEditor(editorToClose);
@@ -1605,10 +1124,7 @@ let EditorGroupView = class extends Themable {
     let handleCloseConfirmationPromise = this.mapEditorToPendingConfirmation.get(editor);
     if (!handleCloseConfirmationPromise) {
       handleCloseConfirmationPromise = this.doHandleCloseConfirmation(editor);
-      this.mapEditorToPendingConfirmation.set(
-        editor,
-        handleCloseConfirmationPromise
-      );
+      this.mapEditorToPendingConfirmation.set(editor, handleCloseConfirmationPromise);
     }
     let veto;
     try {
@@ -1633,9 +1149,7 @@ let EditorGroupView = class extends Themable {
         return false;
       }
       const otherGroup = groupView;
-      if (otherGroup.contains(editor, {
-        supportSideBySide: SideBySideEditor.BOTH
-      })) {
+      if (otherGroup.contains(editor, { supportSideBySide: SideBySideEditor.BOTH })) {
         return true;
       }
       if (editor instanceof SideBySideEditorInput && otherGroup.contains(editor.primary)) {
@@ -1665,9 +1179,7 @@ let EditorGroupView = class extends Themable {
       }
       await this.hostService.focus(getWindow(this.element));
       if (typeof editor.closeHandler?.confirm === "function") {
-        confirmation = await editor.closeHandler.confirm([
-          { editor, groupId: this.id }
-        ]);
+        confirmation = await editor.closeHandler.confirm([{ editor, groupId: this.id }]);
       } else {
         let name;
         if (editor instanceof SideBySideEditorInput) {
@@ -1675,9 +1187,7 @@ let EditorGroupView = class extends Themable {
         } else {
           name = editor.getName();
         }
-        confirmation = await this.fileDialogService.showSaveConfirm([
-          name
-        ]);
+        confirmation = await this.fileDialogService.showSaveConfirm([name]);
       }
     }
     if (!editor.closeHandler && !this.shouldConfirmClose(editor)) {
@@ -1685,13 +1195,9 @@ let EditorGroupView = class extends Themable {
     }
     switch (confirmation) {
       case ConfirmResult.SAVE: {
-        const result = await editor.save(this.id, {
-          reason: saveReason
-        });
+        const result = await editor.save(this.id, { reason: saveReason });
         if (!result && autoSave) {
-          return this.doHandleCloseConfirmation(editor, {
-            skipAutoSave: true
-          });
+          return this.doHandleCloseConfirmation(editor, { skipAutoSave: true });
         }
         return editor.isDirty();
       }
@@ -1734,35 +1240,23 @@ let EditorGroupView = class extends Themable {
     }
     const filter = args;
     const hasDirection = typeof filter.direction === "number";
-    let editorsToClose = this.model.getEditors(
-      hasDirection ? EditorsOrder.SEQUENTIAL : EditorsOrder.MOST_RECENTLY_ACTIVE,
-      filter
-    );
+    let editorsToClose = this.model.getEditors(hasDirection ? EditorsOrder.SEQUENTIAL : EditorsOrder.MOST_RECENTLY_ACTIVE, filter);
     if (filter.savedOnly) {
-      editorsToClose = editorsToClose.filter(
-        (editor) => !editor.isDirty() || editor.isSaving()
-      );
+      editorsToClose = editorsToClose.filter((editor) => !editor.isDirty() || editor.isSaving());
     } else if (hasDirection && filter.except) {
-      editorsToClose = filter.direction === CloseDirection.LEFT ? editorsToClose.slice(
-        0,
-        this.model.indexOf(filter.except, editorsToClose)
-      ) : editorsToClose.slice(
-        this.model.indexOf(filter.except, editorsToClose) + 1
-      );
+      editorsToClose = filter.direction === CloseDirection.LEFT ? editorsToClose.slice(0, this.model.indexOf(filter.except, editorsToClose)) : editorsToClose.slice(this.model.indexOf(filter.except, editorsToClose) + 1);
     } else if (filter.except) {
-      editorsToClose = editorsToClose.filter(
-        (editor) => filter.except && !editor.matches(filter.except)
-      );
+      editorsToClose = editorsToClose.filter((editor) => filter.except && !editor.matches(filter.except));
     }
     return editorsToClose;
   }
   doCloseEditors(editors, options) {
     let closeActiveEditor = false;
     for (const editor of editors) {
-      if (this.isActive(editor)) {
-        closeActiveEditor = true;
-      } else {
+      if (!this.isActive(editor)) {
         this.doCloseInactiveEditor(editor);
+      } else {
+        closeActiveEditor = true;
       }
     }
     if (closeActiveEditor) {
@@ -1781,14 +1275,9 @@ let EditorGroupView = class extends Themable {
       }
       return true;
     }
-    let editors = this.model.getEditors(
-      EditorsOrder.MOST_RECENTLY_ACTIVE,
-      options
-    );
+    let editors = this.model.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE, options);
     if (options?.excludeConfirming) {
-      editors = editors.filter(
-        (editor) => !this.shouldConfirmClose(editor)
-      );
+      editors = editors.filter((editor) => !this.shouldConfirmClose(editor));
     }
     const veto = await this.handleCloseConfirmation(editors);
     if (veto) {
@@ -1800,9 +1289,7 @@ let EditorGroupView = class extends Themable {
   doCloseAllEditors(options) {
     let editors = this.model.getEditors(EditorsOrder.SEQUENTIAL, options);
     if (options?.excludeConfirming) {
-      editors = editors.filter(
-        (editor) => !this.shouldConfirmClose(editor)
-      );
+      editors = editors.filter((editor) => !this.shouldConfirmClose(editor));
     }
     const editorsToClose = [];
     for (const editor of editors) {
@@ -1823,12 +1310,7 @@ let EditorGroupView = class extends Themable {
   async replaceEditors(editors) {
     let activeReplacement;
     const inactiveReplacements = [];
-    for (let {
-      editor,
-      replacement,
-      forceReplaceDirty,
-      options
-    } of editors) {
+    for (let { editor, replacement, forceReplaceDirty, options } of editors) {
       const index = this.getIndexOfEditor(editor);
       if (index >= 0) {
         const isActiveEditor = this.isActive(editor);
@@ -1839,12 +1321,7 @@ let EditorGroupView = class extends Themable {
         }
         options.inactive = !isActiveEditor;
         options.pinned = options.pinned ?? true;
-        const editorToReplace = {
-          editor,
-          replacement,
-          forceReplaceDirty,
-          options
-        };
+        const editorToReplace = { editor, replacement, forceReplaceDirty, options };
         if (isActiveEditor) {
           activeReplacement = editorToReplace;
         } else {
@@ -1852,26 +1329,15 @@ let EditorGroupView = class extends Themable {
         }
       }
     }
-    for (const {
-      editor,
-      replacement,
-      forceReplaceDirty,
-      options
-    } of inactiveReplacements) {
+    for (const { editor, replacement, forceReplaceDirty, options } of inactiveReplacements) {
       await this.doOpenEditor(replacement, options);
       if (!editor.matches(replacement)) {
         let closed = false;
         if (forceReplaceDirty) {
-          this.doCloseEditor(editor, true, {
-            context: EditorCloseContext.REPLACE
-          });
+          this.doCloseEditor(editor, true, { context: EditorCloseContext.REPLACE });
           closed = true;
         } else {
-          closed = await this.doCloseEditorWithConfirmationHandling(
-            editor,
-            { preserveFocus: true },
-            { context: EditorCloseContext.REPLACE }
-          );
+          closed = await this.doCloseEditorWithConfirmationHandling(editor, { preserveFocus: true }, { context: EditorCloseContext.REPLACE });
         }
         if (!closed) {
           return;
@@ -1879,21 +1345,12 @@ let EditorGroupView = class extends Themable {
       }
     }
     if (activeReplacement) {
-      const openEditorResult = this.doOpenEditor(
-        activeReplacement.replacement,
-        activeReplacement.options
-      );
+      const openEditorResult = this.doOpenEditor(activeReplacement.replacement, activeReplacement.options);
       if (!activeReplacement.editor.matches(activeReplacement.replacement)) {
         if (activeReplacement.forceReplaceDirty) {
-          this.doCloseEditor(activeReplacement.editor, true, {
-            context: EditorCloseContext.REPLACE
-          });
+          this.doCloseEditor(activeReplacement.editor, true, { context: EditorCloseContext.REPLACE });
         } else {
-          await this.doCloseEditorWithConfirmationHandling(
-            activeReplacement.editor,
-            { preserveFocus: true },
-            { context: EditorCloseContext.REPLACE }
-          );
+          await this.doCloseEditorWithConfirmationHandling(activeReplacement.editor, { preserveFocus: true }, { context: EditorCloseContext.REPLACE });
         }
       }
       await openEditorResult;
@@ -1916,16 +1373,7 @@ let EditorGroupView = class extends Themable {
     const activeEditorPane = this.activeEditorPane;
     if (activeEditorPane instanceof EditorPane) {
       const editorScopedContextKeyService = activeEditorPane.scopedContextKeyService ?? this.scopedContextKeyService;
-      const editorTitleMenu = disposables.add(
-        this.menuService.createMenu(
-          MenuId.EditorTitle,
-          editorScopedContextKeyService,
-          {
-            emitEventsForSubmenuChanges: true,
-            eventDebounceDelay: 0
-          }
-        )
-      );
+      const editorTitleMenu = disposables.add(this.menuService.createMenu(MenuId.EditorTitle, editorScopedContextKeyService, { emitEventsForSubmenuChanges: true, eventDebounceDelay: 0 }));
       onDidChange = editorTitleMenu.onDidChange;
       const shouldInlineGroup = /* @__PURE__ */ __name((action, group) => group === "navigation" && action.actions.length <= 1, "shouldInlineGroup");
       createAndFillInActionBarActions(
@@ -1938,9 +1386,7 @@ let EditorGroupView = class extends Themable {
     } else {
       const _onDidChange = disposables.add(new Emitter());
       onDidChange = _onDidChange.event;
-      disposables.add(
-        this.onDidActiveEditorChange(() => _onDidChange.fire())
-      );
+      disposables.add(this.onDidActiveEditorChange(() => _onDidChange.fire()));
     }
     return { actions: { primary, secondary }, onDidChange };
   }
@@ -1956,20 +1402,13 @@ let EditorGroupView = class extends Themable {
     const borderColor = this.getColor(EDITOR_GROUP_HEADER_BORDER) || this.getColor(contrastBorder);
     if (!isEmpty && borderColor) {
       this.titleContainer.classList.add("title-border-bottom");
-      this.titleContainer.style.setProperty(
-        "--title-border-bottom-color",
-        borderColor
-      );
+      this.titleContainer.style.setProperty("--title-border-bottom-color", borderColor);
     } else {
       this.titleContainer.classList.remove("title-border-bottom");
-      this.titleContainer.style.removeProperty(
-        "--title-border-bottom-color"
-      );
+      this.titleContainer.style.removeProperty("--title-border-bottom-color");
     }
     const { showTabs } = this.groupsView.partOptions;
-    this.titleContainer.style.backgroundColor = this.getColor(
-      showTabs === "multiple" ? EDITOR_GROUP_HEADER_TABS_BACKGROUND : EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND
-    ) || "";
+    this.titleContainer.style.backgroundColor = this.getColor(showTabs === "multiple" ? EDITOR_GROUP_HEADER_TABS_BACKGROUND : EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND) || "";
     this.editorContainer.style.backgroundColor = this.getColor(editorBackground) || "";
   }
   //#endregion
@@ -1993,29 +1432,19 @@ let EditorGroupView = class extends Themable {
     }
     return !(this.lastLayout.width === this.minimumWidth || this.lastLayout.height === this.minimumHeight);
   }
-  _onDidChange = this._register(
-    new Relay()
-  );
+  _onDidChange = this._register(new Relay());
   onDidChange = this._onDidChange.event;
   layout(width, height, top, left) {
     this.lastLayout = { width, height, top, left };
     this.element.classList.toggle("max-height-478px", height <= 478);
     const titleControlSize = this.titleControl.layout({
       container: new Dimension(width, height),
-      available: new Dimension(
-        width,
-        height - this.editorPane.minimumHeight
-      )
+      available: new Dimension(width, height - this.editorPane.minimumHeight)
     });
     this.progressBar.getContainer().style.top = `${Math.max(this.titleHeight.offset - 2, 0)}px`;
     const editorHeight = Math.max(0, height - titleControlSize.height);
     this.editorContainer.style.height = `${editorHeight}px`;
-    this.editorPane.layout({
-      width,
-      height: editorHeight,
-      top: top + titleControlSize.height,
-      left
-    });
+    this.editorPane.layout({ width, height: editorHeight, top: top + titleControlSize.height, left });
   }
   relayout() {
     if (this.lastLayout) {

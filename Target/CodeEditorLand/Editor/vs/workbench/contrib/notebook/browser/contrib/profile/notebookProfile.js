@@ -1,10 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ServicesAccessor } from "../../../../../../editor/browser/editorExtensions.js";
 import { localize } from "../../../../../../nls.js";
-import {
-  Action2,
-  registerAction2
-} from "../../../../../../platform/actions/common/actions.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { NotebookSetting } from "../../../common/notebookCommon.js";
 var NotebookProfileType = /* @__PURE__ */ ((NotebookProfileType2) => {
@@ -48,30 +46,26 @@ const profiles = {
 async function applyProfile(configService, profile) {
   const promises = [];
   for (const settingKey in profile) {
-    promises.push(
-      configService.updateValue(settingKey, profile[settingKey])
-    );
+    promises.push(configService.updateValue(settingKey, profile[settingKey]));
   }
   await Promise.all(promises);
 }
 __name(applyProfile, "applyProfile");
-registerAction2(
-  class extends Action2 {
-    constructor() {
-      super({
-        id: "notebook.setProfile",
-        title: localize("setProfileTitle", "Set Profile")
-      });
-    }
-    async run(accessor, args) {
-      if (!isSetProfileArgs(args)) {
-        return;
-      }
-      const configService = accessor.get(IConfigurationService);
-      return applyProfile(configService, profiles[args.profile]);
-    }
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.setProfile",
+      title: localize("setProfileTitle", "Set Profile")
+    });
   }
-);
+  async run(accessor, args) {
+    if (!isSetProfileArgs(args)) {
+      return;
+    }
+    const configService = accessor.get(IConfigurationService);
+    return applyProfile(configService, profiles[args.profile]);
+  }
+});
 function isSetProfileArgs(args) {
   const setProfileArgs = args;
   return setProfileArgs.profile === "colab" /* colab */ || setProfileArgs.profile === "default" /* default */ || setProfileArgs.profile === "jupyter" /* jupyter */;

@@ -1,26 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import {
-  WindowIdleValue,
-  getActiveWindow
-} from "../../../../base/browser/dom.js";
-import { tail } from "../../../../base/common/arrays.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import {
-  getNodeType,
-  parse as jsonParse
-} from "../../../../base/common/json.js";
-import { basename, extname } from "../../../../base/common/path.js";
+import { parse as jsonParse, getNodeType } from "../../../../base/common/json.js";
+import { localize } from "../../../../nls.js";
+import { extname, basename } from "../../../../base/common/path.js";
+import { SnippetParser, Variable, Placeholder, Text } from "../../../../editor/contrib/snippet/browser/snippetParser.js";
+import { KnownSnippetVariableNames } from "../../../../editor/contrib/snippet/browser/snippetVariables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
 import { relativePath } from "../../../../base/common/resources.js";
 import { isObject } from "../../../../base/common/types.js";
-import {
-  Placeholder,
-  SnippetParser,
-  Text,
-  Variable
-} from "../../../../editor/contrib/snippet/browser/snippetParser.js";
-import { KnownSnippetVariableNames } from "../../../../editor/contrib/snippet/browser/snippetVariables.js";
-import { localize } from "../../../../nls.js";
+import { tail } from "../../../../base/common/arrays.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { WindowIdleValue, getActiveWindow } from "../../../../base/browser/dom.js";
 class SnippetBodyInsights {
   static {
     __name(this, "SnippetBodyInsights");
@@ -57,9 +50,7 @@ class SnippetBodyInsights {
         if (marker.children.length === 0 && !KnownSnippetVariableNames[marker.name]) {
           const index = placeholders.has(marker.name) ? placeholders.get(marker.name) : ++placeholderMax;
           placeholders.set(marker.name, index);
-          const synthetic = new Placeholder(index).appendChild(
-            new Text(marker.name)
-          );
+          const synthetic = new Placeholder(index).appendChild(new Text(marker.name));
           textmateSnippet.replace(marker, [synthetic]);
           this.isBogous = true;
         }
@@ -94,10 +85,7 @@ class Snippet {
     this.snippetIdentifier = snippetIdentifier;
     this.extensionId = extensionId;
     this.prefixLow = prefix.toLowerCase();
-    this._bodyInsights = new WindowIdleValue(
-      getActiveWindow(),
-      () => new SnippetBodyInsights(this.body)
-    );
+    this._bodyInsights = new WindowIdleValue(getActiveWindow(), () => new SnippetBodyInsights(this.body));
   }
   static {
     __name(this, "Snippet");
@@ -181,9 +169,7 @@ class SnippetFile {
   }
   async _load() {
     if (this._extension) {
-      return this._extensionResourceLoaderService.readExtensionResource(
-        this.location
-      );
+      return this._extensionResourceLoaderService.readExtensionResource(this.location);
     } else {
       const content = await this._fileService.readFile(this.location);
       return content.value.toString();
@@ -191,35 +177,21 @@ class SnippetFile {
   }
   load() {
     if (!this._loadPromise) {
-      this._loadPromise = Promise.resolve(this._load()).then(
-        (content) => {
-          const data = jsonParse(content);
-          if (getNodeType(data) === "object") {
-            for (const [name, scopeOrTemplate] of Object.entries(
-              data
-            )) {
-              if (isJsonSerializedSnippet(scopeOrTemplate)) {
-                this._parseSnippet(
-                  name,
-                  scopeOrTemplate,
-                  this.data
-                );
-              } else {
-                for (const [name2, template] of Object.entries(
-                  scopeOrTemplate
-                )) {
-                  this._parseSnippet(
-                    name2,
-                    template,
-                    this.data
-                  );
-                }
+      this._loadPromise = Promise.resolve(this._load()).then((content) => {
+        const data = jsonParse(content);
+        if (getNodeType(data) === "object") {
+          for (const [name, scopeOrTemplate] of Object.entries(data)) {
+            if (isJsonSerializedSnippet(scopeOrTemplate)) {
+              this._parseSnippet(name, scopeOrTemplate, this.data);
+            } else {
+              for (const [name2, template] of Object.entries(scopeOrTemplate)) {
+                this._parseSnippet(name2, template, this.data);
               }
             }
           }
-          return this;
         }
-      );
+        return this;
+      });
     }
     return this._loadPromise;
   }
@@ -253,35 +225,27 @@ class SnippetFile {
     if (this._extension) {
       source = this._extension.displayName || this._extension.name;
     } else if (this.source === 2 /* Workspace */) {
-      source = localize(
-        "source.workspaceSnippetGlobal",
-        "Workspace Snippet"
-      );
+      source = localize("source.workspaceSnippetGlobal", "Workspace Snippet");
     } else {
       if (this.isGlobalSnippets) {
-        source = localize(
-          "source.userSnippetGlobal",
-          "Global User Snippet"
-        );
+        source = localize("source.userSnippetGlobal", "Global User Snippet");
       } else {
         source = localize("source.userSnippet", "User Snippet");
       }
     }
     for (const _prefix of Iterable.wrap(prefix)) {
-      bucket.push(
-        new Snippet(
-          Boolean(isFileTemplate),
-          scopes,
-          name,
-          _prefix,
-          description,
-          body,
-          source,
-          this.source,
-          this._extension ? `${relativePath(this._extension.extensionLocation, this.location)}/${name}` : `${basename(this.location.path)}/${name}`,
-          this._extension?.identifier
-        )
-      );
+      bucket.push(new Snippet(
+        Boolean(isFileTemplate),
+        scopes,
+        name,
+        _prefix,
+        description,
+        body,
+        source,
+        this.source,
+        this._extension ? `${relativePath(this._extension.extensionLocation, this.location)}/${name}` : `${basename(this.location.path)}/${name}`,
+        this._extension?.identifier
+      ));
     }
   }
 }

@@ -10,25 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { AbstractPathService, IPathService } from "../common/pathService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IPathService, AbstractPathService } from "../common/pathService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 let NativePathService = class extends AbstractPathService {
   static {
     __name(this, "NativePathService");
   }
   constructor(remoteAgentService, environmentService, contextService) {
-    super(
-      environmentService.userHome,
-      remoteAgentService,
-      environmentService,
-      contextService
-    );
+    super(environmentService.userHome, remoteAgentService, environmentService, contextService);
   }
 };
 NativePathService = __decorateClass([

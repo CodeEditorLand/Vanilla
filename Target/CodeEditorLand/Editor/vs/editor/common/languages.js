@@ -1,13 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../base/common/buffer.js";
+import { CancellationToken } from "../../base/common/cancellation.js";
 import { Codicon } from "../../base/common/codicons.js";
-import { URI } from "../../base/common/uri.js";
-import { localize } from "../../nls.js";
-import {
-  EditOperation
-} from "./core/editOperation.js";
-import { Range } from "./core/range.js";
+import { Color } from "../../base/common/color.js";
+import { IReadonlyVSDataTransfer } from "../../base/common/dataTransfer.js";
+import { Event } from "../../base/common/event.js";
+import { HierarchicalKind } from "../../base/common/hierarchicalKind.js";
+import { IMarkdownString } from "../../base/common/htmlContent.js";
+import { IDisposable } from "../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../base/common/themables.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { EditOperation, ISingleEditOperation } from "./core/editOperation.js";
+import { IPosition, Position } from "./core/position.js";
+import { IRange, Range } from "./core/range.js";
+import { Selection } from "./core/selection.js";
+import { LanguageId } from "./encodedTokenAttributes.js";
+import { LanguageSelector } from "./languageSelector.js";
+import * as model from "./model.js";
 import { TokenizationRegistry as TokenizationRegistryImpl } from "./tokenizationRegistry.js";
+import { ContiguousMultilineTokens } from "./tokens/contiguousMultilineTokens.js";
+import { localize } from "../../nls.js";
+import { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
+import { IMarkerData } from "../../platform/markers/common/markers.js";
 class Token {
   constructor(offset, type, language) {
     this.offset = offset;
@@ -290,12 +305,7 @@ const symbolKindNames = {
   [12 /* Variable */]: localize("Variable", "variable")
 };
 function getAriaLabelForSymbol(symbolName, kind) {
-  return localize(
-    "symbolAriaLabel",
-    "{0} ({1})",
-    symbolName,
-    symbolKindNames[kind]
-  );
+  return localize("symbolAriaLabel", "{0} ({1})", symbolName, symbolKindNames[kind]);
 }
 __name(getAriaLabelForSymbol, "getAriaLabelForSymbol");
 var SymbolTag = /* @__PURE__ */ ((SymbolTag2) => {

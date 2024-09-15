@@ -10,10 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IStackArgument } from "../../../base/common/console.js";
 import { safeStringify } from "../../../base/common/objects.js";
-import {
-  MainContext
-} from "./extHost.protocol.js";
+import { MainContext, MainThreadConsoleShape } from "./extHost.protocol.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 let AbstractExtHostConsoleForwarder = class {
@@ -24,9 +23,7 @@ let AbstractExtHostConsoleForwarder = class {
   _includeStack;
   _logNative;
   constructor(extHostRpc, initData) {
-    this._mainThreadConsole = extHostRpc.getProxy(
-      MainContext.MainThreadConsole
-    );
+    this._mainThreadConsole = extHostRpc.getProxy(MainContext.MainThreadConsole);
     this._includeStack = initData.consoleForward.includeStack;
     this._logNative = initData.consoleForward.logNative;
     this._wrapConsoleMethod("info", "log");
@@ -45,12 +42,13 @@ let AbstractExtHostConsoleForwarder = class {
    * throwing errors, but rather a no-op setting. See https://github.com/microsoft/vscode-extension-telemetry/issues/88
    */
   _wrapConsoleMethod(method, severity) {
+    const that = this;
     const original = console[method];
     Object.defineProperty(console, method, {
       set: /* @__PURE__ */ __name(() => {
       }, "set"),
-      get: /* @__PURE__ */ __name(() => () => {
-        this._handleConsoleCall(method, severity, original, arguments);
+      get: /* @__PURE__ */ __name(() => function() {
+        that._handleConsoleCall(method, severity, original, arguments);
       }, "get")
     });
   }
@@ -91,9 +89,7 @@ function safeStringifyArgumentsToArray(args, includeStack) {
   if (includeStack) {
     const stack = new Error().stack;
     if (stack) {
-      argsArray.push({
-        __$stack: stack.split("\n").slice(3).join("\n")
-      });
+      argsArray.push({ __$stack: stack.split("\n").slice(3).join("\n") });
     }
   }
   try {

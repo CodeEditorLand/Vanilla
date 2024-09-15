@@ -11,27 +11,16 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { HoverWidget } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import {
-  Disposable,
-  DisposableStore
-} from "../../../../base/common/lifecycle.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import {
-  MouseTargetType
-} from "../../../browser/editorBrowser.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { MarkdownRenderer } from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import {
-  EditorOption
-} from "../../../common/config/editorOptions.js";
+import { ICodeEditor, IEditorMouseEvent, IOverlayWidget, IOverlayWidgetPosition, MouseTargetType } from "../../../browser/editorBrowser.js";
+import { ConfigurationChangedEvent, EditorOption } from "../../../common/config/editorOptions.js";
 import { ILanguageService } from "../../../common/languages/language.js";
-import {
-  GlyphHoverComputer
-} from "./glyphHoverComputer.js";
-import {
-  HoverOperation,
-  HoverStartMode
-} from "./hoverOperation.js";
+import { HoverOperation, HoverResult, HoverStartMode } from "./hoverOperation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { HoverWidget } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { IHoverWidget } from "./hoverTypes.js";
+import { IHoverMessage, LaneOrLineNumber, GlyphHoverComputer, GlyphHoverComputerOptions } from "./glyphHoverComputer.js";
 import { isMousePositionWithinElement } from "./hoverUtils.js";
 const $ = dom.$;
 let GlyphHoverWidget = class extends Disposable {
@@ -45,9 +34,7 @@ let GlyphHoverWidget = class extends Disposable {
   _messages;
   _markdownRenderer;
   _hoverOperation;
-  _renderDisposeables = this._register(
-    new DisposableStore()
-  );
+  _renderDisposeables = this._register(new DisposableStore());
   _hoverComputerOptions;
   constructor(editor, languageService, openerService) {
     super();
@@ -55,49 +42,19 @@ let GlyphHoverWidget = class extends Disposable {
     this._isVisible = false;
     this._messages = [];
     this._hover = this._register(new HoverWidget());
-    this._hover.containerDomNode.classList.toggle(
-      "hidden",
-      !this._isVisible
-    );
-    this._markdownRenderer = this._register(
-      new MarkdownRenderer(
-        { editor: this._editor },
-        languageService,
-        openerService
-      )
-    );
-    this._hoverOperation = this._register(
-      new HoverOperation(
-        this._editor,
-        new GlyphHoverComputer(this._editor)
-      )
-    );
-    this._register(
-      this._hoverOperation.onResult((result) => this._withResult(result))
-    );
-    this._register(
-      this._editor.onDidChangeModelDecorations(
-        () => this._onModelDecorationsChanged()
-      )
-    );
-    this._register(
-      this._editor.onDidChangeConfiguration(
-        (e) => {
-          if (e.hasChanged(EditorOption.fontInfo)) {
-            this._updateFont();
-          }
-        }
-      )
-    );
-    this._register(
-      dom.addStandardDisposableListener(
-        this._hover.containerDomNode,
-        "mouseleave",
-        (e) => {
-          this._onMouseLeave(e);
-        }
-      )
-    );
+    this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
+    this._markdownRenderer = this._register(new MarkdownRenderer({ editor: this._editor }, languageService, openerService));
+    this._hoverOperation = this._register(new HoverOperation(this._editor, new GlyphHoverComputer(this._editor)));
+    this._register(this._hoverOperation.onResult((result) => this._withResult(result)));
+    this._register(this._editor.onDidChangeModelDecorations(() => this._onModelDecorationsChanged()));
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(EditorOption.fontInfo)) {
+        this._updateFont();
+      }
+    }));
+    this._register(dom.addStandardDisposableListener(this._hover.containerDomNode, "mouseleave", (e) => {
+      this._onMouseLeave(e);
+    }));
     this._editor.addOverlayWidget(this);
   }
   dispose() {
@@ -115,27 +72,19 @@ let GlyphHoverWidget = class extends Disposable {
     return null;
   }
   _updateFont() {
-    const codeClasses = Array.prototype.slice.call(
-      this._hover.contentsDomNode.getElementsByClassName("code")
-    );
+    const codeClasses = Array.prototype.slice.call(this._hover.contentsDomNode.getElementsByClassName("code"));
     codeClasses.forEach((node) => this._editor.applyFontInfo(node));
   }
   _onModelDecorationsChanged() {
     if (this._isVisible && this._hoverComputerOptions) {
       this._hoverOperation.cancel();
-      this._hoverOperation.start(
-        HoverStartMode.Delayed,
-        this._hoverComputerOptions
-      );
+      this._hoverOperation.start(HoverStartMode.Delayed, this._hoverComputerOptions);
     }
   }
   showsOrWillShow(mouseEvent) {
     const target = mouseEvent.target;
     if (target.type === MouseTargetType.GUTTER_GLYPH_MARGIN && target.detail.glyphMarginLane) {
-      this._startShowingAt(
-        target.position.lineNumber,
-        target.detail.glyphMarginLane
-      );
+      this._startShowingAt(target.position.lineNumber, target.detail.glyphMarginLane);
       return true;
     }
     if (target.type === MouseTargetType.GUTTER_LINE_NUMBERS) {
@@ -151,10 +100,7 @@ let GlyphHoverWidget = class extends Disposable {
     this._hoverOperation.cancel();
     this.hide();
     this._hoverComputerOptions = { lineNumber, laneOrLine };
-    this._hoverOperation.start(
-      HoverStartMode.Delayed,
-      this._hoverComputerOptions
-    );
+    this._hoverOperation.start(HoverStartMode.Delayed, this._hoverComputerOptions);
   }
   hide() {
     this._hoverComputerOptions = void 0;
@@ -163,19 +109,12 @@ let GlyphHoverWidget = class extends Disposable {
       return;
     }
     this._isVisible = false;
-    this._hover.containerDomNode.classList.toggle(
-      "hidden",
-      !this._isVisible
-    );
+    this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
   }
   _withResult(result) {
     this._messages = result.value;
     if (this._messages.length > 0) {
-      this._renderMessages(
-        result.options.lineNumber,
-        result.options.laneOrLine,
-        this._messages
-      );
+      this._renderMessages(result.options.lineNumber, result.options.laneOrLine, this._messages);
     } else {
       this.hide();
     }
@@ -185,13 +124,8 @@ let GlyphHoverWidget = class extends Disposable {
     const fragment = document.createDocumentFragment();
     for (const msg of messages) {
       const markdownHoverElement = $("div.hover-row.markdown-hover");
-      const hoverContentsElement = dom.append(
-        markdownHoverElement,
-        $("div.hover-contents")
-      );
-      const renderedContents = this._renderDisposeables.add(
-        this._markdownRenderer.render(msg.value)
-      );
+      const hoverContentsElement = dom.append(markdownHoverElement, $("div.hover-contents"));
+      const renderedContents = this._renderDisposeables.add(this._markdownRenderer.render(msg.value));
       hoverContentsElement.appendChild(renderedContents.element);
       fragment.appendChild(markdownHoverElement);
     }
@@ -206,10 +140,7 @@ let GlyphHoverWidget = class extends Disposable {
   _showAt(lineNumber, laneOrLine) {
     if (!this._isVisible) {
       this._isVisible = true;
-      this._hover.containerDomNode.classList.toggle(
-        "hidden",
-        !this._isVisible
-      );
+      this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
     }
     const editorLayout = this._editor.getLayoutInfo();
     const topForLineNumber = this._editor.getTopForLineNumber(lineNumber);

@@ -1,4 +1,4 @@
-var languages_default = "../../../../../../Asset/languages-6N4QHLSI.svg";
+var languages_default = "../../../../../../Asset/languages-3SAJZM5F.svg";
 export {
   languages_default as default
 };

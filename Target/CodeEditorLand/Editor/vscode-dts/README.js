@@ -1,4 +1,4 @@
-var README_default = "../Asset/README-FJ7USAIK.md";
+var README_default = "../Asset/README-CDCBBWT5.md";
 export {
   README_default as default
 };

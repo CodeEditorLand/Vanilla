@@ -10,9 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import {
-  ITerminalEditorService
-} from "./terminal.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorSerializer } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ISerializedTerminalEditorInput, ITerminalEditorService, ITerminalInstance } from "./terminal.js";
+import { TerminalEditorInput } from "./terminalEditorInput.js";
 let TerminalInputSerializer = class {
   constructor(_terminalEditorService) {
     this._terminalEditorService = _terminalEditorService;

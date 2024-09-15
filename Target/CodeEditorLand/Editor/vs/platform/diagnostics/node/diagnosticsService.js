@@ -13,24 +13,21 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as fs from "fs";
 import * as osLib from "os";
 import { Promises } from "../../../base/common/async.js";
-import {
-  getNodeType,
-  parse
-} from "../../../base/common/json.js";
+import { getNodeType, parse, ParseError } from "../../../base/common/json.js";
 import { Schemas } from "../../../base/common/network.js";
 import { basename, join } from "../../../base/common/path.js";
 import { isLinux, isWindows } from "../../../base/common/platform.js";
+import { ProcessItem } from "../../../base/common/processes.js";
 import { StopWatch } from "../../../base/common/stopwatch.js";
 import { URI } from "../../../base/common/uri.js";
 import { virtualMachineHint } from "../../../base/node/id.js";
-import { Promises as pfs } from "../../../base/node/pfs.js";
+import { IDirent, Promises as pfs } from "../../../base/node/pfs.js";
 import { listProcesses } from "../../../base/node/ps.js";
+import { IDiagnosticsService, IMachineInfo, IMainProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo, isRemoteDiagnosticError, IWorkspaceInformation, PerformanceInfo, SystemInfo, WorkspaceStatItem, WorkspaceStats } from "../common/diagnostics.js";
 import { ByteSize } from "../../files/common/files.js";
 import { IProductService } from "../../product/common/productService.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import {
-  isRemoteDiagnosticError
-} from "../common/diagnostics.js";
+import { IWorkspace } from "../../workspace/common/workspace.js";
 const workspaceStatsCache = /* @__PURE__ */ new Map();
 async function collectWorkspaceStats(folder, filter) {
   const cacheKey = `${folder}::${filter.join(":")}`;
@@ -55,16 +52,9 @@ async function collectWorkspaceStats(folder, filter) {
     { tag: "sln", filePattern: /^.+\.sln$/i },
     { tag: "csproj", filePattern: /^.+\.csproj$/i },
     { tag: "cmake", filePattern: /^.+\.cmake$/i },
-    {
-      tag: "github-actions",
-      filePattern: /^.+\.ya?ml$/i,
-      relativePathPattern: /^\.github(?:\/|\\)workflows$/i
-    },
+    { tag: "github-actions", filePattern: /^.+\.ya?ml$/i, relativePathPattern: /^\.github(?:\/|\\)workflows$/i },
     { tag: "devcontainer.json", filePattern: /^devcontainer\.json$/i },
-    {
-      tag: "dockerfile",
-      filePattern: /^(dockerfile|docker-compose\.ya?ml)$/i
-    },
+    { tag: "dockerfile", filePattern: /^(dockerfile|docker\-compose\.ya?ml)$/i },
     { tag: "cursorrules", filePattern: /^\.cursorrules$/i }
   ];
   const fileTypes = /* @__PURE__ */ new Map();
@@ -102,12 +92,7 @@ async function collectWorkspaceStats(folder, filter) {
       for (const file of filesToRead) {
         if (file.isDirectory()) {
           if (!filter2.includes(file.name)) {
-            await collect(
-              root,
-              join(dir, file.name),
-              filter2,
-              token
-            );
+            await collect(root, join(dir, file.name), filter2, token);
           }
           if (--pending === 0) {
             resolve();
@@ -118,20 +103,12 @@ async function collectWorkspaceStats(folder, filter) {
           if (index >= 0) {
             const fileType = file.name.substring(index + 1);
             if (fileType) {
-              fileTypes.set(
-                fileType,
-                (fileTypes.get(fileType) ?? 0) + 1
-              );
+              fileTypes.set(fileType, (fileTypes.get(fileType) ?? 0) + 1);
             }
           }
           for (const configFile of configFilePatterns) {
-            if (configFile.relativePathPattern?.test(
-              relativePath
-            ) !== false && configFile.filePattern.test(file.name)) {
-              configFiles.set(
-                configFile.tag,
-                (configFiles.get(configFile.tag) ?? 0) + 1
-              );
+            if (configFile.relativePathPattern?.test(relativePath) !== false && configFile.filePattern.test(file.name)) {
+              configFiles.set(configFile.tag, (configFiles.get(configFile.tag) ?? 0) + 1);
             }
           }
           if (--pending === 0) {
@@ -143,32 +120,27 @@ async function collectWorkspaceStats(folder, filter) {
     });
   }
   __name(collect, "collect");
-  const statsPromise = Promises.withAsyncBody(
-    async (resolve) => {
-      const token = { count: 0, maxReached: false, readdirCount: 0 };
-      const sw = new StopWatch(true);
-      await collect(folder, folder, filter, token);
-      const launchConfigs = await collectLaunchConfigs(folder);
-      resolve({
-        configFiles: asSortedItems(configFiles),
-        fileTypes: asSortedItems(fileTypes),
-        fileCount: token.count,
-        maxFilesReached: token.maxReached,
-        launchConfigFiles: launchConfigs,
-        totalScanTime: sw.elapsed(),
-        totalReaddirCount: token.readdirCount
-      });
-    }
-  );
+  const statsPromise = Promises.withAsyncBody(async (resolve) => {
+    const token = { count: 0, maxReached: false, readdirCount: 0 };
+    const sw = new StopWatch(true);
+    await collect(folder, folder, filter, token);
+    const launchConfigs = await collectLaunchConfigs(folder);
+    resolve({
+      configFiles: asSortedItems(configFiles),
+      fileTypes: asSortedItems(fileTypes),
+      fileCount: token.count,
+      maxFilesReached: token.maxReached,
+      launchConfigFiles: launchConfigs,
+      totalScanTime: sw.elapsed(),
+      totalReaddirCount: token.readdirCount
+    });
+  });
   workspaceStatsCache.set(cacheKey, statsPromise);
   return statsPromise;
 }
 __name(collectWorkspaceStats, "collectWorkspaceStats");
 function asSortedItems(items) {
-  return Array.from(items.entries(), ([name, count]) => ({
-    name,
-    count
-  })).sort((a, b) => b.count - a.count);
+  return Array.from(items.entries(), ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 }
 __name(asSortedItems, "asSortedItems");
 function getMachineInfo() {
@@ -231,41 +203,24 @@ let DiagnosticsService = class {
   }
   formatEnvironment(info) {
     const output = [];
-    output.push(
-      `Version:          ${this.productService.nameShort} ${this.productService.version} (${this.productService.commit || "Commit unknown"}, ${this.productService.date || "Date unknown"})`
-    );
-    output.push(
-      `OS Version:       ${osLib.type()} ${osLib.arch()} ${osLib.release()}`
-    );
+    output.push(`Version:          ${this.productService.nameShort} ${this.productService.version} (${this.productService.commit || "Commit unknown"}, ${this.productService.date || "Date unknown"})`);
+    output.push(`OS Version:       ${osLib.type()} ${osLib.arch()} ${osLib.release()}`);
     const cpus = osLib.cpus();
     if (cpus && cpus.length > 0) {
-      output.push(
-        `CPUs:             ${cpus[0].model} (${cpus.length} x ${cpus[0].speed})`
-      );
+      output.push(`CPUs:             ${cpus[0].model} (${cpus.length} x ${cpus[0].speed})`);
     }
-    output.push(
-      `Memory (System):  ${(osLib.totalmem() / ByteSize.GB).toFixed(2)}GB (${(osLib.freemem() / ByteSize.GB).toFixed(2)}GB free)`
-    );
+    output.push(`Memory (System):  ${(osLib.totalmem() / ByteSize.GB).toFixed(2)}GB (${(osLib.freemem() / ByteSize.GB).toFixed(2)}GB free)`);
     if (!isWindows) {
-      output.push(
-        `Load (avg):       ${osLib.loadavg().map((l) => Math.round(l)).join(", ")}`
-      );
+      output.push(`Load (avg):       ${osLib.loadavg().map((l) => Math.round(l)).join(", ")}`);
     }
-    output.push(
-      `VM:               ${Math.round(virtualMachineHint.value() * 100)}%`
-    );
+    output.push(`VM:               ${Math.round(virtualMachineHint.value() * 100)}%`);
     output.push(`Screen Reader:    ${info.screenReader ? "yes" : "no"}`);
     output.push(`Process Argv:     ${info.mainArguments.join(" ")}`);
-    output.push(
-      `GPU Status:       ${this.expandGPUFeatures(info.gpuFeatureStatus)}`
-    );
+    output.push(`GPU Status:       ${this.expandGPUFeatures(info.gpuFeatureStatus)}`);
     return output.join("\n");
   }
   async getPerformanceInfo(info, remoteData) {
-    return Promise.all([
-      listProcesses(info.mainPID),
-      this.formatWorkspaceMetadata(info)
-    ]).then(async (result) => {
+    return Promise.all([listProcesses(info.mainPID), this.formatWorkspaceMetadata(info)]).then(async (result) => {
       let [rootProcess, workspaceInfo] = result;
       let processInfo = this.formatProcessList(info, rootProcess);
       remoteData.forEach((diagnostics) => {
@@ -285,9 +240,7 @@ ${this.formatProcessList(info, diagnostics.processes)}`;
           if (diagnostics.workspaceMetadata) {
             workspaceInfo += `
 |  Remote: ${diagnostics.hostName}`;
-            for (const folder of Object.keys(
-              diagnostics.workspaceMetadata
-            )) {
+            for (const folder of Object.keys(diagnostics.workspaceMetadata)) {
               const metadata = diagnostics.workspaceMetadata[folder];
               let countMessage = `${metadata.fileCount} files`;
               if (metadata.maxFilesReached) {
@@ -337,9 +290,7 @@ ${this.formatProcessList(info, diagnostics.processes)}`;
       output.push(this.formatEnvironment(info));
       output.push("");
       output.push(this.formatProcessList(info, rootProcess));
-      if (info.windows.some(
-        (window) => window.folderURIs && window.folderURIs.length > 0 && !window.remoteAuthority
-      )) {
+      if (info.windows.some((window) => window.folderURIs && window.folderURIs.length > 0 && !window.remoteAuthority)) {
         output.push("");
         output.push("Workspace Stats: ");
         output.push(await this.formatWorkspaceMetadata(info));
@@ -351,18 +302,12 @@ ${diagnostics.errorMessage}`);
         } else {
           output.push("\n\n");
           output.push(`Remote:           ${diagnostics.hostName}`);
-          output.push(
-            this.formatMachineInfo(diagnostics.machineInfo)
-          );
+          output.push(this.formatMachineInfo(diagnostics.machineInfo));
           if (diagnostics.processes) {
-            output.push(
-              this.formatProcessList(info, diagnostics.processes)
-            );
+            output.push(this.formatProcessList(info, diagnostics.processes));
           }
           if (diagnostics.workspaceMetadata) {
-            for (const folder of Object.keys(
-              diagnostics.workspaceMetadata
-            )) {
+            for (const folder of Object.keys(diagnostics.workspaceMetadata)) {
               const metadata = diagnostics.workspaceMetadata[folder];
               let countMessage = `${metadata.fileCount} files`;
               if (metadata.maxFilesReached) {
@@ -421,12 +366,8 @@ ${diagnostics.errorMessage}`);
     return output.join("\n");
   }
   expandGPUFeatures(gpuFeatures) {
-    const longestFeatureName = Math.max(
-      ...Object.keys(gpuFeatures).map((feature) => feature.length)
-    );
-    return Object.keys(gpuFeatures).map(
-      (feature) => `${feature}:  ${" ".repeat(longestFeatureName - feature.length)}  ${gpuFeatures[feature]}`
-    ).join("\n                  ");
+    const longestFeatureName = Math.max(...Object.keys(gpuFeatures).map((feature) => feature.length));
+    return Object.keys(gpuFeatures).map((feature) => `${feature}:  ${" ".repeat(longestFeatureName - feature.length)}  ${gpuFeatures[feature]}`).join("\n                  ");
   }
   formatWorkspaceMetadata(info) {
     const output = [];
@@ -440,26 +381,18 @@ ${diagnostics.errorMessage}`);
         const folderUri = URI.revive(uriComponents);
         if (folderUri.scheme === Schemas.file) {
           const folder = folderUri.fsPath;
-          workspaceStatPromises.push(
-            collectWorkspaceStats(folder, ["node_modules", ".git"]).then((stats) => {
-              let countMessage = `${stats.fileCount} files`;
-              if (stats.maxFilesReached) {
-                countMessage = `more than ${countMessage}`;
-              }
-              output.push(
-                `|    Folder (${basename(folder)}): ${countMessage}`
-              );
-              output.push(this.formatWorkspaceStats(stats));
-            }).catch((error) => {
-              output.push(
-                `|      Error: Unable to collect workspace stats for folder ${folder} (${error.toString()})`
-              );
-            })
-          );
+          workspaceStatPromises.push(collectWorkspaceStats(folder, ["node_modules", ".git"]).then((stats) => {
+            let countMessage = `${stats.fileCount} files`;
+            if (stats.maxFilesReached) {
+              countMessage = `more than ${countMessage}`;
+            }
+            output.push(`|    Folder (${basename(folder)}): ${countMessage}`);
+            output.push(this.formatWorkspaceStats(stats));
+          }).catch((error) => {
+            output.push(`|      Error: Unable to collect workspace stats for folder ${folder} (${error.toString()})`);
+          }));
         } else {
-          output.push(
-            `|    Folder (${folderUri.toString()}): Workspace stats not available.`
-          );
+          output.push(`|    Folder (${folderUri.toString()}): Workspace stats not available.`);
         }
       });
     });
@@ -467,25 +400,12 @@ ${diagnostics.errorMessage}`);
   }
   formatProcessList(info, rootProcess) {
     const mapProcessToName = /* @__PURE__ */ new Map();
-    info.windows.forEach(
-      (window) => mapProcessToName.set(
-        window.pid,
-        `window [${window.id}] (${window.title})`
-      )
-    );
-    info.pidToNames.forEach(
-      ({ pid, name }) => mapProcessToName.set(pid, name)
-    );
+    info.windows.forEach((window) => mapProcessToName.set(window.pid, `window [${window.id}] (${window.title})`));
+    info.pidToNames.forEach(({ pid, name }) => mapProcessToName.set(pid, name));
     const output = [];
     output.push("CPU %	Mem MB	   PID	Process");
     if (rootProcess) {
-      this.formatProcessItem(
-        info.mainPID,
-        mapProcessToName,
-        output,
-        rootProcess,
-        0
-      );
+      this.formatProcessItem(info.mainPID, mapProcessToName, output, rootProcess, 0);
     }
     return output.join("\n");
   }
@@ -494,25 +414,17 @@ ${diagnostics.errorMessage}`);
     let name;
     if (isRoot) {
       name = item.pid === mainPid ? `${this.productService.applicationName} main` : "remote agent";
-    } else if (mapProcessToName.has(item.pid)) {
-      name = mapProcessToName.get(item.pid);
     } else {
-      name = `${"  ".repeat(indent)} ${item.name}`;
+      if (mapProcessToName.has(item.pid)) {
+        name = mapProcessToName.get(item.pid);
+      } else {
+        name = `${"  ".repeat(indent)} ${item.name}`;
+      }
     }
     const memory = process.platform === "win32" ? item.mem : osLib.totalmem() * (item.mem / 100);
-    output.push(
-      `${item.load.toFixed(0).padStart(5, " ")}	${(memory / ByteSize.MB).toFixed(0).padStart(6, " ")}	${item.pid.toFixed(0).padStart(6, " ")}	${name}`
-    );
+    output.push(`${item.load.toFixed(0).padStart(5, " ")}	${(memory / ByteSize.MB).toFixed(0).padStart(6, " ")}	${item.pid.toFixed(0).padStart(6, " ")}	${name}`);
     if (Array.isArray(item.children)) {
-      item.children.forEach(
-        (child) => this.formatProcessItem(
-          mainPid,
-          mapProcessToName,
-          output,
-          child,
-          indent + 1
-        )
-      );
+      item.children.forEach((child) => this.formatProcessItem(mainPid, mapProcessToName, output, child, indent + 1));
     }
   }
   async getWorkspaceFileExtensions(workspace) {
@@ -524,10 +436,7 @@ ${diagnostics.errorMessage}`);
       }
       const folder = folderUri.fsPath;
       try {
-        const stats = await collectWorkspaceStats(folder, [
-          "node_modules",
-          ".git"
-        ]);
+        const stats = await collectWorkspaceStats(folder, ["node_modules", ".git"]);
         stats.fileTypes.forEach((item) => items.add(item.name));
       } catch {
       }
@@ -542,10 +451,7 @@ ${diagnostics.errorMessage}`);
       }
       const folder = folderUri.fsPath;
       try {
-        const stats = await collectWorkspaceStats(folder, [
-          "node_modules",
-          ".git"
-        ]);
+        const stats = await collectWorkspaceStats(folder, ["node_modules", ".git"]);
         this.telemetryService.publicLog2("workspace.stats", {
           "workspace.id": workspace.telemetryId,
           rendererSessionId: workspace.rendererSessionId
@@ -571,12 +477,7 @@ ${diagnostics.errorMessage}`);
             count: e.count
           });
         });
-        this.telemetryService.publicLog2("workspace.stats.metadata", {
-          duration: stats.totalScanTime,
-          reachedLimit: stats.maxFilesReached,
-          fileCount: stats.fileCount,
-          readdirCount: stats.totalReaddirCount
-        });
+        this.telemetryService.publicLog2("workspace.stats.metadata", { duration: stats.totalScanTime, reachedLimit: stats.maxFilesReached, fileCount: stats.fileCount, readdirCount: stats.totalReaddirCount });
       } catch {
       }
     }

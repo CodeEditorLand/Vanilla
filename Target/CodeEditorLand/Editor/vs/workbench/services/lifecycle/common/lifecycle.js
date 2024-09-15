@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 const ILifecycleService = createDecorator("lifecycleService");
 var WillShutdownJoinerOrder = /* @__PURE__ */ ((WillShutdownJoinerOrder2) => {

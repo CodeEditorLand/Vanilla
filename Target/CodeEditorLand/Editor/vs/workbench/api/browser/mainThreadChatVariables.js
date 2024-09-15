@@ -12,22 +12,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableMap } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
-import {
-  IChatVariablesService
-} from "../../contrib/chat/common/chatVariables.js";
-import {
-  extHostNamedCustomer
-} from "../../services/extensions/common/extHostCustomers.js";
-import {
-  ExtHostContext,
-  MainContext
-} from "../common/extHost.protocol.js";
+import { ExtHostChatVariablesShape, ExtHostContext, IChatVariableResolverProgressDto, MainContext, MainThreadChatVariablesShape } from "../common/extHost.protocol.js";
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolverProgress, IChatVariablesService } from "../../contrib/chat/common/chatVariables.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
 let MainThreadChatVariables = class {
   constructor(extHostContext, _chatVariablesService) {
     this._chatVariablesService = _chatVariablesService;
-    this._proxy = extHostContext.getProxy(
-      ExtHostContext.ExtHostChatVariables
-    );
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatVariables);
   }
   _proxy;
   _variables = new DisposableMap();
@@ -36,30 +27,18 @@ let MainThreadChatVariables = class {
     this._variables.clearAndDisposeAll();
   }
   $registerVariable(handle, data) {
-    const registration = this._chatVariablesService.registerVariable(
-      data,
-      async (messageText, _arg, model, progress, token) => {
-        const varRequestId = `${model.sessionId}-${handle}`;
-        this._pendingProgress.set(varRequestId, progress);
-        const result = revive(
-          await this._proxy.$resolveVariable(
-            handle,
-            varRequestId,
-            messageText,
-            token
-          )
-        );
-        this._pendingProgress.delete(varRequestId);
-        return result;
-      }
-    );
+    const registration = this._chatVariablesService.registerVariable(data, async (messageText, _arg, model, progress, token) => {
+      const varRequestId = `${model.sessionId}-${handle}`;
+      this._pendingProgress.set(varRequestId, progress);
+      const result = revive(await this._proxy.$resolveVariable(handle, varRequestId, messageText, token));
+      this._pendingProgress.delete(varRequestId);
+      return result;
+    });
     this._variables.set(handle, registration);
   }
   async $handleProgressChunk(requestId, progress) {
     const revivedProgress = revive(progress);
-    this._pendingProgress.get(requestId)?.(
-      revivedProgress
-    );
+    this._pendingProgress.get(requestId)?.(revivedProgress);
   }
   $unregisterVariable(handle) {
     this._variables.deleteAndDispose(handle);

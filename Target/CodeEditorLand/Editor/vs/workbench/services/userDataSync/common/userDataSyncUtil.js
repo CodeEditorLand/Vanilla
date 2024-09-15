@@ -10,20 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import {
-  ITextResourceConfigurationService,
-  ITextResourcePropertiesService
-} from "../../../../editor/common/services/textResourceConfiguration.js";
-import {
-  InstantiationType,
-  registerSingleton
-} from "../../../../platform/instantiation/common/extensions.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import {
-  IUserDataSyncUtilService,
-  getDefaultIgnoredSettings
-} from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IUserDataSyncUtilService, getDefaultIgnoredSettings } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { FormattingOptions } from "../../../../base/common/jsonFormatter.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextResourcePropertiesService, ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 let UserDataSyncUtilService = class {
   constructor(keybindingsService, textModelService, textResourcePropertiesService, textResourceConfigurationService) {
     this.keybindingsService = keybindingsService;
@@ -55,14 +49,8 @@ let UserDataSyncUtilService = class {
     }
     return {
       eol: this.textResourcePropertiesService.getEOL(resource),
-      insertSpaces: !!this.textResourceConfigurationService.getValue(
-        resource,
-        "editor.insertSpaces"
-      ),
-      tabSize: this.textResourceConfigurationService.getValue(
-        resource,
-        "editor.tabSize"
-      )
+      insertSpaces: !!this.textResourceConfigurationService.getValue(resource, "editor.insertSpaces"),
+      tabSize: this.textResourceConfigurationService.getValue(resource, "editor.tabSize")
     };
   }
 };
@@ -72,9 +60,5 @@ UserDataSyncUtilService = __decorateClass([
   __decorateParam(2, ITextResourcePropertiesService),
   __decorateParam(3, ITextResourceConfigurationService)
 ], UserDataSyncUtilService);
-registerSingleton(
-  IUserDataSyncUtilService,
-  UserDataSyncUtilService,
-  InstantiationType.Delayed
-);
+registerSingleton(IUserDataSyncUtilService, UserDataSyncUtilService, InstantiationType.Delayed);
 //# sourceMappingURL=userDataSyncUtil.js.map

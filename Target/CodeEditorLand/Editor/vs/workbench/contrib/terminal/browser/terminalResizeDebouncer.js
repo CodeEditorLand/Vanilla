@@ -11,10 +11,7 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 import { getWindow, runWhenWindowIdle } from "../../../../base/browser/dom.js";
 import { debounce } from "../../../../base/common/decorators.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["StartDebouncingThreshold"] = 200] = "StartDebouncingThreshold";
   return Constants2;

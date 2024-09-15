@@ -30,9 +30,7 @@ function getFirstFrame(arg0) {
   const stack = arg0;
   if (stack) {
     const topFrame = findFirstFrame(stack);
-    const matches = /at [^/]*((?:(?:[a-zA-Z]+:)|(?:[/])|(?:\\\\))(?:.+)):(\d+):(\d+)/.exec(
-      topFrame || ""
-    );
+    const matches = /at [^\/]*((?:(?:[a-zA-Z]+:)|(?:[\/])|(?:\\\\))(?:.+)):(\d+):(\d+)/.exec(topFrame || "");
     if (matches && matches.length === 4) {
       return {
         uri: URI.file(matches[1]),
@@ -65,19 +63,9 @@ function log(entry, label) {
   let consoleArgs = [];
   if (typeof args[0] === "string") {
     if (topFrame && isOneStringArg) {
-      consoleArgs = [
-        `%c[${label}] %c${args[0]} %c${topFrame}`,
-        color("blue"),
-        color(""),
-        color("grey")
-      ];
+      consoleArgs = [`%c[${label}] %c${args[0]} %c${topFrame}`, color("blue"), color(""), color("grey")];
     } else {
-      consoleArgs = [
-        `%c[${label}] %c${args[0]}`,
-        color("blue"),
-        color(""),
-        ...args.slice(1)
-      ];
+      consoleArgs = [`%c[${label}] %c${args[0]}`, color("blue"), color(""), ...args.slice(1)];
     }
   } else {
     consoleArgs = [`%c[${label}]%`, color("blue"), ...args];

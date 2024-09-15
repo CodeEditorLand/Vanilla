@@ -12,21 +12,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/suggest.css";
 import * as dom from "../../../../base/browser/dom.js";
+import { IListEvent, IListGestureEvent, IListMouseEvent } from "../../../../base/browser/ui/list/list.js";
 import { List } from "../../../../base/browser/ui/list/listWidget.js";
 import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
+import { SimpleCompletionItem } from "./simpleCompletionItem.js";
+import { LineContext, SimpleCompletionModel } from "./simpleCompletionModel.js";
+import { SimpleSuggestWidgetItemRenderer } from "./simpleSuggestWidgetRenderer.js";
 import { TimeoutTimer } from "../../../../base/common/async.js";
-import { Emitter } from "../../../../base/common/event.js";
-import {
-  Disposable,
-  MutableDisposable
-} from "../../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { MutableDisposable, Disposable } from "../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../base/common/numbers.js";
-import { SuggestWidgetStatus } from "../../../../editor/contrib/suggest/browser/suggestWidgetStatus.js";
 import { localize } from "../../../../nls.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import {
-  SimpleSuggestWidgetItemRenderer
-} from "./simpleSuggestWidgetRenderer.js";
+import { SuggestWidgetStatus } from "../../../../editor/contrib/suggest/browser/suggestWidgetStatus.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
 const $ = dom.$;
 var State = /* @__PURE__ */ ((State2) => {
   State2[State2["Hidden"] = 0] = "Hidden";
@@ -63,117 +62,71 @@ let SimpleSuggestWidget = class extends Disposable {
       }
     }
     let state;
-    this._register(
-      this.element.onDidWillResize(() => {
-        state = new ResizeState(
-          this._persistedSize.restore(),
-          this.element.size
-        );
-      })
-    );
-    this._register(
-      this.element.onDidResize((e) => {
-        this._resize(e.dimension.width, e.dimension.height);
-        if (state) {
-          state.persistHeight = state.persistHeight || !!e.north || !!e.south;
-          state.persistWidth = state.persistWidth || !!e.east || !!e.west;
+    this._register(this.element.onDidWillResize(() => {
+      state = new ResizeState(this._persistedSize.restore(), this.element.size);
+    }));
+    this._register(this.element.onDidResize((e) => {
+      this._resize(e.dimension.width, e.dimension.height);
+      if (state) {
+        state.persistHeight = state.persistHeight || !!e.north || !!e.south;
+        state.persistWidth = state.persistWidth || !!e.east || !!e.west;
+      }
+      if (!e.done) {
+        return;
+      }
+      if (state) {
+        const { itemHeight, defaultSize } = this._getLayoutInfo();
+        const threshold = Math.round(itemHeight / 2);
+        let { width, height } = this.element.size;
+        if (!state.persistHeight || Math.abs(state.currentSize.height - height) <= threshold) {
+          height = state.persistedSize?.height ?? defaultSize.height;
         }
-        if (!e.done) {
-          return;
+        if (!state.persistWidth || Math.abs(state.currentSize.width - width) <= threshold) {
+          width = state.persistedSize?.width ?? defaultSize.width;
         }
-        if (state) {
-          const { itemHeight, defaultSize } = this._getLayoutInfo();
-          const threshold = Math.round(itemHeight / 2);
-          let { width, height } = this.element.size;
-          if (!state.persistHeight || Math.abs(state.currentSize.height - height) <= threshold) {
-            height = state.persistedSize?.height ?? defaultSize.height;
-          }
-          if (!state.persistWidth || Math.abs(state.currentSize.width - width) <= threshold) {
-            width = state.persistedSize?.width ?? defaultSize.width;
-          }
-          this._persistedSize.store(new dom.Dimension(width, height));
-        }
-        state = void 0;
-      })
-    );
+        this._persistedSize.store(new dom.Dimension(width, height));
+      }
+      state = void 0;
+    }));
     const renderer = new SimpleSuggestWidgetItemRenderer(_getFontInfo);
     this._register(renderer);
     this._listElement = dom.append(this.element.domNode, $(".tree"));
-    this._list = this._register(
-      new List(
-        "SuggestWidget",
-        this._listElement,
-        {
-          getHeight: /* @__PURE__ */ __name((_element) => this._getLayoutInfo().itemHeight, "getHeight"),
-          getTemplateId: /* @__PURE__ */ __name((_element) => "suggestion", "getTemplateId")
-        },
-        [renderer],
-        {
-          alwaysConsumeMouseWheel: true,
-          useShadows: false,
-          mouseSupport: false,
-          multipleSelectionSupport: false,
-          accessibilityProvider: {
-            getRole: /* @__PURE__ */ __name(() => "option", "getRole"),
-            getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("suggest", "Suggest"), "getWidgetAriaLabel"),
-            getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
-            getAriaLabel: /* @__PURE__ */ __name((item) => {
-              let label = item.completion.label;
-              if (typeof item.completion.label !== "string") {
-                const { detail: detail2, description } = item.completion.label;
-                if (detail2 && description) {
-                  label = localize(
-                    "label.full",
-                    "{0}{1}, {2}",
-                    label,
-                    detail2,
-                    description
-                  );
-                } else if (detail2) {
-                  label = localize(
-                    "label.detail",
-                    "{0}{1}",
-                    label,
-                    detail2
-                  );
-                } else if (description) {
-                  label = localize(
-                    "label.desc",
-                    "{0}, {1}",
-                    label,
-                    description
-                  );
-                }
-              }
-              const { detail } = item.completion;
-              return localize(
-                "ariaCurrenttSuggestionReadDetails",
-                "{0}, docs: {1}",
-                label,
-                detail
-              );
-            }, "getAriaLabel")
+    this._list = this._register(new List("SuggestWidget", this._listElement, {
+      getHeight: /* @__PURE__ */ __name((_element) => this._getLayoutInfo().itemHeight, "getHeight"),
+      getTemplateId: /* @__PURE__ */ __name((_element) => "suggestion", "getTemplateId")
+    }, [renderer], {
+      alwaysConsumeMouseWheel: true,
+      useShadows: false,
+      mouseSupport: false,
+      multipleSelectionSupport: false,
+      accessibilityProvider: {
+        getRole: /* @__PURE__ */ __name(() => "option", "getRole"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("suggest", "Suggest"), "getWidgetAriaLabel"),
+        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
+        getAriaLabel: /* @__PURE__ */ __name((item) => {
+          let label = item.completion.label;
+          if (typeof item.completion.label !== "string") {
+            const { detail: detail2, description } = item.completion.label;
+            if (detail2 && description) {
+              label = localize("label.full", "{0}{1}, {2}", label, detail2, description);
+            } else if (detail2) {
+              label = localize("label.detail", "{0}{1}", label, detail2);
+            } else if (description) {
+              label = localize("label.desc", "{0}, {1}", label, description);
+            }
           }
-        }
-      )
-    );
+          const { detail } = item.completion;
+          return localize("ariaCurrenttSuggestionReadDetails", "{0}, docs: {1}", label, detail);
+        }, "getAriaLabel")
+      }
+    }));
     if (options.statusBarMenuId) {
-      this._status = this._register(
-        instantiationService.createInstance(
-          SuggestWidgetStatus,
-          this.element.domNode,
-          options.statusBarMenuId
-        )
-      );
+      this._status = this._register(instantiationService.createInstance(SuggestWidgetStatus, this.element.domNode, options.statusBarMenuId));
       this.element.domNode.classList.toggle("with-status-bar", true);
     }
-    this._register(
-      this._list.onMouseDown((e) => this._onListMouseDownOrTap(e))
-    );
+    this._register(this._list.onMouseDown((e) => this._onListMouseDownOrTap(e)));
     this._register(this._list.onTap((e) => this._onListMouseDownOrTap(e)));
-    this._register(
-      this._list.onDidChangeSelection((e) => this._onListSelection(e))
-    );
+    this._register(this._list.onDidChangeSelection((e) => this._onListSelection(e)));
   }
   static {
     __name(this, "SimpleSuggestWidget");
@@ -189,9 +142,7 @@ let SimpleSuggestWidget = class extends Disposable {
   _list;
   _status;
   _showTimeout = this._register(new TimeoutTimer());
-  _onDidSelect = this._register(
-    new Emitter()
-  );
+  _onDidSelect = this._register(new Emitter());
   onDidSelect = this._onDidSelect.event;
   _onDidHide = this._register(new Emitter());
   onDidHide = this._onDidHide.event;
@@ -221,23 +172,16 @@ let SimpleSuggestWidget = class extends Disposable {
       return;
     }
     try {
-      this._list.splice(
-        0,
-        this._list.length,
-        this._completionModel?.items ?? []
-      );
+      this._list.splice(0, this._list.length, this._completionModel?.items ?? []);
       this._setState(isFrozen ? 4 /* Frozen */ : 3 /* Open */);
       this._list.reveal(selectionIndex, 0);
       this._list.setFocus([selectionIndex]);
     } finally {
     }
-    this._pendingLayout.value = dom.runAtThisOrScheduleAtNextAnimationFrame(
-      dom.getWindow(this.element.domNode),
-      () => {
-        this._pendingLayout.clear();
-        this._layout(this.element.size);
-      }
-    );
+    this._pendingLayout.value = dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(this.element.domNode), () => {
+      this._pendingLayout.clear();
+      this._layout(this.element.size);
+    });
   }
   setLineContext(lineContext) {
     if (this._completionModel) {
@@ -318,9 +262,7 @@ let SimpleSuggestWidget = class extends Disposable {
     dom.hide(this.element.domNode);
     this.element.clearSashHoverState();
     const dim = this._persistedSize.restore();
-    const minPersistedHeight = Math.ceil(
-      this._getLayoutInfo().itemHeight * 4.3
-    );
+    const minPersistedHeight = Math.ceil(this._getLayoutInfo().itemHeight * 4.3);
     if (dim && dim.height < minPersistedHeight) {
       this._persistedSize.store(dim.with(void 0, minPersistedHeight));
     }
@@ -349,16 +291,10 @@ let SimpleSuggestWidget = class extends Disposable {
     const editorBox = dom.getDomNodePagePosition(this._container);
     const cursorBox = this._cursorPosition;
     const cursorBottom = editorBox.top + cursorBox.top + cursorBox.height;
-    const maxHeightBelow = Math.min(
-      bodyBox.height - cursorBottom - info.verticalPadding,
-      fullHeight
-    );
+    const maxHeightBelow = Math.min(bodyBox.height - cursorBottom - info.verticalPadding, fullHeight);
     const availableSpaceAbove = editorBox.top + cursorBox.top - info.verticalPadding;
     const maxHeightAbove = Math.min(availableSpaceAbove, fullHeight);
-    let maxHeight = Math.min(
-      Math.max(maxHeightAbove, maxHeightBelow) + info.borderHeight,
-      fullHeight
-    );
+    let maxHeight = Math.min(Math.max(maxHeightAbove, maxHeightBelow) + info.borderHeight, fullHeight);
     if (height === this._cappedHeight?.capped) {
       height = this._cappedHeight.wanted;
     }
@@ -378,16 +314,10 @@ let SimpleSuggestWidget = class extends Disposable {
       this.element.enableSashes(false, true, true, false);
       maxHeight = maxHeightBelow;
     }
-    this.element.preferredSize = new dom.Dimension(
-      preferredWidth,
-      info.defaultSize.height
-    );
+    this.element.preferredSize = new dom.Dimension(preferredWidth, info.defaultSize.height);
     this.element.maxSize = new dom.Dimension(maxWidth, maxHeight);
     this.element.minSize = new dom.Dimension(220, minHeight);
-    this._cappedHeight = height === fullHeight ? {
-      wanted: this._cappedHeight?.wanted ?? size.height,
-      capped: height
-    } : void 0;
+    this._cappedHeight = height === fullHeight ? { wanted: this._cappedHeight?.wanted ?? size.height, capped: height } : void 0;
     this.element.domNode.style.left = `${this._cursorPosition.left}px`;
     if (this._preference === 0 /* Above */) {
       this.element.domNode.style.top = `${this._cursorPosition.top - height - info.borderHeight}px`;
@@ -424,10 +354,7 @@ let SimpleSuggestWidget = class extends Disposable {
       typicalHalfwidthCharacterWidth: 10,
       verticalPadding: 22,
       horizontalPadding: 14,
-      defaultSize: new dom.Dimension(
-        430,
-        statusBarHeight + 12 * itemHeight + borderHeight
-      )
+      defaultSize: new dom.Dimension(430, statusBarHeight + 12 * itemHeight + borderHeight)
     };
   }
   _onListMouseDownOrTap(e) {

@@ -20,9 +20,7 @@ const DEFAULT_WORD_REGEXP = createWordRegExp();
 function ensureValidWordDefinition(wordDefinition) {
   let result = DEFAULT_WORD_REGEXP;
   if (wordDefinition && wordDefinition instanceof RegExp) {
-    if (wordDefinition.global) {
-      result = wordDefinition;
-    } else {
+    if (!wordDefinition.global) {
       let flags = "g";
       if (wordDefinition.ignoreCase) {
         flags += "i";
@@ -34,6 +32,8 @@ function ensureValidWordDefinition(wordDefinition) {
         flags += "u";
       }
       result = new RegExp(wordDefinition.source, flags);
+    } else {
+      result = wordDefinition;
     }
   }
   result.lastIndex = 0;
@@ -76,12 +76,7 @@ function getWordAtText(column, wordDefinition, text, textOffset, config) {
     }
     const regexIndex = pos - config.windowSize * i;
     wordDefinition.lastIndex = Math.max(0, regexIndex);
-    const thisMatch = _findRegexMatchEnclosingPosition(
-      wordDefinition,
-      text,
-      pos,
-      prevRegexIndex
-    );
+    const thisMatch = _findRegexMatchEnclosingPosition(wordDefinition, text, pos, prevRegexIndex);
     if (!thisMatch && match) {
       break;
     }
