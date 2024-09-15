@@ -1,1 +1,184 @@
-import{MarkdownString as p}from"../../../base/common/htmlContent.js";import{Disposable as h}from"../../../base/common/lifecycle.js";import*as d from"../../../base/common/resources.js";import{isString as c}from"../../../base/common/types.js";import*as e from"../../../nls.js";import{SyncDescriptor as m}from"../../../platform/instantiation/common/descriptors.js";import{Registry as y}from"../../../platform/registry/common/platform.js";import{Extensions as g}from"../../services/extensionManagement/common/extensionFeatures.js";import{ExtensionsRegistry as x}from"../../services/extensions/common/extensionsRegistry.js";const u=x.registerExtensionPoint({extensionPoint:"jsonValidation",defaultExtensionKind:["workspace","web"],jsonSchema:{description:e.localize("contributes.jsonValidation","Contributes json schema configuration."),type:"array",defaultSnippets:[{body:[{fileMatch:"${1:file.json}",url:"${2:url}"}]}],items:{type:"object",defaultSnippets:[{body:{fileMatch:"${1:file.json}",url:"${2:url}"}}],properties:{fileMatch:{type:["string","array"],description:e.localize("contributes.jsonValidation.fileMatch",`The file pattern (or an array of patterns) to match, for example "package.json" or "*.launch". Exclusion patterns start with '!'`),items:{type:["string"]}},url:{description:e.localize("contributes.jsonValidation.url","A schema URL ('http:', 'https:') or relative path to the extension folder ('./')."),type:"string"}}}}});class w{constructor(){u.setHandler(o=>{for(const n of o){const a=n.value,t=n.collector,i=n.description.extensionLocation;if(!a||!Array.isArray(a)){t.error(e.localize("invalid.jsonValidation","'configuration.jsonValidation' must be a array"));return}a.forEach(r=>{if(!c(r.fileMatch)&&!(Array.isArray(r.fileMatch)&&r.fileMatch.every(c))){t.error(e.localize("invalid.fileMatch","'configuration.jsonValidation.fileMatch' must be defined as a string or an array of strings."));return}const s=r.url;if(!c(s)){t.error(e.localize("invalid.url","'configuration.jsonValidation.url' must be a URL or relative path"));return}if(s.startsWith("./"))try{const l=d.joinPath(i,s);d.isEqualOrParent(l,i)||t.warn(e.localize("invalid.path.1","Expected `contributes.{0}.url` ({1}) to be included inside extension's folder ({2}). This might make the extension non-portable.",u.name,l.toString(),i.path))}catch(l){t.error(e.localize("invalid.url.fileschema","'configuration.jsonValidation.url' is an invalid relative URL: {0}",l.message))}else if(!/^[^:/?#]+:\/\//.test(s)){t.error(e.localize("invalid.url.schema","'configuration.jsonValidation.url' must be an absolute URL or start with './'  to reference schemas located in the extension."));return}})}})}}class b extends h{type="table";shouldRender(o){return!!o.contributes?.jsonValidation}render(o){const n=o.contributes?.jsonValidation||[];if(!n.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const a=[e.localize("fileMatch","File Match"),e.localize("schema","Schema")],t=n.map(i=>[new p().appendMarkdown(`\`${Array.isArray(i.fileMatch)?i.fileMatch.join(", "):i.fileMatch}\``),i.url]);return{data:{headers:a,rows:t},dispose:()=>{}}}}y.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:"jsonValidation",label:e.localize("jsonValidation","JSON Validation"),access:{canToggle:!1},renderer:new m(b)});export{w as JSONValidationExtensionPoint};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import * as resources from "../../../base/common/resources.js";
+import { isString } from "../../../base/common/types.js";
+import * as nls from "../../../nls.js";
+import { SyncDescriptor } from "../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import {
+  Extensions
+} from "../../services/extensionManagement/common/extensionFeatures.js";
+import { ExtensionsRegistry } from "../../services/extensions/common/extensionsRegistry.js";
+const configurationExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "jsonValidation",
+  defaultExtensionKind: ["workspace", "web"],
+  jsonSchema: {
+    description: nls.localize(
+      "contributes.jsonValidation",
+      "Contributes json schema configuration."
+    ),
+    type: "array",
+    defaultSnippets: [
+      { body: [{ fileMatch: "${1:file.json}", url: "${2:url}" }] }
+    ],
+    items: {
+      type: "object",
+      defaultSnippets: [
+        { body: { fileMatch: "${1:file.json}", url: "${2:url}" } }
+      ],
+      properties: {
+        fileMatch: {
+          type: ["string", "array"],
+          description: nls.localize(
+            "contributes.jsonValidation.fileMatch",
+            `The file pattern (or an array of patterns) to match, for example "package.json" or "*.launch". Exclusion patterns start with '!'`
+          ),
+          items: {
+            type: ["string"]
+          }
+        },
+        url: {
+          description: nls.localize(
+            "contributes.jsonValidation.url",
+            "A schema URL ('http:', 'https:') or relative path to the extension folder ('./')."
+          ),
+          type: "string"
+        }
+      }
+    }
+  }
+});
+class JSONValidationExtensionPoint {
+  static {
+    __name(this, "JSONValidationExtensionPoint");
+  }
+  constructor() {
+    configurationExtPoint.setHandler((extensions) => {
+      for (const extension of extensions) {
+        const extensionValue = extension.value;
+        const collector = extension.collector;
+        const extensionLocation = extension.description.extensionLocation;
+        if (!extensionValue || !Array.isArray(extensionValue)) {
+          collector.error(
+            nls.localize(
+              "invalid.jsonValidation",
+              "'configuration.jsonValidation' must be a array"
+            )
+          );
+          return;
+        }
+        extensionValue.forEach((extension2) => {
+          if (!isString(extension2.fileMatch) && !(Array.isArray(extension2.fileMatch) && extension2.fileMatch.every(isString))) {
+            collector.error(
+              nls.localize(
+                "invalid.fileMatch",
+                "'configuration.jsonValidation.fileMatch' must be defined as a string or an array of strings."
+              )
+            );
+            return;
+          }
+          const uri = extension2.url;
+          if (!isString(uri)) {
+            collector.error(
+              nls.localize(
+                "invalid.url",
+                "'configuration.jsonValidation.url' must be a URL or relative path"
+              )
+            );
+            return;
+          }
+          if (uri.startsWith("./")) {
+            try {
+              const colorThemeLocation = resources.joinPath(
+                extensionLocation,
+                uri
+              );
+              if (!resources.isEqualOrParent(
+                colorThemeLocation,
+                extensionLocation
+              )) {
+                collector.warn(
+                  nls.localize(
+                    "invalid.path.1",
+                    "Expected `contributes.{0}.url` ({1}) to be included inside extension's folder ({2}). This might make the extension non-portable.",
+                    configurationExtPoint.name,
+                    colorThemeLocation.toString(),
+                    extensionLocation.path
+                  )
+                );
+              }
+            } catch (e) {
+              collector.error(
+                nls.localize(
+                  "invalid.url.fileschema",
+                  "'configuration.jsonValidation.url' is an invalid relative URL: {0}",
+                  e.message
+                )
+              );
+            }
+          } else if (!/^[^:/?#]+:\/\//.test(uri)) {
+            collector.error(
+              nls.localize(
+                "invalid.url.schema",
+                "'configuration.jsonValidation.url' must be an absolute URL or start with './'  to reference schemas located in the extension."
+              )
+            );
+            return;
+          }
+        });
+      }
+    });
+  }
+}
+class JSONValidationDataRenderer extends Disposable {
+  static {
+    __name(this, "JSONValidationDataRenderer");
+  }
+  type = "table";
+  shouldRender(manifest) {
+    return !!manifest.contributes?.jsonValidation;
+  }
+  render(manifest) {
+    const contrib = manifest.contributes?.jsonValidation || [];
+    if (!contrib.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      nls.localize("fileMatch", "File Match"),
+      nls.localize("schema", "Schema")
+    ];
+    const rows = contrib.map((v) => {
+      return [
+        new MarkdownString().appendMarkdown(
+          `\`${Array.isArray(v.fileMatch) ? v.fileMatch.join(", ") : v.fileMatch}\``
+        ),
+        v.url
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(
+  Extensions.ExtensionFeaturesRegistry
+).registerExtensionFeature({
+  id: "jsonValidation",
+  label: nls.localize("jsonValidation", "JSON Validation"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(JSONValidationDataRenderer)
+});
+export {
+  JSONValidationExtensionPoint
+};
+//# sourceMappingURL=jsonValidationExtensionPoint.js.map

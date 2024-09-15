@@ -1,1 +1,39 @@
-var p=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var n=(m,o,t,i)=>{for(var r=i>1?void 0:i?I(o,t):o,d=m.length-1,s;d>=0;d--)(s=m[d])&&(r=(i?s(o,t,r):s(r))||r);return i&&r&&p(o,t,r),r},c=(m,o)=>(t,i)=>o(t,i,m);import{IMarkerDecorationsService as a}from"../../common/services/markerDecorations.js";import{EditorContributionInstantiation as E,registerEditorContribution as f}from"../editorExtensions.js";let e=class{static ID="editor.contrib.markerDecorations";constructor(o,t){}dispose(){}};e=n([c(1,a)],e),f(e.ID,e,E.Eager);export{e as MarkerDecorationsContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../editorExtensions.js";
+let MarkerDecorationsContribution = class {
+  static {
+    __name(this, "MarkerDecorationsContribution");
+  }
+  static ID = "editor.contrib.markerDecorations";
+  constructor(_editor, _markerDecorationsService) {
+  }
+  dispose() {
+  }
+};
+MarkerDecorationsContribution = __decorateClass([
+  __decorateParam(1, IMarkerDecorationsService)
+], MarkerDecorationsContribution);
+registerEditorContribution(
+  MarkerDecorationsContribution.ID,
+  MarkerDecorationsContribution,
+  EditorContributionInstantiation.Eager
+);
+export {
+  MarkerDecorationsContribution
+};
+//# sourceMappingURL=markerDecorations.js.map

@@ -1,1 +1,181 @@
-import{Dimension as h}from"../../../../base/browser/dom.js";import{CancellationToken as P}from"../../../../base/common/cancellation.js";import{Color as H,RGBA as M}from"../../../../base/common/color.js";import{DisposableStore as T}from"../../../../base/common/lifecycle.js";import{EditorOption as f}from"../../../common/config/editorOptions.js";import{Range as p}from"../../../common/core/range.js";import{TrackedRangeStickiness as x}from"../../../common/model.js";import{getColorPresentations as u}from"./color.js";import{ColorPickerModel as I}from"./colorPickerModel.js";import{ColorHover as S,HoverColorPickerParticipant as b}from"./hoverColorPicker/hoverColorPickerParticipant.js";import{ColorPickerWidget as w}from"./hoverColorPicker/hoverColorPickerWidget.js";import{StandaloneColorPickerHover as E,StandaloneColorPickerParticipant as v}from"./standaloneColorPicker/standaloneColorPickerParticipant.js";async function _(e,r,o,a){const l=r.getValueInRange(o.range),{red:i,green:t,blue:m,alpha:s}=o.color,C=new M(Math.round(i*255),Math.round(t*255),Math.round(m*255),s),c=new H(C),d=await u(r,o,a,P.None),n=new I(c,[],0);return n.colorPresentations=d||[],n.guessColorPresentation(c,l),e instanceof b?new S(e,p.lift(o.range),n,a):new E(e,p.lift(o.range),n,a)}function V(e,r,o,a,l){if(a.length===0||!r.hasModel())return;if(l.setMinimumDimensions){const n=r.getOption(f.lineHeight)+8;l.setMinimumDimensions(new h(302,n))}const i=new T,t=a[0],m=r.getModel(),s=t.model,C=i.add(new w(l.fragment,s,r.getOption(f.pixelRatio),o,e instanceof v));let c=!1,d=new p(t.range.startLineNumber,t.range.startColumn,t.range.endLineNumber,t.range.endColumn);if(e instanceof v){const n=t.model.color;e.color=n,g(m,s,n,d,t),i.add(s.onColorFlushed(k=>{e.color=k}))}else i.add(s.onColorFlushed(async n=>{await g(m,s,n,d,t),c=!0,d=y(r,d,s)}));return i.add(s.onDidChangeColor(n=>{g(m,s,n,d,t)})),i.add(r.onDidChangeModelContent(n=>{c?c=!1:(l.hide(),r.focus())})),{hoverPart:t,colorPicker:C,disposables:i}}function y(e,r,o){const a=[],l=o.presentation.textEdit??{range:r,text:o.presentation.label,forceMoveMarkers:!1};a.push(l),o.presentation.additionalTextEdits&&a.push(...o.presentation.additionalTextEdits);const i=p.lift(l.range),t=e.getModel()._setTrackedRange(null,i,x.GrowsOnlyWhenTypingAfter);return e.executeEdits("colorpicker",a),e.pushUndoStop(),e.getModel()._getTrackedRange(t)??i}async function g(e,r,o,a,l){const i=await u(e,{range:a,color:{red:o.rgba.r/255,green:o.rgba.g/255,blue:o.rgba.b/255,alpha:o.rgba.a}},l.provider,P.None);r.colorPresentations=i||[]}export{_ as createColorHover,V as renderHoverParts,g as updateColorPresentations,y as updateEditorModel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Dimension } from "../../../../base/browser/dom.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import {
+  TrackedRangeStickiness
+} from "../../../common/model.js";
+import { getColorPresentations } from "./color.js";
+import { ColorPickerModel } from "./colorPickerModel.js";
+import {
+  ColorHover,
+  HoverColorPickerParticipant
+} from "./hoverColorPicker/hoverColorPickerParticipant.js";
+import { ColorPickerWidget } from "./hoverColorPicker/hoverColorPickerWidget.js";
+import {
+  StandaloneColorPickerHover,
+  StandaloneColorPickerParticipant
+} from "./standaloneColorPicker/standaloneColorPickerParticipant.js";
+async function createColorHover(participant, editorModel, colorInfo, provider) {
+  const originalText = editorModel.getValueInRange(colorInfo.range);
+  const { red, green, blue, alpha } = colorInfo.color;
+  const rgba = new RGBA(
+    Math.round(red * 255),
+    Math.round(green * 255),
+    Math.round(blue * 255),
+    alpha
+  );
+  const color = new Color(rgba);
+  const colorPresentations = await getColorPresentations(
+    editorModel,
+    colorInfo,
+    provider,
+    CancellationToken.None
+  );
+  const model = new ColorPickerModel(color, [], 0);
+  model.colorPresentations = colorPresentations || [];
+  model.guessColorPresentation(color, originalText);
+  if (participant instanceof HoverColorPickerParticipant) {
+    return new ColorHover(
+      participant,
+      Range.lift(colorInfo.range),
+      model,
+      provider
+    );
+  } else {
+    return new StandaloneColorPickerHover(
+      participant,
+      Range.lift(colorInfo.range),
+      model,
+      provider
+    );
+  }
+}
+__name(createColorHover, "createColorHover");
+function renderHoverParts(participant, editor, themeService, hoverParts, context) {
+  if (hoverParts.length === 0 || !editor.hasModel()) {
+    return void 0;
+  }
+  if (context.setMinimumDimensions) {
+    const minimumHeight = editor.getOption(EditorOption.lineHeight) + 8;
+    context.setMinimumDimensions(new Dimension(302, minimumHeight));
+  }
+  const disposables = new DisposableStore();
+  const colorHover = hoverParts[0];
+  const editorModel = editor.getModel();
+  const model = colorHover.model;
+  const colorPicker = disposables.add(
+    new ColorPickerWidget(
+      context.fragment,
+      model,
+      editor.getOption(EditorOption.pixelRatio),
+      themeService,
+      participant instanceof StandaloneColorPickerParticipant
+    )
+  );
+  let editorUpdatedByColorPicker = false;
+  let range = new Range(
+    colorHover.range.startLineNumber,
+    colorHover.range.startColumn,
+    colorHover.range.endLineNumber,
+    colorHover.range.endColumn
+  );
+  if (participant instanceof StandaloneColorPickerParticipant) {
+    const color = colorHover.model.color;
+    participant.color = color;
+    updateColorPresentations(editorModel, model, color, range, colorHover);
+    disposables.add(
+      model.onColorFlushed((color2) => {
+        participant.color = color2;
+      })
+    );
+  } else {
+    disposables.add(
+      model.onColorFlushed(async (color) => {
+        await updateColorPresentations(
+          editorModel,
+          model,
+          color,
+          range,
+          colorHover
+        );
+        editorUpdatedByColorPicker = true;
+        range = updateEditorModel(editor, range, model);
+      })
+    );
+  }
+  disposables.add(
+    model.onDidChangeColor((color) => {
+      updateColorPresentations(
+        editorModel,
+        model,
+        color,
+        range,
+        colorHover
+      );
+    })
+  );
+  disposables.add(
+    editor.onDidChangeModelContent((e) => {
+      if (editorUpdatedByColorPicker) {
+        editorUpdatedByColorPicker = false;
+      } else {
+        context.hide();
+        editor.focus();
+      }
+    })
+  );
+  return { hoverPart: colorHover, colorPicker, disposables };
+}
+__name(renderHoverParts, "renderHoverParts");
+function updateEditorModel(editor, range, model) {
+  const textEdits = [];
+  const edit = model.presentation.textEdit ?? {
+    range,
+    text: model.presentation.label,
+    forceMoveMarkers: false
+  };
+  textEdits.push(edit);
+  if (model.presentation.additionalTextEdits) {
+    textEdits.push(...model.presentation.additionalTextEdits);
+  }
+  const replaceRange = Range.lift(edit.range);
+  const trackedRange = editor.getModel()._setTrackedRange(
+    null,
+    replaceRange,
+    TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
+  );
+  editor.executeEdits("colorpicker", textEdits);
+  editor.pushUndoStop();
+  return editor.getModel()._getTrackedRange(trackedRange) ?? replaceRange;
+}
+__name(updateEditorModel, "updateEditorModel");
+async function updateColorPresentations(editorModel, colorPickerModel, color, range, colorHover) {
+  const colorPresentations = await getColorPresentations(
+    editorModel,
+    {
+      range,
+      color: {
+        red: color.rgba.r / 255,
+        green: color.rgba.g / 255,
+        blue: color.rgba.b / 255,
+        alpha: color.rgba.a
+      }
+    },
+    colorHover.provider,
+    CancellationToken.None
+  );
+  colorPickerModel.colorPresentations = colorPresentations || [];
+}
+__name(updateColorPresentations, "updateColorPresentations");
+export {
+  createColorHover,
+  renderHoverParts,
+  updateColorPresentations,
+  updateEditorModel
+};
+//# sourceMappingURL=colorPickerParticipantUtils.js.map

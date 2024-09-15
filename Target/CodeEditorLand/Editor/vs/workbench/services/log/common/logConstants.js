@@ -1,1 +1,7 @@
-const o="rendererLog",n="workbench.action.showWindowLog";export{n as showWindowLogActionId,o as windowLogId};
+const windowLogId = "rendererLog";
+const showWindowLogActionId = "workbench.action.showWindowLog";
+export {
+  showWindowLogActionId,
+  windowLogId
+};
+//# sourceMappingURL=logConstants.js.map

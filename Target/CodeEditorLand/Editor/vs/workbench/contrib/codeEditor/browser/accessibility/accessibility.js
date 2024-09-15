@@ -1,1 +1,66 @@
-import"./accessibility.css";import{alert as d}from"../../../../../base/browser/ui/aria/aria.js";import{KeyCode as i,KeyMod as e}from"../../../../../base/common/keyCodes.js";import{AccessibilityHelpNLS as t}from"../../../../../editor/common/standaloneStrings.js";import*as c from"../../../../../nls.js";import{IAccessibilityService as l}from"../../../../../platform/accessibility/common/accessibility.js";import{Action2 as m,registerAction2 as p}from"../../../../../platform/actions/common/actions.js";import{ConfigurationTarget as g,IConfigurationService as f}from"../../../../../platform/configuration/common/configuration.js";import{KeybindingWeight as n}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{accessibilityHelpIsShown as S}from"../../../accessibility/browser/accessibilityConfiguration.js";class y extends m{constructor(){super({id:"editor.action.toggleScreenReaderAccessibilityMode",title:c.localize2("toggleScreenReaderMode","Toggle Screen Reader Accessibility Mode"),metadata:{description:c.localize2("toggleScreenReaderModeDescription","Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies.")},f1:!0,keybinding:[{primary:e.CtrlCmd|i.KeyE,weight:n.WorkbenchContrib+10,when:S},{primary:e.Alt|i.F1|e.Shift,linux:{primary:e.Alt|i.F4|e.Shift},weight:n.WorkbenchContrib+10}]})}async run(r){const s=r.get(l),a=r.get(f),o=s.isScreenReaderOptimized();a.updateValue("editor.accessibilitySupport",o?"off":"on",g.USER),d(o?t.screenReaderModeDisabled:t.screenReaderModeEnabled)}}p(y);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./accessibility.css";
+import { alert } from "../../../../../base/browser/ui/aria/aria.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { AccessibilityHelpNLS } from "../../../../../editor/common/standaloneStrings.js";
+import * as nls from "../../../../../nls.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import {
+  ConfigurationTarget,
+  IConfigurationService
+} from "../../../../../platform/configuration/common/configuration.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { accessibilityHelpIsShown } from "../../../accessibility/browser/accessibilityConfiguration.js";
+class ToggleScreenReaderMode extends Action2 {
+  static {
+    __name(this, "ToggleScreenReaderMode");
+  }
+  constructor() {
+    super({
+      id: "editor.action.toggleScreenReaderAccessibilityMode",
+      title: nls.localize2(
+        "toggleScreenReaderMode",
+        "Toggle Screen Reader Accessibility Mode"
+      ),
+      metadata: {
+        description: nls.localize2(
+          "toggleScreenReaderModeDescription",
+          "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies."
+        )
+      },
+      f1: true,
+      keybinding: [
+        {
+          primary: KeyMod.CtrlCmd | KeyCode.KeyE,
+          weight: KeybindingWeight.WorkbenchContrib + 10,
+          when: accessibilityHelpIsShown
+        },
+        {
+          primary: KeyMod.Alt | KeyCode.F1 | KeyMod.Shift,
+          linux: { primary: KeyMod.Alt | KeyCode.F4 | KeyMod.Shift },
+          weight: KeybindingWeight.WorkbenchContrib + 10
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const accessibiiltyService = accessor.get(IAccessibilityService);
+    const configurationService = accessor.get(IConfigurationService);
+    const isScreenReaderOptimized = accessibiiltyService.isScreenReaderOptimized();
+    configurationService.updateValue(
+      "editor.accessibilitySupport",
+      isScreenReaderOptimized ? "off" : "on",
+      ConfigurationTarget.USER
+    );
+    alert(
+      isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled
+    );
+  }
+}
+registerAction2(ToggleScreenReaderMode);
+//# sourceMappingURL=accessibility.js.map

@@ -1,1 +1,559 @@
-var _=Object.defineProperty;var N=Object.getOwnPropertyDescriptor;var f=(p,o,i,e)=>{for(var t=e>1?void 0:e?N(o,i):o,r=p.length-1,n;r>=0;r--)(n=p[r])&&(t=(e?n(o,i,t):n(t))||t);return e&&t&&_(o,i,t),t},m=(p,o)=>(i,e)=>o(i,e,p);import"./media/sidebysideeditor.css";import{$ as g,Dimension as I,clearNode as P,multibyteAwareBtoa as w}from"../../../../base/browser/dom.js";import{Orientation as s,Sizing as C,SplitView as V}from"../../../../base/browser/ui/splitview/splitview.js";import{Emitter as D,Event as u,Relay as A}from"../../../../base/common/event.js";import{DisposableStore as b}from"../../../../base/common/lifecycle.js";import{isEqual as L}from"../../../../base/common/resources.js";import{assertIsDefined as E}from"../../../../base/common/types.js";import{URI as Y}from"../../../../base/common/uri.js";import{ITextResourceConfigurationService as H}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as F}from"../../../../nls.js";import{IConfigurationService as B}from"../../../../platform/configuration/common/configuration.js";import{IInstantiationService as z}from"../../../../platform/instantiation/common/instantiation.js";import{Registry as x}from"../../../../platform/registry/common/platform.js";import{IStorageService as W}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as M}from"../../../../platform/telemetry/common/telemetry.js";import{IThemeService as Z}from"../../../../platform/theme/common/themeService.js";import{EditorExtensions as U,EditorPaneSelectionCompareResult as O,SIDE_BY_SIDE_EDITOR_ID as j,SideBySideEditor as c,isEditorPaneWithSelection as R}from"../../../common/editor.js";import{SideBySideEditorInput as T}from"../../../common/editor/sideBySideEditorInput.js";import{SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER as G,SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER as k}from"../../../common/theme.js";import{IEditorGroupsService as $}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as K}from"../../../services/editor/common/editorService.js";import{DEFAULT_EDITOR_MIN_DIMENSIONS as l}from"./editor.js";import{AbstractEditorWithViewState as q}from"./editorWithViewState.js";function J(p){const o=p;return typeof o?.primary=="object"&&typeof o.secondary=="object"}let h=class extends q{constructor(i,e,t,r,n,d,a,S,y){super(h.ID,i,h.VIEW_STATE_PREFERENCE_KEY,e,t,n,a,r,S,y);this.configurationService=d;this.registerListeners()}static ID=j;static SIDE_BY_SIDE_LAYOUT_SETTING="workbench.editor.splitInGroupLayout";static VIEW_STATE_PREFERENCE_KEY="sideBySideEditorViewState";get minimumPrimaryWidth(){return this.primaryEditorPane?this.primaryEditorPane.minimumWidth:0}get maximumPrimaryWidth(){return this.primaryEditorPane?this.primaryEditorPane.maximumWidth:Number.POSITIVE_INFINITY}get minimumPrimaryHeight(){return this.primaryEditorPane?this.primaryEditorPane.minimumHeight:0}get maximumPrimaryHeight(){return this.primaryEditorPane?this.primaryEditorPane.maximumHeight:Number.POSITIVE_INFINITY}get minimumSecondaryWidth(){return this.secondaryEditorPane?this.secondaryEditorPane.minimumWidth:0}get maximumSecondaryWidth(){return this.secondaryEditorPane?this.secondaryEditorPane.maximumWidth:Number.POSITIVE_INFINITY}get minimumSecondaryHeight(){return this.secondaryEditorPane?this.secondaryEditorPane.minimumHeight:0}get maximumSecondaryHeight(){return this.secondaryEditorPane?this.secondaryEditorPane.maximumHeight:Number.POSITIVE_INFINITY}set minimumWidth(i){}set maximumWidth(i){}set minimumHeight(i){}set maximumHeight(i){}get minimumWidth(){return this.minimumPrimaryWidth+this.minimumSecondaryWidth}get maximumWidth(){return this.maximumPrimaryWidth+this.maximumSecondaryWidth}get minimumHeight(){return this.minimumPrimaryHeight+this.minimumSecondaryHeight}get maximumHeight(){return this.maximumPrimaryHeight+this.maximumSecondaryHeight}_boundarySashes;onDidCreateEditors=this._register(new D);_onDidChangeSizeConstraints=this._register(new A);onDidChangeSizeConstraints=u.any(this.onDidCreateEditors.event,this._onDidChangeSizeConstraints.event);_onDidChangeSelection=this._register(new D);onDidChangeSelection=this._onDidChangeSelection.event;primaryEditorPane=void 0;secondaryEditorPane=void 0;primaryEditorContainer;secondaryEditorContainer;splitview;splitviewDisposables=this._register(new b);editorDisposables=this._register(new b);orientation=this.configurationService.getValue(h.SIDE_BY_SIDE_LAYOUT_SETTING)==="vertical"?s.VERTICAL:s.HORIZONTAL;dimension=new I(0,0);lastFocusedSide=void 0;registerListeners(){this._register(this.configurationService.onDidChangeConfiguration(i=>this.onConfigurationUpdated(i)))}onConfigurationUpdated(i){i.affectsConfiguration(h.SIDE_BY_SIDE_LAYOUT_SETTING)&&(this.orientation=this.configurationService.getValue(h.SIDE_BY_SIDE_LAYOUT_SETTING)==="vertical"?s.VERTICAL:s.HORIZONTAL,this.splitview&&this.recreateSplitview())}recreateSplitview(){const i=E(this.getContainer()),e=this.getSplitViewRatio();this.splitview&&(this.splitview.el.remove(),this.splitviewDisposables.clear()),this.createSplitView(i,e),this.layout(this.dimension)}getSplitViewRatio(){let i;if(this.splitview){const e=this.splitview.getViewSize(0),t=this.splitview.getViewSize(1);if(Math.abs(e-t)>1){const r=this.splitview.orientation===s.HORIZONTAL?this.dimension.width:this.dimension.height;i=e/r}}return i}createEditor(i){i.classList.add("side-by-side-editor"),this.secondaryEditorContainer=g(".side-by-side-editor-container.editor-instance"),this.primaryEditorContainer=g(".side-by-side-editor-container.editor-instance"),this.createSplitView(i)}createSplitView(i,e){this.splitview=this.splitviewDisposables.add(new V(i,{orientation:this.orientation})),this.splitviewDisposables.add(this.splitview.onDidSashReset(()=>this.splitview?.distributeViewSizes())),this.orientation===s.HORIZONTAL?this.splitview.orthogonalEndSash=this._boundarySashes?.bottom:(this.splitview.orthogonalStartSash=this._boundarySashes?.left,this.splitview.orthogonalEndSash=this._boundarySashes?.right);let t=C.Distribute,r=C.Distribute;if(e){const a=this.splitview.orientation===s.HORIZONTAL?this.dimension.width:this.dimension.height;t=Math.round(a*e),r=a-t,this.splitview.layout(this.orientation===s.HORIZONTAL?this.dimension.width:this.dimension.height)}const n=E(this.secondaryEditorContainer);this.splitview.addView({element:n,layout:a=>this.layoutPane(this.secondaryEditorPane,a),minimumSize:this.orientation===s.HORIZONTAL?l.width:l.height,maximumSize:Number.POSITIVE_INFINITY,onDidChange:u.None},t);const d=E(this.primaryEditorContainer);this.splitview.addView({element:d,layout:a=>this.layoutPane(this.primaryEditorPane,a),minimumSize:this.orientation===s.HORIZONTAL?l.width:l.height,maximumSize:Number.POSITIVE_INFINITY,onDidChange:u.None},r),this.updateStyles()}getTitle(){return this.input?this.input.getName():F("sideBySideEditor","Side by Side Editor")}async setInput(i,e,t,r){const n=this.input;await super.setInput(i,e,t,r),(!n||!i.matches(n))&&(n&&this.disposeEditors(),this.createEditors(i));const{primary:d,secondary:a,viewState:S}=this.loadViewState(i,e,t);if(this.lastFocusedSide=S?.focus,typeof S?.ratio=="number"&&this.splitview){const y=this.splitview.orientation===s.HORIZONTAL?this.dimension.width:this.dimension.height;this.splitview.resizeView(0,Math.round(y*S.ratio))}else this.splitview?.distributeViewSizes();await Promise.all([this.secondaryEditorPane?.setInput(i.secondary,a,t,r),this.primaryEditorPane?.setInput(i.primary,d,t,r)]),typeof e?.target=="number"&&(this.lastFocusedSide=e.target)}loadViewState(i,e,t){const r=J(e?.viewState)?e?.viewState:this.loadEditorViewState(i,t);let n=Object.create(null),d;return e?.target===c.SECONDARY?d={...e}:n={...e},n.viewState=r?.primary,r?.secondary&&(d?d.viewState=r?.secondary:d={viewState:r.secondary}),{primary:n,secondary:d,viewState:r}}createEditors(i){this.secondaryEditorPane=this.doCreateEditor(i.secondary,E(this.secondaryEditorContainer)),this.primaryEditorPane=this.doCreateEditor(i.primary,E(this.primaryEditorContainer)),this.layout(this.dimension),this._onDidChangeSizeConstraints.input=u.any(u.map(this.secondaryEditorPane.onDidChangeSizeConstraints,()=>{}),u.map(this.primaryEditorPane.onDidChangeSizeConstraints,()=>{})),this.onDidCreateEditors.fire(void 0),this.editorDisposables.add(this.primaryEditorPane.onDidFocus(()=>this.onDidFocusChange(c.PRIMARY))),this.editorDisposables.add(this.secondaryEditorPane.onDidFocus(()=>this.onDidFocusChange(c.SECONDARY)))}doCreateEditor(i,e){const t=x.as(U.EditorPane).getEditorPane(i);if(!t)throw new Error("No editor pane descriptor for editor found");const r=t.instantiate(this.instantiationService,this.group);return r.create(e),r.setVisible(this.isVisible()),R(r)&&this.editorDisposables.add(r.onDidChangeSelection(n=>this._onDidChangeSelection.fire(n))),this.editorDisposables.add(r),r}onDidFocusChange(i){this.lastFocusedSide=i,this._onDidChangeControl.fire()}getSelection(){const i=this.getLastFocusedEditorPane();if(R(i)){const e=i.getSelection();if(e)return new v(e,i===this.primaryEditorPane?c.PRIMARY:c.SECONDARY)}}setOptions(i){super.setOptions(i),typeof i?.target=="number"&&(this.lastFocusedSide=i.target),this.getLastFocusedEditorPane()?.setOptions(i)}setEditorVisible(i){this.primaryEditorPane?.setVisible(i),this.secondaryEditorPane?.setVisible(i),super.setEditorVisible(i)}clearInput(){super.clearInput(),this.primaryEditorPane?.clearInput(),this.secondaryEditorPane?.clearInput(),this.disposeEditors()}focus(){super.focus(),this.getLastFocusedEditorPane()?.focus()}getLastFocusedEditorPane(){return this.lastFocusedSide===c.SECONDARY?this.secondaryEditorPane:this.primaryEditorPane}layout(i){this.dimension=i,E(this.splitview).layout(this.orientation===s.HORIZONTAL?i.width:i.height)}setBoundarySashes(i){this._boundarySashes=i,this.splitview&&(this.splitview.orthogonalEndSash=i.bottom)}layoutPane(i,e){i?.layout(this.orientation===s.HORIZONTAL?new I(e,this.dimension.height):new I(this.dimension.width,e))}getControl(){return this.getLastFocusedEditorPane()?.getControl()}getPrimaryEditorPane(){return this.primaryEditorPane}getSecondaryEditorPane(){return this.secondaryEditorPane}tracksEditorViewState(i){return i instanceof T}computeEditorViewState(i){if(!this.input||!L(i,this.toEditorViewStateResource(this.input)))return;const e=this.primaryEditorPane?.getViewState(),t=this.secondaryEditorPane?.getViewState();if(!(!e||!t))return{primary:e,secondary:t,focus:this.lastFocusedSide,ratio:this.getSplitViewRatio()}}toEditorViewStateResource(i){let e,t;if(i instanceof T&&(e=i.primary.resource,t=i.secondary.resource),!(!t||!e))return Y.from({scheme:"sideBySide",path:`${w(t.toString())}${w(e.toString())}`})}updateStyles(){super.updateStyles(),this.primaryEditorContainer&&(this.orientation===s.HORIZONTAL?(this.primaryEditorContainer.style.borderLeftWidth="1px",this.primaryEditorContainer.style.borderLeftStyle="solid",this.primaryEditorContainer.style.borderLeftColor=this.getColor(k)??"",this.primaryEditorContainer.style.borderTopWidth="0"):(this.primaryEditorContainer.style.borderTopWidth="1px",this.primaryEditorContainer.style.borderTopStyle="solid",this.primaryEditorContainer.style.borderTopColor=this.getColor(G)??"",this.primaryEditorContainer.style.borderLeftWidth="0"))}dispose(){this.disposeEditors(),super.dispose()}disposeEditors(){this.editorDisposables.clear(),this.secondaryEditorPane=void 0,this.primaryEditorPane=void 0,this.lastFocusedSide=void 0,this.secondaryEditorContainer&&P(this.secondaryEditorContainer),this.primaryEditorContainer&&P(this.primaryEditorContainer)}};h=f([m(1,M),m(2,z),m(3,Z),m(4,W),m(5,B),m(6,H),m(7,K),m(8,$)],h);class v{constructor(o,i){this.selection=o;this.side=i}compare(o){return o instanceof v?this.side!==o.side?O.DIFFERENT:this.selection.compare(o.selection):O.DIFFERENT}restore(o){const i={...o,target:this.side};return this.selection.restore(i)}}export{h as SideBySideEditor};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/sidebysideeditor.css";
+import {
+  $,
+  Dimension,
+  clearNode,
+  multibyteAwareBtoa
+} from "../../../../base/browser/dom.js";
+import {
+  Orientation,
+  Sizing,
+  SplitView
+} from "../../../../base/browser/ui/splitview/splitview.js";
+import { Emitter, Event, Relay } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import {
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  EditorExtensions,
+  EditorPaneSelectionCompareResult,
+  SIDE_BY_SIDE_EDITOR_ID,
+  SideBySideEditor as Side,
+  isEditorPaneWithSelection
+} from "../../../common/editor.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import {
+  SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER,
+  SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER
+} from "../../../common/theme.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { DEFAULT_EDITOR_MIN_DIMENSIONS } from "./editor.js";
+import { AbstractEditorWithViewState } from "./editorWithViewState.js";
+function isSideBySideEditorViewState(thing) {
+  const candidate = thing;
+  return typeof candidate?.primary === "object" && typeof candidate.secondary === "object";
+}
+__name(isSideBySideEditorViewState, "isSideBySideEditorViewState");
+let SideBySideEditor = class extends AbstractEditorWithViewState {
+  constructor(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService) {
+    super(SideBySideEditor.ID, group, SideBySideEditor.VIEW_STATE_PREFERENCE_KEY, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
+    this.configurationService = configurationService;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "SideBySideEditor");
+  }
+  static ID = SIDE_BY_SIDE_EDITOR_ID;
+  static SIDE_BY_SIDE_LAYOUT_SETTING = "workbench.editor.splitInGroupLayout";
+  static VIEW_STATE_PREFERENCE_KEY = "sideBySideEditorViewState";
+  //#region Layout Constraints
+  get minimumPrimaryWidth() {
+    return this.primaryEditorPane ? this.primaryEditorPane.minimumWidth : 0;
+  }
+  get maximumPrimaryWidth() {
+    return this.primaryEditorPane ? this.primaryEditorPane.maximumWidth : Number.POSITIVE_INFINITY;
+  }
+  get minimumPrimaryHeight() {
+    return this.primaryEditorPane ? this.primaryEditorPane.minimumHeight : 0;
+  }
+  get maximumPrimaryHeight() {
+    return this.primaryEditorPane ? this.primaryEditorPane.maximumHeight : Number.POSITIVE_INFINITY;
+  }
+  get minimumSecondaryWidth() {
+    return this.secondaryEditorPane ? this.secondaryEditorPane.minimumWidth : 0;
+  }
+  get maximumSecondaryWidth() {
+    return this.secondaryEditorPane ? this.secondaryEditorPane.maximumWidth : Number.POSITIVE_INFINITY;
+  }
+  get minimumSecondaryHeight() {
+    return this.secondaryEditorPane ? this.secondaryEditorPane.minimumHeight : 0;
+  }
+  get maximumSecondaryHeight() {
+    return this.secondaryEditorPane ? this.secondaryEditorPane.maximumHeight : Number.POSITIVE_INFINITY;
+  }
+  set minimumWidth(value) {
+  }
+  set maximumWidth(value) {
+  }
+  set minimumHeight(value) {
+  }
+  set maximumHeight(value) {
+  }
+  get minimumWidth() {
+    return this.minimumPrimaryWidth + this.minimumSecondaryWidth;
+  }
+  get maximumWidth() {
+    return this.maximumPrimaryWidth + this.maximumSecondaryWidth;
+  }
+  get minimumHeight() {
+    return this.minimumPrimaryHeight + this.minimumSecondaryHeight;
+  }
+  get maximumHeight() {
+    return this.maximumPrimaryHeight + this.maximumSecondaryHeight;
+  }
+  _boundarySashes;
+  //#endregion
+  //#region Events
+  onDidCreateEditors = this._register(
+    new Emitter()
+  );
+  _onDidChangeSizeConstraints = this._register(
+    new Relay()
+  );
+  onDidChangeSizeConstraints = Event.any(
+    this.onDidCreateEditors.event,
+    this._onDidChangeSizeConstraints.event
+  );
+  _onDidChangeSelection = this._register(
+    new Emitter()
+  );
+  onDidChangeSelection = this._onDidChangeSelection.event;
+  //#endregion
+  primaryEditorPane = void 0;
+  secondaryEditorPane = void 0;
+  primaryEditorContainer;
+  secondaryEditorContainer;
+  splitview;
+  splitviewDisposables = this._register(
+    new DisposableStore()
+  );
+  editorDisposables = this._register(new DisposableStore());
+  orientation = this.configurationService.getValue(
+    SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+  ) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+  dimension = new Dimension(0, 0);
+  lastFocusedSide = void 0;
+  registerListeners() {
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationUpdated(e)
+      )
+    );
+  }
+  onConfigurationUpdated(event) {
+    if (event.affectsConfiguration(
+      SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+    )) {
+      this.orientation = this.configurationService.getValue(
+        SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+      ) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+      if (this.splitview) {
+        this.recreateSplitview();
+      }
+    }
+  }
+  recreateSplitview() {
+    const container = assertIsDefined(this.getContainer());
+    const ratio = this.getSplitViewRatio();
+    if (this.splitview) {
+      this.splitview.el.remove();
+      this.splitviewDisposables.clear();
+    }
+    this.createSplitView(container, ratio);
+    this.layout(this.dimension);
+  }
+  getSplitViewRatio() {
+    let ratio;
+    if (this.splitview) {
+      const leftViewSize = this.splitview.getViewSize(0);
+      const rightViewSize = this.splitview.getViewSize(1);
+      if (Math.abs(leftViewSize - rightViewSize) > 1) {
+        const totalSize = this.splitview.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height;
+        ratio = leftViewSize / totalSize;
+      }
+    }
+    return ratio;
+  }
+  createEditor(parent) {
+    parent.classList.add("side-by-side-editor");
+    this.secondaryEditorContainer = $(
+      ".side-by-side-editor-container.editor-instance"
+    );
+    this.primaryEditorContainer = $(
+      ".side-by-side-editor-container.editor-instance"
+    );
+    this.createSplitView(parent);
+  }
+  createSplitView(parent, ratio) {
+    this.splitview = this.splitviewDisposables.add(
+      new SplitView(parent, { orientation: this.orientation })
+    );
+    this.splitviewDisposables.add(
+      this.splitview.onDidSashReset(
+        () => this.splitview?.distributeViewSizes()
+      )
+    );
+    if (this.orientation === Orientation.HORIZONTAL) {
+      this.splitview.orthogonalEndSash = this._boundarySashes?.bottom;
+    } else {
+      this.splitview.orthogonalStartSash = this._boundarySashes?.left;
+      this.splitview.orthogonalEndSash = this._boundarySashes?.right;
+    }
+    let leftSizing = Sizing.Distribute;
+    let rightSizing = Sizing.Distribute;
+    if (ratio) {
+      const totalSize = this.splitview.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height;
+      leftSizing = Math.round(totalSize * ratio);
+      rightSizing = totalSize - leftSizing;
+      this.splitview.layout(
+        this.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height
+      );
+    }
+    const secondaryEditorContainer = assertIsDefined(
+      this.secondaryEditorContainer
+    );
+    this.splitview.addView(
+      {
+        element: secondaryEditorContainer,
+        layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.secondaryEditorPane, size), "layout"),
+        minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
+        maximumSize: Number.POSITIVE_INFINITY,
+        onDidChange: Event.None
+      },
+      leftSizing
+    );
+    const primaryEditorContainer = assertIsDefined(
+      this.primaryEditorContainer
+    );
+    this.splitview.addView(
+      {
+        element: primaryEditorContainer,
+        layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.primaryEditorPane, size), "layout"),
+        minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
+        maximumSize: Number.POSITIVE_INFINITY,
+        onDidChange: Event.None
+      },
+      rightSizing
+    );
+    this.updateStyles();
+  }
+  getTitle() {
+    if (this.input) {
+      return this.input.getName();
+    }
+    return localize("sideBySideEditor", "Side by Side Editor");
+  }
+  async setInput(input, options, context, token) {
+    const oldInput = this.input;
+    await super.setInput(input, options, context, token);
+    if (!oldInput || !input.matches(oldInput)) {
+      if (oldInput) {
+        this.disposeEditors();
+      }
+      this.createEditors(input);
+    }
+    const { primary, secondary, viewState } = this.loadViewState(
+      input,
+      options,
+      context
+    );
+    this.lastFocusedSide = viewState?.focus;
+    if (typeof viewState?.ratio === "number" && this.splitview) {
+      const totalSize = this.splitview.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height;
+      this.splitview.resizeView(
+        0,
+        Math.round(totalSize * viewState.ratio)
+      );
+    } else {
+      this.splitview?.distributeViewSizes();
+    }
+    await Promise.all([
+      this.secondaryEditorPane?.setInput(
+        input.secondary,
+        secondary,
+        context,
+        token
+      ),
+      this.primaryEditorPane?.setInput(
+        input.primary,
+        primary,
+        context,
+        token
+      )
+    ]);
+    if (typeof options?.target === "number") {
+      this.lastFocusedSide = options.target;
+    }
+  }
+  loadViewState(input, options, context) {
+    const viewState = isSideBySideEditorViewState(options?.viewState) ? options?.viewState : this.loadEditorViewState(input, context);
+    let primaryOptions = /* @__PURE__ */ Object.create(null);
+    let secondaryOptions;
+    if (options?.target === Side.SECONDARY) {
+      secondaryOptions = { ...options };
+    } else {
+      primaryOptions = { ...options };
+    }
+    primaryOptions.viewState = viewState?.primary;
+    if (viewState?.secondary) {
+      if (secondaryOptions) {
+        secondaryOptions.viewState = viewState?.secondary;
+      } else {
+        secondaryOptions = { viewState: viewState.secondary };
+      }
+    }
+    return {
+      primary: primaryOptions,
+      secondary: secondaryOptions,
+      viewState
+    };
+  }
+  createEditors(newInput) {
+    this.secondaryEditorPane = this.doCreateEditor(
+      newInput.secondary,
+      assertIsDefined(this.secondaryEditorContainer)
+    );
+    this.primaryEditorPane = this.doCreateEditor(
+      newInput.primary,
+      assertIsDefined(this.primaryEditorContainer)
+    );
+    this.layout(this.dimension);
+    this._onDidChangeSizeConstraints.input = Event.any(
+      Event.map(
+        this.secondaryEditorPane.onDidChangeSizeConstraints,
+        () => void 0
+      ),
+      Event.map(
+        this.primaryEditorPane.onDidChangeSizeConstraints,
+        () => void 0
+      )
+    );
+    this.onDidCreateEditors.fire(void 0);
+    this.editorDisposables.add(
+      this.primaryEditorPane.onDidFocus(
+        () => this.onDidFocusChange(Side.PRIMARY)
+      )
+    );
+    this.editorDisposables.add(
+      this.secondaryEditorPane.onDidFocus(
+        () => this.onDidFocusChange(Side.SECONDARY)
+      )
+    );
+  }
+  doCreateEditor(editorInput, container) {
+    const editorPaneDescriptor = Registry.as(
+      EditorExtensions.EditorPane
+    ).getEditorPane(editorInput);
+    if (!editorPaneDescriptor) {
+      throw new Error("No editor pane descriptor for editor found");
+    }
+    const editorPane = editorPaneDescriptor.instantiate(
+      this.instantiationService,
+      this.group
+    );
+    editorPane.create(container);
+    editorPane.setVisible(this.isVisible());
+    if (isEditorPaneWithSelection(editorPane)) {
+      this.editorDisposables.add(
+        editorPane.onDidChangeSelection(
+          (e) => this._onDidChangeSelection.fire(e)
+        )
+      );
+    }
+    this.editorDisposables.add(editorPane);
+    return editorPane;
+  }
+  onDidFocusChange(side) {
+    this.lastFocusedSide = side;
+    this._onDidChangeControl.fire();
+  }
+  getSelection() {
+    const lastFocusedEditorPane = this.getLastFocusedEditorPane();
+    if (isEditorPaneWithSelection(lastFocusedEditorPane)) {
+      const selection = lastFocusedEditorPane.getSelection();
+      if (selection) {
+        return new SideBySideAwareEditorPaneSelection(
+          selection,
+          lastFocusedEditorPane === this.primaryEditorPane ? Side.PRIMARY : Side.SECONDARY
+        );
+      }
+    }
+    return void 0;
+  }
+  setOptions(options) {
+    super.setOptions(options);
+    if (typeof options?.target === "number") {
+      this.lastFocusedSide = options.target;
+    }
+    this.getLastFocusedEditorPane()?.setOptions(options);
+  }
+  setEditorVisible(visible) {
+    this.primaryEditorPane?.setVisible(visible);
+    this.secondaryEditorPane?.setVisible(visible);
+    super.setEditorVisible(visible);
+  }
+  clearInput() {
+    super.clearInput();
+    this.primaryEditorPane?.clearInput();
+    this.secondaryEditorPane?.clearInput();
+    this.disposeEditors();
+  }
+  focus() {
+    super.focus();
+    this.getLastFocusedEditorPane()?.focus();
+  }
+  getLastFocusedEditorPane() {
+    if (this.lastFocusedSide === Side.SECONDARY) {
+      return this.secondaryEditorPane;
+    }
+    return this.primaryEditorPane;
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    const splitview = assertIsDefined(this.splitview);
+    splitview.layout(
+      this.orientation === Orientation.HORIZONTAL ? dimension.width : dimension.height
+    );
+  }
+  setBoundarySashes(sashes) {
+    this._boundarySashes = sashes;
+    if (this.splitview) {
+      this.splitview.orthogonalEndSash = sashes.bottom;
+    }
+  }
+  layoutPane(pane, size) {
+    pane?.layout(
+      this.orientation === Orientation.HORIZONTAL ? new Dimension(size, this.dimension.height) : new Dimension(this.dimension.width, size)
+    );
+  }
+  getControl() {
+    return this.getLastFocusedEditorPane()?.getControl();
+  }
+  getPrimaryEditorPane() {
+    return this.primaryEditorPane;
+  }
+  getSecondaryEditorPane() {
+    return this.secondaryEditorPane;
+  }
+  tracksEditorViewState(input) {
+    return input instanceof SideBySideEditorInput;
+  }
+  computeEditorViewState(resource) {
+    if (!this.input || !isEqual(resource, this.toEditorViewStateResource(this.input))) {
+      return;
+    }
+    const primarViewState = this.primaryEditorPane?.getViewState();
+    const secondaryViewState = this.secondaryEditorPane?.getViewState();
+    if (!primarViewState || !secondaryViewState) {
+      return;
+    }
+    return {
+      primary: primarViewState,
+      secondary: secondaryViewState,
+      focus: this.lastFocusedSide,
+      ratio: this.getSplitViewRatio()
+    };
+  }
+  toEditorViewStateResource(input) {
+    let primary;
+    let secondary;
+    if (input instanceof SideBySideEditorInput) {
+      primary = input.primary.resource;
+      secondary = input.secondary.resource;
+    }
+    if (!secondary || !primary) {
+      return void 0;
+    }
+    return URI.from({
+      scheme: "sideBySide",
+      path: `${multibyteAwareBtoa(secondary.toString())}${multibyteAwareBtoa(primary.toString())}`
+    });
+  }
+  updateStyles() {
+    super.updateStyles();
+    if (this.primaryEditorContainer) {
+      if (this.orientation === Orientation.HORIZONTAL) {
+        this.primaryEditorContainer.style.borderLeftWidth = "1px";
+        this.primaryEditorContainer.style.borderLeftStyle = "solid";
+        this.primaryEditorContainer.style.borderLeftColor = this.getColor(SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER) ?? "";
+        this.primaryEditorContainer.style.borderTopWidth = "0";
+      } else {
+        this.primaryEditorContainer.style.borderTopWidth = "1px";
+        this.primaryEditorContainer.style.borderTopStyle = "solid";
+        this.primaryEditorContainer.style.borderTopColor = this.getColor(SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER) ?? "";
+        this.primaryEditorContainer.style.borderLeftWidth = "0";
+      }
+    }
+  }
+  dispose() {
+    this.disposeEditors();
+    super.dispose();
+  }
+  disposeEditors() {
+    this.editorDisposables.clear();
+    this.secondaryEditorPane = void 0;
+    this.primaryEditorPane = void 0;
+    this.lastFocusedSide = void 0;
+    if (this.secondaryEditorContainer) {
+      clearNode(this.secondaryEditorContainer);
+    }
+    if (this.primaryEditorContainer) {
+      clearNode(this.primaryEditorContainer);
+    }
+  }
+};
+SideBySideEditor = __decorateClass([
+  __decorateParam(1, ITelemetryService),
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, IThemeService),
+  __decorateParam(4, IStorageService),
+  __decorateParam(5, IConfigurationService),
+  __decorateParam(6, ITextResourceConfigurationService),
+  __decorateParam(7, IEditorService),
+  __decorateParam(8, IEditorGroupsService)
+], SideBySideEditor);
+class SideBySideAwareEditorPaneSelection {
+  constructor(selection, side) {
+    this.selection = selection;
+    this.side = side;
+  }
+  static {
+    __name(this, "SideBySideAwareEditorPaneSelection");
+  }
+  compare(other) {
+    if (!(other instanceof SideBySideAwareEditorPaneSelection)) {
+      return EditorPaneSelectionCompareResult.DIFFERENT;
+    }
+    if (this.side !== other.side) {
+      return EditorPaneSelectionCompareResult.DIFFERENT;
+    }
+    return this.selection.compare(other.selection);
+  }
+  restore(options) {
+    const sideBySideEditorOptions = {
+      ...options,
+      target: this.side
+    };
+    return this.selection.restore(sideBySideEditorOptions);
+  }
+}
+export {
+  SideBySideEditor
+};
+//# sourceMappingURL=sideBySideEditor.js.map

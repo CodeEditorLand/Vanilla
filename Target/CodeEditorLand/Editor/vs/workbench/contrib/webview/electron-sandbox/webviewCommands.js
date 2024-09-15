@@ -1,1 +1,46 @@
-import{getActiveWindow as t}from"../../../../base/browser/dom.js";import*as e from"../../../../nls.js";import{Categories as r}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as s}from"../../../../platform/actions/common/actions.js";import{INativeHostService as n}from"../../../../platform/native/common/native.js";class f extends s{constructor(){super({id:"workbench.action.webview.openDeveloperTools",title:e.localize2("openToolsLabel","Open Webview Developer Tools"),category:r.Developer,metadata:{description:e.localize("openToolsDescription","Opens Developer Tools for active webviews")},f1:!0})}async run(o){const i=o.get(n);t().document.querySelectorAll("iframe.webview.ready").length&&i.openDevTools()}}export{f as OpenWebviewDeveloperToolsAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import * as nls from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+class OpenWebviewDeveloperToolsAction extends Action2 {
+  static {
+    __name(this, "OpenWebviewDeveloperToolsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.webview.openDeveloperTools",
+      title: nls.localize2(
+        "openToolsLabel",
+        "Open Webview Developer Tools"
+      ),
+      category: Categories.Developer,
+      metadata: {
+        description: nls.localize(
+          "openToolsDescription",
+          "Opens Developer Tools for active webviews"
+        )
+      },
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    const iframeWebviewElements = getActiveWindow().document.querySelectorAll("iframe.webview.ready");
+    if (iframeWebviewElements.length) {
+      console.info(
+        nls.localize(
+          "iframeWebviewAlert",
+          "Using standard dev tools to debug iframe based webview"
+        )
+      );
+      nativeHostService.openDevTools();
+    }
+  }
+}
+export {
+  OpenWebviewDeveloperToolsAction
+};
+//# sourceMappingURL=webviewCommands.js.map

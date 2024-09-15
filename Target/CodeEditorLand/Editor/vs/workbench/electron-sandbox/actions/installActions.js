@@ -1,1 +1,93 @@
-import{toErrorMessage as c}from"../../../base/common/errorMessage.js";import{isCancellationError as a}from"../../../base/common/errors.js";import{localize as l,localize2 as n}from"../../../nls.js";import{Action2 as s}from"../../../platform/actions/common/actions.js";import{IDialogService as m}from"../../../platform/dialogs/common/dialogs.js";import{INativeHostService as p}from"../../../platform/native/common/native.js";import d from"../../../platform/product/common/product.js";import{IProductService as u}from"../../../platform/product/common/productService.js";const S=n("shellCommand","Shell Command");class P extends s{constructor(){super({id:"workbench.action.installCommandLine",title:n("install","Install '{0}' command in PATH",d.applicationName),category:S,f1:!0})}async run(o){const i=o.get(p),t=o.get(m),r=o.get(u);try{await i.installShellCommand(),t.info(l("successIn","Shell command '{0}' successfully installed in PATH.",r.applicationName))}catch(e){if(a(e))return;t.error(c(e))}}}class N extends s{constructor(){super({id:"workbench.action.uninstallCommandLine",title:n("uninstall","Uninstall '{0}' command from PATH",d.applicationName),category:S,f1:!0})}async run(o){const i=o.get(p),t=o.get(m),r=o.get(u);try{await i.uninstallShellCommand(),t.info(l("successFrom","Shell command '{0}' successfully uninstalled from PATH.",r.applicationName))}catch(e){if(a(e))return;t.error(c(e))}}}export{P as InstallShellScriptAction,N as UninstallShellScriptAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { localize, localize2 } from "../../../nls.js";
+import { Action2 } from "../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import { INativeHostService } from "../../../platform/native/common/native.js";
+import product from "../../../platform/product/common/product.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+const shellCommandCategory = localize2(
+  "shellCommand",
+  "Shell Command"
+);
+class InstallShellScriptAction extends Action2 {
+  static {
+    __name(this, "InstallShellScriptAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.installCommandLine",
+      title: localize2(
+        "install",
+        "Install '{0}' command in PATH",
+        product.applicationName
+      ),
+      category: shellCommandCategory,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    const dialogService = accessor.get(IDialogService);
+    const productService = accessor.get(IProductService);
+    try {
+      await nativeHostService.installShellCommand();
+      dialogService.info(
+        localize(
+          "successIn",
+          "Shell command '{0}' successfully installed in PATH.",
+          productService.applicationName
+        )
+      );
+    } catch (error) {
+      if (isCancellationError(error)) {
+        return;
+      }
+      dialogService.error(toErrorMessage(error));
+    }
+  }
+}
+class UninstallShellScriptAction extends Action2 {
+  static {
+    __name(this, "UninstallShellScriptAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.uninstallCommandLine",
+      title: localize2(
+        "uninstall",
+        "Uninstall '{0}' command from PATH",
+        product.applicationName
+      ),
+      category: shellCommandCategory,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    const dialogService = accessor.get(IDialogService);
+    const productService = accessor.get(IProductService);
+    try {
+      await nativeHostService.uninstallShellCommand();
+      dialogService.info(
+        localize(
+          "successFrom",
+          "Shell command '{0}' successfully uninstalled from PATH.",
+          productService.applicationName
+        )
+      );
+    } catch (error) {
+      if (isCancellationError(error)) {
+        return;
+      }
+      dialogService.error(toErrorMessage(error));
+    }
+  }
+}
+export {
+  InstallShellScriptAction,
+  UninstallShellScriptAction
+};
+//# sourceMappingURL=installActions.js.map

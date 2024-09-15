@@ -1,2 +1,103 @@
-var p=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var m=(o,t,i,s)=>{for(var n=s>1?void 0:s?I(t,i):t,c=o.length-1,a;c>=0;c--)(a=o[c])&&(n=(s?a(t,i,n):a(n))||n);return s&&n&&p(t,i,n),n},g=(o,t)=>(i,s)=>t(i,s,o);import{importAMDNodeModule as y}from"../../../amdX.js";import{getErrorMessage as v}from"../../../base/common/errors.js";import{createDecorator as S}from"../../instantiation/common/instantiation.js";import{ILogService as h,LogLevel as x}from"../../log/common/log.js";import{ITelemetryService as M}from"../../telemetry/common/telemetry.js";const w=S("IExtensionSignatureVerificationService");var P=(e=>(e.Success="Success",e.RequiredArgumentMissing="RequiredArgumentMissing",e.InvalidArgument="InvalidArgument",e.PackageIsUnreadable="PackageIsUnreadable",e.UnhandledException="UnhandledException",e.SignatureManifestIsMissing="SignatureManifestIsMissing",e.SignatureManifestIsUnreadable="SignatureManifestIsUnreadable",e.SignatureIsMissing="SignatureIsMissing",e.SignatureIsUnreadable="SignatureIsUnreadable",e.CertificateIsUnreadable="CertificateIsUnreadable",e.SignatureArchiveIsUnreadable="SignatureArchiveIsUnreadable",e.FileAlreadyExists="FileAlreadyExists",e.SignatureArchiveIsInvalidZip="SignatureArchiveIsInvalidZip",e.SignatureArchiveHasSameSignatureFile="SignatureArchiveHasSameSignatureFile",e.PackageIntegrityCheckFailed="PackageIntegrityCheckFailed",e.SignatureIsInvalid="SignatureIsInvalid",e.SignatureManifestIsInvalid="SignatureManifestIsInvalid",e.SignatureIntegrityCheckFailed="SignatureIntegrityCheckFailed",e.EntryIsMissing="EntryIsMissing",e.EntryIsTampered="EntryIsTampered",e.Untrusted="Untrusted",e.CertificateRevoked="CertificateRevoked",e.SignatureIsNotValid="SignatureIsNotValid",e.UnknownError="UnknownError",e.PackageIsInvalidZip="PackageIsInvalidZip",e.SignatureArchiveHasTooManyEntries="SignatureArchiveHasTooManyEntries",e))(P||{});class b extends Error{constructor(i){super(i);this.code=i}}let l=class{constructor(t,i){this.logService=t;this.telemetryService=i}moduleLoadingPromise;vsceSign(){return this.moduleLoadingPromise||(this.moduleLoadingPromise=this.resolveVsceSign()),this.moduleLoadingPromise}async resolveVsceSign(){return import("@vscode/vsce-sign")}async verify(t,i,s,n){let c;const a=t.identifier.id;try{c=await this.vsceSign()}catch(u){return this.logService.error("Could not load vsce-sign module",v(u)),this.logService.info(`Extension signature verification is not done: ${a}`),!1}const f=new Date().getTime();let r;try{this.logService.trace(`Verifying extension signature for ${a}...`),r=await c.verify(i,s,this.logService.getLevel()===x.Trace)}catch(u){r={code:"UnknownError",didExecute:!1,output:v(u)}}const d=new Date().getTime()-f;if(this.logService.info(`Extension signature verification result for ${a}: ${r.code}. Executed: ${r.didExecute}. Duration: ${d}ms.`),this.logService.trace(`Extension signature verification output for ${a}:
-${r.output}`),this.telemetryService.publicLog2("extensionsignature:verification",{extensionId:a,extensionVersion:t.version,code:r.code,internalCode:r.internalCode,duration:d,didExecute:r.didExecute,clientTargetPlatform:n}),r.code==="Success")return!0;throw new b(r.code)}};l=m([g(0,h),g(1,M)],l);export{P as ExtensionSignatureVerificationCode,b as ExtensionSignatureVerificationError,l as ExtensionSignatureVerificationService,w as IExtensionSignatureVerificationService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { importAMDNodeModule } from "../../../amdX.js";
+import { getErrorMessage } from "../../../base/common/errors.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService, LogLevel } from "../../log/common/log.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ExtensionSignatureVerificationCode } from "../common/extensionManagement.js";
+const IExtensionSignatureVerificationService = createDecorator(
+  "IExtensionSignatureVerificationService"
+);
+let ExtensionSignatureVerificationService = class {
+  constructor(logService, telemetryService) {
+    this.logService = logService;
+    this.telemetryService = telemetryService;
+  }
+  static {
+    __name(this, "ExtensionSignatureVerificationService");
+  }
+  moduleLoadingPromise;
+  vsceSign() {
+    if (!this.moduleLoadingPromise) {
+      this.moduleLoadingPromise = this.resolveVsceSign();
+    }
+    return this.moduleLoadingPromise;
+  }
+  async resolveVsceSign() {
+    if (typeof importAMDNodeModule === "function") {
+    }
+    const mod = "@vscode/vsce-sign";
+    return import(mod);
+  }
+  async verify(extensionId, version, vsixFilePath, signatureArchiveFilePath, clientTargetPlatform) {
+    let module;
+    try {
+      module = await this.vsceSign();
+    } catch (error) {
+      this.logService.error(
+        "Could not load vsce-sign module",
+        getErrorMessage(error)
+      );
+      this.logService.info(
+        `Extension signature verification is not done: ${extensionId}`
+      );
+      return void 0;
+    }
+    const startTime = (/* @__PURE__ */ new Date()).getTime();
+    let result;
+    try {
+      this.logService.trace(
+        `Verifying extension signature for ${extensionId}...`
+      );
+      result = await module.verify(
+        vsixFilePath,
+        signatureArchiveFilePath,
+        this.logService.getLevel() === LogLevel.Trace
+      );
+    } catch (e) {
+      result = {
+        code: ExtensionSignatureVerificationCode.UnknownError,
+        didExecute: false,
+        output: getErrorMessage(e)
+      };
+    }
+    const duration = (/* @__PURE__ */ new Date()).getTime() - startTime;
+    this.logService.info(
+      `Extension signature verification result for ${extensionId}: ${result.code}. Executed: ${result.didExecute}. Duration: ${duration}ms.`
+    );
+    this.logService.trace(
+      `Extension signature verification output for ${extensionId}:
+${result.output}`
+    );
+    this.telemetryService.publicLog2("extensionsignature:verification", {
+      extensionId,
+      extensionVersion: version,
+      code: result.code,
+      internalCode: result.internalCode,
+      duration,
+      didExecute: result.didExecute,
+      clientTargetPlatform
+    });
+    return { code: result.code };
+  }
+};
+ExtensionSignatureVerificationService = __decorateClass([
+  __decorateParam(0, ILogService),
+  __decorateParam(1, ITelemetryService)
+], ExtensionSignatureVerificationService);
+export {
+  ExtensionSignatureVerificationService,
+  IExtensionSignatureVerificationService
+};
+//# sourceMappingURL=extensionSignatureVerificationService.js.map

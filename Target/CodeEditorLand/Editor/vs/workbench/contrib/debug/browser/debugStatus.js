@@ -1,1 +1,109 @@
-var g=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var h=(i,e,s,t)=>{for(var r=t>1?void 0:t?d(e,s):e,n=i.length-1,a;n>=0;n--)(a=i[n])&&(r=(t?a(e,s,r):a(r))||r);return t&&r&&g(e,s,r),r},o=(i,e)=>(s,t)=>e(s,t,i);import{dispose as p}from"../../../../base/common/lifecycle.js";import*as u from"../../../../nls.js";import{IConfigurationService as S}from"../../../../platform/configuration/common/configuration.js";import{IStatusbarService as l,StatusbarAlignment as b}from"../../../services/statusbar/browser/statusbar.js";import{IDebugService as f,State as m}from"../common/debug.js";let c=class{constructor(e,s,t){this.statusBarService=e;this.debugService=s;const r=()=>{this.entryAccessor=this.statusBarService.addEntry(this.entry,"status.debug",b.LEFT,30)},n=()=>{this.showInStatusBar=t.getValue("debug").showInStatusBar,this.showInStatusBar==="always"&&!this.entryAccessor&&r()};n(),this.toDispose.push(this.debugService.onDidChangeState(a=>{a!==m.Inactive&&this.showInStatusBar==="onFirstSessionStart"&&!this.entryAccessor&&r()})),this.toDispose.push(t.onDidChangeConfiguration(a=>{a.affectsConfiguration("debug.showInStatusBar")&&(n(),this.entryAccessor&&this.showInStatusBar==="never"&&(this.entryAccessor.dispose(),this.entryAccessor=void 0))})),this.toDispose.push(this.debugService.getConfigurationManager().onDidSelectConfiguration(a=>{this.entryAccessor?.update(this.entry)}))}showInStatusBar;toDispose=[];entryAccessor;get entry(){let e="";const s=this.debugService.getConfigurationManager(),t=s.selectedConfiguration.name||"";return t&&s.selectedConfiguration.launch&&(e=s.getLaunches().length>1?`${t} (${s.selectedConfiguration.launch.name})`:t),{name:u.localize("status.debug","Debug"),text:"$(debug-alt-small) "+e,ariaLabel:u.localize("debugTarget","Debug: {0}",e),tooltip:u.localize("selectAndStartDebug","Select and Start Debug Configuration"),command:"workbench.action.debug.selectandstart"}}dispose(){this.entryAccessor?.dispose(),p(this.toDispose)}};c=h([o(0,l),o(1,f),o(2,S)],c);export{c as DebugStatusContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IStatusbarService,
+  StatusbarAlignment
+} from "../../../services/statusbar/browser/statusbar.js";
+import {
+  IDebugService,
+  State
+} from "../common/debug.js";
+let DebugStatusContribution = class {
+  constructor(statusBarService, debugService, configurationService) {
+    this.statusBarService = statusBarService;
+    this.debugService = debugService;
+    const addStatusBarEntry = /* @__PURE__ */ __name(() => {
+      this.entryAccessor = this.statusBarService.addEntry(
+        this.entry,
+        "status.debug",
+        StatusbarAlignment.LEFT,
+        30
+      );
+    }, "addStatusBarEntry");
+    const setShowInStatusBar = /* @__PURE__ */ __name(() => {
+      this.showInStatusBar = configurationService.getValue(
+        "debug"
+      ).showInStatusBar;
+      if (this.showInStatusBar === "always" && !this.entryAccessor) {
+        addStatusBarEntry();
+      }
+    }, "setShowInStatusBar");
+    setShowInStatusBar();
+    this.toDispose.push(
+      this.debugService.onDidChangeState((state) => {
+        if (state !== State.Inactive && this.showInStatusBar === "onFirstSessionStart" && !this.entryAccessor) {
+          addStatusBarEntry();
+        }
+      })
+    );
+    this.toDispose.push(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("debug.showInStatusBar")) {
+          setShowInStatusBar();
+          if (this.entryAccessor && this.showInStatusBar === "never") {
+            this.entryAccessor.dispose();
+            this.entryAccessor = void 0;
+          }
+        }
+      })
+    );
+    this.toDispose.push(
+      this.debugService.getConfigurationManager().onDidSelectConfiguration((e) => {
+        this.entryAccessor?.update(this.entry);
+      })
+    );
+  }
+  static {
+    __name(this, "DebugStatusContribution");
+  }
+  showInStatusBar;
+  toDispose = [];
+  entryAccessor;
+  get entry() {
+    let text = "";
+    const manager = this.debugService.getConfigurationManager();
+    const name = manager.selectedConfiguration.name || "";
+    const nameAndLaunchPresent = name && manager.selectedConfiguration.launch;
+    if (nameAndLaunchPresent) {
+      text = manager.getLaunches().length > 1 ? `${name} (${manager.selectedConfiguration.launch.name})` : name;
+    }
+    return {
+      name: nls.localize("status.debug", "Debug"),
+      text: "$(debug-alt-small) " + text,
+      ariaLabel: nls.localize("debugTarget", "Debug: {0}", text),
+      tooltip: nls.localize(
+        "selectAndStartDebug",
+        "Select and Start Debug Configuration"
+      ),
+      command: "workbench.action.debug.selectandstart"
+    };
+  }
+  dispose() {
+    this.entryAccessor?.dispose();
+    dispose(this.toDispose);
+  }
+};
+DebugStatusContribution = __decorateClass([
+  __decorateParam(0, IStatusbarService),
+  __decorateParam(1, IDebugService),
+  __decorateParam(2, IConfigurationService)
+], DebugStatusContribution);
+export {
+  DebugStatusContribution
+};
+//# sourceMappingURL=debugStatus.js.map

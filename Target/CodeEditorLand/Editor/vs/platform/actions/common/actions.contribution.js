@@ -1,1 +1,10 @@
-import{InstantiationType as e,registerSingleton as r}from"../../instantiation/common/extensions.js";import{IMenuService as t,registerAction2 as i}from"./actions.js";import{MenuHiddenStatesReset as o}from"./menuResetAction.js";import{MenuService as n}from"./menuService.js";r(t,n,e.Delayed),i(o);
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
+import { IMenuService, registerAction2 } from "./actions.js";
+import { MenuHiddenStatesReset } from "./menuResetAction.js";
+import { MenuService } from "./menuService.js";
+registerSingleton(IMenuService, MenuService, InstantiationType.Delayed);
+registerAction2(MenuHiddenStatesReset);
+//# sourceMappingURL=actions.contribution.js.map

@@ -1,1 +1,87 @@
-import{extUriBiasedIgnorePathCase as d}from"../../../base/common/resources.js";import{URI as a}from"../../../base/common/uri.js";import{isSingleFolderWorkspaceIdentifier as p,isWorkspaceIdentifier as f}from"../../workspace/common/workspace.js";async function I(i,n,o){for(const e of i){const t=e.openedWorkspace;if(f(t)){const s=await o(t);if(s){if(s.folders.some(c=>d.isEqualOrParent(n,c.uri)))return e}else if(d.isEqualOrParent(n,t.configPath))return e}}const r=i.filter(e=>p(e.openedWorkspace)&&d.isEqualOrParent(n,e.openedWorkspace.uri));if(r.length)return r.sort((e,t)=>-(e.openedWorkspace.uri.path.length-t.openedWorkspace.uri.path.length))[0]}function k(i,n){for(const o of i)if(f(o.openedWorkspace)&&d.isEqual(o.openedWorkspace.configPath,n)||p(o.openedWorkspace)&&d.isEqual(o.openedWorkspace.uri,n))return o}function w(i,n){const o=r=>n.some(e=>d.isEqual(a.file(e),a.file(r)));for(const r of i)if(r.config?.extensionDevelopmentPath?.some(e=>o(e)))return r}export{w as findWindowOnExtensionDevelopmentPath,I as findWindowOnFile,k as findWindowOnWorkspaceOrFolder};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { extUriBiasedIgnorePathCase } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  isSingleFolderWorkspaceIdentifier,
+  isWorkspaceIdentifier
+} from "../../workspace/common/workspace.js";
+async function findWindowOnFile(windows, fileUri, localWorkspaceResolver) {
+  for (const window of windows) {
+    const workspace = window.openedWorkspace;
+    if (isWorkspaceIdentifier(workspace)) {
+      const resolvedWorkspace = await localWorkspaceResolver(workspace);
+      if (resolvedWorkspace) {
+        if (resolvedWorkspace.folders.some(
+          (folder) => extUriBiasedIgnorePathCase.isEqualOrParent(
+            fileUri,
+            folder.uri
+          )
+        )) {
+          return window;
+        }
+      } else if (extUriBiasedIgnorePathCase.isEqualOrParent(
+        fileUri,
+        workspace.configPath
+      )) {
+        return window;
+      }
+    }
+  }
+  const singleFolderWindowsOnFilePath = windows.filter(
+    (window) => isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqualOrParent(
+      fileUri,
+      window.openedWorkspace.uri
+    )
+  );
+  if (singleFolderWindowsOnFilePath.length) {
+    return singleFolderWindowsOnFilePath.sort(
+      (windowA, windowB) => -(windowA.openedWorkspace.uri.path.length - windowB.openedWorkspace.uri.path.length)
+    )[0];
+  }
+  return void 0;
+}
+__name(findWindowOnFile, "findWindowOnFile");
+function findWindowOnWorkspaceOrFolder(windows, folderOrWorkspaceConfigUri) {
+  for (const window of windows) {
+    if (isWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(
+      window.openedWorkspace.configPath,
+      folderOrWorkspaceConfigUri
+    )) {
+      return window;
+    }
+    if (isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(
+      window.openedWorkspace.uri,
+      folderOrWorkspaceConfigUri
+    )) {
+      return window;
+    }
+  }
+  return void 0;
+}
+__name(findWindowOnWorkspaceOrFolder, "findWindowOnWorkspaceOrFolder");
+function findWindowOnExtensionDevelopmentPath(windows, extensionDevelopmentPaths) {
+  const matches = /* @__PURE__ */ __name((uriString) => {
+    return extensionDevelopmentPaths.some(
+      (path) => extUriBiasedIgnorePathCase.isEqual(
+        URI.file(path),
+        URI.file(uriString)
+      )
+    );
+  }, "matches");
+  for (const window of windows) {
+    if (window.config?.extensionDevelopmentPath?.some(
+      (path) => matches(path)
+    )) {
+      return window;
+    }
+  }
+  return void 0;
+}
+__name(findWindowOnExtensionDevelopmentPath, "findWindowOnExtensionDevelopmentPath");
+export {
+  findWindowOnExtensionDevelopmentPath,
+  findWindowOnFile,
+  findWindowOnWorkspaceOrFolder
+};
+//# sourceMappingURL=windowsFinder.js.map

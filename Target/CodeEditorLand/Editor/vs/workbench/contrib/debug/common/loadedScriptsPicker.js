@@ -1,1 +1,143 @@
-import{matchesFuzzy as m}from"../../../../base/common/filters.js";import{DisposableStore as l}from"../../../../base/common/lifecycle.js";import{ILanguageService as p}from"../../../../editor/common/languages/language.js";import{getIconClasses as I}from"../../../../editor/common/services/getIconClasses.js";import{IModelService as g}from"../../../../editor/common/services/model.js";import*as S from"../../../../nls.js";import{IQuickInputService as f}from"../../../../platform/quickinput/common/quickInput.js";import{IEditorService as k}from"../../../services/editor/common/editorService.js";import{IDebugService as b}from"./debug.js";import{dirname as v}from"../../../../base/common/resources.js";import{ILabelService as P}from"../../../../platform/label/common/label.js";async function O(i){const a=i.get(f),u=i.get(b),n=i.get(k),s=u.getModel().getSessions(!1),c=i.get(g),r=i.get(p),o=i.get(P),t=new l,e=a.createQuickPick({useSeparators:!0});t.add(e),e.matchOnLabel=e.matchOnDescription=e.matchOnDetail=e.sortByLabel=!1,e.placeholder=S.localize("moveFocusedView.selectView","Search loaded scripts by name"),e.items=await d(e.value,s,n,c,r,o),t.add(e.onDidChangeValue(async()=>{e.items=await d(e.value,s,n,c,r,o)})),t.add(e.onDidAccept(()=>{e.selectedItems[0].accept(),e.hide(),t.dispose()})),e.show()}async function h(i,a,u,n,s,c){const r=[];return r.push({type:"separator",label:i.name}),(await i.getLoadedSources()).forEach(t=>{const e=y(t,a,u,n,s,c);e&&r.push(e)}),r}async function d(i,a,u,n,s,c){const r=[],o=await Promise.all(a.map(t=>h(t,i,u,n,s,c)));for(const t of o)for(const e of t)r.push(e);return r}function y(i,a,u,n,s,c){const r=c.getUriBasenameLabel(i.uri),o=c.getUriLabel(v(i.uri)),t=m(a,r,!0),e=m(a,o,!0);if(t||e)return{label:r,description:o==="."?void 0:o,highlights:{label:t??void 0,description:e??void 0},iconClasses:I(n,s,i.uri),accept:()=>{i.available&&i.openInEditor(u,{startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0})}}}export{O as showLoadedScriptMenu};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import * as nls from "../../../../nls.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IDebugService } from "./debug.js";
+import { dirname } from "../../../../base/common/resources.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+async function showLoadedScriptMenu(accessor) {
+  const quickInputService = accessor.get(IQuickInputService);
+  const debugService = accessor.get(IDebugService);
+  const editorService = accessor.get(IEditorService);
+  const sessions = debugService.getModel().getSessions(false);
+  const modelService = accessor.get(IModelService);
+  const languageService = accessor.get(ILanguageService);
+  const labelService = accessor.get(ILabelService);
+  const localDisposableStore = new DisposableStore();
+  const quickPick = quickInputService.createQuickPick({
+    useSeparators: true
+  });
+  localDisposableStore.add(quickPick);
+  quickPick.matchOnLabel = quickPick.matchOnDescription = quickPick.matchOnDetail = quickPick.sortByLabel = false;
+  quickPick.placeholder = nls.localize(
+    "moveFocusedView.selectView",
+    "Search loaded scripts by name"
+  );
+  quickPick.items = await _getPicks(
+    quickPick.value,
+    sessions,
+    editorService,
+    modelService,
+    languageService,
+    labelService
+  );
+  localDisposableStore.add(
+    quickPick.onDidChangeValue(async () => {
+      quickPick.items = await _getPicks(
+        quickPick.value,
+        sessions,
+        editorService,
+        modelService,
+        languageService,
+        labelService
+      );
+    })
+  );
+  localDisposableStore.add(
+    quickPick.onDidAccept(() => {
+      const selectedItem = quickPick.selectedItems[0];
+      selectedItem.accept();
+      quickPick.hide();
+      localDisposableStore.dispose();
+    })
+  );
+  quickPick.show();
+}
+__name(showLoadedScriptMenu, "showLoadedScriptMenu");
+async function _getPicksFromSession(session, filter, editorService, modelService, languageService, labelService) {
+  const items = [];
+  items.push({ type: "separator", label: session.name });
+  const sources = await session.getLoadedSources();
+  sources.forEach((element) => {
+    const pick = _createPick(
+      element,
+      filter,
+      editorService,
+      modelService,
+      languageService,
+      labelService
+    );
+    if (pick) {
+      items.push(pick);
+    }
+  });
+  return items;
+}
+__name(_getPicksFromSession, "_getPicksFromSession");
+async function _getPicks(filter, sessions, editorService, modelService, languageService, labelService) {
+  const loadedScriptPicks = [];
+  const picks = await Promise.all(
+    sessions.map(
+      (session) => _getPicksFromSession(
+        session,
+        filter,
+        editorService,
+        modelService,
+        languageService,
+        labelService
+      )
+    )
+  );
+  for (const row of picks) {
+    for (const elem of row) {
+      loadedScriptPicks.push(elem);
+    }
+  }
+  return loadedScriptPicks;
+}
+__name(_getPicks, "_getPicks");
+function _createPick(source, filter, editorService, modelService, languageService, labelService) {
+  const label = labelService.getUriBasenameLabel(source.uri);
+  const desc = labelService.getUriLabel(dirname(source.uri));
+  const labelHighlights = matchesFuzzy(filter, label, true);
+  const descHighlights = matchesFuzzy(filter, desc, true);
+  if (labelHighlights || descHighlights) {
+    return {
+      label,
+      description: desc === "." ? void 0 : desc,
+      highlights: {
+        label: labelHighlights ?? void 0,
+        description: descHighlights ?? void 0
+      },
+      iconClasses: getIconClasses(
+        modelService,
+        languageService,
+        source.uri
+      ),
+      accept: /* @__PURE__ */ __name(() => {
+        if (source.available) {
+          source.openInEditor(editorService, {
+            startLineNumber: 0,
+            startColumn: 0,
+            endLineNumber: 0,
+            endColumn: 0
+          });
+        }
+      }, "accept")
+    };
+  }
+  return void 0;
+}
+__name(_createPick, "_createPick");
+export {
+  showLoadedScriptMenu
+};
+//# sourceMappingURL=loadedScriptsPicker.js.map

@@ -1,1 +1,54 @@
-var p=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var c=(s,t,e,o)=>{for(var r=o>1?void 0:o?h(t,e):t,n=s.length-1,a;n>=0;n--)(a=s[n])&&(r=(o?a(t,e,r):a(r))||r);return o&&r&&p(t,e,r),r},d=(s,t)=>(e,o)=>t(e,o,s);import{DisposableStore as x}from"../../../../../base/common/lifecycle.js";import{IContextKeyService as m}from"../../../../../platform/contextkey/common/contextkey.js";import{ChatAgentLocation as v,IChatAgentService as C}from"../../../chat/common/chatAgents.js";import{TerminalChatContextKeys as g}from"../../../terminal/terminalContribExports.js";let i=class{static Id="terminalChat.enabler";_ctxHasProvider;_store=new x;constructor(t,e){this._ctxHasProvider=g.hasChatAgent.bindTo(t),this._store.add(e.onDidChangeAgents(()=>{const o=!!e.getDefaultAgent(v.Terminal);this._ctxHasProvider.set(o)}))}dispose(){this._ctxHasProvider.reset(),this._store.dispose()}};i=c([d(0,m),d(1,C)],i);export{i as TerminalChatEnabler};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import {
+  IContextKeyService
+} from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  ChatAgentLocation,
+  IChatAgentService
+} from "../../../chat/common/chatAgents.js";
+import { TerminalChatContextKeys } from "../../../terminal/terminalContribExports.js";
+let TerminalChatEnabler = class {
+  static {
+    __name(this, "TerminalChatEnabler");
+  }
+  static Id = "terminalChat.enabler";
+  _ctxHasProvider;
+  _store = new DisposableStore();
+  constructor(contextKeyService, chatAgentService) {
+    this._ctxHasProvider = TerminalChatContextKeys.hasChatAgent.bindTo(contextKeyService);
+    this._store.add(
+      chatAgentService.onDidChangeAgents(() => {
+        const hasTerminalAgent = Boolean(
+          chatAgentService.getDefaultAgent(
+            ChatAgentLocation.Terminal
+          )
+        );
+        this._ctxHasProvider.set(hasTerminalAgent);
+      })
+    );
+  }
+  dispose() {
+    this._ctxHasProvider.reset();
+    this._store.dispose();
+  }
+};
+TerminalChatEnabler = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, IChatAgentService)
+], TerminalChatEnabler);
+export {
+  TerminalChatEnabler
+};
+//# sourceMappingURL=terminalChatEnabler.js.map

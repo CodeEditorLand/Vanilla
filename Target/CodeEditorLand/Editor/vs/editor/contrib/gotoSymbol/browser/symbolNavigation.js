@@ -1,1 +1,244 @@
-var E=Object.defineProperty;var x=Object.getOwnPropertyDescriptor;var p=(r,e,t,i)=>{for(var o=i>1?void 0:i?x(e,t):e,c=r.length-1,s;c>=0;c--)(s=r[c])&&(o=(i?s(e,t,o):s(o))||o);return i&&o&&E(e,t,o),o},n=(r,e)=>(t,i)=>e(t,i,r);import{Emitter as D}from"../../../../base/common/event.js";import{KeyCode as y}from"../../../../base/common/keyCodes.js";import{DisposableStore as M,combinedDisposable as b,dispose as R}from"../../../../base/common/lifecycle.js";import{isEqual as w}from"../../../../base/common/resources.js";import{localize as m}from"../../../../nls.js";import{IContextKeyService as K,RawContextKey as N}from"../../../../platform/contextkey/common/contextkey.js";import{TextEditorSelectionRevealType as k}from"../../../../platform/editor/common/editor.js";import{InstantiationType as A,registerSingleton as P}from"../../../../platform/instantiation/common/extensions.js";import{createDecorator as T}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as O}from"../../../../platform/keybinding/common/keybinding.js";import{KeybindingWeight as C,KeybindingsRegistry as H}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{INotificationService as F}from"../../../../platform/notification/common/notification.js";import{EditorCommand as B,registerEditorCommand as j}from"../../../browser/editorExtensions.js";import{ICodeEditorService as I}from"../../../browser/services/codeEditorService.js";import{Range as S}from"../../../common/core/range.js";const f=new N("hasSymbols",!1,m("hasSymbols","Whether there are symbol locations that can be navigated via keyboard-only.")),_=T("ISymbolNavigationService");let d=class{constructor(e,t,i,o){this._editorService=t;this._notificationService=i;this._keybindingService=o;this._ctxHasSymbols=f.bindTo(e)}_ctxHasSymbols;_currentModel=void 0;_currentIdx=-1;_currentState;_currentMessage;_ignoreEditorChange=!1;reset(){this._ctxHasSymbols.reset(),this._currentState?.dispose(),this._currentMessage?.dispose(),this._currentModel=void 0,this._currentIdx=-1}put(e){const t=e.parent.parent;if(t.references.length<=1){this.reset();return}this._currentModel=t,this._currentIdx=t.references.indexOf(e),this._ctxHasSymbols.set(!0),this._showMessage();const i=new a(this._editorService),o=i.onDidChange(c=>{if(this._ignoreEditorChange)return;const s=this._editorService.getActiveCodeEditor();if(!s)return;const v=s.getModel(),g=s.getPosition();if(!v||!g)return;let l=!1,h=!1;for(const u of t.references)if(w(u.uri,v.uri))l=!0,h=h||S.containsPosition(u.range,g);else if(l)break;(!l||!h)&&this.reset()});this._currentState=b(i,o)}revealNext(e){if(!this._currentModel)return Promise.resolve();this._currentIdx+=1,this._currentIdx%=this._currentModel.references.length;const t=this._currentModel.references[this._currentIdx];return this._showMessage(),this._ignoreEditorChange=!0,this._editorService.openCodeEditor({resource:t.uri,options:{selection:S.collapseToStart(t.range),selectionRevealType:k.NearTopIfOutsideViewport}},e).finally(()=>{this._ignoreEditorChange=!1})}_showMessage(){this._currentMessage?.dispose();const e=this._keybindingService.lookupKeybinding("editor.gotoNextSymbolFromResult"),t=e?m("location.kb","Symbol {0} of {1}, {2} for next",this._currentIdx+1,this._currentModel.references.length,e.getLabel()):m("location","Symbol {0} of {1}",this._currentIdx+1,this._currentModel.references.length);this._currentMessage=this._notificationService.status(t)}};d=p([n(0,K),n(1,I),n(2,F),n(3,O)],d),P(_,d,A.Delayed),j(new class extends B{constructor(){super({id:"editor.gotoNextSymbolFromResult",precondition:f,kbOpts:{weight:C.EditorContrib,primary:y.F12}})}runEditorCommand(r,e){return r.get(_).revealNext(e)}}),H.registerCommandAndKeybindingRule({id:"editor.gotoNextSymbolFromResult.cancel",weight:C.EditorContrib,when:f,primary:y.Escape,handler(r){r.get(_).reset()}});let a=class{_listener=new Map;_disposables=new M;_onDidChange=new D;onDidChange=this._onDidChange.event;constructor(e){this._disposables.add(e.onCodeEditorRemove(this._onDidRemoveEditor,this)),this._disposables.add(e.onCodeEditorAdd(this._onDidAddEditor,this)),e.listCodeEditors().forEach(this._onDidAddEditor,this)}dispose(){this._disposables.dispose(),this._onDidChange.dispose(),R(this._listener.values())}_onDidAddEditor(e){this._listener.set(e,b(e.onDidChangeCursorPosition(t=>this._onDidChange.fire({editor:e})),e.onDidChangeModelContent(t=>this._onDidChange.fire({editor:e}))))}_onDidRemoveEditor(e){this._listener.get(e)?.dispose(),this._listener.delete(e)}};a=p([n(0,I)],a);export{_ as ISymbolNavigationService,f as ctxHasSymbols};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import {
+  DisposableStore,
+  combinedDisposable,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  createDecorator
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import {
+  KeybindingWeight,
+  KeybindingsRegistry
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import {
+  EditorCommand,
+  registerEditorCommand
+} from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { Range } from "../../../common/core/range.js";
+const ctxHasSymbols = new RawContextKey(
+  "hasSymbols",
+  false,
+  localize(
+    "hasSymbols",
+    "Whether there are symbol locations that can be navigated via keyboard-only."
+  )
+);
+const ISymbolNavigationService = createDecorator("ISymbolNavigationService");
+let SymbolNavigationService = class {
+  constructor(contextKeyService, _editorService, _notificationService, _keybindingService) {
+    this._editorService = _editorService;
+    this._notificationService = _notificationService;
+    this._keybindingService = _keybindingService;
+    this._ctxHasSymbols = ctxHasSymbols.bindTo(contextKeyService);
+  }
+  static {
+    __name(this, "SymbolNavigationService");
+  }
+  _ctxHasSymbols;
+  _currentModel = void 0;
+  _currentIdx = -1;
+  _currentState;
+  _currentMessage;
+  _ignoreEditorChange = false;
+  reset() {
+    this._ctxHasSymbols.reset();
+    this._currentState?.dispose();
+    this._currentMessage?.dispose();
+    this._currentModel = void 0;
+    this._currentIdx = -1;
+  }
+  put(anchor) {
+    const refModel = anchor.parent.parent;
+    if (refModel.references.length <= 1) {
+      this.reset();
+      return;
+    }
+    this._currentModel = refModel;
+    this._currentIdx = refModel.references.indexOf(anchor);
+    this._ctxHasSymbols.set(true);
+    this._showMessage();
+    const editorState = new EditorState(this._editorService);
+    const listener = editorState.onDidChange((_) => {
+      if (this._ignoreEditorChange) {
+        return;
+      }
+      const editor = this._editorService.getActiveCodeEditor();
+      if (!editor) {
+        return;
+      }
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      if (!model || !position) {
+        return;
+      }
+      let seenUri = false;
+      let seenPosition = false;
+      for (const reference of refModel.references) {
+        if (isEqual(reference.uri, model.uri)) {
+          seenUri = true;
+          seenPosition = seenPosition || Range.containsPosition(reference.range, position);
+        } else if (seenUri) {
+          break;
+        }
+      }
+      if (!seenUri || !seenPosition) {
+        this.reset();
+      }
+    });
+    this._currentState = combinedDisposable(editorState, listener);
+  }
+  revealNext(source) {
+    if (!this._currentModel) {
+      return Promise.resolve();
+    }
+    this._currentIdx += 1;
+    this._currentIdx %= this._currentModel.references.length;
+    const reference = this._currentModel.references[this._currentIdx];
+    this._showMessage();
+    this._ignoreEditorChange = true;
+    return this._editorService.openCodeEditor(
+      {
+        resource: reference.uri,
+        options: {
+          selection: Range.collapseToStart(reference.range),
+          selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport
+        }
+      },
+      source
+    ).finally(() => {
+      this._ignoreEditorChange = false;
+    });
+  }
+  _showMessage() {
+    this._currentMessage?.dispose();
+    const kb = this._keybindingService.lookupKeybinding(
+      "editor.gotoNextSymbolFromResult"
+    );
+    const message = kb ? localize(
+      "location.kb",
+      "Symbol {0} of {1}, {2} for next",
+      this._currentIdx + 1,
+      this._currentModel.references.length,
+      kb.getLabel()
+    ) : localize(
+      "location",
+      "Symbol {0} of {1}",
+      this._currentIdx + 1,
+      this._currentModel.references.length
+    );
+    this._currentMessage = this._notificationService.status(message);
+  }
+};
+SymbolNavigationService = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, ICodeEditorService),
+  __decorateParam(2, INotificationService),
+  __decorateParam(3, IKeybindingService)
+], SymbolNavigationService);
+registerSingleton(
+  ISymbolNavigationService,
+  SymbolNavigationService,
+  InstantiationType.Delayed
+);
+registerEditorCommand(
+  new class extends EditorCommand {
+    constructor() {
+      super({
+        id: "editor.gotoNextSymbolFromResult",
+        precondition: ctxHasSymbols,
+        kbOpts: {
+          weight: KeybindingWeight.EditorContrib,
+          primary: KeyCode.F12
+        }
+      });
+    }
+    runEditorCommand(accessor, editor) {
+      return accessor.get(ISymbolNavigationService).revealNext(editor);
+    }
+  }()
+);
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "editor.gotoNextSymbolFromResult.cancel",
+  weight: KeybindingWeight.EditorContrib,
+  when: ctxHasSymbols,
+  primary: KeyCode.Escape,
+  handler(accessor) {
+    accessor.get(ISymbolNavigationService).reset();
+  }
+});
+let EditorState = class {
+  static {
+    __name(this, "EditorState");
+  }
+  _listener = /* @__PURE__ */ new Map();
+  _disposables = new DisposableStore();
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  constructor(editorService) {
+    this._disposables.add(
+      editorService.onCodeEditorRemove(this._onDidRemoveEditor, this)
+    );
+    this._disposables.add(
+      editorService.onCodeEditorAdd(this._onDidAddEditor, this)
+    );
+    editorService.listCodeEditors().forEach(this._onDidAddEditor, this);
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._onDidChange.dispose();
+    dispose(this._listener.values());
+  }
+  _onDidAddEditor(editor) {
+    this._listener.set(
+      editor,
+      combinedDisposable(
+        editor.onDidChangeCursorPosition(
+          (_) => this._onDidChange.fire({ editor })
+        ),
+        editor.onDidChangeModelContent(
+          (_) => this._onDidChange.fire({ editor })
+        )
+      )
+    );
+  }
+  _onDidRemoveEditor(editor) {
+    this._listener.get(editor)?.dispose();
+    this._listener.delete(editor);
+  }
+};
+EditorState = __decorateClass([
+  __decorateParam(0, ICodeEditorService)
+], EditorState);
+export {
+  ISymbolNavigationService,
+  ctxHasSymbols
+};
+//# sourceMappingURL=symbolNavigation.js.map

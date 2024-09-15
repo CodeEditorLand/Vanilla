@@ -1,1 +1,115 @@
-import{app as a}from"electron";import{disposableTimeout as p}from"../../../base/common/async.js";import{Event as s}from"../../../base/common/event.js";import{Disposable as d}from"../../../base/common/lifecycle.js";import{isWindows as m}from"../../../base/common/platform.js";import{URI as f}from"../../../base/common/uri.js";class I extends d{constructor(r,t,o,l,c,n){super();this.urlService=t;this.logService=n;if(r&&(n.trace("ElectronURLListener initialUrisToHandle:",r.map(e=>e.originalUrl)),this.uris=r),m){const e=l.isBuilt?[]:[`"${l.appRoot}"`];e.push("--open-url","--"),a.setAsDefaultProtocolClient(c.urlProtocol,process.execPath,e)}const u=s.map(s.fromNodeEventEmitter(a,"open-url",(e,i)=>({event:e,url:i})),({event:e,url:i})=>(e.preventDefault(),i));this._register(u(e=>{const i=this.uriFromRawUrl(e);i&&this.urlService.open(i,{originalUrl:e})})),o.getWindows().filter(e=>e.isReady).length>0?(n.trace("ElectronURLListener: window is ready to handle URLs"),this.flush()):(n.trace("ElectronURLListener: waiting for window to be ready to handle URLs..."),this._register(s.once(o.onDidSignalReadyWindow)(()=>this.flush())))}uris=[];retryCount=0;uriFromRawUrl(r){try{return f.parse(r)}catch{return}}async flush(){if(this.retryCount++>10){this.logService.trace("ElectronURLListener#flush(): giving up after 10 retries");return}this.logService.trace("ElectronURLListener#flush(): flushing URLs");const r=[];for(const t of this.uris)await this.urlService.open(t.uri,{originalUrl:t.originalUrl})?this.logService.trace("ElectronURLListener#flush(): URL was handled",t.originalUrl):(this.logService.trace("ElectronURLListener#flush(): URL was not yet handled",t.originalUrl),r.push(t));r.length!==0&&(this.uris=r,p(()=>this.flush(),500,this._store))}}export{I as ElectronURLListener};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { app } from "electron";
+import { disposableTimeout } from "../../../base/common/async.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { isWindows } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+class ElectronURLListener extends Disposable {
+  constructor(initialProtocolUrls, urlService, windowsMainService, environmentMainService, productService, logService) {
+    super();
+    this.urlService = urlService;
+    this.logService = logService;
+    if (initialProtocolUrls) {
+      logService.trace(
+        "ElectronURLListener initialUrisToHandle:",
+        initialProtocolUrls.map((url) => url.originalUrl)
+      );
+      this.uris = initialProtocolUrls;
+    }
+    if (isWindows) {
+      const windowsParameters = environmentMainService.isBuilt ? [] : [`"${environmentMainService.appRoot}"`];
+      windowsParameters.push("--open-url", "--");
+      app.setAsDefaultProtocolClient(
+        productService.urlProtocol,
+        process.execPath,
+        windowsParameters
+      );
+    }
+    const onOpenElectronUrl = Event.map(
+      Event.fromNodeEventEmitter(
+        app,
+        "open-url",
+        (event, url) => ({ event, url })
+      ),
+      ({ event, url }) => {
+        event.preventDefault();
+        return url;
+      }
+    );
+    this._register(
+      onOpenElectronUrl((url) => {
+        const uri = this.uriFromRawUrl(url);
+        if (!uri) {
+          return;
+        }
+        this.urlService.open(uri, { originalUrl: url });
+      })
+    );
+    const isWindowReady = windowsMainService.getWindows().filter((window) => window.isReady).length > 0;
+    if (isWindowReady) {
+      logService.trace(
+        "ElectronURLListener: window is ready to handle URLs"
+      );
+      this.flush();
+    } else {
+      logService.trace(
+        "ElectronURLListener: waiting for window to be ready to handle URLs..."
+      );
+      this._register(
+        Event.once(windowsMainService.onDidSignalReadyWindow)(
+          () => this.flush()
+        )
+      );
+    }
+  }
+  static {
+    __name(this, "ElectronURLListener");
+  }
+  uris = [];
+  retryCount = 0;
+  uriFromRawUrl(url) {
+    try {
+      return URI.parse(url);
+    } catch (e) {
+      return void 0;
+    }
+  }
+  async flush() {
+    if (this.retryCount++ > 10) {
+      this.logService.trace(
+        "ElectronURLListener#flush(): giving up after 10 retries"
+      );
+      return;
+    }
+    this.logService.trace("ElectronURLListener#flush(): flushing URLs");
+    const uris = [];
+    for (const obj of this.uris) {
+      const handled = await this.urlService.open(obj.uri, {
+        originalUrl: obj.originalUrl
+      });
+      if (handled) {
+        this.logService.trace(
+          "ElectronURLListener#flush(): URL was handled",
+          obj.originalUrl
+        );
+      } else {
+        this.logService.trace(
+          "ElectronURLListener#flush(): URL was not yet handled",
+          obj.originalUrl
+        );
+        uris.push(obj);
+      }
+    }
+    if (uris.length === 0) {
+      return;
+    }
+    this.uris = uris;
+    disposableTimeout(() => this.flush(), 500, this._store);
+  }
+}
+export {
+  ElectronURLListener
+};
+//# sourceMappingURL=electronUrlListener.js.map

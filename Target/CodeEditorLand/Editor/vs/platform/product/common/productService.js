@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const r=e("productService"),c="vscode://schemas/vscode-product";export{r as IProductService,c as productSchemaId};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IProductService = createDecorator("productService");
+const productSchemaId = "vscode://schemas/vscode-product";
+export {
+  IProductService,
+  productSchemaId
+};
+//# sourceMappingURL=productService.js.map

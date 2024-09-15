@@ -1,1 +1,38 @@
-class o{constructor(n,r){this.startLineNumber=n;this.endLineNumber=r}}class l{constructor(n,r,t){this.range=n;this.children=r;this.parent=t}}class c{constructor(n,r,t,i){this.uri=n;this.version=r;this.element=t;this.outlineProviderId=i}}export{l as StickyElement,c as StickyModel,o as StickyRange};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class StickyRange {
+  constructor(startLineNumber, endLineNumber) {
+    this.startLineNumber = startLineNumber;
+    this.endLineNumber = endLineNumber;
+  }
+  static {
+    __name(this, "StickyRange");
+  }
+}
+class StickyElement {
+  constructor(range, children, parent) {
+    this.range = range;
+    this.children = children;
+    this.parent = parent;
+  }
+  static {
+    __name(this, "StickyElement");
+  }
+}
+class StickyModel {
+  constructor(uri, version, element, outlineProviderId) {
+    this.uri = uri;
+    this.version = version;
+    this.element = element;
+    this.outlineProviderId = outlineProviderId;
+  }
+  static {
+    __name(this, "StickyModel");
+  }
+}
+export {
+  StickyElement,
+  StickyModel,
+  StickyRange
+};
+//# sourceMappingURL=stickyScrollElement.js.map

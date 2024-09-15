@@ -1,1 +1,76 @@
-var d=Object.defineProperty;var C=Object.getOwnPropertyDescriptor;var p=(s,e,r,a)=>{for(var t=a>1?void 0:a?C(e,r):e,o=s.length-1,i;o>=0;o--)(i=s[o])&&(t=(a?i(e,r,t):i(t))||t);return a&&t&&d(e,r,t),t},b=(s,e)=>(r,a)=>e(r,a,s);import{DisposableMap as m}from"../../../base/common/lifecycle.js";import{revive as h}from"../../../base/common/marshalling.js";import{IChatVariablesService as y}from"../../contrib/chat/common/chatVariables.js";import{extHostNamedCustomer as c}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as x,MainContext as u}from"../common/extHost.protocol.js";let l=class{constructor(e,r){this._chatVariablesService=r;this._proxy=e.getProxy(x.ExtHostChatVariables)}_proxy;_variables=new m;_pendingProgress=new Map;dispose(){this._variables.clearAndDisposeAll()}$registerVariable(e,r){const a=this._chatVariablesService.registerVariable(r,async(t,o,i,v,g)=>{const n=`${i.sessionId}-${e}`;this._pendingProgress.set(n,v);const V=h(await this._proxy.$resolveVariable(e,n,t,g));return this._pendingProgress.delete(n),V});this._variables.set(e,a)}async $handleProgressChunk(e,r){const a=h(r);this._pendingProgress.get(e)?.(a)}$unregisterVariable(e){this._variables.deleteAndDispose(e)}};l=p([c(u.MainThreadChatVariables),b(1,y)],l);export{l as MainThreadChatVariables};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DisposableMap } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import {
+  IChatVariablesService
+} from "../../contrib/chat/common/chatVariables.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadChatVariables = class {
+  constructor(extHostContext, _chatVariablesService) {
+    this._chatVariablesService = _chatVariablesService;
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostChatVariables
+    );
+  }
+  _proxy;
+  _variables = new DisposableMap();
+  _pendingProgress = /* @__PURE__ */ new Map();
+  dispose() {
+    this._variables.clearAndDisposeAll();
+  }
+  $registerVariable(handle, data) {
+    const registration = this._chatVariablesService.registerVariable(
+      data,
+      async (messageText, _arg, model, progress, token) => {
+        const varRequestId = `${model.sessionId}-${handle}`;
+        this._pendingProgress.set(varRequestId, progress);
+        const result = revive(
+          await this._proxy.$resolveVariable(
+            handle,
+            varRequestId,
+            messageText,
+            token
+          )
+        );
+        this._pendingProgress.delete(varRequestId);
+        return result;
+      }
+    );
+    this._variables.set(handle, registration);
+  }
+  async $handleProgressChunk(requestId, progress) {
+    const revivedProgress = revive(progress);
+    this._pendingProgress.get(requestId)?.(
+      revivedProgress
+    );
+  }
+  $unregisterVariable(handle) {
+    this._variables.deleteAndDispose(handle);
+  }
+};
+__name(MainThreadChatVariables, "MainThreadChatVariables");
+MainThreadChatVariables = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadChatVariables),
+  __decorateParam(1, IChatVariablesService)
+], MainThreadChatVariables);
+export {
+  MainThreadChatVariables
+};
+//# sourceMappingURL=mainThreadChatVariables.js.map

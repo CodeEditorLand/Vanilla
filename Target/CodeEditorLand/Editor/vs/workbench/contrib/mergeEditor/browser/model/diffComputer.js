@@ -1,1 +1,125 @@
-var M=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var L=(r,e,i,u)=>{for(var a=u>1?void 0:u?h(e,i):e,s=r.length-1,m;s>=0;s--)(m=r[s])&&(a=(u?m(e,i,a):m(a))||a);return u&&a&&M(e,i,a),a},l=(r,e)=>(i,u)=>e(i,u,r);import{assertFn as D,checkAdjacentItems as C}from"../../../../../base/common/assert.js";import{IEditorWorkerService as E}from"../../../../../editor/common/services/editorWorker.js";import{IConfigurationService as T}from"../../../../../platform/configuration/common/configuration.js";import{observableConfigValue as V}from"../../../../../platform/observable/common/platformObservableUtils.js";import{LineRange as y}from"./lineRange.js";import{DetailedLineRangeMapping as w,RangeMapping as S}from"./mapping.js";let c=class{constructor(e,i){this.editorWorkerService=e;this.configurationService=i}mergeAlgorithm=V("mergeEditor.diffAlgorithm","advanced",this.configurationService).map(e=>e==="smart"?"legacy":e==="experimental"?"advanced":e);async computeDiff(e,i,u){const a=this.mergeAlgorithm.read(u),s=e.getVersionId(),m=i.getVersionId(),R=await this.editorWorkerService.computeDiff(e.uri,i.uri,{ignoreTrimWhitespace:!1,maxComputationTimeMs:0,computeMoves:!1},a);if(!R)throw new Error("Diff computation failed");if(e.isDisposed()||i.isDisposed())return{diffs:null};const p=R.changes.map(n=>new w(b(n.original),e,b(n.modified),i,n.innerChanges?.map(o=>j(o)))),N=e.getVersionId(),v=i.getVersionId();return s!==N||m!==v?{diffs:null}:(D(()=>{for(const n of p){const o=n.inputRange,d=n.outputRange,I=n.inputTextModel,x=n.outputTextModel;for(const t of n.rangeMappings){let g=o.startLineNumber-1<=t.inputRange.startLineNumber&&t.inputRange.endLineNumber<=o.endLineNumberExclusive;g&&t.inputRange.startLineNumber===o.startLineNumber-1&&(g=t.inputRange.endColumn>=I.getLineMaxColumn(t.inputRange.startLineNumber)),g&&t.inputRange.endLineNumber===o.endLineNumberExclusive&&(g=t.inputRange.endColumn===1);let f=d.startLineNumber-1<=t.outputRange.startLineNumber&&t.outputRange.endLineNumber<=d.endLineNumberExclusive;if(f&&t.outputRange.startLineNumber===d.startLineNumber-1&&(f=t.outputRange.endColumn>=x.getLineMaxColumn(t.outputRange.endLineNumber)),f&&t.outputRange.endLineNumber===d.endLineNumberExclusive&&(f=t.outputRange.endColumn===1),!g||!f)return!1}}return p.length===0||p[0].inputRange.startLineNumber===p[0].outputRange.startLineNumber&&C(p,(n,o)=>o.inputRange.startLineNumber-n.inputRange.endLineNumberExclusive===o.outputRange.startLineNumber-n.outputRange.endLineNumberExclusive&&n.inputRange.endLineNumberExclusive<o.inputRange.startLineNumber&&n.outputRange.endLineNumberExclusive<o.outputRange.startLineNumber)}),{diffs:p})}};c=L([l(0,E),l(1,T)],c);function b(r){return new y(r.startLineNumber,r.length)}function j(r){return new S(r.originalRange,r.modifiedRange)}export{c as MergeDiffComputer,b as toLineRange,j as toRangeMapping};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  assertFn,
+  checkAdjacentItems
+} from "../../../../../base/common/assert.js";
+import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { LineRange } from "./lineRange.js";
+import { DetailedLineRangeMapping, RangeMapping } from "./mapping.js";
+let MergeDiffComputer = class {
+  constructor(editorWorkerService, configurationService) {
+    this.editorWorkerService = editorWorkerService;
+    this.configurationService = configurationService;
+  }
+  static {
+    __name(this, "MergeDiffComputer");
+  }
+  mergeAlgorithm = observableConfigValue("mergeEditor.diffAlgorithm", "advanced", this.configurationService).map(
+    (v) => v === "smart" ? "legacy" : v === "experimental" ? "advanced" : v
+  );
+  async computeDiff(textModel1, textModel2, reader) {
+    const diffAlgorithm = this.mergeAlgorithm.read(reader);
+    const inputVersion = textModel1.getVersionId();
+    const outputVersion = textModel2.getVersionId();
+    const result = await this.editorWorkerService.computeDiff(
+      textModel1.uri,
+      textModel2.uri,
+      {
+        ignoreTrimWhitespace: false,
+        maxComputationTimeMs: 0,
+        computeMoves: false
+      },
+      diffAlgorithm
+    );
+    if (!result) {
+      throw new Error("Diff computation failed");
+    }
+    if (textModel1.isDisposed() || textModel2.isDisposed()) {
+      return { diffs: null };
+    }
+    const changes = result.changes.map(
+      (c) => new DetailedLineRangeMapping(
+        toLineRange(c.original),
+        textModel1,
+        toLineRange(c.modified),
+        textModel2,
+        c.innerChanges?.map((ic) => toRangeMapping(ic))
+      )
+    );
+    const newInputVersion = textModel1.getVersionId();
+    const newOutputVersion = textModel2.getVersionId();
+    if (inputVersion !== newInputVersion || outputVersion !== newOutputVersion) {
+      return { diffs: null };
+    }
+    assertFn(() => {
+      for (const c of changes) {
+        const inputRange = c.inputRange;
+        const outputRange = c.outputRange;
+        const inputTextModel = c.inputTextModel;
+        const outputTextModel = c.outputTextModel;
+        for (const map of c.rangeMappings) {
+          let inputRangesValid = inputRange.startLineNumber - 1 <= map.inputRange.startLineNumber && map.inputRange.endLineNumber <= inputRange.endLineNumberExclusive;
+          if (inputRangesValid && map.inputRange.startLineNumber === inputRange.startLineNumber - 1) {
+            inputRangesValid = map.inputRange.endColumn >= inputTextModel.getLineMaxColumn(
+              map.inputRange.startLineNumber
+            );
+          }
+          if (inputRangesValid && map.inputRange.endLineNumber === inputRange.endLineNumberExclusive) {
+            inputRangesValid = map.inputRange.endColumn === 1;
+          }
+          let outputRangesValid = outputRange.startLineNumber - 1 <= map.outputRange.startLineNumber && map.outputRange.endLineNumber <= outputRange.endLineNumberExclusive;
+          if (outputRangesValid && map.outputRange.startLineNumber === outputRange.startLineNumber - 1) {
+            outputRangesValid = map.outputRange.endColumn >= outputTextModel.getLineMaxColumn(
+              map.outputRange.endLineNumber
+            );
+          }
+          if (outputRangesValid && map.outputRange.endLineNumber === outputRange.endLineNumberExclusive) {
+            outputRangesValid = map.outputRange.endColumn === 1;
+          }
+          if (!inputRangesValid || !outputRangesValid) {
+            return false;
+          }
+        }
+      }
+      return changes.length === 0 || changes[0].inputRange.startLineNumber === changes[0].outputRange.startLineNumber && checkAdjacentItems(
+        changes,
+        (m1, m2) => m2.inputRange.startLineNumber - m1.inputRange.endLineNumberExclusive === m2.outputRange.startLineNumber - m1.outputRange.endLineNumberExclusive && // There has to be an unchanged line in between (otherwise both diffs should have been joined)
+        m1.inputRange.endLineNumberExclusive < m2.inputRange.startLineNumber && m1.outputRange.endLineNumberExclusive < m2.outputRange.startLineNumber
+      );
+    });
+    return {
+      diffs: changes
+    };
+  }
+};
+MergeDiffComputer = __decorateClass([
+  __decorateParam(0, IEditorWorkerService),
+  __decorateParam(1, IConfigurationService)
+], MergeDiffComputer);
+function toLineRange(range) {
+  return new LineRange(range.startLineNumber, range.length);
+}
+__name(toLineRange, "toLineRange");
+function toRangeMapping(mapping) {
+  return new RangeMapping(mapping.originalRange, mapping.modifiedRange);
+}
+__name(toRangeMapping, "toRangeMapping");
+export {
+  MergeDiffComputer,
+  toLineRange,
+  toRangeMapping
+};
+//# sourceMappingURL=diffComputer.js.map

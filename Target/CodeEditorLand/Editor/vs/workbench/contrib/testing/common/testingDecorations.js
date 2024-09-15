@@ -1,1 +1,50 @@
-import{binarySearch as n}from"../../../../base/common/arrays.js";import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";class l{value=[];push(o){const e=n(this.value,o,(t,i)=>t.line-i.line);this.value.splice(e<0?~e:e,0,o)}*lines(){if(!this.value.length)return;let o=0,e=this.value[0].line;for(let t=1;t<this.value.length;t++){const i=this.value[t];i.line!==e&&(yield[e,this.value.slice(o,t)],e=i.line,o=t)}yield[e,this.value.slice(o)]}}const d=r("testingDecorationService");export{d as ITestingDecorationsService,l as TestDecorations};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { binarySearch } from "../../../../base/common/arrays.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+class TestDecorations {
+  static {
+    __name(this, "TestDecorations");
+  }
+  value = [];
+  /**
+   * Adds a new value to the decorations.
+   */
+  push(value) {
+    const searchIndex = binarySearch(
+      this.value,
+      value,
+      (a, b) => a.line - b.line
+    );
+    this.value.splice(
+      searchIndex < 0 ? ~searchIndex : searchIndex,
+      0,
+      value
+    );
+  }
+  /**
+   * Gets decorations on each line.
+   */
+  *lines() {
+    if (!this.value.length) {
+      return;
+    }
+    let startIndex = 0;
+    let startLine = this.value[0].line;
+    for (let i = 1; i < this.value.length; i++) {
+      const v = this.value[i];
+      if (v.line !== startLine) {
+        yield [startLine, this.value.slice(startIndex, i)];
+        startLine = v.line;
+        startIndex = i;
+      }
+    }
+    yield [startLine, this.value.slice(startIndex)];
+  }
+}
+const ITestingDecorationsService = createDecorator("testingDecorationService");
+export {
+  ITestingDecorationsService,
+  TestDecorations
+};
+//# sourceMappingURL=testingDecorations.js.map

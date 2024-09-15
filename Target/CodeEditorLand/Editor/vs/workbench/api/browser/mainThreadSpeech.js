@@ -1,1 +1,206 @@
-var l=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var T=(c,e,o,t)=>{for(var p=t>1?void 0:t?m(e,o):e,s=c.length-1,r;s>=0;s--)(r=c[s])&&(p=(t?r(e,o,p):r(p))||p);return t&&p&&l(e,o,p),p},S=(c,e)=>(o,t)=>e(o,t,c);import{raceCancellation as C}from"../../../base/common/async.js";import{Emitter as g,Event as d}from"../../../base/common/event.js";import{DisposableStore as v}from"../../../base/common/lifecycle.js";import{ILogService as E}from"../../../platform/log/common/log.js";import{ISpeechService as u,TextToSpeechStatus as w}from"../../contrib/speech/common/speechService.js";import{extHostNamedCustomer as R}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as I,MainContext as D}from"../common/extHost.protocol.js";let h=class{constructor(e,o,t){this.speechService=o;this.logService=t;this.proxy=e.getProxy(I.ExtHostSpeech)}proxy;providerRegistrations=new Map;speechToTextSessions=new Map;textToSpeechSessions=new Map;keywordRecognitionSessions=new Map;$registerProvider(e,o,t){this.logService.trace("[Speech] extension registered provider",t.extension.value);const p=this.speechService.registerSpeechProvider(o,{metadata:t,createSpeechToTextSession:(s,r)=>{if(s.isCancellationRequested)return{onDidChange:d.None};const n=new v,i=Math.random();this.proxy.$createSpeechToTextSession(e,i,r?.language);const a=n.add(new g);return this.speechToTextSessions.set(i,{onDidChange:a}),n.add(s.onCancellationRequested(()=>{this.proxy.$cancelSpeechToTextSession(i),this.speechToTextSessions.delete(i),n.dispose()})),{onDidChange:a.event}},createTextToSpeechSession:(s,r)=>{if(s.isCancellationRequested)return{onDidChange:d.None,synthesize:async()=>{}};const n=new v,i=Math.random();this.proxy.$createTextToSpeechSession(e,i,r?.language);const a=n.add(new g);return this.textToSpeechSessions.set(i,{onDidChange:a}),n.add(s.onCancellationRequested(()=>{this.proxy.$cancelTextToSpeechSession(i),this.textToSpeechSessions.delete(i),n.dispose()})),{onDidChange:a.event,synthesize:async x=>{await this.proxy.$synthesizeSpeech(i,x),await C(d.toPromise(d.filter(a.event,y=>y.status===w.Stopped)),s)}}},createKeywordRecognitionSession:s=>{if(s.isCancellationRequested)return{onDidChange:d.None};const r=new v,n=Math.random();this.proxy.$createKeywordRecognitionSession(e,n);const i=r.add(new g);return this.keywordRecognitionSessions.set(n,{onDidChange:i}),r.add(s.onCancellationRequested(()=>{this.proxy.$cancelKeywordRecognitionSession(n),this.keywordRecognitionSessions.delete(n),r.dispose()})),{onDidChange:i.event}}});this.providerRegistrations.set(e,{dispose:()=>{p.dispose()}})}$unregisterProvider(e){const o=this.providerRegistrations.get(e);o&&(o.dispose(),this.providerRegistrations.delete(e))}$emitSpeechToTextEvent(e,o){this.speechToTextSessions.get(e)?.onDidChange.fire(o)}$emitTextToSpeechEvent(e,o){this.textToSpeechSessions.get(e)?.onDidChange.fire(o)}$emitKeywordRecognitionEvent(e,o){this.keywordRecognitionSessions.get(e)?.onDidChange.fire(o)}dispose(){this.providerRegistrations.forEach(e=>e.dispose()),this.providerRegistrations.clear(),this.speechToTextSessions.forEach(e=>e.onDidChange.dispose()),this.speechToTextSessions.clear(),this.textToSpeechSessions.forEach(e=>e.onDidChange.dispose()),this.textToSpeechSessions.clear(),this.keywordRecognitionSessions.forEach(e=>e.onDidChange.dispose()),this.keywordRecognitionSessions.clear()}};h=T([R(D.MainThreadSpeech),S(1,u),S(2,E)],h);export{h as MainThreadSpeech};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { raceCancellation } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import {
+  DisposableStore
+} from "../../../base/common/lifecycle.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  ISpeechService,
+  TextToSpeechStatus
+} from "../../contrib/speech/common/speechService.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadSpeech = class {
+  constructor(extHostContext, speechService, logService) {
+    this.speechService = speechService;
+    this.logService = logService;
+    this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostSpeech);
+  }
+  proxy;
+  providerRegistrations = /* @__PURE__ */ new Map();
+  speechToTextSessions = /* @__PURE__ */ new Map();
+  textToSpeechSessions = /* @__PURE__ */ new Map();
+  keywordRecognitionSessions = /* @__PURE__ */ new Map();
+  $registerProvider(handle, identifier, metadata) {
+    this.logService.trace(
+      "[Speech] extension registered provider",
+      metadata.extension.value
+    );
+    const registration = this.speechService.registerSpeechProvider(
+      identifier,
+      {
+        metadata,
+        createSpeechToTextSession: /* @__PURE__ */ __name((token, options) => {
+          if (token.isCancellationRequested) {
+            return {
+              onDidChange: Event.None
+            };
+          }
+          const disposables = new DisposableStore();
+          const session = Math.random();
+          this.proxy.$createSpeechToTextSession(
+            handle,
+            session,
+            options?.language
+          );
+          const onDidChange = disposables.add(
+            new Emitter()
+          );
+          this.speechToTextSessions.set(session, { onDidChange });
+          disposables.add(
+            token.onCancellationRequested(() => {
+              this.proxy.$cancelSpeechToTextSession(session);
+              this.speechToTextSessions.delete(session);
+              disposables.dispose();
+            })
+          );
+          return {
+            onDidChange: onDidChange.event
+          };
+        }, "createSpeechToTextSession"),
+        createTextToSpeechSession: /* @__PURE__ */ __name((token, options) => {
+          if (token.isCancellationRequested) {
+            return {
+              onDidChange: Event.None,
+              synthesize: /* @__PURE__ */ __name(async () => {
+              }, "synthesize")
+            };
+          }
+          const disposables = new DisposableStore();
+          const session = Math.random();
+          this.proxy.$createTextToSpeechSession(
+            handle,
+            session,
+            options?.language
+          );
+          const onDidChange = disposables.add(
+            new Emitter()
+          );
+          this.textToSpeechSessions.set(session, { onDidChange });
+          disposables.add(
+            token.onCancellationRequested(() => {
+              this.proxy.$cancelTextToSpeechSession(session);
+              this.textToSpeechSessions.delete(session);
+              disposables.dispose();
+            })
+          );
+          return {
+            onDidChange: onDidChange.event,
+            synthesize: /* @__PURE__ */ __name(async (text) => {
+              await this.proxy.$synthesizeSpeech(session, text);
+              await raceCancellation(
+                Event.toPromise(
+                  Event.filter(
+                    onDidChange.event,
+                    (e) => e.status === TextToSpeechStatus.Stopped
+                  )
+                ),
+                token
+              );
+            }, "synthesize")
+          };
+        }, "createTextToSpeechSession"),
+        createKeywordRecognitionSession: /* @__PURE__ */ __name((token) => {
+          if (token.isCancellationRequested) {
+            return {
+              onDidChange: Event.None
+            };
+          }
+          const disposables = new DisposableStore();
+          const session = Math.random();
+          this.proxy.$createKeywordRecognitionSession(
+            handle,
+            session
+          );
+          const onDidChange = disposables.add(
+            new Emitter()
+          );
+          this.keywordRecognitionSessions.set(session, {
+            onDidChange
+          });
+          disposables.add(
+            token.onCancellationRequested(() => {
+              this.proxy.$cancelKeywordRecognitionSession(
+                session
+              );
+              this.keywordRecognitionSessions.delete(session);
+              disposables.dispose();
+            })
+          );
+          return {
+            onDidChange: onDidChange.event
+          };
+        }, "createKeywordRecognitionSession")
+      }
+    );
+    this.providerRegistrations.set(handle, {
+      dispose: /* @__PURE__ */ __name(() => {
+        registration.dispose();
+      }, "dispose")
+    });
+  }
+  $unregisterProvider(handle) {
+    const registration = this.providerRegistrations.get(handle);
+    if (registration) {
+      registration.dispose();
+      this.providerRegistrations.delete(handle);
+    }
+  }
+  $emitSpeechToTextEvent(session, event) {
+    const providerSession = this.speechToTextSessions.get(session);
+    providerSession?.onDidChange.fire(event);
+  }
+  $emitTextToSpeechEvent(session, event) {
+    const providerSession = this.textToSpeechSessions.get(session);
+    providerSession?.onDidChange.fire(event);
+  }
+  $emitKeywordRecognitionEvent(session, event) {
+    const providerSession = this.keywordRecognitionSessions.get(session);
+    providerSession?.onDidChange.fire(event);
+  }
+  dispose() {
+    this.providerRegistrations.forEach(
+      (disposable) => disposable.dispose()
+    );
+    this.providerRegistrations.clear();
+    this.speechToTextSessions.forEach(
+      (session) => session.onDidChange.dispose()
+    );
+    this.speechToTextSessions.clear();
+    this.textToSpeechSessions.forEach(
+      (session) => session.onDidChange.dispose()
+    );
+    this.textToSpeechSessions.clear();
+    this.keywordRecognitionSessions.forEach(
+      (session) => session.onDidChange.dispose()
+    );
+    this.keywordRecognitionSessions.clear();
+  }
+};
+__name(MainThreadSpeech, "MainThreadSpeech");
+MainThreadSpeech = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadSpeech),
+  __decorateParam(1, ISpeechService),
+  __decorateParam(2, ILogService)
+], MainThreadSpeech);
+export {
+  MainThreadSpeech
+};
+//# sourceMappingURL=mainThreadSpeech.js.map

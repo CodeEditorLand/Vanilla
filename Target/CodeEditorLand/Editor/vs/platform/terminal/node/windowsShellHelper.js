@@ -1,1 +1,171 @@
-var c=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var d=(i,t,e,n)=>{for(var r=n>1?void 0:n?m(t,e):t,l=i.length-1,h;l>=0;l--)(h=i[l])&&(r=(n?h(t,e,r):h(r))||r);return n&&r&&c(t,e,r),r};import{timeout as T}from"../../../base/common/async.js";import{debounce as y}from"../../../base/common/decorators.js";import{Emitter as p}from"../../../base/common/event.js";import{Disposable as f}from"../../../base/common/lifecycle.js";import{isWindows as u,platform as g}from"../../../base/common/platform.js";import{GeneralShellType as s,WindowsShellType as o}from"../common/terminal.js";const S=["cmd.exe","powershell.exe","pwsh.exe","bash.exe","wsl.exe","ubuntu.exe","ubuntu1804.exe","kali.exe","debian.exe","opensuse-42.exe","sles-12.exe"];let a;class x extends f{constructor(e){super();this._rootProcessId=e;if(!u)throw new Error(`WindowsShellHelper cannot be instantiated on ${g}`);this._startMonitoringShell()}_currentRequest;_shellType;get shellType(){return this._shellType}_shellTitle="";get shellTitle(){return this._shellTitle}_onShellNameChanged=new p;get onShellNameChanged(){return this._onShellNameChanged.event}_onShellTypeChanged=new p;get onShellTypeChanged(){return this._onShellTypeChanged.event}async _startMonitoringShell(){this._store.isDisposed||this.checkShell()}async checkShell(){u&&(await T(300),this.getShellName().then(e=>{const n=this.getShellType(e);n!==this._shellType&&(this._onShellTypeChanged.fire(n),this._onShellNameChanged.fire(e),this._shellType=n,this._shellTitle=e)}))}traverseTree(e){if(!e)return"";if(S.indexOf(e.name)===-1||!e.children||e.children.length===0)return e.name;let n=0;for(;n<e.children.length;n++){const r=e.children[n];if(!r.children||r.children.length===0||r.children[0].name!=="conhost.exe")break}return n>=e.children.length?e.name:this.traverseTree(e.children[n])}async getShellName(){return this._store.isDisposed?Promise.resolve(""):this._currentRequest?this._currentRequest:(a||(a=await import("@vscode/windows-process-tree")),this._currentRequest=new Promise(e=>{a.getProcessTree(this._rootProcessId,n=>{const r=this.traverseTree(n);this._currentRequest=void 0,e(r)})}),this._currentRequest)}getShellType(e){switch(e.toLowerCase()){case"cmd.exe":return o.CommandPrompt;case"powershell.exe":case"pwsh.exe":return s.PowerShell;case"bash.exe":case"git-cmd.exe":return o.GitBash;case"julialauncher.exe":return s.Julia;case"nu.exe":return s.NuShell;case"wsl.exe":case"ubuntu.exe":case"ubuntu1804.exe":case"kali.exe":case"debian.exe":case"opensuse-42.exe":case"sles-12.exe":return o.Wsl;default:return e.match(/python(\d(\.\d{0,2})?)?\.exe/)?s.Python:void 0}}}d([y(500)],x.prototype,"checkShell",1);export{x as WindowsShellHelper};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+import { timeout } from "../../../base/common/async.js";
+import { debounce } from "../../../base/common/decorators.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
+import { isWindows, platform } from "../../../base/common/platform.js";
+import {
+  GeneralShellType,
+  WindowsShellType
+} from "../common/terminal.js";
+const SHELL_EXECUTABLES = [
+  "cmd.exe",
+  "powershell.exe",
+  "pwsh.exe",
+  "bash.exe",
+  "wsl.exe",
+  "ubuntu.exe",
+  "ubuntu1804.exe",
+  "kali.exe",
+  "debian.exe",
+  "opensuse-42.exe",
+  "sles-12.exe"
+];
+let windowsProcessTree;
+class WindowsShellHelper extends Disposable {
+  constructor(_rootProcessId) {
+    super();
+    this._rootProcessId = _rootProcessId;
+    if (!isWindows) {
+      throw new Error(
+        `WindowsShellHelper cannot be instantiated on ${platform}`
+      );
+    }
+    this._startMonitoringShell();
+  }
+  static {
+    __name(this, "WindowsShellHelper");
+  }
+  _currentRequest;
+  _shellType;
+  get shellType() {
+    return this._shellType;
+  }
+  _shellTitle = "";
+  get shellTitle() {
+    return this._shellTitle;
+  }
+  _onShellNameChanged = new Emitter();
+  get onShellNameChanged() {
+    return this._onShellNameChanged.event;
+  }
+  _onShellTypeChanged = new Emitter();
+  get onShellTypeChanged() {
+    return this._onShellTypeChanged.event;
+  }
+  async _startMonitoringShell() {
+    if (this._store.isDisposed) {
+      return;
+    }
+    this.checkShell();
+  }
+  async checkShell() {
+    if (isWindows) {
+      await timeout(300);
+      this.getShellName().then((title) => {
+        const type = this.getShellType(title);
+        if (type !== this._shellType) {
+          this._onShellTypeChanged.fire(type);
+          this._onShellNameChanged.fire(title);
+          this._shellType = type;
+          this._shellTitle = title;
+        }
+      });
+    }
+  }
+  traverseTree(tree) {
+    if (!tree) {
+      return "";
+    }
+    if (SHELL_EXECUTABLES.indexOf(tree.name) === -1) {
+      return tree.name;
+    }
+    if (!tree.children || tree.children.length === 0) {
+      return tree.name;
+    }
+    let favouriteChild = 0;
+    for (; favouriteChild < tree.children.length; favouriteChild++) {
+      const child = tree.children[favouriteChild];
+      if (!child.children || child.children.length === 0) {
+        break;
+      }
+      if (child.children[0].name !== "conhost.exe") {
+        break;
+      }
+    }
+    if (favouriteChild >= tree.children.length) {
+      return tree.name;
+    }
+    return this.traverseTree(tree.children[favouriteChild]);
+  }
+  /**
+   * Returns the innermost shell executable running in the terminal
+   */
+  async getShellName() {
+    if (this._store.isDisposed) {
+      return Promise.resolve("");
+    }
+    if (this._currentRequest) {
+      return this._currentRequest;
+    }
+    if (!windowsProcessTree) {
+      windowsProcessTree = await import("@vscode/windows-process-tree");
+    }
+    this._currentRequest = new Promise((resolve) => {
+      windowsProcessTree.getProcessTree(this._rootProcessId, (tree) => {
+        const name = this.traverseTree(tree);
+        this._currentRequest = void 0;
+        resolve(name);
+      });
+    });
+    return this._currentRequest;
+  }
+  getShellType(executable) {
+    switch (executable.toLowerCase()) {
+      case "cmd.exe":
+        return WindowsShellType.CommandPrompt;
+      case "powershell.exe":
+      case "pwsh.exe":
+        return GeneralShellType.PowerShell;
+      case "bash.exe":
+      case "git-cmd.exe":
+        return WindowsShellType.GitBash;
+      case "julialauncher.exe":
+        return GeneralShellType.Julia;
+      case "nu.exe":
+        return GeneralShellType.NuShell;
+      case "wsl.exe":
+      case "ubuntu.exe":
+      case "ubuntu1804.exe":
+      case "kali.exe":
+      case "debian.exe":
+      case "opensuse-42.exe":
+      case "sles-12.exe":
+        return WindowsShellType.Wsl;
+      default:
+        if (executable.match(/python(\d(\.\d{0,2})?)?\.exe/)) {
+          return GeneralShellType.Python;
+        }
+        return void 0;
+    }
+  }
+}
+__decorateClass([
+  debounce(500)
+], WindowsShellHelper.prototype, "checkShell", 1);
+export {
+  WindowsShellHelper
+};
+//# sourceMappingURL=windowsShellHelper.js.map

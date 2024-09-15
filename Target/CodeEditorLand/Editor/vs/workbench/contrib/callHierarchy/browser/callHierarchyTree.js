@@ -1,1 +1,182 @@
-import{IconLabel as p}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{CancellationToken as c}from"../../../../base/common/cancellation.js";import{createMatches as u}from"../../../../base/common/filters.js";import{compare as g}from"../../../../base/common/strings.js";import{ThemeIcon as C}from"../../../../base/common/themables.js";import{Range as y}from"../../../../editor/common/core/range.js";import{SymbolKinds as f,SymbolTag as h}from"../../../../editor/common/languages.js";import{localize as n}from"../../../../nls.js";import{CallHierarchyDirection as m,CallHierarchyModel as b}from"../common/callHierarchy.js";class o{constructor(e,r,t,i){this.item=e;this.locations=r;this.model=t;this.parent=i}static compare(e,r){let t=g(e.item.uri.toString(),r.item.uri.toString());return t===0&&(t=y.compareRangesUsingStarts(e.item.range,r.item.range)),t}}class x{constructor(e){this.getDirection=e}hasChildren(){return!0}async getChildren(e){if(e instanceof b)return e.roots.map(i=>new o(i,void 0,e,void 0));const{model:r,item:t}=e;return this.getDirection()===m.CallsFrom?(await r.resolveOutgoingCalls(t,c.None)).map(i=>new o(i.to,i.fromRanges.map(a=>({range:a,uri:t.uri})),r,e)):(await r.resolveIncomingCalls(t,c.None)).map(i=>new o(i.from,i.fromRanges.map(a=>({range:a,uri:i.from.uri})),r,e))}}class A{compare(e,r){return o.compare(e,r)}}class z{constructor(e){this.getDirection=e}getId(e){let r=this.getDirection()+JSON.stringify(e.item.uri)+JSON.stringify(e.item.range);return e.parent&&(r+=this.getId(e.parent)),r}}class I{constructor(e,r){this.icon=e;this.label=r}}class s{static id="CallRenderer";templateId=s.id;renderTemplate(e){e.classList.add("callhierarchy-element");const r=document.createElement("div");e.appendChild(r);const t=new p(e,{supportHighlights:!0});return new I(r,t)}renderElement(e,r,t){const{element:i,filterData:a}=e,d=i.item.tags?.includes(h.Deprecated);t.icon.className="",t.icon.classList.add("inline",...C.asClassNameArray(f.toIcon(i.item.kind))),t.label.setLabel(i.item.name,i.item.detail,{labelEscapeNewLines:!0,matches:u(a),strikethrough:d})}disposeTemplate(e){e.label.dispose()}}class M{getHeight(e){return 22}getTemplateId(e){return s.id}}class P{constructor(e){this.getDirection=e}getWidgetAriaLabel(){return n("tree.aria","Call Hierarchy")}getAriaLabel(e){return this.getDirection()===m.CallsFrom?n("from","calls from {0}",e.item.name):n("to","callers of {0}",e.item.name)}}export{P as AccessibilityProvider,o as Call,s as CallRenderer,x as DataSource,z as IdentityProvider,A as Sorter,M as VirtualDelegate};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import {
+  createMatches
+} from "../../../../base/common/filters.js";
+import { compare } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import {
+  SymbolKinds,
+  SymbolTag
+} from "../../../../editor/common/languages.js";
+import { localize } from "../../../../nls.js";
+import {
+  CallHierarchyDirection,
+  CallHierarchyModel
+} from "../common/callHierarchy.js";
+class Call {
+  constructor(item, locations, model, parent) {
+    this.item = item;
+    this.locations = locations;
+    this.model = model;
+    this.parent = parent;
+  }
+  static {
+    __name(this, "Call");
+  }
+  static compare(a, b) {
+    let res = compare(a.item.uri.toString(), b.item.uri.toString());
+    if (res === 0) {
+      res = Range.compareRangesUsingStarts(a.item.range, b.item.range);
+    }
+    return res;
+  }
+}
+class DataSource {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "DataSource");
+  }
+  hasChildren() {
+    return true;
+  }
+  async getChildren(element) {
+    if (element instanceof CallHierarchyModel) {
+      return element.roots.map(
+        (root) => new Call(root, void 0, element, void 0)
+      );
+    }
+    const { model, item } = element;
+    if (this.getDirection() === CallHierarchyDirection.CallsFrom) {
+      return (await model.resolveOutgoingCalls(item, CancellationToken.None)).map((call) => {
+        return new Call(
+          call.to,
+          call.fromRanges.map((range) => ({ range, uri: item.uri })),
+          model,
+          element
+        );
+      });
+    } else {
+      return (await model.resolveIncomingCalls(item, CancellationToken.None)).map((call) => {
+        return new Call(
+          call.from,
+          call.fromRanges.map((range) => ({
+            range,
+            uri: call.from.uri
+          })),
+          model,
+          element
+        );
+      });
+    }
+  }
+}
+class Sorter {
+  static {
+    __name(this, "Sorter");
+  }
+  compare(element, otherElement) {
+    return Call.compare(element, otherElement);
+  }
+}
+class IdentityProvider {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "IdentityProvider");
+  }
+  getId(element) {
+    let res = this.getDirection() + JSON.stringify(element.item.uri) + JSON.stringify(element.item.range);
+    if (element.parent) {
+      res += this.getId(element.parent);
+    }
+    return res;
+  }
+}
+class CallRenderingTemplate {
+  constructor(icon, label) {
+    this.icon = icon;
+    this.label = label;
+  }
+  static {
+    __name(this, "CallRenderingTemplate");
+  }
+}
+class CallRenderer {
+  static {
+    __name(this, "CallRenderer");
+  }
+  static id = "CallRenderer";
+  templateId = CallRenderer.id;
+  renderTemplate(container) {
+    container.classList.add("callhierarchy-element");
+    const icon = document.createElement("div");
+    container.appendChild(icon);
+    const label = new IconLabel(container, { supportHighlights: true });
+    return new CallRenderingTemplate(icon, label);
+  }
+  renderElement(node, _index, template) {
+    const { element, filterData } = node;
+    const deprecated = element.item.tags?.includes(SymbolTag.Deprecated);
+    template.icon.className = "";
+    template.icon.classList.add(
+      "inline",
+      ...ThemeIcon.asClassNameArray(
+        SymbolKinds.toIcon(element.item.kind)
+      )
+    );
+    template.label.setLabel(element.item.name, element.item.detail, {
+      labelEscapeNewLines: true,
+      matches: createMatches(filterData),
+      strikethrough: deprecated
+    });
+  }
+  disposeTemplate(template) {
+    template.label.dispose();
+  }
+}
+class VirtualDelegate {
+  static {
+    __name(this, "VirtualDelegate");
+  }
+  getHeight(_element) {
+    return 22;
+  }
+  getTemplateId(_element) {
+    return CallRenderer.id;
+  }
+}
+class AccessibilityProvider {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "AccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("tree.aria", "Call Hierarchy");
+  }
+  getAriaLabel(element) {
+    if (this.getDirection() === CallHierarchyDirection.CallsFrom) {
+      return localize("from", "calls from {0}", element.item.name);
+    } else {
+      return localize("to", "callers of {0}", element.item.name);
+    }
+  }
+}
+export {
+  AccessibilityProvider,
+  Call,
+  CallRenderer,
+  DataSource,
+  IdentityProvider,
+  Sorter,
+  VirtualDelegate
+};
+//# sourceMappingURL=callHierarchyTree.js.map

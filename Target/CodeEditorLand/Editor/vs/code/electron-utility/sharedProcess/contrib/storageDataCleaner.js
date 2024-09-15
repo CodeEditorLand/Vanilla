@@ -1,1 +1,101 @@
-var l=Object.defineProperty;var S=Object.getOwnPropertyDescriptor;var m=(n,o,e,t)=>{for(var r=t>1?void 0:t?S(o,e):o,i=n.length-1,s;i>=0;i--)(s=n[i])&&(r=(t?s(o,e,r):s(r))||r);return t&&r&&l(o,e,r),r},a=(n,o)=>(e,t)=>o(e,t,n);import{RunOnceScheduler as f}from"../../../../base/common/async.js";import{onUnexpectedError as d}from"../../../../base/common/errors.js";import{Disposable as g}from"../../../../base/common/lifecycle.js";import{Schemas as h}from"../../../../base/common/network.js";import{join as w}from"../../../../base/common/path.js";import{Promises as v}from"../../../../base/node/pfs.js";import{INativeEnvironmentService as u}from"../../../../platform/environment/common/environment.js";import{IMainProcessService as P}from"../../../../platform/ipc/common/mainProcessService.js";import{ILogService as E}from"../../../../platform/log/common/log.js";import{INativeHostService as I}from"../../../../platform/native/common/native.js";import{StorageClient as N}from"../../../../platform/storage/common/storageIpc.js";import{EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE as y}from"../../../../platform/workspace/common/workspace.js";import{NON_EMPTY_WORKSPACE_ID_LENGTH as _}from"../../../../platform/workspaces/node/workspaces.js";let c=class extends g{constructor(e,t,r,i){super();this.environmentService=e;this.logService=t;this.nativeHostService=r;this.mainProcessService=i;this._register(new f(()=>{this.cleanUpStorage()},30*1e3)).schedule()}async cleanUpStorage(){this.logService.trace("[storage cleanup]: Starting to clean up workspace storage folders for unused empty workspaces.");try{const e=this.environmentService.workspaceStorageHome.with({scheme:h.file}).fsPath,t=await v.readdir(e),r=new N(this.mainProcessService.getChannel("storage"));await Promise.all(t.map(async i=>{const s=w(e,i);i.length===_||i===y.id||(await this.nativeHostService.getWindows({includeAuxiliaryWindows:!1})).some(p=>p.workspace?.id===i)||await r.isUsed(s)||(this.logService.trace(`[storage cleanup]: Deleting workspace storage folder ${i} as it seems to be an unused empty workspace.`),await v.rm(s))}))}catch(e){d(e)}}};c=m([a(0,u),a(1,E),a(2,I),a(3,P)],c);export{c as UnusedWorkspaceStorageDataCleaner};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { join } from "../../../../base/common/path.js";
+import { Promises } from "../../../../base/node/pfs.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { StorageClient } from "../../../../platform/storage/common/storageIpc.js";
+import { EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE } from "../../../../platform/workspace/common/workspace.js";
+import { NON_EMPTY_WORKSPACE_ID_LENGTH } from "../../../../platform/workspaces/node/workspaces.js";
+let UnusedWorkspaceStorageDataCleaner = class extends Disposable {
+  constructor(environmentService, logService, nativeHostService, mainProcessService) {
+    super();
+    this.environmentService = environmentService;
+    this.logService = logService;
+    this.nativeHostService = nativeHostService;
+    this.mainProcessService = mainProcessService;
+    const scheduler = this._register(new RunOnceScheduler(
+      () => {
+        this.cleanUpStorage();
+      },
+      30 * 1e3
+      /* after 30s */
+    ));
+    scheduler.schedule();
+  }
+  static {
+    __name(this, "UnusedWorkspaceStorageDataCleaner");
+  }
+  async cleanUpStorage() {
+    this.logService.trace(
+      "[storage cleanup]: Starting to clean up workspace storage folders for unused empty workspaces."
+    );
+    try {
+      const workspaceStorageHome = this.environmentService.workspaceStorageHome.with({
+        scheme: Schemas.file
+      }).fsPath;
+      const workspaceStorageFolders = await Promises.readdir(workspaceStorageHome);
+      const storageClient = new StorageClient(
+        this.mainProcessService.getChannel("storage")
+      );
+      await Promise.all(
+        workspaceStorageFolders.map(async (workspaceStorageFolder) => {
+          const workspaceStoragePath = join(
+            workspaceStorageHome,
+            workspaceStorageFolder
+          );
+          if (workspaceStorageFolder.length === NON_EMPTY_WORKSPACE_ID_LENGTH) {
+            return;
+          }
+          if (workspaceStorageFolder === EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE.id) {
+            return;
+          }
+          const windows = await this.nativeHostService.getWindows({
+            includeAuxiliaryWindows: false
+          });
+          if (windows.some(
+            (window) => window.workspace?.id === workspaceStorageFolder
+          )) {
+            return;
+          }
+          const isStorageUsed = await storageClient.isUsed(workspaceStoragePath);
+          if (isStorageUsed) {
+            return;
+          }
+          this.logService.trace(
+            `[storage cleanup]: Deleting workspace storage folder ${workspaceStorageFolder} as it seems to be an unused empty workspace.`
+          );
+          await Promises.rm(workspaceStoragePath);
+        })
+      );
+    } catch (error) {
+      onUnexpectedError(error);
+    }
+  }
+};
+UnusedWorkspaceStorageDataCleaner = __decorateClass([
+  __decorateParam(0, INativeEnvironmentService),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, INativeHostService),
+  __decorateParam(3, IMainProcessService)
+], UnusedWorkspaceStorageDataCleaner);
+export {
+  UnusedWorkspaceStorageDataCleaner
+};
+//# sourceMappingURL=storageDataCleaner.js.map

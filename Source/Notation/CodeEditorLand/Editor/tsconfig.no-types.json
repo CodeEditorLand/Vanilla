@@ -8,7 +8,6 @@
 		"checkJs": false,
 		"emitBOM": false,
 		"emitDeclarationOnly": false,
-		"emitDecoratorMetadata": false,
 		"listEmittedFiles": false,
 		"noCheck": true,
 		"noEmit": true,

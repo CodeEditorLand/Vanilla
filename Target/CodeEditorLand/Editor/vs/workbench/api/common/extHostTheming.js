@@ -1,1 +1,58 @@
-var C=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var l=(i,t,e,r)=>{for(var o=r>1?void 0:r?p(t,e):t,n=i.length-1,c;n>=0;n--)(c=i[n])&&(o=(r?c(t,e,o):c(o))||o);return r&&o&&C(t,e,o),o},m=(i,t)=>(e,r)=>t(e,r,i);import{Emitter as v}from"../../../base/common/event.js";import{IExtHostRpcService as g}from"./extHostRpcService.js";import{ColorTheme as s,ColorThemeKind as h}from"./extHostTypes.js";let a=class{_serviceBrand;_actual;_onDidChangeActiveColorTheme;constructor(t){this._actual=new s(h.Dark),this._onDidChangeActiveColorTheme=new v}get activeColorTheme(){return this._actual}$onColorThemeChange(t){let e;switch(t){case"light":e=h.Light;break;case"hcDark":e=h.HighContrast;break;case"hcLight":e=h.HighContrastLight;break;default:e=h.Dark}this._actual=new s(e),this._onDidChangeActiveColorTheme.fire(this._actual)}get onDidChangeActiveColorTheme(){return this._onDidChangeActiveColorTheme.event}};a=l([m(0,g)],a);export{a as ExtHostTheming};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ColorTheme, ColorThemeKind } from "./extHostTypes.js";
+let ExtHostTheming = class {
+  static {
+    __name(this, "ExtHostTheming");
+  }
+  _serviceBrand;
+  _actual;
+  _onDidChangeActiveColorTheme;
+  constructor(_extHostRpc) {
+    this._actual = new ColorTheme(ColorThemeKind.Dark);
+    this._onDidChangeActiveColorTheme = new Emitter();
+  }
+  get activeColorTheme() {
+    return this._actual;
+  }
+  $onColorThemeChange(type) {
+    let kind;
+    switch (type) {
+      case "light":
+        kind = ColorThemeKind.Light;
+        break;
+      case "hcDark":
+        kind = ColorThemeKind.HighContrast;
+        break;
+      case "hcLight":
+        kind = ColorThemeKind.HighContrastLight;
+        break;
+      default:
+        kind = ColorThemeKind.Dark;
+    }
+    this._actual = new ColorTheme(kind);
+    this._onDidChangeActiveColorTheme.fire(this._actual);
+  }
+  get onDidChangeActiveColorTheme() {
+    return this._onDidChangeActiveColorTheme.event;
+  }
+};
+ExtHostTheming = __decorateClass([
+  __decorateParam(0, IExtHostRpcService)
+], ExtHostTheming);
+export {
+  ExtHostTheming
+};
+//# sourceMappingURL=extHostTheming.js.map

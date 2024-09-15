@@ -1,1 +1,40 @@
-class s{constructor(e){this.appenders=e}listen(e,r){throw new Error(`Event not found: ${r}`)}call(e,r,{eventName:n,data:o}){return this.appenders.forEach(l=>l.log(n,o)),Promise.resolve(null)}}class m{constructor(e){this.channel=e}log(e,r){return this.channel.call("log",{eventName:e,data:r}).then(void 0,n=>"Failed to log telemetry: undefined"),Promise.resolve(null)}flush(){return Promise.resolve()}}export{s as TelemetryAppenderChannel,m as TelemetryAppenderClient};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class TelemetryAppenderChannel {
+  constructor(appenders) {
+    this.appenders = appenders;
+  }
+  static {
+    __name(this, "TelemetryAppenderChannel");
+  }
+  listen(_, event) {
+    throw new Error(`Event not found: ${event}`);
+  }
+  call(_, command, { eventName, data }) {
+    this.appenders.forEach((a) => a.log(eventName, data));
+    return Promise.resolve(null);
+  }
+}
+class TelemetryAppenderClient {
+  constructor(channel) {
+    this.channel = channel;
+  }
+  static {
+    __name(this, "TelemetryAppenderClient");
+  }
+  log(eventName, data) {
+    this.channel.call("log", { eventName, data }).then(
+      void 0,
+      (err) => `Failed to log telemetry: ${console.warn(err)}`
+    );
+    return Promise.resolve(null);
+  }
+  flush() {
+    return Promise.resolve();
+  }
+}
+export {
+  TelemetryAppenderChannel,
+  TelemetryAppenderClient
+};
+//# sourceMappingURL=telemetryIpc.js.map

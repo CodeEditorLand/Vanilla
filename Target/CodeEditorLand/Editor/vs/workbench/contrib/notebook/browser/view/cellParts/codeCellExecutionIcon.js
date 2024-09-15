@@ -1,1 +1,114 @@
-var d=Object.defineProperty;var _=Object.getOwnPropertyDescriptor;var u=(s,i,o,t)=>{for(var e=t>1?void 0:t?_(i,o):i,n=s.length-1,r;n>=0;n--)(r=s[n])&&(e=(t?r(i,o,e):r(e))||e);return t&&e&&d(i,o,e),e},p=(s,i)=>(o,t)=>i(o,t,s);import*as m from"../../../../../../base/browser/dom.js";import{renderLabelWithIcons as f}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{Disposable as h}from"../../../../../../base/common/lifecycle.js";import{ThemeIcon as b}from"../../../../../../base/common/themables.js";import{localize as l}from"../../../../../../nls.js";import{NotebookCellExecutionState as c}from"../../../common/notebookCommon.js";import{INotebookExecutionStateService as x,NotebookExecutionType as I}from"../../../common/notebookExecutionStateService.js";import{errorStateIcon as S,executingStateIcon as g,pendingStateIcon as k,successStateIcon as v}from"../../notebookIcons.js";let a=class extends h{constructor(o,t,e,n){super();this._cell=t;this._element=e;this._executionStateService=n;this._update(),this._register(this._executionStateService.onDidChangeExecution(r=>{r.type===I.cell&&r.affectsCell(this._cell.uri)&&this._update()})),this._register(this._cell.model.onDidChangeInternalMetadata(()=>this._update()))}_visible=!1;setVisibility(o){this._visible=o,this._update()}_update(){if(!this._visible)return;const o=this._executionStateService.getCellExecution(this._cell.uri),t=this._getItemForState(o,this._cell.model.internalMetadata);t?(this._element.style.display="",m.reset(this._element,...f(t.text)),this._element.title=t.tooltip??""):(this._element.style.display="none",m.reset(this._element))}_getItemForState(o,t){const e=o?.state,{lastRunSuccess:n}=t;if(!e&&n)return{text:`$(${v.id})`,tooltip:l("notebook.cell.status.success","Success")};if(!e&&n===!1)return{text:`$(${S.id})`,tooltip:l("notebook.cell.status.failure","Failure")};if(e===c.Pending||e===c.Unconfirmed)return{text:`$(${k.id})`,tooltip:l("notebook.cell.status.pending","Pending")};if(e===c.Executing)return{text:`$(${b.modify(g,"spin").id})`,tooltip:l("notebook.cell.status.executing","Executing")}}};a=u([p(3,x)],a);export{a as CollapsedCodeCellExecutionIcon};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+import {
+  NotebookCellExecutionState
+} from "../../../common/notebookCommon.js";
+import {
+  INotebookExecutionStateService,
+  NotebookExecutionType
+} from "../../../common/notebookExecutionStateService.js";
+import {
+  errorStateIcon,
+  executingStateIcon,
+  pendingStateIcon,
+  successStateIcon
+} from "../../notebookIcons.js";
+let CollapsedCodeCellExecutionIcon = class extends Disposable {
+  constructor(_notebookEditor, _cell, _element, _executionStateService) {
+    super();
+    this._cell = _cell;
+    this._element = _element;
+    this._executionStateService = _executionStateService;
+    this._update();
+    this._register(
+      this._executionStateService.onDidChangeExecution((e) => {
+        if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
+          this._update();
+        }
+      })
+    );
+    this._register(
+      this._cell.model.onDidChangeInternalMetadata(() => this._update())
+    );
+  }
+  static {
+    __name(this, "CollapsedCodeCellExecutionIcon");
+  }
+  _visible = false;
+  setVisibility(visible) {
+    this._visible = visible;
+    this._update();
+  }
+  _update() {
+    if (!this._visible) {
+      return;
+    }
+    const runState = this._executionStateService.getCellExecution(
+      this._cell.uri
+    );
+    const item = this._getItemForState(
+      runState,
+      this._cell.model.internalMetadata
+    );
+    if (item) {
+      this._element.style.display = "";
+      DOM.reset(this._element, ...renderLabelWithIcons(item.text));
+      this._element.title = item.tooltip ?? "";
+    } else {
+      this._element.style.display = "none";
+      DOM.reset(this._element);
+    }
+  }
+  _getItemForState(runState, internalMetadata) {
+    const state = runState?.state;
+    const { lastRunSuccess } = internalMetadata;
+    if (!state && lastRunSuccess) {
+      return {
+        text: `$(${successStateIcon.id})`,
+        tooltip: localize("notebook.cell.status.success", "Success")
+      };
+    } else if (!state && lastRunSuccess === false) {
+      return {
+        text: `$(${errorStateIcon.id})`,
+        tooltip: localize("notebook.cell.status.failure", "Failure")
+      };
+    } else if (state === NotebookCellExecutionState.Pending || state === NotebookCellExecutionState.Unconfirmed) {
+      return {
+        text: `$(${pendingStateIcon.id})`,
+        tooltip: localize("notebook.cell.status.pending", "Pending")
+      };
+    } else if (state === NotebookCellExecutionState.Executing) {
+      const icon = ThemeIcon.modify(executingStateIcon, "spin");
+      return {
+        text: `$(${icon.id})`,
+        tooltip: localize(
+          "notebook.cell.status.executing",
+          "Executing"
+        )
+      };
+    }
+    return;
+  }
+};
+CollapsedCodeCellExecutionIcon = __decorateClass([
+  __decorateParam(3, INotebookExecutionStateService)
+], CollapsedCodeCellExecutionIcon);
+export {
+  CollapsedCodeCellExecutionIcon
+};
+//# sourceMappingURL=codeCellExecutionIcon.js.map

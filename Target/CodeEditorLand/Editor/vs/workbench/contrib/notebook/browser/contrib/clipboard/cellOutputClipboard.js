@@ -1,2 +1,57 @@
-import{isTextStreamMime as p}from"../../../common/notebookCommon.js";async function b(e,i,u,s){const r=i.model,n=e&&a.includes(e)?r.outputs.find(t=>t.mime===e):r.outputs.find(t=>a.includes(t.mime));if(e=n?.mime,!e||!n)return;const c=new TextDecoder;let o=c.decode(n.data.buffer);if(p(e)){const t=i.cellViewModel;let l=t.outputsViewModels.indexOf(i)+1;for(;l<t.model.outputs.length;){const d=t.model.outputs[l].outputs.find(f=>p(f.mime));if(!d)break;o=o+c.decode(d.data.buffer),l=l+1}}e.endsWith("error")&&(o=o.replace(/\\u001b\[[0-9;]*m/gi,"").replaceAll("\\n",`
-`));try{await u.writeText(o)}catch(t){s.error(`Failed to copy content: ${t}`)}}const a=["text/latex","text/html","application/vnd.code.notebook.error","application/vnd.code.notebook.stdout","application/x.notebook.stdout","application/x.notebook.stream","application/vnd.code.notebook.stderr","application/x.notebook.stderr","text/plain","text/markdown","application/json"];export{a as TEXT_BASED_MIMETYPES,b as copyCellOutput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isTextStreamMime } from "../../../common/notebookCommon.js";
+async function copyCellOutput(mimeType, outputViewModel, clipboardService, logService) {
+  const cellOutput = outputViewModel.model;
+  const output = mimeType && TEXT_BASED_MIMETYPES.includes(mimeType) ? cellOutput.outputs.find((output2) => output2.mime === mimeType) : cellOutput.outputs.find(
+    (output2) => TEXT_BASED_MIMETYPES.includes(output2.mime)
+  );
+  mimeType = output?.mime;
+  if (!mimeType || !output) {
+    return;
+  }
+  const decoder = new TextDecoder();
+  let text = decoder.decode(output.data.buffer);
+  if (isTextStreamMime(mimeType)) {
+    const cellViewModel = outputViewModel.cellViewModel;
+    let index = cellViewModel.outputsViewModels.indexOf(outputViewModel) + 1;
+    while (index < cellViewModel.model.outputs.length) {
+      const nextCellOutput = cellViewModel.model.outputs[index];
+      const nextOutput = nextCellOutput.outputs.find(
+        (output2) => isTextStreamMime(output2.mime)
+      );
+      if (!nextOutput) {
+        break;
+      }
+      text = text + decoder.decode(nextOutput.data.buffer);
+      index = index + 1;
+    }
+  }
+  if (mimeType.endsWith("error")) {
+    text = text.replace(/\\u001b\[[0-9;]*m/gi, "").replaceAll("\\n", "\n");
+  }
+  try {
+    await clipboardService.writeText(text);
+  } catch (e) {
+    logService.error(`Failed to copy content: ${e}`);
+  }
+}
+__name(copyCellOutput, "copyCellOutput");
+const TEXT_BASED_MIMETYPES = [
+  "text/latex",
+  "text/html",
+  "application/vnd.code.notebook.error",
+  "application/vnd.code.notebook.stdout",
+  "application/x.notebook.stdout",
+  "application/x.notebook.stream",
+  "application/vnd.code.notebook.stderr",
+  "application/x.notebook.stderr",
+  "text/plain",
+  "text/markdown",
+  "application/json"
+];
+export {
+  TEXT_BASED_MIMETYPES,
+  copyCellOutput
+};
+//# sourceMappingURL=cellOutputClipboard.js.map

@@ -1,1 +1,55 @@
-var u=Object.defineProperty;var a=Object.getOwnPropertyDescriptor;var p=(n,r,t,e)=>{for(var i=e>1?void 0:e?a(r,t):r,s=n.length-1,o;s>=0;s--)(o=n[s])&&(i=(e?o(r,t,i):o(i))||i);return e&&i&&u(r,t,i),i},c=(n,r)=>(t,e)=>r(t,e,n);import{Disposable as b}from"../../../../base/common/lifecycle.js";import{IAccessibilityService as l}from"../../../../platform/accessibility/common/accessibility.js";import{ILogService as I}from"../../../../platform/log/common/log.js";import{IDebugService as v}from"./debug.js";let g=class extends b{static ID="debug.replAccessibilityAnnouncer";constructor(r,t,e){super();const i=r.getViewModel();this._register(i.onDidFocusSession(s=>{s&&this._register(s.onDidChangeReplElements(o=>{if(!o||!("originalExpression"in o))return;const m=o.toString();t.status(m),e.trace("ReplAccessibilityAnnouncer#onDidChangeReplElements",o.originalExpression+": "+m)}))}))}};g=p([c(0,v),c(1,l),c(2,I)],g);export{g as ReplAccessibilityAnnouncer};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDebugService } from "./debug.js";
+let ReplAccessibilityAnnouncer = class extends Disposable {
+  static {
+    __name(this, "ReplAccessibilityAnnouncer");
+  }
+  static ID = "debug.replAccessibilityAnnouncer";
+  constructor(debugService, accessibilityService, logService) {
+    super();
+    const viewModel = debugService.getViewModel();
+    this._register(
+      viewModel.onDidFocusSession((session) => {
+        if (!session) {
+          return;
+        }
+        this._register(
+          session.onDidChangeReplElements((element) => {
+            if (!element || !("originalExpression" in element)) {
+              return;
+            }
+            const value = element.toString();
+            accessibilityService.status(value);
+            logService.trace(
+              "ReplAccessibilityAnnouncer#onDidChangeReplElements",
+              element.originalExpression + ": " + value
+            );
+          })
+        );
+      })
+    );
+  }
+};
+ReplAccessibilityAnnouncer = __decorateClass([
+  __decorateParam(0, IDebugService),
+  __decorateParam(1, IAccessibilityService),
+  __decorateParam(2, ILogService)
+], ReplAccessibilityAnnouncer);
+export {
+  ReplAccessibilityAnnouncer
+};
+//# sourceMappingURL=replAccessibilityAnnouncer.js.map

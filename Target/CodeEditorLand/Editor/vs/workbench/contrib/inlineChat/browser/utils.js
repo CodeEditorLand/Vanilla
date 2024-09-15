@@ -1,1 +1,78 @@
-import{AsyncIterableSource as d}from"../../../../base/common/async.js";import{EditOperation as c}from"../../../../editor/common/core/editOperation.js";import{TrackedRangeStickiness as g}from"../../../../editor/common/model.js";import{getNWords as m}from"../../chat/common/chatWordCounter.js";async function E(e,o,i,s){const[r]=e.deltaDecorations([],[{range:o.range,options:{description:"asyncTextEdit",stickiness:g.AlwaysGrowsWhenTypingAtEdges}}]);let n=!0;for await(const a of o.newText){if(e.isDisposed())break;const t=e.getDecorationRange(r);if(!t)throw new Error("FAILED to perform async replace edit because the anchor decoration was removed");const p=n?c.replace(t,a):c.insert(t.getEndPosition(),a);s?.start(),e.pushEditOperations(null,[p],l=>(i?.report(l),null)),s?.stop(),n=!1}}function T(e,o,i,s){i=Math.max(30,i);const r=new d;let n=o.text??"";e.cancelAndSet(()=>{if(s.isCancellationRequested)return;const t=m(n,1);r.emitOne(t.value),n=n.substring(t.value.length),t.isFullString&&(e.cancel(),r.resolve(),a.dispose())},1e3/i);const a=s.onCancellationRequested(()=>{e.cancel(),r.resolve(),a.dispose()});return{range:o.range,newText:r.asyncIterable}}export{T as asProgressiveEdit,E as performAsyncTextEdit};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  AsyncIterableSource
+} from "../../../../base/common/async.js";
+import { EditOperation } from "../../../../editor/common/core/editOperation.js";
+import {
+  TrackedRangeStickiness
+} from "../../../../editor/common/model.js";
+import { getNWords } from "../../chat/common/chatWordCounter.js";
+async function performAsyncTextEdit(model, edit, progress, obs) {
+  const [id] = model.deltaDecorations(
+    [],
+    [
+      {
+        range: edit.range,
+        options: {
+          description: "asyncTextEdit",
+          stickiness: TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges
+        }
+      }
+    ]
+  );
+  let first = true;
+  for await (const part of edit.newText) {
+    if (model.isDisposed()) {
+      break;
+    }
+    const range = model.getDecorationRange(id);
+    if (!range) {
+      throw new Error(
+        "FAILED to perform async replace edit because the anchor decoration was removed"
+      );
+    }
+    const edit2 = first ? EditOperation.replace(range, part) : EditOperation.insert(range.getEndPosition(), part);
+    obs?.start();
+    model.pushEditOperations(null, [edit2], (undoEdits) => {
+      progress?.report(undoEdits);
+      return null;
+    });
+    obs?.stop();
+    first = false;
+  }
+}
+__name(performAsyncTextEdit, "performAsyncTextEdit");
+function asProgressiveEdit(interval, edit, wordsPerSec, token) {
+  wordsPerSec = Math.max(30, wordsPerSec);
+  const stream = new AsyncIterableSource();
+  let newText = edit.text ?? "";
+  interval.cancelAndSet(() => {
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const r = getNWords(newText, 1);
+    stream.emitOne(r.value);
+    newText = newText.substring(r.value.length);
+    if (r.isFullString) {
+      interval.cancel();
+      stream.resolve();
+      d.dispose();
+    }
+  }, 1e3 / wordsPerSec);
+  const d = token.onCancellationRequested(() => {
+    interval.cancel();
+    stream.resolve();
+    d.dispose();
+  });
+  return {
+    range: edit.range,
+    newText: stream.asyncIterable
+  };
+}
+__name(asProgressiveEdit, "asProgressiveEdit");
+export {
+  asProgressiveEdit,
+  performAsyncTextEdit
+};
+//# sourceMappingURL=utils.js.map

@@ -1,1 +1,73 @@
-import{DisposableStore as d}from"../../../../base/common/lifecycle.js";class a{static _maxSelectionLength=51200;_disposables=new d;_lastOvertyped=[];_locked=!1;constructor(e,l){this._disposables.add(e.onWillType(()=>{if(this._locked||!e.hasModel())return;const s=e.getSelections(),o=s.length;let n=!1;for(let t=0;t<o;t++)if(!s[t].isEmpty()){n=!0;break}if(!n){this._lastOvertyped.length!==0&&(this._lastOvertyped.length=0);return}this._lastOvertyped=[];const r=e.getModel();for(let t=0;t<o;t++){const i=s[t];if(r.getValueLengthInRange(i)>a._maxSelectionLength)return;this._lastOvertyped[t]={value:r.getValueInRange(i),multiline:i.startLineNumber!==i.endLineNumber}}})),this._disposables.add(l.onDidTrigger(s=>{this._locked=!0})),this._disposables.add(l.onDidCancel(s=>{this._locked=!1}))}getLastOvertypedInfo(e){if(e>=0&&e<this._lastOvertyped.length)return this._lastOvertyped[e]}dispose(){this._disposables.dispose()}}export{a as OvertypingCapturer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+class OvertypingCapturer {
+  static {
+    __name(this, "OvertypingCapturer");
+  }
+  static _maxSelectionLength = 51200;
+  _disposables = new DisposableStore();
+  _lastOvertyped = [];
+  _locked = false;
+  constructor(editor, suggestModel) {
+    this._disposables.add(
+      editor.onWillType(() => {
+        if (this._locked || !editor.hasModel()) {
+          return;
+        }
+        const selections = editor.getSelections();
+        const selectionsLength = selections.length;
+        let willOvertype = false;
+        for (let i = 0; i < selectionsLength; i++) {
+          if (!selections[i].isEmpty()) {
+            willOvertype = true;
+            break;
+          }
+        }
+        if (!willOvertype) {
+          if (this._lastOvertyped.length !== 0) {
+            this._lastOvertyped.length = 0;
+          }
+          return;
+        }
+        this._lastOvertyped = [];
+        const model = editor.getModel();
+        for (let i = 0; i < selectionsLength; i++) {
+          const selection = selections[i];
+          if (model.getValueLengthInRange(selection) > OvertypingCapturer._maxSelectionLength) {
+            return;
+          }
+          this._lastOvertyped[i] = {
+            value: model.getValueInRange(selection),
+            multiline: selection.startLineNumber !== selection.endLineNumber
+          };
+        }
+      })
+    );
+    this._disposables.add(
+      suggestModel.onDidTrigger((e) => {
+        this._locked = true;
+      })
+    );
+    this._disposables.add(
+      suggestModel.onDidCancel((e) => {
+        this._locked = false;
+      })
+    );
+  }
+  getLastOvertypedInfo(idx) {
+    if (idx >= 0 && idx < this._lastOvertyped.length) {
+      return this._lastOvertyped[idx];
+    }
+    return void 0;
+  }
+  dispose() {
+    this._disposables.dispose();
+  }
+}
+export {
+  OvertypingCapturer
+};
+//# sourceMappingURL=suggestOvertypingCapturer.js.map

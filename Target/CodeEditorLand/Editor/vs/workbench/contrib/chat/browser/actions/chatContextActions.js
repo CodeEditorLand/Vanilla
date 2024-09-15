@@ -1,1 +1,428 @@
-import{CancellationToken as V}from"../../../../../base/common/cancellation.js";import{Codicon as v}from"../../../../../base/common/codicons.js";import{KeyCode as j,KeyMod as L}from"../../../../../base/common/keyCodes.js";import{Schemas as m}from"../../../../../base/common/network.js";import{compare as O}from"../../../../../base/common/strings.js";import{ThemeIcon as u}from"../../../../../base/common/themables.js";import{URI as W}from"../../../../../base/common/uri.js";import{EditorType as E}from"../../../../../editor/common/editorCommon.js";import{AbstractGotoSymbolQuickAccessProvider as M}from"../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";import{localize as N,localize2 as y}from"../../../../../nls.js";import{Action2 as b,MenuId as X,registerAction2 as x}from"../../../../../platform/actions/common/actions.js";import{ICommandService as $}from"../../../../../platform/commands/common/commands.js";import{ContextKeyExpr as d}from"../../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as G}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{IQuickInputService as K}from"../../../../../platform/quickinput/common/quickInput.js";import{IEditorService as w}from"../../../../services/editor/common/editorService.js";import{AnythingQuickAccessProvider as H}from"../../../search/browser/anythingQuickAccess.js";import{SymbolsQuickAccessProvider as R}from"../../../search/browser/symbolsQuickAccess.js";import{ChatAgentLocation as p,IChatAgentService as z}from"../../common/chatAgents.js";import{CONTEXT_CHAT_LOCATION as C,CONTEXT_IN_CHAT_INPUT as B}from"../../common/chatContextKeys.js";import{ChatRequestAgentPart as F}from"../../common/chatParserTypes.js";import{IChatVariablesService as P}from"../../common/chatVariables.js";import{ILanguageModelToolsService as Y}from"../../common/languageModelToolsService.js";import{IChatWidgetService as J,IQuickChatService as Z}from"../chat.js";import{isQuickChat as ee}from"../chatWidget.js";import{ChatContextAttachments as D}from"../contrib/chatContextAttachments.js";import{CHAT_CATEGORY as S}from"./chatActions.js";function Ee(){x(g),x(Q),x(T)}class Q extends b{static ID="workbench.action.chat.attachFile";constructor(){super({id:Q.ID,title:y("workbench.action.chat.attachFile.label","Attach File"),category:S,f1:!1})}async run(o,...l){const r=o.get(P),n=o.get(w),e=n.activeEditor?.resource;n.activeTextEditorControl?.getEditorType()===E.ICodeEditor&&e&&[m.file,m.vscodeRemote,m.untitled].includes(e.scheme)&&r.attachContext("file",e,p.Panel)}}class T extends b{static ID="workbench.action.chat.attachSelection";constructor(){super({id:T.ID,title:y("workbench.action.chat.attachSelection.label","Add Selection to Chat"),category:S,f1:!1})}async run(o,...l){const r=o.get(P),n=o.get(w),e=n.activeTextEditorControl,a=n.activeEditor?.resource;if(n.activeTextEditorControl?.getEditorType()===E.ICodeEditor&&a&&[m.file,m.vscodeRemote,m.untitled].includes(a.scheme)){const i=e?.getSelection();i&&r.attachContext("file",{uri:a,range:i},p.Panel)}}}class g extends b{static ID="workbench.action.chat.attachContext";static _cdt=d.or(d.and(C.isEqualTo(p.Panel)),d.and(C.isEqualTo(p.Editor),d.equals("config.chat.experimental.variables.editor",!0)),d.and(C.isEqualTo(p.Notebook),d.equals("config.chat.experimental.variables.notebook",!0)),d.and(C.isEqualTo(p.Terminal),d.equals("config.chat.experimental.variables.terminal",!0)));constructor(){super({id:g.ID,title:y("workbench.action.chat.attachContext.label","Attach Context"),icon:v.attach,category:S,precondition:g._cdt,keybinding:{when:B,primary:L.CtrlCmd|j.Slash,weight:G.EditorContrib},menu:[{when:g._cdt,id:X.ChatExecute,group:"navigation"}]})}_getFileContextId(o){return"resource"in o?o.resource.toString():o.uri.toString()+(o.range.startLineNumber!==o.range.endLineNumber?`:${o.range.startLineNumber}-${o.range.endLineNumber}`:`:${o.range.startLineNumber}`)}async _attachContext(o,l,...r){const n=[];for(const e of r)if(e&&typeof e=="object"&&"command"in e&&e.command){const a=await l.executeCommand(e.command.id,...e.command.arguments??[]);if(!a)continue;n.push({...e,isDynamic:e.isDynamic,value:e.value,name:`${typeof e.value=="string"&&e.value.startsWith("#")?e.value.slice(1):""}${a}`,fullName:a})}else"symbol"in e&&e.symbol?n.push({...e,id:this._getFileContextId(e.symbol.location),value:e.symbol.location,fullName:e.label,name:e.symbol.name,isDynamic:!0}):e&&typeof e=="object"&&"resource"in e&&e.resource?n.push({...e,id:this._getFileContextId({resource:e.resource}),value:e.resource,name:e.label,isFile:!0,isDynamic:!0}):"symbolName"in e&&e.uri&&e.range?n.push({...e,range:void 0,id:this._getFileContextId({uri:e.uri,range:e.range.decoration}),value:{uri:e.uri,range:e.range.decoration},fullName:e.label,name:e.symbolName,isDynamic:!0}):"kind"in e&&e.kind==="tool"?n.push({id:e.id,name:e.label,fullName:e.label,value:void 0,icon:e.icon,isTool:!0}):n.push({...e,range:void 0,id:e.id??"",value:"value"in e?e.value:void 0,fullName:e.label,name:"name"in e&&typeof e.name=="string"?e.name:e.label,icon:"icon"in e&&u.isThemeIcon(e.icon)?e.icon:void 0});o.getContrib(D.ID)?.setContext(!1,...n)}async run(o,...l){const r=o.get(K),n=o.get(z),e=o.get(P),a=o.get($),i=o.get(J),f=o.get(Y),_=o.get(Z),I=l[0]?.widget??i.lastFocusedWidget;if(!I)return;const k=I.parsedInput.parts.find(t=>t instanceof F),q=k?k.agent.metadata.supportsSlowVariables:!0,h=[];for(const t of e.getVariables(I.location))t.fullName&&(!t.isSlow||q)&&h.push({label:t.fullName,name:t.name,id:t.id,iconClass:t.icon?u.asClassName(t.icon):void 0,icon:t.icon});if(I.viewModel?.sessionId){const t=I.parsedInput.parts.find(c=>c instanceof F);if(t){const c=await n.getAgentCompletionItems(t.agent.id,"",V.None);for(const s of c)s.fullName&&h.push({label:s.fullName,id:s.id,command:s.command,icon:s.icon,iconClass:s.icon?u.asClassName(s.icon):void 0,value:s.value,isDynamic:!0,name:s.name})}}if(!k||k.agent.supportsToolReferences){for(const t of f.getTools())if(t.canBeInvokedManually){const c={kind:"tool",label:t.displayName??t.name??"",id:t.id,icon:u.isThemeIcon(t.icon)?t.icon:void 0};u.isThemeIcon(t.icon)?c.iconClass=u.asClassName(t.icon):t.icon&&(c.iconPath=t.icon),h.push(c)}}h.push({label:N("chatContext.symbol","Symbol..."),icon:u.fromId(v.symbolField.id),iconClass:u.asClassName(v.symbolField),prefix:R.PREFIX});function A(t){if(!t)return"";const c=t.match(/\$\([^)]+\)\s*(.+)/);return c?c[1]:t}this._show(r,a,I,_,h.sort((t,c)=>{const s=A(t.label).toUpperCase(),U=A(c.label).toUpperCase();return O(s,U)}))}_show(o,l,r,n,e,a=""){o.quickAccess.show(a,{enabledProviderPrefixes:[H.PREFIX,R.PREFIX,M.PREFIX],placeholder:N("chatContext.attach.placeholder","Search attachments"),providerOptions:{handleAccept:i=>{"prefix"in i?this._show(o,l,r,n,e,i.prefix):(this._attachContext(r,l,i),ee(r)&&n.open())},additionPicks:e,filter:i=>{const f=r.getContrib(D.ID)?.getContext()??new Set;return"symbol"in i&&i.symbol?!f.has(this._getFileContextId(i.symbol.location)):i&&typeof i=="object"&&"resource"in i&&W.isUri(i.resource)?[m.file,m.vscodeRemote].includes(i.resource.scheme)&&!f.has(this._getFileContextId({resource:i.resource})):i&&typeof i=="object"&&"uri"in i&&i.uri&&i.range?!f.has(this._getFileContextId({uri:i.uri,range:i.range.decoration})):!("command"in i)&&i.id?!f.has(i.id):!0}}})}}export{Ee as registerChatContextActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { compare } from "../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { EditorType } from "../../../../../editor/common/editorCommon.js";
+import {
+  AbstractGotoSymbolQuickAccessProvider
+} from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  IQuickInputService
+} from "../../../../../platform/quickinput/common/quickInput.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { AnythingQuickAccessProvider } from "../../../search/browser/anythingQuickAccess.js";
+import {
+  SymbolsQuickAccessProvider
+} from "../../../search/browser/symbolsQuickAccess.js";
+import {
+  ChatAgentLocation,
+  IChatAgentService
+} from "../../common/chatAgents.js";
+import {
+  CONTEXT_CHAT_LOCATION,
+  CONTEXT_IN_CHAT_INPUT
+} from "../../common/chatContextKeys.js";
+import { ChatRequestAgentPart } from "../../common/chatParserTypes.js";
+import { IChatVariablesService } from "../../common/chatVariables.js";
+import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
+import {
+  IChatWidgetService,
+  IQuickChatService
+} from "../chat.js";
+import { isQuickChat } from "../chatWidget.js";
+import { ChatContextAttachments } from "../contrib/chatContextAttachments.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+function registerChatContextActions() {
+  registerAction2(AttachContextAction);
+  registerAction2(AttachFileAction);
+  registerAction2(AttachSelectionAction);
+}
+__name(registerChatContextActions, "registerChatContextActions");
+class AttachFileAction extends Action2 {
+  static {
+    __name(this, "AttachFileAction");
+  }
+  static ID = "workbench.action.chat.attachFile";
+  constructor() {
+    super({
+      id: AttachFileAction.ID,
+      title: localize2(
+        "workbench.action.chat.attachFile.label",
+        "Attach File"
+      ),
+      category: CHAT_CATEGORY,
+      f1: false
+    });
+  }
+  async run(accessor, ...args) {
+    const variablesService = accessor.get(IChatVariablesService);
+    const textEditorService = accessor.get(IEditorService);
+    const activeUri = textEditorService.activeEditor?.resource;
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(
+      activeUri.scheme
+    )) {
+      variablesService.attachContext(
+        "file",
+        activeUri,
+        ChatAgentLocation.Panel
+      );
+    }
+  }
+}
+class AttachSelectionAction extends Action2 {
+  static {
+    __name(this, "AttachSelectionAction");
+  }
+  static ID = "workbench.action.chat.attachSelection";
+  constructor() {
+    super({
+      id: AttachSelectionAction.ID,
+      title: localize2(
+        "workbench.action.chat.attachSelection.label",
+        "Add Selection to Chat"
+      ),
+      category: CHAT_CATEGORY,
+      f1: false
+    });
+  }
+  async run(accessor, ...args) {
+    const variablesService = accessor.get(IChatVariablesService);
+    const textEditorService = accessor.get(IEditorService);
+    const activeEditor = textEditorService.activeTextEditorControl;
+    const activeUri = textEditorService.activeEditor?.resource;
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(
+      activeUri.scheme
+    )) {
+      const selection = activeEditor?.getSelection();
+      if (selection) {
+        variablesService.attachContext(
+          "file",
+          { uri: activeUri, range: selection },
+          ChatAgentLocation.Panel
+        );
+      }
+    }
+  }
+}
+class AttachContextAction extends Action2 {
+  static {
+    __name(this, "AttachContextAction");
+  }
+  static ID = "workbench.action.chat.attachContext";
+  // used to enable/disable the keybinding and defined menu containment
+  static _cdt = ContextKeyExpr.or(
+    ContextKeyExpr.and(
+      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel)
+    ),
+    ContextKeyExpr.and(
+      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Editor),
+      ContextKeyExpr.equals(
+        "config.chat.experimental.variables.editor",
+        true
+      )
+    ),
+    ContextKeyExpr.and(
+      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Notebook),
+      ContextKeyExpr.equals(
+        "config.chat.experimental.variables.notebook",
+        true
+      )
+    ),
+    ContextKeyExpr.and(
+      CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Terminal),
+      ContextKeyExpr.equals(
+        "config.chat.experimental.variables.terminal",
+        true
+      )
+    )
+  );
+  constructor() {
+    super({
+      id: AttachContextAction.ID,
+      title: localize2(
+        "workbench.action.chat.attachContext.label",
+        "Attach Context"
+      ),
+      icon: Codicon.attach,
+      category: CHAT_CATEGORY,
+      precondition: AttachContextAction._cdt,
+      keybinding: {
+        when: CONTEXT_IN_CHAT_INPUT,
+        primary: KeyMod.CtrlCmd | KeyCode.Slash,
+        weight: KeybindingWeight.EditorContrib
+      },
+      menu: [
+        {
+          when: AttachContextAction._cdt,
+          id: MenuId.ChatExecute,
+          group: "navigation"
+        }
+      ]
+    });
+  }
+  _getFileContextId(item) {
+    if ("resource" in item) {
+      return item.resource.toString();
+    }
+    return item.uri.toString() + (item.range.startLineNumber !== item.range.endLineNumber ? `:${item.range.startLineNumber}-${item.range.endLineNumber}` : `:${item.range.startLineNumber}`);
+  }
+  async _attachContext(widget, commandService, ...picks) {
+    const toAttach = [];
+    for (const pick of picks) {
+      if (pick && typeof pick === "object" && "command" in pick && pick.command) {
+        const selection = await commandService.executeCommand(
+          pick.command.id,
+          ...pick.command.arguments ?? []
+        );
+        if (!selection) {
+          continue;
+        }
+        toAttach.push({
+          ...pick,
+          isDynamic: pick.isDynamic,
+          value: pick.value,
+          name: `${typeof pick.value === "string" && pick.value.startsWith("#") ? pick.value.slice(1) : ""}${selection}`,
+          // Apply the original icon with the new name
+          fullName: selection
+        });
+      } else if ("symbol" in pick && pick.symbol) {
+        toAttach.push({
+          ...pick,
+          id: this._getFileContextId(pick.symbol.location),
+          value: pick.symbol.location,
+          fullName: pick.label,
+          name: pick.symbol.name,
+          isDynamic: true
+        });
+      } else if (pick && typeof pick === "object" && "resource" in pick && pick.resource) {
+        toAttach.push({
+          ...pick,
+          id: this._getFileContextId({ resource: pick.resource }),
+          value: pick.resource,
+          name: pick.label,
+          isFile: true,
+          isDynamic: true
+        });
+      } else if ("symbolName" in pick && pick.uri && pick.range) {
+        toAttach.push({
+          ...pick,
+          range: void 0,
+          id: this._getFileContextId({
+            uri: pick.uri,
+            range: pick.range.decoration
+          }),
+          value: { uri: pick.uri, range: pick.range.decoration },
+          fullName: pick.label,
+          name: pick.symbolName,
+          isDynamic: true
+        });
+      } else if ("kind" in pick && pick.kind === "tool") {
+        toAttach.push({
+          id: pick.id,
+          name: pick.label,
+          fullName: pick.label,
+          value: void 0,
+          icon: pick.icon,
+          isTool: true
+        });
+      } else {
+        toAttach.push({
+          ...pick,
+          range: void 0,
+          id: pick.id ?? "",
+          value: "value" in pick ? pick.value : void 0,
+          fullName: pick.label,
+          name: "name" in pick && typeof pick.name === "string" ? pick.name : pick.label,
+          icon: "icon" in pick && ThemeIcon.isThemeIcon(pick.icon) ? pick.icon : void 0
+        });
+      }
+    }
+    widget.getContrib(ChatContextAttachments.ID)?.setContext(false, ...toAttach);
+  }
+  async run(accessor, ...args) {
+    const quickInputService = accessor.get(IQuickInputService);
+    const chatAgentService = accessor.get(IChatAgentService);
+    const chatVariablesService = accessor.get(IChatVariablesService);
+    const commandService = accessor.get(ICommandService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const languageModelToolsService = accessor.get(
+      ILanguageModelToolsService
+    );
+    const quickChatService = accessor.get(IQuickChatService);
+    const context = args[0];
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const usedAgent = widget.parsedInput.parts.find(
+      (p) => p instanceof ChatRequestAgentPart
+    );
+    const slowSupported = usedAgent ? usedAgent.agent.metadata.supportsSlowVariables : true;
+    const quickPickItems = [];
+    for (const variable of chatVariablesService.getVariables(
+      widget.location
+    )) {
+      if (variable.fullName && (!variable.isSlow || slowSupported)) {
+        quickPickItems.push({
+          label: variable.fullName,
+          name: variable.name,
+          id: variable.id,
+          iconClass: variable.icon ? ThemeIcon.asClassName(variable.icon) : void 0,
+          icon: variable.icon
+        });
+      }
+    }
+    if (widget.viewModel?.sessionId) {
+      const agentPart = widget.parsedInput.parts.find(
+        (part) => part instanceof ChatRequestAgentPart
+      );
+      if (agentPart) {
+        const completions = await chatAgentService.getAgentCompletionItems(
+          agentPart.agent.id,
+          "",
+          CancellationToken.None
+        );
+        for (const variable of completions) {
+          if (variable.fullName) {
+            quickPickItems.push({
+              label: variable.fullName,
+              id: variable.id,
+              command: variable.command,
+              icon: variable.icon,
+              iconClass: variable.icon ? ThemeIcon.asClassName(variable.icon) : void 0,
+              value: variable.value,
+              isDynamic: true,
+              name: variable.name
+            });
+          }
+        }
+      }
+    }
+    if (!usedAgent || usedAgent.agent.supportsToolReferences) {
+      for (const tool of languageModelToolsService.getTools()) {
+        if (tool.canBeInvokedManually) {
+          const item = {
+            kind: "tool",
+            label: tool.displayName ?? tool.name ?? "",
+            id: tool.id,
+            icon: ThemeIcon.isThemeIcon(tool.icon) ? tool.icon : void 0
+            // TODO need to support icon path?
+          };
+          if (ThemeIcon.isThemeIcon(tool.icon)) {
+            item.iconClass = ThemeIcon.asClassName(tool.icon);
+          } else if (tool.icon) {
+            item.iconPath = tool.icon;
+          }
+          quickPickItems.push(item);
+        }
+      }
+    }
+    quickPickItems.push({
+      label: localize("chatContext.symbol", "Symbol..."),
+      icon: ThemeIcon.fromId(Codicon.symbolField.id),
+      iconClass: ThemeIcon.asClassName(Codicon.symbolField),
+      prefix: SymbolsQuickAccessProvider.PREFIX
+    });
+    function extractTextFromIconLabel(label) {
+      if (!label) {
+        return "";
+      }
+      const match = label.match(/\$\([^)]+\)\s*(.+)/);
+      return match ? match[1] : label;
+    }
+    __name(extractTextFromIconLabel, "extractTextFromIconLabel");
+    this._show(
+      quickInputService,
+      commandService,
+      widget,
+      quickChatService,
+      quickPickItems.sort((a, b) => {
+        const first = extractTextFromIconLabel(a.label).toUpperCase();
+        const second = extractTextFromIconLabel(b.label).toUpperCase();
+        return compare(first, second);
+      })
+    );
+  }
+  _show(quickInputService, commandService, widget, quickChatService, quickPickItems, query = "") {
+    quickInputService.quickAccess.show(query, {
+      enabledProviderPrefixes: [
+        AnythingQuickAccessProvider.PREFIX,
+        SymbolsQuickAccessProvider.PREFIX,
+        AbstractGotoSymbolQuickAccessProvider.PREFIX
+      ],
+      placeholder: localize(
+        "chatContext.attach.placeholder",
+        "Search attachments"
+      ),
+      providerOptions: {
+        handleAccept: /* @__PURE__ */ __name((item) => {
+          if ("prefix" in item) {
+            this._show(
+              quickInputService,
+              commandService,
+              widget,
+              quickChatService,
+              quickPickItems,
+              item.prefix
+            );
+          } else {
+            this._attachContext(widget, commandService, item);
+            if (isQuickChat(widget)) {
+              quickChatService.open();
+            }
+          }
+        }, "handleAccept"),
+        additionPicks: quickPickItems,
+        filter: /* @__PURE__ */ __name((item) => {
+          const attachedContext = widget.getContrib(
+            ChatContextAttachments.ID
+          )?.getContext() ?? /* @__PURE__ */ new Set();
+          if ("symbol" in item && item.symbol) {
+            return !attachedContext.has(
+              this._getFileContextId(item.symbol.location)
+            );
+          }
+          if (item && typeof item === "object" && "resource" in item && URI.isUri(item.resource)) {
+            return [Schemas.file, Schemas.vscodeRemote].includes(
+              item.resource.scheme
+            ) && !attachedContext.has(
+              this._getFileContextId({
+                resource: item.resource
+              })
+            );
+          }
+          if (item && typeof item === "object" && "uri" in item && item.uri && item.range) {
+            return !attachedContext.has(
+              this._getFileContextId({
+                uri: item.uri,
+                range: item.range.decoration
+              })
+            );
+          }
+          if (!("command" in item) && item.id) {
+            return !attachedContext.has(item.id);
+          }
+          return true;
+        }, "filter")
+      }
+    });
+  }
+}
+export {
+  registerChatContextActions
+};
+//# sourceMappingURL=chatContextActions.js.map

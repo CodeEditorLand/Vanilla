@@ -1,1 +1,281 @@
-var v=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var p=(a,o,e,t)=>{for(var i=t>1?void 0:t?f(o,e):o,n=a.length-1,s;n>=0;n--)(s=a[n])&&(i=(t?s(o,e,i):s(i))||i);return t&&i&&v(o,e,i),i},r=(a,o)=>(e,t)=>o(e,t,a);import*as l from"../../../../base/browser/dom.js";import{Action as u}from"../../../../base/common/actions.js";import{DisposableStore as _}from"../../../../base/common/lifecycle.js";import{DropdownWithPrimaryActionViewItem as S}from"../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{IMenuService as E,MenuId as I,MenuItemAction as w}from"../../../../platform/actions/common/actions.js";import{IContextKeyService as y}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as M}from"../../../../platform/contextview/browser/contextView.js";import{IInstantiationService as g}from"../../../../platform/instantiation/common/instantiation.js";import{IStorageService as b}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as C}from"../../../../platform/telemetry/common/telemetry.js";import{IThemeService as T}from"../../../../platform/theme/common/themeService.js";import{EditorPane as A}from"../../../browser/parts/editor/editorPane.js";import{ACTIVE_GROUP as P}from"../../../services/editor/common/editorService.js";import{IWorkbenchLayoutService as D,Parts as h}from"../../../services/layout/browser/layoutService.js";import{ITerminalProfileResolverService as x,ITerminalProfileService as V,TerminalCommandId as L}from"../common/terminal.js";import{ITerminalConfigurationService as G,ITerminalEditorService as k,ITerminalService as O,terminalEditorId as R}from"./terminal.js";import{openContextMenu as j}from"./terminalContextMenu.js";import{getTerminalActionBarArgs as N}from"./terminalMenus.js";let c=class extends A{constructor(e,t,i,n,s,B,F,H,m,d,W,K,U,$){super(R,e,t,i,n);this._terminalEditorService=s;this._terminalProfileResolverService=B;this._terminalService=F;this._terminalConfigurationService=H;this._instantiationService=W;this._contextMenuService=K;this._terminalProfileService=U;this._workbenchLayoutService=$;this._dropdownMenu=this._register(d.createMenu(I.TerminalNewDropdownContext,m)),this._instanceMenu=this._register(d.createMenu(I.TerminalInstanceContext,m))}_editorInstanceElement;_overflowGuardElement;_editorInput=void 0;_lastDimension;_dropdownMenu;_instanceMenu;_cancelContextMenu=!1;_disposableStore=this._register(new _);async setInput(e,t,i,n){this._editorInput?.terminalInstance?.detachFromElement(),this._editorInput=e,await super.setInput(e,t,i,n),this._editorInput.terminalInstance?.attachToElement(this._overflowGuardElement),this._lastDimension&&this.layout(this._lastDimension),this._editorInput.terminalInstance?.setVisible(this.isVisible()&&this._workbenchLayoutService.isVisible(h.EDITOR_PART,this.window)),this._editorInput.terminalInstance&&(this._register(this._editorInput.terminalInstance.onDidFocus(()=>this._setActiveInstance())),this._editorInput.setCopyLaunchConfig(this._editorInput.terminalInstance.shellLaunchConfig))}clearInput(){super.clearInput(),this._overflowGuardElement&&this._editorInput?.terminalInstance?.domElement.parentElement===this._overflowGuardElement&&this._editorInput.terminalInstance?.detachFromElement(),this._editorInput=void 0}_setActiveInstance(){this._editorInput?.terminalInstance&&this._terminalEditorService.setActiveInstance(this._editorInput.terminalInstance)}focus(){super.focus(),this._editorInput?.terminalInstance?.focus(!0)}createEditor(e){this._editorInstanceElement=e,this._overflowGuardElement=l.$(".terminal-overflow-guard.terminal-editor"),this._editorInstanceElement.appendChild(this._overflowGuardElement),this._registerListeners()}_registerListeners(){this._editorInstanceElement&&(this._register(l.addDisposableListener(this._editorInstanceElement,"mousedown",async e=>{const t=this._terminalEditorService.activeInstance;if(this._terminalEditorService.instances.length>0&&t){const i=await t.handleMouseEvent(e,this._instanceMenu);typeof i=="object"&&i.cancelContextMenu&&(this._cancelContextMenu=!0)}})),this._register(l.addDisposableListener(this._editorInstanceElement,"contextmenu",e=>{const t=this._terminalConfigurationService.config.rightClickBehavior;if(t==="nothing"&&!e.shiftKey){e.preventDefault(),e.stopImmediatePropagation(),this._cancelContextMenu=!1;return}else!this._cancelContextMenu&&t!=="copyPaste"&&t!=="paste"&&(this._cancelContextMenu||j(this.window,e,this._editorInput?.terminalInstance,this._instanceMenu,this._contextMenuService),e.preventDefault(),e.stopImmediatePropagation(),this._cancelContextMenu=!1)})))}layout(e){const t=this._editorInput?.terminalInstance;t&&(t.attachToElement(this._overflowGuardElement),t.layout(e)),this._lastDimension=e}setVisible(e){super.setVisible(e),this._editorInput?.terminalInstance?.setVisible(e&&this._workbenchLayoutService.isVisible(h.EDITOR_PART,this.window))}getActionViewItem(e,t){switch(e.id){case L.CreateTerminalEditor:if(e instanceof w){const n=N({viewColumn:P},this._terminalProfileService.availableProfiles,this._getDefaultProfileName(),this._terminalProfileService.contributedProfiles,this._terminalService,this._dropdownMenu);return this._registerDisposableActions(n.dropdownAction,n.dropdownMenuActions),this._instantiationService.createInstance(S,e,n.dropdownAction,n.dropdownMenuActions,n.className,this._contextMenuService,{hoverDelegate:t.hoverDelegate})}}return super.getActionViewItem(e,t)}_registerDisposableActions(e,t){this._disposableStore.clear(),e instanceof u&&this._disposableStore.add(e),t.filter(i=>i instanceof u).forEach(i=>this._disposableStore.add(i))}_getDefaultProfileName(){let e;try{e=this._terminalProfileService.getDefaultProfileName()}catch{e=this._terminalProfileResolverService.defaultProfileName}return e}};c=p([r(1,C),r(2,T),r(3,b),r(4,k),r(5,x),r(6,O),r(7,G),r(8,y),r(9,E),r(10,g),r(11,M),r(12,V),r(13,D)],c);export{c as TerminalEditor};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { Action } from "../../../../base/common/actions.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { DropdownWithPrimaryActionViewItem } from "../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import {
+  IMenuService,
+  MenuId,
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { ACTIVE_GROUP } from "../../../services/editor/common/editorService.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import {
+  ITerminalProfileResolverService,
+  ITerminalProfileService,
+  TerminalCommandId
+} from "../common/terminal.js";
+import {
+  ITerminalConfigurationService,
+  ITerminalEditorService,
+  ITerminalService,
+  terminalEditorId
+} from "./terminal.js";
+import { openContextMenu } from "./terminalContextMenu.js";
+import { getTerminalActionBarArgs } from "./terminalMenus.js";
+let TerminalEditor = class extends EditorPane {
+  constructor(group, telemetryService, themeService, storageService, _terminalEditorService, _terminalProfileResolverService, _terminalService, _terminalConfigurationService, contextKeyService, menuService, _instantiationService, _contextMenuService, _terminalProfileService, _workbenchLayoutService) {
+    super(
+      terminalEditorId,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
+    this._terminalEditorService = _terminalEditorService;
+    this._terminalProfileResolverService = _terminalProfileResolverService;
+    this._terminalService = _terminalService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+    this._instantiationService = _instantiationService;
+    this._contextMenuService = _contextMenuService;
+    this._terminalProfileService = _terminalProfileService;
+    this._workbenchLayoutService = _workbenchLayoutService;
+    this._dropdownMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalNewDropdownContext,
+        contextKeyService
+      )
+    );
+    this._instanceMenu = this._register(
+      menuService.createMenu(
+        MenuId.TerminalInstanceContext,
+        contextKeyService
+      )
+    );
+  }
+  static {
+    __name(this, "TerminalEditor");
+  }
+  _editorInstanceElement;
+  _overflowGuardElement;
+  _editorInput = void 0;
+  _lastDimension;
+  _dropdownMenu;
+  _instanceMenu;
+  _cancelContextMenu = false;
+  _disposableStore = this._register(new DisposableStore());
+  async setInput(newInput, options, context, token) {
+    this._editorInput?.terminalInstance?.detachFromElement();
+    this._editorInput = newInput;
+    await super.setInput(newInput, options, context, token);
+    this._editorInput.terminalInstance?.attachToElement(
+      this._overflowGuardElement
+    );
+    if (this._lastDimension) {
+      this.layout(this._lastDimension);
+    }
+    this._editorInput.terminalInstance?.setVisible(
+      this.isVisible() && this._workbenchLayoutService.isVisible(
+        Parts.EDITOR_PART,
+        this.window
+      )
+    );
+    if (this._editorInput.terminalInstance) {
+      this._register(
+        this._editorInput.terminalInstance.onDidFocus(
+          () => this._setActiveInstance()
+        )
+      );
+      this._editorInput.setCopyLaunchConfig(
+        this._editorInput.terminalInstance.shellLaunchConfig
+      );
+    }
+  }
+  clearInput() {
+    super.clearInput();
+    if (this._overflowGuardElement && this._editorInput?.terminalInstance?.domElement.parentElement === this._overflowGuardElement) {
+      this._editorInput.terminalInstance?.detachFromElement();
+    }
+    this._editorInput = void 0;
+  }
+  _setActiveInstance() {
+    if (!this._editorInput?.terminalInstance) {
+      return;
+    }
+    this._terminalEditorService.setActiveInstance(
+      this._editorInput.terminalInstance
+    );
+  }
+  focus() {
+    super.focus();
+    this._editorInput?.terminalInstance?.focus(true);
+  }
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  createEditor(parent) {
+    this._editorInstanceElement = parent;
+    this._overflowGuardElement = dom.$(
+      ".terminal-overflow-guard.terminal-editor"
+    );
+    this._editorInstanceElement.appendChild(this._overflowGuardElement);
+    this._registerListeners();
+  }
+  _registerListeners() {
+    if (!this._editorInstanceElement) {
+      return;
+    }
+    this._register(
+      dom.addDisposableListener(
+        this._editorInstanceElement,
+        "mousedown",
+        async (event) => {
+          const terminal = this._terminalEditorService.activeInstance;
+          if (this._terminalEditorService.instances.length > 0 && terminal) {
+            const result = await terminal.handleMouseEvent(
+              event,
+              this._instanceMenu
+            );
+            if (typeof result === "object" && result.cancelContextMenu) {
+              this._cancelContextMenu = true;
+            }
+          }
+        }
+      )
+    );
+    this._register(
+      dom.addDisposableListener(
+        this._editorInstanceElement,
+        "contextmenu",
+        (event) => {
+          const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+          if (rightClickBehavior === "nothing" && !event.shiftKey) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this._cancelContextMenu = false;
+            return;
+          } else if (!this._cancelContextMenu && rightClickBehavior !== "copyPaste" && rightClickBehavior !== "paste") {
+            if (!this._cancelContextMenu) {
+              openContextMenu(
+                this.window,
+                event,
+                this._editorInput?.terminalInstance,
+                this._instanceMenu,
+                this._contextMenuService
+              );
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this._cancelContextMenu = false;
+          }
+        }
+      )
+    );
+  }
+  layout(dimension) {
+    const instance = this._editorInput?.terminalInstance;
+    if (instance) {
+      instance.attachToElement(this._overflowGuardElement);
+      instance.layout(dimension);
+    }
+    this._lastDimension = dimension;
+  }
+  setVisible(visible) {
+    super.setVisible(visible);
+    this._editorInput?.terminalInstance?.setVisible(
+      visible && this._workbenchLayoutService.isVisible(
+        Parts.EDITOR_PART,
+        this.window
+      )
+    );
+  }
+  getActionViewItem(action, options) {
+    switch (action.id) {
+      case TerminalCommandId.CreateTerminalEditor: {
+        if (action instanceof MenuItemAction) {
+          const location = { viewColumn: ACTIVE_GROUP };
+          const actions = getTerminalActionBarArgs(
+            location,
+            this._terminalProfileService.availableProfiles,
+            this._getDefaultProfileName(),
+            this._terminalProfileService.contributedProfiles,
+            this._terminalService,
+            this._dropdownMenu
+          );
+          this._registerDisposableActions(
+            actions.dropdownAction,
+            actions.dropdownMenuActions
+          );
+          const button = this._instantiationService.createInstance(
+            DropdownWithPrimaryActionViewItem,
+            action,
+            actions.dropdownAction,
+            actions.dropdownMenuActions,
+            actions.className,
+            this._contextMenuService,
+            { hoverDelegate: options.hoverDelegate }
+          );
+          return button;
+        }
+      }
+    }
+    return super.getActionViewItem(action, options);
+  }
+  /**
+   * Actions might be of type Action (disposable) or Separator or SubmenuAction, which don't extend Disposable
+   */
+  _registerDisposableActions(dropdownAction, dropdownMenuActions) {
+    this._disposableStore.clear();
+    if (dropdownAction instanceof Action) {
+      this._disposableStore.add(dropdownAction);
+    }
+    dropdownMenuActions.filter((a) => a instanceof Action).forEach((a) => this._disposableStore.add(a));
+  }
+  _getDefaultProfileName() {
+    let defaultProfileName;
+    try {
+      defaultProfileName = this._terminalProfileService.getDefaultProfileName();
+    } catch (e) {
+      defaultProfileName = this._terminalProfileResolverService.defaultProfileName;
+    }
+    return defaultProfileName;
+  }
+};
+TerminalEditor = __decorateClass([
+  __decorateParam(1, ITelemetryService),
+  __decorateParam(2, IThemeService),
+  __decorateParam(3, IStorageService),
+  __decorateParam(4, ITerminalEditorService),
+  __decorateParam(5, ITerminalProfileResolverService),
+  __decorateParam(6, ITerminalService),
+  __decorateParam(7, ITerminalConfigurationService),
+  __decorateParam(8, IContextKeyService),
+  __decorateParam(9, IMenuService),
+  __decorateParam(10, IInstantiationService),
+  __decorateParam(11, IContextMenuService),
+  __decorateParam(12, ITerminalProfileService),
+  __decorateParam(13, IWorkbenchLayoutService)
+], TerminalEditor);
+export {
+  TerminalEditor
+};
+//# sourceMappingURL=terminalEditor.js.map

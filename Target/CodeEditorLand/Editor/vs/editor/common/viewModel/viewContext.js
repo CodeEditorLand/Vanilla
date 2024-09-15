@@ -1,1 +1,28 @@
-import{EditorTheme as t}from"../editorTheme.js";class d{configuration;viewModel;viewLayout;theme;constructor(e,i,o){this.configuration=e,this.theme=new t(i),this.viewModel=o,this.viewLayout=o.viewLayout}addEventHandler(e){this.viewModel.addViewEventHandler(e)}removeEventHandler(e){this.viewModel.removeViewEventHandler(e)}}export{d as ViewContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorTheme } from "../editorTheme.js";
+class ViewContext {
+  static {
+    __name(this, "ViewContext");
+  }
+  configuration;
+  viewModel;
+  viewLayout;
+  theme;
+  constructor(configuration, theme, model) {
+    this.configuration = configuration;
+    this.theme = new EditorTheme(theme);
+    this.viewModel = model;
+    this.viewLayout = model.viewLayout;
+  }
+  addEventHandler(eventHandler) {
+    this.viewModel.addViewEventHandler(eventHandler);
+  }
+  removeEventHandler(eventHandler) {
+    this.viewModel.removeViewEventHandler(eventHandler);
+  }
+}
+export {
+  ViewContext
+};
+//# sourceMappingURL=viewContext.js.map

@@ -1,1 +1,66 @@
-import{VSBuffer as d}from"../../../common/buffer.js";import{Emitter as f,Event as t}from"../../../common/event.js";import{toDisposable as v}from"../../../common/lifecycle.js";import{Protocol as C}from"../common/ipc.electron.js";import{IPCServer as E}from"../common/ipc.js";import{validatedIpcMain as c}from"./ipcMain.js";function l(a,s){const n=t.fromNodeEventEmitter(c,s,(e,r)=>({event:e,message:r})),o=t.filter(n,({event:e})=>e.sender.id===a);return t.map(o,({message:e})=>e&&d.wrap(e))}class i extends E{static Clients=new Map;static getOnDidClientConnect(){const s=t.fromNodeEventEmitter(c,"vscode:hello",({sender:n})=>n);return t.map(s,n=>{const o=n.id;i.Clients.get(o)?.dispose();const r=new f;i.Clients.set(o,v(()=>r.fire()));const p=l(o,"vscode:message"),m=t.any(t.signal(l(o,"vscode:disconnect")),r.event);return{protocol:new C(n,p),onDidClientDisconnect:m}})}constructor(){super(i.getOnDidClientConnect())}}export{i as Server};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../common/buffer.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { toDisposable } from "../../../common/lifecycle.js";
+import { Protocol as ElectronProtocol } from "../common/ipc.electron.js";
+import { IPCServer } from "../common/ipc.js";
+import { validatedIpcMain } from "./ipcMain.js";
+function createScopedOnMessageEvent(senderId, eventName) {
+  const onMessage = Event.fromNodeEventEmitter(
+    validatedIpcMain,
+    eventName,
+    (event, message) => ({ event, message })
+  );
+  const onMessageFromSender = Event.filter(
+    onMessage,
+    ({ event }) => event.sender.id === senderId
+  );
+  return Event.map(
+    onMessageFromSender,
+    ({ message }) => message ? VSBuffer.wrap(message) : message
+  );
+}
+__name(createScopedOnMessageEvent, "createScopedOnMessageEvent");
+class Server extends IPCServer {
+  static {
+    __name(this, "Server");
+  }
+  static Clients = /* @__PURE__ */ new Map();
+  static getOnDidClientConnect() {
+    const onHello = Event.fromNodeEventEmitter(
+      validatedIpcMain,
+      "vscode:hello",
+      ({ sender }) => sender
+    );
+    return Event.map(onHello, (webContents) => {
+      const id = webContents.id;
+      const client = Server.Clients.get(id);
+      client?.dispose();
+      const onDidClientReconnect = new Emitter();
+      Server.Clients.set(
+        id,
+        toDisposable(() => onDidClientReconnect.fire())
+      );
+      const onMessage = createScopedOnMessageEvent(
+        id,
+        "vscode:message"
+      );
+      const onDidClientDisconnect = Event.any(
+        Event.signal(
+          createScopedOnMessageEvent(id, "vscode:disconnect")
+        ),
+        onDidClientReconnect.event
+      );
+      const protocol = new ElectronProtocol(webContents, onMessage);
+      return { protocol, onDidClientDisconnect };
+    });
+  }
+  constructor() {
+    super(Server.getOnDidClientConnect());
+  }
+}
+export {
+  Server
+};
+//# sourceMappingURL=ipc.electron.js.map

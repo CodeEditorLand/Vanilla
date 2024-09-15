@@ -1,1 +1,42 @@
-import{InstantiationType as e,registerSingleton as o}from"../../../../platform/instantiation/common/extensions.js";import{registerMainProcessRemoteService as i}from"../../../../platform/ipc/electron-sandbox/services.js";import{Registry as t}from"../../../../platform/registry/common/platform.js";import{ILocalPtyService as n,TerminalIpcChannels as m}from"../../../../platform/terminal/common/terminal.js";import{Extensions as s,WorkbenchPhase as c,registerWorkbenchContribution2 as a}from"../../../common/contributions.js";import{LifecyclePhase as l}from"../../../services/lifecycle/common/lifecycle.js";import{ITerminalProfileResolverService as b}from"../common/terminal.js";import{LocalTerminalBackendContribution as r}from"./localTerminalBackend.js";import{TerminalNativeContribution as p}from"./terminalNativeContribution.js";import{ElectronTerminalProfileResolverService as f}from"./terminalProfileResolverService.js";i(n,m.LocalPty),o(b,f,e.Delayed);const h=t.as(s.Workbench);a(r.ID,r,c.BlockStartup),h.registerWorkbenchContribution(p,l.Restored);
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { registerMainProcessRemoteService } from "../../../../platform/ipc/electron-sandbox/services.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  ILocalPtyService,
+  TerminalIpcChannels
+} from "../../../../platform/terminal/common/terminal.js";
+import {
+  Extensions as WorkbenchExtensions,
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { ITerminalProfileResolverService } from "../common/terminal.js";
+import { LocalTerminalBackendContribution } from "./localTerminalBackend.js";
+import { TerminalNativeContribution } from "./terminalNativeContribution.js";
+import { ElectronTerminalProfileResolverService } from "./terminalProfileResolverService.js";
+registerMainProcessRemoteService(
+  ILocalPtyService,
+  TerminalIpcChannels.LocalPty
+);
+registerSingleton(
+  ITerminalProfileResolverService,
+  ElectronTerminalProfileResolverService,
+  InstantiationType.Delayed
+);
+const workbenchRegistry = Registry.as(
+  WorkbenchExtensions.Workbench
+);
+registerWorkbenchContribution2(
+  LocalTerminalBackendContribution.ID,
+  LocalTerminalBackendContribution,
+  WorkbenchPhase.BlockStartup
+);
+workbenchRegistry.registerWorkbenchContribution(
+  TerminalNativeContribution,
+  LifecyclePhase.Restored
+);
+//# sourceMappingURL=terminal.contribution.js.map

@@ -1,1 +1,111 @@
-var a=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var h=(r,t,e,o)=>{for(var i=o>1?void 0:o?m(t,e):t,n=r.length-1,d;n>=0;n--)(d=r[n])&&(i=(o?d(t,e,i):d(i))||i);return o&&i&&a(t,e,i),i},l=(r,t)=>(e,o)=>t(e,o,r);import{IContextKeyService as p,RawContextKey as _}from"../../../../platform/contextkey/common/contextkey.js";let s=class{constructor(t,e){this._editor=t;this._ckOtherSuggestions=s.OtherSuggestions.bindTo(e)}static OtherSuggestions=new _("hasOtherSuggestions",!1);_ckOtherSuggestions;_index=0;_model;_acceptNext;_listener;_ignore;dispose(){this.reset()}reset(){this._ckOtherSuggestions.reset(),this._listener?.dispose(),this._model=void 0,this._acceptNext=void 0,this._ignore=!1}set({model:t,index:e},o){if(t.items.length===0){this.reset();return}if(s._moveIndex(!0,t,e)===e){this.reset();return}this._acceptNext=o,this._model=t,this._index=e,this._listener=this._editor.onDidChangeCursorPosition(()=>{this._ignore||this.reset()}),this._ckOtherSuggestions.set(!0)}static _moveIndex(t,e,o){let i=o;for(let n=e.items.length;n>0&&(i=(i+e.items.length+(t?1:-1))%e.items.length,!(i===o||!e.items[i].completion.additionalTextEdits));n--);return i}next(){this._move(!0)}prev(){this._move(!1)}_move(t){if(this._model)try{this._ignore=!0,this._index=s._moveIndex(t,this._model,this._index),this._acceptNext({index:this._index,item:this._model.items[this._index],model:this._model})}finally{this._ignore=!1}}};s=h([l(1,p)],s);export{s as SuggestAlternatives};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+let SuggestAlternatives = class {
+  constructor(_editor, contextKeyService) {
+    this._editor = _editor;
+    this._ckOtherSuggestions = SuggestAlternatives.OtherSuggestions.bindTo(contextKeyService);
+  }
+  static {
+    __name(this, "SuggestAlternatives");
+  }
+  static OtherSuggestions = new RawContextKey(
+    "hasOtherSuggestions",
+    false
+  );
+  _ckOtherSuggestions;
+  _index = 0;
+  _model;
+  _acceptNext;
+  _listener;
+  _ignore;
+  dispose() {
+    this.reset();
+  }
+  reset() {
+    this._ckOtherSuggestions.reset();
+    this._listener?.dispose();
+    this._model = void 0;
+    this._acceptNext = void 0;
+    this._ignore = false;
+  }
+  set({ model, index }, acceptNext) {
+    if (model.items.length === 0) {
+      this.reset();
+      return;
+    }
+    const nextIndex = SuggestAlternatives._moveIndex(true, model, index);
+    if (nextIndex === index) {
+      this.reset();
+      return;
+    }
+    this._acceptNext = acceptNext;
+    this._model = model;
+    this._index = index;
+    this._listener = this._editor.onDidChangeCursorPosition(() => {
+      if (!this._ignore) {
+        this.reset();
+      }
+    });
+    this._ckOtherSuggestions.set(true);
+  }
+  static _moveIndex(fwd, model, index) {
+    let newIndex = index;
+    for (let rounds = model.items.length; rounds > 0; rounds--) {
+      newIndex = (newIndex + model.items.length + (fwd ? 1 : -1)) % model.items.length;
+      if (newIndex === index) {
+        break;
+      }
+      if (!model.items[newIndex].completion.additionalTextEdits) {
+        break;
+      }
+    }
+    return newIndex;
+  }
+  next() {
+    this._move(true);
+  }
+  prev() {
+    this._move(false);
+  }
+  _move(fwd) {
+    if (!this._model) {
+      return;
+    }
+    try {
+      this._ignore = true;
+      this._index = SuggestAlternatives._moveIndex(
+        fwd,
+        this._model,
+        this._index
+      );
+      this._acceptNext({
+        index: this._index,
+        item: this._model.items[this._index],
+        model: this._model
+      });
+    } finally {
+      this._ignore = false;
+    }
+  }
+};
+SuggestAlternatives = __decorateClass([
+  __decorateParam(1, IContextKeyService)
+], SuggestAlternatives);
+export {
+  SuggestAlternatives
+};
+//# sourceMappingURL=suggestAlternatives.js.map

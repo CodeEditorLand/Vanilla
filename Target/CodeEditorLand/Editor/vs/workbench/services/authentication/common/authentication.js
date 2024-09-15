@@ -1,1 +1,14 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const i="__",t=e("IAuthenticationService"),o=e("IAuthenticationExtensionsService");export{o as IAuthenticationExtensionsService,t as IAuthenticationService,i as INTERNAL_AUTH_PROVIDER_PREFIX};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INTERNAL_AUTH_PROVIDER_PREFIX = "__";
+const IAuthenticationService = createDecorator(
+  "IAuthenticationService"
+);
+const IAuthenticationExtensionsService = createDecorator(
+  "IAuthenticationExtensionsService"
+);
+export {
+  IAuthenticationExtensionsService,
+  IAuthenticationService,
+  INTERNAL_AUTH_PROVIDER_PREFIX
+};
+//# sourceMappingURL=authentication.js.map

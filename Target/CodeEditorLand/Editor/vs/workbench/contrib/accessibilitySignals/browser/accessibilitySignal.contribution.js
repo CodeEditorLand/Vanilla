@@ -1,1 +1,38 @@
-import{AccessibilitySignalService as o,IAccessibilitySignalService as t}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{registerAction2 as i}from"../../../../platform/actions/common/actions.js";import{InstantiationType as n,registerSingleton as s}from"../../../../platform/instantiation/common/extensions.js";import{wrapInReloadableClass0 as l}from"../../../../platform/observable/common/wrapInReloadableClass.js";import{WorkbenchPhase as e,registerWorkbenchContribution2 as r}from"../../../common/contributions.js";import{AccessibilitySignalLineDebuggerContribution as m}from"./accessibilitySignalDebuggerContribution.js";import{ShowAccessibilityAnnouncementHelp as c,ShowSignalSoundHelp as a}from"./commands.js";import{EditorTextPropertySignalsContribution as b}from"./editorTextPropertySignalsContribution.js";s(t,o,n.Delayed),r("EditorTextPropertySignalsContribution",l(()=>b),e.AfterRestored),r("AccessibilitySignalLineDebuggerContribution",m,e.AfterRestored),i(a),i(c);
+import {
+  AccessibilitySignalService,
+  IAccessibilitySignalService
+} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { wrapInReloadableClass0 } from "../../../../platform/observable/common/wrapInReloadableClass.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import { AccessibilitySignalLineDebuggerContribution } from "./accessibilitySignalDebuggerContribution.js";
+import {
+  ShowAccessibilityAnnouncementHelp,
+  ShowSignalSoundHelp
+} from "./commands.js";
+import { EditorTextPropertySignalsContribution } from "./editorTextPropertySignalsContribution.js";
+registerSingleton(
+  IAccessibilitySignalService,
+  AccessibilitySignalService,
+  InstantiationType.Delayed
+);
+registerWorkbenchContribution2(
+  "EditorTextPropertySignalsContribution",
+  wrapInReloadableClass0(() => EditorTextPropertySignalsContribution),
+  WorkbenchPhase.AfterRestored
+);
+registerWorkbenchContribution2(
+  "AccessibilitySignalLineDebuggerContribution",
+  AccessibilitySignalLineDebuggerContribution,
+  WorkbenchPhase.AfterRestored
+);
+registerAction2(ShowSignalSoundHelp);
+registerAction2(ShowAccessibilityAnnouncementHelp);
+//# sourceMappingURL=accessibilitySignal.contribution.js.map

@@ -1,1 +1,25 @@
-function n(e){return e.submenu!==void 0}function r(e){return e.id==="vscode.menubar.separator"}function t(e){return e.uri!==void 0}function u(e){return!n(e)&&!r(e)&&!t(e)}export{u as isMenubarMenuItemAction,t as isMenubarMenuItemRecentAction,r as isMenubarMenuItemSeparator,n as isMenubarMenuItemSubmenu};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function isMenubarMenuItemSubmenu(menuItem) {
+  return menuItem.submenu !== void 0;
+}
+__name(isMenubarMenuItemSubmenu, "isMenubarMenuItemSubmenu");
+function isMenubarMenuItemSeparator(menuItem) {
+  return menuItem.id === "vscode.menubar.separator";
+}
+__name(isMenubarMenuItemSeparator, "isMenubarMenuItemSeparator");
+function isMenubarMenuItemRecentAction(menuItem) {
+  return menuItem.uri !== void 0;
+}
+__name(isMenubarMenuItemRecentAction, "isMenubarMenuItemRecentAction");
+function isMenubarMenuItemAction(menuItem) {
+  return !isMenubarMenuItemSubmenu(menuItem) && !isMenubarMenuItemSeparator(menuItem) && !isMenubarMenuItemRecentAction(menuItem);
+}
+__name(isMenubarMenuItemAction, "isMenubarMenuItemAction");
+export {
+  isMenubarMenuItemAction,
+  isMenubarMenuItemRecentAction,
+  isMenubarMenuItemSeparator,
+  isMenubarMenuItemSubmenu
+};
+//# sourceMappingURL=menubar.js.map

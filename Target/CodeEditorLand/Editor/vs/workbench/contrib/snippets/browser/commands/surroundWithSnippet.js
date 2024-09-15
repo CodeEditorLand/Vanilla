@@ -1,1 +1,81 @@
-import{EditorContextKeys as c}from"../../../../../editor/common/editorContextKeys.js";import{SnippetController2 as d}from"../../../../../editor/contrib/snippet/browser/snippetController2.js";import{localize2 as l}from"../../../../../nls.js";import{IClipboardService as S}from"../../../../../platform/clipboard/common/clipboardService.js";import{ContextKeyExpr as u}from"../../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as f}from"../../../../../platform/instantiation/common/instantiation.js";import{pickSnippet as g}from"../snippetPicker.js";import{ISnippetsService as I}from"../snippets.js";import{SnippetEditorAction as x}from"./abstractSnippetsActions.js";async function y(m,e,t,p){const{lineNumber:o,column:s}=t;e.tokenization.tokenizeIfCheap(o);const r=e.getLanguageIdAtPosition(o,s);return(await m.getSnippets(r,{includeNoPrefixSnippets:!0,includeDisabledSnippets:p})).filter(n=>n.usesSelection)}class a extends x{static options={id:"editor.action.surroundWithSnippet",title:l("label","Surround with Snippet...")};constructor(){super({...a.options,precondition:u.and(c.writable,c.hasNonEmptySelection),f1:!0})}async runEditorCommand(e,t){if(!t.hasModel())return;const p=e.get(f),o=e.get(I),s=e.get(S),r=await y(o,t.getModel(),t.getPosition(),!0);if(!r.length)return;const i=await p.invokeFunction(g,r);if(!i)return;let n;i.needsClipboard&&(n=await s.readText()),t.focus(),d.get(t)?.insert(i.codeSnippet,{clipboardText:n}),o.updateUsageTimestamp(i)}}export{a as SurroundWithSnippetEditorAction,y as getSurroundableSnippets};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { localize2 } from "../../../../../nls.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
+import { pickSnippet } from "../snippetPicker.js";
+import { ISnippetsService } from "../snippets.js";
+import { SnippetEditorAction } from "./abstractSnippetsActions.js";
+async function getSurroundableSnippets(snippetsService, model, position, includeDisabledSnippets) {
+  const { lineNumber, column } = position;
+  model.tokenization.tokenizeIfCheap(lineNumber);
+  const languageId = model.getLanguageIdAtPosition(lineNumber, column);
+  const allSnippets = await snippetsService.getSnippets(languageId, {
+    includeNoPrefixSnippets: true,
+    includeDisabledSnippets
+  });
+  return allSnippets.filter((snippet) => snippet.usesSelection);
+}
+__name(getSurroundableSnippets, "getSurroundableSnippets");
+class SurroundWithSnippetEditorAction extends SnippetEditorAction {
+  static {
+    __name(this, "SurroundWithSnippetEditorAction");
+  }
+  static options = {
+    id: "editor.action.surroundWithSnippet",
+    title: localize2("label", "Surround with Snippet...")
+  };
+  constructor() {
+    super({
+      ...SurroundWithSnippetEditorAction.options,
+      precondition: ContextKeyExpr.and(
+        EditorContextKeys.writable,
+        EditorContextKeys.hasNonEmptySelection
+      ),
+      f1: true
+    });
+  }
+  async runEditorCommand(accessor, editor) {
+    if (!editor.hasModel()) {
+      return;
+    }
+    const instaService = accessor.get(IInstantiationService);
+    const snippetsService = accessor.get(ISnippetsService);
+    const clipboardService = accessor.get(IClipboardService);
+    const snippets = await getSurroundableSnippets(
+      snippetsService,
+      editor.getModel(),
+      editor.getPosition(),
+      true
+    );
+    if (!snippets.length) {
+      return;
+    }
+    const snippet = await instaService.invokeFunction(
+      pickSnippet,
+      snippets
+    );
+    if (!snippet) {
+      return;
+    }
+    let clipboardText;
+    if (snippet.needsClipboard) {
+      clipboardText = await clipboardService.readText();
+    }
+    editor.focus();
+    SnippetController2.get(editor)?.insert(snippet.codeSnippet, {
+      clipboardText
+    });
+    snippetsService.updateUsageTimestamp(snippet);
+  }
+}
+export {
+  SurroundWithSnippetEditorAction,
+  getSurroundableSnippets
+};
+//# sourceMappingURL=surroundWithSnippet.js.map

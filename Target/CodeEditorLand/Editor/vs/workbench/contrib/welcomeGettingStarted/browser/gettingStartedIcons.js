@@ -1,1 +1,24 @@
-import{Codicon as e}from"../../../../base/common/codicons.js";import{localize as t}from"../../../../nls.js";import{registerIcon as o}from"../../../../platform/theme/common/iconRegistry.js";const d=o("getting-started-step-unchecked",e.circleLargeOutline,t("gettingStartedUnchecked","Used to represent walkthrough steps which have not been completed")),i=o("getting-started-step-checked",e.passFilled,t("gettingStartedChecked","Used to represent walkthrough steps which have been completed"));export{i as gettingStartedCheckedCodicon,d as gettingStartedUncheckedCodicon};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const gettingStartedUncheckedCodicon = registerIcon(
+  "getting-started-step-unchecked",
+  Codicon.circleLargeOutline,
+  localize(
+    "gettingStartedUnchecked",
+    "Used to represent walkthrough steps which have not been completed"
+  )
+);
+const gettingStartedCheckedCodicon = registerIcon(
+  "getting-started-step-checked",
+  Codicon.passFilled,
+  localize(
+    "gettingStartedChecked",
+    "Used to represent walkthrough steps which have been completed"
+  )
+);
+export {
+  gettingStartedCheckedCodicon,
+  gettingStartedUncheckedCodicon
+};
+//# sourceMappingURL=gettingStartedIcons.js.map

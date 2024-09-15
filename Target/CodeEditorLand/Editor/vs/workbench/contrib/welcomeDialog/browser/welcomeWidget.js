@@ -1,2 +1,244 @@
-import"./media/welcomeWidget.css";import{$ as c,append as b,hide as y}from"../../../../base/browser/dom.js";import{renderFormattedText as v}from"../../../../base/browser/formattedTextRenderer.js";import{ActionBar as C}from"../../../../base/browser/ui/actionbar/actionbar.js";import{ButtonBar as k}from"../../../../base/browser/ui/button/button.js";import{renderLabelWithIcons as W}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{Action as x}from"../../../../base/common/actions.js";import{Codicon as E}from"../../../../base/common/codicons.js";import{MarkdownString as _}from"../../../../base/common/htmlContent.js";import{mnemonicButtonLabel as S}from"../../../../base/common/labels.js";import{Disposable as I}from"../../../../base/common/lifecycle.js";import{parseLinkedText as A}from"../../../../base/common/linkedText.js";import{ThemeIcon as B}from"../../../../base/common/themables.js";import{OverlayWidgetPositionPreference as T}from"../../../../editor/browser/editorBrowser.js";import{MarkdownRenderer as D}from"../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";import{localize as L}from"../../../../nls.js";import{Link as R}from"../../../../platform/opener/browser/link.js";import{defaultButtonStyles as M}from"../../../../platform/theme/browser/defaultStyles.js";import{contrastBorder as N,editorWidgetBackground as O,editorWidgetForeground as $,widgetBorder as H,widgetShadow as P}from"../../../../platform/theme/common/colorRegistry.js";import{registerThemingParticipant as V}from"../../../../platform/theme/common/themeService.js";class ce extends I{constructor(t,o,i,e,r){super();this._editor=t;this.instantiationService=o;this.commandService=i;this.telemetryService=e;this.openerService=r;this._rootDomNode=document.createElement("div"),this._rootDomNode.className="welcome-widget",this.element=this._rootDomNode.appendChild(c(".monaco-dialog-box")),this.element.setAttribute("role","dialog"),y(this._rootDomNode),this.messageContainer=this.element.appendChild(c(".dialog-message-container"))}_rootDomNode;element;messageContainer;markdownRenderer=this.instantiationService.createInstance(D,{});async executeCommand(t,...o){try{await this.commandService.executeCommand(t,...o),this.telemetryService.publicLog2("workbenchActionExecuted",{id:t,from:"welcomeWidget"})}catch{}}async render(t,o,i,e){this._editor._getViewModel()&&(await this.buildWidgetContent(t,o,i,e),this._editor.addOverlayWidget(this),this._show(),this.telemetryService.publicLog2("workbenchActionExecuted",{id:"welcomeWidgetRendered",from:"welcomeWidget"}))}async buildWidgetContent(t,o,i,e){const r=this._register(new C(this.element,{})),s=this._register(new x("dialog.close",L("dialogClose","Close Dialog"),B.asClassName(E.dialogClose),!0,async()=>{this._hide()}));r.push(s,{icon:!0,label:!1});const n=(l,w)=>{const p=new _(void 0,{supportThemeIcons:!0,supportHtml:!0});return p.appendMarkdown(`<a class="copilot">$(${w})</a>`),p.appendMarkdown(l),p},m=this.messageContainer.appendChild(c("#monaco-dialog-message-detail.dialog-message-detail-title")),h=this.markdownRenderer.render(n(t,"zap"));m.appendChild(h.element),this.buildStepMarkdownDescription(this.messageContainer,o.split(`
-`).filter(l=>l).map(l=>A(l)));const f=this.messageContainer.appendChild(c(".dialog-buttons-row")).appendChild(c(".dialog-buttons")),g=this._register(new k(f)),u=this._register(g.addButtonWithDescription({title:!0,secondary:!1,...M}));u.label=S(i,!0),this._register(u.onDidClick(async()=>{await this.executeCommand(e)})),g.buttons[0].focus()}buildStepMarkdownDescription(t,o){for(const i of o){const e=b(t,c("p"));for(const r of i.nodes)if(typeof r=="string"){const s=W(r);for(const n of s)typeof n=="string"?e.appendChild(v(n,{inline:!0,renderCodeSegments:!0})):e.appendChild(n)}else{const s=this.instantiationService.createInstance(R,e,r,{opener:n=>{this.telemetryService.publicLog2("workbenchActionExecuted",{id:"welcomeWidetLinkAction",from:"welcomeWidget"}),this.openerService.open(n,{allowCommands:!0})}});this._register(s)}}return t}getId(){return"editor.contrib.welcomeWidget"}getDomNode(){return this._rootDomNode}getPosition(){return{preference:T.TOP_RIGHT_CORNER}}_isVisible=!1;_show(){this._isVisible||(this._isVisible=!0,this._rootDomNode.style.display="block")}_hide(){this._isVisible&&(this._isVisible=!0,this._rootDomNode.style.display="none",this._editor.removeOverlayWidget(this),this.telemetryService.publicLog2("workbenchActionExecuted",{id:"welcomeWidgetDismissed",from:"welcomeWidget"}))}}V((d,a)=>{const t=(n,m)=>{m&&a.addRule(`.monaco-editor ${n} { background-color: ${m}; }`)},o=d.getColor(O);t(".welcome-widget",o);const i=d.getColor(P);i&&a.addRule(`.welcome-widget { box-shadow: 0 0 8px 2px ${i}; }`);const e=d.getColor(H);e&&a.addRule(`.welcome-widget { border-left: 1px solid ${e}; border-right: 1px solid ${e}; border-bottom: 1px solid ${e}; }`);const r=d.getColor(N);r&&a.addRule(`.welcome-widget { border: 1px solid ${r}; }`);const s=d.getColor($);s&&a.addRule(`.welcome-widget { color: ${s}; }`)});export{ce as WelcomeWidget};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/welcomeWidget.css";
+import { $, append, hide } from "../../../../base/browser/dom.js";
+import { renderFormattedText } from "../../../../base/browser/formattedTextRenderer.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ButtonBar } from "../../../../base/browser/ui/button/button.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import {
+  Action
+} from "../../../../base/common/actions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { mnemonicButtonLabel } from "../../../../base/common/labels.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  parseLinkedText
+} from "../../../../base/common/linkedText.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import {
+  OverlayWidgetPositionPreference
+} from "../../../../editor/browser/editorBrowser.js";
+import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { localize } from "../../../../nls.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import {
+  contrastBorder,
+  editorWidgetBackground,
+  editorWidgetForeground,
+  widgetBorder,
+  widgetShadow
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+class WelcomeWidget extends Disposable {
+  constructor(_editor, instantiationService, commandService, telemetryService, openerService) {
+    super();
+    this._editor = _editor;
+    this.instantiationService = instantiationService;
+    this.commandService = commandService;
+    this.telemetryService = telemetryService;
+    this.openerService = openerService;
+    this._rootDomNode = document.createElement("div");
+    this._rootDomNode.className = "welcome-widget";
+    this.element = this._rootDomNode.appendChild($(".monaco-dialog-box"));
+    this.element.setAttribute("role", "dialog");
+    hide(this._rootDomNode);
+    this.messageContainer = this.element.appendChild(
+      $(".dialog-message-container")
+    );
+  }
+  static {
+    __name(this, "WelcomeWidget");
+  }
+  _rootDomNode;
+  element;
+  messageContainer;
+  markdownRenderer = this.instantiationService.createInstance(MarkdownRenderer, {});
+  async executeCommand(commandId, ...args) {
+    try {
+      await this.commandService.executeCommand(commandId, ...args);
+      this.telemetryService.publicLog2("workbenchActionExecuted", {
+        id: commandId,
+        from: "welcomeWidget"
+      });
+    } catch (ex) {
+    }
+  }
+  async render(title, message, buttonText, buttonAction) {
+    if (!this._editor._getViewModel()) {
+      return;
+    }
+    await this.buildWidgetContent(title, message, buttonText, buttonAction);
+    this._editor.addOverlayWidget(this);
+    this._show();
+    this.telemetryService.publicLog2("workbenchActionExecuted", {
+      id: "welcomeWidgetRendered",
+      from: "welcomeWidget"
+    });
+  }
+  async buildWidgetContent(title, message, buttonText, buttonAction) {
+    const actionBar = this._register(new ActionBar(this.element, {}));
+    const action = this._register(
+      new Action(
+        "dialog.close",
+        localize("dialogClose", "Close Dialog"),
+        ThemeIcon.asClassName(Codicon.dialogClose),
+        true,
+        async () => {
+          this._hide();
+        }
+      )
+    );
+    actionBar.push(action, { icon: true, label: false });
+    const renderBody = /* @__PURE__ */ __name((message2, icon) => {
+      const mds = new MarkdownString(void 0, {
+        supportThemeIcons: true,
+        supportHtml: true
+      });
+      mds.appendMarkdown(`<a class="copilot">$(${icon})</a>`);
+      mds.appendMarkdown(message2);
+      return mds;
+    }, "renderBody");
+    const titleElement = this.messageContainer.appendChild(
+      $("#monaco-dialog-message-detail.dialog-message-detail-title")
+    );
+    const titleElementMdt = this.markdownRenderer.render(
+      renderBody(title, "zap")
+    );
+    titleElement.appendChild(titleElementMdt.element);
+    this.buildStepMarkdownDescription(
+      this.messageContainer,
+      message.split("\n").filter((x) => x).map((text) => parseLinkedText(text))
+    );
+    const buttonsRowElement = this.messageContainer.appendChild(
+      $(".dialog-buttons-row")
+    );
+    const buttonContainer = buttonsRowElement.appendChild(
+      $(".dialog-buttons")
+    );
+    const buttonBar = this._register(new ButtonBar(buttonContainer));
+    const primaryButton = this._register(
+      buttonBar.addButtonWithDescription({
+        title: true,
+        secondary: false,
+        ...defaultButtonStyles
+      })
+    );
+    primaryButton.label = mnemonicButtonLabel(buttonText, true);
+    this._register(
+      primaryButton.onDidClick(async () => {
+        await this.executeCommand(buttonAction);
+      })
+    );
+    buttonBar.buttons[0].focus();
+  }
+  buildStepMarkdownDescription(container, text) {
+    for (const linkedText of text) {
+      const p = append(container, $("p"));
+      for (const node of linkedText.nodes) {
+        if (typeof node === "string") {
+          const labelWithIcon = renderLabelWithIcons(node);
+          for (const element of labelWithIcon) {
+            if (typeof element === "string") {
+              p.appendChild(
+                renderFormattedText(element, {
+                  inline: true,
+                  renderCodeSegments: true
+                })
+              );
+            } else {
+              p.appendChild(element);
+            }
+          }
+        } else {
+          const link = this.instantiationService.createInstance(
+            Link,
+            p,
+            node,
+            {
+              opener: /* @__PURE__ */ __name((href) => {
+                this.telemetryService.publicLog2("workbenchActionExecuted", {
+                  id: "welcomeWidetLinkAction",
+                  from: "welcomeWidget"
+                });
+                this.openerService.open(href, {
+                  allowCommands: true
+                });
+              }, "opener")
+            }
+          );
+          this._register(link);
+        }
+      }
+    }
+    return container;
+  }
+  getId() {
+    return "editor.contrib.welcomeWidget";
+  }
+  getDomNode() {
+    return this._rootDomNode;
+  }
+  getPosition() {
+    return {
+      preference: OverlayWidgetPositionPreference.TOP_RIGHT_CORNER
+    };
+  }
+  _isVisible = false;
+  _show() {
+    if (this._isVisible) {
+      return;
+    }
+    this._isVisible = true;
+    this._rootDomNode.style.display = "block";
+  }
+  _hide() {
+    if (!this._isVisible) {
+      return;
+    }
+    this._isVisible = true;
+    this._rootDomNode.style.display = "none";
+    this._editor.removeOverlayWidget(this);
+    this.telemetryService.publicLog2("workbenchActionExecuted", {
+      id: "welcomeWidgetDismissed",
+      from: "welcomeWidget"
+    });
+  }
+}
+registerThemingParticipant((theme, collector) => {
+  const addBackgroundColorRule = /* @__PURE__ */ __name((selector, color) => {
+    if (color) {
+      collector.addRule(
+        `.monaco-editor ${selector} { background-color: ${color}; }`
+      );
+    }
+  }, "addBackgroundColorRule");
+  const widgetBackground = theme.getColor(editorWidgetBackground);
+  addBackgroundColorRule(".welcome-widget", widgetBackground);
+  const widgetShadowColor = theme.getColor(widgetShadow);
+  if (widgetShadowColor) {
+    collector.addRule(
+      `.welcome-widget { box-shadow: 0 0 8px 2px ${widgetShadowColor}; }`
+    );
+  }
+  const widgetBorderColor = theme.getColor(widgetBorder);
+  if (widgetBorderColor) {
+    collector.addRule(
+      `.welcome-widget { border-left: 1px solid ${widgetBorderColor}; border-right: 1px solid ${widgetBorderColor}; border-bottom: 1px solid ${widgetBorderColor}; }`
+    );
+  }
+  const hcBorder = theme.getColor(contrastBorder);
+  if (hcBorder) {
+    collector.addRule(`.welcome-widget { border: 1px solid ${hcBorder}; }`);
+  }
+  const foreground = theme.getColor(editorWidgetForeground);
+  if (foreground) {
+    collector.addRule(`.welcome-widget { color: ${foreground}; }`);
+  }
+});
+export {
+  WelcomeWidget
+};
+//# sourceMappingURL=welcomeWidget.js.map

@@ -1,1 +1,411 @@
-import{Color as g,RGBA as v}from"../../../../base/common/color.js";import{ansiColorIdentifiers as I}from"../../terminal/common/terminalColorRegistry.js";function M(i,o,s){const u=document.createElement("span"),k=i.length;let r=[],d,f,l,m=!1,a=0,h="";for(;a<k;){let n=!1;if(i.charCodeAt(a)===27&&i.charAt(a+1)==="["){const c=a;a+=2;let e="";for(;a<k;){const t=i.charAt(a);if(e+=t,a++,t.match(/^[ABCDHIJKfhmpsu]$/)){n=!0;break}}if(n){if(S(u,h,r,o,s,d,f,l),h="",e.match(/^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/)){const t=e.slice(0,-1).split(";").filter(p=>p!=="").map(p=>Number.parseInt(p,10));if(t[0]===38||t[0]===48||t[0]===58){const p=t[0]===38?"foreground":t[0]===48?"background":"underline";t[1]===5?F(t,p):t[1]===2&&R(t,p)}else G(t)}}else a=c}n===!1&&(h+=i.charAt(a),a++)}return h&&S(u,h,r,o,s,d,f,l),u;function b(n,c){n==="foreground"?d=c:n==="background"?f=c:n==="underline"&&(l=c),r=r.filter(e=>e!==`code-${n}-colored`),c!==void 0&&r.push(`code-${n}-colored`)}function A(){const n=d;b("foreground",f),b("background",n)}function G(n){for(const c of n)switch(c){case 0:{r=[],d=void 0,f=void 0;break}case 1:{r=r.filter(e=>e!=="code-bold"),r.push("code-bold");break}case 2:{r=r.filter(e=>e!=="code-dim"),r.push("code-dim");break}case 3:{r=r.filter(e=>e!=="code-italic"),r.push("code-italic");break}case 4:{r=r.filter(e=>e!=="code-underline"&&e!=="code-double-underline"),r.push("code-underline");break}case 5:{r=r.filter(e=>e!=="code-blink"),r.push("code-blink");break}case 6:{r=r.filter(e=>e!=="code-rapid-blink"),r.push("code-rapid-blink");break}case 7:{m||(m=!0,A());break}case 8:{r=r.filter(e=>e!=="code-hidden"),r.push("code-hidden");break}case 9:{r=r.filter(e=>e!=="code-strike-through"),r.push("code-strike-through");break}case 10:{r=r.filter(e=>!e.startsWith("code-font"));break}case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:{r=r.filter(e=>!e.startsWith("code-font")),r.push(`code-font-${c-10}`);break}case 21:{r=r.filter(e=>e!=="code-underline"&&e!=="code-double-underline"),r.push("code-double-underline");break}case 22:{r=r.filter(e=>e!=="code-bold"&&e!=="code-dim");break}case 23:{r=r.filter(e=>e!=="code-italic"&&e!=="code-font-10");break}case 24:{r=r.filter(e=>e!=="code-underline"&&e!=="code-double-underline");break}case 25:{r=r.filter(e=>e!=="code-blink"&&e!=="code-rapid-blink");break}case 27:{m&&(m=!1,A());break}case 28:{r=r.filter(e=>e!=="code-hidden");break}case 29:{r=r.filter(e=>e!=="code-strike-through");break}case 53:{r=r.filter(e=>e!=="code-overline"),r.push("code-overline");break}case 55:{r=r.filter(e=>e!=="code-overline");break}case 39:{b("foreground",void 0);break}case 49:{b("background",void 0);break}case 59:{b("underline",void 0);break}case 73:{r=r.filter(e=>e!=="code-superscript"&&e!=="code-subscript"),r.push("code-superscript");break}case 74:{r=r.filter(e=>e!=="code-superscript"&&e!=="code-subscript"),r.push("code-subscript");break}case 75:{r=r.filter(e=>e!=="code-superscript"&&e!=="code-subscript");break}default:{B(c);break}}}function R(n,c){if(n.length>=5&&n[2]>=0&&n[2]<=255&&n[3]>=0&&n[3]<=255&&n[4]>=0&&n[4]<=255){const e=new v(n[2],n[3],n[4]);b(c,e)}}function F(n,c){let e=n[2];const t=w(e);if(t)b(c,t);else if(e>=0&&e<=15){if(c==="underline"){const p=I[e];b(c,`--vscode-treminal-${p}`);return}e+=30,e>=38&&(e+=52),c==="background"&&(e+=10),B(e)}}function B(n){let c,e;if(n>=30&&n<=37?(e=n-30,c="foreground"):n>=90&&n<=97?(e=n-90+8,c="foreground"):n>=40&&n<=47?(e=n-40,c="background"):n>=100&&n<=107&&(e=n-100+8,c="background"),e!==void 0&&c){const t=I[e];b(c,`--vscode-${t.replaceAll(".","-")}`)}}}function S(i,o,s,u,k,r,d,f){if(!i||!o)return;const l=u.linkify(o,!0,k);l.className=s.join(" "),r&&(l.style.color=typeof r=="string"?`var(${r})`:g.Format.CSS.formatRGB(new g(r))),d&&(l.style.backgroundColor=typeof d=="string"?`var(${d})`:g.Format.CSS.formatRGB(new g(d))),f&&(l.style.textDecorationColor=typeof f=="string"?`var(${f})`:g.Format.CSS.formatRGB(new g(f))),i.appendChild(l)}function w(i){if(i%1===0)if(i>=16&&i<=231){i-=16;let o=i%6;i=(i-o)/6;let s=i%6;i=(i-s)/6;let u=i;const k=255/5;return o=Math.round(o*k),s=Math.round(s*k),u=Math.round(u*k),new v(u,s,o)}else if(i>=232&&i<=255){i-=232;const o=Math.round(i/23*255);return new v(o,o,o)}else return}export{S as appendStylizedStringToContainer,w as calcANSI8bitColor,M as handleANSIOutput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { ansiColorIdentifiers } from "../../terminal/common/terminalColorRegistry.js";
+function handleANSIOutput(text, linkDetector, workspaceFolder) {
+  const root = document.createElement("span");
+  const textLength = text.length;
+  let styleNames = [];
+  let customFgColor;
+  let customBgColor;
+  let customUnderlineColor;
+  let colorsInverted = false;
+  let currentPos = 0;
+  let buffer = "";
+  while (currentPos < textLength) {
+    let sequenceFound = false;
+    if (text.charCodeAt(currentPos) === 27 && text.charAt(currentPos + 1) === "[") {
+      const startPos = currentPos;
+      currentPos += 2;
+      let ansiSequence = "";
+      while (currentPos < textLength) {
+        const char = text.charAt(currentPos);
+        ansiSequence += char;
+        currentPos++;
+        if (char.match(/^[ABCDHIJKfhmpsu]$/)) {
+          sequenceFound = true;
+          break;
+        }
+      }
+      if (sequenceFound) {
+        appendStylizedStringToContainer(
+          root,
+          buffer,
+          styleNames,
+          linkDetector,
+          workspaceFolder,
+          customFgColor,
+          customBgColor,
+          customUnderlineColor
+        );
+        buffer = "";
+        if (ansiSequence.match(
+          /^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/
+        )) {
+          const styleCodes = ansiSequence.slice(0, -1).split(";").filter((elem) => elem !== "").map((elem) => Number.parseInt(elem, 10));
+          if (styleCodes[0] === 38 || styleCodes[0] === 48 || styleCodes[0] === 58) {
+            const colorType = styleCodes[0] === 38 ? "foreground" : styleCodes[0] === 48 ? "background" : "underline";
+            if (styleCodes[1] === 5) {
+              set8BitColor(styleCodes, colorType);
+            } else if (styleCodes[1] === 2) {
+              set24BitColor(styleCodes, colorType);
+            }
+          } else {
+            setBasicFormatters(styleCodes);
+          }
+        } else {
+        }
+      } else {
+        currentPos = startPos;
+      }
+    }
+    if (sequenceFound === false) {
+      buffer += text.charAt(currentPos);
+      currentPos++;
+    }
+  }
+  if (buffer) {
+    appendStylizedStringToContainer(
+      root,
+      buffer,
+      styleNames,
+      linkDetector,
+      workspaceFolder,
+      customFgColor,
+      customBgColor,
+      customUnderlineColor
+    );
+  }
+  return root;
+  function changeColor(colorType, color) {
+    if (colorType === "foreground") {
+      customFgColor = color;
+    } else if (colorType === "background") {
+      customBgColor = color;
+    } else if (colorType === "underline") {
+      customUnderlineColor = color;
+    }
+    styleNames = styleNames.filter(
+      (style) => style !== `code-${colorType}-colored`
+    );
+    if (color !== void 0) {
+      styleNames.push(`code-${colorType}-colored`);
+    }
+  }
+  __name(changeColor, "changeColor");
+  function reverseForegroundAndBackgroundColors() {
+    const oldFgColor = customFgColor;
+    changeColor("foreground", customBgColor);
+    changeColor("background", oldFgColor);
+  }
+  __name(reverseForegroundAndBackgroundColors, "reverseForegroundAndBackgroundColors");
+  function setBasicFormatters(styleCodes) {
+    for (const code of styleCodes) {
+      switch (code) {
+        case 0: {
+          styleNames = [];
+          customFgColor = void 0;
+          customBgColor = void 0;
+          break;
+        }
+        case 1: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-bold`
+          );
+          styleNames.push("code-bold");
+          break;
+        }
+        case 2: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-dim`
+          );
+          styleNames.push("code-dim");
+          break;
+        }
+        case 3: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-italic`
+          );
+          styleNames.push("code-italic");
+          break;
+        }
+        case 4: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-underline` && style !== `code-double-underline`
+          );
+          styleNames.push("code-underline");
+          break;
+        }
+        case 5: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-blink`
+          );
+          styleNames.push("code-blink");
+          break;
+        }
+        case 6: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-rapid-blink`
+          );
+          styleNames.push("code-rapid-blink");
+          break;
+        }
+        case 7: {
+          if (!colorsInverted) {
+            colorsInverted = true;
+            reverseForegroundAndBackgroundColors();
+          }
+          break;
+        }
+        case 8: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-hidden`
+          );
+          styleNames.push("code-hidden");
+          break;
+        }
+        case 9: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-strike-through`
+          );
+          styleNames.push("code-strike-through");
+          break;
+        }
+        case 10: {
+          styleNames = styleNames.filter(
+            (style) => !style.startsWith("code-font")
+          );
+          break;
+        }
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20: {
+          styleNames = styleNames.filter(
+            (style) => !style.startsWith("code-font")
+          );
+          styleNames.push(`code-font-${code - 10}`);
+          break;
+        }
+        case 21: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-underline` && style !== `code-double-underline`
+          );
+          styleNames.push("code-double-underline");
+          break;
+        }
+        case 22: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-bold` && style !== `code-dim`
+          );
+          break;
+        }
+        case 23: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-italic` && style !== `code-font-10`
+          );
+          break;
+        }
+        case 24: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-underline` && style !== `code-double-underline`
+          );
+          break;
+        }
+        case 25: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-blink` && style !== `code-rapid-blink`
+          );
+          break;
+        }
+        case 27: {
+          if (colorsInverted) {
+            colorsInverted = false;
+            reverseForegroundAndBackgroundColors();
+          }
+          break;
+        }
+        case 28: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-hidden`
+          );
+          break;
+        }
+        case 29: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-strike-through`
+          );
+          break;
+        }
+        case 53: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-overline`
+          );
+          styleNames.push("code-overline");
+          break;
+        }
+        case 55: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-overline`
+          );
+          break;
+        }
+        case 39: {
+          changeColor("foreground", void 0);
+          break;
+        }
+        case 49: {
+          changeColor("background", void 0);
+          break;
+        }
+        case 59: {
+          changeColor("underline", void 0);
+          break;
+        }
+        case 73: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-superscript` && style !== `code-subscript`
+          );
+          styleNames.push("code-superscript");
+          break;
+        }
+        case 74: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-superscript` && style !== `code-subscript`
+          );
+          styleNames.push("code-subscript");
+          break;
+        }
+        case 75: {
+          styleNames = styleNames.filter(
+            (style) => style !== `code-superscript` && style !== `code-subscript`
+          );
+          break;
+        }
+        default: {
+          setBasicColor(code);
+          break;
+        }
+      }
+    }
+  }
+  __name(setBasicFormatters, "setBasicFormatters");
+  function set24BitColor(styleCodes, colorType) {
+    if (styleCodes.length >= 5 && styleCodes[2] >= 0 && styleCodes[2] <= 255 && styleCodes[3] >= 0 && styleCodes[3] <= 255 && styleCodes[4] >= 0 && styleCodes[4] <= 255) {
+      const customColor = new RGBA(
+        styleCodes[2],
+        styleCodes[3],
+        styleCodes[4]
+      );
+      changeColor(colorType, customColor);
+    }
+  }
+  __name(set24BitColor, "set24BitColor");
+  function set8BitColor(styleCodes, colorType) {
+    let colorNumber = styleCodes[2];
+    const color = calcANSI8bitColor(colorNumber);
+    if (color) {
+      changeColor(colorType, color);
+    } else if (colorNumber >= 0 && colorNumber <= 15) {
+      if (colorType === "underline") {
+        const colorName = ansiColorIdentifiers[colorNumber];
+        changeColor(colorType, `--vscode-treminal-${colorName}`);
+        return;
+      }
+      colorNumber += 30;
+      if (colorNumber >= 38) {
+        colorNumber += 52;
+      }
+      if (colorType === "background") {
+        colorNumber += 10;
+      }
+      setBasicColor(colorNumber);
+    }
+  }
+  __name(set8BitColor, "set8BitColor");
+  function setBasicColor(styleCode) {
+    let colorType;
+    let colorIndex;
+    if (styleCode >= 30 && styleCode <= 37) {
+      colorIndex = styleCode - 30;
+      colorType = "foreground";
+    } else if (styleCode >= 90 && styleCode <= 97) {
+      colorIndex = styleCode - 90 + 8;
+      colorType = "foreground";
+    } else if (styleCode >= 40 && styleCode <= 47) {
+      colorIndex = styleCode - 40;
+      colorType = "background";
+    } else if (styleCode >= 100 && styleCode <= 107) {
+      colorIndex = styleCode - 100 + 8;
+      colorType = "background";
+    }
+    if (colorIndex !== void 0 && colorType) {
+      const colorName = ansiColorIdentifiers[colorIndex];
+      changeColor(
+        colorType,
+        `--vscode-${colorName.replaceAll(".", "-")}`
+      );
+    }
+  }
+  __name(setBasicColor, "setBasicColor");
+}
+__name(handleANSIOutput, "handleANSIOutput");
+function appendStylizedStringToContainer(root, stringContent, cssClasses, linkDetector, workspaceFolder, customTextColor, customBackgroundColor, customUnderlineColor) {
+  if (!root || !stringContent) {
+    return;
+  }
+  const container = linkDetector.linkify(
+    stringContent,
+    true,
+    workspaceFolder
+  );
+  container.className = cssClasses.join(" ");
+  if (customTextColor) {
+    container.style.color = typeof customTextColor === "string" ? `var(${customTextColor})` : Color.Format.CSS.formatRGB(new Color(customTextColor));
+  }
+  if (customBackgroundColor) {
+    container.style.backgroundColor = typeof customBackgroundColor === "string" ? `var(${customBackgroundColor})` : Color.Format.CSS.formatRGB(new Color(customBackgroundColor));
+  }
+  if (customUnderlineColor) {
+    container.style.textDecorationColor = typeof customUnderlineColor === "string" ? `var(${customUnderlineColor})` : Color.Format.CSS.formatRGB(new Color(customUnderlineColor));
+  }
+  root.appendChild(container);
+}
+__name(appendStylizedStringToContainer, "appendStylizedStringToContainer");
+function calcANSI8bitColor(colorNumber) {
+  if (colorNumber % 1 !== 0) {
+    return;
+  }
+  if (colorNumber >= 16 && colorNumber <= 231) {
+    colorNumber -= 16;
+    let blue = colorNumber % 6;
+    colorNumber = (colorNumber - blue) / 6;
+    let green = colorNumber % 6;
+    colorNumber = (colorNumber - green) / 6;
+    let red = colorNumber;
+    const convFactor = 255 / 5;
+    blue = Math.round(blue * convFactor);
+    green = Math.round(green * convFactor);
+    red = Math.round(red * convFactor);
+    return new RGBA(red, green, blue);
+  } else if (colorNumber >= 232 && colorNumber <= 255) {
+    colorNumber -= 232;
+    const colorLevel = Math.round(colorNumber / 23 * 255);
+    return new RGBA(colorLevel, colorLevel, colorLevel);
+  } else {
+    return;
+  }
+}
+__name(calcANSI8bitColor, "calcANSI8bitColor");
+export {
+  appendStylizedStringToContainer,
+  calcANSI8bitColor,
+  handleANSIOutput
+};
+//# sourceMappingURL=debugANSIHandling.js.map

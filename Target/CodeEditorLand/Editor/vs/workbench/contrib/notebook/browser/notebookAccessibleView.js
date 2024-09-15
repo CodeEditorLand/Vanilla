@@ -1,4 +1,94 @@
-import{AccessibleContentProvider as h,AccessibleViewProviderId as x,AccessibleViewType as a}from"../../../../platform/accessibility/browser/accessibleView.js";import{ContextKeyExpr as f}from"../../../../platform/contextkey/common/contextkey.js";import{IEditorService as A}from"../../../services/editor/common/editorService.js";import{AccessibilityVerbositySettingId as M}from"../../accessibility/browser/accessibilityConfiguration.js";import{NOTEBOOK_OUTPUT_FOCUSED as k}from"../common/notebookContextKeys.js";import{getNotebookEditorFromEditorPane as E}from"./notebookBrowser.js";class ${priority=100;name="notebook";type=a.View;when=f.and(k,f.equals("resourceExtname",".ipynb"));getProvider(s){const e=s.get(A);return T(e)}}function T(p){const s=p.activeEditorPane,e=E(s),m=e?.getViewModel(),d=m?.getSelections(),b=m?.notebookDocument;if(!d||!b||!e?.textModel)return;const o=m.viewCells[d[0].start];let n="";const w=new TextDecoder;for(let i=0;i<o.outputsViewModels.length;i++){const y=o.outputsViewModels[i],u=o.model.outputs[i],[V,g]=y.resolveMimeTypes(e.textModel,void 0),c=V[g].mimeType;let r=u.outputs.find(l=>l.mime===c);(!r||c.startsWith("image"))&&(r=u.outputs.find(l=>!l.mime.startsWith("image")));let t=`${c}`;r&&(t=w.decode(r.data.slice(0,1e5).buffer),r.data.byteLength>1e5&&(t=t+"...(truncated)"),c.endsWith("error")&&(t=t.replace(/\\u001b\[[0-9;]*m/gi,"").replaceAll("\\n",`
-`)));const v=o.outputsViewModels.length>1?`Cell output ${i+1} of ${o.outputsViewModels.length}
-`:"";n=n.concat(`${v}${t}
-`)}if(n)return new h(x.Notebook,{type:a.View},()=>n,()=>{e?.setFocus(d[0]),s?.focus()},M.Notebook)}export{$ as NotebookAccessibleView,T as getAccessibleOutputProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { NOTEBOOK_OUTPUT_FOCUSED } from "../common/notebookContextKeys.js";
+import { getNotebookEditorFromEditorPane } from "./notebookBrowser.js";
+class NotebookAccessibleView {
+  static {
+    __name(this, "NotebookAccessibleView");
+  }
+  priority = 100;
+  name = "notebook";
+  type = AccessibleViewType.View;
+  when = ContextKeyExpr.and(
+    NOTEBOOK_OUTPUT_FOCUSED,
+    ContextKeyExpr.equals("resourceExtname", ".ipynb")
+  );
+  getProvider(accessor) {
+    const editorService = accessor.get(IEditorService);
+    return getAccessibleOutputProvider(editorService);
+  }
+}
+function getAccessibleOutputProvider(editorService) {
+  const activePane = editorService.activeEditorPane;
+  const notebookEditor = getNotebookEditorFromEditorPane(activePane);
+  const notebookViewModel = notebookEditor?.getViewModel();
+  const selections = notebookViewModel?.getSelections();
+  const notebookDocument = notebookViewModel?.notebookDocument;
+  if (!selections || !notebookDocument || !notebookEditor?.textModel) {
+    return;
+  }
+  const viewCell = notebookViewModel.viewCells[selections[0].start];
+  let outputContent = "";
+  const decoder = new TextDecoder();
+  for (let i = 0; i < viewCell.outputsViewModels.length; i++) {
+    const outputViewModel = viewCell.outputsViewModels[i];
+    const outputTextModel = viewCell.model.outputs[i];
+    const [mimeTypes, pick] = outputViewModel.resolveMimeTypes(
+      notebookEditor.textModel,
+      void 0
+    );
+    const mimeType = mimeTypes[pick].mimeType;
+    let buffer = outputTextModel.outputs.find(
+      (output) => output.mime === mimeType
+    );
+    if (!buffer || mimeType.startsWith("image")) {
+      buffer = outputTextModel.outputs.find(
+        (output) => !output.mime.startsWith("image")
+      );
+    }
+    let text = `${mimeType}`;
+    if (buffer) {
+      const charLimit = 1e5;
+      text = decoder.decode(buffer.data.slice(0, charLimit).buffer);
+      if (buffer.data.byteLength > charLimit) {
+        text = text + "...(truncated)";
+      }
+      if (mimeType.endsWith("error")) {
+        text = text.replace(/\\u001b\[[0-9;]*m/gi, "").replaceAll("\\n", "\n");
+      }
+    }
+    const index = viewCell.outputsViewModels.length > 1 ? `Cell output ${i + 1} of ${viewCell.outputsViewModels.length}
+` : "";
+    outputContent = outputContent.concat(`${index}${text}
+`);
+  }
+  if (!outputContent) {
+    return;
+  }
+  return new AccessibleContentProvider(
+    AccessibleViewProviderId.Notebook,
+    { type: AccessibleViewType.View },
+    () => {
+      return outputContent;
+    },
+    () => {
+      notebookEditor?.setFocus(selections[0]);
+      activePane?.focus();
+    },
+    AccessibilityVerbositySettingId.Notebook
+  );
+}
+__name(getAccessibleOutputProvider, "getAccessibleOutputProvider");
+export {
+  NotebookAccessibleView,
+  getAccessibleOutputProvider
+};
+//# sourceMappingURL=notebookAccessibleView.js.map

@@ -1,1 +1,48 @@
-import{AbstractMessageLogger as o,DEFAULT_LOG_LEVEL as i,log as s}from"./log.js";class l extends o{buffer=[];_logger=void 0;constructor(e=i){super(),this.setLevel(e),this._register(this.onDidChangeLogLevel(r=>{this._logger?.setLevel(r)}))}set logger(e){this._logger=e;for(const{level:r,message:g}of this.buffer)s(e,r,g);this.buffer=[]}log(e,r){this._logger?s(this._logger,e,r):this.getLevel()<=e&&this.buffer.push({level:e,message:r})}dispose(){this._logger?.dispose(),super.dispose()}flush(){this._logger?.flush()}}export{l as BufferLogger};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  AbstractMessageLogger,
+  DEFAULT_LOG_LEVEL,
+  log
+} from "./log.js";
+class BufferLogger extends AbstractMessageLogger {
+  static {
+    __name(this, "BufferLogger");
+  }
+  buffer = [];
+  _logger = void 0;
+  constructor(logLevel = DEFAULT_LOG_LEVEL) {
+    super();
+    this.setLevel(logLevel);
+    this._register(
+      this.onDidChangeLogLevel((level) => {
+        this._logger?.setLevel(level);
+      })
+    );
+  }
+  set logger(logger) {
+    this._logger = logger;
+    for (const { level, message } of this.buffer) {
+      log(logger, level, message);
+    }
+    this.buffer = [];
+  }
+  log(level, message) {
+    if (this._logger) {
+      log(this._logger, level, message);
+    } else if (this.getLevel() <= level) {
+      this.buffer.push({ level, message });
+    }
+  }
+  dispose() {
+    this._logger?.dispose();
+    super.dispose();
+  }
+  flush() {
+    this._logger?.flush();
+  }
+}
+export {
+  BufferLogger
+};
+//# sourceMappingURL=bufferLog.js.map

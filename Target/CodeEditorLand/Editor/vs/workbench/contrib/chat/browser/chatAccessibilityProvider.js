@@ -1,3 +1,132 @@
-var u=Object.defineProperty;var b=Object.getOwnPropertyDescriptor;var p=(l,e,t,i)=>{for(var o=i>1?void 0:i?b(e,t):e,r=l.length-1,n;r>=0;r--)(n=l[r])&&(o=(i?n(e,t,o):n(o))||o);return i&&o&&u(e,t,o),o},g=(l,e)=>(t,i)=>e(t,i,l);import{marked as d}from"../../../../base/common/marked/marked.js";import{localize as s}from"../../../../nls.js";import{IAccessibleViewService as m}from"../../../../platform/accessibility/browser/accessibleView.js";import{AccessibilityVerbositySettingId as f}from"../../accessibility/browser/accessibilityConfiguration.js";import{isRequestVM as k,isResponseVM as C,isWelcomeVM as h}from"../common/chatViewModel.js";let a=class{constructor(e){this._accessibleViewService=e}getWidgetRole(){return"list"}getRole(e){return"listitem"}getWidgetAriaLabel(){return s("chat","Chat")}getAriaLabel(e){return k(e)?e.messageText:C(e)?this._getLabelWithCodeBlockCount(e):h(e)?e.content.map(t=>"value"in t?t.value:t.map(i=>i.message).join(`
-`)).join(`
-`):""}_getLabelWithCodeBlockCount(e){const t=this._accessibleViewService.getOpenAriaHint(f.Chat);let i="";const o=e.response.value.filter(c=>!("value"in c))?.length??0;let r="";switch(o){case 0:break;case 1:r=s("singleFileTreeHint","1 file tree");break;default:r=s("multiFileTreeHint","{0} file trees",o);break}const n=d.lexer(e.response.toString()).filter(c=>c.type==="code")?.length??0;switch(n){case 0:i=t?s("noCodeBlocksHint","{0} {1} {2}",r,e.response.toString(),t):s("noCodeBlocks","{0} {1}",r,e.response.toString());break;case 1:i=t?s("singleCodeBlockHint","{0} 1 code block: {1} {2}",r,e.response.toString(),t):s("singleCodeBlock","{0} 1 code block: {1}",r,e.response.toString());break;default:i=t?s("multiCodeBlockHint","{0} {1} code blocks: {2}",r,n,e.response.toString(),t):s("multiCodeBlock","{0} {1} code blocks",r,n,e.response.toString());break}return i}};a=p([g(0,m)],a);export{a as ChatAccessibilityProvider};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { marked } from "../../../../base/common/marked/marked.js";
+import { localize } from "../../../../nls.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import {
+  isRequestVM,
+  isResponseVM,
+  isWelcomeVM
+} from "../common/chatViewModel.js";
+let ChatAccessibilityProvider = class {
+  constructor(_accessibleViewService) {
+    this._accessibleViewService = _accessibleViewService;
+  }
+  static {
+    __name(this, "ChatAccessibilityProvider");
+  }
+  getWidgetRole() {
+    return "list";
+  }
+  getRole(element) {
+    return "listitem";
+  }
+  getWidgetAriaLabel() {
+    return localize("chat", "Chat");
+  }
+  getAriaLabel(element) {
+    if (isRequestVM(element)) {
+      return element.messageText;
+    }
+    if (isResponseVM(element)) {
+      return this._getLabelWithCodeBlockCount(element);
+    }
+    if (isWelcomeVM(element)) {
+      return element.content.map(
+        (c) => "value" in c ? c.value : c.map((followup) => followup.message).join("\n")
+      ).join("\n");
+    }
+    return "";
+  }
+  _getLabelWithCodeBlockCount(element) {
+    const accessibleViewHint = this._accessibleViewService.getOpenAriaHint(
+      AccessibilityVerbositySettingId.Chat
+    );
+    let label = "";
+    const fileTreeCount = element.response.value.filter((v) => !("value" in v))?.length ?? 0;
+    let fileTreeCountHint = "";
+    switch (fileTreeCount) {
+      case 0:
+        break;
+      case 1:
+        fileTreeCountHint = localize(
+          "singleFileTreeHint",
+          "1 file tree"
+        );
+        break;
+      default:
+        fileTreeCountHint = localize(
+          "multiFileTreeHint",
+          "{0} file trees",
+          fileTreeCount
+        );
+        break;
+    }
+    const codeBlockCount = marked.lexer(element.response.toString()).filter((token) => token.type === "code")?.length ?? 0;
+    switch (codeBlockCount) {
+      case 0:
+        label = accessibleViewHint ? localize(
+          "noCodeBlocksHint",
+          "{0} {1} {2}",
+          fileTreeCountHint,
+          element.response.toString(),
+          accessibleViewHint
+        ) : localize(
+          "noCodeBlocks",
+          "{0} {1}",
+          fileTreeCountHint,
+          element.response.toString()
+        );
+        break;
+      case 1:
+        label = accessibleViewHint ? localize(
+          "singleCodeBlockHint",
+          "{0} 1 code block: {1} {2}",
+          fileTreeCountHint,
+          element.response.toString(),
+          accessibleViewHint
+        ) : localize(
+          "singleCodeBlock",
+          "{0} 1 code block: {1}",
+          fileTreeCountHint,
+          element.response.toString()
+        );
+        break;
+      default:
+        label = accessibleViewHint ? localize(
+          "multiCodeBlockHint",
+          "{0} {1} code blocks: {2}",
+          fileTreeCountHint,
+          codeBlockCount,
+          element.response.toString(),
+          accessibleViewHint
+        ) : localize(
+          "multiCodeBlock",
+          "{0} {1} code blocks",
+          fileTreeCountHint,
+          codeBlockCount,
+          element.response.toString()
+        );
+        break;
+    }
+    return label;
+  }
+};
+ChatAccessibilityProvider = __decorateClass([
+  __decorateParam(0, IAccessibleViewService)
+], ChatAccessibilityProvider);
+export {
+  ChatAccessibilityProvider
+};
+//# sourceMappingURL=chatAccessibilityProvider.js.map

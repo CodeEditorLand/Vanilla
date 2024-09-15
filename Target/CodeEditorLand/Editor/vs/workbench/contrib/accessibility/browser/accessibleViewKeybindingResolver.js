@@ -1,1 +1,44 @@
-import{MarkdownString as g}from"../../../../base/common/htmlContent.js";function f(s,n){if(!n)return;const i=[],c=[],m=n.matchAll(/(<keybinding:(?<commandId>[^<]*)>)/gm);for(const t of[...m]){const e=t?.groups?.commandId;let d;if(t?.length&&e){const o=s.lookupKeybinding(e)?.getAriaLabel();o?(d=" ("+o+")",c.push({label:e,id:e})):(d=" (unassigned keybinding)",i.push({label:e,id:e})),n=n.replace(t[0],d)}}const r=new g(n);return r.isTrusted=!0,{content:r,configureKeybindingItems:i.length?i:void 0,configuredKeybindingItems:c.length?c:void 0}}export{f as resolveContentAndKeybindingItems};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+function resolveContentAndKeybindingItems(keybindingService, value) {
+  if (!value) {
+    return;
+  }
+  const configureKeybindingItems = [];
+  const configuredKeybindingItems = [];
+  const matches = value.matchAll(/(<keybinding:(?<commandId>[^<]*)>)/gm);
+  for (const match of [...matches]) {
+    const commandId = match?.groups?.commandId;
+    let kbLabel;
+    if (match?.length && commandId) {
+      const keybinding = keybindingService.lookupKeybinding(commandId)?.getAriaLabel();
+      if (keybinding) {
+        kbLabel = " (" + keybinding + ")";
+        configuredKeybindingItems.push({
+          label: commandId,
+          id: commandId
+        });
+      } else {
+        kbLabel = ` (unassigned keybinding)`;
+        configureKeybindingItems.push({
+          label: commandId,
+          id: commandId
+        });
+      }
+      value = value.replace(match[0], kbLabel);
+    }
+  }
+  const content = new MarkdownString(value);
+  content.isTrusted = true;
+  return {
+    content,
+    configureKeybindingItems: configureKeybindingItems.length ? configureKeybindingItems : void 0,
+    configuredKeybindingItems: configuredKeybindingItems.length ? configuredKeybindingItems : void 0
+  };
+}
+__name(resolveContentAndKeybindingItems, "resolveContentAndKeybindingItems");
+export {
+  resolveContentAndKeybindingItems
+};
+//# sourceMappingURL=accessibleViewKeybindingResolver.js.map

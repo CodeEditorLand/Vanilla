@@ -1,1 +1,177 @@
-var f=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var l=(a,e,i,t)=>{for(var n=t>1?void 0:t?g(e,i):e,o=a.length-1,r;o>=0;o--)(r=a[o])&&(n=(t?r(e,i,n):r(n))||n);return t&&n&&f(e,i,n),n},p=(a,e)=>(i,t)=>e(i,t,a);import{getActiveWindow as u,isHTMLElement as _}from"../../../../../base/browser/dom.js";import{AccessibilitySupport as m}from"../../../../../platform/accessibility/common/accessibility.js";import{IKeybindingService as S}from"../../../../../platform/keybinding/common/keybinding.js";import{EditorOption as s}from"../../../../common/config/editorOptions.js";import{Selection as h}from"../../../../common/core/selection.js";import{applyFontInfo as C}from"../../../config/domFontInfo.js";import{PagedScreenReaderStrategy as v,ariaLabelForScreenReaderContent as b,newlinecount as y}from"../screenReaderUtils.js";let c=class{constructor(e,i,t){this._domNode=e;this._context=i;this._keybindingService=t;this._updateConfigurationSettings(),this._updateDomAttributes()}_contentLeft=1;_contentWidth=1;_lineHeight=1;_fontInfo;_accessibilitySupport=m.Unknown;_accessibilityPageSize=1;_primarySelection=new h(1,1,1,1);_screenReaderContentState;onConfigurationChanged(e){this._updateConfigurationSettings(),this._updateDomAttributes(),e.hasChanged(s.accessibilitySupport)&&this.writeScreenReaderContent()}_updateConfigurationSettings(){const e=this._context.configuration.options,i=e.get(s.layoutInfo);this._contentLeft=i.contentLeft,this._contentWidth=i.contentWidth,this._fontInfo=e.get(s.fontInfo),this._lineHeight=e.get(s.lineHeight),this._accessibilitySupport=e.get(s.accessibilitySupport),this._accessibilityPageSize=e.get(s.accessibilityPageSize)}_updateDomAttributes(){const e=this._context.configuration.options;this._domNode.domNode.setAttribute("aria-label",b(e,this._keybindingService));const i=this._context.viewModel.model.getOptions().tabSize,t=e.get(s.fontInfo).spaceWidth;this._domNode.domNode.style.tabSize=`${i*t}px`}onCursorStateChanged(e){this._primarySelection=e.selections[0]??new h(1,1,1,1)}prepareRender(e){this.writeScreenReaderContent()}render(e){if(!this._screenReaderContentState)return;C(this._domNode,this._fontInfo);const i=this._context.viewLayout.getVerticalOffsetForLineNumber(this._primarySelection.positionLineNumber),t=this._context.viewLayout.getCurrentScrollTop(),n=i-t;this._domNode.setTop(n),this._domNode.setLeft(this._contentLeft),this._domNode.setWidth(this._contentWidth),this._domNode.setHeight(this._lineHeight);const o=this._screenReaderContentState.value.substring(0,this._screenReaderContentState.selectionStart),r=y(o);this._domNode.domNode.scrollTop=r*this._lineHeight}setAriaOptions(){}writeScreenReaderContent(){this._screenReaderContentState=this._getScreenReaderContentState(),this._screenReaderContentState&&(this._domNode.domNode.textContent!==this._screenReaderContentState.value&&(this._domNode.domNode.textContent=this._screenReaderContentState.value),this._setSelectionOfScreenReaderContent(this._screenReaderContentState.selectionStart,this._screenReaderContentState.selectionEnd))}_getScreenReaderContentState(){const e=this._accessibilitySupport===m.Disabled?1:this._accessibilityPageSize,i={getLineCount:()=>this._context.viewModel.getLineCount(),getLineMaxColumn:t=>this._context.viewModel.getLineMaxColumn(t),getValueInRange:(t,n)=>this._context.viewModel.getValueInRange(t,n),getValueLengthInRange:(t,n)=>this._context.viewModel.getValueLengthInRange(t,n),modifyPosition:(t,n)=>this._context.viewModel.modifyPosition(t,n)};return v.fromEditorSelection(i,this._primarySelection,e,this._accessibilitySupport===m.Unknown)}_setSelectionOfScreenReaderContent(e,i){const n=u().document.getSelection();if(!n)return;const o=this._domNode.domNode.firstChild;if(!o)return;const r=u().document.activeElement,d=new globalThis.Range;d.setStart(o,e),d.setEnd(o,i),n.removeAllRanges(),n.addRange(d),_(r)&&r.focus()}};c=l([p(2,S)],c);export{c as ScreenReaderSupport};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { getActiveWindow } from "../../../../../base/browser/dom.js";
+import { AccessibilitySupport } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { applyFontInfo } from "../../../config/domFontInfo.js";
+import {
+  PagedScreenReaderStrategy,
+  ariaLabelForScreenReaderContent,
+  newlinecount
+} from "../screenReaderUtils.js";
+let ScreenReaderSupport = class {
+  constructor(_domNode, _context, _keybindingService) {
+    this._domNode = _domNode;
+    this._context = _context;
+    this._keybindingService = _keybindingService;
+    this._updateConfigurationSettings();
+    this._updateDomAttributes();
+  }
+  static {
+    __name(this, "ScreenReaderSupport");
+  }
+  // Configuration values
+  _contentLeft = 1;
+  _contentWidth = 1;
+  _lineHeight = 1;
+  _fontInfo;
+  _accessibilitySupport = AccessibilitySupport.Unknown;
+  _accessibilityPageSize = 1;
+  _primarySelection = new Selection(1, 1, 1, 1);
+  _screenReaderContentState;
+  onConfigurationChanged(e) {
+    this._updateConfigurationSettings();
+    this._updateDomAttributes();
+    if (e.hasChanged(EditorOption.accessibilitySupport)) {
+      this.writeScreenReaderContent();
+    }
+  }
+  _updateConfigurationSettings() {
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(EditorOption.layoutInfo);
+    this._contentLeft = layoutInfo.contentLeft;
+    this._contentWidth = layoutInfo.contentWidth;
+    this._fontInfo = options.get(EditorOption.fontInfo);
+    this._lineHeight = options.get(EditorOption.lineHeight);
+    this._accessibilitySupport = options.get(
+      EditorOption.accessibilitySupport
+    );
+    this._accessibilityPageSize = options.get(
+      EditorOption.accessibilityPageSize
+    );
+  }
+  _updateDomAttributes() {
+    const options = this._context.configuration.options;
+    this._domNode.domNode.setAttribute(
+      "aria-label",
+      ariaLabelForScreenReaderContent(options, this._keybindingService)
+    );
+    const tabSize = this._context.viewModel.model.getOptions().tabSize;
+    const spaceWidth = options.get(EditorOption.fontInfo).spaceWidth;
+    this._domNode.domNode.style.tabSize = `${tabSize * spaceWidth}px`;
+  }
+  onCursorStateChanged(e) {
+    this._primarySelection = e.selections[0] ?? new Selection(1, 1, 1, 1);
+  }
+  prepareRender(ctx) {
+    this.writeScreenReaderContent();
+  }
+  render(ctx) {
+    if (!this._screenReaderContentState) {
+      return;
+    }
+    applyFontInfo(this._domNode, this._fontInfo);
+    const verticalOffsetForPrimaryLineNumber = this._context.viewLayout.getVerticalOffsetForLineNumber(
+      this._primarySelection.positionLineNumber
+    );
+    const editorScrollTop = this._context.viewLayout.getCurrentScrollTop();
+    const top = verticalOffsetForPrimaryLineNumber - editorScrollTop;
+    this._domNode.setTop(top);
+    this._domNode.setLeft(this._contentLeft);
+    this._domNode.setWidth(this._contentWidth);
+    this._domNode.setHeight(this._lineHeight);
+    const textContentBeforeSelection = this._screenReaderContentState.value.substring(
+      0,
+      this._screenReaderContentState.selectionStart
+    );
+    const numberOfLinesOfContentBeforeSelection = newlinecount(
+      textContentBeforeSelection
+    );
+    this._domNode.domNode.scrollTop = numberOfLinesOfContentBeforeSelection * this._lineHeight;
+  }
+  setAriaOptions() {
+  }
+  writeScreenReaderContent() {
+    const focusedElement = getActiveWindow().document.activeElement;
+    if (!focusedElement || focusedElement !== this._domNode.domNode) {
+      return;
+    }
+    this._screenReaderContentState = this._getScreenReaderContentState();
+    if (!this._screenReaderContentState) {
+      return;
+    }
+    if (this._domNode.domNode.textContent !== this._screenReaderContentState.value) {
+      this._domNode.domNode.textContent = this._screenReaderContentState.value;
+    }
+    this._setSelectionOfScreenReaderContent(
+      this._screenReaderContentState.selectionStart,
+      this._screenReaderContentState.selectionEnd
+    );
+  }
+  _getScreenReaderContentState() {
+    if (this._accessibilitySupport === AccessibilitySupport.Disabled) {
+      return;
+    }
+    const simpleModel = {
+      getLineCount: /* @__PURE__ */ __name(() => {
+        return this._context.viewModel.getLineCount();
+      }, "getLineCount"),
+      getLineMaxColumn: /* @__PURE__ */ __name((lineNumber) => {
+        return this._context.viewModel.getLineMaxColumn(lineNumber);
+      }, "getLineMaxColumn"),
+      getValueInRange: /* @__PURE__ */ __name((range, eol) => {
+        return this._context.viewModel.getValueInRange(range, eol);
+      }, "getValueInRange"),
+      getValueLengthInRange: /* @__PURE__ */ __name((range, eol) => {
+        return this._context.viewModel.getValueLengthInRange(
+          range,
+          eol
+        );
+      }, "getValueLengthInRange"),
+      modifyPosition: /* @__PURE__ */ __name((position, offset) => {
+        return this._context.viewModel.modifyPosition(position, offset);
+      }, "modifyPosition")
+    };
+    return PagedScreenReaderStrategy.fromEditorSelection(
+      simpleModel,
+      this._primarySelection,
+      this._accessibilityPageSize,
+      this._accessibilitySupport === AccessibilitySupport.Unknown
+    );
+  }
+  _setSelectionOfScreenReaderContent(selectionOffsetStart, selectionOffsetEnd) {
+    const activeDocument = getActiveWindow().document;
+    const activeDocumentSelection = activeDocument.getSelection();
+    if (!activeDocumentSelection) {
+      return;
+    }
+    const textContent = this._domNode.domNode.firstChild;
+    if (!textContent) {
+      return;
+    }
+    const range = new globalThis.Range();
+    range.setStart(textContent, selectionOffsetStart);
+    range.setEnd(textContent, selectionOffsetEnd);
+    activeDocumentSelection.removeAllRanges();
+    activeDocumentSelection.addRange(range);
+  }
+};
+ScreenReaderSupport = __decorateClass([
+  __decorateParam(2, IKeybindingService)
+], ScreenReaderSupport);
+export {
+  ScreenReaderSupport
+};
+//# sourceMappingURL=screenReaderSupport.js.map

@@ -1,1 +1,330 @@
-var w=Object.defineProperty;var P=Object.getOwnPropertyDescriptor;var S=(d,o,t,e)=>{for(var i=e>1?void 0:e?P(o,t):o,a=d.length-1,s;a>=0;a--)(s=d[a])&&(i=(e?s(o,t,i):s(i))||i);return e&&i&&w(o,t,i),i},n=(d,o)=>(t,e)=>o(t,e,d);import{spawn as U}from"child_process";import*as h from"fs";import{tmpdir as A}from"os";import{timeout as R}from"../../../base/common/async.js";import{CancellationToken as b}from"../../../base/common/cancellation.js";import{memoize as k}from"../../../base/common/decorators.js";import{hash as F}from"../../../base/common/hash.js";import*as c from"../../../base/common/path.js";import{URI as q}from"../../../base/common/uri.js";import{checksum as $}from"../../../base/node/crypto.js";import*as v from"../../../base/node/pfs.js";import{IConfigurationService as x}from"../../configuration/common/configuration.js";import{IEnvironmentMainService as T}from"../../environment/electron-main/environmentMainService.js";import{IFileService as C}from"../../files/common/files.js";import{ILifecycleMainService as D}from"../../lifecycle/electron-main/lifecycleMainService.js";import{ILogService as H}from"../../log/common/log.js";import{INativeHostMainService as M}from"../../native/electron-main/nativeHostMainService.js";import{IProductService as E}from"../../product/common/productService.js";import{IRequestService as N,asJson as L}from"../../request/common/request.js";import{ITelemetryService as j}from"../../telemetry/common/telemetry.js";import{DisablementReason as V,State as r,StateType as m,UpdateType as f}from"../common/update.js";import{AbstractUpdateService as z,createUpdateURL as B}from"./abstractUpdateService.js";async function O(d,o=1e3){for(;!d();)await R(o)}let y;function p(){return typeof y>"u"&&(y=h.existsSync(c.join(c.dirname(process.execPath),"unins000.exe"))?f.Setup:f.Archive),y}let u=class extends z{constructor(t,e,i,a,s,l,g,Q,I){super(t,e,a,s,l,I);this.telemetryService=i;this.fileService=g;this.nativeHostMainService=Q;t.setRelaunchHandler(this)}availableUpdate;get cachePath(){const t=c.join(A(),`vscode-${this.productService.quality}-${this.productService.target}-${process.arch}`);return h.promises.mkdir(t,{recursive:!0}).then(()=>t)}handleRelaunch(t){return t?.addArgs||t?.removeArgs||this.state.type!==m.Ready||!this.availableUpdate?!1:(this.logService.trace("update#handleRelaunch(): running raw#quitAndInstall()"),this.doQuitAndInstall(),!0)}async initialize(){if(this.productService.target==="user"&&await this.nativeHostMainService.isAdmin(void 0)){this.setState(r.Disabled(V.RunningAsAdmin)),this.logService.info("update#ctor - updates are disabled due to running as Admin in user setup");return}await super.initialize()}buildUpdateFeedUrl(t){let e=`win32-${process.arch}`;return p()===f.Archive?e+="-archive":this.productService.target==="user"&&(e+="-user"),B(e,t,this.productService)}doCheckForUpdates(t){this.url&&(this.setState(r.CheckingForUpdates(t)),this.requestService.request({url:this.url},b.None).then(L).then(e=>{const i=p();return!e||!e.url||!e.version||!e.productVersion?(this.telemetryService.publicLog2("update:notAvailable",{explicit:!!t}),this.setState(r.Idle(i)),Promise.resolve(null)):i===f.Archive?(this.setState(r.AvailableForDownload(e)),Promise.resolve(null)):(this.setState(r.Downloading),this.cleanup(e.version).then(()=>this.getUpdatePackagePath(e.version).then(a=>v.Promises.exists(a).then(s=>{if(s)return Promise.resolve(a);const l=`${a}.tmp`;return this.requestService.request({url:e.url},b.None).then(g=>this.fileService.writeFile(q.file(l),g.stream)).then(e.sha256hash?()=>$(l,e.sha256hash):()=>{}).then(()=>v.Promises.rename(l,a,!1)).then(()=>a)})).then(a=>{this.availableUpdate={packagePath:a},this.setState(r.Downloaded(e)),this.configurationService.getValue("update.enableWindowsBackgroundUpdates")?this.productService.target==="user"&&this.doApplyUpdate():this.setState(r.Ready(e))})))}).then(void 0,e=>{this.telemetryService.publicLog2("update:error",{messageHash:String(F(String(e)))}),this.logService.error(e);const i=t?e.message||e:void 0;this.setState(r.Idle(p(),i))}))}async doDownloadUpdate(t){t.update.url&&this.nativeHostMainService.openExternal(void 0,t.update.url),this.setState(r.Idle(p()))}async getUpdatePackagePath(t){const e=await this.cachePath;return c.join(e,`CodeSetup-${this.productService.quality}-${t}.exe`)}async cleanup(t=null){const e=t?l=>!new RegExp(`${this.productService.quality}-${t}\\.exe$`).test(l):()=>!0,i=await this.cachePath,s=(await v.Promises.readdir(i)).filter(e).map(async l=>{try{await h.promises.unlink(c.join(i,l))}catch{}});await Promise.all(s)}async doApplyUpdate(){if(this.state.type!==m.Downloaded||!this.availableUpdate)return Promise.resolve(void 0);const t=this.state.update;this.setState(r.Updating(t));const e=await this.cachePath;this.availableUpdate.updateFilePath=c.join(e,`CodeSetup-${this.productService.quality}-${t.version}.flag`),await v.Promises.writeFile(this.availableUpdate.updateFilePath,"flag"),U(this.availableUpdate.packagePath,["/verysilent","/log",`/update="${this.availableUpdate.updateFilePath}"`,"/nocloseapplications","/mergetasks=runcode,!desktopicon,!quicklaunchicon"],{detached:!0,stdio:["ignore","ignore","ignore"],windowsVerbatimArguments:!0}).once("exit",()=>{this.availableUpdate=void 0,this.setState(r.Idle(p()))});const a=`${this.productService.win32MutexName}-ready`,s=await import("@vscode/windows-mutex");O(()=>s.isActive(a)).then(()=>this.setState(r.Ready(t)))}doQuitAndInstall(){this.state.type!==m.Ready||!this.availableUpdate||(this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()"),this.availableUpdate.updateFilePath?h.unlinkSync(this.availableUpdate.updateFilePath):U(this.availableUpdate.packagePath,["/silent","/log","/mergetasks=runcode,!desktopicon,!quicklaunchicon"],{detached:!0,stdio:["ignore","ignore","ignore"]}))}getUpdateType(){return p()}async _applySpecificUpdate(t){if(this.state.type!==m.Idle)return;const e=this.configurationService.getValue("update.enableWindowsBackgroundUpdates"),i={version:"unknown",productVersion:"unknown"};this.setState(r.Downloading),this.availableUpdate={packagePath:t},this.setState(r.Downloaded(i)),e?this.productService.target==="user"&&this.doApplyUpdate():this.setState(r.Ready(i))}};S([k],u.prototype,"cachePath",1),u=S([n(0,D),n(1,x),n(2,j),n(3,T),n(4,N),n(5,H),n(6,C),n(7,M),n(8,E)],u);export{u as Win32UpdateService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { spawn } from "child_process";
+import * as fs from "fs";
+import { tmpdir } from "os";
+import { timeout } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { memoize } from "../../../base/common/decorators.js";
+import { hash } from "../../../base/common/hash.js";
+import * as path from "../../../base/common/path.js";
+import { URI } from "../../../base/common/uri.js";
+import { checksum } from "../../../base/node/crypto.js";
+import * as pfs from "../../../base/node/pfs.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { IFileService } from "../../files/common/files.js";
+import {
+  ILifecycleMainService
+} from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IRequestService, asJson } from "../../request/common/request.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import {
+  DisablementReason,
+  State,
+  StateType,
+  UpdateType
+} from "../common/update.js";
+import {
+  AbstractUpdateService,
+  createUpdateURL
+} from "./abstractUpdateService.js";
+async function pollUntil(fn, millis = 1e3) {
+  while (!fn()) {
+    await timeout(millis);
+  }
+}
+__name(pollUntil, "pollUntil");
+let _updateType;
+function getUpdateType() {
+  if (typeof _updateType === "undefined") {
+    _updateType = fs.existsSync(
+      path.join(path.dirname(process.execPath), "unins000.exe")
+    ) ? UpdateType.Setup : UpdateType.Archive;
+  }
+  return _updateType;
+}
+__name(getUpdateType, "getUpdateType");
+let Win32UpdateService = class extends AbstractUpdateService {
+  constructor(lifecycleMainService, configurationService, telemetryService, environmentMainService, requestService, logService, fileService, nativeHostMainService, productService) {
+    super(
+      lifecycleMainService,
+      configurationService,
+      environmentMainService,
+      requestService,
+      logService,
+      productService
+    );
+    this.telemetryService = telemetryService;
+    this.fileService = fileService;
+    this.nativeHostMainService = nativeHostMainService;
+    lifecycleMainService.setRelaunchHandler(this);
+  }
+  static {
+    __name(this, "Win32UpdateService");
+  }
+  availableUpdate;
+  get cachePath() {
+    const result = path.join(
+      tmpdir(),
+      `vscode-${this.productService.quality}-${this.productService.target}-${process.arch}`
+    );
+    return fs.promises.mkdir(result, { recursive: true }).then(() => result);
+  }
+  handleRelaunch(options) {
+    if (options?.addArgs || options?.removeArgs) {
+      return false;
+    }
+    if (this.state.type !== StateType.Ready || !this.availableUpdate) {
+      return false;
+    }
+    this.logService.trace(
+      "update#handleRelaunch(): running raw#quitAndInstall()"
+    );
+    this.doQuitAndInstall();
+    return true;
+  }
+  async initialize() {
+    if (this.productService.target === "user" && await this.nativeHostMainService.isAdmin(void 0)) {
+      this.setState(State.Disabled(DisablementReason.RunningAsAdmin));
+      this.logService.info(
+        "update#ctor - updates are disabled due to running as Admin in user setup"
+      );
+      return;
+    }
+    await super.initialize();
+  }
+  buildUpdateFeedUrl(quality) {
+    let platform = `win32-${process.arch}`;
+    if (getUpdateType() === UpdateType.Archive) {
+      platform += "-archive";
+    } else if (this.productService.target === "user") {
+      platform += "-user";
+    }
+    return createUpdateURL(platform, quality, this.productService);
+  }
+  doCheckForUpdates(context) {
+    if (!this.url) {
+      return;
+    }
+    this.setState(State.CheckingForUpdates(context));
+    this.requestService.request({ url: this.url }, CancellationToken.None).then(asJson).then((update) => {
+      const updateType = getUpdateType();
+      if (!update || !update.url || !update.version || !update.productVersion) {
+        this.telemetryService.publicLog2("update:notAvailable", { explicit: !!context });
+        this.setState(State.Idle(updateType));
+        return Promise.resolve(null);
+      }
+      if (updateType === UpdateType.Archive) {
+        this.setState(State.AvailableForDownload(update));
+        return Promise.resolve(null);
+      }
+      this.setState(State.Downloading);
+      return this.cleanup(update.version).then(() => {
+        return this.getUpdatePackagePath(update.version).then((updatePackagePath) => {
+          return pfs.Promises.exists(updatePackagePath).then(
+            (exists) => {
+              if (exists) {
+                return Promise.resolve(
+                  updatePackagePath
+                );
+              }
+              const downloadPath = `${updatePackagePath}.tmp`;
+              return this.requestService.request(
+                { url: update.url },
+                CancellationToken.None
+              ).then(
+                (context2) => this.fileService.writeFile(
+                  URI.file(downloadPath),
+                  context2.stream
+                )
+              ).then(
+                update.sha256hash ? () => checksum(
+                  downloadPath,
+                  update.sha256hash
+                ) : () => void 0
+              ).then(
+                () => pfs.Promises.rename(
+                  downloadPath,
+                  updatePackagePath,
+                  false
+                )
+              ).then(() => updatePackagePath);
+            }
+          );
+        }).then((packagePath) => {
+          this.availableUpdate = { packagePath };
+          this.setState(State.Downloaded(update));
+          const fastUpdatesEnabled = this.configurationService.getValue(
+            "update.enableWindowsBackgroundUpdates"
+          );
+          if (fastUpdatesEnabled) {
+            if (this.productService.target === "user") {
+              this.doApplyUpdate();
+            }
+          } else {
+            this.setState(State.Ready(update));
+          }
+        });
+      });
+    }).then(void 0, (err) => {
+      this.telemetryService.publicLog2("update:error", { messageHash: String(hash(String(err))) });
+      this.logService.error(err);
+      const message = !!context ? err.message || err : void 0;
+      this.setState(State.Idle(getUpdateType(), message));
+    });
+  }
+  async doDownloadUpdate(state) {
+    if (state.update.url) {
+      this.nativeHostMainService.openExternal(
+        void 0,
+        state.update.url
+      );
+    }
+    this.setState(State.Idle(getUpdateType()));
+  }
+  async getUpdatePackagePath(version) {
+    const cachePath = await this.cachePath;
+    return path.join(
+      cachePath,
+      `CodeSetup-${this.productService.quality}-${version}.exe`
+    );
+  }
+  async cleanup(exceptVersion = null) {
+    const filter = exceptVersion ? (one) => !new RegExp(
+      `${this.productService.quality}-${exceptVersion}\\.exe$`
+    ).test(one) : () => true;
+    const cachePath = await this.cachePath;
+    const versions = await pfs.Promises.readdir(cachePath);
+    const promises = versions.filter(filter).map(async (one) => {
+      try {
+        await fs.promises.unlink(path.join(cachePath, one));
+      } catch (err) {
+      }
+    });
+    await Promise.all(promises);
+  }
+  async doApplyUpdate() {
+    if (this.state.type !== StateType.Downloaded) {
+      return Promise.resolve(void 0);
+    }
+    if (!this.availableUpdate) {
+      return Promise.resolve(void 0);
+    }
+    const update = this.state.update;
+    this.setState(State.Updating(update));
+    const cachePath = await this.cachePath;
+    this.availableUpdate.updateFilePath = path.join(
+      cachePath,
+      `CodeSetup-${this.productService.quality}-${update.version}.flag`
+    );
+    await pfs.Promises.writeFile(
+      this.availableUpdate.updateFilePath,
+      "flag"
+    );
+    const child = spawn(
+      this.availableUpdate.packagePath,
+      [
+        "/verysilent",
+        "/log",
+        `/update="${this.availableUpdate.updateFilePath}"`,
+        "/nocloseapplications",
+        "/mergetasks=runcode,!desktopicon,!quicklaunchicon"
+      ],
+      {
+        detached: true,
+        stdio: ["ignore", "ignore", "ignore"],
+        windowsVerbatimArguments: true
+      }
+    );
+    child.once("exit", () => {
+      this.availableUpdate = void 0;
+      this.setState(State.Idle(getUpdateType()));
+    });
+    const readyMutexName = `${this.productService.win32MutexName}-ready`;
+    const mutex = await import("@vscode/windows-mutex");
+    pollUntil(() => mutex.isActive(readyMutexName)).then(
+      () => this.setState(State.Ready(update))
+    );
+  }
+  doQuitAndInstall() {
+    if (this.state.type !== StateType.Ready || !this.availableUpdate) {
+      return;
+    }
+    this.logService.trace(
+      "update#quitAndInstall(): running raw#quitAndInstall()"
+    );
+    if (this.availableUpdate.updateFilePath) {
+      fs.unlinkSync(this.availableUpdate.updateFilePath);
+    } else {
+      spawn(
+        this.availableUpdate.packagePath,
+        [
+          "/silent",
+          "/log",
+          "/mergetasks=runcode,!desktopicon,!quicklaunchicon"
+        ],
+        {
+          detached: true,
+          stdio: ["ignore", "ignore", "ignore"]
+        }
+      );
+    }
+  }
+  getUpdateType() {
+    return getUpdateType();
+  }
+  async _applySpecificUpdate(packagePath) {
+    if (this.state.type !== StateType.Idle) {
+      return;
+    }
+    const fastUpdatesEnabled = this.configurationService.getValue(
+      "update.enableWindowsBackgroundUpdates"
+    );
+    const update = {
+      version: "unknown",
+      productVersion: "unknown"
+    };
+    this.setState(State.Downloading);
+    this.availableUpdate = { packagePath };
+    this.setState(State.Downloaded(update));
+    if (fastUpdatesEnabled) {
+      if (this.productService.target === "user") {
+        this.doApplyUpdate();
+      }
+    } else {
+      this.setState(State.Ready(update));
+    }
+  }
+};
+__decorateClass([
+  memoize
+], Win32UpdateService.prototype, "cachePath", 1);
+Win32UpdateService = __decorateClass([
+  __decorateParam(0, ILifecycleMainService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, ITelemetryService),
+  __decorateParam(3, IEnvironmentMainService),
+  __decorateParam(4, IRequestService),
+  __decorateParam(5, ILogService),
+  __decorateParam(6, IFileService),
+  __decorateParam(7, INativeHostMainService),
+  __decorateParam(8, IProductService)
+], Win32UpdateService);
+export {
+  Win32UpdateService
+};
+//# sourceMappingURL=updateService.win32.js.map

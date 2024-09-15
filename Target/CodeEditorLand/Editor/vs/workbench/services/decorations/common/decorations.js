@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("IFileDecorationsService");export{r as IDecorationsService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IDecorationsService = createDecorator(
+  "IFileDecorationsService"
+);
+export {
+  IDecorationsService
+};
+//# sourceMappingURL=decorations.js.map

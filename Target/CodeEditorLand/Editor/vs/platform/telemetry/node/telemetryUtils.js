@@ -1,1 +1,39 @@
-import{isMacintosh as i}from"../../../base/common/platform.js";import{getMachineId as o,getSqmMachineId as n,getdevDeviceId as a}from"../../../base/node/id.js";import{devDeviceIdKey as d,machineIdKey as c,sqmIdKey as s}from"../common/telemetry.js";async function g(r,t){let e=r.getItem(c);return(typeof e!="string"||i&&e==="6c9d2bc8f91b89624add29c0abeae7fb42bf539fa1cdb2e3e57cd668fa9bcead")&&(e=await o(t.error.bind(t))),e}async function v(r,t){let e=r.getItem(s);return typeof e!="string"&&(e=await n(t.error.bind(t))),e}async function p(r,t){let e=r.getItem(d);return typeof e!="string"&&(e=await a(t.error.bind(t))),e}export{g as resolveMachineId,v as resolveSqmId,p as resolvedevDeviceId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isMacintosh } from "../../../base/common/platform.js";
+import {
+  getMachineId,
+  getSqmMachineId,
+  getdevDeviceId
+} from "../../../base/node/id.js";
+import { devDeviceIdKey, machineIdKey, sqmIdKey } from "../common/telemetry.js";
+async function resolveMachineId(stateService, logService) {
+  let machineId = stateService.getItem(machineIdKey);
+  if (typeof machineId !== "string" || isMacintosh && machineId === "6c9d2bc8f91b89624add29c0abeae7fb42bf539fa1cdb2e3e57cd668fa9bcead") {
+    machineId = await getMachineId(logService.error.bind(logService));
+  }
+  return machineId;
+}
+__name(resolveMachineId, "resolveMachineId");
+async function resolveSqmId(stateService, logService) {
+  let sqmId = stateService.getItem(sqmIdKey);
+  if (typeof sqmId !== "string") {
+    sqmId = await getSqmMachineId(logService.error.bind(logService));
+  }
+  return sqmId;
+}
+__name(resolveSqmId, "resolveSqmId");
+async function resolvedevDeviceId(stateService, logService) {
+  let devDeviceId = stateService.getItem(devDeviceIdKey);
+  if (typeof devDeviceId !== "string") {
+    devDeviceId = await getdevDeviceId(logService.error.bind(logService));
+  }
+  return devDeviceId;
+}
+__name(resolvedevDeviceId, "resolvedevDeviceId");
+export {
+  resolveMachineId,
+  resolveSqmId,
+  resolvedevDeviceId
+};
+//# sourceMappingURL=telemetryUtils.js.map

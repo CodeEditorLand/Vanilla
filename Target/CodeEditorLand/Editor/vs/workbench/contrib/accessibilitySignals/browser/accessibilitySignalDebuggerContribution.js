@@ -1,1 +1,96 @@
-var b=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var c=(p,i,e,s)=>{for(var o=s>1?void 0:s?D(i,e):i,a=p.length-1,n;a>=0;a--)(n=p[a])&&(o=(s?n(i,e,o):n(o))||o);return s&&o&&b(i,e,o),o},l=(p,i)=>(e,s)=>i(e,s,p);import{Disposable as h,toDisposable as m}from"../../../../base/common/lifecycle.js";import{autorunWithStore as I,observableFromEvent as u}from"../../../../base/common/observable.js";import{AccessibilitySignal as S,IAccessibilitySignalService as E}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{IDebugService as f}from"../../debug/common/debug.js";let d=class extends h{constructor(e,s){super();this.accessibilitySignalService=s;const o=u(this,s.onSoundEnabledChanged(S.onDebugBreak),()=>s.isSoundEnabled(S.onDebugBreak));this._register(I((a,n)=>{if(!o.read(a))return;const r=new Map;n.add(m(()=>{r.forEach(t=>t.dispose()),r.clear()})),n.add(e.onDidNewSession(t=>r.set(t,this.handleSession(t)))),n.add(e.onDidEndSession(({session:t})=>{r.get(t)?.dispose(),r.delete(t)})),e.getModel().getSessions().forEach(t=>r.set(t,this.handleSession(t)))}))}handleSession(e){return e.onDidChangeState(s=>{const o=e.getStoppedDetails();o&&o.reason==="breakpoint"&&this.accessibilitySignalService.playSignal(S.onDebugBreak)})}};d=c([l(0,f),l(1,E)],d);export{d as AccessibilitySignalLineDebuggerContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  autorunWithStore,
+  observableFromEvent
+} from "../../../../base/common/observable.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IDebugService } from "../../debug/common/debug.js";
+let AccessibilitySignalLineDebuggerContribution = class extends Disposable {
+  constructor(debugService, accessibilitySignalService) {
+    super();
+    this.accessibilitySignalService = accessibilitySignalService;
+    const isEnabled = observableFromEvent(
+      this,
+      accessibilitySignalService.onSoundEnabledChanged(
+        AccessibilitySignal.onDebugBreak
+      ),
+      () => accessibilitySignalService.isSoundEnabled(
+        AccessibilitySignal.onDebugBreak
+      )
+    );
+    this._register(
+      autorunWithStore((reader, store) => {
+        if (!isEnabled.read(reader)) {
+          return;
+        }
+        const sessionDisposables = /* @__PURE__ */ new Map();
+        store.add(
+          toDisposable(() => {
+            sessionDisposables.forEach((d) => d.dispose());
+            sessionDisposables.clear();
+          })
+        );
+        store.add(
+          debugService.onDidNewSession(
+            (session) => sessionDisposables.set(
+              session,
+              this.handleSession(session)
+            )
+          )
+        );
+        store.add(
+          debugService.onDidEndSession(({ session }) => {
+            sessionDisposables.get(session)?.dispose();
+            sessionDisposables.delete(session);
+          })
+        );
+        debugService.getModel().getSessions().forEach(
+          (session) => sessionDisposables.set(
+            session,
+            this.handleSession(session)
+          )
+        );
+      })
+    );
+  }
+  static {
+    __name(this, "AccessibilitySignalLineDebuggerContribution");
+  }
+  handleSession(session) {
+    return session.onDidChangeState((e) => {
+      const stoppedDetails = session.getStoppedDetails();
+      const BREAKPOINT_STOP_REASON = "breakpoint";
+      if (stoppedDetails && stoppedDetails.reason === BREAKPOINT_STOP_REASON) {
+        this.accessibilitySignalService.playSignal(
+          AccessibilitySignal.onDebugBreak
+        );
+      }
+    });
+  }
+};
+AccessibilitySignalLineDebuggerContribution = __decorateClass([
+  __decorateParam(0, IDebugService),
+  __decorateParam(1, IAccessibilitySignalService)
+], AccessibilitySignalLineDebuggerContribution);
+export {
+  AccessibilitySignalLineDebuggerContribution
+};
+//# sourceMappingURL=accessibilitySignalDebuggerContribution.js.map

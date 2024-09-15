@@ -1,1 +1,24 @@
-import{EditorContributionInstantiation as n,registerEditorAction as i,registerEditorContribution as o}from"../../../browser/editorExtensions.js";import{AcceptInlineEdit as r,HideInlineEdit as e,ShowNextInlineEditAction as d,ShowPreviousInlineEditAction as l,TriggerInlineEditAction as E}from"./commands.js";import{InlineEditsController as t}from"./inlineEditsController.js";o(t.ID,t,n.Eventually),i(E),i(d),i(l),i(r),i(e);
+import {
+  EditorContributionInstantiation,
+  registerEditorAction,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import {
+  AcceptInlineEdit,
+  HideInlineEdit,
+  ShowNextInlineEditAction,
+  ShowPreviousInlineEditAction,
+  TriggerInlineEditAction
+} from "./commands.js";
+import { InlineEditsController } from "./inlineEditsController.js";
+registerEditorContribution(
+  InlineEditsController.ID,
+  InlineEditsController,
+  EditorContributionInstantiation.Eventually
+);
+registerEditorAction(TriggerInlineEditAction);
+registerEditorAction(ShowNextInlineEditAction);
+registerEditorAction(ShowPreviousInlineEditAction);
+registerEditorAction(AcceptInlineEdit);
+registerEditorAction(HideInlineEdit);
+//# sourceMappingURL=inlineEdits.contribution.js.map

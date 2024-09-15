@@ -1,1 +1,335 @@
-var x=Object.defineProperty;var E=Object.getOwnPropertyDescriptor;var P=(S,t,o,i)=>{for(var s=i>1?void 0:i?E(t,o):t,r=S.length-1,n;r>=0;r--)(n=S[r])&&(s=(i?n(t,o,s):n(s))||s);return i&&s&&x(t,o,s),s},d=(S,t)=>(o,i)=>t(o,i,S);import*as y from"../../../../../base/common/arrays.js";import{CancellationToken as w}from"../../../../../base/common/cancellation.js";import{ResourceMap as C,ResourceSet as g}from"../../../../../base/common/map.js";import{isNumber as T}from"../../../../../base/common/types.js";import{IConfigurationService as W}from"../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as D}from"../../../../../platform/instantiation/common/instantiation.js";import{ILogService as U}from"../../../../../platform/log/common/log.js";import{IUriIdentityService as A}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{IEditorResolverService as H}from"../../../../services/editor/common/editorResolverService.js";import{QueryBuilder as L}from"../../../../services/search/common/queryBuilder.js";import{DEFAULT_MAX_SEARCH_RESULTS as j,ISearchService as Q,QueryType as B,pathIncludedInQuery as O}from"../../../../services/search/common/search.js";import{INotebookEditorService as K}from"../../../notebook/browser/services/notebookEditorService.js";import{INotebookService as _}from"../../../notebook/common/notebookService.js";import{contentMatchesToTextSearchMatches as z,webviewMatchesToTextSearchMatches as $}from"./searchNotebookHelpers.js";let N=class{constructor(t,o,i,s,r,n,l,u){this.uriIdentityService=t;this.notebookEditorService=o;this.logService=i;this.notebookService=s;this.configurationService=r;this.editorResolverService=n;this.searchService=l;this.queryBuilder=u.createInstance(L)}queryBuilder;notebookSearch(t,o,i,s){if(t.type!==B.Text)return{openFilesToScan:new g,completeData:Promise.resolve({messages:[],limitHit:!1,results:[]}),allScannedFiles:Promise.resolve(new g)};const r=this.getLocalNotebookWidgets(),n=r.map(a=>a.viewModel.uri),u=(()=>{const a=Date.now(),m=this.getLocalNotebookResults(t,o??w.None,r,i),f=Date.now(),h=this.configurationService.getValue("search").experimental?.closedNotebookRichContentResults??!1;let c=Promise.resolve(void 0);h&&(c=this.getClosedNotebookResults(t,new g(n,e=>this.uriIdentityService.extUri.getComparisonKey(e)),o??w.None));const k=Promise.all([m,c]);return{completeData:k.then(e=>{const p=e[0],b=e[1],I=e.filter(R=>!!R),v=[...p.results.values(),...b?.results.values()??[]],M=y.coalesce(v);return s&&M.forEach(s),this.logService.trace(`local notebook search time | ${f-a}ms`),{messages:[],limitHit:I.reduce((R,F)=>R||F.limitHit,!1),results:M}}),allScannedFiles:k.then(e=>{const p=e[0],b=e[1],I=y.coalesce([...p.results.keys(),...b?.results.keys()??[]]);return new g(I,v=>this.uriIdentityService.extUri.getComparisonKey(v))})}})();return{openFilesToScan:new g(n),completeData:u.completeData,allScannedFiles:u.allScannedFiles}}async doesFileExist(t,o,i){const s=t.map(async r=>{const n=this.queryBuilder.file(o.map(l=>l.folder),{includePattern:r.startsWith("/")?r:"**/"+r,exists:!0,onlyFileScheme:!0});return this.searchService.fileSearch(n,i).then(l=>!!l.limitHit)});return Promise.any(s)}async getClosedNotebookResults(t,o,i){const s=this.editorResolverService.getAllUserAssociations(),r=new Map,n=this.notebookService.getContributedNotebookTypes();s.forEach(e=>{if(!e.filenamePattern)return;const p={isFromSettings:!0,filenamePatterns:[e.filenamePattern]},b=r.get(e.viewType);b?r.set(e.viewType,b.concat(p)):r.set(e.viewType,[p])});const l=[];n.forEach(e=>{e.selectors.length>0&&l.push((async()=>{const p=e.selectors.map(I=>(I.include||I).toString());if(await this.doesFileExist(p,t.folderQueries,i))return await this.notebookService.canResolve(e.id)?await(await this.notebookService.withNotebookDataProvider(e.id)).serializer.searchInNotebooks(t,i,r):void 0})())});const u=Date.now(),a=y.coalesce(await Promise.all(l)),m=a.flatMap(e=>e.results);let f=a.some(e=>e.limitHit);const h=new C(e=>this.uriIdentityService.extUri.getComparisonKey(e));let c=0;for(const e of m){if(t.maxResults&&c>=t.maxResults){f=!0;break}!o.has(e.resource)&&!h.has(e.resource)&&(h.set(e.resource,e.cellResults.length>0?e:null),c++)}const k=Date.now();return this.logService.trace(`query: ${t.contentPattern.pattern}`),this.logService.trace(`closed notebook search time | ${k-u}ms`),{results:h,limitHit:f}}async getLocalNotebookResults(t,o,i,s){const r=new C(l=>this.uriIdentityService.extUri.getComparisonKey(l));let n=!1;for(const l of i){if(!l.hasModel())continue;const u=(T(t.maxResults)?t.maxResults:j)+1,a=l.viewModel.uri;if(!O(t,a.fsPath))continue;let m=await l.find(t.contentPattern.pattern,{regex:t.contentPattern.isRegExp,wholeWord:t.contentPattern.isWordMatch,caseSensitive:t.contentPattern.isCaseSensitive,includeMarkupInput:t.contentPattern.notebookInfo?.isInNotebookMarkdownInput??!0,includeMarkupPreview:t.contentPattern.notebookInfo?.isInNotebookMarkdownPreview??!0,includeCodeInput:t.contentPattern.notebookInfo?.isInNotebookCellInput??!0,includeOutput:t.contentPattern.notebookInfo?.isInNotebookCellOutput??!0},o,!1,!0,s);if(m.length){u&&m.length>=u&&(n=!0,m=m.slice(0,u-1));const f=m.map(c=>{const k=z(c.contentMatches,c.cell),e=$(c.webviewMatches);return{cell:c.cell,index:c.index,contentResults:k,webviewResults:e}}),h={resource:a,cellResults:f};r.set(a,h)}else r.set(a,null)}return{results:r,limitHit:n}}getLocalNotebookWidgets(){return this.notebookEditorService.retrieveAllExistingWidgets().map(o=>o.value).filter(o=>!!o&&o.hasModel())}};N=P([d(0,A),d(1,K),d(2,U),d(3,_),d(4,W),d(5,H),d(6,Q),d(7,D)],N);export{N as NotebookSearchService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as arrays from "../../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { ResourceMap, ResourceSet } from "../../../../../base/common/map.js";
+import { isNumber } from "../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
+import { QueryBuilder } from "../../../../services/search/common/queryBuilder.js";
+import {
+  DEFAULT_MAX_SEARCH_RESULTS,
+  ISearchService,
+  QueryType,
+  pathIncludedInQuery
+} from "../../../../services/search/common/search.js";
+import { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
+import { INotebookService } from "../../../notebook/common/notebookService.js";
+import {
+  contentMatchesToTextSearchMatches,
+  webviewMatchesToTextSearchMatches
+} from "./searchNotebookHelpers.js";
+let NotebookSearchService = class {
+  constructor(uriIdentityService, notebookEditorService, logService, notebookService, configurationService, editorResolverService, searchService, instantiationService) {
+    this.uriIdentityService = uriIdentityService;
+    this.notebookEditorService = notebookEditorService;
+    this.logService = logService;
+    this.notebookService = notebookService;
+    this.configurationService = configurationService;
+    this.editorResolverService = editorResolverService;
+    this.searchService = searchService;
+    this.queryBuilder = instantiationService.createInstance(QueryBuilder);
+  }
+  static {
+    __name(this, "NotebookSearchService");
+  }
+  queryBuilder;
+  notebookSearch(query, token, searchInstanceID, onProgress) {
+    if (query.type !== QueryType.Text) {
+      return {
+        openFilesToScan: new ResourceSet(),
+        completeData: Promise.resolve({
+          messages: [],
+          limitHit: false,
+          results: []
+        }),
+        allScannedFiles: Promise.resolve(new ResourceSet())
+      };
+    }
+    const localNotebookWidgets = this.getLocalNotebookWidgets();
+    const localNotebookFiles = localNotebookWidgets.map(
+      (widget) => widget.viewModel.uri
+    );
+    const getAllResults = /* @__PURE__ */ __name(() => {
+      const searchStart = Date.now();
+      const localResultPromise = this.getLocalNotebookResults(
+        query,
+        token ?? CancellationToken.None,
+        localNotebookWidgets,
+        searchInstanceID
+      );
+      const searchLocalEnd = Date.now();
+      const experimentalNotebooksEnabled = this.configurationService.getValue(
+        "search"
+      ).experimental?.closedNotebookRichContentResults ?? false;
+      let closedResultsPromise = Promise.resolve(void 0);
+      if (experimentalNotebooksEnabled) {
+        closedResultsPromise = this.getClosedNotebookResults(
+          query,
+          new ResourceSet(
+            localNotebookFiles,
+            (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
+          ),
+          token ?? CancellationToken.None
+        );
+      }
+      const promise = Promise.all([
+        localResultPromise,
+        closedResultsPromise
+      ]);
+      return {
+        completeData: promise.then(
+          (resolvedPromise) => {
+            const openNotebookResult = resolvedPromise[0];
+            const closedNotebookResult = resolvedPromise[1];
+            const resolved = resolvedPromise.filter(
+              (e) => !!e
+            );
+            const resultArray = [
+              ...openNotebookResult.results.values(),
+              ...closedNotebookResult?.results.values() ?? []
+            ];
+            const results = arrays.coalesce(resultArray);
+            if (onProgress) {
+              results.forEach(onProgress);
+            }
+            this.logService.trace(
+              `local notebook search time | ${searchLocalEnd - searchStart}ms`
+            );
+            return {
+              messages: [],
+              limitHit: resolved.reduce(
+                (prev, cur) => prev || cur.limitHit,
+                false
+              ),
+              results
+            };
+          }
+        ),
+        allScannedFiles: promise.then((resolvedPromise) => {
+          const openNotebookResults = resolvedPromise[0];
+          const closedNotebookResults = resolvedPromise[1];
+          const results = arrays.coalesce([
+            ...openNotebookResults.results.keys(),
+            ...closedNotebookResults?.results.keys() ?? []
+          ]);
+          return new ResourceSet(
+            results,
+            (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
+          );
+        })
+      };
+    }, "getAllResults");
+    const promiseResults = getAllResults();
+    return {
+      openFilesToScan: new ResourceSet(localNotebookFiles),
+      completeData: promiseResults.completeData,
+      allScannedFiles: promiseResults.allScannedFiles
+    };
+  }
+  async doesFileExist(includes, folderQueries, token) {
+    const promises = includes.map(
+      async (includePattern) => {
+        const query = this.queryBuilder.file(
+          folderQueries.map((e) => e.folder),
+          {
+            includePattern: includePattern.startsWith("/") ? includePattern : "**/" + includePattern,
+            // todo: find cleaner way to ensure that globs match all appropriate filetypes
+            exists: true,
+            onlyFileScheme: true
+          }
+        );
+        return this.searchService.fileSearch(query, token).then((ret) => {
+          return !!ret.limitHit;
+        });
+      }
+    );
+    return Promise.any(promises);
+  }
+  async getClosedNotebookResults(textQuery, scannedFiles, token) {
+    const userAssociations = this.editorResolverService.getAllUserAssociations();
+    const allPriorityInfo = /* @__PURE__ */ new Map();
+    const contributedNotebookTypes = this.notebookService.getContributedNotebookTypes();
+    userAssociations.forEach((association) => {
+      if (!association.filenamePattern) {
+        return;
+      }
+      const info = {
+        isFromSettings: true,
+        filenamePatterns: [association.filenamePattern]
+      };
+      const existingEntry = allPriorityInfo.get(association.viewType);
+      if (existingEntry) {
+        allPriorityInfo.set(
+          association.viewType,
+          existingEntry.concat(info)
+        );
+      } else {
+        allPriorityInfo.set(association.viewType, [info]);
+      }
+    });
+    const promises = [];
+    contributedNotebookTypes.forEach((notebook) => {
+      if (notebook.selectors.length > 0) {
+        promises.push(
+          (async () => {
+            const includes = notebook.selectors.map((selector) => {
+              const globPattern = selector.include || selector;
+              return globPattern.toString();
+            });
+            const isInWorkspace = await this.doesFileExist(
+              includes,
+              textQuery.folderQueries,
+              token
+            );
+            if (isInWorkspace) {
+              const canResolve = await this.notebookService.canResolve(
+                notebook.id
+              );
+              if (!canResolve) {
+                return void 0;
+              }
+              const serializer = (await this.notebookService.withNotebookDataProvider(
+                notebook.id
+              )).serializer;
+              return await serializer.searchInNotebooks(
+                textQuery,
+                token,
+                allPriorityInfo
+              );
+            } else {
+              return void 0;
+            }
+          })()
+        );
+      }
+    });
+    const start = Date.now();
+    const searchComplete = arrays.coalesce(await Promise.all(promises));
+    const results = searchComplete.flatMap((e) => e.results);
+    let limitHit = searchComplete.some((e) => e.limitHit);
+    const uniqueResults = new ResourceMap(
+      (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
+    );
+    let numResults = 0;
+    for (const result of results) {
+      if (textQuery.maxResults && numResults >= textQuery.maxResults) {
+        limitHit = true;
+        break;
+      }
+      if (!scannedFiles.has(result.resource) && !uniqueResults.has(result.resource)) {
+        uniqueResults.set(
+          result.resource,
+          result.cellResults.length > 0 ? result : null
+        );
+        numResults++;
+      }
+    }
+    const end = Date.now();
+    this.logService.trace(`query: ${textQuery.contentPattern.pattern}`);
+    this.logService.trace(`closed notebook search time | ${end - start}ms`);
+    return {
+      results: uniqueResults,
+      limitHit
+    };
+  }
+  async getLocalNotebookResults(query, token, widgets, searchID) {
+    const localResults = new ResourceMap(
+      (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
+    );
+    let limitHit = false;
+    for (const widget of widgets) {
+      if (!widget.hasModel()) {
+        continue;
+      }
+      const askMax = (isNumber(query.maxResults) ? query.maxResults : DEFAULT_MAX_SEARCH_RESULTS) + 1;
+      const uri = widget.viewModel.uri;
+      if (!pathIncludedInQuery(query, uri.fsPath)) {
+        continue;
+      }
+      let matches = await widget.find(
+        query.contentPattern.pattern,
+        {
+          regex: query.contentPattern.isRegExp,
+          wholeWord: query.contentPattern.isWordMatch,
+          caseSensitive: query.contentPattern.isCaseSensitive,
+          includeMarkupInput: query.contentPattern.notebookInfo?.isInNotebookMarkdownInput ?? true,
+          includeMarkupPreview: query.contentPattern.notebookInfo?.isInNotebookMarkdownPreview ?? true,
+          includeCodeInput: query.contentPattern.notebookInfo?.isInNotebookCellInput ?? true,
+          includeOutput: query.contentPattern.notebookInfo?.isInNotebookCellOutput ?? true
+        },
+        token,
+        false,
+        true,
+        searchID
+      );
+      if (matches.length) {
+        if (askMax && matches.length >= askMax) {
+          limitHit = true;
+          matches = matches.slice(0, askMax - 1);
+        }
+        const cellResults = matches.map(
+          (match) => {
+            const contentResults = contentMatchesToTextSearchMatches(
+              match.contentMatches,
+              match.cell
+            );
+            const webviewResults = webviewMatchesToTextSearchMatches(
+              match.webviewMatches
+            );
+            return {
+              cell: match.cell,
+              index: match.index,
+              contentResults,
+              webviewResults
+            };
+          }
+        );
+        const fileMatch = {
+          resource: uri,
+          cellResults
+        };
+        localResults.set(uri, fileMatch);
+      } else {
+        localResults.set(uri, null);
+      }
+    }
+    return {
+      results: localResults,
+      limitHit
+    };
+  }
+  getLocalNotebookWidgets() {
+    const notebookWidgets = this.notebookEditorService.retrieveAllExistingWidgets();
+    return notebookWidgets.map((widget) => widget.value).filter(
+      (val) => !!val && val.hasModel()
+    );
+  }
+};
+NotebookSearchService = __decorateClass([
+  __decorateParam(0, IUriIdentityService),
+  __decorateParam(1, INotebookEditorService),
+  __decorateParam(2, ILogService),
+  __decorateParam(3, INotebookService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IEditorResolverService),
+  __decorateParam(6, ISearchService),
+  __decorateParam(7, IInstantiationService)
+], NotebookSearchService);
+export {
+  NotebookSearchService
+};
+//# sourceMappingURL=notebookSearchService.js.map

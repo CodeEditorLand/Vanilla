@@ -1,1 +1,22 @@
-import{Disposable as e}from"../../../../base/common/lifecycle.js";class t extends e{_activationPromise=null;get activated(){return this._activationPromise!==null}activate(){return this._activationPromise||(this._activationPromise=this.doActivate()),this._activationPromise}}export{t as ExtensionRecommendations};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+class ExtensionRecommendations extends Disposable {
+  static {
+    __name(this, "ExtensionRecommendations");
+  }
+  _activationPromise = null;
+  get activated() {
+    return this._activationPromise !== null;
+  }
+  activate() {
+    if (!this._activationPromise) {
+      this._activationPromise = this.doActivate();
+    }
+    return this._activationPromise;
+  }
+}
+export {
+  ExtensionRecommendations
+};
+//# sourceMappingURL=extensionRecommendations.js.map

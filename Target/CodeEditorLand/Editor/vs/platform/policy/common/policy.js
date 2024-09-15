@@ -1,1 +1,69 @@
-import{Emitter as l,Event as a}from"../../../base/common/event.js";import{Iterable as o}from"../../../base/common/iterator.js";import{Disposable as y}from"../../../base/common/lifecycle.js";import{createDecorator as s}from"../../instantiation/common/instantiation.js";const f=s("policy");class D extends y{_serviceBrand;policyDefinitions={};policies=new Map;_onDidChange=this._register(new l);onDidChange=this._onDidChange.event;async updatePolicyDefinitions(i){const e=Object.keys(this.policyDefinitions).length;return this.policyDefinitions={...i,...this.policyDefinitions},e!==Object.keys(this.policyDefinitions).length&&await this._updatePolicyDefinitions(i),o.reduce(this.policies.entries(),(n,[r,c])=>({...n,[r]:c}),{})}getPolicyValue(i){return this.policies.get(i)}serialize(){return o.reduce(Object.entries(this.policyDefinitions),(i,[e,n])=>({...i,[e]:{definition:n,value:this.policies.get(e)}}),{})}}class m{_serviceBrand;onDidChange=a.None;async updatePolicyDefinitions(){return{}}getPolicyValue(){}serialize(){}}export{D as AbstractPolicyService,f as IPolicyService,m as NullPolicyService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Iterable } from "../../../base/common/iterator.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IPolicyService = createDecorator("policy");
+class AbstractPolicyService extends Disposable {
+  static {
+    __name(this, "AbstractPolicyService");
+  }
+  _serviceBrand;
+  policyDefinitions = {};
+  policies = /* @__PURE__ */ new Map();
+  _onDidChange = this._register(
+    new Emitter()
+  );
+  onDidChange = this._onDidChange.event;
+  async updatePolicyDefinitions(policyDefinitions) {
+    const size = Object.keys(this.policyDefinitions).length;
+    this.policyDefinitions = {
+      ...policyDefinitions,
+      ...this.policyDefinitions
+    };
+    if (size !== Object.keys(this.policyDefinitions).length) {
+      await this._updatePolicyDefinitions(policyDefinitions);
+    }
+    return Iterable.reduce(
+      this.policies.entries(),
+      (r, [name, value]) => ({ ...r, [name]: value }),
+      {}
+    );
+  }
+  getPolicyValue(name) {
+    return this.policies.get(name);
+  }
+  serialize() {
+    return Iterable.reduce(
+      Object.entries(this.policyDefinitions),
+      (r, [name, definition]) => ({
+        ...r,
+        [name]: { definition, value: this.policies.get(name) }
+      }),
+      {}
+    );
+  }
+}
+class NullPolicyService {
+  static {
+    __name(this, "NullPolicyService");
+  }
+  _serviceBrand;
+  onDidChange = Event.None;
+  async updatePolicyDefinitions() {
+    return {};
+  }
+  getPolicyValue() {
+    return void 0;
+  }
+  serialize() {
+    return void 0;
+  }
+}
+export {
+  AbstractPolicyService,
+  IPolicyService,
+  NullPolicyService
+};
+//# sourceMappingURL=policy.js.map

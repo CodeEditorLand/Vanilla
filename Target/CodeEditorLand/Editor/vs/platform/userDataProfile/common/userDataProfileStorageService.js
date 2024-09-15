@@ -1,1 +1,227 @@
-var I=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var p=(s,i,e,r)=>{for(var t=r>1?void 0:r?m(i,e):i,a=s.length-1,o;a>=0;a--)(o=s[a])&&(t=(r?o(i,e,t):o(t))||t);return r&&t&&I(i,e,t),t},d=(s,i)=>(e,r)=>i(e,r,s);import{Emitter as u}from"../../../base/common/event.js";import{Disposable as D,DisposableMap as P,MutableDisposable as y,isDisposable as C,toDisposable as b}from"../../../base/common/lifecycle.js";import{Storage as w}from"../../../base/parts/storage/common/storage.js";import{createDecorator as U}from"../../instantiation/common/instantiation.js";import{AbstractStorageService as M,IStorageService as E,StorageScope as n,StorageTarget as f,isProfileUsingDefaultStorage as T}from"../../storage/common/storage.js";import{ApplicationStorageDatabaseClient as L,ProfileStorageDatabaseClient as _}from"../../storage/common/storageIpc.js";import{reviveProfile as h}from"./userDataProfile.js";const z=U("IUserDataProfileStorageService");let g=class extends D{constructor(e,r){super();this.storageService=r;e&&(this.storageServicesMap=this._register(new P))}_serviceBrand;storageServicesMap;async readStorageData(e){return this.withProfileScopedStorageService(e,async r=>this.getItems(r))}async updateStorageData(e,r,t){return this.withProfileScopedStorageService(e,async a=>this.writeItems(a,r,t))}async withProfileScopedStorageService(e,r){if(this.storageService.hasScope(e))return r(this.storageService);let t=this.storageServicesMap?.get(e.id);if(!t){t=new x(this.createStorageDatabase(e)),this.storageServicesMap?.set(e.id,t);try{await t.initialize()}catch(a){throw this.storageServicesMap?.has(e.id)?this.storageServicesMap.deleteAndDispose(e.id):t.dispose(),a}}try{const a=await r(t);return await t.flush(),a}finally{this.storageServicesMap?.has(e.id)||t.dispose()}}getItems(e){const r=new Map,t=a=>{for(const o of e.keys(n.PROFILE,a))r.set(o,{value:e.get(o,n.PROFILE),target:a})};return t(f.USER),t(f.MACHINE),r}writeItems(e,r,t){e.storeAll(Array.from(r.entries()).map(([a,o])=>({key:a,value:o,scope:n.PROFILE,target:t})),!0)}};g=p([d(1,E)],g);class B extends g{constructor(e,r,t,a,o){super(e,a);this.remoteService=r;const v=r.getChannel("profileStorageListener"),c=this._register(new y);this._onDidChange=this._register(new u({onWillAddFirstListener:()=>{c.value=v.listen("onDidChange")(S=>{o.trace("profile storage changes",S),this._onDidChange.fire({targetChanges:S.targetChanges.map(l=>h(l,t.profilesHome.scheme)),valueChanges:S.valueChanges.map(l=>({...l,profile:h(l.profile,t.profilesHome.scheme)}))})})},onDidRemoveLastListener:()=>c.value=void 0})),this.onDidChange=this._onDidChange.event}_onDidChange;onDidChange;async createStorageDatabase(e){const r=this.remoteService.getChannel("storage");return T(e)?new L(r):new _(r,e)}}class x extends M{constructor(e){super({flushInterval:100});this.profileStorageDatabase=e}profileStorage;async doInitialize(){const e=await this.profileStorageDatabase,r=new w(e);return this._register(r.onDidChangeStorage(t=>{this.emitDidChangeValue(n.PROFILE,t)})),this._register(b(()=>{r.close(),r.dispose(),C(e)&&e.dispose()})),this.profileStorage=r,this.profileStorage.init()}getStorage(e){return e===n.PROFILE?this.profileStorage:void 0}getLogDetails(){}async switchToProfile(){}async switchToWorkspace(){}hasScope(){return!1}}export{g as AbstractUserDataProfileStorageService,z as IUserDataProfileStorageService,B as RemoteUserDataProfileStorageService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableMap,
+  MutableDisposable,
+  isDisposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  Storage
+} from "../../../base/parts/storage/common/storage.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import {
+  AbstractStorageService,
+  IStorageService,
+  StorageScope,
+  StorageTarget,
+  isProfileUsingDefaultStorage
+} from "../../storage/common/storage.js";
+import {
+  ApplicationStorageDatabaseClient,
+  ProfileStorageDatabaseClient
+} from "../../storage/common/storageIpc.js";
+import {
+  reviveProfile
+} from "./userDataProfile.js";
+const IUserDataProfileStorageService = createDecorator(
+  "IUserDataProfileStorageService"
+);
+let AbstractUserDataProfileStorageService = class extends Disposable {
+  constructor(persistStorages, storageService) {
+    super();
+    this.storageService = storageService;
+    if (persistStorages) {
+      this.storageServicesMap = this._register(
+        new DisposableMap()
+      );
+    }
+  }
+  static {
+    __name(this, "AbstractUserDataProfileStorageService");
+  }
+  _serviceBrand;
+  storageServicesMap;
+  async readStorageData(profile) {
+    return this.withProfileScopedStorageService(
+      profile,
+      async (storageService) => this.getItems(storageService)
+    );
+  }
+  async updateStorageData(profile, data, target) {
+    return this.withProfileScopedStorageService(
+      profile,
+      async (storageService) => this.writeItems(storageService, data, target)
+    );
+  }
+  async withProfileScopedStorageService(profile, fn) {
+    if (this.storageService.hasScope(profile)) {
+      return fn(this.storageService);
+    }
+    let storageService = this.storageServicesMap?.get(profile.id);
+    if (!storageService) {
+      storageService = new StorageService(
+        this.createStorageDatabase(profile)
+      );
+      this.storageServicesMap?.set(profile.id, storageService);
+      try {
+        await storageService.initialize();
+      } catch (error) {
+        if (this.storageServicesMap?.has(profile.id)) {
+          this.storageServicesMap.deleteAndDispose(profile.id);
+        } else {
+          storageService.dispose();
+        }
+        throw error;
+      }
+    }
+    try {
+      const result = await fn(storageService);
+      await storageService.flush();
+      return result;
+    } finally {
+      if (!this.storageServicesMap?.has(profile.id)) {
+        storageService.dispose();
+      }
+    }
+  }
+  getItems(storageService) {
+    const result = /* @__PURE__ */ new Map();
+    const populate = /* @__PURE__ */ __name((target) => {
+      for (const key of storageService.keys(
+        StorageScope.PROFILE,
+        target
+      )) {
+        result.set(key, {
+          value: storageService.get(key, StorageScope.PROFILE),
+          target
+        });
+      }
+    }, "populate");
+    populate(StorageTarget.USER);
+    populate(StorageTarget.MACHINE);
+    return result;
+  }
+  writeItems(storageService, items, target) {
+    storageService.storeAll(
+      Array.from(items.entries()).map(([key, value]) => ({
+        key,
+        value,
+        scope: StorageScope.PROFILE,
+        target
+      })),
+      true
+    );
+  }
+};
+AbstractUserDataProfileStorageService = __decorateClass([
+  __decorateParam(1, IStorageService)
+], AbstractUserDataProfileStorageService);
+class RemoteUserDataProfileStorageService extends AbstractUserDataProfileStorageService {
+  constructor(persistStorages, remoteService, userDataProfilesService, storageService, logService) {
+    super(persistStorages, storageService);
+    this.remoteService = remoteService;
+    const channel = remoteService.getChannel("profileStorageListener");
+    const disposable = this._register(new MutableDisposable());
+    this._onDidChange = this._register(
+      new Emitter({
+        // Start listening to profile storage changes only when someone is listening
+        onWillAddFirstListener: /* @__PURE__ */ __name(() => {
+          disposable.value = channel.listen(
+            "onDidChange"
+          )((e) => {
+            logService.trace("profile storage changes", e);
+            this._onDidChange.fire({
+              targetChanges: e.targetChanges.map(
+                (profile) => reviveProfile(
+                  profile,
+                  userDataProfilesService.profilesHome.scheme
+                )
+              ),
+              valueChanges: e.valueChanges.map((e2) => ({
+                ...e2,
+                profile: reviveProfile(
+                  e2.profile,
+                  userDataProfilesService.profilesHome.scheme
+                )
+              }))
+            });
+          });
+        }, "onWillAddFirstListener"),
+        // Stop listening to profile storage changes when no one is listening
+        onDidRemoveLastListener: /* @__PURE__ */ __name(() => disposable.value = void 0, "onDidRemoveLastListener")
+      })
+    );
+    this.onDidChange = this._onDidChange.event;
+  }
+  static {
+    __name(this, "RemoteUserDataProfileStorageService");
+  }
+  _onDidChange;
+  onDidChange;
+  async createStorageDatabase(profile) {
+    const storageChannel = this.remoteService.getChannel("storage");
+    return isProfileUsingDefaultStorage(profile) ? new ApplicationStorageDatabaseClient(storageChannel) : new ProfileStorageDatabaseClient(storageChannel, profile);
+  }
+}
+class StorageService extends AbstractStorageService {
+  constructor(profileStorageDatabase) {
+    super({ flushInterval: 100 });
+    this.profileStorageDatabase = profileStorageDatabase;
+  }
+  static {
+    __name(this, "StorageService");
+  }
+  profileStorage;
+  async doInitialize() {
+    const profileStorageDatabase = await this.profileStorageDatabase;
+    const profileStorage = new Storage(profileStorageDatabase);
+    this._register(
+      profileStorage.onDidChangeStorage((e) => {
+        this.emitDidChangeValue(StorageScope.PROFILE, e);
+      })
+    );
+    this._register(
+      toDisposable(() => {
+        profileStorage.close();
+        profileStorage.dispose();
+        if (isDisposable(profileStorageDatabase)) {
+          profileStorageDatabase.dispose();
+        }
+      })
+    );
+    this.profileStorage = profileStorage;
+    return this.profileStorage.init();
+  }
+  getStorage(scope) {
+    return scope === StorageScope.PROFILE ? this.profileStorage : void 0;
+  }
+  getLogDetails() {
+    return void 0;
+  }
+  async switchToProfile() {
+  }
+  async switchToWorkspace() {
+  }
+  hasScope() {
+    return false;
+  }
+}
+export {
+  AbstractUserDataProfileStorageService,
+  IUserDataProfileStorageService,
+  RemoteUserDataProfileStorageService
+};
+//# sourceMappingURL=userDataProfileStorageService.js.map

@@ -1,1 +1,209 @@
-import{spawn as A}from"child_process";import{Promises as L}from"../../../base/common/async.js";import{CancellationTokenSource as U}from"../../../base/common/cancellation.js";import{toErrorMessage as h}from"../../../base/common/errorMessage.js";import{CancellationError as x,isCancellationError as P}from"../../../base/common/errors.js";import{clamp as $}from"../../../base/common/numbers.js";import{basename as I}from"../../../base/common/path.js";import{OS as k,isWindows as V}from"../../../base/common/platform.js";import{generateUuid as b}from"../../../base/common/uuid.js";import{getSystemShell as D}from"../../../base/node/shell.js";import{localize as N}from"../../../nls.js";import{isLaunchedFromCli as R}from"../../environment/node/argvHelper.js";let S;async function Y(n,o,c,m){return c["force-disable-user-env"]?(o.trace("resolveShellEnv(): skipped (--force-disable-user-env)"),{}):V?(o.trace("resolveShellEnv(): skipped (Windows)"),{}):R(m)&&!c["force-user-env"]?(o.trace("resolveShellEnv(): skipped (VSCODE_CLI is set)"),{}):(R(m)?o.trace("resolveShellEnv(): running (--force-user-env)"):o.trace("resolveShellEnv(): running (macOS/Linux)"),S||(S=L.withAsyncBody(async(e,u)=>{const s=new U;let p=1e4;const v=n.getValue("application.shellEnvironmentResolutionTimeout");typeof v=="number"&&(p=$(v,1,120)*1e3);const l=setTimeout(()=>{s.dispose(!0),u(new Error(N("resolveShellEnvTimeout","Unable to resolve your shell environment in a reasonable time. Please review your shell configuration and restart.")))},p);try{e(await J(o,s.token))}catch(i){!P(i)&&!s.token.isCancellationRequested?u(new Error(N("resolveShellEnvError","Unable to resolve your shell environment: {0}",h(i)))):e({})}finally{clearTimeout(l),s.dispose()}})),S)}async function J(n,o){const c=process.env.ELECTRON_RUN_AS_NODE;n.trace("getUnixShellEnvironment#runAsNode",c);const m=process.env.ELECTRON_NO_ATTACH_CONSOLE;n.trace("getUnixShellEnvironment#noAttach",m);const e=b().replace(/-/g,"").substr(0,12),u=new RegExp(e+"({.*})"+e),s={...process.env,ELECTRON_RUN_AS_NODE:"1",ELECTRON_NO_ATTACH_CONSOLE:"1",VSCODE_RESOLVING_ENVIRONMENT:"1"};n.trace("getUnixShellEnvironment#env",s);const p=await D(k,s);return n.trace("getUnixShellEnvironment#shell",p),new Promise((v,l)=>{if(o.isCancellationRequested)return l(new x);const i=I(p);let E,a;const d="";/^pwsh(-preview)?$/.test(i)?(E=`& '${process.execPath}' ${d} -p '''${e}'' + JSON.stringify(process.env) + ''${e}'''`,a=["-Login","-Command"]):i==="nu"?(E=`^'${process.execPath}' ${d} -p '"${e}" + JSON.stringify(process.env) + "${e}"'`,a=["-i","-l","-c"]):i==="xonsh"?(E=`import os, json; print("${e}", json.dumps(dict(os.environ)), "${e}")`,a=["-i","-l","-c"]):(E=`'${process.execPath}' ${d} -p '"${e}" + JSON.stringify(process.env) + "${e}"'`,i==="tcsh"||i==="csh"?a=["-ic"]:a=["-i","-l","-c"]),n.trace("getUnixShellEnvironment#spawn",JSON.stringify(a),E);const f=A(p,[...a,E],{detached:!0,stdio:["ignore","pipe","pipe"],env:s});o.onCancellationRequested(()=>(f.kill(),l(new x))),f.on("error",t=>{n.error("getUnixShellEnvironment#errorChildProcess",h(t)),l(t)});const O=[];f.stdout.on("data",t=>O.push(t));const C=[];f.stderr.on("data",t=>C.push(t)),f.on("close",(t,g)=>{const _=Buffer.concat(O).toString("utf8");n.trace("getUnixShellEnvironment#raw",_);const y=Buffer.concat(C).toString("utf8");if(y.trim()&&n.trace("getUnixShellEnvironment#stderr",y),t||g)return l(new Error(N("resolveShellEnvExitError","Unexpected exit code from spawned shell (code {0}, signal {1})",t,g)));const T=u.exec(_),w=T?T[1]:"{}";try{const r=JSON.parse(w);c?r.ELECTRON_RUN_AS_NODE=c:delete r.ELECTRON_RUN_AS_NODE,m?r.ELECTRON_NO_ATTACH_CONSOLE=m:delete r.ELECTRON_NO_ATTACH_CONSOLE,delete r.VSCODE_RESOLVING_ENVIRONMENT,delete r.XDG_RUNTIME_DIR,n.trace("getUnixShellEnvironment#result",r),v(r)}catch(r){n.error("getUnixShellEnvironment#errorCaught",h(r)),l(r)}})})}export{Y as getResolvedShellEnv};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { spawn } from "child_process";
+import { Promises } from "../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+import {
+  CancellationError,
+  isCancellationError
+} from "../../../base/common/errors.js";
+import { clamp } from "../../../base/common/numbers.js";
+import { basename } from "../../../base/common/path.js";
+import {
+  OS,
+  isWindows
+} from "../../../base/common/platform.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { getSystemShell } from "../../../base/node/shell.js";
+import { localize } from "../../../nls.js";
+import { isLaunchedFromCli } from "../../environment/node/argvHelper.js";
+let unixShellEnvPromise;
+async function getResolvedShellEnv(configurationService, logService, args, env) {
+  if (args["force-disable-user-env"]) {
+    logService.trace(
+      "resolveShellEnv(): skipped (--force-disable-user-env)"
+    );
+    return {};
+  } else if (isWindows) {
+    logService.trace("resolveShellEnv(): skipped (Windows)");
+    return {};
+  } else if (isLaunchedFromCli(env) && !args["force-user-env"]) {
+    logService.trace("resolveShellEnv(): skipped (VSCODE_CLI is set)");
+    return {};
+  } else {
+    if (isLaunchedFromCli(env)) {
+      logService.trace("resolveShellEnv(): running (--force-user-env)");
+    } else {
+      logService.trace("resolveShellEnv(): running (macOS/Linux)");
+    }
+    if (!unixShellEnvPromise) {
+      unixShellEnvPromise = Promises.withAsyncBody(
+        async (resolve, reject) => {
+          const cts = new CancellationTokenSource();
+          let timeoutValue = 1e4;
+          const configuredTimeoutValue = configurationService.getValue(
+            "application.shellEnvironmentResolutionTimeout"
+          );
+          if (typeof configuredTimeoutValue === "number") {
+            timeoutValue = clamp(configuredTimeoutValue, 1, 120) * 1e3;
+          }
+          const timeout = setTimeout(() => {
+            cts.dispose(true);
+            reject(
+              new Error(
+                localize(
+                  "resolveShellEnvTimeout",
+                  "Unable to resolve your shell environment in a reasonable time. Please review your shell configuration and restart."
+                )
+              )
+            );
+          }, timeoutValue);
+          try {
+            resolve(
+              await doResolveUnixShellEnv(logService, cts.token)
+            );
+          } catch (error) {
+            if (!isCancellationError(error) && !cts.token.isCancellationRequested) {
+              reject(
+                new Error(
+                  localize(
+                    "resolveShellEnvError",
+                    "Unable to resolve your shell environment: {0}",
+                    toErrorMessage(error)
+                  )
+                )
+              );
+            } else {
+              resolve({});
+            }
+          } finally {
+            clearTimeout(timeout);
+            cts.dispose();
+          }
+        }
+      );
+    }
+    return unixShellEnvPromise;
+  }
+}
+__name(getResolvedShellEnv, "getResolvedShellEnv");
+async function doResolveUnixShellEnv(logService, token) {
+  const runAsNode = process.env["ELECTRON_RUN_AS_NODE"];
+  logService.trace("getUnixShellEnvironment#runAsNode", runAsNode);
+  const noAttach = process.env["ELECTRON_NO_ATTACH_CONSOLE"];
+  logService.trace("getUnixShellEnvironment#noAttach", noAttach);
+  const mark = generateUuid().replace(/-/g, "").substr(0, 12);
+  const regex = new RegExp(mark + "({.*})" + mark);
+  const env = {
+    ...process.env,
+    ELECTRON_RUN_AS_NODE: "1",
+    ELECTRON_NO_ATTACH_CONSOLE: "1",
+    VSCODE_RESOLVING_ENVIRONMENT: "1"
+  };
+  logService.trace("getUnixShellEnvironment#env", env);
+  const systemShellUnix = await getSystemShell(OS, env);
+  logService.trace("getUnixShellEnvironment#shell", systemShellUnix);
+  return new Promise((resolve, reject) => {
+    if (token.isCancellationRequested) {
+      return reject(new CancellationError());
+    }
+    const name = basename(systemShellUnix);
+    let command, shellArgs;
+    const extraArgs = "";
+    if (/^pwsh(-preview)?$/.test(name)) {
+      command = `& '${process.execPath}' ${extraArgs} -p '''${mark}'' + JSON.stringify(process.env) + ''${mark}'''`;
+      shellArgs = ["-Login", "-Command"];
+    } else if (name === "nu") {
+      command = `^'${process.execPath}' ${extraArgs} -p '"${mark}" + JSON.stringify(process.env) + "${mark}"'`;
+      shellArgs = ["-i", "-l", "-c"];
+    } else if (name === "xonsh") {
+      command = `import os, json; print("${mark}", json.dumps(dict(os.environ)), "${mark}")`;
+      shellArgs = ["-i", "-l", "-c"];
+    } else {
+      command = `'${process.execPath}' ${extraArgs} -p '"${mark}" + JSON.stringify(process.env) + "${mark}"'`;
+      if (name === "tcsh" || name === "csh") {
+        shellArgs = ["-ic"];
+      } else {
+        shellArgs = ["-i", "-l", "-c"];
+      }
+    }
+    logService.trace(
+      "getUnixShellEnvironment#spawn",
+      JSON.stringify(shellArgs),
+      command
+    );
+    const child = spawn(systemShellUnix, [...shellArgs, command], {
+      detached: true,
+      stdio: ["ignore", "pipe", "pipe"],
+      env
+    });
+    token.onCancellationRequested(() => {
+      child.kill();
+      return reject(new CancellationError());
+    });
+    child.on("error", (err) => {
+      logService.error(
+        "getUnixShellEnvironment#errorChildProcess",
+        toErrorMessage(err)
+      );
+      reject(err);
+    });
+    const buffers = [];
+    child.stdout.on("data", (b) => buffers.push(b));
+    const stderr = [];
+    child.stderr.on("data", (b) => stderr.push(b));
+    child.on("close", (code, signal) => {
+      const raw = Buffer.concat(buffers).toString("utf8");
+      logService.trace("getUnixShellEnvironment#raw", raw);
+      const stderrStr = Buffer.concat(stderr).toString("utf8");
+      if (stderrStr.trim()) {
+        logService.trace("getUnixShellEnvironment#stderr", stderrStr);
+      }
+      if (code || signal) {
+        return reject(
+          new Error(
+            localize(
+              "resolveShellEnvExitError",
+              "Unexpected exit code from spawned shell (code {0}, signal {1})",
+              code,
+              signal
+            )
+          )
+        );
+      }
+      const match = regex.exec(raw);
+      const rawStripped = match ? match[1] : "{}";
+      try {
+        const env2 = JSON.parse(rawStripped);
+        if (runAsNode) {
+          env2["ELECTRON_RUN_AS_NODE"] = runAsNode;
+        } else {
+          delete env2["ELECTRON_RUN_AS_NODE"];
+        }
+        if (noAttach) {
+          env2["ELECTRON_NO_ATTACH_CONSOLE"] = noAttach;
+        } else {
+          delete env2["ELECTRON_NO_ATTACH_CONSOLE"];
+        }
+        delete env2["VSCODE_RESOLVING_ENVIRONMENT"];
+        delete env2["XDG_RUNTIME_DIR"];
+        logService.trace("getUnixShellEnvironment#result", env2);
+        resolve(env2);
+      } catch (err) {
+        logService.error(
+          "getUnixShellEnvironment#errorCaught",
+          toErrorMessage(err)
+        );
+        reject(err);
+      }
+    });
+  });
+}
+__name(doResolveUnixShellEnv, "doResolveUnixShellEnv");
+export {
+  getResolvedShellEnv
+};
+//# sourceMappingURL=shellEnv.js.map

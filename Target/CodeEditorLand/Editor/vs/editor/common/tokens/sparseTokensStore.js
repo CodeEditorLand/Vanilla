@@ -1,1 +1,204 @@
-import*as L from"../../../base/common/arrays.js";import{MetadataConsts as l}from"../encodedTokenAttributes.js";import{LineTokens as C}from"./lineTokens.js";class E{_pieces;_isComplete;_languageIdCodec;constructor(s){this._pieces=[],this._isComplete=!1,this._languageIdCodec=s}flush(){this._pieces=[],this._isComplete=!1}isEmpty(){return this._pieces.length===0}set(s,e){this._pieces=s||[],this._isComplete=e}setPartial(s,e){let i=s;if(e.length>0){const t=e[0].getRange(),a=e[e.length-1].getRange();if(!t||!a)return s;i=s.plusRange(t).plusRange(a)}let r=null;for(let t=0,a=this._pieces.length;t<a;t++){const o=this._pieces[t];if(o.endLineNumber<i.startLineNumber)continue;if(o.startLineNumber>i.endLineNumber){r=r||{index:t};break}if(o.removeTokens(i),o.isEmpty()){this._pieces.splice(t,1),t--,a--;continue}if(o.endLineNumber<i.startLineNumber)continue;if(o.startLineNumber>i.endLineNumber){r=r||{index:t};continue}const[n,g]=o.split(i);if(n.isEmpty()){r=r||{index:t};continue}g.isEmpty()||(this._pieces.splice(t,1,n,g),t++,a++,r=r||{index:t})}return r=r||{index:this._pieces.length},e.length>0&&(this._pieces=L.arrayInsert(this._pieces,r.index,e)),i}isComplete(){return this._isComplete}addSparseTokens(s,e){if(e.getLineContent().length===0)return e;const i=this._pieces;if(i.length===0)return e;const r=E._findFirstPieceWithLine(i,s),t=i[r].getLineTokens(s);if(!t)return e;const a=e.getCount(),o=t.getCount();let n=0;const g=[];let _=0,b=0;const d=(u,p)=>{u!==b&&(b=u,g[_++]=u,g[_++]=p)};for(let u=0;u<o;u++){const p=t.getStartCharacter(u),f=t.getEndCharacter(u),c=t.getMetadata(u),m=((c&l.SEMANTIC_USE_ITALIC?l.ITALIC_MASK:0)|(c&l.SEMANTIC_USE_BOLD?l.BOLD_MASK:0)|(c&l.SEMANTIC_USE_UNDERLINE?l.UNDERLINE_MASK:0)|(c&l.SEMANTIC_USE_STRIKETHROUGH?l.STRIKETHROUGH_MASK:0)|(c&l.SEMANTIC_USE_FOREGROUND?l.FOREGROUND_MASK:0)|(c&l.SEMANTIC_USE_BACKGROUND?l.BACKGROUND_MASK:0))>>>0,h=~m>>>0;for(;n<a&&e.getEndOffset(n)<=p;)d(e.getEndOffset(n),e.getMetadata(n)),n++;for(n<a&&e.getStartOffset(n)<p&&d(p,e.getMetadata(n));n<a&&e.getEndOffset(n)<f;)d(e.getEndOffset(n),e.getMetadata(n)&h|c&m),n++;if(n<a)d(f,e.getMetadata(n)&h|c&m),e.getEndOffset(n)===f&&n++;else{const M=Math.min(Math.max(0,n-1),a-1);d(f,e.getMetadata(M)&h|c&m)}}for(;n<a;)d(e.getEndOffset(n),e.getMetadata(n)),n++;return new C(new Uint32Array(g),e.getLineContent(),this._languageIdCodec)}static _findFirstPieceWithLine(s,e){let i=0,r=s.length-1;for(;i<r;){let t=i+Math.floor((r-i)/2);if(s[t].endLineNumber<e)i=t+1;else if(s[t].startLineNumber>e)r=t-1;else{for(;t>i&&s[t-1].startLineNumber<=e&&e<=s[t-1].endLineNumber;)t--;return t}}return i}acceptEdit(s,e,i,r,t){for(const a of this._pieces)a.acceptEdit(s,e,i,r,t)}}export{E as SparseTokensStore};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "../../../base/common/arrays.js";
+import { MetadataConsts } from "../encodedTokenAttributes.js";
+import { LineTokens } from "./lineTokens.js";
+class SparseTokensStore {
+  static {
+    __name(this, "SparseTokensStore");
+  }
+  _pieces;
+  _isComplete;
+  _languageIdCodec;
+  constructor(languageIdCodec) {
+    this._pieces = [];
+    this._isComplete = false;
+    this._languageIdCodec = languageIdCodec;
+  }
+  flush() {
+    this._pieces = [];
+    this._isComplete = false;
+  }
+  isEmpty() {
+    return this._pieces.length === 0;
+  }
+  set(pieces, isComplete) {
+    this._pieces = pieces || [];
+    this._isComplete = isComplete;
+  }
+  setPartial(_range, pieces) {
+    let range = _range;
+    if (pieces.length > 0) {
+      const _firstRange = pieces[0].getRange();
+      const _lastRange = pieces[pieces.length - 1].getRange();
+      if (!_firstRange || !_lastRange) {
+        return _range;
+      }
+      range = _range.plusRange(_firstRange).plusRange(_lastRange);
+    }
+    let insertPosition = null;
+    for (let i = 0, len = this._pieces.length; i < len; i++) {
+      const piece = this._pieces[i];
+      if (piece.endLineNumber < range.startLineNumber) {
+        continue;
+      }
+      if (piece.startLineNumber > range.endLineNumber) {
+        insertPosition = insertPosition || { index: i };
+        break;
+      }
+      piece.removeTokens(range);
+      if (piece.isEmpty()) {
+        this._pieces.splice(i, 1);
+        i--;
+        len--;
+        continue;
+      }
+      if (piece.endLineNumber < range.startLineNumber) {
+        continue;
+      }
+      if (piece.startLineNumber > range.endLineNumber) {
+        insertPosition = insertPosition || { index: i };
+        continue;
+      }
+      const [a, b] = piece.split(range);
+      if (a.isEmpty()) {
+        insertPosition = insertPosition || { index: i };
+        continue;
+      }
+      if (b.isEmpty()) {
+        continue;
+      }
+      this._pieces.splice(i, 1, a, b);
+      i++;
+      len++;
+      insertPosition = insertPosition || { index: i };
+    }
+    insertPosition = insertPosition || { index: this._pieces.length };
+    if (pieces.length > 0) {
+      this._pieces = arrays.arrayInsert(
+        this._pieces,
+        insertPosition.index,
+        pieces
+      );
+    }
+    return range;
+  }
+  isComplete() {
+    return this._isComplete;
+  }
+  addSparseTokens(lineNumber, aTokens) {
+    if (aTokens.getLineContent().length === 0) {
+      return aTokens;
+    }
+    const pieces = this._pieces;
+    if (pieces.length === 0) {
+      return aTokens;
+    }
+    const pieceIndex = SparseTokensStore._findFirstPieceWithLine(
+      pieces,
+      lineNumber
+    );
+    const bTokens = pieces[pieceIndex].getLineTokens(lineNumber);
+    if (!bTokens) {
+      return aTokens;
+    }
+    const aLen = aTokens.getCount();
+    const bLen = bTokens.getCount();
+    let aIndex = 0;
+    const result = [];
+    let resultLen = 0;
+    let lastEndOffset = 0;
+    const emitToken = /* @__PURE__ */ __name((endOffset, metadata) => {
+      if (endOffset === lastEndOffset) {
+        return;
+      }
+      lastEndOffset = endOffset;
+      result[resultLen++] = endOffset;
+      result[resultLen++] = metadata;
+    }, "emitToken");
+    for (let bIndex = 0; bIndex < bLen; bIndex++) {
+      const bStartCharacter = bTokens.getStartCharacter(bIndex);
+      const bEndCharacter = bTokens.getEndCharacter(bIndex);
+      const bMetadata = bTokens.getMetadata(bIndex);
+      const bMask = ((bMetadata & MetadataConsts.SEMANTIC_USE_ITALIC ? MetadataConsts.ITALIC_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_BOLD ? MetadataConsts.BOLD_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_UNDERLINE ? MetadataConsts.UNDERLINE_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_STRIKETHROUGH ? MetadataConsts.STRIKETHROUGH_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_FOREGROUND ? MetadataConsts.FOREGROUND_MASK : 0) | (bMetadata & MetadataConsts.SEMANTIC_USE_BACKGROUND ? MetadataConsts.BACKGROUND_MASK : 0)) >>> 0;
+      const aMask = ~bMask >>> 0;
+      while (aIndex < aLen && aTokens.getEndOffset(aIndex) <= bStartCharacter) {
+        emitToken(
+          aTokens.getEndOffset(aIndex),
+          aTokens.getMetadata(aIndex)
+        );
+        aIndex++;
+      }
+      if (aIndex < aLen && aTokens.getStartOffset(aIndex) < bStartCharacter) {
+        emitToken(bStartCharacter, aTokens.getMetadata(aIndex));
+      }
+      while (aIndex < aLen && aTokens.getEndOffset(aIndex) < bEndCharacter) {
+        emitToken(
+          aTokens.getEndOffset(aIndex),
+          aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask
+        );
+        aIndex++;
+      }
+      if (aIndex < aLen) {
+        emitToken(
+          bEndCharacter,
+          aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask
+        );
+        if (aTokens.getEndOffset(aIndex) === bEndCharacter) {
+          aIndex++;
+        }
+      } else {
+        const aMergeIndex = Math.min(Math.max(0, aIndex - 1), aLen - 1);
+        emitToken(
+          bEndCharacter,
+          aTokens.getMetadata(aMergeIndex) & aMask | bMetadata & bMask
+        );
+      }
+    }
+    while (aIndex < aLen) {
+      emitToken(
+        aTokens.getEndOffset(aIndex),
+        aTokens.getMetadata(aIndex)
+      );
+      aIndex++;
+    }
+    return new LineTokens(
+      new Uint32Array(result),
+      aTokens.getLineContent(),
+      this._languageIdCodec
+    );
+  }
+  static _findFirstPieceWithLine(pieces, lineNumber) {
+    let low = 0;
+    let high = pieces.length - 1;
+    while (low < high) {
+      let mid = low + Math.floor((high - low) / 2);
+      if (pieces[mid].endLineNumber < lineNumber) {
+        low = mid + 1;
+      } else if (pieces[mid].startLineNumber > lineNumber) {
+        high = mid - 1;
+      } else {
+        while (mid > low && pieces[mid - 1].startLineNumber <= lineNumber && lineNumber <= pieces[mid - 1].endLineNumber) {
+          mid--;
+        }
+        return mid;
+      }
+    }
+    return low;
+  }
+  acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode) {
+    for (const piece of this._pieces) {
+      piece.acceptEdit(
+        range,
+        eolCount,
+        firstLineLength,
+        lastLineLength,
+        firstCharCode
+      );
+    }
+  }
+}
+export {
+  SparseTokensStore
+};
+//# sourceMappingURL=sparseTokensStore.js.map

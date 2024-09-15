@@ -1,1 +1,64 @@
-var m=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var n=(s,i,e,t)=>{for(var r=t>1?void 0:t?v(i,e):i,o=s.length-1,a;o>=0;o--)(a=s[o])&&(r=(t?a(i,e,r):a(r))||r);return t&&r&&m(i,e,r),r},l=(s,i)=>(e,t)=>i(e,t,s);import{insert as d}from"../../../../base/common/arrays.js";import{raceCancellation as I}from"../../../../base/common/async.js";import{Disposable as P,toDisposable as f}from"../../../../base/common/lifecycle.js";import{ILogService as x}from"../../../../platform/log/common/log.js";let p=class extends P{constructor(e){super();this.logService=e}saveParticipants=[];addSaveParticipant(e){const t=d(this.saveParticipants,e);return f(()=>t())}async participate(e,t,r,o){e.textEditorModel?.pushStackElement();for(const a of this.saveParticipants){if(o.isCancellationRequested||!e.textEditorModel)break;try{const c=a.participate(e,t,r,o);await I(c,o)}catch(c){this.logService.error(c)}}e.textEditorModel?.pushStackElement()}dispose(){this.saveParticipants.splice(0,this.saveParticipants.length),super.dispose()}};p=n([l(0,x)],p);export{p as TextFileSaveParticipant};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { insert } from "../../../../base/common/arrays.js";
+import { raceCancellation } from "../../../../base/common/async.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let TextFileSaveParticipant = class extends Disposable {
+  constructor(logService) {
+    super();
+    this.logService = logService;
+  }
+  static {
+    __name(this, "TextFileSaveParticipant");
+  }
+  saveParticipants = [];
+  addSaveParticipant(participant) {
+    const remove = insert(this.saveParticipants, participant);
+    return toDisposable(() => remove());
+  }
+  async participate(model, context, progress, token) {
+    model.textEditorModel?.pushStackElement();
+    for (const saveParticipant of this.saveParticipants) {
+      if (token.isCancellationRequested || !model.textEditorModel) {
+        break;
+      }
+      try {
+        const promise = saveParticipant.participate(
+          model,
+          context,
+          progress,
+          token
+        );
+        await raceCancellation(promise, token);
+      } catch (err) {
+        this.logService.error(err);
+      }
+    }
+    model.textEditorModel?.pushStackElement();
+  }
+  dispose() {
+    this.saveParticipants.splice(0, this.saveParticipants.length);
+    super.dispose();
+  }
+};
+TextFileSaveParticipant = __decorateClass([
+  __decorateParam(0, ILogService)
+], TextFileSaveParticipant);
+export {
+  TextFileSaveParticipant
+};
+//# sourceMappingURL=textFileSaveParticipant.js.map

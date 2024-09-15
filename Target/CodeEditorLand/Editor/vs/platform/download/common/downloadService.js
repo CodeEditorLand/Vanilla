@@ -1,3 +1,57 @@
-var d=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var m=(s,e,t,i)=>{for(var r=i>1?void 0:i?p(e,t):e,o=s.length-1,a;o>=0;o--)(a=s[o])&&(r=(i?a(e,t,r):a(r))||r);return i&&r&&d(e,t,r),r},c=(s,e)=>(t,i)=>e(t,i,s);import{CancellationToken as f}from"../../../base/common/cancellation.js";import{Schemas as l}from"../../../base/common/network.js";import{IFileService as v}from"../../files/common/files.js";import{IRequestService as u,asTextOrError as S}from"../../request/common/request.js";let n=class{constructor(e,t){this.requestService=e;this.fileService=t}async download(e,t,i=f.None){if(e.scheme===l.file||e.scheme===l.vscodeRemote){await this.fileService.copy(e,t);return}const r={type:"GET",url:e.toString(!0)},o=await this.requestService.request(r,i);if(o.res.statusCode===200)await this.fileService.writeFile(t,o.stream);else{const a=await S(o);throw new Error(`Expected 200, got back ${o.res.statusCode} instead.
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Schemas } from "../../../base/common/network.js";
+import { IFileService } from "../../files/common/files.js";
+import {
+  IRequestService,
+  asTextOrError
+} from "../../request/common/request.js";
+let DownloadService = class {
+  constructor(requestService, fileService) {
+    this.requestService = requestService;
+    this.fileService = fileService;
+  }
+  static {
+    __name(this, "DownloadService");
+  }
+  async download(resource, target, cancellationToken = CancellationToken.None) {
+    if (resource.scheme === Schemas.file || resource.scheme === Schemas.vscodeRemote) {
+      await this.fileService.copy(resource, target);
+      return;
+    }
+    const options = { type: "GET", url: resource.toString(true) };
+    const context = await this.requestService.request(
+      options,
+      cancellationToken
+    );
+    if (context.res.statusCode === 200) {
+      await this.fileService.writeFile(target, context.stream);
+    } else {
+      const message = await asTextOrError(context);
+      throw new Error(
+        `Expected 200, got back ${context.res.statusCode} instead.
 
-${a}`)}}};n=m([c(0,u),c(1,v)],n);export{n as DownloadService};
+${message}`
+      );
+    }
+  }
+};
+DownloadService = __decorateClass([
+  __decorateParam(0, IRequestService),
+  __decorateParam(1, IFileService)
+], DownloadService);
+export {
+  DownloadService
+};
+//# sourceMappingURL=downloadService.js.map

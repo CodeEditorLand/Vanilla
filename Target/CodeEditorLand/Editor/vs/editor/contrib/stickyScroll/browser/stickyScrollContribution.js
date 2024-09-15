@@ -1,1 +1,26 @@
-import{registerAction2 as o}from"../../../../platform/actions/common/actions.js";import{EditorContributionInstantiation as r,registerEditorContribution as i}from"../../../browser/editorExtensions.js";import{FocusStickyScroll as e,GoToStickyScrollLine as l,SelectEditor as c,SelectNextStickyScrollLine as S,SelectPreviousStickyScrollLine as n,ToggleStickyScroll as m}from"./stickyScrollActions.js";import{StickyScrollController as t}from"./stickyScrollController.js";i(t.ID,t,r.AfterFirstRender),o(m),o(e),o(n),o(S),o(l),o(c);
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import {
+  FocusStickyScroll,
+  GoToStickyScrollLine,
+  SelectEditor,
+  SelectNextStickyScrollLine,
+  SelectPreviousStickyScrollLine,
+  ToggleStickyScroll
+} from "./stickyScrollActions.js";
+import { StickyScrollController } from "./stickyScrollController.js";
+registerEditorContribution(
+  StickyScrollController.ID,
+  StickyScrollController,
+  EditorContributionInstantiation.AfterFirstRender
+);
+registerAction2(ToggleStickyScroll);
+registerAction2(FocusStickyScroll);
+registerAction2(SelectPreviousStickyScrollLine);
+registerAction2(SelectNextStickyScrollLine);
+registerAction2(GoToStickyScrollLine);
+registerAction2(SelectEditor);
+//# sourceMappingURL=stickyScrollContribution.js.map

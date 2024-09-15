@@ -1,1 +1,102 @@
-import{EditorExtensionsRegistry as d}from"../../../../editor/browser/editorExtensions.js";import{ContextMenuController as l}from"../../../../editor/contrib/contextmenu/browser/contextmenu.js";import{SnippetController2 as s}from"../../../../editor/contrib/snippet/browser/snippetController2.js";import{SuggestController as a}from"../../../../editor/contrib/suggest/browser/suggestController.js";import{editorSelectionBackground as p,inputBackground as u,inputForeground as g,selectionBackground as m}from"../../../../platform/theme/common/colorRegistry.js";import{registerThemingParticipant as c}from"../../../../platform/theme/common/themeService.js";import{TabCompletionController as f}from"../../snippets/browser/tabCompletion.js";import{MenuPreventer as b}from"./menuPreventer.js";import{SelectionClipboardContributionID as C}from"./selectionClipboard.js";function R(o){return{wordWrap:"on",overviewRulerLanes:0,glyphMargin:!1,lineNumbers:"off",folding:!1,selectOnLineNumbers:!1,hideCursorInOverviewRuler:!0,selectionHighlight:!1,scrollbar:{horizontal:"hidden",alwaysConsumeMouseWheel:!1},lineDecorationsWidth:0,overviewRulerBorder:!1,scrollBeyondLastLine:!1,renderLineHighlight:"none",fixedOverflowWidgets:!0,acceptSuggestionOnEnter:"smart",dragAndDrop:!1,revealHorizontalRightPadding:5,minimap:{enabled:!1},guides:{indentation:!1},accessibilitySupport:o.getValue("editor.accessibilitySupport"),cursorBlinking:o.getValue("editor.cursorBlinking"),experimentalEditContextEnabled:o.getValue("editor.experimentalEditContextEnabled")}}function S(){return{isSimpleWidget:!0,contributions:d.getSomeEditorContributions([b.ID,C,l.ID,a.ID,s.ID,f.ID])}}function $(o){return c((t,e)=>{const r=t.getColor(m);if(r){const i=t.getColor(u);i&&(e.addRule(`${o} .monaco-editor-background { background-color: ${i}; } `),e.addRule(`${o} .monaco-editor .selected-text { background-color: ${i.transparent(.4)}; }`));const n=t.getColor(g);n&&e.addRule(`${o} .monaco-editor .view-line span.inline-selected-text { color: ${n}; }`),e.addRule(`${o} .monaco-editor .focused .selected-text { background-color: ${r}; }`)}else e.addRule(`${o} .monaco-editor .focused .selected-text { background-color: ${t.getColor(p)}; }`)})}export{S as getSimpleCodeEditorWidgetOptions,R as getSimpleEditorOptions,$ as setupSimpleEditorSelectionStyling};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { ContextMenuController } from "../../../../editor/contrib/contextmenu/browser/contextmenu.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import {
+  editorSelectionBackground,
+  inputBackground,
+  inputForeground,
+  selectionBackground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { TabCompletionController } from "../../snippets/browser/tabCompletion.js";
+import { MenuPreventer } from "./menuPreventer.js";
+import { SelectionClipboardContributionID } from "./selectionClipboard.js";
+function getSimpleEditorOptions(configurationService) {
+  return {
+    wordWrap: "on",
+    overviewRulerLanes: 0,
+    glyphMargin: false,
+    lineNumbers: "off",
+    folding: false,
+    selectOnLineNumbers: false,
+    hideCursorInOverviewRuler: true,
+    selectionHighlight: false,
+    scrollbar: {
+      horizontal: "hidden",
+      alwaysConsumeMouseWheel: false
+    },
+    lineDecorationsWidth: 0,
+    overviewRulerBorder: false,
+    scrollBeyondLastLine: false,
+    renderLineHighlight: "none",
+    fixedOverflowWidgets: true,
+    acceptSuggestionOnEnter: "smart",
+    dragAndDrop: false,
+    revealHorizontalRightPadding: 5,
+    minimap: {
+      enabled: false
+    },
+    guides: {
+      indentation: false
+    },
+    accessibilitySupport: configurationService.getValue("editor.accessibilitySupport"),
+    cursorBlinking: configurationService.getValue("editor.cursorBlinking"),
+    experimentalEditContextEnabled: configurationService.getValue(
+      "editor.experimentalEditContextEnabled"
+    )
+  };
+}
+__name(getSimpleEditorOptions, "getSimpleEditorOptions");
+function getSimpleCodeEditorWidgetOptions() {
+  return {
+    isSimpleWidget: true,
+    contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+      MenuPreventer.ID,
+      SelectionClipboardContributionID,
+      ContextMenuController.ID,
+      SuggestController.ID,
+      SnippetController2.ID,
+      TabCompletionController.ID
+    ])
+  };
+}
+__name(getSimpleCodeEditorWidgetOptions, "getSimpleCodeEditorWidgetOptions");
+function setupSimpleEditorSelectionStyling(editorContainerSelector) {
+  return registerThemingParticipant((theme, collector) => {
+    const selectionBackgroundColor = theme.getColor(selectionBackground);
+    if (selectionBackgroundColor) {
+      const inputBackgroundColor = theme.getColor(inputBackground);
+      if (inputBackgroundColor) {
+        collector.addRule(
+          `${editorContainerSelector} .monaco-editor-background { background-color: ${inputBackgroundColor}; } `
+        );
+        collector.addRule(
+          `${editorContainerSelector} .monaco-editor .selected-text { background-color: ${inputBackgroundColor.transparent(0.4)}; }`
+        );
+      }
+      const inputForegroundColor = theme.getColor(inputForeground);
+      if (inputForegroundColor) {
+        collector.addRule(
+          `${editorContainerSelector} .monaco-editor .view-line span.inline-selected-text { color: ${inputForegroundColor}; }`
+        );
+      }
+      collector.addRule(
+        `${editorContainerSelector} .monaco-editor .focused .selected-text { background-color: ${selectionBackgroundColor}; }`
+      );
+    } else {
+      collector.addRule(
+        `${editorContainerSelector} .monaco-editor .focused .selected-text { background-color: ${theme.getColor(editorSelectionBackground)}; }`
+      );
+    }
+  });
+}
+__name(setupSimpleEditorSelectionStyling, "setupSimpleEditorSelectionStyling");
+export {
+  getSimpleCodeEditorWidgetOptions,
+  getSimpleEditorOptions,
+  setupSimpleEditorSelectionStyling
+};
+//# sourceMappingURL=simpleEditorOptions.js.map

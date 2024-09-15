@@ -1,1 +1,15 @@
-function t(o){return o&&typeof o=="object"&&typeof o.original=="string"&&typeof o.value=="string"}function n(o){return o?o.condition!==void 0:!1}export{n as isICommandActionToggleInfo,t as isLocalizedString};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function isLocalizedString(thing) {
+  return thing && typeof thing === "object" && typeof thing.original === "string" && typeof thing.value === "string";
+}
+__name(isLocalizedString, "isLocalizedString");
+function isICommandActionToggleInfo(thing) {
+  return thing ? thing.condition !== void 0 : false;
+}
+__name(isICommandActionToggleInfo, "isICommandActionToggleInfo");
+export {
+  isICommandActionToggleInfo,
+  isLocalizedString
+};
+//# sourceMappingURL=action.js.map

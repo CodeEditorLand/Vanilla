@@ -1,1 +1,93 @@
-import{isObject as i}from"../../../base/common/types.js";import{URI as p}from"../../../base/common/uri.js";import{createDecorator as c}from"../../../platform/instantiation/common/instantiation.js";const I=c("IWorkspaceEditService");class n{constructor(t){this.metadata=t}static convert(t){return t.edits.map(e=>{if(o.is(e))return o.lift(e);if(r.is(e))return r.lift(e);throw new Error("Unsupported edit")})}}class o extends n{constructor(e,a,d=void 0,s){super(s);this.resource=e;this.textEdit=a;this.versionId=d}static is(e){return e instanceof o?!0:i(e)&&p.isUri(e.resource)&&i(e.textEdit)}static lift(e){return e instanceof o?e:new o(e.resource,e.textEdit,e.versionId,e.metadata)}}class r extends n{constructor(e,a,d={},s){super(s);this.oldResource=e;this.newResource=a;this.options=d}static is(e){return e instanceof r?!0:i(e)&&(!!e.newResource||!!e.oldResource)}static lift(e){return e instanceof r?e:new r(e.oldResource,e.newResource,e.options,e.metadata)}}export{I as IBulkEditService,n as ResourceEdit,r as ResourceFileEdit,o as ResourceTextEdit};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isObject } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IBulkEditService = createDecorator(
+  "IWorkspaceEditService"
+);
+class ResourceEdit {
+  constructor(metadata) {
+    this.metadata = metadata;
+  }
+  static {
+    __name(this, "ResourceEdit");
+  }
+  static convert(edit) {
+    return edit.edits.map((edit2) => {
+      if (ResourceTextEdit.is(edit2)) {
+        return ResourceTextEdit.lift(edit2);
+      }
+      if (ResourceFileEdit.is(edit2)) {
+        return ResourceFileEdit.lift(edit2);
+      }
+      throw new Error("Unsupported edit");
+    });
+  }
+}
+class ResourceTextEdit extends ResourceEdit {
+  constructor(resource, textEdit, versionId = void 0, metadata) {
+    super(metadata);
+    this.resource = resource;
+    this.textEdit = textEdit;
+    this.versionId = versionId;
+  }
+  static {
+    __name(this, "ResourceTextEdit");
+  }
+  static is(candidate) {
+    if (candidate instanceof ResourceTextEdit) {
+      return true;
+    }
+    return isObject(candidate) && URI.isUri(candidate.resource) && isObject(candidate.textEdit);
+  }
+  static lift(edit) {
+    if (edit instanceof ResourceTextEdit) {
+      return edit;
+    } else {
+      return new ResourceTextEdit(
+        edit.resource,
+        edit.textEdit,
+        edit.versionId,
+        edit.metadata
+      );
+    }
+  }
+}
+class ResourceFileEdit extends ResourceEdit {
+  constructor(oldResource, newResource, options = {}, metadata) {
+    super(metadata);
+    this.oldResource = oldResource;
+    this.newResource = newResource;
+    this.options = options;
+  }
+  static {
+    __name(this, "ResourceFileEdit");
+  }
+  static is(candidate) {
+    if (candidate instanceof ResourceFileEdit) {
+      return true;
+    } else {
+      return isObject(candidate) && (Boolean(candidate.newResource) || Boolean(candidate.oldResource));
+    }
+  }
+  static lift(edit) {
+    if (edit instanceof ResourceFileEdit) {
+      return edit;
+    } else {
+      return new ResourceFileEdit(
+        edit.oldResource,
+        edit.newResource,
+        edit.options,
+        edit.metadata
+      );
+    }
+  }
+}
+export {
+  IBulkEditService,
+  ResourceEdit,
+  ResourceFileEdit,
+  ResourceTextEdit
+};
+//# sourceMappingURL=bulkEditService.js.map

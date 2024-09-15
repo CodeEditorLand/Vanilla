@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("quickDiff");export{r as IQuickDiffService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IQuickDiffService = createDecorator("quickDiff");
+export {
+  IQuickDiffService
+};
+//# sourceMappingURL=quickDiff.js.map

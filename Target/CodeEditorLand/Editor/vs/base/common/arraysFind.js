@@ -1,1 +1,176 @@
-function T(n,o){const e=l(n,o);if(e!==-1)return n[e]}function l(n,o,e=n.length-1){for(let t=e;t>=0;t--){const i=n[t];if(o(i))return t}return-1}function c(n,o){const e=u(n,o);return e===-1?void 0:n[e]}function u(n,o,e=0,t=n.length){let i=e,r=t;for(;i<r;){const d=Math.floor((i+r)/2);o(n[d])?i=d+1:r=d}return i-1}function x(n,o){const e=f(n,o);return e===n.length?void 0:n[e]}function f(n,o,e=0,t=n.length){let i=e,r=t;for(;i<r;){const d=Math.floor((i+r)/2);o(n[d])?r=d:i=d+1}return i}function m(n,o,e=0,t=n.length){const i=f(n,o,e,t);return i===n.length?-1:i}class s{constructor(o){this._array=o}static assertInvariants=!1;_findLastMonotonousLastIdx=0;_prevFindLastPredicate;findLastMonotonous(o){if(s.assertInvariants){if(this._prevFindLastPredicate){for(const t of this._array)if(this._prevFindLastPredicate(t)&&!o(t))throw new Error("MonotonousArray: current predicate must be weaker than (or equal to) the previous predicate.")}this._prevFindLastPredicate=o}const e=u(this._array,o,this._findLastMonotonousLastIdx);return this._findLastMonotonousLastIdx=e+1,e===-1?void 0:this._array[e]}}function a(n,o){if(n.length===0)return;let e=n[0];for(let t=1;t<n.length;t++){const i=n[t];o(i,e)>0&&(e=i)}return e}function p(n,o){if(n.length===0)return;let e=n[0];for(let t=1;t<n.length;t++){const i=n[t];o(i,e)>=0&&(e=i)}return e}function h(n,o){return a(n,(e,t)=>-o(e,t))}function b(n,o){if(n.length===0)return-1;let e=0;for(let t=1;t<n.length;t++){const i=n[t];o(i,n[e])>0&&(e=t)}return e}function L(n,o){for(const e of n){const t=o(e);if(t!==void 0)return t}}export{s as MonotonousArray,m as findFirstIdxMonotonous,f as findFirstIdxMonotonousOrArrLen,a as findFirstMax,h as findFirstMin,x as findFirstMonotonous,T as findLast,l as findLastIdx,u as findLastIdxMonotonous,p as findLastMax,c as findLastMonotonous,b as findMaxIdx,L as mapFindFirst};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function findLast(array, predicate) {
+  const idx = findLastIdx(array, predicate);
+  if (idx === -1) {
+    return void 0;
+  }
+  return array[idx];
+}
+__name(findLast, "findLast");
+function findLastIdx(array, predicate, fromIndex = array.length - 1) {
+  for (let i = fromIndex; i >= 0; i--) {
+    const element = array[i];
+    if (predicate(element)) {
+      return i;
+    }
+  }
+  return -1;
+}
+__name(findLastIdx, "findLastIdx");
+function findLastMonotonous(array, predicate) {
+  const idx = findLastIdxMonotonous(array, predicate);
+  return idx === -1 ? void 0 : array[idx];
+}
+__name(findLastMonotonous, "findLastMonotonous");
+function findLastIdxMonotonous(array, predicate, startIdx = 0, endIdxEx = array.length) {
+  let i = startIdx;
+  let j = endIdxEx;
+  while (i < j) {
+    const k = Math.floor((i + j) / 2);
+    if (predicate(array[k])) {
+      i = k + 1;
+    } else {
+      j = k;
+    }
+  }
+  return i - 1;
+}
+__name(findLastIdxMonotonous, "findLastIdxMonotonous");
+function findFirstMonotonous(array, predicate) {
+  const idx = findFirstIdxMonotonousOrArrLen(array, predicate);
+  return idx === array.length ? void 0 : array[idx];
+}
+__name(findFirstMonotonous, "findFirstMonotonous");
+function findFirstIdxMonotonousOrArrLen(array, predicate, startIdx = 0, endIdxEx = array.length) {
+  let i = startIdx;
+  let j = endIdxEx;
+  while (i < j) {
+    const k = Math.floor((i + j) / 2);
+    if (predicate(array[k])) {
+      j = k;
+    } else {
+      i = k + 1;
+    }
+  }
+  return i;
+}
+__name(findFirstIdxMonotonousOrArrLen, "findFirstIdxMonotonousOrArrLen");
+function findFirstIdxMonotonous(array, predicate, startIdx = 0, endIdxEx = array.length) {
+  const idx = findFirstIdxMonotonousOrArrLen(
+    array,
+    predicate,
+    startIdx,
+    endIdxEx
+  );
+  return idx === array.length ? -1 : idx;
+}
+__name(findFirstIdxMonotonous, "findFirstIdxMonotonous");
+class MonotonousArray {
+  constructor(_array) {
+    this._array = _array;
+  }
+  static {
+    __name(this, "MonotonousArray");
+  }
+  static assertInvariants = false;
+  _findLastMonotonousLastIdx = 0;
+  _prevFindLastPredicate;
+  /**
+   * The predicate must be monotonous, i.e. `arr.map(predicate)` must be like `[true, ..., true, false, ..., false]`!
+   * For subsequent calls, current predicate must be weaker than (or equal to) the previous predicate, i.e. more entries must be `true`.
+   */
+  findLastMonotonous(predicate) {
+    if (MonotonousArray.assertInvariants) {
+      if (this._prevFindLastPredicate) {
+        for (const item of this._array) {
+          if (this._prevFindLastPredicate(item) && !predicate(item)) {
+            throw new Error(
+              "MonotonousArray: current predicate must be weaker than (or equal to) the previous predicate."
+            );
+          }
+        }
+      }
+      this._prevFindLastPredicate = predicate;
+    }
+    const idx = findLastIdxMonotonous(
+      this._array,
+      predicate,
+      this._findLastMonotonousLastIdx
+    );
+    this._findLastMonotonousLastIdx = idx + 1;
+    return idx === -1 ? void 0 : this._array[idx];
+  }
+}
+function findFirstMax(array, comparator) {
+  if (array.length === 0) {
+    return void 0;
+  }
+  let max = array[0];
+  for (let i = 1; i < array.length; i++) {
+    const item = array[i];
+    if (comparator(item, max) > 0) {
+      max = item;
+    }
+  }
+  return max;
+}
+__name(findFirstMax, "findFirstMax");
+function findLastMax(array, comparator) {
+  if (array.length === 0) {
+    return void 0;
+  }
+  let max = array[0];
+  for (let i = 1; i < array.length; i++) {
+    const item = array[i];
+    if (comparator(item, max) >= 0) {
+      max = item;
+    }
+  }
+  return max;
+}
+__name(findLastMax, "findLastMax");
+function findFirstMin(array, comparator) {
+  return findFirstMax(array, (a, b) => -comparator(a, b));
+}
+__name(findFirstMin, "findFirstMin");
+function findMaxIdx(array, comparator) {
+  if (array.length === 0) {
+    return -1;
+  }
+  let maxIdx = 0;
+  for (let i = 1; i < array.length; i++) {
+    const item = array[i];
+    if (comparator(item, array[maxIdx]) > 0) {
+      maxIdx = i;
+    }
+  }
+  return maxIdx;
+}
+__name(findMaxIdx, "findMaxIdx");
+function mapFindFirst(items, mapFn) {
+  for (const value of items) {
+    const mapped = mapFn(value);
+    if (mapped !== void 0) {
+      return mapped;
+    }
+  }
+  return void 0;
+}
+__name(mapFindFirst, "mapFindFirst");
+export {
+  MonotonousArray,
+  findFirstIdxMonotonous,
+  findFirstIdxMonotonousOrArrLen,
+  findFirstMax,
+  findFirstMin,
+  findFirstMonotonous,
+  findLast,
+  findLastIdx,
+  findLastIdxMonotonous,
+  findLastMax,
+  findLastMonotonous,
+  findMaxIdx,
+  mapFindFirst
+};
+//# sourceMappingURL=arraysFind.js.map

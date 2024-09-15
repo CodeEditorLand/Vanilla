@@ -1,1 +1,27 @@
-import{localize as o}from"../../../../nls.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import{CHAT_PROVIDER_ID as n}from"../common/chatParticipantContribTypes.js";const s=e("chatWidgetService");async function c(t){return(await t.openView(i))?.widget}const l=e("quickChatService"),C=e("chatAccessibilityService"),I=e("chatCodeBlockContextProviderService"),p=o("generating","Generating"),i=`workbench.panel.chat.view.${n}`;export{i as CHAT_VIEW_ID,p as GeneratingPhrase,C as IChatAccessibilityService,I as IChatCodeBlockContextProviderService,s as IChatWidgetService,l as IQuickChatService,c as showChatView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { CHAT_PROVIDER_ID } from "../common/chatParticipantContribTypes.js";
+const IChatWidgetService = createDecorator("chatWidgetService");
+async function showChatView(viewsService) {
+  return (await viewsService.openView(CHAT_VIEW_ID))?.widget;
+}
+__name(showChatView, "showChatView");
+const IQuickChatService = createDecorator("quickChatService");
+const IChatAccessibilityService = createDecorator("chatAccessibilityService");
+const IChatCodeBlockContextProviderService = createDecorator(
+  "chatCodeBlockContextProviderService"
+);
+const GeneratingPhrase = localize("generating", "Generating");
+const CHAT_VIEW_ID = `workbench.panel.chat.view.${CHAT_PROVIDER_ID}`;
+export {
+  CHAT_VIEW_ID,
+  GeneratingPhrase,
+  IChatAccessibilityService,
+  IChatCodeBlockContextProviderService,
+  IChatWidgetService,
+  IQuickChatService,
+  showChatView
+};
+//# sourceMappingURL=chat.js.map

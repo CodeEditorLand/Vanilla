@@ -1,1 +1,85 @@
-var y=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var l=(i,o,t,r)=>{for(var e=r>1?void 0:r?d(o,t):o,n=i.length-1,a;n>=0;n--)(a=i[n])&&(e=(r?a(o,t,e):a(e))||e);return r&&e&&y(o,t,e),e},p=(i,o)=>(t,r)=>o(t,r,i);import{raceCancellationError as S}from"../../../base/common/async.js";import{localize as v}from"../../../nls.js";import{IInstantiationService as I}from"../../../platform/instantiation/common/instantiation.js";import{NotebookFileWorkingCopyModel as C}from"../../contrib/notebook/common/notebookEditorModel.js";import{extHostCustomer as g}from"../../services/extensions/common/extHostCustomers.js";import{IWorkingCopyFileService as k}from"../../services/workingCopy/common/workingCopyFileService.js";import{ExtHostContext as x}from"../common/extHost.protocol.js";class f{_proxy;constructor(o){this._proxy=o.getProxy(x.ExtHostNotebookDocumentSaveParticipant)}async participate(o,t,r,e){if(!o.model||!(o.model instanceof C))return;let n;const a=new Promise((m,c)=>{n=setTimeout(()=>c(new Error(v("timeout.onWillSave","Aborted onWillSaveNotebookDocument-event after 1750ms"))),1750),this._proxy.$participateInSave(o.resource,t.reason,e).then(u=>{clearTimeout(n)}).then(m,c)});return S(a,e)}}let s=class{constructor(o,t,r){this.workingCopyFileService=r;this._saveParticipantDisposable=this.workingCopyFileService.addSaveParticipant(t.createInstance(f,o))}_saveParticipantDisposable;dispose(){this._saveParticipantDisposable.dispose()}};s=l([g,p(1,I),p(2,k)],s);export{s as SaveParticipant};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { raceCancellationError } from "../../../base/common/async.js";
+import { localize } from "../../../nls.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { NotebookFileWorkingCopyModel } from "../../contrib/notebook/common/notebookEditorModel.js";
+import {
+  extHostCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  IWorkingCopyFileService
+} from "../../services/workingCopy/common/workingCopyFileService.js";
+import {
+  ExtHostContext
+} from "../common/extHost.protocol.js";
+class ExtHostNotebookDocumentSaveParticipant {
+  static {
+    __name(this, "ExtHostNotebookDocumentSaveParticipant");
+  }
+  _proxy;
+  constructor(extHostContext) {
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostNotebookDocumentSaveParticipant
+    );
+  }
+  async participate(workingCopy, context, _progress, token) {
+    if (!workingCopy.model || !(workingCopy.model instanceof NotebookFileWorkingCopyModel)) {
+      return void 0;
+    }
+    let _warningTimeout;
+    const p = new Promise((resolve, reject) => {
+      _warningTimeout = setTimeout(
+        () => reject(
+          new Error(
+            localize(
+              "timeout.onWillSave",
+              "Aborted onWillSaveNotebookDocument-event after 1750ms"
+            )
+          )
+        ),
+        1750
+      );
+      this._proxy.$participateInSave(workingCopy.resource, context.reason, token).then((_) => {
+        clearTimeout(_warningTimeout);
+        return void 0;
+      }).then(resolve, reject);
+    });
+    return raceCancellationError(p, token);
+  }
+}
+let SaveParticipant = class {
+  constructor(extHostContext, instantiationService, workingCopyFileService) {
+    this.workingCopyFileService = workingCopyFileService;
+    this._saveParticipantDisposable = this.workingCopyFileService.addSaveParticipant(
+      instantiationService.createInstance(
+        ExtHostNotebookDocumentSaveParticipant,
+        extHostContext
+      )
+    );
+  }
+  _saveParticipantDisposable;
+  dispose() {
+    this._saveParticipantDisposable.dispose();
+  }
+};
+__name(SaveParticipant, "SaveParticipant");
+SaveParticipant = __decorateClass([
+  extHostCustomer,
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IWorkingCopyFileService)
+], SaveParticipant);
+export {
+  SaveParticipant
+};
+//# sourceMappingURL=mainThreadNotebookSaveParticipant.js.map

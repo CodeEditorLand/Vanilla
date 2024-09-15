@@ -1,1 +1,44 @@
-var s=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var b=(i,e,n,r)=>{for(var o=r>1?void 0:r?p(e,n):e,c=i.length-1,m;c>=0;c--)(m=i[c])&&(o=(r?m(e,n,o):m(o))||o);return r&&o&&s(e,n,o),o},a=(i,e)=>(n,r)=>e(n,r,i);import{InstantiationType as h,registerSingleton as l}from"../../../../platform/instantiation/common/extensions.js";import{WorkbenchPhase as u,registerWorkbenchContribution2 as I}from"../../../common/contributions.js";import{ITextMateTokenizationService as k}from"./textMateTokenizationFeature.js";import{TextMateTokenizationFeature as f}from"./textMateTokenizationFeatureImpl.js";let t=class{static ID="workbench.contrib.textMateTokenizationInstantiator";constructor(e){}};t=b([a(0,k)],t),l(k,f,h.Eager),I(t.ID,t,u.BlockRestore);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  WorkbenchPhase,
+  registerWorkbenchContribution2
+} from "../../../common/contributions.js";
+import { ITextMateTokenizationService } from "./textMateTokenizationFeature.js";
+import { TextMateTokenizationFeature } from "./textMateTokenizationFeatureImpl.js";
+let TextMateTokenizationInstantiator = class {
+  static {
+    __name(this, "TextMateTokenizationInstantiator");
+  }
+  static ID = "workbench.contrib.textMateTokenizationInstantiator";
+  constructor(_textMateTokenizationService) {
+  }
+};
+TextMateTokenizationInstantiator = __decorateClass([
+  __decorateParam(0, ITextMateTokenizationService)
+], TextMateTokenizationInstantiator);
+registerSingleton(
+  ITextMateTokenizationService,
+  TextMateTokenizationFeature,
+  InstantiationType.Eager
+);
+registerWorkbenchContribution2(
+  TextMateTokenizationInstantiator.ID,
+  TextMateTokenizationInstantiator,
+  WorkbenchPhase.BlockRestore
+);
+//# sourceMappingURL=textMateTokenizationFeature.contribution.js.map

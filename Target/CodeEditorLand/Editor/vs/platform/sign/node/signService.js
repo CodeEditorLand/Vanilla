@@ -1,1 +1,28 @@
-import{importAMDNodeModule as t}from"../../../amdX.js";import{AbstractSignService as i}from"../common/abstractSignService.js";class n extends i{getValidator(){return this.vsda().then(e=>new e.validator)}signValue(e){return this.vsda().then(r=>new r.signer().sign(e))}async vsda(){const e="vsda",{default:r}=await import(e);return r}}export{n as SignService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { importAMDNodeModule } from "../../../amdX.js";
+import {
+  AbstractSignService
+} from "../common/abstractSignService.js";
+class SignService extends AbstractSignService {
+  static {
+    __name(this, "SignService");
+  }
+  getValidator() {
+    return this.vsda().then((vsda) => new vsda.validator());
+  }
+  signValue(arg) {
+    return this.vsda().then((vsda) => new vsda.signer().sign(arg));
+  }
+  async vsda() {
+    if (typeof importAMDNodeModule === "function") {
+    }
+    const mod = "vsda";
+    const { default: vsda } = await import(mod);
+    return vsda;
+  }
+}
+export {
+  SignService
+};
+//# sourceMappingURL=signService.js.map

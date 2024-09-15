@@ -1,1 +1,68 @@
-var p=Object.defineProperty;var a=Object.getOwnPropertyDescriptor;var m=(i,e,s,t)=>{for(var o=t>1?void 0:t?a(e,s):e,n=i.length-1,d;n>=0;n--)(d=i[n])&&(o=(t?d(e,s,o):d(o))||o);return t&&o&&p(e,s,o),o},c=(i,e)=>(s,t)=>e(s,t,i);import{Codicon as g}from"../../../../base/common/codicons.js";import{Schemas as f}from"../../../../base/common/network.js";import{URI as I}from"../../../../base/common/uri.js";import*as l from"../../../../nls.js";import{registerIcon as h}from"../../../../platform/theme/common/iconRegistry.js";import{EditorInput as v}from"../../../common/editor/editorInput.js";import{IPreferencesService as u}from"./preferences.js";const y=h("settings-editor-label-icon",g.settings,l.localize("settingsEditorLabelIcon","Icon of the settings editor label."));let r=class extends v{static ID="workbench.input.settings2";_settingsModel;resource=I.from({scheme:f.vscodeSettings,path:"settingseditor"});constructor(e){super(),this._settingsModel=e.createSettings2EditorModel()}matches(e){return super.matches(e)||e instanceof r}get typeId(){return r.ID}getName(){return l.localize("settingsEditor2InputName","Settings")}getIcon(){return y}async resolve(){return this._settingsModel}dispose(){this._settingsModel.dispose(),super.dispose()}};r=m([c(0,u)],r);export{r as SettingsEditor2Input};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IPreferencesService } from "./preferences.js";
+const SettingsEditorIcon = registerIcon(
+  "settings-editor-label-icon",
+  Codicon.settings,
+  nls.localize(
+    "settingsEditorLabelIcon",
+    "Icon of the settings editor label."
+  )
+);
+let SettingsEditor2Input = class extends EditorInput {
+  static {
+    __name(this, "SettingsEditor2Input");
+  }
+  static ID = "workbench.input.settings2";
+  _settingsModel;
+  resource = URI.from({
+    scheme: Schemas.vscodeSettings,
+    path: `settingseditor`
+  });
+  constructor(_preferencesService) {
+    super();
+    this._settingsModel = _preferencesService.createSettings2EditorModel();
+  }
+  matches(otherInput) {
+    return super.matches(otherInput) || otherInput instanceof SettingsEditor2Input;
+  }
+  get typeId() {
+    return SettingsEditor2Input.ID;
+  }
+  getName() {
+    return nls.localize("settingsEditor2InputName", "Settings");
+  }
+  getIcon() {
+    return SettingsEditorIcon;
+  }
+  async resolve() {
+    return this._settingsModel;
+  }
+  dispose() {
+    this._settingsModel.dispose();
+    super.dispose();
+  }
+};
+SettingsEditor2Input = __decorateClass([
+  __decorateParam(0, IPreferencesService)
+], SettingsEditor2Input);
+export {
+  SettingsEditor2Input
+};
+//# sourceMappingURL=preferencesEditorInput.js.map

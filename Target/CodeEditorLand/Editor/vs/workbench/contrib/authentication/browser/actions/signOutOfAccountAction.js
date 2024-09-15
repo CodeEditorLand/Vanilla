@@ -1,6 +1,82 @@
-import S from"../../../../../base/common/severity.js";import{localize as o}from"../../../../../nls.js";import{Action2 as l}from"../../../../../platform/actions/common/actions.js";import{IDialogService as p}from"../../../../../platform/dialogs/common/dialogs.js";import{IAuthenticationAccessService as v}from"../../../../services/authentication/browser/authenticationAccessService.js";import{IAuthenticationUsageService as A}from"../../../../services/authentication/browser/authenticationUsageService.js";import{IAuthenticationService as h}from"../../../../services/authentication/common/authentication.js";class j extends l{constructor(){super({id:"_signOutOfAccount",title:o("signOutOfAccount","Sign out of account"),f1:!1})}async run(i,{providerId:t,accountLabel:e}){const s=i.get(h),r=i.get(A),a=i.get(v),m=i.get(p);if(!t||!e)throw new Error("Invalid arguments. Expected: { providerId: string; accountLabel: string }");const g=(await s.getSessions(t)).filter(n=>n.account.label===e),c=r.readAccountUsages(t,e),{confirmed:u}=await m.confirm({type:S.Info,message:c.length?o("signOutMessage",`The account '{0}' has been used by: 
-
-{1}
-
- Sign out from these extensions?`,e,c.map(n=>n.extensionName).join(`
-`)):o("signOutMessageSimple","Sign out of '{0}'?",e),primaryButton:o({key:"signOut",comment:["&& denotes a mnemonic"]},"&&Sign Out")});if(u){const n=g.map(f=>s.removeSession(t,f.id));await Promise.all(n),r.removeAccountUsage(t,e),a.removeAllowedExtensions(t,e)}}}export{j as SignOutOfAccountAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import Severity from "../../../../../base/common/severity.js";
+import { localize } from "../../../../../nls.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IAuthenticationAccessService } from "../../../../services/authentication/browser/authenticationAccessService.js";
+import { IAuthenticationUsageService } from "../../../../services/authentication/browser/authenticationUsageService.js";
+import { IAuthenticationService } from "../../../../services/authentication/common/authentication.js";
+class SignOutOfAccountAction extends Action2 {
+  static {
+    __name(this, "SignOutOfAccountAction");
+  }
+  constructor() {
+    super({
+      id: "_signOutOfAccount",
+      title: localize("signOutOfAccount", "Sign out of account"),
+      f1: false
+    });
+  }
+  async run(accessor, {
+    providerId,
+    accountLabel
+  }) {
+    const authenticationService = accessor.get(IAuthenticationService);
+    const authenticationUsageService = accessor.get(
+      IAuthenticationUsageService
+    );
+    const authenticationAccessService = accessor.get(
+      IAuthenticationAccessService
+    );
+    const dialogService = accessor.get(IDialogService);
+    if (!providerId || !accountLabel) {
+      throw new Error(
+        "Invalid arguments. Expected: { providerId: string; accountLabel: string }"
+      );
+    }
+    const allSessions = await authenticationService.getSessions(providerId);
+    const sessions = allSessions.filter(
+      (s) => s.account.label === accountLabel
+    );
+    const accountUsages = authenticationUsageService.readAccountUsages(
+      providerId,
+      accountLabel
+    );
+    const { confirmed } = await dialogService.confirm({
+      type: Severity.Info,
+      message: accountUsages.length ? localize(
+        "signOutMessage",
+        "The account '{0}' has been used by: \n\n{1}\n\n Sign out from these extensions?",
+        accountLabel,
+        accountUsages.map((usage) => usage.extensionName).join("\n")
+      ) : localize(
+        "signOutMessageSimple",
+        "Sign out of '{0}'?",
+        accountLabel
+      ),
+      primaryButton: localize(
+        { key: "signOut", comment: ["&& denotes a mnemonic"] },
+        "&&Sign Out"
+      )
+    });
+    if (confirmed) {
+      const removeSessionPromises = sessions.map(
+        (session) => authenticationService.removeSession(providerId, session.id)
+      );
+      await Promise.all(removeSessionPromises);
+      authenticationUsageService.removeAccountUsage(
+        providerId,
+        accountLabel
+      );
+      authenticationAccessService.removeAllowedExtensions(
+        providerId,
+        accountLabel
+      );
+    }
+  }
+}
+export {
+  SignOutOfAccountAction
+};
+//# sourceMappingURL=signOutOfAccountAction.js.map

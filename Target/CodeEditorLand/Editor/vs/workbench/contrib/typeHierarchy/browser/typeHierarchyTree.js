@@ -1,1 +1,168 @@
-import{IconLabel as m}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{CancellationToken as p}from"../../../../base/common/cancellation.js";import{createMatches as d}from"../../../../base/common/filters.js";import{compare as u}from"../../../../base/common/strings.js";import{ThemeIcon as T}from"../../../../base/common/themables.js";import{Range as g}from"../../../../editor/common/core/range.js";import{SymbolKinds as b,SymbolTag as h}from"../../../../editor/common/languages.js";import{localize as s}from"../../../../nls.js";import{TypeHierarchyDirection as c,TypeHierarchyModel as I}from"../common/typeHierarchy.js";class n{constructor(e,r,t){this.item=e;this.model=r;this.parent=t}static compare(e,r){let t=u(e.item.uri.toString(),r.item.uri.toString());return t===0&&(t=g.compareRangesUsingStarts(e.item.range,r.item.range)),t}}class N{constructor(e){this.getDirection=e}hasChildren(){return!0}async getChildren(e){if(e instanceof I)return e.roots.map(i=>new n(i,e,void 0));const{model:r,item:t}=e;return this.getDirection()===c.Supertypes?(await r.provideSupertypes(t,p.None)).map(i=>new n(i,r,e)):(await r.provideSubtypes(t,p.None)).map(i=>new n(i,r,e))}}class z{compare(e,r){return n.compare(e,r)}}class M{constructor(e){this.getDirection=e}getId(e){let r=this.getDirection()+JSON.stringify(e.item.uri)+JSON.stringify(e.item.range);return e.parent&&(r+=this.getId(e.parent)),r}}class f{constructor(e,r){this.icon=e;this.label=r}}class a{static id="TypeRenderer";templateId=a.id;renderTemplate(e){e.classList.add("typehierarchy-element");const r=document.createElement("div");e.appendChild(r);const t=new m(e,{supportHighlights:!0});return new f(r,t)}renderElement(e,r,t){const{element:i,filterData:l}=e,y=i.item.tags?.includes(h.Deprecated);t.icon.classList.add("inline",...T.asClassNameArray(b.toIcon(i.item.kind))),t.label.setLabel(i.item.name,i.item.detail,{labelEscapeNewLines:!0,matches:d(l),strikethrough:y})}disposeTemplate(e){e.label.dispose()}}class P{getHeight(e){return 22}getTemplateId(e){return a.id}}class C{constructor(e){this.getDirection=e}getWidgetAriaLabel(){return s("tree.aria","Type Hierarchy")}getAriaLabel(e){return this.getDirection()===c.Supertypes?s("supertypes","supertypes of {0}",e.item.name):s("subtypes","subtypes of {0}",e.item.name)}}export{C as AccessibilityProvider,N as DataSource,M as IdentityProvider,z as Sorter,n as Type,a as TypeRenderer,P as VirtualDelegate};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import {
+  createMatches
+} from "../../../../base/common/filters.js";
+import { compare } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { SymbolKinds, SymbolTag } from "../../../../editor/common/languages.js";
+import { localize } from "../../../../nls.js";
+import {
+  TypeHierarchyDirection,
+  TypeHierarchyModel
+} from "../common/typeHierarchy.js";
+class Type {
+  constructor(item, model, parent) {
+    this.item = item;
+    this.model = model;
+    this.parent = parent;
+  }
+  static {
+    __name(this, "Type");
+  }
+  static compare(a, b) {
+    let res = compare(a.item.uri.toString(), b.item.uri.toString());
+    if (res === 0) {
+      res = Range.compareRangesUsingStarts(a.item.range, b.item.range);
+    }
+    return res;
+  }
+}
+class DataSource {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "DataSource");
+  }
+  hasChildren() {
+    return true;
+  }
+  async getChildren(element) {
+    if (element instanceof TypeHierarchyModel) {
+      return element.roots.map(
+        (root) => new Type(root, element, void 0)
+      );
+    }
+    const { model, item } = element;
+    if (this.getDirection() === TypeHierarchyDirection.Supertypes) {
+      return (await model.provideSupertypes(item, CancellationToken.None)).map((item2) => {
+        return new Type(item2, model, element);
+      });
+    } else {
+      return (await model.provideSubtypes(item, CancellationToken.None)).map((item2) => {
+        return new Type(item2, model, element);
+      });
+    }
+  }
+}
+class Sorter {
+  static {
+    __name(this, "Sorter");
+  }
+  compare(element, otherElement) {
+    return Type.compare(element, otherElement);
+  }
+}
+class IdentityProvider {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "IdentityProvider");
+  }
+  getId(element) {
+    let res = this.getDirection() + JSON.stringify(element.item.uri) + JSON.stringify(element.item.range);
+    if (element.parent) {
+      res += this.getId(element.parent);
+    }
+    return res;
+  }
+}
+class TypeRenderingTemplate {
+  constructor(icon, label) {
+    this.icon = icon;
+    this.label = label;
+  }
+  static {
+    __name(this, "TypeRenderingTemplate");
+  }
+}
+class TypeRenderer {
+  static {
+    __name(this, "TypeRenderer");
+  }
+  static id = "TypeRenderer";
+  templateId = TypeRenderer.id;
+  renderTemplate(container) {
+    container.classList.add("typehierarchy-element");
+    const icon = document.createElement("div");
+    container.appendChild(icon);
+    const label = new IconLabel(container, { supportHighlights: true });
+    return new TypeRenderingTemplate(icon, label);
+  }
+  renderElement(node, _index, template) {
+    const { element, filterData } = node;
+    const deprecated = element.item.tags?.includes(SymbolTag.Deprecated);
+    template.icon.classList.add(
+      "inline",
+      ...ThemeIcon.asClassNameArray(
+        SymbolKinds.toIcon(element.item.kind)
+      )
+    );
+    template.label.setLabel(element.item.name, element.item.detail, {
+      labelEscapeNewLines: true,
+      matches: createMatches(filterData),
+      strikethrough: deprecated
+    });
+  }
+  disposeTemplate(template) {
+    template.label.dispose();
+  }
+}
+class VirtualDelegate {
+  static {
+    __name(this, "VirtualDelegate");
+  }
+  getHeight(_element) {
+    return 22;
+  }
+  getTemplateId(_element) {
+    return TypeRenderer.id;
+  }
+}
+class AccessibilityProvider {
+  constructor(getDirection) {
+    this.getDirection = getDirection;
+  }
+  static {
+    __name(this, "AccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("tree.aria", "Type Hierarchy");
+  }
+  getAriaLabel(element) {
+    if (this.getDirection() === TypeHierarchyDirection.Supertypes) {
+      return localize(
+        "supertypes",
+        "supertypes of {0}",
+        element.item.name
+      );
+    } else {
+      return localize("subtypes", "subtypes of {0}", element.item.name);
+    }
+  }
+}
+export {
+  AccessibilityProvider,
+  DataSource,
+  IdentityProvider,
+  Sorter,
+  Type,
+  TypeRenderer,
+  VirtualDelegate
+};
+//# sourceMappingURL=typeHierarchyTree.js.map

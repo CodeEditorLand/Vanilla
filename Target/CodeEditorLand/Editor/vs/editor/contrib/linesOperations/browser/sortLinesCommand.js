@@ -1,2 +1,97 @@
-import{EditOperation as c}from"../../../common/core/editOperation.js";import{Range as d}from"../../../common/core/range.js";class l{static _COLLATOR=null;static getCollator(){return l._COLLATOR||(l._COLLATOR=new Intl.Collator),l._COLLATOR}selection;descending;selectionId;constructor(t,n){this.selection=t,this.descending=n,this.selectionId=null}getEditOperations(t,n){const e=m(t,this.selection,this.descending);e&&n.addEditOperation(e.range,e.text),this.selectionId=n.trackSelection(this.selection)}computeCursorState(t,n){return n.getTrackedSelection(this.selectionId)}static canRun(t,n,e){if(t===null)return!1;const o=u(t,n,e);if(!o)return!1;for(let r=0,i=o.before.length;r<i;r++)if(o.before[r]!==o.after[r])return!0;return!1}}function u(a,t,n){const e=t.startLineNumber;let o=t.endLineNumber;if(t.endColumn===1&&o--,e>=o)return null;const r=[];for(let s=e;s<=o;s++)r.push(a.getLineContent(s));let i=r.slice(0);return i.sort(l.getCollator().compare),n===!0&&(i=i.reverse()),{startLineNumber:e,endLineNumber:o,before:r,after:i}}function m(a,t,n){const e=u(a,t,n);return e?c.replace(new d(e.startLineNumber,1,e.endLineNumber,a.getLineMaxColumn(e.endLineNumber)),e.after.join(`
-`)):null}export{l as SortLinesCommand};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  EditOperation
+} from "../../../common/core/editOperation.js";
+import { Range } from "../../../common/core/range.js";
+class SortLinesCommand {
+  static {
+    __name(this, "SortLinesCommand");
+  }
+  static _COLLATOR = null;
+  static getCollator() {
+    if (!SortLinesCommand._COLLATOR) {
+      SortLinesCommand._COLLATOR = new Intl.Collator();
+    }
+    return SortLinesCommand._COLLATOR;
+  }
+  selection;
+  descending;
+  selectionId;
+  constructor(selection, descending) {
+    this.selection = selection;
+    this.descending = descending;
+    this.selectionId = null;
+  }
+  getEditOperations(model, builder) {
+    const op = sortLines(model, this.selection, this.descending);
+    if (op) {
+      builder.addEditOperation(op.range, op.text);
+    }
+    this.selectionId = builder.trackSelection(this.selection);
+  }
+  computeCursorState(model, helper) {
+    return helper.getTrackedSelection(this.selectionId);
+  }
+  static canRun(model, selection, descending) {
+    if (model === null) {
+      return false;
+    }
+    const data = getSortData(model, selection, descending);
+    if (!data) {
+      return false;
+    }
+    for (let i = 0, len = data.before.length; i < len; i++) {
+      if (data.before[i] !== data.after[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+function getSortData(model, selection, descending) {
+  const startLineNumber = selection.startLineNumber;
+  let endLineNumber = selection.endLineNumber;
+  if (selection.endColumn === 1) {
+    endLineNumber--;
+  }
+  if (startLineNumber >= endLineNumber) {
+    return null;
+  }
+  const linesToSort = [];
+  for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+    linesToSort.push(model.getLineContent(lineNumber));
+  }
+  let sorted = linesToSort.slice(0);
+  sorted.sort(SortLinesCommand.getCollator().compare);
+  if (descending === true) {
+    sorted = sorted.reverse();
+  }
+  return {
+    startLineNumber,
+    endLineNumber,
+    before: linesToSort,
+    after: sorted
+  };
+}
+__name(getSortData, "getSortData");
+function sortLines(model, selection, descending) {
+  const data = getSortData(model, selection, descending);
+  if (!data) {
+    return null;
+  }
+  return EditOperation.replace(
+    new Range(
+      data.startLineNumber,
+      1,
+      data.endLineNumber,
+      model.getLineMaxColumn(data.endLineNumber)
+    ),
+    data.after.join("\n")
+  );
+}
+__name(sortLines, "sortLines");
+export {
+  SortLinesCommand
+};
+//# sourceMappingURL=sortLinesCommand.js.map

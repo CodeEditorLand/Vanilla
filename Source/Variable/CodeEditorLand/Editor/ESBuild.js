@@ -1,6 +1,7 @@
 export const Development = process.env["NODE_ENV"] === "development" ||
     process.env["TAURI_ENV_DEBUG"] === "true";
 const Dependency = "CodeEditorLand/Editor";
+const TypeScript = `Source/Notation/${Dependency}/tsconfig${Development ? "" : ".no-types"}.json`;
 /**
  * @module ESBuild
  *
@@ -14,7 +15,7 @@ export default {
     outdir: `Target/${Dependency}`,
     platform: "node",
     target: "esnext",
-    tsconfig: `Source/Notation/${Dependency}/tsconfig${Development ? "" : ".no-types"}.json`,
+    tsconfig: TypeScript,
     write: true,
     legalComments: Development ? "inline" : "none",
     bundle: false,
@@ -39,14 +40,16 @@ export default {
                         console.log(_Error);
                     }
                 });
-                onEnd((result) => {
-                    if (result.errors.length > 0) {
-                        result.errors.forEach((error) => console.error(error));
-                    }
-                    if (result.warnings.length > 0) {
-                        result.warnings.forEach((warning) => console.warn(warning));
-                    }
-                });
+                // onEnd((result) => {
+                // 	if (result.errors.length > 0) {
+                // 		result.errors.forEach((error) => console.error(error));
+                // 	}
+                // 	if (result.warnings.length > 0) {
+                // 		result.warnings.forEach((warning) =>
+                // 			console.warn(warning),
+                // 		);
+                // 	}
+                // });
             },
         },
         {

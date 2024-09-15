@@ -1,1 +1,200 @@
-var g=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var I=(s,e,o,t)=>{for(var i=t>1?void 0:t?v(e,o):e,r=s.length-1,n;r>=0;r--)(n=s[r])&&(i=(t?n(e,o,i):n(i))||i);return t&&i&&g(e,o,i),i},l=(s,e)=>(o,t)=>e(o,t,s);import{ToolBar as E}from"../../../../../../base/browser/ui/toolbar/toolbar.js";import{Action as M}from"../../../../../../base/common/actions.js";import{DisposableStore as x}from"../../../../../../base/common/lifecycle.js";import{MarshalledId as S}from"../../../../../../base/common/marshallingIds.js";import{EditorContextKeys as y}from"../../../../../../editor/common/editorContextKeys.js";import{localize as T}from"../../../../../../nls.js";import{DropdownWithPrimaryActionViewItem as f}from"../../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{createAndFillInActionBarActions as A}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{IMenuService as k,MenuItemAction as O}from"../../../../../../platform/actions/common/actions.js";import{InputFocusedContext as _}from"../../../../../../platform/contextkey/common/contextkeys.js";import{IContextMenuService as K}from"../../../../../../platform/contextview/browser/contextView.js";import{IInstantiationService as w}from"../../../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as D}from"../../../../../../platform/keybinding/common/keybinding.js";import{NOTEBOOK_CELL_EXECUTION_STATE as L,NOTEBOOK_CELL_LIST_FOCUSED as B,NOTEBOOK_CELL_TYPE as N,NOTEBOOK_EDITOR_FOCUSED as F}from"../../../common/notebookContextKeys.js";import{CellContentPart as P}from"../cellPart.js";import{registerCellToolbarStickyScroll as V}from"./cellToolbarStickyScroll.js";let d=class extends P{constructor(o,t,i,r,n,m,b,u){super();this.notebookEditor=o;this.contextKeyService=t;this.cellContainer=i;this.runButtonContainer=r;this.keybindingService=m;this.contextMenuService=b;this.instantiationService=u;this.primaryMenu=this._register(n.createMenu(this.notebookEditor.creationOptions.menuIds.cellExecutePrimary,t)),this.secondaryMenu=this._register(n.createMenu(this.notebookEditor.creationOptions.menuIds.cellExecuteToolbar,t)),this.createRunCellToolbar(r,i,t);const c=()=>{const a=this.getCellToolbarActions(this.primaryMenu).primary[0];this.toolbar.setActions(a?[a]:[])};c(),this._register(this.primaryMenu.onDidChange(c)),this._register(this.secondaryMenu.onDidChange(c)),this._register(this.notebookEditor.notebookOptions.onDidChangeOptions(c))}toolbar;primaryMenu;secondaryMenu;didRenderCell(o){if(this.cellDisposables.add(V(this.notebookEditor,o,this.runButtonContainer)),this.notebookEditor.hasModel()){const t={ui:!0,cell:o,notebookEditor:this.notebookEditor,$mid:S.NotebookCellActionContext};this.toolbar.context=t}}getCellToolbarActions(o){const r={primary:[],secondary:[]};return A(o,{shouldForwardArgs:!0},r,n=>/^inline/.test(n)),r}createRunCellToolbar(o,t,i){const r=this._register(new x),n=this._register(new M("notebook.moreRunActions",T("notebook.moreRunActionsLabel","More..."),"codicon-chevron-down",!0)),m=u=>this.keybindingService.lookupKeybinding(u.id,b),b=this._register(H(i));this.toolbar=this._register(new E(o,this.contextMenuService,{getKeyBinding:m,actionViewItemProvider:(u,c)=>{r.clear();const p=this.getCellToolbarActions(this.primaryMenu).primary[0];if(!(p instanceof O))return;const a=this.getCellToolbarActions(this.secondaryMenu).secondary;if(!a.length)return;const h=this.instantiationService.createInstance(f,p,n,a,"notebook-cell-run-toolbar",this.contextMenuService,{...c,getKeyBinding:m});return r.add(h.onDidChangeDropdownVisibility(C=>{t.classList.toggle("cell-run-toolbar-dropdown-active",C)})),h},renderDropdownAsChildElement:!0}))}};d=I([l(4,k),l(5,D),l(6,K),l(7,w)],d);function H(s){const e=s.createScoped(document.createElement("div"));return _.bindTo(e).set(!0),y.editorTextFocus.bindTo(e).set(!0),y.focus.bindTo(e).set(!0),y.textInputFocus.bindTo(e).set(!0),L.bindTo(e).set("idle"),B.bindTo(e).set(!0),F.bindTo(e).set(!0),N.bindTo(e).set("code"),e}export{d as RunToolbar,H as getCodeCellExecutionContextKeyService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ToolBar } from "../../../../../../base/browser/ui/toolbar/toolbar.js";
+import { Action } from "../../../../../../base/common/actions.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../../../base/common/marshallingIds.js";
+import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
+import { localize } from "../../../../../../nls.js";
+import { DropdownWithPrimaryActionViewItem } from "../../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import { createAndFillInActionBarActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  IMenuService,
+  MenuItemAction
+} from "../../../../../../platform/actions/common/actions.js";
+import { InputFocusedContext } from "../../../../../../platform/contextkey/common/contextkeys.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import {
+  NOTEBOOK_CELL_EXECUTION_STATE,
+  NOTEBOOK_CELL_LIST_FOCUSED,
+  NOTEBOOK_CELL_TYPE,
+  NOTEBOOK_EDITOR_FOCUSED
+} from "../../../common/notebookContextKeys.js";
+import { CellContentPart } from "../cellPart.js";
+import { registerCellToolbarStickyScroll } from "./cellToolbarStickyScroll.js";
+let RunToolbar = class extends CellContentPart {
+  constructor(notebookEditor, contextKeyService, cellContainer, runButtonContainer, menuService, keybindingService, contextMenuService, instantiationService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.contextKeyService = contextKeyService;
+    this.cellContainer = cellContainer;
+    this.runButtonContainer = runButtonContainer;
+    this.keybindingService = keybindingService;
+    this.contextMenuService = contextMenuService;
+    this.instantiationService = instantiationService;
+    this.primaryMenu = this._register(
+      menuService.createMenu(
+        this.notebookEditor.creationOptions.menuIds.cellExecutePrimary,
+        contextKeyService
+      )
+    );
+    this.secondaryMenu = this._register(
+      menuService.createMenu(
+        this.notebookEditor.creationOptions.menuIds.cellExecuteToolbar,
+        contextKeyService
+      )
+    );
+    this.createRunCellToolbar(
+      runButtonContainer,
+      cellContainer,
+      contextKeyService
+    );
+    const updateActions = /* @__PURE__ */ __name(() => {
+      const actions = this.getCellToolbarActions(this.primaryMenu);
+      const primary = actions.primary[0];
+      this.toolbar.setActions(primary ? [primary] : []);
+    }, "updateActions");
+    updateActions();
+    this._register(this.primaryMenu.onDidChange(updateActions));
+    this._register(this.secondaryMenu.onDidChange(updateActions));
+    this._register(
+      this.notebookEditor.notebookOptions.onDidChangeOptions(
+        updateActions
+      )
+    );
+  }
+  static {
+    __name(this, "RunToolbar");
+  }
+  toolbar;
+  primaryMenu;
+  secondaryMenu;
+  didRenderCell(element) {
+    this.cellDisposables.add(
+      registerCellToolbarStickyScroll(
+        this.notebookEditor,
+        element,
+        this.runButtonContainer
+      )
+    );
+    if (this.notebookEditor.hasModel()) {
+      const context = {
+        ui: true,
+        cell: element,
+        notebookEditor: this.notebookEditor,
+        $mid: MarshalledId.NotebookCellActionContext
+      };
+      this.toolbar.context = context;
+    }
+  }
+  getCellToolbarActions(menu) {
+    const primary = [];
+    const secondary = [];
+    const result = { primary, secondary };
+    createAndFillInActionBarActions(
+      menu,
+      { shouldForwardArgs: true },
+      result,
+      (g) => /^inline/.test(g)
+    );
+    return result;
+  }
+  createRunCellToolbar(container, cellContainer, contextKeyService) {
+    const actionViewItemDisposables = this._register(new DisposableStore());
+    const dropdownAction = this._register(
+      new Action(
+        "notebook.moreRunActions",
+        localize("notebook.moreRunActionsLabel", "More..."),
+        "codicon-chevron-down",
+        true
+      )
+    );
+    const keybindingProvider = /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(
+      action.id,
+      executionContextKeyService
+    ), "keybindingProvider");
+    const executionContextKeyService = this._register(
+      getCodeCellExecutionContextKeyService(contextKeyService)
+    );
+    this.toolbar = this._register(
+      new ToolBar(container, this.contextMenuService, {
+        getKeyBinding: keybindingProvider,
+        actionViewItemProvider: /* @__PURE__ */ __name((_action, _options) => {
+          actionViewItemDisposables.clear();
+          const primary = this.getCellToolbarActions(this.primaryMenu).primary[0];
+          if (!(primary instanceof MenuItemAction)) {
+            return void 0;
+          }
+          const secondary = this.getCellToolbarActions(
+            this.secondaryMenu
+          ).secondary;
+          if (!secondary.length) {
+            return void 0;
+          }
+          const item = this.instantiationService.createInstance(
+            DropdownWithPrimaryActionViewItem,
+            primary,
+            dropdownAction,
+            secondary,
+            "notebook-cell-run-toolbar",
+            this.contextMenuService,
+            {
+              ..._options,
+              getKeyBinding: keybindingProvider
+            }
+          );
+          actionViewItemDisposables.add(
+            item.onDidChangeDropdownVisibility((visible) => {
+              cellContainer.classList.toggle(
+                "cell-run-toolbar-dropdown-active",
+                visible
+              );
+            })
+          );
+          return item;
+        }, "actionViewItemProvider"),
+        renderDropdownAsChildElement: true
+      })
+    );
+  }
+};
+RunToolbar = __decorateClass([
+  __decorateParam(4, IMenuService),
+  __decorateParam(5, IKeybindingService),
+  __decorateParam(6, IContextMenuService),
+  __decorateParam(7, IInstantiationService)
+], RunToolbar);
+function getCodeCellExecutionContextKeyService(contextKeyService) {
+  const executionContextKeyService = contextKeyService.createScoped(
+    document.createElement("div")
+  );
+  InputFocusedContext.bindTo(executionContextKeyService).set(true);
+  EditorContextKeys.editorTextFocus.bindTo(executionContextKeyService).set(true);
+  EditorContextKeys.focus.bindTo(executionContextKeyService).set(true);
+  EditorContextKeys.textInputFocus.bindTo(executionContextKeyService).set(true);
+  NOTEBOOK_CELL_EXECUTION_STATE.bindTo(executionContextKeyService).set(
+    "idle"
+  );
+  NOTEBOOK_CELL_LIST_FOCUSED.bindTo(executionContextKeyService).set(true);
+  NOTEBOOK_EDITOR_FOCUSED.bindTo(executionContextKeyService).set(true);
+  NOTEBOOK_CELL_TYPE.bindTo(executionContextKeyService).set("code");
+  return executionContextKeyService;
+}
+__name(getCodeCellExecutionContextKeyService, "getCodeCellExecutionContextKeyService");
+export {
+  RunToolbar,
+  getCodeCellExecutionContextKeyService
+};
+//# sourceMappingURL=codeCellRunToolbar.js.map

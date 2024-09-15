@@ -1,1 +1,84 @@
-var d=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var a=(n,e,r,t)=>{for(var i=t>1?void 0:t?v(e,r):e,o=n.length-1,m;o>=0;o--)(m=n[o])&&(i=(t?m(e,r,i):m(i))||i);return t&&i&&d(e,r,i),i},l=(n,e)=>(r,t)=>e(r,t,n);import{Emitter as T}from"../../../base/common/event.js";import{revive as c}from"../../../base/common/marshalling.js";import{ILogService as g}from"../../../platform/log/common/log.js";import{ITimelineService as h}from"../../contrib/timeline/common/timeline.js";import{extHostNamedCustomer as y}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as x,MainContext as E}from"../common/extHost.protocol.js";let s=class{constructor(e,r,t){this.logService=r;this._timelineService=t;this._proxy=e.getProxy(x.ExtHostTimeline)}_proxy;_providerEmitters=new Map;$registerTimelineProvider(e){this.logService.trace(`MainThreadTimeline#registerTimelineProvider: id=${e.id}`);const r=this._proxy,t=this._providerEmitters;let i=t.get(e.id);i===void 0&&(i=new T,t.set(e.id,i)),this._timelineService.registerTimelineProvider({...e,onDidChange:i.event,async provideTimeline(o,m,p){return c(await r.$getTimeline(e.id,o,m,p))},dispose(){t.delete(e.id),i?.dispose()}})}$unregisterTimelineProvider(e){this.logService.trace(`MainThreadTimeline#unregisterTimelineProvider: id=${e}`),this._timelineService.unregisterTimelineProvider(e)}$emitTimelineChangeEvent(e){this.logService.trace(`MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(!0)}`),this._providerEmitters.get(e.id)?.fire(e)}dispose(){}};s=a([y(E.MainThreadTimeline),l(1,g),l(2,h)],s);export{s as MainThreadTimeline};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  ITimelineService
+} from "../../contrib/timeline/common/timeline.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+let MainThreadTimeline = class {
+  constructor(context, logService, _timelineService) {
+    this.logService = logService;
+    this._timelineService = _timelineService;
+    this._proxy = context.getProxy(ExtHostContext.ExtHostTimeline);
+  }
+  _proxy;
+  _providerEmitters = /* @__PURE__ */ new Map();
+  $registerTimelineProvider(provider) {
+    this.logService.trace(
+      `MainThreadTimeline#registerTimelineProvider: id=${provider.id}`
+    );
+    const proxy = this._proxy;
+    const emitters = this._providerEmitters;
+    let onDidChange = emitters.get(provider.id);
+    if (onDidChange === void 0) {
+      onDidChange = new Emitter();
+      emitters.set(provider.id, onDidChange);
+    }
+    this._timelineService.registerTimelineProvider({
+      ...provider,
+      onDidChange: onDidChange.event,
+      async provideTimeline(uri, options, token) {
+        return revive(
+          await proxy.$getTimeline(provider.id, uri, options, token)
+        );
+      },
+      dispose() {
+        emitters.delete(provider.id);
+        onDidChange?.dispose();
+      }
+    });
+  }
+  $unregisterTimelineProvider(id) {
+    this.logService.trace(
+      `MainThreadTimeline#unregisterTimelineProvider: id=${id}`
+    );
+    this._timelineService.unregisterTimelineProvider(id);
+  }
+  $emitTimelineChangeEvent(e) {
+    this.logService.trace(
+      `MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(true)}`
+    );
+    const emitter = this._providerEmitters.get(e.id);
+    emitter?.fire(e);
+  }
+  dispose() {
+  }
+};
+__name(MainThreadTimeline, "MainThreadTimeline");
+MainThreadTimeline = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadTimeline),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, ITimelineService)
+], MainThreadTimeline);
+export {
+  MainThreadTimeline
+};
+//# sourceMappingURL=mainThreadTimeline.js.map

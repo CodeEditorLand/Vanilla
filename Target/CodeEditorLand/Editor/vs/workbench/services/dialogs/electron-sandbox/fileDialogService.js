@@ -1,1 +1,247 @@
-var k=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var d=(n,o,e,i)=>{for(var t=i>1?void 0:i?w(o,e):o,a=n.length-1,s;a>=0;a--)(s=n[a])&&(t=(i?s(o,e,t):s(t))||t);return i&&t&&k(o,e,t),t},r=(n,o)=>(e,i)=>o(e,i,n);import{getActiveWindow as m}from"../../../../base/browser/dom.js";import{Schemas as f}from"../../../../base/common/network.js";import{URI as p}from"../../../../base/common/uri.js";import{ICodeEditorService as U}from"../../../../editor/browser/services/codeEditorService.js";import{ILanguageService as A}from"../../../../editor/common/languages/language.js";import{ICommandService as W}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as N}from"../../../../platform/configuration/common/configuration.js";import{IDialogService as b,IFileDialogService as H}from"../../../../platform/dialogs/common/dialogs.js";import{IFileService as L}from"../../../../platform/files/common/files.js";import{InstantiationType as C,registerSingleton as E}from"../../../../platform/instantiation/common/extensions.js";import{IInstantiationService as x}from"../../../../platform/instantiation/common/instantiation.js";import{ILabelService as R}from"../../../../platform/label/common/label.js";import{ILogService as T}from"../../../../platform/log/common/log.js";import{INativeHostService as V}from"../../../../platform/native/common/native.js";import{IOpenerService as j}from"../../../../platform/opener/common/opener.js";import{IWorkspaceContextService as M}from"../../../../platform/workspace/common/workspace.js";import{IWorkspacesService as q}from"../../../../platform/workspaces/common/workspaces.js";import{IEditorService as z}from"../../editor/common/editorService.js";import{IWorkbenchEnvironmentService as B}from"../../environment/common/environmentService.js";import{IHistoryService as G}from"../../history/common/history.js";import{IHostService as J}from"../../host/browser/host.js";import{IPathService as K}from"../../path/common/pathService.js";import{AbstractFileDialogService as Q}from"../browser/abstractFileDialogService.js";let l=class extends Q{constructor(e,i,t,a,s,c,S,h,X,v,u,I,g,O,D,y,F,P){super(e,i,t,a,s,c,S,h,v,u,I,g,O,D,y,F,P);this.nativeHostService=X}toNativeOpenDialogOptions(e){return{forceNewWindow:e.forceNewWindow,telemetryExtraData:e.telemetryExtraData,defaultPath:e.defaultUri?.fsPath}}shouldUseSimplified(e){const i=this.configurationService.getValue("files.simpleDialog.enable")===!0,t=this.configurationService.getValue("window.openFilesInNewWindow")==="on";return{useSimplified:e!==f.file&&e!==f.vscodeUserData||i,isSetting:t}}async pickFileFolderAndOpen(e){const i=this.getFileSystemSchema(e);e.defaultUri||(e.defaultUri=await this.defaultFilePath(i));const t=this.shouldUseSimplified(i);return t.useSimplified?this.pickFileFolderAndOpenSimplified(i,e,t.isSetting):this.nativeHostService.pickFileFolderAndOpen(this.toNativeOpenDialogOptions(e))}async pickFileAndOpen(e){const i=this.getFileSystemSchema(e);e.defaultUri||(e.defaultUri=await this.defaultFilePath(i));const t=this.shouldUseSimplified(i);return t.useSimplified?this.pickFileAndOpenSimplified(i,e,t.isSetting):this.nativeHostService.pickFileAndOpen(this.toNativeOpenDialogOptions(e))}async pickFolderAndOpen(e){const i=this.getFileSystemSchema(e);return e.defaultUri||(e.defaultUri=await this.defaultFolderPath(i)),this.shouldUseSimplified(i).useSimplified?this.pickFolderAndOpenSimplified(i,e):this.nativeHostService.pickFolderAndOpen(this.toNativeOpenDialogOptions(e))}async pickWorkspaceAndOpen(e){e.availableFileSystems=this.getWorkspaceAvailableFileSystems(e);const i=this.getFileSystemSchema(e);return e.defaultUri||(e.defaultUri=await this.defaultWorkspacePath(i)),this.shouldUseSimplified(i).useSimplified?this.pickWorkspaceAndOpenSimplified(i,e):this.nativeHostService.pickWorkspaceAndOpen(this.toNativeOpenDialogOptions(e))}async pickFileToSave(e,i){const t=this.getFileSystemSchema({defaultUri:e,availableFileSystems:i}),a=this.getPickFileToSaveDialogOptions(e,i);if(this.shouldUseSimplified(t).useSimplified)return this.pickFileToSaveSimplified(t,a);{const s=await this.nativeHostService.showSaveDialog(this.toNativeSaveDialogOptions(a));if(s&&!s.canceled&&s.filePath){const c=p.file(s.filePath);return this.addFileToRecentlyOpened(c),c}}}toNativeSaveDialogOptions(e){return e.defaultUri=e.defaultUri?p.file(e.defaultUri.path):void 0,{defaultPath:e.defaultUri?.fsPath,buttonLabel:e.saveLabel,filters:e.filters,title:e.title,targetWindowId:m().vscodeWindowId}}async showSaveDialog(e){const i=this.getFileSystemSchema(e);if(this.shouldUseSimplified(i).useSimplified)return this.showSaveDialogSimplified(i,e);const t=await this.nativeHostService.showSaveDialog(this.toNativeSaveDialogOptions(e));if(t&&!t.canceled&&t.filePath)return p.file(t.filePath)}async showOpenDialog(e){const i=this.getFileSystemSchema(e);if(this.shouldUseSimplified(i).useSimplified)return this.showOpenDialogSimplified(i,e);const t={title:e.title,defaultPath:e.defaultUri?.fsPath,buttonLabel:e.openLabel,filters:e.filters,properties:[],targetWindowId:m().vscodeWindowId};t.properties.push("createDirectory"),e.canSelectFiles&&t.properties.push("openFile"),e.canSelectFolders&&t.properties.push("openDirectory"),e.canSelectMany&&t.properties.push("multiSelections");const a=await this.nativeHostService.showOpenDialog(t);return a&&Array.isArray(a.filePaths)&&a.filePaths.length>0?a.filePaths.map(p.file):void 0}};l=d([r(0,J),r(1,M),r(2,G),r(3,B),r(4,x),r(5,N),r(6,L),r(7,j),r(8,V),r(9,b),r(10,A),r(11,q),r(12,R),r(13,K),r(14,W),r(15,z),r(16,U),r(17,T)],l),E(H,l,C.Delayed);export{l as FileDialogService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IDialogService,
+  IFileDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  INativeHostService
+} from "../../../../platform/native/common/native.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IHistoryService } from "../../history/common/history.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { AbstractFileDialogService } from "../browser/abstractFileDialogService.js";
+let FileDialogService = class extends AbstractFileDialogService {
+  constructor(hostService, contextService, historyService, environmentService, instantiationService, configurationService, fileService, openerService, nativeHostService, dialogService, languageService, workspacesService, labelService, pathService, commandService, editorService, codeEditorService, logService) {
+    super(
+      hostService,
+      contextService,
+      historyService,
+      environmentService,
+      instantiationService,
+      configurationService,
+      fileService,
+      openerService,
+      dialogService,
+      languageService,
+      workspacesService,
+      labelService,
+      pathService,
+      commandService,
+      editorService,
+      codeEditorService,
+      logService
+    );
+    this.nativeHostService = nativeHostService;
+  }
+  static {
+    __name(this, "FileDialogService");
+  }
+  toNativeOpenDialogOptions(options) {
+    return {
+      forceNewWindow: options.forceNewWindow,
+      telemetryExtraData: options.telemetryExtraData,
+      defaultPath: options.defaultUri?.fsPath
+    };
+  }
+  shouldUseSimplified(schema) {
+    const setting = this.configurationService.getValue("files.simpleDialog.enable") === true;
+    const newWindowSetting = this.configurationService.getValue(
+      "window.openFilesInNewWindow"
+    ) === "on";
+    return {
+      useSimplified: schema !== Schemas.file && schema !== Schemas.vscodeUserData || setting,
+      isSetting: newWindowSetting
+    };
+  }
+  async pickFileFolderAndOpen(options) {
+    const schema = this.getFileSystemSchema(options);
+    if (!options.defaultUri) {
+      options.defaultUri = await this.defaultFilePath(schema);
+    }
+    const shouldUseSimplified = this.shouldUseSimplified(schema);
+    if (shouldUseSimplified.useSimplified) {
+      return this.pickFileFolderAndOpenSimplified(
+        schema,
+        options,
+        shouldUseSimplified.isSetting
+      );
+    }
+    return this.nativeHostService.pickFileFolderAndOpen(
+      this.toNativeOpenDialogOptions(options)
+    );
+  }
+  async pickFileAndOpen(options) {
+    const schema = this.getFileSystemSchema(options);
+    if (!options.defaultUri) {
+      options.defaultUri = await this.defaultFilePath(schema);
+    }
+    const shouldUseSimplified = this.shouldUseSimplified(schema);
+    if (shouldUseSimplified.useSimplified) {
+      return this.pickFileAndOpenSimplified(
+        schema,
+        options,
+        shouldUseSimplified.isSetting
+      );
+    }
+    return this.nativeHostService.pickFileAndOpen(
+      this.toNativeOpenDialogOptions(options)
+    );
+  }
+  async pickFolderAndOpen(options) {
+    const schema = this.getFileSystemSchema(options);
+    if (!options.defaultUri) {
+      options.defaultUri = await this.defaultFolderPath(schema);
+    }
+    if (this.shouldUseSimplified(schema).useSimplified) {
+      return this.pickFolderAndOpenSimplified(schema, options);
+    }
+    return this.nativeHostService.pickFolderAndOpen(
+      this.toNativeOpenDialogOptions(options)
+    );
+  }
+  async pickWorkspaceAndOpen(options) {
+    options.availableFileSystems = this.getWorkspaceAvailableFileSystems(options);
+    const schema = this.getFileSystemSchema(options);
+    if (!options.defaultUri) {
+      options.defaultUri = await this.defaultWorkspacePath(schema);
+    }
+    if (this.shouldUseSimplified(schema).useSimplified) {
+      return this.pickWorkspaceAndOpenSimplified(schema, options);
+    }
+    return this.nativeHostService.pickWorkspaceAndOpen(
+      this.toNativeOpenDialogOptions(options)
+    );
+  }
+  async pickFileToSave(defaultUri, availableFileSystems) {
+    const schema = this.getFileSystemSchema({
+      defaultUri,
+      availableFileSystems
+    });
+    const options = this.getPickFileToSaveDialogOptions(
+      defaultUri,
+      availableFileSystems
+    );
+    if (this.shouldUseSimplified(schema).useSimplified) {
+      return this.pickFileToSaveSimplified(schema, options);
+    } else {
+      const result = await this.nativeHostService.showSaveDialog(
+        this.toNativeSaveDialogOptions(options)
+      );
+      if (result && !result.canceled && result.filePath) {
+        const uri = URI.file(result.filePath);
+        this.addFileToRecentlyOpened(uri);
+        return uri;
+      }
+    }
+    return;
+  }
+  toNativeSaveDialogOptions(options) {
+    options.defaultUri = options.defaultUri ? URI.file(options.defaultUri.path) : void 0;
+    return {
+      defaultPath: options.defaultUri?.fsPath,
+      buttonLabel: options.saveLabel,
+      filters: options.filters,
+      title: options.title,
+      targetWindowId: getActiveWindow().vscodeWindowId
+    };
+  }
+  async showSaveDialog(options) {
+    const schema = this.getFileSystemSchema(options);
+    if (this.shouldUseSimplified(schema).useSimplified) {
+      return this.showSaveDialogSimplified(schema, options);
+    }
+    const result = await this.nativeHostService.showSaveDialog(
+      this.toNativeSaveDialogOptions(options)
+    );
+    if (result && !result.canceled && result.filePath) {
+      return URI.file(result.filePath);
+    }
+    return;
+  }
+  async showOpenDialog(options) {
+    const schema = this.getFileSystemSchema(options);
+    if (this.shouldUseSimplified(schema).useSimplified) {
+      return this.showOpenDialogSimplified(schema, options);
+    }
+    const newOptions = {
+      title: options.title,
+      defaultPath: options.defaultUri?.fsPath,
+      buttonLabel: options.openLabel,
+      filters: options.filters,
+      properties: [],
+      targetWindowId: getActiveWindow().vscodeWindowId
+    };
+    newOptions.properties.push("createDirectory");
+    if (options.canSelectFiles) {
+      newOptions.properties.push("openFile");
+    }
+    if (options.canSelectFolders) {
+      newOptions.properties.push("openDirectory");
+    }
+    if (options.canSelectMany) {
+      newOptions.properties.push("multiSelections");
+    }
+    const result = await this.nativeHostService.showOpenDialog(newOptions);
+    return result && Array.isArray(result.filePaths) && result.filePaths.length > 0 ? result.filePaths.map(URI.file) : void 0;
+  }
+};
+FileDialogService = __decorateClass([
+  __decorateParam(0, IHostService),
+  __decorateParam(1, IWorkspaceContextService),
+  __decorateParam(2, IHistoryService),
+  __decorateParam(3, IWorkbenchEnvironmentService),
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IConfigurationService),
+  __decorateParam(6, IFileService),
+  __decorateParam(7, IOpenerService),
+  __decorateParam(8, INativeHostService),
+  __decorateParam(9, IDialogService),
+  __decorateParam(10, ILanguageService),
+  __decorateParam(11, IWorkspacesService),
+  __decorateParam(12, ILabelService),
+  __decorateParam(13, IPathService),
+  __decorateParam(14, ICommandService),
+  __decorateParam(15, IEditorService),
+  __decorateParam(16, ICodeEditorService),
+  __decorateParam(17, ILogService)
+], FileDialogService);
+registerSingleton(
+  IFileDialogService,
+  FileDialogService,
+  InstantiationType.Delayed
+);
+export {
+  FileDialogService
+};
+//# sourceMappingURL=fileDialogService.js.map

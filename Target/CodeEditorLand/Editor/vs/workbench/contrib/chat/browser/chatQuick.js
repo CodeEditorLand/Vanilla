@@ -1,1 +1,368 @@
-var y=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var u=(d,n,e,t)=>{for(var i=t>1?void 0:t?I(n,e):n,o=d.length-1,s;o>=0;o--)(s=d[o])&&(i=(t?s(n,e,i):s(i))||i);return t&&i&&y(n,e,i),i},r=(d,n)=>(e,t)=>n(e,t,d);import*as l from"../../../../base/browser/dom.js";import{Orientation as _,Sash as w}from"../../../../base/browser/ui/sash/sash.js";import{disposableTimeout as C}from"../../../../base/common/async.js";import{CancellationToken as S}from"../../../../base/common/cancellation.js";import{Emitter as D,Event as E}from"../../../../base/common/event.js";import{Disposable as p,DisposableStore as T,MutableDisposable as b}from"../../../../base/common/lifecycle.js";import{MenuId as L}from"../../../../platform/actions/common/actions.js";import{IContextKeyService as m}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as g}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as V}from"../../../../platform/instantiation/common/serviceCollection.js";import{ILayoutService as H}from"../../../../platform/layout/browser/layoutService.js";import{IQuickInputService as M}from"../../../../platform/quickinput/common/quickInput.js";import{editorBackground as k,inputBackground as q,quickInputBackground as x,quickInputForeground as O}from"../../../../platform/theme/common/colorRegistry.js";import{IViewsService as P}from"../../../services/views/common/viewsService.js";import{ChatAgentLocation as c}from"../common/chatAgents.js";import{IChatService as f}from"../common/chatService.js";import{showChatView as F}from"./chat.js";import{ChatWidget as Q}from"./chatWidget.js";let h=class extends p{constructor(e,t,i){super();this.quickInputService=e;this.chatService=t;this.instantiationService=i}_serviceBrand;_onDidClose=this._register(new D);onDidClose=this._onDidClose.event;_input;_currentChat;_container;get enabled(){return!!this.chatService.isEnabled(c.Panel)}get focused(){const e=this._input?.widget;return e?l.isAncestorOfActiveElement(e):!1}toggle(e){if(this.focused&&!e?.query)this.close();else if(this.open(e),e?.isPartialQuery){const t=this._store.add(E.once(this.onDidClose)(()=>{this._currentChat?.clearValue(),this._store.delete(t)}))}}open(e){if(this._input){if(this._currentChat&&e?.query){this._currentChat.focus(),this._currentChat.setValue(e.query,e.selection),e.isPartialQuery||this._currentChat.acceptInput();return}return this.focus()}const t=new T;this._input=this.quickInputService.createQuickWidget(),this._input.contextKey="chatInputVisible",this._input.ignoreFocusOut=!0,t.add(this._input),this._container??=l.$(".interactive-session"),this._input.widget=this._container,this._input.show(),this._currentChat?this._currentChat.show():(this._currentChat=this.instantiationService.createInstance(a),this._currentChat.render(this._container)),t.add(this._input.onDidHide(()=>{t.dispose(),this._currentChat.hide(),this._input=void 0,this._onDidClose.fire()})),this._currentChat.focus(),e?.query&&(this._currentChat.setValue(e.query,e.selection),e.isPartialQuery||this._currentChat.acceptInput())}focus(){this._currentChat?.focus()}close(){this._input?.dispose(),this._input=void 0}async openInChatView(){await this._currentChat?.openChatView(),this.close()}};h=u([r(0,M),r(1,f),r(2,g)],h);let a=class extends p{constructor(e,t,i,o,s){super();this.instantiationService=e;this.contextKeyService=t;this.chatService=i;this.layoutService=o;this.viewsService=s}static DEFAULT_MIN_HEIGHT=200;static DEFAULT_HEIGHT_OFFSET=100;widget;sash;model;_currentQuery;maintainScrollTimer=this._register(new b);_deferUpdatingDynamicLayout=!1;clear(){this.model?.dispose(),this.model=void 0,this.updateModel(),this.widget.inputEditor.setValue("")}focus(e){if(this.widget){this.widget.focusInput();const t=this.widget.inputEditor.getValue();t&&this.widget.inputEditor.setSelection(e??{startLineNumber:1,startColumn:1,endLineNumber:1,endColumn:t.length+1})}}hide(){this.widget.setVisible(!1),this.maintainScrollTimer.value=C(()=>{this.maintainScrollTimer.clear()},30*1e3)}show(){this.widget.setVisible(!0),this._deferUpdatingDynamicLayout&&(this._deferUpdatingDynamicLayout=!1,this.widget.updateDynamicChatTreeItemLayout(2,this.maxHeight)),this.maintainScrollTimer.value||this.widget.layoutDynamicChatTreeItemMode()}render(e){if(this.widget)throw new Error("Cannot render quick chat twice");const t=this._register(this.instantiationService.createChild(new V([m,this._register(this.contextKeyService.createScoped(e))])));this.widget=this._register(t.createInstance(Q,c.Panel,{isQuickChat:!0},{renderInputOnTop:!0,renderStyle:"compact",menus:{inputSideToolbar:L.ChatInputSide}},{listForeground:O,listBackground:x,inputEditorBackground:q,resultEditorBackground:k})),this.widget.render(e),this.widget.setVisible(!0),this.widget.setDynamicChatTreeItemLayout(2,this.maxHeight),this.updateModel(),this.sash=this._register(new w(e,{getHorizontalSashTop:()=>e.offsetHeight},{orientation:_.HORIZONTAL})),this.registerListeners(e)}get maxHeight(){return this.layoutService.mainContainerDimension.height-a.DEFAULT_HEIGHT_OFFSET}registerListeners(e){this._register(this.layoutService.onDidLayoutMainContainer(()=>{this.widget.visible?this.widget.updateDynamicChatTreeItemLayout(2,this.maxHeight):this._deferUpdatingDynamicLayout=!0})),this._register(this.widget.inputEditor.onDidChangeModelContent(i=>{this._currentQuery=this.widget.inputEditor.getValue()})),this._register(this.widget.onDidClear(()=>this.clear())),this._register(this.widget.onDidChangeHeight(i=>this.sash.layout()));const t=e.offsetWidth;this._register(this.sash.onDidStart(()=>{this.widget.isDynamicChatTreeItemLayoutEnabled=!1})),this._register(this.sash.onDidChange(i=>{i.currentY<a.DEFAULT_MIN_HEIGHT||i.currentY>this.maxHeight||(this.widget.layout(i.currentY,t),this.sash.layout())})),this._register(this.sash.onDidReset(()=>{this.widget.isDynamicChatTreeItemLayoutEnabled=!0,this.widget.layoutDynamicChatTreeItemMode()}))}async acceptInput(){return this.widget.acceptInput()}async openChatView(){const e=await F(this.viewsService);if(!e?.viewModel||!this.model)return;for(const i of this.model.getRequests())if(i.response?.response.value||i.response?.result){const o=[];for(const s of i.response.response.value)if(s.kind==="textEditGroup")for(const v of s.edits)o.push({kind:"textEdit",edits:v,uri:s.uri});else o.push(s);this.chatService.addCompleteRequest(e.viewModel.sessionId,i.message,i.variableData,i.attempt,{message:o,result:i.response.result,followups:i.response.followups})}else i.message;const t=this.widget.inputEditor.getValue();t&&e.inputEditor.setValue(t),e.focusInput()}setValue(e,t){this.widget.inputEditor.setValue(e),this.focus(t)}clearValue(){this.widget.inputEditor.setValue("")}updateModel(){if(this.model??=this.chatService.startSession(c.Panel,S.None),!this.model)throw new Error("Could not start chat session");this.widget.setModel(this.model,{inputValue:this._currentQuery})}};a=u([r(0,g),r(1,m),r(2,f),r(3,H),r(4,P)],a);export{h as QuickChatService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { Orientation, Sash } from "../../../../base/browser/ui/sash/sash.js";
+import { disposableTimeout } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import {
+  editorBackground,
+  inputBackground,
+  quickInputBackground,
+  quickInputForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../../common/theme.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ChatAgentLocation } from "../common/chatAgents.js";
+import { IChatService } from "../common/chatService.js";
+import {
+  showChatView
+} from "./chat.js";
+import { ChatWidget } from "./chatWidget.js";
+let QuickChatService = class extends Disposable {
+  constructor(quickInputService, chatService, instantiationService) {
+    super();
+    this.quickInputService = quickInputService;
+    this.chatService = chatService;
+    this.instantiationService = instantiationService;
+  }
+  static {
+    __name(this, "QuickChatService");
+  }
+  _serviceBrand;
+  _onDidClose = this._register(new Emitter());
+  onDidClose = this._onDidClose.event;
+  _input;
+  // TODO@TylerLeonhardt: support multiple chat providers eventually
+  _currentChat;
+  _container;
+  get enabled() {
+    return !!this.chatService.isEnabled(ChatAgentLocation.Panel);
+  }
+  get focused() {
+    const widget = this._input?.widget;
+    if (!widget) {
+      return false;
+    }
+    return dom.isAncestorOfActiveElement(widget);
+  }
+  toggle(options) {
+    if (this.focused && !options?.query) {
+      this.close();
+    } else {
+      this.open(options);
+      if (options?.isPartialQuery) {
+        const disposable = this._store.add(
+          Event.once(this.onDidClose)(() => {
+            this._currentChat?.clearValue();
+            this._store.delete(disposable);
+          })
+        );
+      }
+    }
+  }
+  open(options) {
+    if (this._input) {
+      if (this._currentChat && options?.query) {
+        this._currentChat.focus();
+        this._currentChat.setValue(options.query, options.selection);
+        if (!options.isPartialQuery) {
+          this._currentChat.acceptInput();
+        }
+        return;
+      }
+      return this.focus();
+    }
+    const disposableStore = new DisposableStore();
+    this._input = this.quickInputService.createQuickWidget();
+    this._input.contextKey = "chatInputVisible";
+    this._input.ignoreFocusOut = true;
+    disposableStore.add(this._input);
+    this._container ??= dom.$(".interactive-session");
+    this._input.widget = this._container;
+    this._input.show();
+    if (this._currentChat) {
+      this._currentChat.show();
+    } else {
+      this._currentChat = this.instantiationService.createInstance(QuickChat);
+      this._currentChat.render(this._container);
+    }
+    disposableStore.add(
+      this._input.onDidHide(() => {
+        disposableStore.dispose();
+        this._currentChat.hide();
+        this._input = void 0;
+        this._onDidClose.fire();
+      })
+    );
+    this._currentChat.focus();
+    if (options?.query) {
+      this._currentChat.setValue(options.query, options.selection);
+      if (!options.isPartialQuery) {
+        this._currentChat.acceptInput();
+      }
+    }
+  }
+  focus() {
+    this._currentChat?.focus();
+  }
+  close() {
+    this._input?.dispose();
+    this._input = void 0;
+  }
+  async openInChatView() {
+    await this._currentChat?.openChatView();
+    this.close();
+  }
+};
+QuickChatService = __decorateClass([
+  __decorateParam(0, IQuickInputService),
+  __decorateParam(1, IChatService),
+  __decorateParam(2, IInstantiationService)
+], QuickChatService);
+let QuickChat = class extends Disposable {
+  constructor(instantiationService, contextKeyService, chatService, layoutService, viewsService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.chatService = chatService;
+    this.layoutService = layoutService;
+    this.viewsService = viewsService;
+  }
+  static {
+    __name(this, "QuickChat");
+  }
+  // TODO@TylerLeonhardt: be responsive to window size
+  static DEFAULT_MIN_HEIGHT = 200;
+  static DEFAULT_HEIGHT_OFFSET = 100;
+  widget;
+  sash;
+  model;
+  _currentQuery;
+  maintainScrollTimer = this._register(new MutableDisposable());
+  _deferUpdatingDynamicLayout = false;
+  clear() {
+    this.model?.dispose();
+    this.model = void 0;
+    this.updateModel();
+    this.widget.inputEditor.setValue("");
+  }
+  focus(selection) {
+    if (this.widget) {
+      this.widget.focusInput();
+      const value = this.widget.inputEditor.getValue();
+      if (value) {
+        this.widget.inputEditor.setSelection(
+          selection ?? {
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: value.length + 1
+          }
+        );
+      }
+    }
+  }
+  hide() {
+    this.widget.setVisible(false);
+    this.maintainScrollTimer.value = disposableTimeout(() => {
+      this.maintainScrollTimer.clear();
+    }, 30 * 1e3);
+  }
+  show() {
+    this.widget.setVisible(true);
+    if (this._deferUpdatingDynamicLayout) {
+      this._deferUpdatingDynamicLayout = false;
+      this.widget.updateDynamicChatTreeItemLayout(2, this.maxHeight);
+    }
+    if (!this.maintainScrollTimer.value) {
+      this.widget.layoutDynamicChatTreeItemMode();
+    }
+  }
+  render(parent) {
+    if (this.widget) {
+      throw new Error("Cannot render quick chat twice");
+    }
+    const scopedInstantiationService = this._register(
+      this.instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this._register(this.contextKeyService.createScoped(parent))
+        ])
+      )
+    );
+    this.widget = this._register(
+      scopedInstantiationService.createInstance(
+        ChatWidget,
+        ChatAgentLocation.Panel,
+        { isQuickChat: true },
+        {
+          renderInputOnTop: true,
+          renderStyle: "compact",
+          menus: { inputSideToolbar: MenuId.ChatInputSide }
+        },
+        {
+          listForeground: quickInputForeground,
+          listBackground: quickInputBackground,
+          overlayBackground: EDITOR_DRAG_AND_DROP_BACKGROUND,
+          inputEditorBackground: inputBackground,
+          resultEditorBackground: editorBackground
+        }
+      )
+    );
+    this.widget.render(parent);
+    this.widget.setVisible(true);
+    this.widget.setDynamicChatTreeItemLayout(2, this.maxHeight);
+    this.updateModel();
+    this.sash = this._register(
+      new Sash(
+        parent,
+        { getHorizontalSashTop: /* @__PURE__ */ __name(() => parent.offsetHeight, "getHorizontalSashTop") },
+        { orientation: Orientation.HORIZONTAL }
+      )
+    );
+    this.registerListeners(parent);
+  }
+  get maxHeight() {
+    return this.layoutService.mainContainerDimension.height - QuickChat.DEFAULT_HEIGHT_OFFSET;
+  }
+  registerListeners(parent) {
+    this._register(
+      this.layoutService.onDidLayoutMainContainer(() => {
+        if (this.widget.visible) {
+          this.widget.updateDynamicChatTreeItemLayout(
+            2,
+            this.maxHeight
+          );
+        } else {
+          this._deferUpdatingDynamicLayout = true;
+        }
+      })
+    );
+    this._register(
+      this.widget.inputEditor.onDidChangeModelContent((e) => {
+        this._currentQuery = this.widget.inputEditor.getValue();
+      })
+    );
+    this._register(this.widget.onDidClear(() => this.clear()));
+    this._register(
+      this.widget.onDidChangeHeight((e) => this.sash.layout())
+    );
+    const width = parent.offsetWidth;
+    this._register(
+      this.sash.onDidStart(() => {
+        this.widget.isDynamicChatTreeItemLayoutEnabled = false;
+      })
+    );
+    this._register(
+      this.sash.onDidChange((e) => {
+        if (e.currentY < QuickChat.DEFAULT_MIN_HEIGHT || e.currentY > this.maxHeight) {
+          return;
+        }
+        this.widget.layout(e.currentY, width);
+        this.sash.layout();
+      })
+    );
+    this._register(
+      this.sash.onDidReset(() => {
+        this.widget.isDynamicChatTreeItemLayoutEnabled = true;
+        this.widget.layoutDynamicChatTreeItemMode();
+      })
+    );
+  }
+  async acceptInput() {
+    return this.widget.acceptInput();
+  }
+  async openChatView() {
+    const widget = await showChatView(this.viewsService);
+    if (!widget?.viewModel || !this.model) {
+      return;
+    }
+    for (const request of this.model.getRequests()) {
+      if (request.response?.response.value || request.response?.result) {
+        const message = [];
+        for (const item of request.response.response.value) {
+          if (item.kind === "textEditGroup") {
+            for (const group of item.edits) {
+              message.push({
+                kind: "textEdit",
+                edits: group,
+                uri: item.uri
+              });
+            }
+          } else {
+            message.push(item);
+          }
+        }
+        this.chatService.addCompleteRequest(
+          widget.viewModel.sessionId,
+          request.message,
+          request.variableData,
+          request.attempt,
+          {
+            message,
+            result: request.response.result,
+            followups: request.response.followups
+          }
+        );
+      } else if (request.message) {
+      }
+    }
+    const value = this.widget.inputEditor.getValue();
+    if (value) {
+      widget.inputEditor.setValue(value);
+    }
+    widget.focusInput();
+  }
+  setValue(value, selection) {
+    this.widget.inputEditor.setValue(value);
+    this.focus(selection);
+  }
+  clearValue() {
+    this.widget.inputEditor.setValue("");
+  }
+  updateModel() {
+    this.model ??= this.chatService.startSession(
+      ChatAgentLocation.Panel,
+      CancellationToken.None
+    );
+    if (!this.model) {
+      throw new Error("Could not start chat session");
+    }
+    this.widget.setModel(this.model, { inputValue: this._currentQuery });
+  }
+};
+QuickChat = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IContextKeyService),
+  __decorateParam(2, IChatService),
+  __decorateParam(3, ILayoutService),
+  __decorateParam(4, IViewsService)
+], QuickChat);
+export {
+  QuickChatService
+};
+//# sourceMappingURL=chatQuick.js.map

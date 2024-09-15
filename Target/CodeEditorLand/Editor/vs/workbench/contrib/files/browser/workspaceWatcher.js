@@ -1,1 +1,241 @@
-var S=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var p=(h,n,e,i)=>{for(var r=i>1?void 0:i?g(n,e):n,o=h.length-1,a;o>=0;o--)(a=h[o])&&(r=(i?a(n,e,r):a(r))||r);return i&&r&&S(n,e,r),r},s=(h,n)=>(e,i)=>n(e,i,h);import{Disposable as m,DisposableStore as I,dispose as W}from"../../../../base/common/lifecycle.js";import{ResourceMap as l}from"../../../../base/common/map.js";import{isAbsolute as y}from"../../../../base/common/path.js";import{URI as v}from"../../../../base/common/uri.js";import{localize as d}from"../../../../nls.js";import{IConfigurationService as E}from"../../../../platform/configuration/common/configuration.js";import{IFileService as w}from"../../../../platform/files/common/files.js";import{INotificationService as C,NeverShowAgainScope as k,NotificationPriority as x,Severity as u}from"../../../../platform/notification/common/notification.js";import{IOpenerService as b}from"../../../../platform/opener/common/opener.js";import{ITelemetryService as D}from"../../../../platform/telemetry/common/telemetry.js";import{IUriIdentityService as N}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IWorkspaceContextService as F}from"../../../../platform/workspace/common/workspace.js";import{IHostService as O}from"../../../services/host/browser/host.js";let f=class extends m{constructor(e,i,r,o,a,t,c,U){super();this.fileService=e;this.configurationService=i;this.contextService=r;this.notificationService=o;this.openerService=a;this.uriIdentityService=t;this.hostService=c;this.telemetryService=U;this.registerListeners(),this.refresh()}static ID="workbench.contrib.workspaceWatcher";watchedWorkspaces=new l(e=>this.uriIdentityService.extUri.getComparisonKey(e));registerListeners(){this._register(this.contextService.onDidChangeWorkspaceFolders(e=>this.onDidChangeWorkspaceFolders(e))),this._register(this.contextService.onDidChangeWorkbenchState(()=>this.onDidChangeWorkbenchState())),this._register(this.configurationService.onDidChangeConfiguration(e=>this.onDidChangeConfiguration(e))),this._register(this.fileService.onDidWatchError(e=>this.onDidWatchError(e)))}onDidChangeWorkspaceFolders(e){for(const i of e.removed)this.unwatchWorkspace(i);for(const i of e.added)this.watchWorkspace(i)}onDidChangeWorkbenchState(){this.refresh()}onDidChangeConfiguration(e){(e.affectsConfiguration("files.watcherExclude")||e.affectsConfiguration("files.watcherInclude"))&&this.refresh()}onDidWatchError(e){const i=e.toString();let r;i.indexOf("ENOSPC")>=0?(r="ENOSPC",this.notificationService.prompt(u.Warning,d("enospcError","Unable to watch for file changes. Please follow the instructions link to resolve this issue."),[{label:d("learnMore","Instructions"),run:()=>this.openerService.open(v.parse("https://go.microsoft.com/fwlink/?linkid=867693"))}],{sticky:!0,neverShowAgain:{id:"ignoreEnospcError",isSecondary:!0,scope:k.WORKSPACE}})):i.indexOf("EUNKNOWN")>=0?(r="EUNKNOWN",this.notificationService.prompt(u.Warning,d("eshutdownError","File changes watcher stopped unexpectedly. A reload of the window may enable the watcher again unless the workspace cannot be watched for file changes."),[{label:d("reload","Reload"),run:()=>this.hostService.reload()}],{sticky:!0,priority:x.SILENT})):i.indexOf("ETERM")>=0&&(r="ETERM"),r&&this.telemetryService.publicLog2("fileWatcherError",{reason:r})}watchWorkspace(e){const i=[],r=this.configurationService.getValue({resource:e.uri});if(r.files?.watcherExclude)for(const t in r.files.watcherExclude)t&&r.files.watcherExclude[t]===!0&&i.push(t);const o=new l(t=>this.uriIdentityService.extUri.getComparisonKey(t));if(o.set(e.uri,e.uri),r.files?.watcherInclude){for(const t of r.files.watcherInclude)if(t)if(y(t)){const c=v.file(t).with({scheme:e.uri.scheme});this.uriIdentityService.extUri.isEqualOrParent(c,e.uri)&&o.set(c,c)}else{const c=e.toResource(t);o.set(c,c)}}const a=new I;for(const[,t]of o)a.add(this.fileService.watch(t,{recursive:!0,excludes:i}));this.watchedWorkspaces.set(e.uri,a)}unwatchWorkspace(e){this.watchedWorkspaces.has(e.uri)&&(W(this.watchedWorkspaces.get(e.uri)),this.watchedWorkspaces.delete(e.uri))}refresh(){this.unwatchWorkspaces();for(const e of this.contextService.getWorkspace().folders)this.watchWorkspace(e)}unwatchWorkspaces(){for(const[,e]of this.watchedWorkspaces)e.dispose();this.watchedWorkspaces.clear()}dispose(){super.dispose(),this.unwatchWorkspaces()}};f=p([s(0,w),s(1,E),s(2,F),s(3,C),s(4,b),s(5,N),s(6,O),s(7,D)],f);export{f as WorkspaceWatcher};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  Disposable,
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { isAbsolute } from "../../../../base/common/path.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import {
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import {
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import {
+  INotificationService,
+  NeverShowAgainScope,
+  NotificationPriority,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import {
+  IWorkspaceContextService
+} from "../../../../platform/workspace/common/workspace.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+let WorkspaceWatcher = class extends Disposable {
+  constructor(fileService, configurationService, contextService, notificationService, openerService, uriIdentityService, hostService, telemetryService) {
+    super();
+    this.fileService = fileService;
+    this.configurationService = configurationService;
+    this.contextService = contextService;
+    this.notificationService = notificationService;
+    this.openerService = openerService;
+    this.uriIdentityService = uriIdentityService;
+    this.hostService = hostService;
+    this.telemetryService = telemetryService;
+    this.registerListeners();
+    this.refresh();
+  }
+  static {
+    __name(this, "WorkspaceWatcher");
+  }
+  static ID = "workbench.contrib.workspaceWatcher";
+  watchedWorkspaces = new ResourceMap(
+    (resource) => this.uriIdentityService.extUri.getComparisonKey(resource)
+  );
+  registerListeners() {
+    this._register(
+      this.contextService.onDidChangeWorkspaceFolders(
+        (e) => this.onDidChangeWorkspaceFolders(e)
+      )
+    );
+    this._register(
+      this.contextService.onDidChangeWorkbenchState(
+        () => this.onDidChangeWorkbenchState()
+      )
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onDidChangeConfiguration(e)
+      )
+    );
+    this._register(
+      this.fileService.onDidWatchError(
+        (error) => this.onDidWatchError(error)
+      )
+    );
+  }
+  onDidChangeWorkspaceFolders(e) {
+    for (const removed of e.removed) {
+      this.unwatchWorkspace(removed);
+    }
+    for (const added of e.added) {
+      this.watchWorkspace(added);
+    }
+  }
+  onDidChangeWorkbenchState() {
+    this.refresh();
+  }
+  onDidChangeConfiguration(e) {
+    if (e.affectsConfiguration("files.watcherExclude") || e.affectsConfiguration("files.watcherInclude")) {
+      this.refresh();
+    }
+  }
+  onDidWatchError(error) {
+    const msg = error.toString();
+    let reason;
+    if (msg.indexOf("ENOSPC") >= 0) {
+      reason = "ENOSPC";
+      this.notificationService.prompt(
+        Severity.Warning,
+        localize(
+          "enospcError",
+          "Unable to watch for file changes. Please follow the instructions link to resolve this issue."
+        ),
+        [
+          {
+            label: localize("learnMore", "Instructions"),
+            run: /* @__PURE__ */ __name(() => this.openerService.open(
+              URI.parse(
+                "https://go.microsoft.com/fwlink/?linkid=867693"
+              )
+            ), "run")
+          }
+        ],
+        {
+          sticky: true,
+          neverShowAgain: {
+            id: "ignoreEnospcError",
+            isSecondary: true,
+            scope: NeverShowAgainScope.WORKSPACE
+          }
+        }
+      );
+    } else if (msg.indexOf("EUNKNOWN") >= 0) {
+      reason = "EUNKNOWN";
+      this.notificationService.prompt(
+        Severity.Warning,
+        localize(
+          "eshutdownError",
+          "File changes watcher stopped unexpectedly. A reload of the window may enable the watcher again unless the workspace cannot be watched for file changes."
+        ),
+        [
+          {
+            label: localize("reload", "Reload"),
+            run: /* @__PURE__ */ __name(() => this.hostService.reload(), "run")
+          }
+        ],
+        {
+          sticky: true,
+          priority: NotificationPriority.SILENT
+          // reduce potential spam since we don't really know how often this fires
+        }
+      );
+    } else if (msg.indexOf("ETERM") >= 0) {
+      reason = "ETERM";
+    }
+    if (reason) {
+      this.telemetryService.publicLog2("fileWatcherError", { reason });
+    }
+  }
+  watchWorkspace(workspace) {
+    const excludes = [];
+    const config = this.configurationService.getValue({
+      resource: workspace.uri
+    });
+    if (config.files?.watcherExclude) {
+      for (const key in config.files.watcherExclude) {
+        if (key && config.files.watcherExclude[key] === true) {
+          excludes.push(key);
+        }
+      }
+    }
+    const pathsToWatch = new ResourceMap(
+      (uri) => this.uriIdentityService.extUri.getComparisonKey(uri)
+    );
+    pathsToWatch.set(workspace.uri, workspace.uri);
+    if (config.files?.watcherInclude) {
+      for (const includePath of config.files.watcherInclude) {
+        if (!includePath) {
+          continue;
+        }
+        if (isAbsolute(includePath)) {
+          const candidate = URI.file(includePath).with({
+            scheme: workspace.uri.scheme
+          });
+          if (this.uriIdentityService.extUri.isEqualOrParent(
+            candidate,
+            workspace.uri
+          )) {
+            pathsToWatch.set(candidate, candidate);
+          }
+        } else {
+          const candidate = workspace.toResource(includePath);
+          pathsToWatch.set(candidate, candidate);
+        }
+      }
+    }
+    const disposables = new DisposableStore();
+    for (const [, pathToWatch] of pathsToWatch) {
+      disposables.add(
+        this.fileService.watch(pathToWatch, {
+          recursive: true,
+          excludes
+        })
+      );
+    }
+    this.watchedWorkspaces.set(workspace.uri, disposables);
+  }
+  unwatchWorkspace(workspace) {
+    if (this.watchedWorkspaces.has(workspace.uri)) {
+      dispose(this.watchedWorkspaces.get(workspace.uri));
+      this.watchedWorkspaces.delete(workspace.uri);
+    }
+  }
+  refresh() {
+    this.unwatchWorkspaces();
+    for (const folder of this.contextService.getWorkspace().folders) {
+      this.watchWorkspace(folder);
+    }
+  }
+  unwatchWorkspaces() {
+    for (const [, disposable] of this.watchedWorkspaces) {
+      disposable.dispose();
+    }
+    this.watchedWorkspaces.clear();
+  }
+  dispose() {
+    super.dispose();
+    this.unwatchWorkspaces();
+  }
+};
+WorkspaceWatcher = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IWorkspaceContextService),
+  __decorateParam(3, INotificationService),
+  __decorateParam(4, IOpenerService),
+  __decorateParam(5, IUriIdentityService),
+  __decorateParam(6, IHostService),
+  __decorateParam(7, ITelemetryService)
+], WorkspaceWatcher);
+export {
+  WorkspaceWatcher
+};
+//# sourceMappingURL=workspaceWatcher.js.map

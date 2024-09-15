@@ -1,2 +1,1771 @@
-var U=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var L=(v,e,t,n)=>{for(var i=n>1?void 0:n?k(e,t):e,r=v.length-1,o;r>=0;r--)(o=v[r])&&(i=(n?o(e,t,i):o(i))||i);return n&&i&&U(e,t,i),i},C=(v,e)=>(t,n)=>e(t,n,v);import{Action as H}from"../../../../base/common/actions.js";import{coalesce as P}from"../../../../base/common/arrays.js";import{findFirstIdxMonotonousOrArrLen as V}from"../../../../base/common/arraysFind.js";import{Delayer as Z,createCancelablePromise as B}from"../../../../base/common/async.js";import{onUnexpectedError as F}from"../../../../base/common/errors.js";import{DisposableStore as M,dispose as T}from"../../../../base/common/lifecycle.js";import"./media/review.css";import{status as w}from"../../../../base/browser/ui/aria/aria.js";import{Emitter as K}from"../../../../base/common/event.js";import{URI as Q}from"../../../../base/common/uri.js";import{isCodeEditor as A,isDiffEditor as j}from"../../../../editor/browser/editorBrowser.js";import{ICodeEditorService as G}from"../../../../editor/browser/services/codeEditorService.js";import{EmbeddedCodeEditorWidget as $}from"../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{EditorOption as S}from"../../../../editor/common/config/editorOptions.js";import{Range as l}from"../../../../editor/common/core/range.js";import{EditorType as Y}from"../../../../editor/common/editorCommon.js";import*as x from"../../../../editor/common/languages.js";import{ModelDecorationOptions as N,TextModel as J}from"../../../../editor/common/model/textModel.js";import*as R from"../../../../nls.js";import{IAccessibilityService as X}from"../../../../platform/accessibility/common/accessibility.js";import{IConfigurationService as z}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as ee}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as te}from"../../../../platform/contextview/browser/contextView.js";import{IInstantiationService as ne}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as ie}from"../../../../platform/keybinding/common/keybinding.js";import{IQuickInputService as oe}from"../../../../platform/quickinput/common/quickInput.js";import{ACTIVE_GROUP as re,IEditorService as se,SIDE_GROUP as me}from"../../../services/editor/common/editorService.js";import{IViewsService as ae}from"../../../services/views/common/viewsService.js";import{AccessibilityVerbositySettingId as de}from"../../accessibility/browser/accessibilityConfiguration.js";import{AccessibilityCommandId as ce}from"../../accessibility/common/accessibilityCommands.js";import{CommentContextKeys as W}from"../common/commentContextKeys.js";import{COMMENTS_SECTION as ge}from"../common/commentsConfiguration.js";import{CommentGlyphWidget as q}from"./commentGlyphWidget.js";import{COMMENTEDITOR_DECORATION_KEY as le}from"./commentReply.js";import{ICommentService as ue}from"./commentService.js";import{CommentThreadRangeDecorator as he}from"./commentThreadRangeDecorator.js";import{CommentWidgetFocus as y,ReviewZoneWidget as pe,isMouseUpEventDragFromMouseDown as fe,parseMouseDownInfoFromEvent as Ce}from"./commentThreadZoneWidget.js";import{threadHasMeaningfulComments as ve}from"./commentsModel.js";import{COMMENTS_VIEW_ID as O}from"./commentsTreeViewer.js";const be="editor.contrib.review";class I{constructor(e,t,n,i,r,o,m,s=!1){this._editor=e;this._ownerId=t;this._extensionId=n;this._label=i;this._range=r;this.options=o;this.commentingRangesInfo=m;this.isHover=s;this._startLineNumber=r.startLineNumber,this._endLineNumber=r.endLineNumber}_decorationId;_startLineNumber;_endLineNumber;get id(){return this._decorationId}set id(e){this._decorationId=e}get range(){return{startLineNumber:this._startLineNumber,startColumn:1,endLineNumber:this._endLineNumber,endColumn:1}}getCommentAction(){return{extensionId:this._extensionId,label:this._label,ownerId:this._ownerId,commentingRangesInfo:this.commentingRangesInfo}}getOriginalRange(){return this._range}getActiveRange(){return this.id?this._editor.getModel().getDecorationRange(this.id):void 0}}class E{static description="commenting-range-decorator";decorationOptions;hoverDecorationOptions;multilineDecorationOptions;commentingRangeDecorations=[];decorationIds=[];_editor;_infos;_lastHover=-1;_lastSelection;_lastSelectionCursor;_onDidChangeDecorationsCount=new K;onDidChangeDecorationsCount=this._onDidChangeDecorationsCount.event;constructor(){const e={description:E.description,isWholeLine:!0,linesDecorationsClassName:"comment-range-glyph comment-diff-added"};this.decorationOptions=N.createDynamic(e);const t={description:E.description,isWholeLine:!0,linesDecorationsClassName:"comment-range-glyph line-hover"};this.hoverDecorationOptions=N.createDynamic(t);const n={description:E.description,isWholeLine:!0,linesDecorationsClassName:"comment-range-glyph multiline-add"};this.multilineDecorationOptions=N.createDynamic(n)}updateHover(e){this._editor&&this._infos&&e!==this._lastHover&&this._doUpdate(this._editor,this._infos,e),this._lastHover=e??-1}updateSelection(e,t=new l(0,0,0,0)){this._lastSelection=t.isEmpty()?void 0:t,this._lastSelectionCursor=t.isEmpty()?void 0:e,this._editor&&this._infos&&this._doUpdate(this._editor,this._infos,e,t)}update(e,t,n,i){e&&(this._editor=e,this._infos=t,this._doUpdate(e,t,n,i))}_lineHasThread(e,t){return e.getDecorationsInRange(t)?.find(n=>n.options.description===q.description)}_doUpdate(e,t,n=-1,i=this._lastSelection){if(!e.getModel())return;n=this._lastSelectionCursor??n;const o=[];for(const s of t)s.commentingRanges.ranges.forEach(a=>{const u=new l(a.startLineNumber,a.startColumn,a.endLineNumber,a.endColumn);let d=i?u.intersectRanges(i):void 0;if(i&&n>=0&&d&&!(d.startLineNumber===d.endLineNumber&&n===d.startLineNumber)){let g;n<=d.startLineNumber?(g=d.collapseToStart(),d=new l(d.startLineNumber+1,1,d.endLineNumber,1)):(g=new l(d.endLineNumber,1,d.endLineNumber,1),d=new l(d.startLineNumber,1,d.endLineNumber-1,1)),o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,d,this.multilineDecorationOptions,s.commentingRanges,!0)),this._lineHasThread(e,g)||o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,g,this.hoverDecorationOptions,s.commentingRanges,!0));const c=Math.min(g.startLineNumber,d.startLineNumber)-1,h=u.startLineNumber<=c,b=Math.max(g.endLineNumber,d.endLineNumber)+1,f=u.endLineNumber>=b;if(h){const p=new l(a.startLineNumber,1,c,1);o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,p,this.decorationOptions,s.commentingRanges,!0))}if(f){const p=new l(b,1,a.endLineNumber,1);o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,p,this.decorationOptions,s.commentingRanges,!0))}}else if(u.startLineNumber<=n&&n<=u.endLineNumber){if(u.startLineNumber<n){const c=new l(a.startLineNumber,1,n-1,1);o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,c,this.decorationOptions,s.commentingRanges,!0))}const g=new l(n,1,n,1);if(this._lineHasThread(e,g)||o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,g,this.hoverDecorationOptions,s.commentingRanges,!0)),n<u.endLineNumber){const c=new l(n+1,1,a.endLineNumber,1);o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,c,this.decorationOptions,s.commentingRanges,!0))}}else o.push(new I(e,s.uniqueOwner,s.extensionId,s.label,a,this.decorationOptions,s.commentingRanges))});e.changeDecorations(s=>{this.decorationIds=s.deltaDecorations(this.decorationIds,o),o.forEach((a,u)=>a.id=this.decorationIds[u])});const m=this.commentingRangeDecorations.length-o.length;this.commentingRangeDecorations=o,m&&this._onDidChangeDecorationsCount.fire(this.commentingRangeDecorations.length)}areRangesIntersectingOrTouchingByLine(e,t){return!(e.endLineNumber<t.startLineNumber-1||t.endLineNumber+1<e.startLineNumber)}getMatchedCommentAction(e){if(e===void 0){const i=this._infos?.filter(r=>r.commentingRanges.fileComments);return i?i.map(r=>({action:{ownerId:r.uniqueOwner,extensionId:r.extensionId,label:r.label,commentingRangesInfo:r.commentingRanges}})):[]}const t=new Map;for(const i of this.commentingRangeDecorations){const r=i.getActiveRange();if(r&&this.areRangesIntersectingOrTouchingByLine(r,e)){const o=i.getCommentAction(),m=t.get(o.ownerId);if(m?.action.commentingRangesInfo===o.commentingRangesInfo){const s=new l(r.startLineNumber<m.range.startLineNumber?r.startLineNumber:m.range.startLineNumber,r.startColumn<m.range.startColumn?r.startColumn:m.range.startColumn,r.endLineNumber>m.range.endLineNumber?r.endLineNumber:m.range.endLineNumber,r.endColumn>m.range.endColumn?r.endColumn:m.range.endColumn);t.set(o.ownerId,{range:s,action:o})}else t.set(o.ownerId,{range:r,action:o})}}const n=new Set;return Array.from(t.values()).filter(i=>n.has(i.action.ownerId)?!1:(n.add(i.action.ownerId),!0))}getNearestCommentingRange(e,t){let n,i;if(t){i=[];for(let r=this.commentingRangeDecorations.length-1;r>=0;r--)i.push(this.commentingRangeDecorations[r])}else i=this.commentingRangeDecorations;for(const r of i){const o=r.getActiveRange();if(o){if(n&&this.areRangesIntersectingOrTouchingByLine(o,n)){n=l.plusRange(n,o);continue}if(o.startLineNumber<=e.lineNumber&&e.lineNumber<=o.endLineNumber){n=new l(o.startLineNumber,o.startColumn,o.endLineNumber,o.endColumn);continue}if(!(!t&&o.endLineNumber<e.lineNumber)&&!(t&&o.startLineNumber>e.lineNumber))return o}}return i.length>0?i[0].getActiveRange()??void 0:void 0}dispose(){this.commentingRangeDecorations=[]}}function ot(v,e,t,n,i,r,o,m,s){if(!n.resource)return;v.isCommentingEnabled||v.enableCommenting(!0);const a=n.range,u=r?y.Editor:m?y.None:y.Widget,d=e.activeTextEditorControl,g=j(d)?[d.getOriginalEditor(),d.getModifiedEditor()]:d?[d]:[],c=n.threadId,h=i?.uniqueIdInThread,b=Q.parse(n.resource);for(const f of g){const p=f.getModel();if(p instanceof J&&t.extUri.isEqual(b,p.uri)){c&&A(f)&&_.get(f)?.revealCommentThread(c,h,!0,u);return}}e.openEditor({resource:b,options:{pinned:o,preserveFocus:m,selection:a??new l(1,1,1,1)}},s?me:re).then(f=>{if(f){const p=f.getControl();c&&A(p)&&_.get(p)?.revealCommentThread(c,h,!0,u)}})}let _=class{constructor(e,t,n,i,r,o,m,s,a,u,d,g){this.commentService=t;this.instantiationService=n;this.codeEditorService=i;this.contextMenuService=r;this.quickInputService=o;this.viewsService=m;this.configurationService=s;this.editorService=u;this.keybindingService=d;this.accessibilityService=g;this._commentInfos=[],this._commentWidgets=[],this._pendingNewCommentCache={},this._pendingEditsCache={},this._computePromise=null,this._activeCursorHasCommentingRange=W.activeCursorHasCommentingRange.bindTo(a),this._activeEditorHasCommentingRange=W.activeEditorHasCommentingRange.bindTo(a),!(e instanceof $)&&(this.editor=e,this._commentingRangeDecorator=new E,this.globalToDispose.add(this._commentingRangeDecorator.onDidChangeDecorationsCount(c=>{c===0?this.clearEditorListeners():this._editorDisposables.length===0&&this.registerEditorListeners()})),this.globalToDispose.add(this._commentThreadRangeDecorator=new he(this.commentService)),this.globalToDispose.add(this.commentService.onDidDeleteDataProvider(c=>{c?(delete this._pendingNewCommentCache[c],delete this._pendingEditsCache[c]):(this._pendingNewCommentCache={},this._pendingEditsCache={}),this.beginCompute()})),this.globalToDispose.add(this.commentService.onDidSetDataProvider(c=>this.beginComputeAndHandleEditorChange())),this.globalToDispose.add(this.commentService.onDidUpdateCommentingRanges(c=>this.beginComputeAndHandleEditorChange())),this.globalToDispose.add(this.commentService.onDidSetResourceCommentInfos(async c=>{const h=this.editor&&this.editor.hasModel()&&this.editor.getModel().uri;h&&h.toString()===c.resource.toString()&&await this.setComments(c.commentInfos.filter(b=>b!==null))})),this.globalToDispose.add(this.commentService.onDidChangeCommentingEnabled(c=>{c?(this.registerEditorListeners(),this.beginCompute()):(this.tryUpdateReservedSpace(),this.clearEditorListeners(),this._commentingRangeDecorator.update(this.editor,[]),this._commentThreadRangeDecorator.update(this.editor,[]),T(this._commentWidgets),this._commentWidgets=[])})),this.globalToDispose.add(this.editor.onWillChangeModel(c=>this.onWillChangeModel(c))),this.globalToDispose.add(this.editor.onDidChangeModel(c=>this.onModelChanged())),this.globalToDispose.add(this.configurationService.onDidChangeConfiguration(c=>{c.affectsConfiguration("diffEditor.renderSideBySide")&&this.beginCompute()})),this.onModelChanged(),this.codeEditorService.registerDecorationType("comment-controller",le,{}),this.globalToDispose.add(this.commentService.registerContinueOnCommentProvider({provideContinueOnComments:()=>{const c=[];if(this._commentWidgets)for(const h of this._commentWidgets){const f=h.getPendingComments().newComment;if(!f)continue;let p;if(h.commentThread.comments&&h.commentThread.comments.length){const D=h.commentThread.comments[h.commentThread.comments.length-1];typeof D.body=="string"?p=D.body:p=D.body.value}f!==p&&c.push({uniqueOwner:h.uniqueOwner,uri:h.editor.getModel().uri,range:h.commentThread.range,body:f,isReply:h.commentThread.comments!==void 0&&h.commentThread.comments.length>0})}return c}})))}globalToDispose=new M;localToDispose=new M;editor;_commentWidgets;_commentInfos;_commentingRangeDecorator;_commentThreadRangeDecorator;mouseDownInfo=null;_commentingRangeSpaceReserved=!1;_commentingRangeAmountReserved=0;_computePromise;_computeAndSetPromise;_addInProgress;_emptyThreadsToAddQueue=[];_computeCommentingRangePromise;_computeCommentingRangeScheduler;_pendingNewCommentCache;_pendingEditsCache;_inProcessContinueOnComments=new Map;_editorDisposables=[];_activeCursorHasCommentingRange;_activeEditorHasCommentingRange;_hasRespondedToEditorChange=!1;registerEditorListeners(){this._editorDisposables=[],this.editor&&(this._editorDisposables.push(this.editor.onMouseMove(e=>this.onEditorMouseMove(e))),this._editorDisposables.push(this.editor.onMouseLeave(()=>this.onEditorMouseLeave())),this._editorDisposables.push(this.editor.onDidChangeCursorPosition(e=>this.onEditorChangeCursorPosition(e.position))),this._editorDisposables.push(this.editor.onDidFocusEditorWidget(()=>this.onEditorChangeCursorPosition(this.editor?.getPosition()??null))),this._editorDisposables.push(this.editor.onDidChangeCursorSelection(e=>this.onEditorChangeCursorSelection(e))),this._editorDisposables.push(this.editor.onDidBlurEditorWidget(()=>this.onEditorChangeCursorSelection())))}clearEditorListeners(){T(this._editorDisposables),this._editorDisposables=[]}onEditorMouseLeave(){this._commentingRangeDecorator.updateHover()}onEditorMouseMove(e){const t=e.target.position?.lineNumber;e.event.leftButton.valueOf()&&t&&this.mouseDownInfo?this._commentingRangeDecorator.updateSelection(t,new l(this.mouseDownInfo.lineNumber,1,t,1)):this._commentingRangeDecorator.updateHover(t)}onEditorChangeCursorSelection(e){const t=this.editor?.getPosition()?.lineNumber;t&&this._commentingRangeDecorator.updateSelection(t,e?.selection)}onEditorChangeCursorPosition(e){const t=e?this.editor?.getDecorationsInRange(l.fromPositions(e,{column:-1,lineNumber:e.lineNumber})):void 0;let n=!1;if(t)for(const i of t)if(i.options.description===q.description){n=!1;break}else i.options.description===E.description&&(n=!0);this._activeCursorHasCommentingRange.set(n)}isEditorInlineOriginal(e){return this.configurationService.getValue("diffEditor.renderSideBySide")?!1:!!this.editorService.visibleTextEditorControls.find(n=>n.getEditorType()===Y.IDiffEditor?n.getOriginalEditor()===e:!1)}beginCompute(){return this._computePromise=B(e=>{const t=this.editor&&this.editor.hasModel()&&this.editor.getModel().uri;return t?this.commentService.getDocumentComments(t):Promise.resolve([])}),this._computeAndSetPromise=this._computePromise.then(async e=>{await this.setComments(P(e)),this._computePromise=null},e=>{}),this._computePromise.then(()=>this._computeAndSetPromise=void 0),this._computeAndSetPromise}beginComputeCommentingRanges(){this._computeCommentingRangeScheduler&&(this._computeCommentingRangePromise&&(this._computeCommentingRangePromise.cancel(),this._computeCommentingRangePromise=null),this._computeCommentingRangeScheduler.trigger(()=>{const e=this.editor&&this.editor.hasModel()&&this.editor.getModel().uri;return e?this.commentService.getDocumentComments(e):Promise.resolve([])}).then(e=>{if(this.commentService.isCommentingEnabled){const t=P(e);this._commentingRangeDecorator.update(this.editor,t,this.editor?.getPosition()?.lineNumber,this.editor?.getSelection()??void 0)}},e=>(F(e),null)))}static get(e){return e.getContribution(be)}revealCommentThread(e,t,n,i){const r=this._commentWidgets.filter(o=>o.commentThread.threadId===e);r.length===1?r[0].reveal(t,i):n&&(this._computeAndSetPromise?this._computeAndSetPromise.then(o=>{this.revealCommentThread(e,t,!1,i)}):this.beginCompute().then(o=>{this.revealCommentThread(e,t,!1,i)}))}collapseAll(){for(const e of this._commentWidgets)e.collapse()}expandAll(){for(const e of this._commentWidgets)e.expand()}expandUnresolved(){for(const e of this._commentWidgets)e.commentThread.state===x.CommentThreadState.Unresolved&&e.expand()}nextCommentThread(){this._findNearestCommentThread()}_findNearestCommentThread(e){if(!this._commentWidgets.length||!this.editor?.hasModel())return;const t=e?this.editor.getSelection().getStartPosition():this.editor.getSelection().getEndPosition(),n=this._commentWidgets.sort((o,m)=>{if(e){const s=o;o=m,m=s}return o.commentThread.range===void 0?-1:m.commentThread.range===void 0?1:o.commentThread.range.startLineNumber<m.commentThread.range.startLineNumber?-1:o.commentThread.range.startLineNumber>m.commentThread.range.startLineNumber?1:o.commentThread.range.startColumn<m.commentThread.range.startColumn?-1:o.commentThread.range.startColumn>m.commentThread.range.startColumn?1:0}),i=V(n,o=>{const m=e?t.lineNumber:o.commentThread.range?.startLineNumber??0,s=e?o.commentThread.range?.startLineNumber??0:t.lineNumber,a=e?t.column:o.commentThread.range?.startColumn??0,u=e?o.commentThread.range?.startColumn??0:t.column;return m>s?!0:m<s?!1:a>u}),r=n[i];r!==void 0&&(this.editor.setSelection(r.commentThread.range??new l(1,1,1,1)),r.reveal(void 0,y.Widget))}previousCommentThread(){this._findNearestCommentThread(!0)}_findNearestCommentingRange(e){if(!this.editor?.hasModel())return;const t=this.editor.getSelection().getEndPosition(),n=this._commentingRangeDecorator.getNearestCommentingRange(t,e);if(n){const i=e?n.getEndPosition():n.getStartPosition();this.editor.setPosition(i),this.editor.revealLineInCenterIfOutsideViewport(i.lineNumber)}if(this.accessibilityService.isScreenReaderOptimized()){const i=n?.getStartPosition().lineNumber,r=n?.getEndPosition().lineNumber;i&&r&&(i===r?w(R.localize("commentRange","Line {0}",i)):w(R.localize("commentRangeStart","Lines {0} to {1}",i,r)))}}nextCommentingRange(){this._findNearestCommentingRange()}previousCommentingRange(){this._findNearestCommentingRange(!0)}dispose(){this.globalToDispose.dispose(),this.localToDispose.dispose(),T(this._editorDisposables),T(this._commentWidgets),this.editor=null}onWillChangeModel(e){e.newModelUrl&&this.tryUpdateReservedSpace(e.newModelUrl)}async handleCommentAdded(e,t,n){if(this._commentWidgets.filter(d=>d.uniqueOwner===t&&d.commentThread.threadId===n.threadId).length)return;const r=this._commentWidgets.filter(d=>d.uniqueOwner===t&&d.commentThread.commentThreadHandle===-1&&l.equalsRange(d.commentThread.range,n.range));if(r.length){r[0].update(n);return}const o=this._inProcessContinueOnComments.get(t)?.findIndex(d=>d.range===void 0?n.range===void 0:l.lift(d.range).equalsRange(n.range));let m;o!==void 0&&o>=0&&(m=this._inProcessContinueOnComments.get(t)?.splice(o,1)[0].body);const s=(this._pendingNewCommentCache[t]&&this._pendingNewCommentCache[t][n.threadId])??m,a=this._pendingEditsCache[t]&&this._pendingEditsCache[t][n.threadId],u=n.canReply&&n.isTemplate&&(!n.comments||n.comments.length===0)&&(!n.editorId||n.editorId===e);await this.displayCommentThread(t,n,u,s,a),this._commentInfos.filter(d=>d.uniqueOwner===t)[0].threads.push(n),this.tryUpdateReservedSpace()}onModelChanged(){this.localToDispose.clear(),this.tryUpdateReservedSpace(),this.removeCommentWidgetsAndStoreCache(),this.editor&&(this._hasRespondedToEditorChange=!1,this.localToDispose.add(this.editor.onMouseDown(e=>this.onEditorMouseDown(e))),this.localToDispose.add(this.editor.onMouseUp(e=>this.onEditorMouseUp(e))),this._editorDisposables.length&&(this.clearEditorListeners(),this.registerEditorListeners()),this._computeCommentingRangeScheduler=new Z(200),this.localToDispose.add({dispose:()=>{this._computeCommentingRangeScheduler?.cancel(),this._computeCommentingRangeScheduler=null}}),this.localToDispose.add(this.editor.onDidChangeModelContent(async()=>{this.beginComputeCommentingRanges()})),this.localToDispose.add(this.commentService.onDidUpdateCommentThreads(async e=>{const t=this.editor&&this.editor.hasModel()&&this.editor.getModel().uri;if(!t||!this.commentService.isCommentingEnabled)return;this._computePromise&&await this._computePromise;const n=this._commentInfos.filter(a=>a.uniqueOwner===e.uniqueOwner);if(!n||!n.length)return;const i=e.added.filter(a=>a.resource&&a.resource===t.toString()),r=e.removed.filter(a=>a.resource&&a.resource===t.toString()),o=e.changed.filter(a=>a.resource&&a.resource===t.toString()),m=e.pending.filter(a=>a.uri.toString()===t.toString());r.forEach(a=>{const u=this._commentWidgets.filter(g=>g.uniqueOwner===e.uniqueOwner&&g.commentThread.threadId===a.threadId&&g.commentThread.threadId!=="");if(u.length){const g=u[0],c=this._commentWidgets.indexOf(g);this._commentWidgets.splice(c,1),g.dispose()}const d=this._commentInfos.filter(g=>g.uniqueOwner===e.uniqueOwner)[0].threads;for(let g=0;g<d.length;g++)d[g]===a&&(d.splice(g,1),g--)});for(const a of o){const u=this._commentWidgets.filter(d=>d.uniqueOwner===e.uniqueOwner&&d.commentThread.threadId===a.threadId);u.length&&(u[0].update(a),this.openCommentsView(a))}const s=this.editor?.getId();for(const a of i)await this.handleCommentAdded(s,e.uniqueOwner,a);for(const a of m)await this.resumePendingComment(t,a);this._commentThreadRangeDecorator.update(this.editor,n)})),this.beginComputeAndHandleEditorChange())}async resumePendingComment(e,t){const n=this._commentWidgets.filter(i=>i.uniqueOwner===t.uniqueOwner&&l.lift(i.commentThread.range)?.equalsRange(t.range));if(t.isReply&&n.length)this.commentService.removeContinueOnComment({uniqueOwner:t.uniqueOwner,uri:e,range:t.range,isReply:!0}),n[0].setPendingComment(t.body);else if(n.length){this.commentService.removeContinueOnComment({uniqueOwner:t.uniqueOwner,uri:e,range:t.range,isReply:!1});const i=n[0].getPendingComments().newComment;let r;!i||t.body.includes(i)?r=t.body:i.includes(t.body)?r=i:r=`${i}
-${t.body}`,n[0].setPendingComment(r)}else if(!t.isReply){if(!this.commentService.removeContinueOnComment({uniqueOwner:t.uniqueOwner,uri:e,range:t.range,isReply:!1}))return;this._inProcessContinueOnComments.has(t.uniqueOwner)||this._inProcessContinueOnComments.set(t.uniqueOwner,[]),this._inProcessContinueOnComments.get(t.uniqueOwner)?.push(t),await this.commentService.createCommentThreadTemplate(t.uniqueOwner,t.uri,t.range?l.lift(t.range):void 0)}}beginComputeAndHandleEditorChange(){this.beginCompute().then(()=>{if(!this._hasRespondedToEditorChange&&this._commentInfos.some(e=>e.commentingRanges.ranges.length>0||e.commentingRanges.fileComments))if(this._hasRespondedToEditorChange=!0,this.configurationService.getValue(de.Comments)){const t=this.keybindingService.lookupKeybinding(ce.OpenAccessibilityHelp)?.getAriaLabel();t?w(R.localize("hasCommentRangesKb","Editor has commenting ranges, run the command Open Accessibility Help ({0}), for more information.",t)):w(R.localize("hasCommentRangesNoKb","Editor has commenting ranges, run the command Open Accessibility Help, which is currently not triggerable via keybinding, for more information."))}else w(R.localize("hasCommentRanges","Editor has commenting ranges."))})}async openCommentsView(e){if(e.comments&&e.comments.length>0&&ve(e)){const t=this.configurationService.getValue(ge).openView;if(t==="file")return this.viewsService.openView(O);if((t==="firstFile"||t==="firstFileUnresolved"&&e.state===x.CommentThreadState.Unresolved)&&!this.viewsService.getViewWithId(O)?.hasRendered)return this.viewsService.openView(O)}}async displayCommentThread(e,t,n,i,r){const o=this.editor?.getModel();if(!o||!this.editor||this.isEditorInlineOriginal(this.editor))return;let m;t.range&&!i&&(m=this.commentService.removeContinueOnComment({uniqueOwner:e,uri:o.uri,range:t.range,isReply:!0}));const s=this.instantiationService.createInstance(pe,this.editor,e,t,i??m?.body,r);await s.display(t.range,n),this._commentWidgets.push(s),this.openCommentsView(t)}onEditorMouseDown(e){this.mouseDownInfo=Ce(e)}onEditorMouseUp(e){const t=fe(this.mouseDownInfo,e);if(this.mouseDownInfo=null,!this.editor||t===null||!e.target.element)return;const n=e.target.element.className.indexOf("comment-range-glyph")>=0,i=e.target.position.lineNumber;let r,o;t!==i?t>i?o=new l(t,this.editor.getModel().getLineLength(t)+1,i,1):o=new l(t,1,i,this.editor.getModel().getLineLength(i)+1):n&&(o=this.editor.getSelection()),o&&o.startLineNumber<=i&&i<=o.endLineNumber?(r=o,this.editor.setSelection(new l(o.endLineNumber,1,o.endLineNumber,1))):n&&(r=new l(i,1,i,1)),r&&this.addOrToggleCommentAtLine(r,e)}async addOrToggleCommentAtLine(e,t){if(this._addInProgress)this._emptyThreadsToAddQueue.push([e,t]);else{this._addInProgress=!0;const n=this._commentWidgets.filter(i=>i.getGlyphPosition()===(e?e.endLineNumber:0));if(n.length){const i=n.every(r=>r.expanded);n.forEach(i?r=>r.collapse():r=>r.expand(!0)),this.processNextThreadToAdd();return}else this.addCommentAtLine(e,t)}}processNextThreadToAdd(){this._addInProgress=!1;const e=this._emptyThreadsToAddQueue.shift();e&&this.addOrToggleCommentAtLine(e[0],e[1])}clipUserRangeToCommentRange(e,t){return e.startLineNumber<t.startLineNumber&&(e=new l(t.startLineNumber,t.startColumn,e.endLineNumber,e.endColumn)),e.endLineNumber>t.endLineNumber&&(e=new l(e.startLineNumber,e.startColumn,t.endLineNumber,t.endColumn)),e}addCommentAtLine(e,t){const n=this._commentingRangeDecorator.getMatchedCommentAction(e);if(!n.length||!this.editor?.hasModel()){if(this._addInProgress=!1,!n.length)throw new Error(`There are no commenting ranges at the current position (${e?"with range":"without range"}).`);return Promise.resolve()}if(n.length>1){if(t&&e)return this.contextMenuService.showContextMenu({getAnchor:()=>t.event,getActions:()=>this.getContextMenuActions(n,e),getActionsContext:()=>n.length?n[0]:void 0,onHide:()=>{this._addInProgress=!1}}),Promise.resolve();{const i=this.getCommentProvidersQuickPicks(n);return this.quickInputService.pick(i,{placeHolder:R.localize("pickCommentService","Select Comment Provider"),matchOnDescription:!0}).then(r=>{if(!r)return;const o=n.filter(m=>m.action.ownerId===r.id);if(o.length){const{ownerId:m}=o[0].action,s=e&&o[0].range?this.clipUserRangeToCommentRange(e,o[0].range):e;this.addCommentAtLine2(s,m)}}).then(()=>{this._addInProgress=!1})}}else{const{ownerId:i}=n[0].action,r=e&&n[0].range?this.clipUserRangeToCommentRange(e,n[0].range):e;this.addCommentAtLine2(r,i)}return Promise.resolve()}getCommentProvidersQuickPicks(e){return e.map(n=>{const{ownerId:i,extensionId:r,label:o}=n.action;return{label:o??r??i,id:i}})}getContextMenuActions(e,t){const n=[];return e.forEach(i=>{const{ownerId:r,extensionId:o,label:m}=i.action;n.push(new H("addCommentThread",`${m||o}`,void 0,!0,()=>{const s=i.range?this.clipUserRangeToCommentRange(t,i.range):t;return this.addCommentAtLine2(s,r),Promise.resolve()}))}),n}addCommentAtLine2(e,t){this.editor&&(this.commentService.createCommentThreadTemplate(t,this.editor.getModel().uri,e,this.editor.getId()),this.processNextThreadToAdd())}getExistingCommentEditorOptions(e){const t=e.getOption(S.lineDecorationsWidth);let n=[];const i=e.getRawOptions().extraEditorClassName;return i&&(n=i.split(" ")),{lineDecorationsWidth:t,extraEditorClassName:n}}getWithoutCommentsEditorOptions(e,t,n){let i=n;const r=t.findIndex(m=>m==="inline-comment");r>=0&&t.splice(r,1);const o=e.getOptions();return o.get(S.folding)&&o.get(S.showFoldingControls)!=="never"&&(i+=11),i-=24,{extraEditorClassName:t,lineDecorationsWidth:i}}getWithCommentsLineDecorationWidth(e,t){let n=t;const i=e.getOptions();return i.get(S.folding)&&i.get(S.showFoldingControls)!=="never"&&(n-=11),n+=24,this._commentingRangeAmountReserved=n,this._commentingRangeAmountReserved}getWithCommentsEditorOptions(e,t,n){return t.push("inline-comment"),{lineDecorationsWidth:this.getWithCommentsLineDecorationWidth(e,n),extraEditorClassName:t}}updateEditorLayoutOptions(e,t,n){e.updateOptions({extraEditorClassName:t.join(" "),lineDecorationsWidth:n})}ensureCommentingRangeReservedAmount(e){const t=this.getExistingCommentEditorOptions(e);t.lineDecorationsWidth!==this._commentingRangeAmountReserved&&e.updateOptions({lineDecorationsWidth:this.getWithCommentsLineDecorationWidth(e,t.lineDecorationsWidth)})}tryUpdateReservedSpace(e){if(!this.editor)return;const t=this._commentInfos.some(r=>!!(r.commentingRanges&&(Array.isArray(r.commentingRanges)?r.commentingRanges:r.commentingRanges.ranges).length)||r.threads.length>0);e=e??this.editor.getModel()?.uri;const n=e?this.commentService.resourceHasCommentingRanges(e):!1,i=t||n;if(i&&this.commentService.isCommentingEnabled)if(this._commentingRangeSpaceReserved)this.ensureCommentingRangeReservedAmount(this.editor);else{this._commentingRangeSpaceReserved=!0;const{lineDecorationsWidth:r,extraEditorClassName:o}=this.getExistingCommentEditorOptions(this.editor),m=this.getWithCommentsEditorOptions(this.editor,o,r);this.updateEditorLayoutOptions(this.editor,m.extraEditorClassName,m.lineDecorationsWidth)}else if((!i||!this.commentService.isCommentingEnabled)&&this._commentingRangeSpaceReserved){this._commentingRangeSpaceReserved=!1;const{lineDecorationsWidth:r,extraEditorClassName:o}=this.getExistingCommentEditorOptions(this.editor),m=this.getWithoutCommentsEditorOptions(this.editor,o,r);this.updateEditorLayoutOptions(this.editor,m.extraEditorClassName,m.lineDecorationsWidth)}}async setComments(e){if(!this.editor||!this.commentService.isCommentingEnabled)return;this._commentInfos=e,this.tryUpdateReservedSpace(),this.removeCommentWidgetsAndStoreCache();let t=!1;for(const n of this._commentInfos){!t&&(n.commentingRanges.ranges.length>0||n.commentingRanges.fileComments)&&(t=!0);const i=this._pendingNewCommentCache[n.uniqueOwner],r=this._pendingEditsCache[n.uniqueOwner];n.threads=n.threads.filter(o=>!o.isDisposed);for(const o of n.threads){let m;i&&(m=i[o.threadId]);let s;r&&(s=r[o.threadId]),await this.displayCommentThread(n.uniqueOwner,o,!1,m,s)}for(const o of n.pendingCommentThreads??[])this.resumePendingComment(this.editor.getModel().uri,o)}this._commentingRangeDecorator.update(this.editor,this._commentInfos),this._commentThreadRangeDecorator.update(this.editor,this._commentInfos),t?this._activeEditorHasCommentingRange.set(!0):this._activeEditorHasCommentingRange.set(!1)}closeWidget(){this._commentWidgets?.forEach(e=>e.hide()),this.editor&&(this.editor.focus(),this.editor.revealRangeInCenter(this.editor.getSelection()))}removeCommentWidgetsAndStoreCache(){this._commentWidgets&&this._commentWidgets.forEach(e=>{const t=e.getPendingComments(),n=t.newComment,i=this._pendingNewCommentCache[e.uniqueOwner];let r;if(e.commentThread.comments&&e.commentThread.comments.length){const s=e.commentThread.comments[e.commentThread.comments.length-1];typeof s.body=="string"?r=s.body:r=s.body.value}n&&n!==r?(i||(this._pendingNewCommentCache[e.uniqueOwner]={}),this._pendingNewCommentCache[e.uniqueOwner][e.commentThread.threadId]=n):i&&delete i[e.commentThread.threadId];const o=t.edits,m=this._pendingEditsCache[e.uniqueOwner];Object.keys(o).length>0?(m||(this._pendingEditsCache[e.uniqueOwner]={}),this._pendingEditsCache[e.uniqueOwner][e.commentThread.threadId]=o):m&&delete m[e.commentThread.threadId],e.dispose()}),this._commentWidgets=[]}};_=L([C(1,ue),C(2,ne),C(3,G),C(4,te),C(5,oe),C(6,ae),C(7,z),C(8,ee),C(9,se),C(10,ie),C(11,X)],_);export{_ as CommentController,be as ID,ot as revealCommentThread};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Action } from "../../../../base/common/actions.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { findFirstIdxMonotonousOrArrLen } from "../../../../base/common/arraysFind.js";
+import {
+  Delayer,
+  createCancelablePromise
+} from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import {
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import "./media/review.css";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  isCodeEditor,
+  isDiffEditor
+} from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import {
+  EditorType
+} from "../../../../editor/common/editorCommon.js";
+import * as languages from "../../../../editor/common/languages.js";
+import {
+  ModelDecorationOptions,
+  TextModel
+} from "../../../../editor/common/model/textModel.js";
+import * as nls from "../../../../nls.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import {
+  ACTIVE_GROUP,
+  IEditorService,
+  SIDE_GROUP
+} from "../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { AccessibilityCommandId } from "../../accessibility/common/accessibilityCommands.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import {
+  COMMENTS_SECTION
+} from "../common/commentsConfiguration.js";
+import { CommentGlyphWidget } from "./commentGlyphWidget.js";
+import { COMMENTEDITOR_DECORATION_KEY } from "./commentReply.js";
+import { ICommentService } from "./commentService.js";
+import { CommentThreadRangeDecorator } from "./commentThreadRangeDecorator.js";
+import {
+  CommentWidgetFocus,
+  ReviewZoneWidget,
+  isMouseUpEventDragFromMouseDown,
+  parseMouseDownInfoFromEvent
+} from "./commentThreadZoneWidget.js";
+import { threadHasMeaningfulComments } from "./commentsModel.js";
+import { COMMENTS_VIEW_ID } from "./commentsTreeViewer.js";
+const ID = "editor.contrib.review";
+class CommentingRangeDecoration {
+  constructor(_editor, _ownerId, _extensionId, _label, _range, options, commentingRangesInfo, isHover = false) {
+    this._editor = _editor;
+    this._ownerId = _ownerId;
+    this._extensionId = _extensionId;
+    this._label = _label;
+    this._range = _range;
+    this.options = options;
+    this.commentingRangesInfo = commentingRangesInfo;
+    this.isHover = isHover;
+    this._startLineNumber = _range.startLineNumber;
+    this._endLineNumber = _range.endLineNumber;
+  }
+  static {
+    __name(this, "CommentingRangeDecoration");
+  }
+  _decorationId;
+  _startLineNumber;
+  _endLineNumber;
+  get id() {
+    return this._decorationId;
+  }
+  set id(id) {
+    this._decorationId = id;
+  }
+  get range() {
+    return {
+      startLineNumber: this._startLineNumber,
+      startColumn: 1,
+      endLineNumber: this._endLineNumber,
+      endColumn: 1
+    };
+  }
+  getCommentAction() {
+    return {
+      extensionId: this._extensionId,
+      label: this._label,
+      ownerId: this._ownerId,
+      commentingRangesInfo: this.commentingRangesInfo
+    };
+  }
+  getOriginalRange() {
+    return this._range;
+  }
+  getActiveRange() {
+    return this.id ? this._editor.getModel().getDecorationRange(this.id) : void 0;
+  }
+}
+class CommentingRangeDecorator {
+  static {
+    __name(this, "CommentingRangeDecorator");
+  }
+  static description = "commenting-range-decorator";
+  decorationOptions;
+  hoverDecorationOptions;
+  multilineDecorationOptions;
+  commentingRangeDecorations = [];
+  decorationIds = [];
+  _editor;
+  _infos;
+  _lastHover = -1;
+  _lastSelection;
+  _lastSelectionCursor;
+  _onDidChangeDecorationsCount = new Emitter();
+  onDidChangeDecorationsCount = this._onDidChangeDecorationsCount.event;
+  constructor() {
+    const decorationOptions = {
+      description: CommentingRangeDecorator.description,
+      isWholeLine: true,
+      linesDecorationsClassName: "comment-range-glyph comment-diff-added"
+    };
+    this.decorationOptions = ModelDecorationOptions.createDynamic(decorationOptions);
+    const hoverDecorationOptions = {
+      description: CommentingRangeDecorator.description,
+      isWholeLine: true,
+      linesDecorationsClassName: `comment-range-glyph line-hover`
+    };
+    this.hoverDecorationOptions = ModelDecorationOptions.createDynamic(
+      hoverDecorationOptions
+    );
+    const multilineDecorationOptions = {
+      description: CommentingRangeDecorator.description,
+      isWholeLine: true,
+      linesDecorationsClassName: `comment-range-glyph multiline-add`
+    };
+    this.multilineDecorationOptions = ModelDecorationOptions.createDynamic(
+      multilineDecorationOptions
+    );
+  }
+  updateHover(hoverLine) {
+    if (this._editor && this._infos && hoverLine !== this._lastHover) {
+      this._doUpdate(this._editor, this._infos, hoverLine);
+    }
+    this._lastHover = hoverLine ?? -1;
+  }
+  updateSelection(cursorLine, range = new Range(0, 0, 0, 0)) {
+    this._lastSelection = range.isEmpty() ? void 0 : range;
+    this._lastSelectionCursor = range.isEmpty() ? void 0 : cursorLine;
+    if (this._editor && this._infos) {
+      this._doUpdate(this._editor, this._infos, cursorLine, range);
+    }
+  }
+  update(editor, commentInfos, cursorLine, range) {
+    if (editor) {
+      this._editor = editor;
+      this._infos = commentInfos;
+      this._doUpdate(editor, commentInfos, cursorLine, range);
+    }
+  }
+  _lineHasThread(editor, lineRange) {
+    return editor.getDecorationsInRange(lineRange)?.find(
+      (decoration) => decoration.options.description === CommentGlyphWidget.description
+    );
+  }
+  _doUpdate(editor, commentInfos, emphasisLine = -1, selectionRange = this._lastSelection) {
+    const model = editor.getModel();
+    if (!model) {
+      return;
+    }
+    emphasisLine = this._lastSelectionCursor ?? emphasisLine;
+    const commentingRangeDecorations = [];
+    for (const info of commentInfos) {
+      info.commentingRanges.ranges.forEach((range) => {
+        const rangeObject = new Range(
+          range.startLineNumber,
+          range.startColumn,
+          range.endLineNumber,
+          range.endColumn
+        );
+        let intersectingSelectionRange = selectionRange ? rangeObject.intersectRanges(selectionRange) : void 0;
+        if (selectionRange && emphasisLine >= 0 && intersectingSelectionRange && // If there's only one selection line, then just drop into the else if and show an emphasis line.
+        !(intersectingSelectionRange.startLineNumber === intersectingSelectionRange.endLineNumber && emphasisLine === intersectingSelectionRange.startLineNumber)) {
+          let intersectingEmphasisRange;
+          if (emphasisLine <= intersectingSelectionRange.startLineNumber) {
+            intersectingEmphasisRange = intersectingSelectionRange.collapseToStart();
+            intersectingSelectionRange = new Range(
+              intersectingSelectionRange.startLineNumber + 1,
+              1,
+              intersectingSelectionRange.endLineNumber,
+              1
+            );
+          } else {
+            intersectingEmphasisRange = new Range(
+              intersectingSelectionRange.endLineNumber,
+              1,
+              intersectingSelectionRange.endLineNumber,
+              1
+            );
+            intersectingSelectionRange = new Range(
+              intersectingSelectionRange.startLineNumber,
+              1,
+              intersectingSelectionRange.endLineNumber - 1,
+              1
+            );
+          }
+          commentingRangeDecorations.push(
+            new CommentingRangeDecoration(
+              editor,
+              info.uniqueOwner,
+              info.extensionId,
+              info.label,
+              intersectingSelectionRange,
+              this.multilineDecorationOptions,
+              info.commentingRanges,
+              true
+            )
+          );
+          if (!this._lineHasThread(editor, intersectingEmphasisRange)) {
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                intersectingEmphasisRange,
+                this.hoverDecorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+          const beforeRangeEndLine = Math.min(
+            intersectingEmphasisRange.startLineNumber,
+            intersectingSelectionRange.startLineNumber
+          ) - 1;
+          const hasBeforeRange = rangeObject.startLineNumber <= beforeRangeEndLine;
+          const afterRangeStartLine = Math.max(
+            intersectingEmphasisRange.endLineNumber,
+            intersectingSelectionRange.endLineNumber
+          ) + 1;
+          const hasAfterRange = rangeObject.endLineNumber >= afterRangeStartLine;
+          if (hasBeforeRange) {
+            const beforeRange = new Range(
+              range.startLineNumber,
+              1,
+              beforeRangeEndLine,
+              1
+            );
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                beforeRange,
+                this.decorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+          if (hasAfterRange) {
+            const afterRange = new Range(
+              afterRangeStartLine,
+              1,
+              range.endLineNumber,
+              1
+            );
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                afterRange,
+                this.decorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+        } else if (rangeObject.startLineNumber <= emphasisLine && emphasisLine <= rangeObject.endLineNumber) {
+          if (rangeObject.startLineNumber < emphasisLine) {
+            const beforeRange = new Range(
+              range.startLineNumber,
+              1,
+              emphasisLine - 1,
+              1
+            );
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                beforeRange,
+                this.decorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+          const emphasisRange = new Range(
+            emphasisLine,
+            1,
+            emphasisLine,
+            1
+          );
+          if (!this._lineHasThread(editor, emphasisRange)) {
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                emphasisRange,
+                this.hoverDecorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+          if (emphasisLine < rangeObject.endLineNumber) {
+            const afterRange = new Range(
+              emphasisLine + 1,
+              1,
+              range.endLineNumber,
+              1
+            );
+            commentingRangeDecorations.push(
+              new CommentingRangeDecoration(
+                editor,
+                info.uniqueOwner,
+                info.extensionId,
+                info.label,
+                afterRange,
+                this.decorationOptions,
+                info.commentingRanges,
+                true
+              )
+            );
+          }
+        } else {
+          commentingRangeDecorations.push(
+            new CommentingRangeDecoration(
+              editor,
+              info.uniqueOwner,
+              info.extensionId,
+              info.label,
+              range,
+              this.decorationOptions,
+              info.commentingRanges
+            )
+          );
+        }
+      });
+    }
+    editor.changeDecorations((accessor) => {
+      this.decorationIds = accessor.deltaDecorations(
+        this.decorationIds,
+        commentingRangeDecorations
+      );
+      commentingRangeDecorations.forEach(
+        (decoration, index) => decoration.id = this.decorationIds[index]
+      );
+    });
+    const rangesDifference = this.commentingRangeDecorations.length - commentingRangeDecorations.length;
+    this.commentingRangeDecorations = commentingRangeDecorations;
+    if (rangesDifference) {
+      this._onDidChangeDecorationsCount.fire(
+        this.commentingRangeDecorations.length
+      );
+    }
+  }
+  areRangesIntersectingOrTouchingByLine(a, b) {
+    if (a.endLineNumber < b.startLineNumber - 1) {
+      return false;
+    }
+    if (b.endLineNumber + 1 < a.startLineNumber) {
+      return false;
+    }
+    return true;
+  }
+  getMatchedCommentAction(commentRange) {
+    if (commentRange === void 0) {
+      const foundInfos = this._infos?.filter(
+        (info) => info.commentingRanges.fileComments
+      );
+      if (foundInfos) {
+        return foundInfos.map((foundInfo) => {
+          return {
+            action: {
+              ownerId: foundInfo.uniqueOwner,
+              extensionId: foundInfo.extensionId,
+              label: foundInfo.label,
+              commentingRangesInfo: foundInfo.commentingRanges
+            }
+          };
+        });
+      }
+      return [];
+    }
+    const foundHoverActions = /* @__PURE__ */ new Map();
+    for (const decoration of this.commentingRangeDecorations) {
+      const range = decoration.getActiveRange();
+      if (range && this.areRangesIntersectingOrTouchingByLine(range, commentRange)) {
+        const action = decoration.getCommentAction();
+        const alreadyFoundInfo = foundHoverActions.get(action.ownerId);
+        if (alreadyFoundInfo?.action.commentingRangesInfo === action.commentingRangesInfo) {
+          const newRange = new Range(
+            range.startLineNumber < alreadyFoundInfo.range.startLineNumber ? range.startLineNumber : alreadyFoundInfo.range.startLineNumber,
+            range.startColumn < alreadyFoundInfo.range.startColumn ? range.startColumn : alreadyFoundInfo.range.startColumn,
+            range.endLineNumber > alreadyFoundInfo.range.endLineNumber ? range.endLineNumber : alreadyFoundInfo.range.endLineNumber,
+            range.endColumn > alreadyFoundInfo.range.endColumn ? range.endColumn : alreadyFoundInfo.range.endColumn
+          );
+          foundHoverActions.set(action.ownerId, {
+            range: newRange,
+            action
+          });
+        } else {
+          foundHoverActions.set(action.ownerId, { range, action });
+        }
+      }
+    }
+    const seenOwners = /* @__PURE__ */ new Set();
+    return Array.from(foundHoverActions.values()).filter((action) => {
+      if (seenOwners.has(action.action.ownerId)) {
+        return false;
+      } else {
+        seenOwners.add(action.action.ownerId);
+        return true;
+      }
+    });
+  }
+  getNearestCommentingRange(findPosition, reverse) {
+    let findPositionContainedWithin;
+    let decorations;
+    if (reverse) {
+      decorations = [];
+      for (let i = this.commentingRangeDecorations.length - 1; i >= 0; i--) {
+        decorations.push(this.commentingRangeDecorations[i]);
+      }
+    } else {
+      decorations = this.commentingRangeDecorations;
+    }
+    for (const decoration of decorations) {
+      const range = decoration.getActiveRange();
+      if (!range) {
+        continue;
+      }
+      if (findPositionContainedWithin && this.areRangesIntersectingOrTouchingByLine(
+        range,
+        findPositionContainedWithin
+      )) {
+        findPositionContainedWithin = Range.plusRange(
+          findPositionContainedWithin,
+          range
+        );
+        continue;
+      }
+      if (range.startLineNumber <= findPosition.lineNumber && findPosition.lineNumber <= range.endLineNumber) {
+        findPositionContainedWithin = new Range(
+          range.startLineNumber,
+          range.startColumn,
+          range.endLineNumber,
+          range.endColumn
+        );
+        continue;
+      }
+      if (!reverse && range.endLineNumber < findPosition.lineNumber) {
+        continue;
+      }
+      if (reverse && range.startLineNumber > findPosition.lineNumber) {
+        continue;
+      }
+      return range;
+    }
+    return decorations.length > 0 ? decorations[0].getActiveRange() ?? void 0 : void 0;
+  }
+  dispose() {
+    this.commentingRangeDecorations = [];
+  }
+}
+function revealCommentThread(commentService, editorService, uriIdentityService, commentThread, comment, focusReply, pinned, preserveFocus, sideBySide) {
+  if (!commentThread.resource) {
+    return;
+  }
+  if (!commentService.isCommentingEnabled) {
+    commentService.enableCommenting(true);
+  }
+  const range = commentThread.range;
+  const focus = focusReply ? CommentWidgetFocus.Editor : preserveFocus ? CommentWidgetFocus.None : CommentWidgetFocus.Widget;
+  const activeEditor = editorService.activeTextEditorControl;
+  const currentActiveResources = isDiffEditor(activeEditor) ? [activeEditor.getOriginalEditor(), activeEditor.getModifiedEditor()] : activeEditor ? [activeEditor] : [];
+  const threadToReveal = commentThread.threadId;
+  const commentToReveal = comment?.uniqueIdInThread;
+  const resource = URI.parse(commentThread.resource);
+  for (const editor of currentActiveResources) {
+    const model = editor.getModel();
+    if (model instanceof TextModel && uriIdentityService.extUri.isEqual(resource, model.uri)) {
+      if (threadToReveal && isCodeEditor(editor)) {
+        const controller = CommentController.get(editor);
+        controller?.revealCommentThread(
+          threadToReveal,
+          commentToReveal,
+          true,
+          focus
+        );
+      }
+      return;
+    }
+  }
+  editorService.openEditor(
+    {
+      resource,
+      options: {
+        pinned,
+        preserveFocus,
+        selection: range ?? new Range(1, 1, 1, 1)
+      }
+    },
+    sideBySide ? SIDE_GROUP : ACTIVE_GROUP
+  ).then((editor) => {
+    if (editor) {
+      const control = editor.getControl();
+      if (threadToReveal && isCodeEditor(control)) {
+        const controller = CommentController.get(control);
+        controller?.revealCommentThread(
+          threadToReveal,
+          commentToReveal,
+          true,
+          focus
+        );
+      }
+    }
+  });
+}
+__name(revealCommentThread, "revealCommentThread");
+let CommentController = class {
+  constructor(editor, commentService, instantiationService, codeEditorService, contextMenuService, quickInputService, viewsService, configurationService, contextKeyService, editorService, keybindingService, accessibilityService) {
+    this.commentService = commentService;
+    this.instantiationService = instantiationService;
+    this.codeEditorService = codeEditorService;
+    this.contextMenuService = contextMenuService;
+    this.quickInputService = quickInputService;
+    this.viewsService = viewsService;
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.keybindingService = keybindingService;
+    this.accessibilityService = accessibilityService;
+    this._commentInfos = [];
+    this._commentWidgets = [];
+    this._pendingNewCommentCache = {};
+    this._pendingEditsCache = {};
+    this._computePromise = null;
+    this._activeCursorHasCommentingRange = CommentContextKeys.activeCursorHasCommentingRange.bindTo(
+      contextKeyService
+    );
+    this._activeEditorHasCommentingRange = CommentContextKeys.activeEditorHasCommentingRange.bindTo(
+      contextKeyService
+    );
+    if (editor instanceof EmbeddedCodeEditorWidget) {
+      return;
+    }
+    this.editor = editor;
+    this._commentingRangeDecorator = new CommentingRangeDecorator();
+    this.globalToDispose.add(
+      this._commentingRangeDecorator.onDidChangeDecorationsCount(
+        (count) => {
+          if (count === 0) {
+            this.clearEditorListeners();
+          } else if (this._editorDisposables.length === 0) {
+            this.registerEditorListeners();
+          }
+        }
+      )
+    );
+    this.globalToDispose.add(
+      this._commentThreadRangeDecorator = new CommentThreadRangeDecorator(this.commentService)
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidDeleteDataProvider((ownerId) => {
+        if (ownerId) {
+          delete this._pendingNewCommentCache[ownerId];
+          delete this._pendingEditsCache[ownerId];
+        } else {
+          this._pendingNewCommentCache = {};
+          this._pendingEditsCache = {};
+        }
+        this.beginCompute();
+      })
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidSetDataProvider(
+        (_) => this.beginComputeAndHandleEditorChange()
+      )
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidUpdateCommentingRanges(
+        (_) => this.beginComputeAndHandleEditorChange()
+      )
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidSetResourceCommentInfos(async (e) => {
+        const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
+        if (editorURI && editorURI.toString() === e.resource.toString()) {
+          await this.setComments(
+            e.commentInfos.filter(
+              (commentInfo) => commentInfo !== null
+            )
+          );
+        }
+      })
+    );
+    this.globalToDispose.add(
+      this.commentService.onDidChangeCommentingEnabled((e) => {
+        if (e) {
+          this.registerEditorListeners();
+          this.beginCompute();
+        } else {
+          this.tryUpdateReservedSpace();
+          this.clearEditorListeners();
+          this._commentingRangeDecorator.update(this.editor, []);
+          this._commentThreadRangeDecorator.update(this.editor, []);
+          dispose(this._commentWidgets);
+          this._commentWidgets = [];
+        }
+      })
+    );
+    this.globalToDispose.add(
+      this.editor.onWillChangeModel((e) => this.onWillChangeModel(e))
+    );
+    this.globalToDispose.add(
+      this.editor.onDidChangeModel((_) => this.onModelChanged())
+    );
+    this.globalToDispose.add(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("diffEditor.renderSideBySide")) {
+          this.beginCompute();
+        }
+      })
+    );
+    this.onModelChanged();
+    this.codeEditorService.registerDecorationType(
+      "comment-controller",
+      COMMENTEDITOR_DECORATION_KEY,
+      {}
+    );
+    this.globalToDispose.add(
+      this.commentService.registerContinueOnCommentProvider({
+        provideContinueOnComments: /* @__PURE__ */ __name(() => {
+          const pendingComments = [];
+          if (this._commentWidgets) {
+            for (const zone of this._commentWidgets) {
+              const zonePendingComments = zone.getPendingComments();
+              const pendingNewComment = zonePendingComments.newComment;
+              if (!pendingNewComment) {
+                continue;
+              }
+              let lastCommentBody;
+              if (zone.commentThread.comments && zone.commentThread.comments.length) {
+                const lastComment = zone.commentThread.comments[zone.commentThread.comments.length - 1];
+                if (typeof lastComment.body === "string") {
+                  lastCommentBody = lastComment.body;
+                } else {
+                  lastCommentBody = lastComment.body.value;
+                }
+              }
+              if (pendingNewComment !== lastCommentBody) {
+                pendingComments.push({
+                  uniqueOwner: zone.uniqueOwner,
+                  uri: zone.editor.getModel().uri,
+                  range: zone.commentThread.range,
+                  body: pendingNewComment,
+                  isReply: zone.commentThread.comments !== void 0 && zone.commentThread.comments.length > 0
+                });
+              }
+            }
+          }
+          return pendingComments;
+        }, "provideContinueOnComments")
+      })
+    );
+  }
+  static {
+    __name(this, "CommentController");
+  }
+  globalToDispose = new DisposableStore();
+  localToDispose = new DisposableStore();
+  editor;
+  _commentWidgets;
+  _commentInfos;
+  _commentingRangeDecorator;
+  _commentThreadRangeDecorator;
+  mouseDownInfo = null;
+  _commentingRangeSpaceReserved = false;
+  _commentingRangeAmountReserved = 0;
+  _computePromise;
+  _computeAndSetPromise;
+  _addInProgress;
+  _emptyThreadsToAddQueue = [];
+  _computeCommentingRangePromise;
+  _computeCommentingRangeScheduler;
+  _pendingNewCommentCache;
+  _pendingEditsCache;
+  // uniqueOwner -> threadId -> uniqueIdInThread -> pending comment
+  _inProcessContinueOnComments = /* @__PURE__ */ new Map();
+  _editorDisposables = [];
+  _activeCursorHasCommentingRange;
+  _activeEditorHasCommentingRange;
+  _hasRespondedToEditorChange = false;
+  registerEditorListeners() {
+    this._editorDisposables = [];
+    if (!this.editor) {
+      return;
+    }
+    this._editorDisposables.push(
+      this.editor.onMouseMove((e) => this.onEditorMouseMove(e))
+    );
+    this._editorDisposables.push(
+      this.editor.onMouseLeave(() => this.onEditorMouseLeave())
+    );
+    this._editorDisposables.push(
+      this.editor.onDidChangeCursorPosition(
+        (e) => this.onEditorChangeCursorPosition(e.position)
+      )
+    );
+    this._editorDisposables.push(
+      this.editor.onDidFocusEditorWidget(
+        () => this.onEditorChangeCursorPosition(
+          this.editor?.getPosition() ?? null
+        )
+      )
+    );
+    this._editorDisposables.push(
+      this.editor.onDidChangeCursorSelection(
+        (e) => this.onEditorChangeCursorSelection(e)
+      )
+    );
+    this._editorDisposables.push(
+      this.editor.onDidBlurEditorWidget(
+        () => this.onEditorChangeCursorSelection()
+      )
+    );
+  }
+  clearEditorListeners() {
+    dispose(this._editorDisposables);
+    this._editorDisposables = [];
+  }
+  onEditorMouseLeave() {
+    this._commentingRangeDecorator.updateHover();
+  }
+  onEditorMouseMove(e) {
+    const position = e.target.position?.lineNumber;
+    if (e.event.leftButton.valueOf() && position && this.mouseDownInfo) {
+      this._commentingRangeDecorator.updateSelection(
+        position,
+        new Range(this.mouseDownInfo.lineNumber, 1, position, 1)
+      );
+    } else {
+      this._commentingRangeDecorator.updateHover(position);
+    }
+  }
+  onEditorChangeCursorSelection(e) {
+    const position = this.editor?.getPosition()?.lineNumber;
+    if (position) {
+      this._commentingRangeDecorator.updateSelection(
+        position,
+        e?.selection
+      );
+    }
+  }
+  onEditorChangeCursorPosition(e) {
+    const decorations = e ? this.editor?.getDecorationsInRange(
+      Range.fromPositions(e, {
+        column: -1,
+        lineNumber: e.lineNumber
+      })
+    ) : void 0;
+    let hasCommentingRange = false;
+    if (decorations) {
+      for (const decoration of decorations) {
+        if (decoration.options.description === CommentGlyphWidget.description) {
+          hasCommentingRange = false;
+          break;
+        } else if (decoration.options.description === CommentingRangeDecorator.description) {
+          hasCommentingRange = true;
+        }
+      }
+    }
+    this._activeCursorHasCommentingRange.set(hasCommentingRange);
+  }
+  isEditorInlineOriginal(testEditor) {
+    if (this.configurationService.getValue(
+      "diffEditor.renderSideBySide"
+    )) {
+      return false;
+    }
+    const foundEditor = this.editorService.visibleTextEditorControls.find(
+      (editor) => {
+        if (editor.getEditorType() === EditorType.IDiffEditor) {
+          const diffEditor = editor;
+          return diffEditor.getOriginalEditor() === testEditor;
+        }
+        return false;
+      }
+    );
+    return !!foundEditor;
+  }
+  beginCompute() {
+    this._computePromise = createCancelablePromise((token) => {
+      const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
+      if (editorURI) {
+        return this.commentService.getDocumentComments(editorURI);
+      }
+      return Promise.resolve([]);
+    });
+    this._computeAndSetPromise = this._computePromise.then(
+      async (commentInfos) => {
+        await this.setComments(coalesce(commentInfos));
+        this._computePromise = null;
+      },
+      (error) => console.log(error)
+    );
+    this._computePromise.then(
+      () => this._computeAndSetPromise = void 0
+    );
+    return this._computeAndSetPromise;
+  }
+  beginComputeCommentingRanges() {
+    if (this._computeCommentingRangeScheduler) {
+      if (this._computeCommentingRangePromise) {
+        this._computeCommentingRangePromise.cancel();
+        this._computeCommentingRangePromise = null;
+      }
+      this._computeCommentingRangeScheduler.trigger(() => {
+        const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
+        if (editorURI) {
+          return this.commentService.getDocumentComments(
+            editorURI
+          );
+        }
+        return Promise.resolve([]);
+      }).then(
+        (commentInfos) => {
+          if (this.commentService.isCommentingEnabled) {
+            const meaningfulCommentInfos = coalesce(commentInfos);
+            this._commentingRangeDecorator.update(
+              this.editor,
+              meaningfulCommentInfos,
+              this.editor?.getPosition()?.lineNumber,
+              this.editor?.getSelection() ?? void 0
+            );
+          }
+        },
+        (err) => {
+          onUnexpectedError(err);
+          return null;
+        }
+      );
+    }
+  }
+  static get(editor) {
+    return editor.getContribution(ID);
+  }
+  revealCommentThread(threadId, commentUniqueId, fetchOnceIfNotExist, focus) {
+    const commentThreadWidget = this._commentWidgets.filter(
+      (widget) => widget.commentThread.threadId === threadId
+    );
+    if (commentThreadWidget.length === 1) {
+      commentThreadWidget[0].reveal(commentUniqueId, focus);
+    } else if (fetchOnceIfNotExist) {
+      if (this._computeAndSetPromise) {
+        this._computeAndSetPromise.then((_) => {
+          this.revealCommentThread(
+            threadId,
+            commentUniqueId,
+            false,
+            focus
+          );
+        });
+      } else {
+        this.beginCompute().then((_) => {
+          this.revealCommentThread(
+            threadId,
+            commentUniqueId,
+            false,
+            focus
+          );
+        });
+      }
+    }
+  }
+  collapseAll() {
+    for (const widget of this._commentWidgets) {
+      widget.collapse();
+    }
+  }
+  expandAll() {
+    for (const widget of this._commentWidgets) {
+      widget.expand();
+    }
+  }
+  expandUnresolved() {
+    for (const widget of this._commentWidgets) {
+      if (widget.commentThread.state === languages.CommentThreadState.Unresolved) {
+        widget.expand();
+      }
+    }
+  }
+  nextCommentThread() {
+    this._findNearestCommentThread();
+  }
+  _findNearestCommentThread(reverse) {
+    if (!this._commentWidgets.length || !this.editor?.hasModel()) {
+      return;
+    }
+    const after = reverse ? this.editor.getSelection().getStartPosition() : this.editor.getSelection().getEndPosition();
+    const sortedWidgets = this._commentWidgets.sort((a, b) => {
+      if (reverse) {
+        const temp = a;
+        a = b;
+        b = temp;
+      }
+      if (a.commentThread.range === void 0) {
+        return -1;
+      }
+      if (b.commentThread.range === void 0) {
+        return 1;
+      }
+      if (a.commentThread.range.startLineNumber < b.commentThread.range.startLineNumber) {
+        return -1;
+      }
+      if (a.commentThread.range.startLineNumber > b.commentThread.range.startLineNumber) {
+        return 1;
+      }
+      if (a.commentThread.range.startColumn < b.commentThread.range.startColumn) {
+        return -1;
+      }
+      if (a.commentThread.range.startColumn > b.commentThread.range.startColumn) {
+        return 1;
+      }
+      return 0;
+    });
+    const idx = findFirstIdxMonotonousOrArrLen(sortedWidgets, (widget) => {
+      const lineValueOne = reverse ? after.lineNumber : widget.commentThread.range?.startLineNumber ?? 0;
+      const lineValueTwo = reverse ? widget.commentThread.range?.startLineNumber ?? 0 : after.lineNumber;
+      const columnValueOne = reverse ? after.column : widget.commentThread.range?.startColumn ?? 0;
+      const columnValueTwo = reverse ? widget.commentThread.range?.startColumn ?? 0 : after.column;
+      if (lineValueOne > lineValueTwo) {
+        return true;
+      }
+      if (lineValueOne < lineValueTwo) {
+        return false;
+      }
+      if (columnValueOne > columnValueTwo) {
+        return true;
+      }
+      return false;
+    });
+    const nextWidget = sortedWidgets[idx];
+    if (nextWidget !== void 0) {
+      this.editor.setSelection(
+        nextWidget.commentThread.range ?? new Range(1, 1, 1, 1)
+      );
+      nextWidget.reveal(void 0, CommentWidgetFocus.Widget);
+    }
+  }
+  previousCommentThread() {
+    this._findNearestCommentThread(true);
+  }
+  _findNearestCommentingRange(reverse) {
+    if (!this.editor?.hasModel()) {
+      return;
+    }
+    const after = this.editor.getSelection().getEndPosition();
+    const range = this._commentingRangeDecorator.getNearestCommentingRange(
+      after,
+      reverse
+    );
+    if (range) {
+      const position = reverse ? range.getEndPosition() : range.getStartPosition();
+      this.editor.setPosition(position);
+      this.editor.revealLineInCenterIfOutsideViewport(
+        position.lineNumber
+      );
+    }
+    if (this.accessibilityService.isScreenReaderOptimized()) {
+      const commentRangeStart = range?.getStartPosition().lineNumber;
+      const commentRangeEnd = range?.getEndPosition().lineNumber;
+      if (commentRangeStart && commentRangeEnd) {
+        const oneLine = commentRangeStart === commentRangeEnd;
+        oneLine ? status(
+          nls.localize(
+            "commentRange",
+            "Line {0}",
+            commentRangeStart
+          )
+        ) : status(
+          nls.localize(
+            "commentRangeStart",
+            "Lines {0} to {1}",
+            commentRangeStart,
+            commentRangeEnd
+          )
+        );
+      }
+    }
+  }
+  nextCommentingRange() {
+    this._findNearestCommentingRange();
+  }
+  previousCommentingRange() {
+    this._findNearestCommentingRange(true);
+  }
+  dispose() {
+    this.globalToDispose.dispose();
+    this.localToDispose.dispose();
+    dispose(this._editorDisposables);
+    dispose(this._commentWidgets);
+    this.editor = null;
+  }
+  onWillChangeModel(e) {
+    if (e.newModelUrl) {
+      this.tryUpdateReservedSpace(e.newModelUrl);
+    }
+  }
+  async handleCommentAdded(editorId, uniqueOwner, thread) {
+    const matchedZones = this._commentWidgets.filter(
+      (zoneWidget) => zoneWidget.uniqueOwner === uniqueOwner && zoneWidget.commentThread.threadId === thread.threadId
+    );
+    if (matchedZones.length) {
+      return;
+    }
+    const matchedNewCommentThreadZones = this._commentWidgets.filter(
+      (zoneWidget) => zoneWidget.uniqueOwner === uniqueOwner && zoneWidget.commentThread.commentThreadHandle === -1 && Range.equalsRange(zoneWidget.commentThread.range, thread.range)
+    );
+    if (matchedNewCommentThreadZones.length) {
+      matchedNewCommentThreadZones[0].update(thread);
+      return;
+    }
+    const continueOnCommentIndex = this._inProcessContinueOnComments.get(uniqueOwner)?.findIndex((pending) => {
+      if (pending.range === void 0) {
+        return thread.range === void 0;
+      } else {
+        return Range.lift(pending.range).equalsRange(thread.range);
+      }
+    });
+    let continueOnCommentText;
+    if (continueOnCommentIndex !== void 0 && continueOnCommentIndex >= 0) {
+      continueOnCommentText = this._inProcessContinueOnComments.get(uniqueOwner)?.splice(continueOnCommentIndex, 1)[0].body;
+    }
+    const pendingCommentText = (this._pendingNewCommentCache[uniqueOwner] && this._pendingNewCommentCache[uniqueOwner][thread.threadId]) ?? continueOnCommentText;
+    const pendingEdits = this._pendingEditsCache[uniqueOwner] && this._pendingEditsCache[uniqueOwner][thread.threadId];
+    const shouldReveal = thread.canReply && thread.isTemplate && (!thread.comments || thread.comments.length === 0) && (!thread.editorId || thread.editorId === editorId);
+    await this.displayCommentThread(
+      uniqueOwner,
+      thread,
+      shouldReveal,
+      pendingCommentText,
+      pendingEdits
+    );
+    this._commentInfos.filter((info) => info.uniqueOwner === uniqueOwner)[0].threads.push(thread);
+    this.tryUpdateReservedSpace();
+  }
+  onModelChanged() {
+    this.localToDispose.clear();
+    this.tryUpdateReservedSpace();
+    this.removeCommentWidgetsAndStoreCache();
+    if (!this.editor) {
+      return;
+    }
+    this._hasRespondedToEditorChange = false;
+    this.localToDispose.add(
+      this.editor.onMouseDown((e) => this.onEditorMouseDown(e))
+    );
+    this.localToDispose.add(
+      this.editor.onMouseUp((e) => this.onEditorMouseUp(e))
+    );
+    if (this._editorDisposables.length) {
+      this.clearEditorListeners();
+      this.registerEditorListeners();
+    }
+    this._computeCommentingRangeScheduler = new Delayer(
+      200
+    );
+    this.localToDispose.add({
+      dispose: /* @__PURE__ */ __name(() => {
+        this._computeCommentingRangeScheduler?.cancel();
+        this._computeCommentingRangeScheduler = null;
+      }, "dispose")
+    });
+    this.localToDispose.add(
+      this.editor.onDidChangeModelContent(async () => {
+        this.beginComputeCommentingRanges();
+      })
+    );
+    this.localToDispose.add(
+      this.commentService.onDidUpdateCommentThreads(async (e) => {
+        const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
+        if (!editorURI || !this.commentService.isCommentingEnabled) {
+          return;
+        }
+        if (this._computePromise) {
+          await this._computePromise;
+        }
+        const commentInfo = this._commentInfos.filter(
+          (info) => info.uniqueOwner === e.uniqueOwner
+        );
+        if (!commentInfo || !commentInfo.length) {
+          return;
+        }
+        const added = e.added.filter(
+          (thread) => thread.resource && thread.resource === editorURI.toString()
+        );
+        const removed = e.removed.filter(
+          (thread) => thread.resource && thread.resource === editorURI.toString()
+        );
+        const changed = e.changed.filter(
+          (thread) => thread.resource && thread.resource === editorURI.toString()
+        );
+        const pending = e.pending.filter(
+          (pending2) => pending2.uri.toString() === editorURI.toString()
+        );
+        removed.forEach((thread) => {
+          const matchedZones = this._commentWidgets.filter(
+            (zoneWidget) => zoneWidget.uniqueOwner === e.uniqueOwner && zoneWidget.commentThread.threadId === thread.threadId && zoneWidget.commentThread.threadId !== ""
+          );
+          if (matchedZones.length) {
+            const matchedZone = matchedZones[0];
+            const index = this._commentWidgets.indexOf(matchedZone);
+            this._commentWidgets.splice(index, 1);
+            matchedZone.dispose();
+          }
+          const infosThreads = this._commentInfos.filter(
+            (info) => info.uniqueOwner === e.uniqueOwner
+          )[0].threads;
+          for (let i = 0; i < infosThreads.length; i++) {
+            if (infosThreads[i] === thread) {
+              infosThreads.splice(i, 1);
+              i--;
+            }
+          }
+        });
+        for (const thread of changed) {
+          const matchedZones = this._commentWidgets.filter(
+            (zoneWidget) => zoneWidget.uniqueOwner === e.uniqueOwner && zoneWidget.commentThread.threadId === thread.threadId
+          );
+          if (matchedZones.length) {
+            const matchedZone = matchedZones[0];
+            matchedZone.update(thread);
+            this.openCommentsView(thread);
+          }
+        }
+        const editorId = this.editor?.getId();
+        for (const thread of added) {
+          await this.handleCommentAdded(
+            editorId,
+            e.uniqueOwner,
+            thread
+          );
+        }
+        for (const thread of pending) {
+          await this.resumePendingComment(editorURI, thread);
+        }
+        this._commentThreadRangeDecorator.update(
+          this.editor,
+          commentInfo
+        );
+      })
+    );
+    this.beginComputeAndHandleEditorChange();
+  }
+  async resumePendingComment(editorURI, thread) {
+    const matchedZones = this._commentWidgets.filter(
+      (zoneWidget) => zoneWidget.uniqueOwner === thread.uniqueOwner && Range.lift(zoneWidget.commentThread.range)?.equalsRange(
+        thread.range
+      )
+    );
+    if (thread.isReply && matchedZones.length) {
+      this.commentService.removeContinueOnComment({
+        uniqueOwner: thread.uniqueOwner,
+        uri: editorURI,
+        range: thread.range,
+        isReply: true
+      });
+      matchedZones[0].setPendingComment(thread.body);
+    } else if (matchedZones.length) {
+      this.commentService.removeContinueOnComment({
+        uniqueOwner: thread.uniqueOwner,
+        uri: editorURI,
+        range: thread.range,
+        isReply: false
+      });
+      const existingPendingComment = matchedZones[0].getPendingComments().newComment;
+      let pendingComment;
+      if (!existingPendingComment || thread.body.includes(existingPendingComment)) {
+        pendingComment = thread.body;
+      } else if (existingPendingComment.includes(thread.body)) {
+        pendingComment = existingPendingComment;
+      } else {
+        pendingComment = `${existingPendingComment}
+${thread.body}`;
+      }
+      matchedZones[0].setPendingComment(pendingComment);
+    } else if (!thread.isReply) {
+      const threadStillAvailable = this.commentService.removeContinueOnComment({
+        uniqueOwner: thread.uniqueOwner,
+        uri: editorURI,
+        range: thread.range,
+        isReply: false
+      });
+      if (!threadStillAvailable) {
+        return;
+      }
+      if (!this._inProcessContinueOnComments.has(thread.uniqueOwner)) {
+        this._inProcessContinueOnComments.set(thread.uniqueOwner, []);
+      }
+      this._inProcessContinueOnComments.get(thread.uniqueOwner)?.push(thread);
+      await this.commentService.createCommentThreadTemplate(
+        thread.uniqueOwner,
+        thread.uri,
+        thread.range ? Range.lift(thread.range) : void 0
+      );
+    }
+  }
+  beginComputeAndHandleEditorChange() {
+    this.beginCompute().then(() => {
+      if (!this._hasRespondedToEditorChange) {
+        if (this._commentInfos.some(
+          (commentInfo) => commentInfo.commentingRanges.ranges.length > 0 || commentInfo.commentingRanges.fileComments
+        )) {
+          this._hasRespondedToEditorChange = true;
+          const verbose = this.configurationService.getValue(
+            AccessibilityVerbositySettingId.Comments
+          );
+          if (verbose) {
+            const keybinding = this.keybindingService.lookupKeybinding(
+              AccessibilityCommandId.OpenAccessibilityHelp
+            )?.getAriaLabel();
+            if (keybinding) {
+              status(
+                nls.localize(
+                  "hasCommentRangesKb",
+                  "Editor has commenting ranges, run the command Open Accessibility Help ({0}), for more information.",
+                  keybinding
+                )
+              );
+            } else {
+              status(
+                nls.localize(
+                  "hasCommentRangesNoKb",
+                  "Editor has commenting ranges, run the command Open Accessibility Help, which is currently not triggerable via keybinding, for more information."
+                )
+              );
+            }
+          } else {
+            status(
+              nls.localize(
+                "hasCommentRanges",
+                "Editor has commenting ranges."
+              )
+            );
+          }
+        }
+      }
+    });
+  }
+  async openCommentsView(thread) {
+    if (thread.comments && thread.comments.length > 0 && threadHasMeaningfulComments(thread)) {
+      const openViewState = this.configurationService.getValue(
+        COMMENTS_SECTION
+      ).openView;
+      if (openViewState === "file") {
+        return this.viewsService.openView(COMMENTS_VIEW_ID);
+      } else if (openViewState === "firstFile" || openViewState === "firstFileUnresolved" && thread.state === languages.CommentThreadState.Unresolved) {
+        const hasShownView = this.viewsService.getViewWithId(
+          COMMENTS_VIEW_ID
+        )?.hasRendered;
+        if (!hasShownView) {
+          return this.viewsService.openView(COMMENTS_VIEW_ID);
+        }
+      }
+    }
+    return void 0;
+  }
+  async displayCommentThread(uniqueOwner, thread, shouldReveal, pendingComment, pendingEdits) {
+    const editor = this.editor?.getModel();
+    if (!editor) {
+      return;
+    }
+    if (!this.editor || this.isEditorInlineOriginal(this.editor)) {
+      return;
+    }
+    let continueOnCommentReply;
+    if (thread.range && !pendingComment) {
+      continueOnCommentReply = this.commentService.removeContinueOnComment({
+        uniqueOwner,
+        uri: editor.uri,
+        range: thread.range,
+        isReply: true
+      });
+    }
+    const zoneWidget = this.instantiationService.createInstance(
+      ReviewZoneWidget,
+      this.editor,
+      uniqueOwner,
+      thread,
+      pendingComment ?? continueOnCommentReply?.body,
+      pendingEdits
+    );
+    await zoneWidget.display(thread.range, shouldReveal);
+    this._commentWidgets.push(zoneWidget);
+    this.openCommentsView(thread);
+  }
+  onEditorMouseDown(e) {
+    this.mouseDownInfo = parseMouseDownInfoFromEvent(e);
+  }
+  onEditorMouseUp(e) {
+    const matchedLineNumber = isMouseUpEventDragFromMouseDown(
+      this.mouseDownInfo,
+      e
+    );
+    this.mouseDownInfo = null;
+    if (!this.editor || matchedLineNumber === null || !e.target.element) {
+      return;
+    }
+    const mouseUpIsOnDecorator = e.target.element.className.indexOf("comment-range-glyph") >= 0;
+    const lineNumber = e.target.position.lineNumber;
+    let range;
+    let selection;
+    if (matchedLineNumber !== lineNumber) {
+      if (matchedLineNumber > lineNumber) {
+        selection = new Range(
+          matchedLineNumber,
+          this.editor.getModel().getLineLength(matchedLineNumber) + 1,
+          lineNumber,
+          1
+        );
+      } else {
+        selection = new Range(
+          matchedLineNumber,
+          1,
+          lineNumber,
+          this.editor.getModel().getLineLength(lineNumber) + 1
+        );
+      }
+    } else if (mouseUpIsOnDecorator) {
+      selection = this.editor.getSelection();
+    }
+    if (selection && selection.startLineNumber <= lineNumber && lineNumber <= selection.endLineNumber) {
+      range = selection;
+      this.editor.setSelection(
+        new Range(
+          selection.endLineNumber,
+          1,
+          selection.endLineNumber,
+          1
+        )
+      );
+    } else if (mouseUpIsOnDecorator) {
+      range = new Range(lineNumber, 1, lineNumber, 1);
+    }
+    if (range) {
+      this.addOrToggleCommentAtLine(range, e);
+    }
+  }
+  async addOrToggleCommentAtLine(commentRange, e) {
+    if (this._addInProgress) {
+      this._emptyThreadsToAddQueue.push([commentRange, e]);
+    } else {
+      this._addInProgress = true;
+      const existingCommentsAtLine = this._commentWidgets.filter(
+        (widget) => widget.getGlyphPosition() === (commentRange ? commentRange.endLineNumber : 0)
+      );
+      if (existingCommentsAtLine.length) {
+        const allExpanded = existingCommentsAtLine.every(
+          (widget) => widget.expanded
+        );
+        existingCommentsAtLine.forEach(
+          allExpanded ? (widget) => widget.collapse() : (widget) => widget.expand(true)
+        );
+        this.processNextThreadToAdd();
+        return;
+      } else {
+        this.addCommentAtLine(commentRange, e);
+      }
+    }
+  }
+  processNextThreadToAdd() {
+    this._addInProgress = false;
+    const info = this._emptyThreadsToAddQueue.shift();
+    if (info) {
+      this.addOrToggleCommentAtLine(info[0], info[1]);
+    }
+  }
+  clipUserRangeToCommentRange(userRange, commentRange) {
+    if (userRange.startLineNumber < commentRange.startLineNumber) {
+      userRange = new Range(
+        commentRange.startLineNumber,
+        commentRange.startColumn,
+        userRange.endLineNumber,
+        userRange.endColumn
+      );
+    }
+    if (userRange.endLineNumber > commentRange.endLineNumber) {
+      userRange = new Range(
+        userRange.startLineNumber,
+        userRange.startColumn,
+        commentRange.endLineNumber,
+        commentRange.endColumn
+      );
+    }
+    return userRange;
+  }
+  addCommentAtLine(range, e) {
+    const newCommentInfos = this._commentingRangeDecorator.getMatchedCommentAction(range);
+    if (!newCommentInfos.length || !this.editor?.hasModel()) {
+      this._addInProgress = false;
+      if (!newCommentInfos.length) {
+        throw new Error(
+          `There are no commenting ranges at the current position (${range ? "with range" : "without range"}).`
+        );
+      }
+      return Promise.resolve();
+    }
+    if (newCommentInfos.length > 1) {
+      if (e && range) {
+        this.contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => e.event, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => this.getContextMenuActions(newCommentInfos, range), "getActions"),
+          getActionsContext: /* @__PURE__ */ __name(() => newCommentInfos.length ? newCommentInfos[0] : void 0, "getActionsContext"),
+          onHide: /* @__PURE__ */ __name(() => {
+            this._addInProgress = false;
+          }, "onHide")
+        });
+        return Promise.resolve();
+      } else {
+        const picks = this.getCommentProvidersQuickPicks(newCommentInfos);
+        return this.quickInputService.pick(picks, {
+          placeHolder: nls.localize(
+            "pickCommentService",
+            "Select Comment Provider"
+          ),
+          matchOnDescription: true
+        }).then((pick) => {
+          if (!pick) {
+            return;
+          }
+          const commentInfos = newCommentInfos.filter(
+            (info) => info.action.ownerId === pick.id
+          );
+          if (commentInfos.length) {
+            const { ownerId } = commentInfos[0].action;
+            const clippedRange = range && commentInfos[0].range ? this.clipUserRangeToCommentRange(
+              range,
+              commentInfos[0].range
+            ) : range;
+            this.addCommentAtLine2(clippedRange, ownerId);
+          }
+        }).then(() => {
+          this._addInProgress = false;
+        });
+      }
+    } else {
+      const { ownerId } = newCommentInfos[0].action;
+      const clippedRange = range && newCommentInfos[0].range ? this.clipUserRangeToCommentRange(
+        range,
+        newCommentInfos[0].range
+      ) : range;
+      this.addCommentAtLine2(clippedRange, ownerId);
+    }
+    return Promise.resolve();
+  }
+  getCommentProvidersQuickPicks(commentInfos) {
+    const picks = commentInfos.map((commentInfo) => {
+      const { ownerId, extensionId, label } = commentInfo.action;
+      return {
+        label: label ?? extensionId ?? ownerId,
+        id: ownerId
+      };
+    });
+    return picks;
+  }
+  getContextMenuActions(commentInfos, commentRange) {
+    const actions = [];
+    commentInfos.forEach((commentInfo) => {
+      const { ownerId, extensionId, label } = commentInfo.action;
+      actions.push(
+        new Action(
+          "addCommentThread",
+          `${label || extensionId}`,
+          void 0,
+          true,
+          () => {
+            const clippedRange = commentInfo.range ? this.clipUserRangeToCommentRange(
+              commentRange,
+              commentInfo.range
+            ) : commentRange;
+            this.addCommentAtLine2(clippedRange, ownerId);
+            return Promise.resolve();
+          }
+        )
+      );
+    });
+    return actions;
+  }
+  addCommentAtLine2(range, ownerId) {
+    if (!this.editor) {
+      return;
+    }
+    this.commentService.createCommentThreadTemplate(
+      ownerId,
+      this.editor.getModel().uri,
+      range,
+      this.editor.getId()
+    );
+    this.processNextThreadToAdd();
+    return;
+  }
+  getExistingCommentEditorOptions(editor) {
+    const lineDecorationsWidth = editor.getOption(
+      EditorOption.lineDecorationsWidth
+    );
+    let extraEditorClassName = [];
+    const configuredExtraClassName = editor.getRawOptions().extraEditorClassName;
+    if (configuredExtraClassName) {
+      extraEditorClassName = configuredExtraClassName.split(" ");
+    }
+    return { lineDecorationsWidth, extraEditorClassName };
+  }
+  getWithoutCommentsEditorOptions(editor, extraEditorClassName, startingLineDecorationsWidth) {
+    let lineDecorationsWidth = startingLineDecorationsWidth;
+    const inlineCommentPos = extraEditorClassName.findIndex(
+      (name) => name === "inline-comment"
+    );
+    if (inlineCommentPos >= 0) {
+      extraEditorClassName.splice(inlineCommentPos, 1);
+    }
+    const options = editor.getOptions();
+    if (options.get(EditorOption.folding) && options.get(EditorOption.showFoldingControls) !== "never") {
+      lineDecorationsWidth += 11;
+    }
+    lineDecorationsWidth -= 24;
+    return { extraEditorClassName, lineDecorationsWidth };
+  }
+  getWithCommentsLineDecorationWidth(editor, startingLineDecorationsWidth) {
+    let lineDecorationsWidth = startingLineDecorationsWidth;
+    const options = editor.getOptions();
+    if (options.get(EditorOption.folding) && options.get(EditorOption.showFoldingControls) !== "never") {
+      lineDecorationsWidth -= 11;
+    }
+    lineDecorationsWidth += 24;
+    this._commentingRangeAmountReserved = lineDecorationsWidth;
+    return this._commentingRangeAmountReserved;
+  }
+  getWithCommentsEditorOptions(editor, extraEditorClassName, startingLineDecorationsWidth) {
+    extraEditorClassName.push("inline-comment");
+    return {
+      lineDecorationsWidth: this.getWithCommentsLineDecorationWidth(
+        editor,
+        startingLineDecorationsWidth
+      ),
+      extraEditorClassName
+    };
+  }
+  updateEditorLayoutOptions(editor, extraEditorClassName, lineDecorationsWidth) {
+    editor.updateOptions({
+      extraEditorClassName: extraEditorClassName.join(" "),
+      lineDecorationsWidth
+    });
+  }
+  ensureCommentingRangeReservedAmount(editor) {
+    const existing = this.getExistingCommentEditorOptions(editor);
+    if (existing.lineDecorationsWidth !== this._commentingRangeAmountReserved) {
+      editor.updateOptions({
+        lineDecorationsWidth: this.getWithCommentsLineDecorationWidth(
+          editor,
+          existing.lineDecorationsWidth
+        )
+      });
+    }
+  }
+  tryUpdateReservedSpace(uri) {
+    if (!this.editor) {
+      return;
+    }
+    const hasCommentsOrRangesInInfo = this._commentInfos.some((info) => {
+      const hasRanges = Boolean(
+        info.commentingRanges && (Array.isArray(info.commentingRanges) ? info.commentingRanges : info.commentingRanges.ranges).length
+      );
+      return hasRanges || info.threads.length > 0;
+    });
+    uri = uri ?? this.editor.getModel()?.uri;
+    const resourceHasCommentingRanges = uri ? this.commentService.resourceHasCommentingRanges(uri) : false;
+    const hasCommentsOrRanges = hasCommentsOrRangesInInfo || resourceHasCommentingRanges;
+    if (hasCommentsOrRanges && this.commentService.isCommentingEnabled) {
+      if (this._commentingRangeSpaceReserved) {
+        this.ensureCommentingRangeReservedAmount(this.editor);
+      } else {
+        this._commentingRangeSpaceReserved = true;
+        const { lineDecorationsWidth, extraEditorClassName } = this.getExistingCommentEditorOptions(this.editor);
+        const newOptions = this.getWithCommentsEditorOptions(
+          this.editor,
+          extraEditorClassName,
+          lineDecorationsWidth
+        );
+        this.updateEditorLayoutOptions(
+          this.editor,
+          newOptions.extraEditorClassName,
+          newOptions.lineDecorationsWidth
+        );
+      }
+    } else if ((!hasCommentsOrRanges || !this.commentService.isCommentingEnabled) && this._commentingRangeSpaceReserved) {
+      this._commentingRangeSpaceReserved = false;
+      const { lineDecorationsWidth, extraEditorClassName } = this.getExistingCommentEditorOptions(this.editor);
+      const newOptions = this.getWithoutCommentsEditorOptions(
+        this.editor,
+        extraEditorClassName,
+        lineDecorationsWidth
+      );
+      this.updateEditorLayoutOptions(
+        this.editor,
+        newOptions.extraEditorClassName,
+        newOptions.lineDecorationsWidth
+      );
+    }
+  }
+  async setComments(commentInfos) {
+    if (!this.editor || !this.commentService.isCommentingEnabled) {
+      return;
+    }
+    this._commentInfos = commentInfos;
+    this.tryUpdateReservedSpace();
+    this.removeCommentWidgetsAndStoreCache();
+    let hasCommentingRanges = false;
+    for (const info of this._commentInfos) {
+      if (!hasCommentingRanges && (info.commentingRanges.ranges.length > 0 || info.commentingRanges.fileComments)) {
+        hasCommentingRanges = true;
+      }
+      const providerCacheStore = this._pendingNewCommentCache[info.uniqueOwner];
+      const providerEditsCacheStore = this._pendingEditsCache[info.uniqueOwner];
+      info.threads = info.threads.filter((thread) => !thread.isDisposed);
+      for (const thread of info.threads) {
+        let pendingComment;
+        if (providerCacheStore) {
+          pendingComment = providerCacheStore[thread.threadId];
+        }
+        let pendingEdits;
+        if (providerEditsCacheStore) {
+          pendingEdits = providerEditsCacheStore[thread.threadId];
+        }
+        await this.displayCommentThread(
+          info.uniqueOwner,
+          thread,
+          false,
+          pendingComment,
+          pendingEdits
+        );
+      }
+      for (const thread of info.pendingCommentThreads ?? []) {
+        this.resumePendingComment(this.editor.getModel().uri, thread);
+      }
+    }
+    this._commentingRangeDecorator.update(this.editor, this._commentInfos);
+    this._commentThreadRangeDecorator.update(
+      this.editor,
+      this._commentInfos
+    );
+    if (hasCommentingRanges) {
+      this._activeEditorHasCommentingRange.set(true);
+    } else {
+      this._activeEditorHasCommentingRange.set(false);
+    }
+  }
+  closeWidget() {
+    this._commentWidgets?.forEach((widget) => widget.hide());
+    if (this.editor) {
+      this.editor.focus();
+      this.editor.revealRangeInCenter(this.editor.getSelection());
+    }
+  }
+  removeCommentWidgetsAndStoreCache() {
+    if (this._commentWidgets) {
+      this._commentWidgets.forEach((zone) => {
+        const pendingComments = zone.getPendingComments();
+        const pendingNewComment = pendingComments.newComment;
+        const providerNewCommentCacheStore = this._pendingNewCommentCache[zone.uniqueOwner];
+        let lastCommentBody;
+        if (zone.commentThread.comments && zone.commentThread.comments.length) {
+          const lastComment = zone.commentThread.comments[zone.commentThread.comments.length - 1];
+          if (typeof lastComment.body === "string") {
+            lastCommentBody = lastComment.body;
+          } else {
+            lastCommentBody = lastComment.body.value;
+          }
+        }
+        if (pendingNewComment && pendingNewComment !== lastCommentBody) {
+          if (!providerNewCommentCacheStore) {
+            this._pendingNewCommentCache[zone.uniqueOwner] = {};
+          }
+          this._pendingNewCommentCache[zone.uniqueOwner][zone.commentThread.threadId] = pendingNewComment;
+        } else if (providerNewCommentCacheStore) {
+          delete providerNewCommentCacheStore[zone.commentThread.threadId];
+        }
+        const pendingEdits = pendingComments.edits;
+        const providerEditsCacheStore = this._pendingEditsCache[zone.uniqueOwner];
+        if (Object.keys(pendingEdits).length > 0) {
+          if (!providerEditsCacheStore) {
+            this._pendingEditsCache[zone.uniqueOwner] = {};
+          }
+          this._pendingEditsCache[zone.uniqueOwner][zone.commentThread.threadId] = pendingEdits;
+        } else if (providerEditsCacheStore) {
+          delete providerEditsCacheStore[zone.commentThread.threadId];
+        }
+        zone.dispose();
+      });
+    }
+    this._commentWidgets = [];
+  }
+};
+CommentController = __decorateClass([
+  __decorateParam(1, ICommentService),
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, ICodeEditorService),
+  __decorateParam(4, IContextMenuService),
+  __decorateParam(5, IQuickInputService),
+  __decorateParam(6, IViewsService),
+  __decorateParam(7, IConfigurationService),
+  __decorateParam(8, IContextKeyService),
+  __decorateParam(9, IEditorService),
+  __decorateParam(10, IKeybindingService),
+  __decorateParam(11, IAccessibilityService)
+], CommentController);
+export {
+  CommentController,
+  ID,
+  revealCommentThread
+};
+//# sourceMappingURL=commentsController.js.map

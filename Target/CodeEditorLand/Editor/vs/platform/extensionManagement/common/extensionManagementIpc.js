@@ -1,1 +1,561 @@
-import{Emitter as x,Event as E}from"../../../base/common/event.js";import{Disposable as h}from"../../../base/common/lifecycle.js";import{cloneAndChange as v}from"../../../base/common/objects.js";import{URI as a}from"../../../base/common/uri.js";import{DefaultURITransformer as I,transformAndReviveIncomingURIs as f}from"../../../base/common/uriIpc.js";import{isTargetPlatformCompatible as U}from"./extensionManagement.js";function c(s,i){return s?a.revive(i?i.transformIncoming(s):s):void 0}function p(s,i){return i?i.transformOutgoingURI(s):s}function l(s,i){i=i||I;const t=s.manifest;return{...f({...s,manifest:void 0},i),manifest:t}}function d(s,i){return s?.profileLocation?f(s,i??I):s}function u(s,i){return i?v(s,t=>t instanceof a?i.transformOutgoingURI(t):void 0):s}class M{constructor(i,t){this.service=i;this.getUriTransformer=t;this.onInstallExtension=E.buffer(i.onInstallExtension,!0),this.onDidInstallExtensions=E.buffer(i.onDidInstallExtensions,!0),this.onUninstallExtension=E.buffer(i.onUninstallExtension,!0),this.onDidUninstallExtension=E.buffer(i.onDidUninstallExtension,!0),this.onDidUpdateExtensionMetadata=E.buffer(i.onDidUpdateExtensionMetadata,!0)}onInstallExtension;onDidInstallExtensions;onUninstallExtension;onDidUninstallExtension;onDidUpdateExtensionMetadata;listen(i,t){const n=this.getUriTransformer(i);switch(t){case"onInstallExtension":return E.map(this.onInstallExtension,e=>({...e,profileLocation:e.profileLocation?p(e.profileLocation,n):e.profileLocation}));case"onDidInstallExtensions":return E.map(this.onDidInstallExtensions,e=>e.map(o=>({...o,local:o.local?u(o.local,n):o.local,profileLocation:o.profileLocation?p(o.profileLocation,n):o.profileLocation})));case"onUninstallExtension":return E.map(this.onUninstallExtension,e=>({...e,profileLocation:e.profileLocation?p(e.profileLocation,n):e.profileLocation}));case"onDidUninstallExtension":return E.map(this.onDidUninstallExtension,e=>({...e,profileLocation:e.profileLocation?p(e.profileLocation,n):e.profileLocation}));case"onDidUpdateExtensionMetadata":return E.map(this.onDidUpdateExtensionMetadata,e=>({local:u(e.local,n),profileLocation:p(e.profileLocation,n)}))}throw new Error("Invalid listen")}async call(i,t,n){const e=this.getUriTransformer(i);switch(t){case"zip":{const o=l(n[0],e),r=await this.service.zip(o);return p(r,e)}case"install":return this.service.install(c(n[0],e),d(n[1],e));case"installFromLocation":return this.service.installFromLocation(c(n[0],e),c(n[1],e));case"installExtensionsFromProfile":return this.service.installExtensionsFromProfile(n[0],c(n[1],e),c(n[2],e));case"getManifest":return this.service.getManifest(c(n[0],e));case"getTargetPlatform":return this.service.getTargetPlatform();case"canInstall":return this.service.canInstall(n[0]);case"installFromGallery":return this.service.installFromGallery(n[0],d(n[1],e));case"installGalleryExtensions":{const o=n[0];return this.service.installGalleryExtensions(o.map(({extension:r,options:m})=>({extension:r,options:d(m,e)??{}})))}case"uninstall":return this.service.uninstall(l(n[0],e),d(n[1],e));case"uninstallExtensions":{const o=n[0];return this.service.uninstallExtensions(o.map(({extension:r,options:m})=>({extension:l(r,e),options:d(m,e)})))}case"reinstallFromGallery":return this.service.reinstallFromGallery(l(n[0],e));case"getInstalled":return(await this.service.getInstalled(n[0],c(n[1],e),n[2])).map(r=>u(r,e));case"toggleAppliationScope":{const o=await this.service.toggleAppliationScope(l(n[0],e),c(n[1],e));return u(o,e)}case"copyExtensions":return this.service.copyExtensions(c(n[0],e),c(n[1],e));case"updateMetadata":{const o=await this.service.updateMetadata(l(n[0],e),n[1],c(n[2],e));return u(o,e)}case"resetPinnedStateForAllUserExtensions":return this.service.resetPinnedStateForAllUserExtensions(n[0]);case"getExtensionsControlManifest":return this.service.getExtensionsControlManifest();case"download":return this.service.download(n[0],n[1],n[2]);case"cleanUp":return this.service.cleanUp()}throw new Error("Invalid call")}}class T extends h{constructor(t){super();this.channel=t;this._register(this.channel.listen("onInstallExtension")(n=>this.fireEvent(this._onInstallExtension,{...n,source:this.isUriComponents(n.source)?a.revive(n.source):n.source,profileLocation:a.revive(n.profileLocation)}))),this._register(this.channel.listen("onDidInstallExtensions")(n=>this.fireEvent(this._onDidInstallExtensions,n.map(e=>({...e,local:e.local?l(e.local,null):e.local,source:this.isUriComponents(e.source)?a.revive(e.source):e.source,profileLocation:a.revive(e.profileLocation)}))))),this._register(this.channel.listen("onUninstallExtension")(n=>this.fireEvent(this._onUninstallExtension,{...n,profileLocation:a.revive(n.profileLocation)}))),this._register(this.channel.listen("onDidUninstallExtension")(n=>this.fireEvent(this._onDidUninstallExtension,{...n,profileLocation:a.revive(n.profileLocation)}))),this._register(this.channel.listen("onDidUpdateExtensionMetadata")(n=>this.fireEvent(this._onDidUpdateExtensionMetadata,{profileLocation:a.revive(n.profileLocation),local:l(n.local,null)})))}_onInstallExtension=this._register(new x);get onInstallExtension(){return this._onInstallExtension.event}_onDidInstallExtensions=this._register(new x);get onDidInstallExtensions(){return this._onDidInstallExtensions.event}_onUninstallExtension=this._register(new x);get onUninstallExtension(){return this._onUninstallExtension.event}_onDidUninstallExtension=this._register(new x);get onDidUninstallExtension(){return this._onDidUninstallExtension.event}_onDidUpdateExtensionMetadata=this._register(new x);get onDidUpdateExtensionMetadata(){return this._onDidUpdateExtensionMetadata.event}fireEvent(t,n){t.fire(n)}isUriComponents(t){return t?typeof t.path=="string"&&typeof t.scheme=="string":!1}_targetPlatformPromise;getTargetPlatform(){return this._targetPlatformPromise||(this._targetPlatformPromise=this.channel.call("getTargetPlatform")),this._targetPlatformPromise}async canInstall(t){const n=await this.getTargetPlatform();return t.allTargetPlatforms.some(e=>U(e,t.allTargetPlatforms,n))}zip(t){return Promise.resolve(this.channel.call("zip",[t]).then(n=>a.revive(n)))}install(t,n){return Promise.resolve(this.channel.call("install",[t,n])).then(e=>l(e,null))}installFromLocation(t,n){return Promise.resolve(this.channel.call("installFromLocation",[t,n])).then(e=>l(e,null))}async installExtensionsFromProfile(t,n,e){return(await this.channel.call("installExtensionsFromProfile",[t,n,e])).map(r=>l(r,null))}getManifest(t){return Promise.resolve(this.channel.call("getManifest",[t]))}installFromGallery(t,n){return Promise.resolve(this.channel.call("installFromGallery",[t,n])).then(e=>l(e,null))}async installGalleryExtensions(t){return(await this.channel.call("installGalleryExtensions",[t])).map(e=>({...e,local:e.local?l(e.local,null):e.local,source:this.isUriComponents(e.source)?a.revive(e.source):e.source,profileLocation:a.revive(e.profileLocation)}))}uninstall(t,n){if(t.isWorkspaceScoped)throw new Error("Cannot uninstall a workspace extension");return Promise.resolve(this.channel.call("uninstall",[t,n]))}uninstallExtensions(t){if(t.some(n=>n.extension.isWorkspaceScoped))throw new Error("Cannot uninstall a workspace extension");return Promise.resolve(this.channel.call("uninstallExtensions",[t]))}reinstallFromGallery(t){return Promise.resolve(this.channel.call("reinstallFromGallery",[t])).then(n=>l(n,null))}getInstalled(t=null,n,e){return Promise.resolve(this.channel.call("getInstalled",[t,n,e])).then(o=>o.map(r=>l(r,null)))}updateMetadata(t,n,e){return Promise.resolve(this.channel.call("updateMetadata",[t,n,e])).then(o=>l(o,null))}resetPinnedStateForAllUserExtensions(t){return this.channel.call("resetPinnedStateForAllUserExtensions",[t])}toggleAppliationScope(t,n){return this.channel.call("toggleAppliationScope",[t,n]).then(e=>l(e,null))}copyExtensions(t,n){return this.channel.call("copyExtensions",[t,n])}getExtensionsControlManifest(){return Promise.resolve(this.channel.call("getExtensionsControlManifest"))}async download(t,n,e){const o=await this.channel.call("download",[t,n,e]);return a.revive(o)}async cleanUp(){return this.channel.call("cleanUp")}registerParticipant(){throw new Error("Not Supported")}}class w{constructor(i){this.service=i}listen(i,t){throw new Error("Invalid listen")}call(i,t,n){switch(t){case"getConfigBasedTips":return this.service.getConfigBasedTips(a.revive(n[0]));case"getImportantExecutableBasedTips":return this.service.getImportantExecutableBasedTips();case"getOtherExecutableBasedTips":return this.service.getOtherExecutableBasedTips()}throw new Error("Invalid call")}}export{M as ExtensionManagementChannel,T as ExtensionManagementChannelClient,w as ExtensionTipsChannel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { cloneAndChange } from "../../../base/common/objects.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  DefaultURITransformer,
+  transformAndReviveIncomingURIs
+} from "../../../base/common/uriIpc.js";
+import {
+  isTargetPlatformCompatible
+} from "./extensionManagement.js";
+function transformIncomingURI(uri, transformer) {
+  return uri ? URI.revive(transformer ? transformer.transformIncoming(uri) : uri) : void 0;
+}
+__name(transformIncomingURI, "transformIncomingURI");
+function transformOutgoingURI(uri, transformer) {
+  return transformer ? transformer.transformOutgoingURI(uri) : uri;
+}
+__name(transformOutgoingURI, "transformOutgoingURI");
+function transformIncomingExtension(extension, transformer) {
+  transformer = transformer ? transformer : DefaultURITransformer;
+  const manifest = extension.manifest;
+  const transformed = transformAndReviveIncomingURIs(
+    { ...extension, ...{ manifest: void 0 } },
+    transformer
+  );
+  return { ...transformed, ...{ manifest } };
+}
+__name(transformIncomingExtension, "transformIncomingExtension");
+function transformIncomingOptions(options, transformer) {
+  return options?.profileLocation ? transformAndReviveIncomingURIs(
+    options,
+    transformer ?? DefaultURITransformer
+  ) : options;
+}
+__name(transformIncomingOptions, "transformIncomingOptions");
+function transformOutgoingExtension(extension, transformer) {
+  return transformer ? cloneAndChange(
+    extension,
+    (value) => value instanceof URI ? transformer.transformOutgoingURI(value) : void 0
+  ) : extension;
+}
+__name(transformOutgoingExtension, "transformOutgoingExtension");
+class ExtensionManagementChannel {
+  constructor(service, getUriTransformer) {
+    this.service = service;
+    this.getUriTransformer = getUriTransformer;
+    this.onInstallExtension = Event.buffer(
+      service.onInstallExtension,
+      true
+    );
+    this.onDidInstallExtensions = Event.buffer(
+      service.onDidInstallExtensions,
+      true
+    );
+    this.onUninstallExtension = Event.buffer(
+      service.onUninstallExtension,
+      true
+    );
+    this.onDidUninstallExtension = Event.buffer(
+      service.onDidUninstallExtension,
+      true
+    );
+    this.onDidUpdateExtensionMetadata = Event.buffer(
+      service.onDidUpdateExtensionMetadata,
+      true
+    );
+  }
+  static {
+    __name(this, "ExtensionManagementChannel");
+  }
+  onInstallExtension;
+  onDidInstallExtensions;
+  onUninstallExtension;
+  onDidUninstallExtension;
+  onDidUpdateExtensionMetadata;
+  listen(context, event) {
+    const uriTransformer = this.getUriTransformer(context);
+    switch (event) {
+      case "onInstallExtension": {
+        return Event.map(
+          this.onInstallExtension,
+          (e) => {
+            return {
+              ...e,
+              profileLocation: e.profileLocation ? transformOutgoingURI(
+                e.profileLocation,
+                uriTransformer
+              ) : e.profileLocation
+            };
+          }
+        );
+      }
+      case "onDidInstallExtensions": {
+        return Event.map(
+          this.onDidInstallExtensions,
+          (results) => results.map((i) => ({
+            ...i,
+            local: i.local ? transformOutgoingExtension(
+              i.local,
+              uriTransformer
+            ) : i.local,
+            profileLocation: i.profileLocation ? transformOutgoingURI(
+              i.profileLocation,
+              uriTransformer
+            ) : i.profileLocation
+          }))
+        );
+      }
+      case "onUninstallExtension": {
+        return Event.map(this.onUninstallExtension, (e) => {
+          return {
+            ...e,
+            profileLocation: e.profileLocation ? transformOutgoingURI(
+              e.profileLocation,
+              uriTransformer
+            ) : e.profileLocation
+          };
+        });
+      }
+      case "onDidUninstallExtension": {
+        return Event.map(this.onDidUninstallExtension, (e) => {
+          return {
+            ...e,
+            profileLocation: e.profileLocation ? transformOutgoingURI(
+              e.profileLocation,
+              uriTransformer
+            ) : e.profileLocation
+          };
+        });
+      }
+      case "onDidUpdateExtensionMetadata": {
+        return Event.map(this.onDidUpdateExtensionMetadata, (e) => {
+          return {
+            local: transformOutgoingExtension(
+              e.local,
+              uriTransformer
+            ),
+            profileLocation: transformOutgoingURI(
+              e.profileLocation,
+              uriTransformer
+            )
+          };
+        });
+      }
+    }
+    throw new Error("Invalid listen");
+  }
+  async call(context, command, args) {
+    const uriTransformer = this.getUriTransformer(context);
+    switch (command) {
+      case "zip": {
+        const extension = transformIncomingExtension(
+          args[0],
+          uriTransformer
+        );
+        const uri = await this.service.zip(extension);
+        return transformOutgoingURI(uri, uriTransformer);
+      }
+      case "install": {
+        return this.service.install(
+          transformIncomingURI(args[0], uriTransformer),
+          transformIncomingOptions(args[1], uriTransformer)
+        );
+      }
+      case "installFromLocation": {
+        return this.service.installFromLocation(
+          transformIncomingURI(args[0], uriTransformer),
+          transformIncomingURI(args[1], uriTransformer)
+        );
+      }
+      case "installExtensionsFromProfile": {
+        return this.service.installExtensionsFromProfile(
+          args[0],
+          transformIncomingURI(args[1], uriTransformer),
+          transformIncomingURI(args[2], uriTransformer)
+        );
+      }
+      case "getManifest": {
+        return this.service.getManifest(
+          transformIncomingURI(args[0], uriTransformer)
+        );
+      }
+      case "getTargetPlatform": {
+        return this.service.getTargetPlatform();
+      }
+      case "canInstall": {
+        return this.service.canInstall(args[0]);
+      }
+      case "installFromGallery": {
+        return this.service.installFromGallery(
+          args[0],
+          transformIncomingOptions(args[1], uriTransformer)
+        );
+      }
+      case "installGalleryExtensions": {
+        const arg = args[0];
+        return this.service.installGalleryExtensions(
+          arg.map(({ extension, options }) => ({
+            extension,
+            options: transformIncomingOptions(options, uriTransformer) ?? {}
+          }))
+        );
+      }
+      case "uninstall": {
+        return this.service.uninstall(
+          transformIncomingExtension(args[0], uriTransformer),
+          transformIncomingOptions(args[1], uriTransformer)
+        );
+      }
+      case "uninstallExtensions": {
+        const arg = args[0];
+        return this.service.uninstallExtensions(
+          arg.map(({ extension, options }) => ({
+            extension: transformIncomingExtension(
+              extension,
+              uriTransformer
+            ),
+            options: transformIncomingOptions(
+              options,
+              uriTransformer
+            )
+          }))
+        );
+      }
+      case "reinstallFromGallery": {
+        return this.service.reinstallFromGallery(
+          transformIncomingExtension(args[0], uriTransformer)
+        );
+      }
+      case "getInstalled": {
+        const extensions = await this.service.getInstalled(
+          args[0],
+          transformIncomingURI(args[1], uriTransformer),
+          args[2]
+        );
+        return extensions.map(
+          (e) => transformOutgoingExtension(e, uriTransformer)
+        );
+      }
+      case "toggleAppliationScope": {
+        const extension = await this.service.toggleAppliationScope(
+          transformIncomingExtension(args[0], uriTransformer),
+          transformIncomingURI(args[1], uriTransformer)
+        );
+        return transformOutgoingExtension(extension, uriTransformer);
+      }
+      case "copyExtensions": {
+        return this.service.copyExtensions(
+          transformIncomingURI(args[0], uriTransformer),
+          transformIncomingURI(args[1], uriTransformer)
+        );
+      }
+      case "updateMetadata": {
+        const e = await this.service.updateMetadata(
+          transformIncomingExtension(args[0], uriTransformer),
+          args[1],
+          transformIncomingURI(args[2], uriTransformer)
+        );
+        return transformOutgoingExtension(e, uriTransformer);
+      }
+      case "resetPinnedStateForAllUserExtensions": {
+        return this.service.resetPinnedStateForAllUserExtensions(
+          args[0]
+        );
+      }
+      case "getExtensionsControlManifest": {
+        return this.service.getExtensionsControlManifest();
+      }
+      case "download": {
+        return this.service.download(args[0], args[1], args[2]);
+      }
+      case "cleanUp": {
+        return this.service.cleanUp();
+      }
+    }
+    throw new Error("Invalid call");
+  }
+}
+class ExtensionManagementChannelClient extends Disposable {
+  constructor(channel) {
+    super();
+    this.channel = channel;
+    this._register(
+      this.channel.listen("onInstallExtension")(
+        (e) => this.fireEvent(this._onInstallExtension, {
+          ...e,
+          source: this.isUriComponents(e.source) ? URI.revive(e.source) : e.source,
+          profileLocation: URI.revive(e.profileLocation)
+        })
+      )
+    );
+    this._register(
+      this.channel.listen(
+        "onDidInstallExtensions"
+      )(
+        (results) => this.fireEvent(
+          this._onDidInstallExtensions,
+          results.map((e) => ({
+            ...e,
+            local: e.local ? transformIncomingExtension(e.local, null) : e.local,
+            source: this.isUriComponents(e.source) ? URI.revive(e.source) : e.source,
+            profileLocation: URI.revive(e.profileLocation)
+          }))
+        )
+      )
+    );
+    this._register(
+      this.channel.listen(
+        "onUninstallExtension"
+      )(
+        (e) => this.fireEvent(this._onUninstallExtension, {
+          ...e,
+          profileLocation: URI.revive(e.profileLocation)
+        })
+      )
+    );
+    this._register(
+      this.channel.listen(
+        "onDidUninstallExtension"
+      )(
+        (e) => this.fireEvent(this._onDidUninstallExtension, {
+          ...e,
+          profileLocation: URI.revive(e.profileLocation)
+        })
+      )
+    );
+    this._register(
+      this.channel.listen(
+        "onDidUpdateExtensionMetadata"
+      )(
+        (e) => this.fireEvent(this._onDidUpdateExtensionMetadata, {
+          profileLocation: URI.revive(e.profileLocation),
+          local: transformIncomingExtension(e.local, null)
+        })
+      )
+    );
+  }
+  static {
+    __name(this, "ExtensionManagementChannelClient");
+  }
+  _onInstallExtension = this._register(
+    new Emitter()
+  );
+  get onInstallExtension() {
+    return this._onInstallExtension.event;
+  }
+  _onDidInstallExtensions = this._register(
+    new Emitter()
+  );
+  get onDidInstallExtensions() {
+    return this._onDidInstallExtensions.event;
+  }
+  _onUninstallExtension = this._register(
+    new Emitter()
+  );
+  get onUninstallExtension() {
+    return this._onUninstallExtension.event;
+  }
+  _onDidUninstallExtension = this._register(
+    new Emitter()
+  );
+  get onDidUninstallExtension() {
+    return this._onDidUninstallExtension.event;
+  }
+  _onDidUpdateExtensionMetadata = this._register(
+    new Emitter()
+  );
+  get onDidUpdateExtensionMetadata() {
+    return this._onDidUpdateExtensionMetadata.event;
+  }
+  fireEvent(event, data) {
+    event.fire(data);
+  }
+  isUriComponents(thing) {
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.path === "string" && typeof thing.scheme === "string";
+  }
+  _targetPlatformPromise;
+  getTargetPlatform() {
+    if (!this._targetPlatformPromise) {
+      this._targetPlatformPromise = this.channel.call("getTargetPlatform");
+    }
+    return this._targetPlatformPromise;
+  }
+  async canInstall(extension) {
+    const currentTargetPlatform = await this.getTargetPlatform();
+    return extension.allTargetPlatforms.some(
+      (targetPlatform) => isTargetPlatformCompatible(
+        targetPlatform,
+        extension.allTargetPlatforms,
+        currentTargetPlatform
+      )
+    );
+  }
+  zip(extension) {
+    return Promise.resolve(
+      this.channel.call("zip", [extension]).then((result) => URI.revive(result))
+    );
+  }
+  install(vsix, options) {
+    return Promise.resolve(
+      this.channel.call("install", [vsix, options])
+    ).then((local) => transformIncomingExtension(local, null));
+  }
+  installFromLocation(location, profileLocation) {
+    return Promise.resolve(
+      this.channel.call("installFromLocation", [
+        location,
+        profileLocation
+      ])
+    ).then((local) => transformIncomingExtension(local, null));
+  }
+  async installExtensionsFromProfile(extensions, fromProfileLocation, toProfileLocation) {
+    const result = await this.channel.call(
+      "installExtensionsFromProfile",
+      [extensions, fromProfileLocation, toProfileLocation]
+    );
+    return result.map((local) => transformIncomingExtension(local, null));
+  }
+  getManifest(vsix) {
+    return Promise.resolve(
+      this.channel.call("getManifest", [vsix])
+    );
+  }
+  installFromGallery(extension, installOptions) {
+    return Promise.resolve(
+      this.channel.call("installFromGallery", [
+        extension,
+        installOptions
+      ])
+    ).then((local) => transformIncomingExtension(local, null));
+  }
+  async installGalleryExtensions(extensions) {
+    const results = await this.channel.call(
+      "installGalleryExtensions",
+      [extensions]
+    );
+    return results.map((e) => ({
+      ...e,
+      local: e.local ? transformIncomingExtension(e.local, null) : e.local,
+      source: this.isUriComponents(e.source) ? URI.revive(e.source) : e.source,
+      profileLocation: URI.revive(e.profileLocation)
+    }));
+  }
+  uninstall(extension, options) {
+    if (extension.isWorkspaceScoped) {
+      throw new Error("Cannot uninstall a workspace extension");
+    }
+    return Promise.resolve(
+      this.channel.call("uninstall", [extension, options])
+    );
+  }
+  uninstallExtensions(extensions) {
+    if (extensions.some((e) => e.extension.isWorkspaceScoped)) {
+      throw new Error("Cannot uninstall a workspace extension");
+    }
+    return Promise.resolve(
+      this.channel.call("uninstallExtensions", [extensions])
+    );
+  }
+  reinstallFromGallery(extension) {
+    return Promise.resolve(
+      this.channel.call("reinstallFromGallery", [
+        extension
+      ])
+    ).then((local) => transformIncomingExtension(local, null));
+  }
+  getInstalled(type = null, extensionsProfileResource, productVersion) {
+    return Promise.resolve(
+      this.channel.call("getInstalled", [
+        type,
+        extensionsProfileResource,
+        productVersion
+      ])
+    ).then(
+      (extensions) => extensions.map(
+        (extension) => transformIncomingExtension(extension, null)
+      )
+    );
+  }
+  updateMetadata(local, metadata, extensionsProfileResource) {
+    return Promise.resolve(
+      this.channel.call("updateMetadata", [
+        local,
+        metadata,
+        extensionsProfileResource
+      ])
+    ).then((extension) => transformIncomingExtension(extension, null));
+  }
+  resetPinnedStateForAllUserExtensions(pinned) {
+    return this.channel.call("resetPinnedStateForAllUserExtensions", [
+      pinned
+    ]);
+  }
+  toggleAppliationScope(local, fromProfileLocation) {
+    return this.channel.call("toggleAppliationScope", [
+      local,
+      fromProfileLocation
+    ]).then((extension) => transformIncomingExtension(extension, null));
+  }
+  copyExtensions(fromProfileLocation, toProfileLocation) {
+    return this.channel.call("copyExtensions", [
+      fromProfileLocation,
+      toProfileLocation
+    ]);
+  }
+  getExtensionsControlManifest() {
+    return Promise.resolve(
+      this.channel.call(
+        "getExtensionsControlManifest"
+      )
+    );
+  }
+  async download(extension, operation, donotVerifySignature) {
+    const result = await this.channel.call("download", [
+      extension,
+      operation,
+      donotVerifySignature
+    ]);
+    return URI.revive(result);
+  }
+  async cleanUp() {
+    return this.channel.call("cleanUp");
+  }
+  registerParticipant() {
+    throw new Error("Not Supported");
+  }
+}
+class ExtensionTipsChannel {
+  constructor(service) {
+    this.service = service;
+  }
+  static {
+    __name(this, "ExtensionTipsChannel");
+  }
+  listen(context, event) {
+    throw new Error("Invalid listen");
+  }
+  call(context, command, args) {
+    switch (command) {
+      case "getConfigBasedTips":
+        return this.service.getConfigBasedTips(URI.revive(args[0]));
+      case "getImportantExecutableBasedTips":
+        return this.service.getImportantExecutableBasedTips();
+      case "getOtherExecutableBasedTips":
+        return this.service.getOtherExecutableBasedTips();
+    }
+    throw new Error("Invalid call");
+  }
+}
+export {
+  ExtensionManagementChannel,
+  ExtensionManagementChannelClient,
+  ExtensionTipsChannel
+};
+//# sourceMappingURL=extensionManagementIpc.js.map

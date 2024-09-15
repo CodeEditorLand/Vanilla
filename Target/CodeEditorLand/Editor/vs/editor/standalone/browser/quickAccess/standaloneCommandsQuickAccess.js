@@ -1,1 +1,107 @@
-var I=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var a=(m,e,i,o)=>{for(var r=o>1?void 0:o?f(e,i):e,s=m.length-1,d;s>=0;s--)(d=m[s])&&(r=(o?d(e,i,r):d(r))||r);return o&&r&&I(e,i,r),r},t=(m,e)=>(i,o)=>e(i,o,m);import{KeyCode as k}from"../../../../base/common/keyCodes.js";import{ICommandService as C}from"../../../../platform/commands/common/commands.js";import{IDialogService as l}from"../../../../platform/dialogs/common/dialogs.js";import{IInstantiationService as y}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as g}from"../../../../platform/keybinding/common/keybinding.js";import{KeybindingWeight as v}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{Extensions as E}from"../../../../platform/quickinput/common/quickAccess.js";import{IQuickInputService as S}from"../../../../platform/quickinput/common/quickInput.js";import{Registry as A}from"../../../../platform/registry/common/platform.js";import{ITelemetryService as b}from"../../../../platform/telemetry/common/telemetry.js";import{EditorAction as P,registerEditorAction as x}from"../../../browser/editorExtensions.js";import{ICodeEditorService as h}from"../../../browser/services/codeEditorService.js";import{EditorContextKeys as Q}from"../../../common/editorContextKeys.js";import{QuickCommandNLS as p}from"../../../common/standaloneStrings.js";import{AbstractEditorCommandsQuickAccessProvider as q}from"../../../contrib/quickAccess/browser/commandsQuickAccess.js";let c=class extends q{constructor(i,o,r,s,d,u){super({showAlias:!1},i,r,s,d,u);this.codeEditorService=o}get activeTextEditorControl(){return this.codeEditorService.getFocusedCodeEditor()??void 0}async getCommandPicks(){return this.getCodeEditorCommandPicks()}hasAdditionalCommandPicks(){return!1}async getAdditionalCommandPicks(){return[]}};c=a([t(0,y),t(1,h),t(2,g),t(3,C),t(4,b),t(5,l)],c);class n extends P{static ID="editor.action.quickCommand";constructor(){super({id:n.ID,label:p.quickCommandActionLabel,alias:"Command Palette",precondition:void 0,kbOpts:{kbExpr:Q.focus,primary:k.F1,weight:v.EditorContrib},contextMenuOpts:{group:"z_commands",order:1}})}run(e){e.get(S).quickAccess.show(c.PREFIX)}}x(n),A.as(E.Quickaccess).registerQuickAccessProvider({ctor:c,prefix:c.PREFIX,helpEntries:[{description:p.quickCommandHelp,commandId:n.ID}]});export{n as GotoLineAction,c as StandaloneCommandsQuickAccessProvider};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  Extensions
+} from "../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { QuickCommandNLS } from "../../../common/standaloneStrings.js";
+import { AbstractEditorCommandsQuickAccessProvider } from "../../../contrib/quickAccess/browser/commandsQuickAccess.js";
+let StandaloneCommandsQuickAccessProvider = class extends AbstractEditorCommandsQuickAccessProvider {
+  constructor(instantiationService, codeEditorService, keybindingService, commandService, telemetryService, dialogService) {
+    super({ showAlias: false }, instantiationService, keybindingService, commandService, telemetryService, dialogService);
+    this.codeEditorService = codeEditorService;
+  }
+  static {
+    __name(this, "StandaloneCommandsQuickAccessProvider");
+  }
+  get activeTextEditorControl() {
+    return this.codeEditorService.getFocusedCodeEditor() ?? void 0;
+  }
+  async getCommandPicks() {
+    return this.getCodeEditorCommandPicks();
+  }
+  hasAdditionalCommandPicks() {
+    return false;
+  }
+  async getAdditionalCommandPicks() {
+    return [];
+  }
+};
+StandaloneCommandsQuickAccessProvider = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, ICodeEditorService),
+  __decorateParam(2, IKeybindingService),
+  __decorateParam(3, ICommandService),
+  __decorateParam(4, ITelemetryService),
+  __decorateParam(5, IDialogService)
+], StandaloneCommandsQuickAccessProvider);
+class GotoLineAction extends EditorAction {
+  static {
+    __name(this, "GotoLineAction");
+  }
+  static ID = "editor.action.quickCommand";
+  constructor() {
+    super({
+      id: GotoLineAction.ID,
+      label: QuickCommandNLS.quickCommandActionLabel,
+      alias: "Command Palette",
+      precondition: void 0,
+      kbOpts: {
+        kbExpr: EditorContextKeys.focus,
+        primary: KeyCode.F1,
+        weight: KeybindingWeight.EditorContrib
+      },
+      contextMenuOpts: {
+        group: "z_commands",
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    accessor.get(IQuickInputService).quickAccess.show(StandaloneCommandsQuickAccessProvider.PREFIX);
+  }
+}
+registerEditorAction(GotoLineAction);
+Registry.as(
+  Extensions.Quickaccess
+).registerQuickAccessProvider({
+  ctor: StandaloneCommandsQuickAccessProvider,
+  prefix: StandaloneCommandsQuickAccessProvider.PREFIX,
+  helpEntries: [
+    {
+      description: QuickCommandNLS.quickCommandHelp,
+      commandId: GotoLineAction.ID
+    }
+  ]
+});
+export {
+  GotoLineAction,
+  StandaloneCommandsQuickAccessProvider
+};
+//# sourceMappingURL=standaloneCommandsQuickAccess.js.map

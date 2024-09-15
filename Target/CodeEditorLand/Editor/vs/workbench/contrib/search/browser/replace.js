@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("replaceService");export{o as IReplaceService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IReplaceService = createDecorator("replaceService");
+export {
+  IReplaceService
+};
+//# sourceMappingURL=replace.js.map

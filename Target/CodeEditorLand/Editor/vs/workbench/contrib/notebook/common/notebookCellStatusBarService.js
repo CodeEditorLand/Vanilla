@@ -1,1 +1,8 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("notebookCellStatusBarService");export{t as INotebookCellStatusBarService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INotebookCellStatusBarService = createDecorator(
+  "notebookCellStatusBarService"
+);
+export {
+  INotebookCellStatusBarService
+};
+//# sourceMappingURL=notebookCellStatusBarService.js.map

@@ -1,1 +1,54 @@
-import{Promises as o}from"../../../../base/common/async.js";import{Emitter as a}from"../../../../base/common/event.js";import{Disposable as n}from"../../../../base/common/lifecycle.js";import{equals as s}from"../../../../base/common/objects.js";import{ThemeIcon as f}from"../../../../base/common/themables.js";import{defaultUserDataProfileIcon as l}from"./userDataProfile.js";class p extends n{_serviceBrand;_onDidChangeCurrentProfile=this._register(new a);onDidChangeCurrentProfile=this._onDidChangeCurrentProfile.event;_currentProfile;get currentProfile(){return this._currentProfile}constructor(r){super(),this._currentProfile=r}async updateCurrentProfile(r){if(s(this._currentProfile,r))return;const t=this._currentProfile;this._currentProfile=r;const e=[];this._onDidChangeCurrentProfile.fire({previous:t,profile:r,join(i){e.push(i)}}),await o.settled(e)}getShortName(r){return!r.isDefault&&r.shortName&&f.fromId(r.shortName)?r.shortName:`$(${l.id})`}}export{p as UserDataProfileService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Promises } from "../../../../base/common/async.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { equals } from "../../../../base/common/objects.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import {
+  defaultUserDataProfileIcon
+} from "./userDataProfile.js";
+class UserDataProfileService extends Disposable {
+  static {
+    __name(this, "UserDataProfileService");
+  }
+  _serviceBrand;
+  _onDidChangeCurrentProfile = this._register(
+    new Emitter()
+  );
+  onDidChangeCurrentProfile = this._onDidChangeCurrentProfile.event;
+  _currentProfile;
+  get currentProfile() {
+    return this._currentProfile;
+  }
+  constructor(currentProfile) {
+    super();
+    this._currentProfile = currentProfile;
+  }
+  async updateCurrentProfile(userDataProfile) {
+    if (equals(this._currentProfile, userDataProfile)) {
+      return;
+    }
+    const previous = this._currentProfile;
+    this._currentProfile = userDataProfile;
+    const joiners = [];
+    this._onDidChangeCurrentProfile.fire({
+      previous,
+      profile: userDataProfile,
+      join(promise) {
+        joiners.push(promise);
+      }
+    });
+    await Promises.settled(joiners);
+  }
+  getShortName(profile) {
+    if (!profile.isDefault && profile.shortName && ThemeIcon.fromId(profile.shortName)) {
+      return profile.shortName;
+    }
+    return `$(${defaultUserDataProfileIcon.id})`;
+  }
+}
+export {
+  UserDataProfileService
+};
+//# sourceMappingURL=userDataProfileService.js.map

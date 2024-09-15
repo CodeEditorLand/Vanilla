@@ -1,1 +1,57 @@
-import{parse as i}from"../../../../base/common/console.js";function n(e,t,r=null){const s=i(t).args;let o=s.shift();if(typeof o=="string")switch(t.severity||(t.severity="info"),r&&(/^\[/.test(r)||(r=`[${r}]`),/ $/.test(r)||(r=`${r} `),o=r+o),t.severity){case"log":case"info":e.info(o,...s);break;case"warn":e.warn(o,...s);break;case"error":e.error(o,...s);break}}function g(e,t,r){const s=i(t).args,o=s.shift();typeof o!="string"||t.severity!=="error"||(/^\[/.test(r)||(r=`[${r}]`),/ $/.test(r)||(r=`${r} `),e.error(r+o,...s))}export{n as logRemoteEntry,g as logRemoteEntryIfError};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  parse
+} from "../../../../base/common/console.js";
+function logRemoteEntry(logService, entry, label = null) {
+  const args = parse(entry).args;
+  let firstArg = args.shift();
+  if (typeof firstArg !== "string") {
+    return;
+  }
+  if (!entry.severity) {
+    entry.severity = "info";
+  }
+  if (label) {
+    if (!/^\[/.test(label)) {
+      label = `[${label}]`;
+    }
+    if (!/ $/.test(label)) {
+      label = `${label} `;
+    }
+    firstArg = label + firstArg;
+  }
+  switch (entry.severity) {
+    case "log":
+    case "info":
+      logService.info(firstArg, ...args);
+      break;
+    case "warn":
+      logService.warn(firstArg, ...args);
+      break;
+    case "error":
+      logService.error(firstArg, ...args);
+      break;
+  }
+}
+__name(logRemoteEntry, "logRemoteEntry");
+function logRemoteEntryIfError(logService, entry, label) {
+  const args = parse(entry).args;
+  const firstArg = args.shift();
+  if (typeof firstArg !== "string" || entry.severity !== "error") {
+    return;
+  }
+  if (!/^\[/.test(label)) {
+    label = `[${label}]`;
+  }
+  if (!/ $/.test(label)) {
+    label = `${label} `;
+  }
+  logService.error(label + firstArg, ...args);
+}
+__name(logRemoteEntryIfError, "logRemoteEntryIfError");
+export {
+  logRemoteEntry,
+  logRemoteEntryIfError
+};
+//# sourceMappingURL=remoteConsoleUtil.js.map

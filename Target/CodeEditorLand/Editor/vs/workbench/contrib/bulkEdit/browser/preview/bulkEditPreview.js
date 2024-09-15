@@ -1,1 +1,461 @@
-var I=Object.defineProperty;var M=Object.getOwnPropertyDescriptor;var y=(a,e,i,r)=>{for(var o=r>1?void 0:r?M(e,i):e,t=a.length-1,s;t>=0;t--)(s=a[t])&&(o=(r?s(e,i,o):s(o))||o);return r&&o&&I(e,i,o),o},l=(a,e)=>(i,r)=>e(i,r,a);import{coalesceInPlace as O}from"../../../../../base/common/arrays.js";import{Codicon as T}from"../../../../../base/common/codicons.js";import{Emitter as b,Event as U}from"../../../../../base/common/event.js";import{DisposableStore as F}from"../../../../../base/common/lifecycle.js";import{ResourceMap as P}from"../../../../../base/common/map.js";import{extUri as k}from"../../../../../base/common/resources.js";import{MicrotaskDelay as B}from"../../../../../base/common/symbols.js";import{URI as v}from"../../../../../base/common/uri.js";import{generateUuid as D}from"../../../../../base/common/uuid.js";import{ResourceFileEdit as E,ResourceTextEdit as _}from"../../../../../editor/browser/services/bulkEditService.js";import{EditOperation as w}from"../../../../../editor/common/core/editOperation.js";import{Range as R}from"../../../../../editor/common/core/range.js";import{ILanguageService as A}from"../../../../../editor/common/languages/language.js";import{createTextBufferFactoryFromSnapshot as L}from"../../../../../editor/common/model/textModel.js";import{IModelService as N}from"../../../../../editor/common/services/model.js";import{ITextModelService as W}from"../../../../../editor/common/services/resolverService.js";import{SnippetParser as q}from"../../../../../editor/contrib/snippet/browser/snippetParser.js";import{localize as j}from"../../../../../nls.js";import{IFileService as z}from"../../../../../platform/files/common/files.js";import{IInstantiationService as C}from"../../../../../platform/instantiation/common/instantiation.js";import{ConflictDetector as K}from"../conflicts.js";class V{_states=new WeakMap;_checkedCount=0;_onDidChange=new b;onDidChange=this._onDidChange.event;dispose(){this._onDidChange.dispose()}get checkedCount(){return this._checkedCount}isChecked(e){return this._states.get(e)??!1}updateChecked(e,i){const r=this._states.get(e);r!==i&&(r===void 0?i&&(this._checkedCount+=1):i?this._checkedCount+=1:this._checkedCount-=1,this._states.set(e,i),this._onDidChange.fire(e))}}class X{constructor(e,i){this.parent=e;this.textEdit=i}}var G=(o=>(o[o.TextEdit=1]="TextEdit",o[o.Create=2]="Create",o[o.Delete=4]="Delete",o[o.Rename=8]="Rename",o))(G||{});class H{constructor(e,i){this.uri=e;this.parent=i}type=0;textEdits=[];originalEdits=new Map;newUri;addEdit(e,i,r){this.type|=i,this.originalEdits.set(e,r),r instanceof _?this.textEdits.push(new X(this,r)):i===8&&(this.newUri=r.newResource)}needsConfirmation(){for(const[,e]of this.originalEdits)if(!this.parent.checked.isChecked(e))return!0;return!1}}class m{constructor(e=m._defaultMetadata){this.metadata=e}static _defaultMetadata=Object.freeze({label:j("default","Other"),icon:T.symbolFile,needsConfirmation:!1});static keyOf(e){return e?.label||"<default>"}operationByResource=new Map;get fileOperations(){return this.operationByResource.values()}}let p=class{constructor(e,i,r){this._bulkEdit=e;this._fileService=i;this.conflicts=r.createInstance(K,e)}static async create(e,i){return await e.get(C).createInstance(p,i)._init()}checked=new V;fileOperations=[];categories=[];conflicts;dispose(){this.checked.dispose(),this.conflicts.dispose()}async _init(){const e=new Map,i=new Map,r=new P;for(let o=0;o<this._bulkEdit.length;o++){const t=this._bulkEdit[o];let s,f;if(this.checked.updateChecked(t,!t.metadata?.needsConfirmation),t instanceof _)f=1,s=t.resource;else if(t instanceof E)if(t.newResource&&t.oldResource){if(f=8,s=t.oldResource,t.options?.overwrite===void 0&&t.options?.ignoreIfExists&&await this._fileService.exists(s))continue;r.set(t.newResource,s)}else if(t.oldResource){if(f=4,s=t.oldResource,t.options?.ignoreIfNotExists&&!await this._fileService.exists(s))continue}else if(t.newResource){if(f=2,s=t.newResource,t.options?.overwrite===void 0&&t.options?.ignoreIfExists&&await this._fileService.exists(s))continue}else continue;else continue;const S=(d,g)=>{let h=k.getComparisonKey(d,!0),c=g.get(h);!c&&r.has(d)&&(d=r.get(d),h=k.getComparisonKey(d,!0),c=g.get(h)),c||(c=new H(d,this),g.set(h,c)),c.addEdit(o,f,t)};S(s,e);const x=m.keyOf(t.metadata);let u=i.get(x);u||(u=new m(t.metadata),i.set(x,u)),S(s,u.operationByResource)}e.forEach(o=>this.fileOperations.push(o)),i.forEach(o=>this.categories.push(o));for(const o of this.fileOperations)if(o.type!==1){let t=!0;for(const s of o.originalEdits.values())s instanceof E&&(t=t&&this.checked.isChecked(s));if(!t)for(const s of o.originalEdits.values())this.checked.updateChecked(s,t)}return this.categories.sort((o,t)=>o.metadata.needsConfirmation===t.metadata.needsConfirmation?o.metadata.label.localeCompare(t.metadata.label):o.metadata.needsConfirmation?-1:1),this}getWorkspaceEdit(){const e=[];let i=!0;for(let r=0;r<this._bulkEdit.length;r++){const o=this._bulkEdit[r];if(this.checked.isChecked(o)){e[r]=o;continue}i=!1}return i?this._bulkEdit:(O(e),e)}async getFileEditOperation(e){const i=await e.options.contents;if(i)return w.replaceMove(R.lift({startLineNumber:0,startColumn:0,endLineNumber:Number.MAX_VALUE,endColumn:0}),i.toString())}async getFileEdits(e){for(const i of this.fileOperations)if(i.uri.toString()===e.toString()){const r=[];let o=!1;for(const t of i.originalEdits.values())t instanceof E?r.push(this.getFileEditOperation(t)):t instanceof _?this.checked.isChecked(t)&&r.push(Promise.resolve(w.replaceMove(R.lift(t.textEdit.range),t.textEdit.insertAsSnippet?q.asInsertText(t.textEdit.text):t.textEdit.text))):this.checked.isChecked(t)||(o=!0);return o?[]:(await Promise.all(r)).filter(t=>t!==void 0).sort((t,s)=>R.compareRangesUsingStarts(t.range,s.range))}return[]}getUriOfEdit(e){for(const i of this.fileOperations)for(const r of i.originalEdits.values())if(r===e)return i.uri;throw new Error("invalid edit")}};p=y([l(1,z),l(2,C)],p);let n=class{constructor(e,i,r,o){this._operations=e;this._languageService=i;this._modelService=r;this._textModelResolverService=o;this._disposables.add(this._textModelResolverService.registerTextModelContentProvider(n.Schema,this)),this._ready=this._init()}static Schema="vscode-bulkeditpreview-editor";static emptyPreview=v.from({scheme:this.Schema,fragment:"empty"});static fromPreviewUri(e){return v.parse(e.query)}_disposables=new F;_ready;_modelPreviewEdits=new Map;_instanceId=D();dispose(){this._disposables.dispose()}asPreviewUri(e){return v.from({scheme:n.Schema,authority:this._instanceId,path:e.path,query:e.toString()})}async _init(){for(const e of this._operations.fileOperations)await this._applyTextEditsToPreviewModel(e.uri);this._disposables.add(U.debounce(this._operations.checked.onDidChange,(e,i)=>i,B)(e=>{const i=this._operations.getUriOfEdit(e);this._applyTextEditsToPreviewModel(i)}))}async _applyTextEditsToPreviewModel(e){const i=await this._getOrCreatePreviewModel(e),r=this._modelPreviewEdits.get(i.id);r&&i.applyEdits(r);const o=await this._operations.getFileEdits(e),t=i.applyEdits(o,!0);this._modelPreviewEdits.set(i.id,t)}async _getOrCreatePreviewModel(e){const i=this.asPreviewUri(e);let r=this._modelService.getModel(i);if(!r){try{const o=await this._textModelResolverService.createModelReference(e),t=o.object.textEditorModel;r=this._modelService.createModel(L(t.createSnapshot()),this._languageService.createById(t.getLanguageId()),i),o.dispose()}catch{r=this._modelService.createModel("",this._languageService.createByFilepathOrFirstLine(i),i)}queueMicrotask(async()=>{this._disposables.add(await this._textModelResolverService.createModelReference(r.uri))})}return r}async provideTextContent(e){return e.toString()===n.emptyPreview.toString()?this._modelService.createModel("",null,e):(await this._ready,this._modelService.getModel(e))}};n=y([l(1,A),l(2,N),l(3,W)],n);export{m as BulkCategory,n as BulkEditPreviewProvider,H as BulkFileOperation,G as BulkFileOperationType,p as BulkFileOperations,X as BulkTextEdit,V as CheckedStates};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { coalesceInPlace } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { extUri } from "../../../../../base/common/resources.js";
+import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import {
+  ResourceFileEdit,
+  ResourceTextEdit
+} from "../../../../../editor/browser/services/bulkEditService.js";
+import {
+  EditOperation
+} from "../../../../../editor/common/core/editOperation.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { createTextBufferFactoryFromSnapshot } from "../../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import {
+  ITextModelService
+} from "../../../../../editor/common/services/resolverService.js";
+import { SnippetParser } from "../../../../../editor/contrib/snippet/browser/snippetParser.js";
+import { localize } from "../../../../../nls.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
+import { ConflictDetector } from "../conflicts.js";
+class CheckedStates {
+  static {
+    __name(this, "CheckedStates");
+  }
+  _states = /* @__PURE__ */ new WeakMap();
+  _checkedCount = 0;
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  dispose() {
+    this._onDidChange.dispose();
+  }
+  get checkedCount() {
+    return this._checkedCount;
+  }
+  isChecked(obj) {
+    return this._states.get(obj) ?? false;
+  }
+  updateChecked(obj, value) {
+    const valueNow = this._states.get(obj);
+    if (valueNow === value) {
+      return;
+    }
+    if (valueNow === void 0) {
+      if (value) {
+        this._checkedCount += 1;
+      }
+    } else if (value) {
+      this._checkedCount += 1;
+    } else {
+      this._checkedCount -= 1;
+    }
+    this._states.set(obj, value);
+    this._onDidChange.fire(obj);
+  }
+}
+class BulkTextEdit {
+  constructor(parent, textEdit) {
+    this.parent = parent;
+    this.textEdit = textEdit;
+  }
+  static {
+    __name(this, "BulkTextEdit");
+  }
+}
+var BulkFileOperationType = /* @__PURE__ */ ((BulkFileOperationType2) => {
+  BulkFileOperationType2[BulkFileOperationType2["TextEdit"] = 1] = "TextEdit";
+  BulkFileOperationType2[BulkFileOperationType2["Create"] = 2] = "Create";
+  BulkFileOperationType2[BulkFileOperationType2["Delete"] = 4] = "Delete";
+  BulkFileOperationType2[BulkFileOperationType2["Rename"] = 8] = "Rename";
+  return BulkFileOperationType2;
+})(BulkFileOperationType || {});
+class BulkFileOperation {
+  constructor(uri, parent) {
+    this.uri = uri;
+    this.parent = parent;
+  }
+  static {
+    __name(this, "BulkFileOperation");
+  }
+  type = 0;
+  textEdits = [];
+  originalEdits = /* @__PURE__ */ new Map();
+  newUri;
+  addEdit(index, type, edit) {
+    this.type |= type;
+    this.originalEdits.set(index, edit);
+    if (edit instanceof ResourceTextEdit) {
+      this.textEdits.push(new BulkTextEdit(this, edit));
+    } else if (type === 8 /* Rename */) {
+      this.newUri = edit.newResource;
+    }
+  }
+  needsConfirmation() {
+    for (const [, edit] of this.originalEdits) {
+      if (!this.parent.checked.isChecked(edit)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+class BulkCategory {
+  constructor(metadata = BulkCategory._defaultMetadata) {
+    this.metadata = metadata;
+  }
+  static {
+    __name(this, "BulkCategory");
+  }
+  static _defaultMetadata = Object.freeze({
+    label: localize("default", "Other"),
+    icon: Codicon.symbolFile,
+    needsConfirmation: false
+  });
+  static keyOf(metadata) {
+    return metadata?.label || "<default>";
+  }
+  operationByResource = /* @__PURE__ */ new Map();
+  get fileOperations() {
+    return this.operationByResource.values();
+  }
+}
+let BulkFileOperations = class {
+  constructor(_bulkEdit, _fileService, instaService) {
+    this._bulkEdit = _bulkEdit;
+    this._fileService = _fileService;
+    this.conflicts = instaService.createInstance(
+      ConflictDetector,
+      _bulkEdit
+    );
+  }
+  static {
+    __name(this, "BulkFileOperations");
+  }
+  static async create(accessor, bulkEdit) {
+    const result = accessor.get(IInstantiationService).createInstance(BulkFileOperations, bulkEdit);
+    return await result._init();
+  }
+  checked = new CheckedStates();
+  fileOperations = [];
+  categories = [];
+  conflicts;
+  dispose() {
+    this.checked.dispose();
+    this.conflicts.dispose();
+  }
+  async _init() {
+    const operationByResource = /* @__PURE__ */ new Map();
+    const operationByCategory = /* @__PURE__ */ new Map();
+    const newToOldUri = new ResourceMap();
+    for (let idx = 0; idx < this._bulkEdit.length; idx++) {
+      const edit = this._bulkEdit[idx];
+      let uri;
+      let type;
+      this.checked.updateChecked(edit, !edit.metadata?.needsConfirmation);
+      if (edit instanceof ResourceTextEdit) {
+        type = 1 /* TextEdit */;
+        uri = edit.resource;
+      } else if (edit instanceof ResourceFileEdit) {
+        if (edit.newResource && edit.oldResource) {
+          type = 8 /* Rename */;
+          uri = edit.oldResource;
+          if (edit.options?.overwrite === void 0 && edit.options?.ignoreIfExists && await this._fileService.exists(uri)) {
+            continue;
+          }
+          newToOldUri.set(edit.newResource, uri);
+        } else if (edit.oldResource) {
+          type = 4 /* Delete */;
+          uri = edit.oldResource;
+          if (edit.options?.ignoreIfNotExists && !await this._fileService.exists(uri)) {
+            continue;
+          }
+        } else if (edit.newResource) {
+          type = 2 /* Create */;
+          uri = edit.newResource;
+          if (edit.options?.overwrite === void 0 && edit.options?.ignoreIfExists && await this._fileService.exists(uri)) {
+            continue;
+          }
+        } else {
+          continue;
+        }
+      } else {
+        continue;
+      }
+      const insert = /* @__PURE__ */ __name((uri2, map) => {
+        let key2 = extUri.getComparisonKey(uri2, true);
+        let operation = map.get(key2);
+        if (!operation && newToOldUri.has(uri2)) {
+          uri2 = newToOldUri.get(uri2);
+          key2 = extUri.getComparisonKey(uri2, true);
+          operation = map.get(key2);
+        }
+        if (!operation) {
+          operation = new BulkFileOperation(uri2, this);
+          map.set(key2, operation);
+        }
+        operation.addEdit(idx, type, edit);
+      }, "insert");
+      insert(uri, operationByResource);
+      const key = BulkCategory.keyOf(edit.metadata);
+      let category = operationByCategory.get(key);
+      if (!category) {
+        category = new BulkCategory(edit.metadata);
+        operationByCategory.set(key, category);
+      }
+      insert(uri, category.operationByResource);
+    }
+    operationByResource.forEach((value) => this.fileOperations.push(value));
+    operationByCategory.forEach((value) => this.categories.push(value));
+    for (const file of this.fileOperations) {
+      if (file.type !== 1 /* TextEdit */) {
+        let checked = true;
+        for (const edit of file.originalEdits.values()) {
+          if (edit instanceof ResourceFileEdit) {
+            checked = checked && this.checked.isChecked(edit);
+          }
+        }
+        if (!checked) {
+          for (const edit of file.originalEdits.values()) {
+            this.checked.updateChecked(edit, checked);
+          }
+        }
+      }
+    }
+    this.categories.sort((a, b) => {
+      if (a.metadata.needsConfirmation === b.metadata.needsConfirmation) {
+        return a.metadata.label.localeCompare(b.metadata.label);
+      } else if (a.metadata.needsConfirmation) {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+    return this;
+  }
+  getWorkspaceEdit() {
+    const result = [];
+    let allAccepted = true;
+    for (let i = 0; i < this._bulkEdit.length; i++) {
+      const edit = this._bulkEdit[i];
+      if (this.checked.isChecked(edit)) {
+        result[i] = edit;
+        continue;
+      }
+      allAccepted = false;
+    }
+    if (allAccepted) {
+      return this._bulkEdit;
+    }
+    coalesceInPlace(result);
+    return result;
+  }
+  async getFileEditOperation(edit) {
+    const content = await edit.options.contents;
+    if (!content) {
+      return void 0;
+    }
+    return EditOperation.replaceMove(
+      Range.lift({
+        startLineNumber: 0,
+        startColumn: 0,
+        endLineNumber: Number.MAX_VALUE,
+        endColumn: 0
+      }),
+      content.toString()
+    );
+  }
+  async getFileEdits(uri) {
+    for (const file of this.fileOperations) {
+      if (file.uri.toString() === uri.toString()) {
+        const result = [];
+        let ignoreAll = false;
+        for (const edit of file.originalEdits.values()) {
+          if (edit instanceof ResourceFileEdit) {
+            result.push(this.getFileEditOperation(edit));
+          } else if (edit instanceof ResourceTextEdit) {
+            if (this.checked.isChecked(edit)) {
+              result.push(
+                Promise.resolve(
+                  EditOperation.replaceMove(
+                    Range.lift(edit.textEdit.range),
+                    edit.textEdit.insertAsSnippet ? SnippetParser.asInsertText(
+                      edit.textEdit.text
+                    ) : edit.textEdit.text
+                  )
+                )
+              );
+            }
+          } else if (!this.checked.isChecked(edit)) {
+            ignoreAll = true;
+          }
+        }
+        if (ignoreAll) {
+          return [];
+        }
+        return (await Promise.all(result)).filter((r) => r !== void 0).sort(
+          (a, b) => Range.compareRangesUsingStarts(a.range, b.range)
+        );
+      }
+    }
+    return [];
+  }
+  getUriOfEdit(edit) {
+    for (const file of this.fileOperations) {
+      for (const value of file.originalEdits.values()) {
+        if (value === edit) {
+          return file.uri;
+        }
+      }
+    }
+    throw new Error("invalid edit");
+  }
+};
+BulkFileOperations = __decorateClass([
+  __decorateParam(1, IFileService),
+  __decorateParam(2, IInstantiationService)
+], BulkFileOperations);
+let BulkEditPreviewProvider = class {
+  constructor(_operations, _languageService, _modelService, _textModelResolverService) {
+    this._operations = _operations;
+    this._languageService = _languageService;
+    this._modelService = _modelService;
+    this._textModelResolverService = _textModelResolverService;
+    this._disposables.add(
+      this._textModelResolverService.registerTextModelContentProvider(
+        BulkEditPreviewProvider.Schema,
+        this
+      )
+    );
+    this._ready = this._init();
+  }
+  static {
+    __name(this, "BulkEditPreviewProvider");
+  }
+  static Schema = "vscode-bulkeditpreview-editor";
+  static emptyPreview = URI.from({ scheme: this.Schema, fragment: "empty" });
+  static fromPreviewUri(uri) {
+    return URI.parse(uri.query);
+  }
+  _disposables = new DisposableStore();
+  _ready;
+  _modelPreviewEdits = /* @__PURE__ */ new Map();
+  _instanceId = generateUuid();
+  dispose() {
+    this._disposables.dispose();
+  }
+  asPreviewUri(uri) {
+    return URI.from({
+      scheme: BulkEditPreviewProvider.Schema,
+      authority: this._instanceId,
+      path: uri.path,
+      query: uri.toString()
+    });
+  }
+  async _init() {
+    for (const operation of this._operations.fileOperations) {
+      await this._applyTextEditsToPreviewModel(operation.uri);
+    }
+    this._disposables.add(
+      Event.debounce(
+        this._operations.checked.onDidChange,
+        (_last, e) => e,
+        MicrotaskDelay
+      )((e) => {
+        const uri = this._operations.getUriOfEdit(e);
+        this._applyTextEditsToPreviewModel(uri);
+      })
+    );
+  }
+  async _applyTextEditsToPreviewModel(uri) {
+    const model = await this._getOrCreatePreviewModel(uri);
+    const undoEdits = this._modelPreviewEdits.get(model.id);
+    if (undoEdits) {
+      model.applyEdits(undoEdits);
+    }
+    const newEdits = await this._operations.getFileEdits(uri);
+    const newUndoEdits = model.applyEdits(newEdits, true);
+    this._modelPreviewEdits.set(model.id, newUndoEdits);
+  }
+  async _getOrCreatePreviewModel(uri) {
+    const previewUri = this.asPreviewUri(uri);
+    let model = this._modelService.getModel(previewUri);
+    if (!model) {
+      try {
+        const ref = await this._textModelResolverService.createModelReference(
+          uri
+        );
+        const sourceModel = ref.object.textEditorModel;
+        model = this._modelService.createModel(
+          createTextBufferFactoryFromSnapshot(
+            sourceModel.createSnapshot()
+          ),
+          this._languageService.createById(
+            sourceModel.getLanguageId()
+          ),
+          previewUri
+        );
+        ref.dispose();
+      } catch {
+        model = this._modelService.createModel(
+          "",
+          this._languageService.createByFilepathOrFirstLine(
+            previewUri
+          ),
+          previewUri
+        );
+      }
+      queueMicrotask(async () => {
+        this._disposables.add(
+          await this._textModelResolverService.createModelReference(
+            model.uri
+          )
+        );
+      });
+    }
+    return model;
+  }
+  async provideTextContent(previewUri) {
+    if (previewUri.toString() === BulkEditPreviewProvider.emptyPreview.toString()) {
+      return this._modelService.createModel("", null, previewUri);
+    }
+    await this._ready;
+    return this._modelService.getModel(previewUri);
+  }
+};
+BulkEditPreviewProvider = __decorateClass([
+  __decorateParam(1, ILanguageService),
+  __decorateParam(2, IModelService),
+  __decorateParam(3, ITextModelService)
+], BulkEditPreviewProvider);
+export {
+  BulkCategory,
+  BulkEditPreviewProvider,
+  BulkFileOperation,
+  BulkFileOperationType,
+  BulkFileOperations,
+  BulkTextEdit,
+  CheckedStates
+};
+//# sourceMappingURL=bulkEditPreview.js.map

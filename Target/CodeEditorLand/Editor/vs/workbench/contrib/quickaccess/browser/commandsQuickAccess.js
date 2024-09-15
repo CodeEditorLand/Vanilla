@@ -1,1 +1,369 @@
-var R=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var C=(p,a,t,i)=>{for(var o=i>1?void 0:i?T(a,t):a,r=p.length-1,e;r>=0;r--)(e=p[r])&&(o=(i?e(a,t,o):e(o))||o);return i&&o&&R(a,t,o),o},n=(p,a)=>(t,i)=>a(t,i,p);import{isFirefox as w}from"../../../../base/browser/browser.js";import{raceTimeout as x,timeout as D}from"../../../../base/common/async.js";import{Codicon as O}from"../../../../base/common/codicons.js";import{stripIcons as _}from"../../../../base/common/iconLabels.js";import{KeyCode as v,KeyMod as S}from"../../../../base/common/keyCodes.js";import{Language as N}from"../../../../base/common/platform.js";import{ThemeIcon as L}from"../../../../base/common/themables.js";import{AbstractEditorCommandsQuickAccessProvider as M}from"../../../../editor/contrib/quickAccess/browser/commandsQuickAccess.js";import{localize as u,localize2 as h}from"../../../../nls.js";import{isLocalizedString as K}from"../../../../platform/action/common/action.js";import{Action2 as y,IMenuService as Q,MenuId as H,MenuItemAction as F}from"../../../../platform/actions/common/actions.js";import{ICommandService as G}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as A}from"../../../../platform/configuration/common/configuration.js";import{IDialogService as k}from"../../../../platform/dialogs/common/dialogs.js";import{IInstantiationService as W}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as q}from"../../../../platform/keybinding/common/keybinding.js";import{KeybindingWeight as V}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{IProductService as z}from"../../../../platform/product/common/productService.js";import{CommandsHistory as P}from"../../../../platform/quickinput/browser/commandsQuickAccess.js";import{TriggerAction as B}from"../../../../platform/quickinput/browser/pickerQuickAccess.js";import{DefaultQuickAccessFilterValue as U}from"../../../../platform/quickinput/common/quickAccess.js";import{IQuickInputService as X}from"../../../../platform/quickinput/common/quickInput.js";import{IStorageService as $}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as j}from"../../../../platform/telemetry/common/telemetry.js";import{IAiRelatedInformationService as J,RelatedInformationType as Y}from"../../../services/aiRelatedInformation/common/aiRelatedInformation.js";import{IEditorGroupsService as Z}from"../../../services/editor/common/editorGroupsService.js";import{IEditorService as ee}from"../../../services/editor/common/editorService.js";import{IExtensionService as te}from"../../../services/extensions/common/extensions.js";import{createKeybindingCommandQuery as ie}from"../../../services/preferences/browser/keybindingsEditorModel.js";import{IPreferencesService as oe}from"../../../services/preferences/common/preferences.js";import{CHAT_OPEN_ACTION_ID as ne}from"../../chat/browser/actions/chatActions.js";import{ASK_QUICK_QUESTION_ACTION_ID as re}from"../../chat/browser/actions/chatQuickInputActions.js";import{ChatAgentLocation as ae,IChatAgentService as ce}from"../../chat/common/chatAgents.js";let l=class extends M{constructor(t,i,o,r,e,m,s,c,d,f,g,I,me,se){super({showAlias:!N.isDefaultVariant(),noResultsPick:()=>({label:u("noCommandResults","No matching commands"),commandId:""})},r,e,m,s,c);this.editorService=t;this.menuService=i;this.extensionService=o;this.configurationService=d;this.editorGroupService=f;this.preferencesService=g;this.productService=I;this.aiRelatedInformationService=me;this.chatAgentService=se;this._register(d.onDidChangeConfiguration(E=>this.updateOptions(E))),this.updateOptions()}static AI_RELATED_INFORMATION_MAX_PICKS=5;static AI_RELATED_INFORMATION_THRESHOLD=.8;static AI_RELATED_INFORMATION_DEBOUNCE=200;extensionRegistrationRace=x(this.extensionService.whenInstalledExtensionsRegistered(),800);useAiRelatedInfo=!1;get activeTextEditorControl(){return this.editorService.activeTextEditorControl}get defaultFilterValue(){if(this.configuration.preserveInput)return U.LAST}get configuration(){const t=this.configurationService.getValue().workbench.commandPalette;return{preserveInput:t.preserveInput,experimental:t.experimental}}updateOptions(t){if(t&&!t.affectsConfiguration("workbench.commandPalette.experimental"))return;const i=this.configuration,o=i.experimental.suggestCommands&&this.productService.commandPaletteSuggestedCommandIds?.length?new Set(this.productService.commandPaletteSuggestedCommandIds):void 0;this.options.suggestedCommandIds=o,this.useAiRelatedInfo=i.experimental.enableNaturalLanguageSearch}async getCommandPicks(t){return await this.extensionRegistrationRace,t.isCancellationRequested?[]:[...this.getCodeEditorCommandPicks(),...this.getGlobalCommandPicks()].map(i=>({...i,buttons:[{iconClass:L.asClassName(O.gear),tooltip:u("configure keybinding","Configure Keybinding")}],trigger:()=>(this.preferencesService.openGlobalKeybindingSettings(!1,{query:ie(i.commandId,i.commandWhen)}),B.CLOSE_PICKER)}))}hasAdditionalCommandPicks(t,i){return!(!this.useAiRelatedInfo||i.isCancellationRequested||t===""||!this.aiRelatedInformationService.isEnabled())}async getAdditionalCommandPicks(t,i,o,r){if(!this.hasAdditionalCommandPicks(o,r))return[];let e;try{await D(l.AI_RELATED_INFORMATION_DEBOUNCE,r),e=await this.getRelatedInformationPicks(t,i,o,r)}catch{return[]}(i.length||e.length)&&e.push({type:"separator"});const m=this.chatAgentService.getDefaultAgent(ae.Panel);return m&&e.push({label:u("askXInChat","Ask {0}: {1}",m.fullName,o),commandId:this.configuration.experimental.askChatLocation==="quickChat"?re:ne,args:[o]}),e}async getRelatedInformationPicks(t,i,o,r){const e=await this.aiRelatedInformationService.getRelatedInformation(o,[Y.CommandInformation],r);e.sort((c,d)=>d.weight-c.weight);const m=new Set(i.map(c=>c.commandId)),s=new Array;for(const c of e){if(c.weight<l.AI_RELATED_INFORMATION_THRESHOLD||s.length===l.AI_RELATED_INFORMATION_MAX_PICKS)break;const d=t.find(f=>f.commandId===c.command&&!m.has(f.commandId));d&&s.push(d)}return s}getGlobalCommandPicks(){const t=[],i=this.editorService.activeEditorPane?.scopedContextKeyService||this.editorGroupService.activeGroup.scopedContextKeyService,r=this.menuService.getMenuActions(H.CommandPalette,i).reduce((e,[,m])=>[...e,...m],[]).filter(e=>e instanceof F&&e.enabled);for(const e of r){let m=(typeof e.item.title=="string"?e.item.title:e.item.title.value)||e.item.id;const s=typeof e.item.category=="string"?e.item.category:e.item.category?.value;s&&(m=u("commandWithCategory","{0}: {1}",s,m));const c=typeof e.item.title!="string"?e.item.title.original:void 0,d=s&&e.item.category&&typeof e.item.category!="string"?e.item.category.original:void 0,f=c&&s?d?`${d}: ${c}`:`${s}: ${c}`:c,g=e.item.metadata?.description,I=g===void 0||K(g)?g:{value:g,original:g};t.push({commandId:e.item.id,commandWhen:e.item.precondition?.serialize(),commandAlias:f,label:_(m),commandDescription:I})}return t}};l=C([n(0,ee),n(1,Q),n(2,te),n(3,W),n(4,q),n(5,G),n(6,j),n(7,k),n(8,A),n(9,Z),n(10,oe),n(11,z),n(12,J),n(13,ce)],l);class b extends y{static ID="workbench.action.showCommands";constructor(){super({id:b.ID,title:h("showTriggerActions","Show All Commands"),keybinding:{weight:V.WorkbenchContrib,when:void 0,primary:w?void 0:S.CtrlCmd|S.Shift|v.KeyP,secondary:[v.F1]},f1:!0})}async run(a){a.get(X).quickAccess.show(l.PREFIX)}}class Ve extends y{constructor(){super({id:"workbench.action.clearCommandHistory",title:h("clearCommandHistory","Clear Command History"),f1:!0})}async run(a){const t=a.get(A),i=a.get($),o=a.get(k);if(P.getConfiguredCommandHistoryLength(t)>0){const{confirmed:e}=await o.confirm({type:"warning",message:u("confirmClearMessage","Do you want to clear the history of recently used commands?"),detail:u("confirmClearDetail","This action is irreversible!"),primaryButton:u({key:"clearButtonLabel",comment:["&& denotes a mnemonic"]},"&&Clear")});if(!e)return;P.clearHistory(t,i)}}}export{Ve as ClearCommandHistoryAction,l as CommandsQuickAccessProvider,b as ShowAllCommandsAction};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { isFirefox } from "../../../../base/browser/browser.js";
+import { raceTimeout, timeout } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { stripIcons } from "../../../../base/common/iconLabels.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { Language } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { AbstractEditorCommandsQuickAccessProvider } from "../../../../editor/contrib/quickAccess/browser/commandsQuickAccess.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { isLocalizedString } from "../../../../platform/action/common/action.js";
+import {
+  Action2,
+  IMenuService,
+  MenuId,
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import {
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+  CommandsHistory
+} from "../../../../platform/quickinput/browser/commandsQuickAccess.js";
+import { TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { DefaultQuickAccessFilterValue } from "../../../../platform/quickinput/common/quickAccess.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  IAiRelatedInformationService,
+  RelatedInformationType
+} from "../../../services/aiRelatedInformation/common/aiRelatedInformation.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { createKeybindingCommandQuery } from "../../../services/preferences/browser/keybindingsEditorModel.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { CHAT_OPEN_ACTION_ID } from "../../chat/browser/actions/chatActions.js";
+import { ASK_QUICK_QUESTION_ACTION_ID } from "../../chat/browser/actions/chatQuickInputActions.js";
+import {
+  ChatAgentLocation,
+  IChatAgentService
+} from "../../chat/common/chatAgents.js";
+let CommandsQuickAccessProvider = class extends AbstractEditorCommandsQuickAccessProvider {
+  constructor(editorService, menuService, extensionService, instantiationService, keybindingService, commandService, telemetryService, dialogService, configurationService, editorGroupService, preferencesService, productService, aiRelatedInformationService, chatAgentService) {
+    super(
+      {
+        showAlias: !Language.isDefaultVariant(),
+        noResultsPick: /* @__PURE__ */ __name(() => ({
+          label: localize("noCommandResults", "No matching commands"),
+          commandId: ""
+        }), "noResultsPick")
+      },
+      instantiationService,
+      keybindingService,
+      commandService,
+      telemetryService,
+      dialogService
+    );
+    this.editorService = editorService;
+    this.menuService = menuService;
+    this.extensionService = extensionService;
+    this.configurationService = configurationService;
+    this.editorGroupService = editorGroupService;
+    this.preferencesService = preferencesService;
+    this.productService = productService;
+    this.aiRelatedInformationService = aiRelatedInformationService;
+    this.chatAgentService = chatAgentService;
+    this._register(
+      configurationService.onDidChangeConfiguration(
+        (e) => this.updateOptions(e)
+      )
+    );
+    this.updateOptions();
+  }
+  static {
+    __name(this, "CommandsQuickAccessProvider");
+  }
+  static AI_RELATED_INFORMATION_MAX_PICKS = 5;
+  static AI_RELATED_INFORMATION_THRESHOLD = 0.8;
+  static AI_RELATED_INFORMATION_DEBOUNCE = 200;
+  // If extensions are not yet registered, we wait for a little moment to give them
+  // a chance to register so that the complete set of commands shows up as result
+  // We do not want to delay functionality beyond that time though to keep the commands
+  // functional.
+  extensionRegistrationRace = raceTimeout(
+    this.extensionService.whenInstalledExtensionsRegistered(),
+    800
+  );
+  useAiRelatedInfo = false;
+  get activeTextEditorControl() {
+    return this.editorService.activeTextEditorControl;
+  }
+  get defaultFilterValue() {
+    if (this.configuration.preserveInput) {
+      return DefaultQuickAccessFilterValue.LAST;
+    }
+    return void 0;
+  }
+  get configuration() {
+    const commandPaletteConfig = this.configurationService.getValue().workbench.commandPalette;
+    return {
+      preserveInput: commandPaletteConfig.preserveInput,
+      experimental: commandPaletteConfig.experimental
+    };
+  }
+  updateOptions(e) {
+    if (e && !e.affectsConfiguration("workbench.commandPalette.experimental")) {
+      return;
+    }
+    const config = this.configuration;
+    const suggestedCommandIds = config.experimental.suggestCommands && this.productService.commandPaletteSuggestedCommandIds?.length ? new Set(this.productService.commandPaletteSuggestedCommandIds) : void 0;
+    this.options.suggestedCommandIds = suggestedCommandIds;
+    this.useAiRelatedInfo = config.experimental.enableNaturalLanguageSearch;
+  }
+  async getCommandPicks(token) {
+    await this.extensionRegistrationRace;
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    return [
+      ...this.getCodeEditorCommandPicks(),
+      ...this.getGlobalCommandPicks()
+    ].map((picks) => ({
+      ...picks,
+      buttons: [
+        {
+          iconClass: ThemeIcon.asClassName(Codicon.gear),
+          tooltip: localize(
+            "configure keybinding",
+            "Configure Keybinding"
+          )
+        }
+      ],
+      trigger: /* @__PURE__ */ __name(() => {
+        this.preferencesService.openGlobalKeybindingSettings(false, {
+          query: createKeybindingCommandQuery(
+            picks.commandId,
+            picks.commandWhen
+          )
+        });
+        return TriggerAction.CLOSE_PICKER;
+      }, "trigger")
+    }));
+  }
+  hasAdditionalCommandPicks(filter, token) {
+    if (!this.useAiRelatedInfo || token.isCancellationRequested || filter === "" || !this.aiRelatedInformationService.isEnabled()) {
+      return false;
+    }
+    return true;
+  }
+  async getAdditionalCommandPicks(allPicks, picksSoFar, filter, token) {
+    if (!this.hasAdditionalCommandPicks(filter, token)) {
+      return [];
+    }
+    let additionalPicks;
+    try {
+      await timeout(
+        CommandsQuickAccessProvider.AI_RELATED_INFORMATION_DEBOUNCE,
+        token
+      );
+      additionalPicks = await this.getRelatedInformationPicks(
+        allPicks,
+        picksSoFar,
+        filter,
+        token
+      );
+    } catch (e) {
+      return [];
+    }
+    if (picksSoFar.length || additionalPicks.length) {
+      additionalPicks.push({
+        type: "separator"
+      });
+    }
+    const defaultAgent = this.chatAgentService.getDefaultAgent(
+      ChatAgentLocation.Panel
+    );
+    if (defaultAgent) {
+      additionalPicks.push({
+        label: localize(
+          "askXInChat",
+          "Ask {0}: {1}",
+          defaultAgent.fullName,
+          filter
+        ),
+        commandId: this.configuration.experimental.askChatLocation === "quickChat" ? ASK_QUICK_QUESTION_ACTION_ID : CHAT_OPEN_ACTION_ID,
+        args: [filter]
+      });
+    }
+    return additionalPicks;
+  }
+  async getRelatedInformationPicks(allPicks, picksSoFar, filter, token) {
+    const relatedInformation = await this.aiRelatedInformationService.getRelatedInformation(
+      filter,
+      [RelatedInformationType.CommandInformation],
+      token
+    );
+    relatedInformation.sort((a, b) => b.weight - a.weight);
+    const setOfPicksSoFar = new Set(picksSoFar.map((p) => p.commandId));
+    const additionalPicks = new Array();
+    for (const info of relatedInformation) {
+      if (info.weight < CommandsQuickAccessProvider.AI_RELATED_INFORMATION_THRESHOLD || additionalPicks.length === CommandsQuickAccessProvider.AI_RELATED_INFORMATION_MAX_PICKS) {
+        break;
+      }
+      const pick = allPicks.find(
+        (p) => p.commandId === info.command && !setOfPicksSoFar.has(p.commandId)
+      );
+      if (pick) {
+        additionalPicks.push(pick);
+      }
+    }
+    return additionalPicks;
+  }
+  getGlobalCommandPicks() {
+    const globalCommandPicks = [];
+    const scopedContextKeyService = this.editorService.activeEditorPane?.scopedContextKeyService || this.editorGroupService.activeGroup.scopedContextKeyService;
+    const globalCommandsMenu = this.menuService.getMenuActions(
+      MenuId.CommandPalette,
+      scopedContextKeyService
+    );
+    const globalCommandsMenuActions = globalCommandsMenu.reduce(
+      (r, [, actions]) => [...r, ...actions],
+      []
+    ).filter(
+      (action) => action instanceof MenuItemAction && action.enabled
+    );
+    for (const action of globalCommandsMenuActions) {
+      let label = (typeof action.item.title === "string" ? action.item.title : action.item.title.value) || action.item.id;
+      const category = typeof action.item.category === "string" ? action.item.category : action.item.category?.value;
+      if (category) {
+        label = localize(
+          "commandWithCategory",
+          "{0}: {1}",
+          category,
+          label
+        );
+      }
+      const aliasLabel = typeof action.item.title !== "string" ? action.item.title.original : void 0;
+      const aliasCategory = category && action.item.category && typeof action.item.category !== "string" ? action.item.category.original : void 0;
+      const commandAlias = aliasLabel && category ? aliasCategory ? `${aliasCategory}: ${aliasLabel}` : `${category}: ${aliasLabel}` : aliasLabel;
+      const metadataDescription = action.item.metadata?.description;
+      const commandDescription = metadataDescription === void 0 || isLocalizedString(metadataDescription) ? metadataDescription : (
+        // TODO: this type will eventually not be a string and when that happens, this should simplified.
+        {
+          value: metadataDescription,
+          original: metadataDescription
+        }
+      );
+      globalCommandPicks.push({
+        commandId: action.item.id,
+        commandWhen: action.item.precondition?.serialize(),
+        commandAlias,
+        label: stripIcons(label),
+        commandDescription
+      });
+    }
+    return globalCommandPicks;
+  }
+};
+CommandsQuickAccessProvider = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IMenuService),
+  __decorateParam(2, IExtensionService),
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IKeybindingService),
+  __decorateParam(5, ICommandService),
+  __decorateParam(6, ITelemetryService),
+  __decorateParam(7, IDialogService),
+  __decorateParam(8, IConfigurationService),
+  __decorateParam(9, IEditorGroupsService),
+  __decorateParam(10, IPreferencesService),
+  __decorateParam(11, IProductService),
+  __decorateParam(12, IAiRelatedInformationService),
+  __decorateParam(13, IChatAgentService)
+], CommandsQuickAccessProvider);
+class ShowAllCommandsAction extends Action2 {
+  static {
+    __name(this, "ShowAllCommandsAction");
+  }
+  static ID = "workbench.action.showCommands";
+  constructor() {
+    super({
+      id: ShowAllCommandsAction.ID,
+      title: localize2("showTriggerActions", "Show All Commands"),
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: void 0,
+        primary: isFirefox ? void 0 : KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP,
+        secondary: [KeyCode.F1]
+      },
+      f1: true
+    });
+  }
+  async run(accessor) {
+    accessor.get(IQuickInputService).quickAccess.show(CommandsQuickAccessProvider.PREFIX);
+  }
+}
+class ClearCommandHistoryAction extends Action2 {
+  static {
+    __name(this, "ClearCommandHistoryAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.clearCommandHistory",
+      title: localize2("clearCommandHistory", "Clear Command History"),
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const configurationService = accessor.get(IConfigurationService);
+    const storageService = accessor.get(IStorageService);
+    const dialogService = accessor.get(IDialogService);
+    const commandHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(
+      configurationService
+    );
+    if (commandHistoryLength > 0) {
+      const { confirmed } = await dialogService.confirm({
+        type: "warning",
+        message: localize(
+          "confirmClearMessage",
+          "Do you want to clear the history of recently used commands?"
+        ),
+        detail: localize(
+          "confirmClearDetail",
+          "This action is irreversible!"
+        ),
+        primaryButton: localize(
+          {
+            key: "clearButtonLabel",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Clear"
+        )
+      });
+      if (!confirmed) {
+        return;
+      }
+      CommandsHistory.clearHistory(configurationService, storageService);
+    }
+  }
+}
+export {
+  ClearCommandHistoryAction,
+  CommandsQuickAccessProvider,
+  ShowAllCommandsAction
+};
+//# sourceMappingURL=commandsQuickAccess.js.map

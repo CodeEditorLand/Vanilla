@@ -1,1 +1,60 @@
-var a=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var c=(m,o,n,e)=>{for(var r=e>1?void 0:e?f(o,n):o,i=m.length-1,s;i>=0;i--)(s=m[i])&&(r=(e?s(o,n,r):s(r))||r);return e&&r&&a(o,n,r),r},p=(m,o)=>(n,e)=>o(n,e,m);import{Disposable as h}from"../../../../base/common/lifecycle.js";import{IBrowserWorkbenchEnvironmentService as P}from"../../../services/environment/browser/environmentService.js";import{IRemoteExplorerService as b}from"../../../services/remote/common/remoteExplorerService.js";let l=class extends h{static ID="workbench.contrib.showPortCandidate";constructor(o,n){super();const e=n.options?.tunnelProvider?.showPortCandidate;e&&this._register(o.setCandidateFilter(async r=>{const i=await Promise.all(r.map(t=>e(t.host,t.port,t.detail??""))),s=[];if(i.length!==r.length)return r;for(let t=0;t<r.length;t++)i[t]&&s.push(r[t]);return s}))}};l=c([p(0,b),p(1,P)],l);export{l as ShowCandidateContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IRemoteExplorerService } from "../../../services/remote/common/remoteExplorerService.js";
+let ShowCandidateContribution = class extends Disposable {
+  static {
+    __name(this, "ShowCandidateContribution");
+  }
+  static ID = "workbench.contrib.showPortCandidate";
+  constructor(remoteExplorerService, environmentService) {
+    super();
+    const showPortCandidate = environmentService.options?.tunnelProvider?.showPortCandidate;
+    if (showPortCandidate) {
+      this._register(
+        remoteExplorerService.setCandidateFilter(
+          async (candidates) => {
+            const filters = await Promise.all(
+              candidates.map(
+                (candidate) => showPortCandidate(
+                  candidate.host,
+                  candidate.port,
+                  candidate.detail ?? ""
+                )
+              )
+            );
+            const filteredCandidates = [];
+            if (filters.length !== candidates.length) {
+              return candidates;
+            }
+            for (let i = 0; i < candidates.length; i++) {
+              if (filters[i]) {
+                filteredCandidates.push(candidates[i]);
+              }
+            }
+            return filteredCandidates;
+          }
+        )
+      );
+    }
+  }
+};
+ShowCandidateContribution = __decorateClass([
+  __decorateParam(0, IRemoteExplorerService),
+  __decorateParam(1, IBrowserWorkbenchEnvironmentService)
+], ShowCandidateContribution);
+export {
+  ShowCandidateContribution
+};
+//# sourceMappingURL=showCandidate.js.map

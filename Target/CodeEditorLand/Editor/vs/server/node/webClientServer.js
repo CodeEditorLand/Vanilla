@@ -1,2 +1,481 @@
-var F=Object.defineProperty;var G=Object.getOwnPropertyDescriptor;var B=(l,e,t,r)=>{for(var s=r>1?void 0:r?G(e,t):e,n=l.length-1,i;n>=0;n--)(i=l[n])&&(s=(r?i(e,t,s):i(s))||s);return r&&s&&F(e,t,s),s},g=(l,e)=>(t,r)=>e(t,r,l);import*as J from"crypto";import{createReadStream as D,promises as _}from"fs";import*as K from"path";import*as Q from"url";import*as I from"cookie";import{isESM as N}from"../../base/common/amd.js";import{streamToBuffer as z}from"../../base/common/buffer.js";import{CancellationToken as X}from"../../base/common/cancellation.js";import{CharCode as L}from"../../base/common/charCode.js";import{isEqualOrParent as q}from"../../base/common/extpath.js";import{getMediaMime as V}from"../../base/common/mime.js";import{FileAccess as w,Schemas as Y,builtinExtensionsPath as Z,connectionTokenCookieName as A,connectionTokenQueryName as W}from"../../base/common/network.js";import{dirname as ee,extname as te,join as j,normalize as re}from"../../base/common/path.js";import{isLinux as se}from"../../base/common/platform.js";import{isString as M}from"../../base/common/types.js";import{URI as O}from"../../base/common/uri.js";import{generateUuid as ie}from"../../base/common/uuid.js";import{ICSSDevelopmentService as ne}from"../../platform/cssDev/node/cssDevService.js";import{ILogService as oe}from"../../platform/log/common/log.js";import{IProductService as ae}from"../../platform/product/common/productService.js";import{IRequestService as ce,asTextOrError as le}from"../../platform/request/common/request.js";import{ServerConnectionTokenType as ue}from"./serverConnectionToken.js";import{IServerEnvironmentService as he}from"./serverEnvironmentService.js";const pe={".html":"text/html",".js":"text/javascript",".json":"application/json",".css":"text/css",".svg":"image/svg+xml"};async function d(l,e,t,r){e.writeHead(t,{"Content-Type":"text/plain"}),e.end(r)}var me=(r=>(r[r.NO_CACHING=0]="NO_CACHING",r[r.ETAG=1]="ETAG",r[r.NO_EXPIRY=2]="NO_EXPIRY",r))(me||{});async function de(l,e,t,r,s,n){try{const i=await _.stat(l);if(e===1){const a=`W/"${[i.ino,i.size,i.mtime.getTime()].join("-")}"`;if(r.headers["if-none-match"]===a)return s.writeHead(304),void s.end();n.Etag=a}else e===2?n["Cache-Control"]="public, max-age=31536000":e===0&&(n["Cache-Control"]="no-store");n["Content-Type"]=pe[te(l)]||V(l)||"text/plain",s.writeHead(200,n),D(l).pipe(s)}catch(i){return i.code!=="ENOENT"&&t.error(i),s.writeHead(404,{"Content-Type":"text/plain"}),void s.end("Not found")}}const P=ee(w.asFileUri("").fsPath);let C=class{constructor(e,t,r,s,n,i,a,h){this._connectionToken=e;this._basePath=t;this.serverRootPath=r;this._environmentService=s;this._logService=n;this._requestService=i;this._productService=a;this._cssDevService=h;this._webExtensionResourceUrlTemplate=this._productService.extensionsGallery?.resourceUrlTemplate?O.parse(this._productService.extensionsGallery.resourceUrlTemplate):void 0,this._staticRoute=`${r}/static`,this._callbackRoute=`${r}/callback`,this._webExtensionRoute=`${r}/web-extension-resource`}_webExtensionResourceUrlTemplate;_staticRoute;_callbackRoute;_webExtensionRoute;async handle(e,t,r){try{const s=r.pathname;return s.startsWith(this._staticRoute)&&s.charCodeAt(this._staticRoute.length)===L.Slash?this._handleStatic(e,t,r):s===this._basePath?this._handleRoot(e,t,r):s===this._callbackRoute?this._handleCallback(t):s.startsWith(this._webExtensionRoute)&&s.charCodeAt(this._webExtensionRoute.length)===L.Slash?this._handleWebExtensionResource(e,t,r):d(e,t,404,"Not found.")}catch(s){return this._logService.error(s),d(e,t,500,"Internal Server Error.")}}async _handleStatic(e,t,r){const s=Object.create(null),i=decodeURIComponent(r.pathname).substring(this._staticRoute.length+1),a=j(P,i);return q(a,P,!se)?de(a,this._environmentService.isBuilt?2:1,this._logService,e,t,s):d(e,t,400,"Bad request.")}_getResourceURLTemplateAuthority(e){const t=e.authority.indexOf(".");return t!==-1?e.authority.substring(t+1):void 0}async _handleWebExtensionResource(e,t,r){if(!this._webExtensionResourceUrlTemplate)return d(e,t,500,"No extension gallery service configured.");const s=decodeURIComponent(r.pathname),n=re(s.substring(this._webExtensionRoute.length+1)),i=O.parse(n).with({scheme:this._webExtensionResourceUrlTemplate.scheme,authority:n.substring(0,n.indexOf("/")),path:n.substring(n.indexOf("/")+1)});if(this._getResourceURLTemplateAuthority(this._webExtensionResourceUrlTemplate)!==this._getResourceURLTemplateAuthority(i))return d(e,t,403,"Request Forbidden");const a={},h=c=>{const u=e.headers[c];u&&(M(u)||u[0])?a[c]=M(u)?u:u[0]:c!==c.toLowerCase()&&h(c.toLowerCase())};h("X-Client-Name"),h("X-Client-Version"),h("X-Machine-Id"),h("X-Client-Commit");const m=await this._requestService.request({type:"GET",url:i.toString(!0),headers:a},X.None),v=m.res.statusCode||500;if(v!==200){let c=null;try{c=await le(m)}catch{}return d(e,t,v,c||`Request failed with status ${v}`)}const y=Object.create(null),f=c=>{const u=m.res.headers[c];u?y[c]=u:c!==c.toLowerCase()&&f(c.toLowerCase())};f("Cache-Control"),f("Content-Type"),t.writeHead(200,y);const b=await z(m.stream);return void t.end(b.buffer)}async _handleRoot(e,t,r){const s=r.query[W];if(typeof s=="string"){const o=Object.create(null);o["Set-Cookie"]=I.serialize(A,s,{sameSite:"lax",maxAge:60*60*24*7});const p=Object.create(null);for(const k in r.query)k!==W&&(p[k]=r.query[k]);const S=Q.format({pathname:r.pathname,query:p});return o.Location=S,t.writeHead(302,o),void t.end()}const n=o=>{const p=e.headers[o];return Array.isArray(p)?p[0]:p},i=!this._environmentService.isBuilt&&this._environmentService.args["use-test-resolver"],a=i?"test+test":n("x-original-host")||n("x-forwarded-host")||e.headers.host;if(!a)return d(e,t,400,"Bad request.");function h(o){return JSON.stringify(o).replace(/"/g,"&quot;")}let m;this._environmentService.args["enable-smoke-test-driver"]&&(m=!1);const v=o=>o&&O.file(K.resolve(o)).with({scheme:Y.vscodeRemote,authority:a}),y=w.asFileUri(`vs/code/browser/workbench/workbench${this._environmentService.isBuilt?"":"-dev"}.${N?"esm.":""}html`).fsPath,f=!this._environmentService.isBuilt&&this._environmentService.args["github-auth"]?{id:ie(),providerId:"github",accessToken:this._environmentService.args["github-auth"],scopes:[["user:email"],["repo"]]}:void 0,b={embedderIdentifier:"server-distro",extensionsGallery:this._webExtensionResourceUrlTemplate&&this._productService.extensionsGallery?{...this._productService.extensionsGallery,resourceUrlTemplate:this._webExtensionResourceUrlTemplate.with({scheme:"http",authority:a,path:`${this._webExtensionRoute}/${this._webExtensionResourceUrlTemplate.authority}${this._webExtensionResourceUrlTemplate.path}`}).toString(!0)}:void 0};if(!this._environmentService.isBuilt)try{const o=JSON.parse((await _.readFile(j(P,"product.overrides.json"))).toString());Object.assign(b,o)}catch{}const c={remoteAuthority:a,serverBasePath:this._basePath,_wrapWebWorkerExtHostInIframe:m,developmentOptions:{enableSmokeTestDriver:this._environmentService.args["enable-smoke-test-driver"]?!0:void 0,logLevel:this._logService.getLevel()},settingsSyncOptions:!this._environmentService.isBuilt&&this._environmentService.args["enable-sync"]?{enabled:!0}:void 0,enableWorkspaceTrust:!this._environmentService.args["disable-workspace-trust"],folderUri:v(this._environmentService.args["default-folder"]),workspaceUri:v(this._environmentService.args["default-workspace"]),productConfiguration:b,callbackRoute:this._callbackRoute},U=I.parse(e.headers.cookie||"")["vscode.nls.locale"]||e.headers["accept-language"]?.split(",")[0]?.toLowerCase()||"en";let R,E;!U.startsWith("en")&&this._productService.nlsCoreBaseUrl?(R=this._productService.nlsCoreBaseUrl,E=`${R}${this._productService.commit}/${this._productService.version}/${U}/nls.messages.js`):E="";const T={WORKBENCH_WEB_CONFIGURATION:h(c),WORKBENCH_AUTH_SESSION:f?h(f):"",WORKBENCH_WEB_BASE_URL:this._staticRoute,WORKBENCH_NLS_URL:E,WORKBENCH_NLS_FALLBACK_URL:`${this._staticRoute}/out/nls.messages.js`};if(this._cssDevService.isEnabled){const o=await this._cssDevService.getCssModules();T.WORKBENCH_DEV_CSS_MODULES=JSON.stringify(o)}if(i){const o=[];for(const p of["vscode-test-resolver","github-authentication"]){const S=JSON.parse((await _.readFile(w.asFileUri(`${Z}/${p}/package.json`).fsPath)).toString());o.push({extensionPath:p,packageJSON:S})}T.WORKBENCH_BUILTIN_EXTENSIONS=h(o)}let x;try{x=(await _.readFile(y)).toString().replace(/\{\{([^}]+)\}\}/g,(p,S)=>T[S]??"undefined")}catch{return t.writeHead(404,{"Content-Type":"text/plain"}),void t.end("Not found")}const H=N?"sha256-2Q+j4hfT09+1+imS46J2YlkCtHWQt0/BE79PXjJ0ZJ8=":"sha256-V28GQnL3aYxbwgpV3yW1oJ+VKKe/PBSzWntNyH8zVXA=",$={"Content-Type":"text/html","Content-Security-Policy":["default-src 'self';","img-src 'self' https: data: blob:;","media-src 'self';",N?`script-src 'self' 'unsafe-eval' ${R??""} blob: 'nonce-1nline-m4p' ${this._getScriptCspHashes(x).join(" ")} '${H}' 'sha256-/r7rqQ+yrxt57sxLuQ6AMYcy/lUpvAIzHjIJt/OeLWU=' ${i?"":`http://${a}`};`:`script-src 'self' 'unsafe-eval' ${R??""} ${this._getScriptCspHashes(x).join(" ")} '${H}' ${i?"":`http://${a}`};`,"child-src 'self';","frame-src 'self' https://*.vscode-cdn.net data:;","worker-src 'self' data: blob:;","style-src 'self' 'unsafe-inline';","connect-src 'self' ws: wss: https:;","font-src 'self' blob:;","manifest-src 'self';"].join(" ")};return this._connectionToken.type!==ue.None&&($["Set-Cookie"]=I.serialize(A,this._connectionToken.value,{sameSite:"lax",maxAge:60*60*24*7})),t.writeHead(200,$),void t.end(x)}_getScriptCspHashes(e){const t=/<script>([\s\S]+?)<\/script>/gim,r=[];let s;for(;s=t.exec(e);){const n=J.createHash("sha256"),i=s[1].replace(/\r\n/g,`
-`),a=n.update(Buffer.from(i)).digest().toString("base64");r.push(`'sha256-${a}'`)}return r}async _handleCallback(e){const t=w.asFileUri("vs/code/browser/workbench/callback.html").fsPath,r=(await _.readFile(t)).toString(),s=["default-src 'self';","img-src 'self' https: data: blob:;","media-src 'none';",`script-src 'self' ${this._getScriptCspHashes(r).join(" ")};`,"style-src 'self' 'unsafe-inline';","font-src 'self' blob:;"].join(" ");return e.writeHead(200,{"Content-Type":"text/html","Content-Security-Policy":s}),void e.end(r)}};C=B([g(3,he),g(4,oe),g(5,ce),g(6,ae),g(7,ne)],C);export{me as CacheControl,C as WebClientServer,d as serveError,de as serveFile};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as crypto from "crypto";
+import { createReadStream, promises } from "fs";
+import * as path from "path";
+import * as url from "url";
+import * as cookie from "cookie";
+import { isESM } from "../../base/common/amd.js";
+import { streamToBuffer } from "../../base/common/buffer.js";
+import { CancellationToken } from "../../base/common/cancellation.js";
+import { CharCode } from "../../base/common/charCode.js";
+import { isEqualOrParent } from "../../base/common/extpath.js";
+import { getMediaMime } from "../../base/common/mime.js";
+import {
+  FileAccess,
+  Schemas,
+  builtinExtensionsPath,
+  connectionTokenCookieName,
+  connectionTokenQueryName
+} from "../../base/common/network.js";
+import { dirname, extname, join, normalize } from "../../base/common/path.js";
+import { isLinux } from "../../base/common/platform.js";
+import { isString } from "../../base/common/types.js";
+import { URI } from "../../base/common/uri.js";
+import { generateUuid } from "../../base/common/uuid.js";
+import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import {
+  IRequestService,
+  asTextOrError
+} from "../../platform/request/common/request.js";
+import {
+  ServerConnectionTokenType
+} from "./serverConnectionToken.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+const textMimeType = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".json": "application/json",
+  ".css": "text/css",
+  ".svg": "image/svg+xml"
+};
+async function serveError(req, res, errorCode, errorMessage) {
+  res.writeHead(errorCode, { "Content-Type": "text/plain" });
+  res.end(errorMessage);
+}
+__name(serveError, "serveError");
+var CacheControl = /* @__PURE__ */ ((CacheControl2) => {
+  CacheControl2[CacheControl2["NO_CACHING"] = 0] = "NO_CACHING";
+  CacheControl2[CacheControl2["ETAG"] = 1] = "ETAG";
+  CacheControl2[CacheControl2["NO_EXPIRY"] = 2] = "NO_EXPIRY";
+  return CacheControl2;
+})(CacheControl || {});
+async function serveFile(filePath, cacheControl, logService, req, res, responseHeaders) {
+  try {
+    const stat = await promises.stat(filePath);
+    if (cacheControl === 1 /* ETAG */) {
+      const etag = `W/"${[stat.ino, stat.size, stat.mtime.getTime()].join("-")}"`;
+      if (req.headers["if-none-match"] === etag) {
+        res.writeHead(304);
+        return void res.end();
+      }
+      responseHeaders["Etag"] = etag;
+    } else if (cacheControl === 2 /* NO_EXPIRY */) {
+      responseHeaders["Cache-Control"] = "public, max-age=31536000";
+    } else if (cacheControl === 0 /* NO_CACHING */) {
+      responseHeaders["Cache-Control"] = "no-store";
+    }
+    responseHeaders["Content-Type"] = textMimeType[extname(filePath)] || getMediaMime(filePath) || "text/plain";
+    res.writeHead(200, responseHeaders);
+    createReadStream(filePath).pipe(res);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      logService.error(error);
+      console.error(error.toString());
+    } else {
+      console.error(`File not found: ${filePath}`);
+    }
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    return void res.end("Not found");
+  }
+}
+__name(serveFile, "serveFile");
+const APP_ROOT = dirname(FileAccess.asFileUri("").fsPath);
+let WebClientServer = class {
+  constructor(_connectionToken, _basePath, serverRootPath, _environmentService, _logService, _requestService, _productService, _cssDevService) {
+    this._connectionToken = _connectionToken;
+    this._basePath = _basePath;
+    this.serverRootPath = serverRootPath;
+    this._environmentService = _environmentService;
+    this._logService = _logService;
+    this._requestService = _requestService;
+    this._productService = _productService;
+    this._cssDevService = _cssDevService;
+    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(
+      this._productService.extensionsGallery.resourceUrlTemplate
+    ) : void 0;
+    this._staticRoute = `${serverRootPath}/static`;
+    this._callbackRoute = `${serverRootPath}/callback`;
+    this._webExtensionRoute = `${serverRootPath}/web-extension-resource`;
+  }
+  static {
+    __name(this, "WebClientServer");
+  }
+  _webExtensionResourceUrlTemplate;
+  _staticRoute;
+  _callbackRoute;
+  _webExtensionRoute;
+  /**
+   * Handle web resources (i.e. only needed by the web client).
+   * **NOTE**: This method is only invoked when the server has web bits.
+   * **NOTE**: This method is only invoked after the connection token has been validated.
+   */
+  async handle(req, res, parsedUrl) {
+    try {
+      const pathname = parsedUrl.pathname;
+      if (pathname.startsWith(this._staticRoute) && pathname.charCodeAt(this._staticRoute.length) === CharCode.Slash) {
+        return this._handleStatic(req, res, parsedUrl);
+      }
+      if (pathname === this._basePath) {
+        return this._handleRoot(req, res, parsedUrl);
+      }
+      if (pathname === this._callbackRoute) {
+        return this._handleCallback(res);
+      }
+      if (pathname.startsWith(this._webExtensionRoute) && pathname.charCodeAt(this._webExtensionRoute.length) === CharCode.Slash) {
+        return this._handleWebExtensionResource(req, res, parsedUrl);
+      }
+      return serveError(req, res, 404, "Not found.");
+    } catch (error) {
+      this._logService.error(error);
+      console.error(error.toString());
+      return serveError(req, res, 500, "Internal Server Error.");
+    }
+  }
+  /**
+   * Handle HTTP requests for /static/*
+   */
+  async _handleStatic(req, res, parsedUrl) {
+    const headers = /* @__PURE__ */ Object.create(null);
+    const normalizedPathname = decodeURIComponent(parsedUrl.pathname);
+    const relativeFilePath = normalizedPathname.substring(
+      this._staticRoute.length + 1
+    );
+    const filePath = join(APP_ROOT, relativeFilePath);
+    if (!isEqualOrParent(filePath, APP_ROOT, !isLinux)) {
+      return serveError(req, res, 400, `Bad request.`);
+    }
+    return serveFile(
+      filePath,
+      this._environmentService.isBuilt ? 2 /* NO_EXPIRY */ : 1 /* ETAG */,
+      this._logService,
+      req,
+      res,
+      headers
+    );
+  }
+  _getResourceURLTemplateAuthority(uri) {
+    const index = uri.authority.indexOf(".");
+    return index !== -1 ? uri.authority.substring(index + 1) : void 0;
+  }
+  /**
+   * Handle extension resources
+   */
+  async _handleWebExtensionResource(req, res, parsedUrl) {
+    if (!this._webExtensionResourceUrlTemplate) {
+      return serveError(
+        req,
+        res,
+        500,
+        "No extension gallery service configured."
+      );
+    }
+    const normalizedPathname = decodeURIComponent(parsedUrl.pathname);
+    const path2 = normalize(
+      normalizedPathname.substring(this._webExtensionRoute.length + 1)
+    );
+    const uri = URI.parse(path2).with({
+      scheme: this._webExtensionResourceUrlTemplate.scheme,
+      authority: path2.substring(0, path2.indexOf("/")),
+      path: path2.substring(path2.indexOf("/") + 1)
+    });
+    if (this._getResourceURLTemplateAuthority(
+      this._webExtensionResourceUrlTemplate
+    ) !== this._getResourceURLTemplateAuthority(uri)) {
+      return serveError(req, res, 403, "Request Forbidden");
+    }
+    const headers = {};
+    const setRequestHeader = /* @__PURE__ */ __name((header) => {
+      const value = req.headers[header];
+      if (value && (isString(value) || value[0])) {
+        headers[header] = isString(value) ? value : value[0];
+      } else if (header !== header.toLowerCase()) {
+        setRequestHeader(header.toLowerCase());
+      }
+    }, "setRequestHeader");
+    setRequestHeader("X-Client-Name");
+    setRequestHeader("X-Client-Version");
+    setRequestHeader("X-Machine-Id");
+    setRequestHeader("X-Client-Commit");
+    const context = await this._requestService.request(
+      {
+        type: "GET",
+        url: uri.toString(true),
+        headers
+      },
+      CancellationToken.None
+    );
+    const status = context.res.statusCode || 500;
+    if (status !== 200) {
+      let text = null;
+      try {
+        text = await asTextOrError(context);
+      } catch (error) {
+      }
+      return serveError(
+        req,
+        res,
+        status,
+        text || `Request failed with status ${status}`
+      );
+    }
+    const responseHeaders = /* @__PURE__ */ Object.create(null);
+    const setResponseHeader = /* @__PURE__ */ __name((header) => {
+      const value = context.res.headers[header];
+      if (value) {
+        responseHeaders[header] = value;
+      } else if (header !== header.toLowerCase()) {
+        setResponseHeader(header.toLowerCase());
+      }
+    }, "setResponseHeader");
+    setResponseHeader("Cache-Control");
+    setResponseHeader("Content-Type");
+    res.writeHead(200, responseHeaders);
+    const buffer = await streamToBuffer(context.stream);
+    return void res.end(buffer.buffer);
+  }
+  /**
+   * Handle HTTP requests for /
+   */
+  async _handleRoot(req, res, parsedUrl) {
+    const queryConnectionToken = parsedUrl.query[connectionTokenQueryName];
+    if (typeof queryConnectionToken === "string") {
+      const responseHeaders = /* @__PURE__ */ Object.create(null);
+      responseHeaders["Set-Cookie"] = cookie.serialize(
+        connectionTokenCookieName,
+        queryConnectionToken,
+        {
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7
+        }
+      );
+      const newQuery = /* @__PURE__ */ Object.create(null);
+      for (const key in parsedUrl.query) {
+        if (key !== connectionTokenQueryName) {
+          newQuery[key] = parsedUrl.query[key];
+        }
+      }
+      const newLocation = url.format({
+        pathname: parsedUrl.pathname,
+        query: newQuery
+      });
+      responseHeaders["Location"] = newLocation;
+      res.writeHead(302, responseHeaders);
+      return void res.end();
+    }
+    const getFirstHeader = /* @__PURE__ */ __name((headerName) => {
+      const val = req.headers[headerName];
+      return Array.isArray(val) ? val[0] : val;
+    }, "getFirstHeader");
+    const useTestResolver = !this._environmentService.isBuilt && this._environmentService.args["use-test-resolver"];
+    const remoteAuthority = useTestResolver ? "test+test" : getFirstHeader("x-original-host") || getFirstHeader("x-forwarded-host") || req.headers.host;
+    if (!remoteAuthority) {
+      return serveError(req, res, 400, `Bad request.`);
+    }
+    function asJSON(value) {
+      return JSON.stringify(value).replace(/"/g, "&quot;");
+    }
+    __name(asJSON, "asJSON");
+    let _wrapWebWorkerExtHostInIframe;
+    if (this._environmentService.args["enable-smoke-test-driver"]) {
+      _wrapWebWorkerExtHostInIframe = false;
+    }
+    const resolveWorkspaceURI = /* @__PURE__ */ __name((defaultLocation) => defaultLocation && URI.file(path.resolve(defaultLocation)).with({
+      scheme: Schemas.vscodeRemote,
+      authority: remoteAuthority
+    }), "resolveWorkspaceURI");
+    const filePath = FileAccess.asFileUri(
+      `vs/code/browser/workbench/workbench${this._environmentService.isBuilt ? "" : "-dev"}.${isESM ? "esm." : ""}html`
+    ).fsPath;
+    const authSessionInfo = !this._environmentService.isBuilt && this._environmentService.args["github-auth"] ? {
+      id: generateUuid(),
+      providerId: "github",
+      accessToken: this._environmentService.args["github-auth"],
+      scopes: [["user:email"], ["repo"]]
+    } : void 0;
+    const productConfiguration = {
+      embedderIdentifier: "server-distro",
+      extensionsGallery: this._webExtensionResourceUrlTemplate && this._productService.extensionsGallery ? {
+        ...this._productService.extensionsGallery,
+        resourceUrlTemplate: this._webExtensionResourceUrlTemplate.with({
+          scheme: "http",
+          authority: remoteAuthority,
+          path: `${this._webExtensionRoute}/${this._webExtensionResourceUrlTemplate.authority}${this._webExtensionResourceUrlTemplate.path}`
+        }).toString(true)
+      } : void 0
+    };
+    if (!this._environmentService.isBuilt) {
+      try {
+        const productOverrides = JSON.parse(
+          (await promises.readFile(
+            join(APP_ROOT, "product.overrides.json")
+          )).toString()
+        );
+        Object.assign(productConfiguration, productOverrides);
+      } catch (err) {
+      }
+    }
+    const workbenchWebConfiguration = {
+      remoteAuthority,
+      serverBasePath: this._basePath,
+      _wrapWebWorkerExtHostInIframe,
+      developmentOptions: {
+        enableSmokeTestDriver: this._environmentService.args["enable-smoke-test-driver"] ? true : void 0,
+        logLevel: this._logService.getLevel()
+      },
+      settingsSyncOptions: !this._environmentService.isBuilt && this._environmentService.args["enable-sync"] ? { enabled: true } : void 0,
+      enableWorkspaceTrust: !this._environmentService.args["disable-workspace-trust"],
+      folderUri: resolveWorkspaceURI(
+        this._environmentService.args["default-folder"]
+      ),
+      workspaceUri: resolveWorkspaceURI(
+        this._environmentService.args["default-workspace"]
+      ),
+      productConfiguration,
+      callbackRoute: this._callbackRoute
+    };
+    const cookies = cookie.parse(req.headers.cookie || "");
+    const locale = cookies["vscode.nls.locale"] || req.headers["accept-language"]?.split(",")[0]?.toLowerCase() || "en";
+    let WORKBENCH_NLS_BASE_URL;
+    let WORKBENCH_NLS_URL;
+    if (!locale.startsWith("en") && this._productService.nlsCoreBaseUrl) {
+      WORKBENCH_NLS_BASE_URL = this._productService.nlsCoreBaseUrl;
+      WORKBENCH_NLS_URL = `${WORKBENCH_NLS_BASE_URL}${this._productService.commit}/${this._productService.version}/${locale}/nls.messages.js`;
+    } else {
+      WORKBENCH_NLS_URL = "";
+    }
+    const values = {
+      WORKBENCH_WEB_CONFIGURATION: asJSON(workbenchWebConfiguration),
+      WORKBENCH_AUTH_SESSION: authSessionInfo ? asJSON(authSessionInfo) : "",
+      WORKBENCH_WEB_BASE_URL: this._staticRoute,
+      WORKBENCH_NLS_URL,
+      WORKBENCH_NLS_FALLBACK_URL: `${this._staticRoute}/out/nls.messages.js`
+    };
+    if (this._cssDevService.isEnabled) {
+      const cssModules = await this._cssDevService.getCssModules();
+      values["WORKBENCH_DEV_CSS_MODULES"] = JSON.stringify(cssModules);
+    }
+    if (useTestResolver) {
+      const bundledExtensions = [];
+      for (const extensionPath of [
+        "vscode-test-resolver",
+        "github-authentication"
+      ]) {
+        const packageJSON = JSON.parse(
+          (await promises.readFile(
+            FileAccess.asFileUri(
+              `${builtinExtensionsPath}/${extensionPath}/package.json`
+            ).fsPath
+          )).toString()
+        );
+        bundledExtensions.push({ extensionPath, packageJSON });
+      }
+      values["WORKBENCH_BUILTIN_EXTENSIONS"] = asJSON(bundledExtensions);
+    }
+    let data;
+    try {
+      const workbenchTemplate = (await promises.readFile(filePath)).toString();
+      data = workbenchTemplate.replace(
+        /\{\{([^}]+)\}\}/g,
+        (_, key) => values[key] ?? "undefined"
+      );
+    } catch (e) {
+      res.writeHead(404, { "Content-Type": "text/plain" });
+      return void res.end("Not found");
+    }
+    const webWorkerExtensionHostIframeScriptSHA = isESM ? "sha256-2Q+j4hfT09+1+imS46J2YlkCtHWQt0/BE79PXjJ0ZJ8=" : "sha256-V28GQnL3aYxbwgpV3yW1oJ+VKKe/PBSzWntNyH8zVXA=";
+    const cspDirectives = [
+      "default-src 'self';",
+      "img-src 'self' https: data: blob:;",
+      "media-src 'self';",
+      isESM ? `script-src 'self' 'unsafe-eval' ${WORKBENCH_NLS_BASE_URL ?? ""} blob: 'nonce-1nline-m4p' ${this._getScriptCspHashes(data).join(" ")} '${webWorkerExtensionHostIframeScriptSHA}' 'sha256-/r7rqQ+yrxt57sxLuQ6AMYcy/lUpvAIzHjIJt/OeLWU=' ${useTestResolver ? "" : `http://${remoteAuthority}`};` : (
+        // the sha is the same as in src/vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.esm.html
+        `script-src 'self' 'unsafe-eval' ${WORKBENCH_NLS_BASE_URL ?? ""} ${this._getScriptCspHashes(data).join(" ")} '${webWorkerExtensionHostIframeScriptSHA}' ${useTestResolver ? "" : `http://${remoteAuthority}`};`
+      ),
+      // the sha is the same as in src/vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.html
+      "child-src 'self';",
+      `frame-src 'self' https://*.vscode-cdn.net data:;`,
+      "worker-src 'self' data: blob:;",
+      "style-src 'self' 'unsafe-inline';",
+      "connect-src 'self' ws: wss: https:;",
+      "font-src 'self' blob:;",
+      "manifest-src 'self';"
+    ].join(" ");
+    const headers = {
+      "Content-Type": "text/html",
+      "Content-Security-Policy": cspDirectives
+    };
+    if (this._connectionToken.type !== ServerConnectionTokenType.None) {
+      headers["Set-Cookie"] = cookie.serialize(
+        connectionTokenCookieName,
+        this._connectionToken.value,
+        {
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7
+        }
+      );
+    }
+    res.writeHead(200, headers);
+    return void res.end(data);
+  }
+  _getScriptCspHashes(content) {
+    const regex = /<script>([\s\S]+?)<\/script>/gim;
+    const result = [];
+    let match;
+    while (match = regex.exec(content)) {
+      const hasher = crypto.createHash("sha256");
+      const script = match[1].replace(/\r\n/g, "\n");
+      const hash = hasher.update(Buffer.from(script)).digest().toString("base64");
+      result.push(`'sha256-${hash}'`);
+    }
+    return result;
+  }
+  /**
+   * Handle HTTP requests for /callback
+   */
+  async _handleCallback(res) {
+    const filePath = FileAccess.asFileUri(
+      "vs/code/browser/workbench/callback.html"
+    ).fsPath;
+    const data = (await promises.readFile(filePath)).toString();
+    const cspDirectives = [
+      "default-src 'self';",
+      "img-src 'self' https: data: blob:;",
+      "media-src 'none';",
+      `script-src 'self' ${this._getScriptCspHashes(data).join(" ")};`,
+      "style-src 'self' 'unsafe-inline';",
+      "font-src 'self' blob:;"
+    ].join(" ");
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "Content-Security-Policy": cspDirectives
+    });
+    return void res.end(data);
+  }
+};
+WebClientServer = __decorateClass([
+  __decorateParam(3, IServerEnvironmentService),
+  __decorateParam(4, ILogService),
+  __decorateParam(5, IRequestService),
+  __decorateParam(6, IProductService),
+  __decorateParam(7, ICSSDevelopmentService)
+], WebClientServer);
+export {
+  CacheControl,
+  WebClientServer,
+  serveError,
+  serveFile
+};
+//# sourceMappingURL=webClientServer.js.map

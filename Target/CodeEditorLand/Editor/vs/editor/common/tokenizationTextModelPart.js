@@ -1,1 +1,28 @@
-import{OffsetEdit as o}from"./core/offsetEdit.js";class i{constructor(n,e){this.lineEdit=n;this.additionalLines=e}static replace(n,e){return new i(o.replace(n,e),null)}}var t=(e=>(e[e.InProgress=1]="InProgress",e[e.Completed=2]="Completed",e))(t||{});export{t as BackgroundTokenizationState,i as LineEditWithAdditionalLines};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { OffsetEdit } from "./core/offsetEdit.js";
+class LineEditWithAdditionalLines {
+  constructor(lineEdit, additionalLines) {
+    this.lineEdit = lineEdit;
+    this.additionalLines = additionalLines;
+  }
+  static {
+    __name(this, "LineEditWithAdditionalLines");
+  }
+  static replace(range, text) {
+    return new LineEditWithAdditionalLines(
+      OffsetEdit.replace(range, text),
+      null
+    );
+  }
+}
+var BackgroundTokenizationState = /* @__PURE__ */ ((BackgroundTokenizationState2) => {
+  BackgroundTokenizationState2[BackgroundTokenizationState2["InProgress"] = 1] = "InProgress";
+  BackgroundTokenizationState2[BackgroundTokenizationState2["Completed"] = 2] = "Completed";
+  return BackgroundTokenizationState2;
+})(BackgroundTokenizationState || {});
+export {
+  BackgroundTokenizationState,
+  LineEditWithAdditionalLines
+};
+//# sourceMappingURL=tokenizationTextModelPart.js.map

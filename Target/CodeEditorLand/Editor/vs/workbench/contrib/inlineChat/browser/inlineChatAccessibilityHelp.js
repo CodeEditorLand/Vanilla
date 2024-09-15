@@ -1,1 +1,35 @@
-import{ICodeEditorService as r}from"../../../../editor/browser/services/codeEditorService.js";import{AccessibleViewType as t}from"../../../../platform/accessibility/browser/accessibleView.js";import{ContextKeyExpr as o}from"../../../../platform/contextkey/common/contextkey.js";import{getChatAccessibilityHelpProvider as s}from"../../chat/browser/actions/chatAccessibilityHelp.js";import{CONTEXT_CHAT_INPUT_HAS_FOCUS as n}from"../../chat/common/chatContextKeys.js";import{CTX_INLINE_CHAT_RESPONSE_FOCUSED as c}from"../common/inlineChat.js";class A{priority=106;name="inlineChat";type=t.Help;when=o.or(c,n);getProvider(e){const i=e.get(r).getActiveCodeEditor()||e.get(r).getFocusedCodeEditor();if(i)return s(e,i,"inlineChat")}}export{A as InlineChatAccessibilityHelp};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { AccessibleViewType } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { getChatAccessibilityHelpProvider } from "../../chat/browser/actions/chatAccessibilityHelp.js";
+import { CONTEXT_CHAT_INPUT_HAS_FOCUS } from "../../chat/common/chatContextKeys.js";
+import { CTX_INLINE_CHAT_RESPONSE_FOCUSED } from "../common/inlineChat.js";
+class InlineChatAccessibilityHelp {
+  static {
+    __name(this, "InlineChatAccessibilityHelp");
+  }
+  priority = 106;
+  name = "inlineChat";
+  type = AccessibleViewType.Help;
+  when = ContextKeyExpr.or(
+    CTX_INLINE_CHAT_RESPONSE_FOCUSED,
+    CONTEXT_CHAT_INPUT_HAS_FOCUS
+  );
+  getProvider(accessor) {
+    const codeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor() || accessor.get(ICodeEditorService).getFocusedCodeEditor();
+    if (!codeEditor) {
+      return;
+    }
+    return getChatAccessibilityHelpProvider(
+      accessor,
+      codeEditor,
+      "inlineChat"
+    );
+  }
+}
+export {
+  InlineChatAccessibilityHelp
+};
+//# sourceMappingURL=inlineChatAccessibilityHelp.js.map

@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("shareService");export{o as IShareService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IShareService = createDecorator("shareService");
+export {
+  IShareService
+};
+//# sourceMappingURL=share.js.map

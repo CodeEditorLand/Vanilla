@@ -1,1 +1,145 @@
-var g=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var l=(o,t,n,r)=>{for(var e=r>1?void 0:r?h(t,n):t,d=o.length-1,a;d>=0;d--)(a=o[d])&&(e=(r?a(t,n,e):a(e))||e);return r&&e&&g(t,n,e),e},s=(o,t)=>(n,r)=>t(n,r,o);import{Disposable as E}from"../../../../base/common/lifecycle.js";import{autorunWithStore as v,observableFromEvent as _}from"../../../../base/common/observable.js";import{registerDiffEditorContribution as y}from"../../../../editor/browser/editorExtensions.js";import{EmbeddedDiffEditorWidget as C}from"../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";import{ITextResourceConfigurationService as R}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as m}from"../../../../nls.js";import{AccessibleViewRegistry as I}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{IInstantiationService as S}from"../../../../platform/instantiation/common/instantiation.js";import{INotificationService as D,Severity as b}from"../../../../platform/notification/common/notification.js";import{Registry as x}from"../../../../platform/registry/common/platform.js";import{FloatingEditorClickWidget as W}from"../../../browser/codeeditor.js";import{Extensions as T}from"../../../common/configuration.js";import{DiffEditorAccessibilityHelp as M}from"./diffEditorAccessibilityHelp.js";let f=class extends E{constructor(n,r,e,d){super();this._diffEditor=n;this._instantiationService=r;this._textResourceConfigurationService=e;this._notificationService=d;if(!(this._diffEditor instanceof C)){const u=_(this,i=>this._diffEditor.onDidUpdateDiff(i),()=>this._diffEditor.getDiffComputationResult()).map(i=>i&&!i.identical&&i.changes2.length===0);this._register(v((i,c)=>{if(u.read(i)){const p=c.add(this._instantiationService.createInstance(W,this._diffEditor.getModifiedEditor(),m("hintWhitespace","Show Whitespace Differences"),null));c.add(p.onClick(()=>{this._textResourceConfigurationService.updateValue(this._diffEditor.getModel().modified.uri,"diffEditor.ignoreTrimWhitespace",!1)})),p.render()}})),this._register(this._diffEditor.onDidUpdateDiff(()=>{const i=this._diffEditor.getDiffComputationResult();i&&i.quitEarly&&this._notificationService.prompt(b.Warning,m("hintTimeout","The diff algorithm was stopped early (after {0} ms.)",this._diffEditor.maxComputationTime),[{label:m("removeTimeout","Remove Limit"),run:()=>{this._textResourceConfigurationService.updateValue(this._diffEditor.getModel().modified.uri,"diffEditor.maxComputationTime",0)}}],{})}))}}static ID="editor.contrib.diffEditorHelper"};f=l([s(1,S),s(2,R),s(3,D)],f),y(f.ID,f),x.as(T.ConfigurationMigration).registerConfigurationMigrations([{key:"diffEditor.experimental.collapseUnchangedRegions",migrateFn:(o,t)=>[["diffEditor.hideUnchangedRegions.enabled",{value:o}],["diffEditor.experimental.collapseUnchangedRegions",{value:void 0}]]}]),I.register(new M);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  autorunWithStore,
+  observableFromEvent
+} from "../../../../base/common/observable.js";
+import { registerDiffEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { EmbeddedDiffEditorWidget } from "../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { FloatingEditorClickWidget } from "../../../browser/codeeditor.js";
+import {
+  Extensions
+} from "../../../common/configuration.js";
+import { DiffEditorAccessibilityHelp } from "./diffEditorAccessibilityHelp.js";
+let DiffEditorHelperContribution = class extends Disposable {
+  constructor(_diffEditor, _instantiationService, _textResourceConfigurationService, _notificationService) {
+    super();
+    this._diffEditor = _diffEditor;
+    this._instantiationService = _instantiationService;
+    this._textResourceConfigurationService = _textResourceConfigurationService;
+    this._notificationService = _notificationService;
+    const isEmbeddedDiffEditor = this._diffEditor instanceof EmbeddedDiffEditorWidget;
+    if (!isEmbeddedDiffEditor) {
+      const computationResult = observableFromEvent(
+        this,
+        (e) => this._diffEditor.onDidUpdateDiff(e),
+        () => (
+          /** @description diffEditor.diffComputationResult */
+          this._diffEditor.getDiffComputationResult()
+        )
+      );
+      const onlyWhiteSpaceChange = computationResult.map(
+        (r) => r && !r.identical && r.changes2.length === 0
+      );
+      this._register(
+        autorunWithStore((reader, store) => {
+          if (onlyWhiteSpaceChange.read(reader)) {
+            const helperWidget = store.add(
+              this._instantiationService.createInstance(
+                FloatingEditorClickWidget,
+                this._diffEditor.getModifiedEditor(),
+                localize(
+                  "hintWhitespace",
+                  "Show Whitespace Differences"
+                ),
+                null
+              )
+            );
+            store.add(
+              helperWidget.onClick(() => {
+                this._textResourceConfigurationService.updateValue(
+                  this._diffEditor.getModel().modified.uri,
+                  "diffEditor.ignoreTrimWhitespace",
+                  false
+                );
+              })
+            );
+            helperWidget.render();
+          }
+        })
+      );
+      this._register(
+        this._diffEditor.onDidUpdateDiff(() => {
+          const diffComputationResult = this._diffEditor.getDiffComputationResult();
+          if (diffComputationResult && diffComputationResult.quitEarly) {
+            this._notificationService.prompt(
+              Severity.Warning,
+              localize(
+                "hintTimeout",
+                "The diff algorithm was stopped early (after {0} ms.)",
+                this._diffEditor.maxComputationTime
+              ),
+              [
+                {
+                  label: localize(
+                    "removeTimeout",
+                    "Remove Limit"
+                  ),
+                  run: /* @__PURE__ */ __name(() => {
+                    this._textResourceConfigurationService.updateValue(
+                      this._diffEditor.getModel().modified.uri,
+                      "diffEditor.maxComputationTime",
+                      0
+                    );
+                  }, "run")
+                }
+              ],
+              {}
+            );
+          }
+        })
+      );
+    }
+  }
+  static {
+    __name(this, "DiffEditorHelperContribution");
+  }
+  static ID = "editor.contrib.diffEditorHelper";
+};
+DiffEditorHelperContribution = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, ITextResourceConfigurationService),
+  __decorateParam(3, INotificationService)
+], DiffEditorHelperContribution);
+registerDiffEditorContribution(
+  DiffEditorHelperContribution.ID,
+  DiffEditorHelperContribution
+);
+Registry.as(
+  Extensions.ConfigurationMigration
+).registerConfigurationMigrations([
+  {
+    key: "diffEditor.experimental.collapseUnchangedRegions",
+    migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+      return [
+        ["diffEditor.hideUnchangedRegions.enabled", { value }],
+        [
+          "diffEditor.experimental.collapseUnchangedRegions",
+          { value: void 0 }
+        ]
+      ];
+    }, "migrateFn")
+  }
+]);
+AccessibleViewRegistry.register(new DiffEditorAccessibilityHelp());
+//# sourceMappingURL=diffEditorHelper.js.map

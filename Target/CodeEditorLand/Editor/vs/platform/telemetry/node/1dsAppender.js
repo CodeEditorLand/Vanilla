@@ -1,1 +1,98 @@
-import*as p from"https";import{streamToBuffer as u}from"../../../base/common/buffer.js";import{CancellationToken as m}from"../../../base/common/cancellation.js";import{AbstractOneDataSystemAppender as c}from"../common/1dsAppender.js";async function y(t,e){const s=await e.request(t,m.None),o=(await u(s.stream)).toString(),r=s.res.statusCode??200;return{headers:s.res.headers,statusCode:r,responseData:o}}async function h(t){const e={method:t.type,headers:t.headers};return new Promise((o,r)=>{const n=p.request(t.url??"",e,a=>{a.on("data",i=>{o({headers:a.headers,statusCode:a.statusCode??200,responseData:i.toString()})}),a.on("error",i=>{r(i)})});n.write(t.data,a=>{a&&r(a)}),n.end()})}async function g(t,e,s){const o=typeof e.data=="string"?e.data:new TextDecoder().decode(e.data),r={type:"POST",headers:{...e.headers,"Content-Type":"application/json","Content-Length":Buffer.byteLength(e.data).toString()},url:e.urlString,data:o};try{const n=t?await y(r,t):await h(r);s(n.statusCode,n.headers,n.responseData)}catch{s(0,{})}}class q extends c{constructor(e,s,o,r,n){const a={sendPOST:(i,d)=>{g(e,i,d)}};super(s,o,r,n,a)}}export{q as OneDataSystemAppender};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as https from "https";
+import { streamToBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import {
+  AbstractOneDataSystemAppender
+} from "../common/1dsAppender.js";
+async function makeTelemetryRequest(options, requestService) {
+  const response = await requestService.request(
+    options,
+    CancellationToken.None
+  );
+  const responseData = (await streamToBuffer(response.stream)).toString();
+  const statusCode = response.res.statusCode ?? 200;
+  const headers = response.res.headers;
+  return {
+    headers,
+    statusCode,
+    responseData
+  };
+}
+__name(makeTelemetryRequest, "makeTelemetryRequest");
+async function makeLegacyTelemetryRequest(options) {
+  const httpsOptions = {
+    method: options.type,
+    headers: options.headers
+  };
+  const responsePromise = new Promise((resolve, reject) => {
+    const req = https.request(options.url ?? "", httpsOptions, (res) => {
+      res.on("data", (responseData) => {
+        resolve({
+          headers: res.headers,
+          statusCode: res.statusCode ?? 200,
+          responseData: responseData.toString()
+        });
+      });
+      res.on("error", (err) => {
+        reject(err);
+      });
+    });
+    req.write(options.data, (err) => {
+      if (err) {
+        reject(err);
+      }
+    });
+    req.end();
+  });
+  return responsePromise;
+}
+__name(makeLegacyTelemetryRequest, "makeLegacyTelemetryRequest");
+async function sendPostAsync(requestService, payload, oncomplete) {
+  const telemetryRequestData = typeof payload.data === "string" ? payload.data : new TextDecoder().decode(payload.data);
+  const requestOptions = {
+    type: "POST",
+    headers: {
+      ...payload.headers,
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(payload.data).toString()
+    },
+    url: payload.urlString,
+    data: telemetryRequestData
+  };
+  try {
+    const responseData = requestService ? await makeTelemetryRequest(requestOptions, requestService) : await makeLegacyTelemetryRequest(requestOptions);
+    oncomplete(
+      responseData.statusCode,
+      responseData.headers,
+      responseData.responseData
+    );
+  } catch {
+    oncomplete(0, {});
+  }
+}
+__name(sendPostAsync, "sendPostAsync");
+class OneDataSystemAppender extends AbstractOneDataSystemAppender {
+  static {
+    __name(this, "OneDataSystemAppender");
+  }
+  constructor(requestService, isInternalTelemetry, eventPrefix, defaultData, iKeyOrClientFactory) {
+    const customHttpXHROverride = {
+      sendPOST: /* @__PURE__ */ __name((payload, oncomplete) => {
+        sendPostAsync(requestService, payload, oncomplete);
+      }, "sendPOST")
+    };
+    super(
+      isInternalTelemetry,
+      eventPrefix,
+      defaultData,
+      iKeyOrClientFactory,
+      customHttpXHROverride
+    );
+  }
+}
+export {
+  OneDataSystemAppender
+};
+//# sourceMappingURL=1dsAppender.js.map

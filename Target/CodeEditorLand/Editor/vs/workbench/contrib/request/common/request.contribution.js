@@ -1,1 +1,46 @@
-import{Event as i}from"../../../../base/common/event.js";import{localize2 as n}from"../../../../nls.js";import{Categories as s}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as g,registerAction2 as c}from"../../../../platform/actions/common/actions.js";import{ILoggerService as a}from"../../../../platform/log/common/log.js";import{Registry as m}from"../../../../platform/registry/common/platform.js";import{Extensions as p,IOutputService as w}from"../../../services/output/common/output.js";c(class extends g{constructor(){super({id:"workbench.actions.showNetworkLog",title:n("showNetworkLog","Show Network Log"),category:s.Developer,f1:!0})}async run(o){const e=o.get(a),r=o.get(w);for(const t of e.getRegisteredLoggers())t.id.startsWith("network-")&&e.setVisibility(t.id,!0);r.getChannelDescriptor("network-window")||await i.toPromise(i.filter(m.as(p.OutputChannels).onDidRegisterChannel,t=>t==="network-window")),r.showChannel("network-window")}});
+import { Event } from "../../../../base/common/event.js";
+import { localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions,
+  IOutputService
+} from "../../../services/output/common/output.js";
+registerAction2(
+  class extends Action2 {
+    constructor() {
+      super({
+        id: "workbench.actions.showNetworkLog",
+        title: localize2("showNetworkLog", "Show Network Log"),
+        category: Categories.Developer,
+        f1: true
+      });
+    }
+    async run(servicesAccessor) {
+      const loggerService = servicesAccessor.get(ILoggerService);
+      const outputService = servicesAccessor.get(IOutputService);
+      for (const logger of loggerService.getRegisteredLoggers()) {
+        if (logger.id.startsWith("network-")) {
+          loggerService.setVisibility(logger.id, true);
+        }
+      }
+      if (!outputService.getChannelDescriptor("network-window")) {
+        await Event.toPromise(
+          Event.filter(
+            Registry.as(
+              Extensions.OutputChannels
+            ).onDidRegisterChannel,
+            (channel) => channel === "network-window"
+          )
+        );
+      }
+      outputService.showChannel("network-window");
+    }
+  }
+);
+//# sourceMappingURL=request.contribution.js.map

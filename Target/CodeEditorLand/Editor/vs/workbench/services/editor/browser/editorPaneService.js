@@ -1,1 +1,26 @@
-import{InstantiationType as n,registerSingleton as i}from"../../../../platform/instantiation/common/extensions.js";import{EditorPaneDescriptor as e}from"../../../browser/editor.js";import{IEditorPaneService as r}from"../common/editorPaneService.js";class a{onWillInstantiateEditorPane=e.onWillInstantiateEditorPane;didInstantiateEditorPane(t){return e.didInstantiateEditorPane(t)}}i(r,a,n.Delayed);export{a as EditorPaneService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { IEditorPaneService } from "../common/editorPaneService.js";
+class EditorPaneService {
+  static {
+    __name(this, "EditorPaneService");
+  }
+  onWillInstantiateEditorPane = EditorPaneDescriptor.onWillInstantiateEditorPane;
+  didInstantiateEditorPane(typeId) {
+    return EditorPaneDescriptor.didInstantiateEditorPane(typeId);
+  }
+}
+registerSingleton(
+  IEditorPaneService,
+  EditorPaneService,
+  InstantiationType.Delayed
+);
+export {
+  EditorPaneService
+};
+//# sourceMappingURL=editorPaneService.js.map

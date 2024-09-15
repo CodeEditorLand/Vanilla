@@ -1,1 +1,5 @@
-var H="../../../../../../Asset/git-QW7RE4SW.svg";export{H as default};
+var git_default = "../../../../../../Asset/git-D36Z43ZG.svg";
+export {
+  git_default as default
+};
+//# sourceMappingURL=git.js.map

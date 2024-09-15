@@ -1,1 +1,58 @@
-import{Emitter as i}from"../../../../base/common/event.js";import{Disposable as t}from"../../../../base/common/lifecycle.js";import{TerminalCapability as s}from"./capabilities.js";class p extends t{constructor(e){super();this._terminal=e}type=s.BufferMarkDetection;_idToMarkerMap=new Map;_anonymousMarkers=new Map;_onMarkAdded=this._register(new i);onMarkAdded=this._onMarkAdded.event;*markers(){for(const e of this._idToMarkerMap.values())yield e;for(const e of this._anonymousMarkers.values())yield e}addMark(e){const r=e?.marker||this._terminal.registerMarker(),a=e?.id;r&&(a?(this._idToMarkerMap.set(a,r),r.onDispose(()=>this._idToMarkerMap.delete(a))):(this._anonymousMarkers.set(r.id,r),r.onDispose(()=>this._anonymousMarkers.delete(r.id))),this._onMarkAdded.fire({marker:r,id:a,hidden:e?.hidden,hoverMessage:e?.hoverMessage}))}getMark(e){return this._idToMarkerMap.get(e)}}export{p as BufferMarkCapability};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  TerminalCapability
+} from "./capabilities.js";
+class BufferMarkCapability extends Disposable {
+  constructor(_terminal) {
+    super();
+    this._terminal = _terminal;
+  }
+  static {
+    __name(this, "BufferMarkCapability");
+  }
+  type = TerminalCapability.BufferMarkDetection;
+  _idToMarkerMap = /* @__PURE__ */ new Map();
+  _anonymousMarkers = /* @__PURE__ */ new Map();
+  _onMarkAdded = this._register(
+    new Emitter()
+  );
+  onMarkAdded = this._onMarkAdded.event;
+  *markers() {
+    for (const m of this._idToMarkerMap.values()) {
+      yield m;
+    }
+    for (const m of this._anonymousMarkers.values()) {
+      yield m;
+    }
+  }
+  addMark(properties) {
+    const marker = properties?.marker || this._terminal.registerMarker();
+    const id = properties?.id;
+    if (!marker) {
+      return;
+    }
+    if (id) {
+      this._idToMarkerMap.set(id, marker);
+      marker.onDispose(() => this._idToMarkerMap.delete(id));
+    } else {
+      this._anonymousMarkers.set(marker.id, marker);
+      marker.onDispose(() => this._anonymousMarkers.delete(marker.id));
+    }
+    this._onMarkAdded.fire({
+      marker,
+      id,
+      hidden: properties?.hidden,
+      hoverMessage: properties?.hoverMessage
+    });
+  }
+  getMark(id) {
+    return this._idToMarkerMap.get(id);
+  }
+}
+export {
+  BufferMarkCapability
+};
+//# sourceMappingURL=bufferMarkCapability.js.map

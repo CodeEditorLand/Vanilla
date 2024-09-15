@@ -1,1 +1,76 @@
-var g=Object.defineProperty;var y=Object.getOwnPropertyDescriptor;var p=(t,r,e,i)=>{for(var o=i>1?void 0:i?y(r,e):r,n=t.length-1,m;n>=0;n--)(m=t[n])&&(o=(i?m(r,e,o):m(o))||o);return i&&o&&g(r,e,o),o},a=(t,r)=>(e,i)=>r(e,i,t);import*as l from"../../../../nls.js";import{CommandsRegistry as I}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as d}from"../../../../platform/configuration/common/configuration.js";import{Extensions as C}from"../../../../platform/configuration/common/configurationRegistry.js";import{InstantiationType as u,registerSingleton as f}from"../../../../platform/instantiation/common/extensions.js";import{IProductService as S}from"../../../../platform/product/common/productService.js";import{Registry as c}from"../../../../platform/registry/common/platform.js";import{Extensions as b}from"../../../common/contributions.js";import{IssueFormService as R}from"./issueFormService.js";import{BrowserIssueService as h}from"./issueService.js";import"./issueTroubleshoot.js";import{LifecyclePhase as v}from"../../../services/lifecycle/common/lifecycle.js";import{BaseIssueContribution as x}from"../common/issue.contribution.js";import{IIssueFormService as k,IWorkbenchIssueService as w}from"../common/issue.js";let s=class extends x{constructor(r,e){super(r,e),c.as(C.Configuration).registerConfiguration({properties:{"issueReporter.experimental.webReporter":{type:"boolean",default:r.quality!=="stable",description:"Enable experimental issue reporter for web."}}})}};s=p([a(0,S),a(1,d)],s),c.as(b.Workbench).registerWorkbenchContribution(s,v.Restored),f(w,h,u.Delayed),f(k,R,u.Delayed),I.registerCommand("_issues.getSystemStatus",t=>l.localize("statusUnsupported","The --status argument is not yet supported in browsers."));
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as nls from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  Extensions as ConfigurationExtensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  Extensions
+} from "../../../common/contributions.js";
+import { IssueFormService } from "./issueFormService.js";
+import { BrowserIssueService } from "./issueService.js";
+import "./issueTroubleshoot.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { BaseIssueContribution } from "../common/issue.contribution.js";
+import { IIssueFormService, IWorkbenchIssueService } from "../common/issue.js";
+let WebIssueContribution = class extends BaseIssueContribution {
+  static {
+    __name(this, "WebIssueContribution");
+  }
+  constructor(productService, configurationService) {
+    super(productService, configurationService);
+    Registry.as(
+      ConfigurationExtensions.Configuration
+    ).registerConfiguration({
+      properties: {
+        "issueReporter.experimental.webReporter": {
+          type: "boolean",
+          default: productService.quality !== "stable",
+          description: "Enable experimental issue reporter for web."
+        }
+      }
+    });
+  }
+};
+WebIssueContribution = __decorateClass([
+  __decorateParam(0, IProductService),
+  __decorateParam(1, IConfigurationService)
+], WebIssueContribution);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(WebIssueContribution, LifecyclePhase.Restored);
+registerSingleton(
+  IWorkbenchIssueService,
+  BrowserIssueService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IIssueFormService,
+  IssueFormService,
+  InstantiationType.Delayed
+);
+CommandsRegistry.registerCommand("_issues.getSystemStatus", (accessor) => {
+  return nls.localize(
+    "statusUnsupported",
+    "The --status argument is not yet supported in browsers."
+  );
+});
+//# sourceMappingURL=issue.contribution.js.map

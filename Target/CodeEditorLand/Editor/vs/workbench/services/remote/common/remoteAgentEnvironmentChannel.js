@@ -1,1 +1,68 @@
-import{revive as s}from"../../../../base/common/marshalling.js";import{URI as n}from"../../../../base/common/uri.js";class p{static async getEnvironmentData(o,t,r){const i={remoteAuthority:t,profile:r},e=await o.call("getEnvironmentData",i);return{pid:e.pid,connectionToken:e.connectionToken,appRoot:n.revive(e.appRoot),settingsPath:n.revive(e.settingsPath),logsPath:n.revive(e.logsPath),extensionHostLogsPath:n.revive(e.extensionHostLogsPath),globalStorageHome:n.revive(e.globalStorageHome),workspaceStorageHome:n.revive(e.workspaceStorageHome),localHistoryHome:n.revive(e.localHistoryHome),userHome:n.revive(e.userHome),os:e.os,arch:e.arch,marks:e.marks,useHostProxy:e.useHostProxy,profiles:s(e.profiles),isUnsupportedGlibc:e.isUnsupportedGlibc}}static async getExtensionHostExitInfo(o,t,r){const i={remoteAuthority:t,reconnectionToken:r};return o.call("getExtensionHostExitInfo",i)}static getDiagnosticInfo(o,t){return o.call("getDiagnosticInfo",t)}static updateTelemetryLevel(o,t){return o.call("updateTelemetryLevel",{telemetryLevel:t})}static logTelemetry(o,t,r){return o.call("logTelemetry",{eventName:t,data:r})}static flushTelemetry(o){return o.call("flushTelemetry")}static async ping(o){await o.call("ping")}}export{p as RemoteExtensionEnvironmentChannelClient};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { revive } from "../../../../base/common/marshalling.js";
+import {
+  URI
+} from "../../../../base/common/uri.js";
+class RemoteExtensionEnvironmentChannelClient {
+  static {
+    __name(this, "RemoteExtensionEnvironmentChannelClient");
+  }
+  static async getEnvironmentData(channel, remoteAuthority, profile) {
+    const args = {
+      remoteAuthority,
+      profile
+    };
+    const data = await channel.call(
+      "getEnvironmentData",
+      args
+    );
+    return {
+      pid: data.pid,
+      connectionToken: data.connectionToken,
+      appRoot: URI.revive(data.appRoot),
+      settingsPath: URI.revive(data.settingsPath),
+      logsPath: URI.revive(data.logsPath),
+      extensionHostLogsPath: URI.revive(data.extensionHostLogsPath),
+      globalStorageHome: URI.revive(data.globalStorageHome),
+      workspaceStorageHome: URI.revive(data.workspaceStorageHome),
+      localHistoryHome: URI.revive(data.localHistoryHome),
+      userHome: URI.revive(data.userHome),
+      os: data.os,
+      arch: data.arch,
+      marks: data.marks,
+      useHostProxy: data.useHostProxy,
+      profiles: revive(data.profiles),
+      isUnsupportedGlibc: data.isUnsupportedGlibc
+    };
+  }
+  static async getExtensionHostExitInfo(channel, remoteAuthority, reconnectionToken) {
+    const args = {
+      remoteAuthority,
+      reconnectionToken
+    };
+    return channel.call(
+      "getExtensionHostExitInfo",
+      args
+    );
+  }
+  static getDiagnosticInfo(channel, options) {
+    return channel.call("getDiagnosticInfo", options);
+  }
+  static updateTelemetryLevel(channel, telemetryLevel) {
+    return channel.call("updateTelemetryLevel", { telemetryLevel });
+  }
+  static logTelemetry(channel, eventName, data) {
+    return channel.call("logTelemetry", { eventName, data });
+  }
+  static flushTelemetry(channel) {
+    return channel.call("flushTelemetry");
+  }
+  static async ping(channel) {
+    await channel.call("ping");
+  }
+}
+export {
+  RemoteExtensionEnvironmentChannelClient
+};
+//# sourceMappingURL=remoteAgentEnvironmentChannel.js.map

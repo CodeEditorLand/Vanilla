@@ -1,1 +1,81 @@
-import{Disposable as r}from"../../../../base/common/lifecycle.js";import{AccessibleViewType as a,IAccessibleViewService as o}from"../../../../platform/accessibility/browser/accessibleView.js";import{AccessibleViewRegistry as l}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{accessibleViewIsShown as p}from"./accessibilityConfiguration.js";import{AccessibilityHelpAction as n,AccessibleViewAction as m}from"./accessibleViewActions.js";class f extends r{static ID;constructor(){super(),this._register(n.addImplementation(115,"accessible-view-help",e=>(e.get(o).showAccessibleViewHelp(),!0),p))}}class h extends r{static ID;constructor(){super(),l.getImplementations().forEach(e=>{const i=s=>{const t=e.getProvider(s);if(!t)return!1;try{return s.get(o).show(t),!0}catch{return t.dispose(),!1}};e.type===a.View?this._register(m.addImplementation(e.priority,e.name,i,e.when)):this._register(n.addImplementation(e.priority,e.name,i,e.when))})}}export{h as AccesibleViewContributions,f as AccesibleViewHelpContribution};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  AccessibleViewType,
+  IAccessibleViewService
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { accessibleViewIsShown } from "./accessibilityConfiguration.js";
+import {
+  AccessibilityHelpAction,
+  AccessibleViewAction
+} from "./accessibleViewActions.js";
+class AccesibleViewHelpContribution extends Disposable {
+  static {
+    __name(this, "AccesibleViewHelpContribution");
+  }
+  static ID;
+  constructor() {
+    super();
+    this._register(
+      AccessibilityHelpAction.addImplementation(
+        115,
+        "accessible-view-help",
+        (accessor) => {
+          accessor.get(IAccessibleViewService).showAccessibleViewHelp();
+          return true;
+        },
+        accessibleViewIsShown
+      )
+    );
+  }
+}
+class AccesibleViewContributions extends Disposable {
+  static {
+    __name(this, "AccesibleViewContributions");
+  }
+  static ID;
+  constructor() {
+    super();
+    AccessibleViewRegistry.getImplementations().forEach((impl) => {
+      const implementation = /* @__PURE__ */ __name((accessor) => {
+        const provider = impl.getProvider(accessor);
+        if (!provider) {
+          return false;
+        }
+        try {
+          accessor.get(IAccessibleViewService).show(provider);
+          return true;
+        } catch {
+          provider.dispose();
+          return false;
+        }
+      }, "implementation");
+      if (impl.type === AccessibleViewType.View) {
+        this._register(
+          AccessibleViewAction.addImplementation(
+            impl.priority,
+            impl.name,
+            implementation,
+            impl.when
+          )
+        );
+      } else {
+        this._register(
+          AccessibilityHelpAction.addImplementation(
+            impl.priority,
+            impl.name,
+            implementation,
+            impl.when
+          )
+        );
+      }
+    });
+  }
+}
+export {
+  AccesibleViewContributions,
+  AccesibleViewHelpContribution
+};
+//# sourceMappingURL=accessibleViewContributions.js.map

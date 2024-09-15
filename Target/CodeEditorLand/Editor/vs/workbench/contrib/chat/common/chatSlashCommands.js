@@ -1,1 +1,79 @@
-var c=Object.defineProperty;var C=Object.getOwnPropertyDescriptor;var l=(s,t,e,a)=>{for(var o=a>1?void 0:a?C(t,e):t,r=s.length-1,n;r>=0;r--)(n=s[r])&&(o=(a?n(t,e,o):n(o))||o);return a&&o&&c(t,e,o),o},h=(s,t)=>(e,a)=>t(e,a,s);import{Emitter as p}from"../../../../base/common/event.js";import{Disposable as g,toDisposable as I}from"../../../../base/common/lifecycle.js";import{createDecorator as v}from"../../../../platform/instantiation/common/instantiation.js";import{IExtensionService as f}from"../../../services/extensions/common/extensions.js";const _=v("chatSlashCommandService");let m=class extends g{constructor(e){super();this._extensionService=e}_commands=new Map;_onDidChangeCommands=this._register(new p);onDidChangeCommands=this._onDidChangeCommands.event;dispose(){super.dispose(),this._commands.clear()}registerSlashCommand(e,a){if(this._commands.has(e.command))throw new Error(`Already registered a command with id ${e.command}}`);return this._commands.set(e.command,{data:e,command:a}),this._onDidChangeCommands.fire(),I(()=>{this._commands.delete(e.command)&&this._onDidChangeCommands.fire()})}getCommands(e){return Array.from(this._commands.values(),a=>a.data).filter(a=>a.locations.includes(e))}hasCommand(e){return this._commands.has(e)}async executeCommand(e,a,o,r,n,d){const i=this._commands.get(e);if(!i)throw new Error("No command with id ${id} NOT registered");if(i.command||await this._extensionService.activateByEvent(`onSlash:${e}`),!i.command)throw new Error(`No command with id ${e} NOT resolved`);return await i.command(a,o,r,n,d)}};m=l([h(0,f)],m);export{m as ChatSlashCommandService,_ as IChatSlashCommandService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+const IChatSlashCommandService = createDecorator("chatSlashCommandService");
+let ChatSlashCommandService = class extends Disposable {
+  constructor(_extensionService) {
+    super();
+    this._extensionService = _extensionService;
+  }
+  static {
+    __name(this, "ChatSlashCommandService");
+  }
+  _commands = /* @__PURE__ */ new Map();
+  _onDidChangeCommands = this._register(new Emitter());
+  onDidChangeCommands = this._onDidChangeCommands.event;
+  dispose() {
+    super.dispose();
+    this._commands.clear();
+  }
+  registerSlashCommand(data, command) {
+    if (this._commands.has(data.command)) {
+      throw new Error(
+        `Already registered a command with id ${data.command}}`
+      );
+    }
+    this._commands.set(data.command, { data, command });
+    this._onDidChangeCommands.fire();
+    return toDisposable(() => {
+      if (this._commands.delete(data.command)) {
+        this._onDidChangeCommands.fire();
+      }
+    });
+  }
+  getCommands(location) {
+    return Array.from(this._commands.values(), (v) => v.data).filter(
+      (c) => c.locations.includes(location)
+    );
+  }
+  hasCommand(id) {
+    return this._commands.has(id);
+  }
+  async executeCommand(id, prompt, progress, history, location, token) {
+    const data = this._commands.get(id);
+    if (!data) {
+      throw new Error("No command with id ${id} NOT registered");
+    }
+    if (!data.command) {
+      await this._extensionService.activateByEvent(`onSlash:${id}`);
+    }
+    if (!data.command) {
+      throw new Error(`No command with id ${id} NOT resolved`);
+    }
+    return await data.command(prompt, progress, history, location, token);
+  }
+};
+ChatSlashCommandService = __decorateClass([
+  __decorateParam(0, IExtensionService)
+], ChatSlashCommandService);
+export {
+  ChatSlashCommandService,
+  IChatSlashCommandService
+};
+//# sourceMappingURL=chatSlashCommands.js.map

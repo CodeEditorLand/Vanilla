@@ -1,1 +1,211 @@
-var C=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var v=(f,n,e,r)=>{for(var o=r>1?void 0:r?T(n,e):n,t=f.length-1,s;t>=0;t--)(s=f[t])&&(o=(r?s(n,e,o):s(o))||o);return r&&o&&C(n,e,o),o},i=(f,n)=>(e,r)=>n(e,r,f);import{Schemas as M}from"../../../base/common/network.js";import{isEqual as b}from"../../../base/common/resources.js";import{createTextBufferFactory as U}from"../../../editor/common/model/textModel.js";import{ITextModelService as P}from"../../../editor/common/services/resolverService.js";import{ITextResourceConfigurationService as l}from"../../../editor/common/services/textResourceConfiguration.js";import{IFileService as I}from"../../../platform/files/common/files.js";import{ILabelService as g}from"../../../platform/label/common/label.js";import{ICustomEditorLabelService as h}from"../../services/editor/common/customEditorLabelService.js";import{IEditorService as S}from"../../services/editor/common/editorService.js";import{IFilesConfigurationService as y}from"../../services/filesConfiguration/common/filesConfigurationService.js";import{ITextFileService as x}from"../../services/textfile/common/textfiles.js";import{DEFAULT_EDITOR_ASSOCIATION as O,isResourceEditorInput as D}from"../editor.js";import{AbstractResourceEditorInput as w}from"./resourceEditorInput.js";import{TextResourceEditorModel as G}from"./textResourceEditorModel.js";let a=class extends w{constructor(e,r,o,t,s,m,c,u,p){super(e,r,s,m,c,u,p);this.editorService=o;this.textFileService=t}save(e,r){return this.resource.scheme!==M.untitled&&!this.fileService.hasProvider(this.resource)?this.saveAs(e,r):this.doSave(r,!1,e)}saveAs(e,r){return this.doSave(r,!0,e)}async doSave(e,r,o){let t;if(r?t=await this.textFileService.saveAs(this.resource,void 0,{...e,suggestedTarget:this.preferredResource}):t=await this.textFileService.save(this.resource,e),!!t)return{resource:t}}async revert(e,r){await this.textFileService.revert(this.resource,r)}};a=v([i(2,S),i(3,x),i(4,g),i(5,I),i(6,y),i(7,l),i(8,h)],a);let d=class extends a{constructor(e,r,o,t,s,m,c,u,p,L,R,E,F){super(e,void 0,u,c,L,p,R,E,F);this.name=r;this.description=o;this.preferredLanguageId=t;this.preferredContents=s;this.textModelService=m}static ID="workbench.editors.resourceEditorInput";get typeId(){return d.ID}get editorId(){return O.id}cachedModel=void 0;modelReference=void 0;getName(){return this.name||super.getName()}setName(e){this.name!==e&&(this.name=e,this._onDidChangeLabel.fire())}getDescription(){return this.description}setDescription(e){this.description!==e&&(this.description=e,this._onDidChangeLabel.fire())}setLanguageId(e,r){this.setPreferredLanguageId(e),this.cachedModel?.setLanguageId(e,r)}setPreferredLanguageId(e){this.preferredLanguageId=e}setPreferredContents(e){this.preferredContents=e}async resolve(){const e=this.preferredContents,r=this.preferredLanguageId;this.preferredContents=void 0,this.preferredLanguageId=void 0,this.modelReference||(this.modelReference=this.textModelService.createModelReference(this.resource));const o=await this.modelReference,t=o.object;if(!(t instanceof G))throw o.dispose(),this.modelReference=void 0,new Error(`Unexpected model for TextResourceEditorInput: ${this.resource}`);return this.cachedModel=t,(typeof e=="string"||typeof r=="string")&&t.updateTextEditorModel(typeof e=="string"?U(e):void 0,r),t}matches(e){return this===e?!0:e instanceof d?b(e.resource,this.resource):D(e)?super.matches(e):!1}dispose(){this.modelReference&&(this.modelReference.then(e=>e.dispose()),this.modelReference=void 0),this.cachedModel=void 0,super.dispose()}};d=v([i(5,P),i(6,x),i(7,S),i(8,I),i(9,g),i(10,y),i(11,l),i(12,h)],d);export{a as AbstractTextResourceEditorInput,d as TextResourceEditorInput};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Schemas } from "../../../base/common/network.js";
+import { isEqual } from "../../../base/common/resources.js";
+import { createTextBufferFactory } from "../../../editor/common/model/textModel.js";
+import {
+  ITextModelService
+} from "../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
+import { IFileService } from "../../../platform/files/common/files.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
+import {
+  ITextFileService
+} from "../../services/textfile/common/textfiles.js";
+import {
+  DEFAULT_EDITOR_ASSOCIATION,
+  isResourceEditorInput
+} from "../editor.js";
+import { AbstractResourceEditorInput } from "./resourceEditorInput.js";
+import { TextResourceEditorModel } from "./textResourceEditorModel.js";
+let AbstractTextResourceEditorInput = class extends AbstractResourceEditorInput {
+  constructor(resource, preferredResource, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
+    super(
+      resource,
+      preferredResource,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
+    this.editorService = editorService;
+    this.textFileService = textFileService;
+  }
+  static {
+    __name(this, "AbstractTextResourceEditorInput");
+  }
+  save(group, options) {
+    if (this.resource.scheme !== Schemas.untitled && !this.fileService.hasProvider(this.resource)) {
+      return this.saveAs(group, options);
+    }
+    return this.doSave(options, false, group);
+  }
+  saveAs(group, options) {
+    return this.doSave(options, true, group);
+  }
+  async doSave(options, saveAs, group) {
+    let target;
+    if (saveAs) {
+      target = await this.textFileService.saveAs(
+        this.resource,
+        void 0,
+        { ...options, suggestedTarget: this.preferredResource }
+      );
+    } else {
+      target = await this.textFileService.save(this.resource, options);
+    }
+    if (!target) {
+      return void 0;
+    }
+    return { resource: target };
+  }
+  async revert(group, options) {
+    await this.textFileService.revert(this.resource, options);
+  }
+};
+AbstractTextResourceEditorInput = __decorateClass([
+  __decorateParam(2, IEditorService),
+  __decorateParam(3, ITextFileService),
+  __decorateParam(4, ILabelService),
+  __decorateParam(5, IFileService),
+  __decorateParam(6, IFilesConfigurationService),
+  __decorateParam(7, ITextResourceConfigurationService),
+  __decorateParam(8, ICustomEditorLabelService)
+], AbstractTextResourceEditorInput);
+let TextResourceEditorInput = class extends AbstractTextResourceEditorInput {
+  constructor(resource, name, description, preferredLanguageId, preferredContents, textModelService, textFileService, editorService, fileService, labelService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
+    super(
+      resource,
+      void 0,
+      editorService,
+      textFileService,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
+    this.name = name;
+    this.description = description;
+    this.preferredLanguageId = preferredLanguageId;
+    this.preferredContents = preferredContents;
+    this.textModelService = textModelService;
+  }
+  static {
+    __name(this, "TextResourceEditorInput");
+  }
+  static ID = "workbench.editors.resourceEditorInput";
+  get typeId() {
+    return TextResourceEditorInput.ID;
+  }
+  get editorId() {
+    return DEFAULT_EDITOR_ASSOCIATION.id;
+  }
+  cachedModel = void 0;
+  modelReference = void 0;
+  getName() {
+    return this.name || super.getName();
+  }
+  setName(name) {
+    if (this.name !== name) {
+      this.name = name;
+      this._onDidChangeLabel.fire();
+    }
+  }
+  getDescription() {
+    return this.description;
+  }
+  setDescription(description) {
+    if (this.description !== description) {
+      this.description = description;
+      this._onDidChangeLabel.fire();
+    }
+  }
+  setLanguageId(languageId, source) {
+    this.setPreferredLanguageId(languageId);
+    this.cachedModel?.setLanguageId(languageId, source);
+  }
+  setPreferredLanguageId(languageId) {
+    this.preferredLanguageId = languageId;
+  }
+  setPreferredContents(contents) {
+    this.preferredContents = contents;
+  }
+  async resolve() {
+    const preferredContents = this.preferredContents;
+    const preferredLanguageId = this.preferredLanguageId;
+    this.preferredContents = void 0;
+    this.preferredLanguageId = void 0;
+    if (!this.modelReference) {
+      this.modelReference = this.textModelService.createModelReference(
+        this.resource
+      );
+    }
+    const ref = await this.modelReference;
+    const model = ref.object;
+    if (!(model instanceof TextResourceEditorModel)) {
+      ref.dispose();
+      this.modelReference = void 0;
+      throw new Error(
+        `Unexpected model for TextResourceEditorInput: ${this.resource}`
+      );
+    }
+    this.cachedModel = model;
+    if (typeof preferredContents === "string" || typeof preferredLanguageId === "string") {
+      model.updateTextEditorModel(
+        typeof preferredContents === "string" ? createTextBufferFactory(preferredContents) : void 0,
+        preferredLanguageId
+      );
+    }
+    return model;
+  }
+  matches(otherInput) {
+    if (this === otherInput) {
+      return true;
+    }
+    if (otherInput instanceof TextResourceEditorInput) {
+      return isEqual(otherInput.resource, this.resource);
+    }
+    if (isResourceEditorInput(otherInput)) {
+      return super.matches(otherInput);
+    }
+    return false;
+  }
+  dispose() {
+    if (this.modelReference) {
+      this.modelReference.then((ref) => ref.dispose());
+      this.modelReference = void 0;
+    }
+    this.cachedModel = void 0;
+    super.dispose();
+  }
+};
+TextResourceEditorInput = __decorateClass([
+  __decorateParam(5, ITextModelService),
+  __decorateParam(6, ITextFileService),
+  __decorateParam(7, IEditorService),
+  __decorateParam(8, IFileService),
+  __decorateParam(9, ILabelService),
+  __decorateParam(10, IFilesConfigurationService),
+  __decorateParam(11, ITextResourceConfigurationService),
+  __decorateParam(12, ICustomEditorLabelService)
+], TextResourceEditorInput);
+export {
+  AbstractTextResourceEditorInput,
+  TextResourceEditorInput
+};
+//# sourceMappingURL=textResourceEditorInput.js.map

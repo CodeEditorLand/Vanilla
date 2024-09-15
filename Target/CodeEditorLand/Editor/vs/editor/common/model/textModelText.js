@@ -1,1 +1,25 @@
-import{AbstractText as n}from"../core/textEdit.js";import{TextLength as o}from"../core/textLength.js";class a extends n{constructor(e){super();this._textModel=e}getValueOfRange(e){return this._textModel.getValueInRange(e)}get length(){const e=this._textModel.getLineCount(),t=this._textModel.getLineLength(e);return new o(e-1,t)}}export{a as TextModelText};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AbstractText } from "../core/textEdit.js";
+import { TextLength } from "../core/textLength.js";
+class TextModelText extends AbstractText {
+  constructor(_textModel) {
+    super();
+    this._textModel = _textModel;
+  }
+  static {
+    __name(this, "TextModelText");
+  }
+  getValueOfRange(range) {
+    return this._textModel.getValueInRange(range);
+  }
+  get length() {
+    const lastLineNumber = this._textModel.getLineCount();
+    const lastLineLen = this._textModel.getLineLength(lastLineNumber);
+    return new TextLength(lastLineNumber - 1, lastLineLen);
+  }
+}
+export {
+  TextModelText
+};
+//# sourceMappingURL=textModelText.js.map

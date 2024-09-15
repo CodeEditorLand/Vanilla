@@ -1,1 +1,109 @@
-var c=Object.defineProperty;var l=Object.getOwnPropertyDescriptor;var w=(o,r,e,i)=>{for(var t=i>1?void 0:i?l(r,e):r,s=o.length-1,a;s>=0;s--)(a=o[s])&&(t=(i?a(r,e,t):a(t))||t);return i&&t&&c(r,e,t),t},n=(o,r)=>(e,i)=>r(e,i,o);import{BrowserWindow as p}from"electron";import{isLinux as f,isWindows as h}from"../../../base/common/platform.js";import{IConfigurationService as u}from"../../configuration/common/configuration.js";import{IEnvironmentMainService as v}from"../../environment/electron-main/environmentMainService.js";import{ILifecycleMainService as y}from"../../lifecycle/electron-main/lifecycleMainService.js";import{ILogService as C}from"../../log/common/log.js";import{IStateService as S}from"../../state/node/state.js";import{TitlebarStyle as W,hasNativeTitlebar as I}from"../../window/common/window.js";import{WindowMode as m}from"../../window/electron-main/window.js";import{BaseWindow as b}from"../../windows/electron-main/windowImpl.js";let d=class extends b{constructor(e,i,t,s,a,M){super(s,a,i,t);this.webContents=e;this.lifecycleMainService=M;this.tryClaimWindow()}id=this.webContents.id;parentId=-1;get win(){return super.win||this.tryClaimWindow(),super.win}stateApplied=!1;tryClaimWindow(e){this._store.isDisposed||this.webContents.isDestroyed()||(this.doTryClaimWindow(e),e&&!this.stateApplied&&(this.stateApplied=!0,this.applyState({x:e.x,y:e.y,width:e.width,height:e.height,mode:e.show===!1?m.Maximized:m.Normal})))}doTryClaimWindow(e){if(this._win)return;const i=p.fromWebContents(this.webContents);i&&(this.logService.trace("[aux window] Claimed browser window instance"),this.setWin(i,e),i.setMenu(null),(h||f)&&I(this.configurationService,e?.titleBarStyle==="hidden"?W.CUSTOM:void 0)&&i.setAutoHideMenuBar(!0),this.lifecycleMainService.registerAuxWindow(this))}matches(e){return this.webContents.id===e.id}};d=w([n(1,v),n(2,C),n(3,u),n(4,S),n(5,y)],d);export{d as AuxiliaryWindow};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  BrowserWindow
+} from "electron";
+import { isLinux, isWindows } from "../../../base/common/platform.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import {
+  TitlebarStyle,
+  hasNativeTitlebar
+} from "../../window/common/window.js";
+import {
+  WindowMode
+} from "../../window/electron-main/window.js";
+import { BaseWindow } from "../../windows/electron-main/windowImpl.js";
+let AuxiliaryWindow = class extends BaseWindow {
+  constructor(webContents, environmentMainService, logService, configurationService, stateService, lifecycleMainService) {
+    super(
+      configurationService,
+      stateService,
+      environmentMainService,
+      logService
+    );
+    this.webContents = webContents;
+    this.lifecycleMainService = lifecycleMainService;
+    this.tryClaimWindow();
+  }
+  static {
+    __name(this, "AuxiliaryWindow");
+  }
+  id = this.webContents.id;
+  parentId = -1;
+  get win() {
+    if (!super.win) {
+      this.tryClaimWindow();
+    }
+    return super.win;
+  }
+  stateApplied = false;
+  tryClaimWindow(options) {
+    if (this._store.isDisposed || this.webContents.isDestroyed()) {
+      return;
+    }
+    this.doTryClaimWindow(options);
+    if (options && !this.stateApplied) {
+      this.stateApplied = true;
+      this.applyState({
+        x: options.x,
+        y: options.y,
+        width: options.width,
+        height: options.height,
+        // TODO@bpasero We currently do not support restoring fullscreen state for
+        // auxiliary windows because we do not get hold of the original `features`
+        // string that contains that info in `window-fullscreen`. However, we can
+        // probe the `options.show` value for whether the window should be maximized
+        // or not because we never show maximized windows initially to reduce flicker.
+        mode: options.show === false ? WindowMode.Maximized : WindowMode.Normal
+      });
+    }
+  }
+  doTryClaimWindow(options) {
+    if (this._win) {
+      return;
+    }
+    const window = BrowserWindow.fromWebContents(this.webContents);
+    if (window) {
+      this.logService.trace(
+        "[aux window] Claimed browser window instance"
+      );
+      this.setWin(window, options);
+      window.setMenu(null);
+      if ((isWindows || isLinux) && hasNativeTitlebar(
+        this.configurationService,
+        options?.titleBarStyle === "hidden" ? TitlebarStyle.CUSTOM : void 0
+      )) {
+        window.setAutoHideMenuBar(true);
+      }
+      this.lifecycleMainService.registerAuxWindow(this);
+    }
+  }
+  matches(webContents) {
+    return this.webContents.id === webContents.id;
+  }
+};
+AuxiliaryWindow = __decorateClass([
+  __decorateParam(1, IEnvironmentMainService),
+  __decorateParam(2, ILogService),
+  __decorateParam(3, IConfigurationService),
+  __decorateParam(4, IStateService),
+  __decorateParam(5, ILifecycleMainService)
+], AuxiliaryWindow);
+export {
+  AuxiliaryWindow
+};
+//# sourceMappingURL=auxiliaryWindow.js.map

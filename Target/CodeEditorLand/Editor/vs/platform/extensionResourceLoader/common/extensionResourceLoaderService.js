@@ -1,1 +1,74 @@
-var u=Object.defineProperty;var S=Object.getOwnPropertyDescriptor;var m=(s,i,e,t)=>{for(var r=t>1?void 0:t?S(i,e):i,o=s.length-1,a;o>=0;o--)(a=s[o])&&(r=(t?a(i,e,r):a(r))||r);return t&&r&&u(i,e,r),r},n=(s,i)=>(e,t)=>i(e,t,s);import{CancellationToken as l}from"../../../base/common/cancellation.js";import{IConfigurationService as v}from"../../configuration/common/configuration.js";import{IEnvironmentService as I}from"../../environment/common/environment.js";import{IFileService as p}from"../../files/common/files.js";import{InstantiationType as f,registerSingleton as g}from"../../instantiation/common/extensions.js";import{IProductService as d}from"../../product/common/productService.js";import{IRequestService as q,asTextOrError as y}from"../../request/common/request.js";import{IStorageService as x}from"../../storage/common/storage.js";import{AbstractExtensionResourceLoaderService as R,IExtensionResourceLoaderService as h}from"./extensionResourceLoader.js";let c=class extends R{constructor(e,t,r,o,a,E){super(e,t,r,o,a);this._requestService=E}async readExtensionResource(e){if(this.isExtensionGalleryResource(e)){const r=await this.getExtensionGalleryRequestHeaders(),o=await this._requestService.request({url:e.toString(),headers:r},l.None);return await y(o)||""}return(await this._fileService.readFile(e)).value.toString()}};c=m([n(0,p),n(1,x),n(2,d),n(3,I),n(4,v),n(5,q)],c),g(h,c,f.Delayed);export{c as ExtensionResourceLoaderService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
+import { IProductService } from "../../product/common/productService.js";
+import {
+  IRequestService,
+  asTextOrError
+} from "../../request/common/request.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import {
+  AbstractExtensionResourceLoaderService,
+  IExtensionResourceLoaderService
+} from "./extensionResourceLoader.js";
+let ExtensionResourceLoaderService = class extends AbstractExtensionResourceLoaderService {
+  constructor(fileService, storageService, productService, environmentService, configurationService, _requestService) {
+    super(
+      fileService,
+      storageService,
+      productService,
+      environmentService,
+      configurationService
+    );
+    this._requestService = _requestService;
+  }
+  static {
+    __name(this, "ExtensionResourceLoaderService");
+  }
+  async readExtensionResource(uri) {
+    if (this.isExtensionGalleryResource(uri)) {
+      const headers = await this.getExtensionGalleryRequestHeaders();
+      const requestContext = await this._requestService.request(
+        { url: uri.toString(), headers },
+        CancellationToken.None
+      );
+      return await asTextOrError(requestContext) || "";
+    }
+    const result = await this._fileService.readFile(uri);
+    return result.value.toString();
+  }
+};
+ExtensionResourceLoaderService = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IStorageService),
+  __decorateParam(2, IProductService),
+  __decorateParam(3, IEnvironmentService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IRequestService)
+], ExtensionResourceLoaderService);
+registerSingleton(
+  IExtensionResourceLoaderService,
+  ExtensionResourceLoaderService,
+  InstantiationType.Delayed
+);
+export {
+  ExtensionResourceLoaderService
+};
+//# sourceMappingURL=extensionResourceLoaderService.js.map

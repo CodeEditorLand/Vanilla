@@ -1,1 +1,188 @@
-import{KeyMod as d}from"../../../../base/common/keyCodes.js";import{EditorContextKeys as I}from"../../../../editor/common/editorContextKeys.js";import{localize as e}from"../../../../nls.js";import{MenuId as i,MenuRegistry as n,registerAction2 as c}from"../../../../platform/actions/common/actions.js";import{ContextKeyExpr as s}from"../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as p,KeybindingsRegistry as l}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{HelpQuickAccessProvider as t}from"../../../../platform/quickinput/browser/helpQuickAccess.js";import{Extensions as A}from"../../../../platform/quickinput/common/quickAccess.js";import{Registry as C}from"../../../../platform/registry/common/platform.js";import{getQuickNavigateHandler as u,inQuickPickContext as f}from"../../../browser/quickaccess.js";import{ClearCommandHistoryAction as v,CommandsQuickAccessProvider as k,ShowAllCommandsAction as o}from"./commandsQuickAccess.js";import{OpenViewPickerAction as m,QuickAccessViewPickerAction as h,ViewQuickAccessProvider as g}from"./viewQuickAccess.js";const a=C.as(A.Quickaccess);a.registerQuickAccessProvider({ctor:t,prefix:t.PREFIX,placeholder:e("helpQuickAccessPlaceholder","Type '{0}' to get help on the actions you can take from here.",t.PREFIX),helpEntries:[{description:e("helpQuickAccess","Show all Quick Access Providers"),commandCenterOrder:70,commandCenterLabel:e("more","More")}]}),a.registerQuickAccessProvider({ctor:g,prefix:g.PREFIX,contextKey:"inViewsPicker",placeholder:e("viewQuickAccessPlaceholder","Type the name of a view, output channel or terminal to open."),helpEntries:[{description:e("viewQuickAccess","Open View"),commandId:m.ID}]}),a.registerQuickAccessProvider({ctor:k,prefix:k.PREFIX,contextKey:"inCommandsPicker",placeholder:e("commandsQuickAccessPlaceholder","Type the name of a command to run."),helpEntries:[{description:e("commandsQuickAccess","Show and Run Commands"),commandId:o.ID,commandCenterOrder:20}]}),n.appendMenuItem(i.MenubarViewMenu,{group:"1_open",command:{id:o.ID,title:e({key:"miCommandPalette",comment:["&& denotes a mnemonic"]},"&&Command Palette...")},order:1}),n.appendMenuItem(i.MenubarHelpMenu,{group:"1_welcome",command:{id:o.ID,title:e({key:"miShowAllCommands",comment:["&& denotes a mnemonic"]},"Show All Commands")},order:2}),n.appendMenuItem(i.MenubarViewMenu,{group:"1_open",command:{id:m.ID,title:e({key:"miOpenView",comment:["&& denotes a mnemonic"]},"&&Open View...")},order:2}),n.appendMenuItem(i.MenubarGoMenu,{group:"5_infile_nav",command:{id:"workbench.action.gotoLine",title:e({key:"miGotoLine",comment:["&& denotes a mnemonic"]},"Go to &&Line/Column...")},order:1}),n.appendMenuItem(i.GlobalActivity,{group:"1_command",command:{id:o.ID,title:e("commandPalette","Command Palette...")},order:1}),n.appendMenuItem(i.EditorContext,{group:"z_commands",when:I.editorSimpleInput.toNegated(),command:{id:o.ID,title:e("commandPalette","Command Palette...")},order:1}),c(v),c(o),c(m),c(h);const x="inViewsPicker",P=s.and(f,s.has(x)),r=h.KEYBINDING,w="workbench.action.quickOpenNavigateNextInViewPicker";l.registerCommandAndKeybindingRule({id:w,weight:p.WorkbenchContrib+50,handler:u(w,!0),when:P,primary:r.primary,linux:r.linux,mac:r.mac});const y="workbench.action.quickOpenNavigatePreviousInViewPicker";l.registerCommandAndKeybindingRule({id:y,weight:p.WorkbenchContrib+50,handler:u(y,!1),when:P,primary:r.primary|d.Shift,linux:r.linux,mac:{primary:r.mac.primary|d.Shift}});
+import { KeyMod } from "../../../../base/common/keyCodes.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { localize } from "../../../../nls.js";
+import {
+  MenuId,
+  MenuRegistry,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  KeybindingWeight,
+  KeybindingsRegistry
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { HelpQuickAccessProvider } from "../../../../platform/quickinput/browser/helpQuickAccess.js";
+import {
+  Extensions
+} from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  getQuickNavigateHandler,
+  inQuickPickContext
+} from "../../../browser/quickaccess.js";
+import {
+  ClearCommandHistoryAction,
+  CommandsQuickAccessProvider,
+  ShowAllCommandsAction
+} from "./commandsQuickAccess.js";
+import {
+  OpenViewPickerAction,
+  QuickAccessViewPickerAction,
+  ViewQuickAccessProvider
+} from "./viewQuickAccess.js";
+const quickAccessRegistry = Registry.as(
+  Extensions.Quickaccess
+);
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: HelpQuickAccessProvider,
+  prefix: HelpQuickAccessProvider.PREFIX,
+  placeholder: localize(
+    "helpQuickAccessPlaceholder",
+    "Type '{0}' to get help on the actions you can take from here.",
+    HelpQuickAccessProvider.PREFIX
+  ),
+  helpEntries: [
+    {
+      description: localize(
+        "helpQuickAccess",
+        "Show all Quick Access Providers"
+      ),
+      commandCenterOrder: 70,
+      commandCenterLabel: localize("more", "More")
+    }
+  ]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: ViewQuickAccessProvider,
+  prefix: ViewQuickAccessProvider.PREFIX,
+  contextKey: "inViewsPicker",
+  placeholder: localize(
+    "viewQuickAccessPlaceholder",
+    "Type the name of a view, output channel or terminal to open."
+  ),
+  helpEntries: [
+    {
+      description: localize("viewQuickAccess", "Open View"),
+      commandId: OpenViewPickerAction.ID
+    }
+  ]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: CommandsQuickAccessProvider,
+  prefix: CommandsQuickAccessProvider.PREFIX,
+  contextKey: "inCommandsPicker",
+  placeholder: localize(
+    "commandsQuickAccessPlaceholder",
+    "Type the name of a command to run."
+  ),
+  helpEntries: [
+    {
+      description: localize(
+        "commandsQuickAccess",
+        "Show and Run Commands"
+      ),
+      commandId: ShowAllCommandsAction.ID,
+      commandCenterOrder: 20
+    }
+  ]
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarViewMenu, {
+  group: "1_open",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize(
+      { key: "miCommandPalette", comment: ["&& denotes a mnemonic"] },
+      "&&Command Palette..."
+    )
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+  group: "1_welcome",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize(
+      { key: "miShowAllCommands", comment: ["&& denotes a mnemonic"] },
+      "Show All Commands"
+    )
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarViewMenu, {
+  group: "1_open",
+  command: {
+    id: OpenViewPickerAction.ID,
+    title: localize(
+      { key: "miOpenView", comment: ["&& denotes a mnemonic"] },
+      "&&Open View..."
+    )
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "5_infile_nav",
+  command: {
+    id: "workbench.action.gotoLine",
+    title: localize(
+      { key: "miGotoLine", comment: ["&& denotes a mnemonic"] },
+      "Go to &&Line/Column..."
+    )
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+  group: "1_command",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize("commandPalette", "Command Palette...")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.EditorContext, {
+  group: "z_commands",
+  when: EditorContextKeys.editorSimpleInput.toNegated(),
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize("commandPalette", "Command Palette...")
+  },
+  order: 1
+});
+registerAction2(ClearCommandHistoryAction);
+registerAction2(ShowAllCommandsAction);
+registerAction2(OpenViewPickerAction);
+registerAction2(QuickAccessViewPickerAction);
+const inViewsPickerContextKey = "inViewsPicker";
+const inViewsPickerContext = ContextKeyExpr.and(
+  inQuickPickContext,
+  ContextKeyExpr.has(inViewsPickerContextKey)
+);
+const viewPickerKeybinding = QuickAccessViewPickerAction.KEYBINDING;
+const quickAccessNavigateNextInViewPickerId = "workbench.action.quickOpenNavigateNextInViewPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigateNextInViewPickerId,
+  weight: KeybindingWeight.WorkbenchContrib + 50,
+  handler: getQuickNavigateHandler(
+    quickAccessNavigateNextInViewPickerId,
+    true
+  ),
+  when: inViewsPickerContext,
+  primary: viewPickerKeybinding.primary,
+  linux: viewPickerKeybinding.linux,
+  mac: viewPickerKeybinding.mac
+});
+const quickAccessNavigatePreviousInViewPickerId = "workbench.action.quickOpenNavigatePreviousInViewPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigatePreviousInViewPickerId,
+  weight: KeybindingWeight.WorkbenchContrib + 50,
+  handler: getQuickNavigateHandler(
+    quickAccessNavigatePreviousInViewPickerId,
+    false
+  ),
+  when: inViewsPickerContext,
+  primary: viewPickerKeybinding.primary | KeyMod.Shift,
+  linux: viewPickerKeybinding.linux,
+  mac: {
+    primary: viewPickerKeybinding.mac.primary | KeyMod.Shift
+  }
+});
+//# sourceMappingURL=quickAccess.contribution.js.map

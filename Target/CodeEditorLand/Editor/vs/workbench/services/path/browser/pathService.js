@@ -1,1 +1,64 @@
-var p=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var a=(t,o,r,e)=>{for(var i=e>1?void 0:e?u(o,r):o,c=t.length-1,s;c>=0;c--)(s=t[c])&&(i=(e?s(o,r,i):s(i))||i);return e&&i&&p(o,r,i),i},m=(t,o)=>(r,e)=>o(r,e,t);import{dirname as I}from"../../../../base/common/resources.js";import{URI as g}from"../../../../base/common/uri.js";import{InstantiationType as k,registerSingleton as h}from"../../../../platform/instantiation/common/extensions.js";import{IWorkspaceContextService as l}from"../../../../platform/workspace/common/workspace.js";import{IWorkbenchEnvironmentService as W}from"../../environment/common/environmentService.js";import{IRemoteAgentService as d}from"../../remote/common/remoteAgentService.js";import{AbstractPathService as f,IPathService as S}from"../common/pathService.js";let n=class extends f{constructor(o,r,e){super(b(r,e),o,r,e)}};n=a([m(0,d),m(1,W),m(2,l)],n);function b(t,o){const r=o.getWorkspace(),e=r.folders.at(0);return e?e.uri:r.configuration?I(r.configuration):g.from({scheme:f.findDefaultUriScheme(t,o),authority:t.remoteAuthority,path:"/"})}h(S,n,k.Delayed);export{n as BrowserPathService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { dirname } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { AbstractPathService, IPathService } from "../common/pathService.js";
+let BrowserPathService = class extends AbstractPathService {
+  static {
+    __name(this, "BrowserPathService");
+  }
+  constructor(remoteAgentService, environmentService, contextService) {
+    super(
+      guessLocalUserHome(environmentService, contextService),
+      remoteAgentService,
+      environmentService,
+      contextService
+    );
+  }
+};
+BrowserPathService = __decorateClass([
+  __decorateParam(0, IRemoteAgentService),
+  __decorateParam(1, IWorkbenchEnvironmentService),
+  __decorateParam(2, IWorkspaceContextService)
+], BrowserPathService);
+function guessLocalUserHome(environmentService, contextService) {
+  const workspace = contextService.getWorkspace();
+  const firstFolder = workspace.folders.at(0);
+  if (firstFolder) {
+    return firstFolder.uri;
+  }
+  if (workspace.configuration) {
+    return dirname(workspace.configuration);
+  }
+  return URI.from({
+    scheme: AbstractPathService.findDefaultUriScheme(
+      environmentService,
+      contextService
+    ),
+    authority: environmentService.remoteAuthority,
+    path: "/"
+  });
+}
+__name(guessLocalUserHome, "guessLocalUserHome");
+registerSingleton(IPathService, BrowserPathService, InstantiationType.Delayed);
+export {
+  BrowserPathService
+};
+//# sourceMappingURL=pathService.js.map

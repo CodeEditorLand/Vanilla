@@ -1,3 +1,272 @@
-import{assert as x,assertFn as R,checkAdjacentItems as P}from"../../../base/common/assert.js";import{BugIndicatingError as E}from"../../../base/common/errors.js";import{Position as u}from"./position.js";import{PositionOffsetTransformer as N}from"./positionToOffset.js";import{Range as b}from"./range.js";import{TextLength as d}from"./textLength.js";class m{constructor(t){this.edits=t;R(()=>P(t,(e,n)=>e.range.getEndPosition().isBeforeOrEqual(n.range.getStartPosition())))}static single(t,e){return new m([new f(t,e)])}normalize(){const t=[];for(const e of this.edits)if(t.length>0&&t[t.length-1].range.getEndPosition().equals(e.range.getStartPosition())){const n=t[t.length-1];t[t.length-1]=new f(n.range.plusRange(e.range),n.text+e.text)}else e.isEmpty||t.push(e);return new m(t)}mapPosition(t){let e=0,n=0,i=0;for(const s of this.edits){const r=s.range.getStartPosition(),g=s.range.getEndPosition();if(t.isBeforeOrEqual(r))break;const o=d.ofText(s.text);if(t.isBefore(g)){const l=new u(r.lineNumber+e,r.column+(r.lineNumber+e===n?i:0)),p=o.addToPosition(l);return c(l,p)}e+=o.lineCount-(s.range.endLineNumber-s.range.startLineNumber),o.lineCount===0?g.lineNumber!==r.lineNumber?i+=o.columnCount-(g.column-1):i+=o.columnCount-(g.column-r.column):i=o.columnCount,n=g.lineNumber+e}return new u(t.lineNumber+e,t.column+(t.lineNumber+e===n?i:0))}mapRange(t){function e(r){return r instanceof u?r:r.getStartPosition()}function n(r){return r instanceof u?r:r.getEndPosition()}const i=e(this.mapPosition(t.getStartPosition())),s=n(this.mapPosition(t.getEndPosition()));return c(i,s)}inverseMapPosition(t,e){return this.inverse(e).mapPosition(t)}inverseMapRange(t,e){return this.inverse(e).mapRange(t)}apply(t){let e="",n=new u(1,1);for(const s of this.edits){const r=s.range,g=r.getStartPosition(),o=r.getEndPosition(),l=c(n,g);l.isEmpty()||(e+=t.getValueOfRange(l)),e+=s.text,n=o}const i=c(n,t.endPositionExclusive);return i.isEmpty()||(e+=t.getValueOfRange(i)),e}applyToString(t){const e=new T(t);return this.apply(e)}inverse(t){const e=this.getNewRanges();return new m(this.edits.map((n,i)=>new f(e[i],t.getValueOfRange(n.range))))}getNewRanges(){const t=[];let e=0,n=0,i=0;for(const s of this.edits){const r=d.ofText(s.text),g=u.lift({lineNumber:s.range.startLineNumber+n,column:s.range.startColumn+(s.range.startLineNumber===e?i:0)}),o=r.createRange(g);t.push(o),n=o.endLineNumber-s.range.endLineNumber,i=o.endColumn-s.range.endColumn,e=s.range.endLineNumber}return t}}class f{constructor(t,e){this.range=t;this.text=e}get isEmpty(){return this.range.isEmpty()&&this.text.length===0}static equals(t,e){return t.range.equalsRange(e.range)&&t.text===e.text}toSingleEditOperation(){return{range:this.range,text:this.text}}}function c(a,t){if(a.lineNumber===t.lineNumber&&a.column===Number.MAX_SAFE_INTEGER)return b.fromPositions(t,t);if(!a.isBeforeOrEqual(t))throw new E("start must be before end");return new b(a.lineNumber,a.column,t.lineNumber,t.column)}class h{get endPositionExclusive(){return this.length.addToPosition(new u(1,1))}getValue(){return this.getValueOfRange(this.length.toRange())}}class L extends h{constructor(e,n){x(n>=1);super();this._getLineContent=e;this._lineCount=n}getValueOfRange(e){if(e.startLineNumber===e.endLineNumber)return this._getLineContent(e.startLineNumber).substring(e.startColumn-1,e.endColumn-1);let n=this._getLineContent(e.startLineNumber).substring(e.startColumn-1);for(let i=e.startLineNumber+1;i<e.endLineNumber;i++)n+=`
-`+this._getLineContent(i);return n+=`
-`+this._getLineContent(e.endLineNumber).substring(0,e.endColumn-1),n}get length(){const e=this._getLineContent(this._lineCount);return new d(this._lineCount-1,e.length)}}class _ extends L{constructor(t){super(e=>t[e-1],t.length)}}class T extends h{constructor(e){super();this.value=e}_t=new N(this.value);getValueOfRange(e){return this._t.getOffsetRange(e).substring(this.value)}get length(){return this._t.textLength}}export{h as AbstractText,_ as ArrayText,L as LineBasedText,f as SingleTextEdit,T as StringText,m as TextEdit};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  assert,
+  assertFn,
+  checkAdjacentItems
+} from "../../../base/common/assert.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { Position } from "./position.js";
+import { PositionOffsetTransformer } from "./positionToOffset.js";
+import { Range } from "./range.js";
+import { TextLength } from "./textLength.js";
+class TextEdit {
+  constructor(edits) {
+    this.edits = edits;
+    assertFn(
+      () => checkAdjacentItems(
+        edits,
+        (a, b) => a.range.getEndPosition().isBeforeOrEqual(b.range.getStartPosition())
+      )
+    );
+  }
+  static {
+    __name(this, "TextEdit");
+  }
+  static single(originalRange, newText) {
+    return new TextEdit([new SingleTextEdit(originalRange, newText)]);
+  }
+  /**
+   * Joins touching edits and removes empty edits.
+   */
+  normalize() {
+    const edits = [];
+    for (const edit of this.edits) {
+      if (edits.length > 0 && edits[edits.length - 1].range.getEndPosition().equals(edit.range.getStartPosition())) {
+        const last = edits[edits.length - 1];
+        edits[edits.length - 1] = new SingleTextEdit(
+          last.range.plusRange(edit.range),
+          last.text + edit.text
+        );
+      } else if (!edit.isEmpty) {
+        edits.push(edit);
+      }
+    }
+    return new TextEdit(edits);
+  }
+  mapPosition(position) {
+    let lineDelta = 0;
+    let curLine = 0;
+    let columnDeltaInCurLine = 0;
+    for (const edit of this.edits) {
+      const start = edit.range.getStartPosition();
+      const end = edit.range.getEndPosition();
+      if (position.isBeforeOrEqual(start)) {
+        break;
+      }
+      const len = TextLength.ofText(edit.text);
+      if (position.isBefore(end)) {
+        const startPos = new Position(
+          start.lineNumber + lineDelta,
+          start.column + (start.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0)
+        );
+        const endPos = len.addToPosition(startPos);
+        return rangeFromPositions(startPos, endPos);
+      }
+      lineDelta += len.lineCount - (edit.range.endLineNumber - edit.range.startLineNumber);
+      if (len.lineCount === 0) {
+        if (end.lineNumber !== start.lineNumber) {
+          columnDeltaInCurLine += len.columnCount - (end.column - 1);
+        } else {
+          columnDeltaInCurLine += len.columnCount - (end.column - start.column);
+        }
+      } else {
+        columnDeltaInCurLine = len.columnCount;
+      }
+      curLine = end.lineNumber + lineDelta;
+    }
+    return new Position(
+      position.lineNumber + lineDelta,
+      position.column + (position.lineNumber + lineDelta === curLine ? columnDeltaInCurLine : 0)
+    );
+  }
+  mapRange(range) {
+    function getStart(p) {
+      return p instanceof Position ? p : p.getStartPosition();
+    }
+    __name(getStart, "getStart");
+    function getEnd(p) {
+      return p instanceof Position ? p : p.getEndPosition();
+    }
+    __name(getEnd, "getEnd");
+    const start = getStart(this.mapPosition(range.getStartPosition()));
+    const end = getEnd(this.mapPosition(range.getEndPosition()));
+    return rangeFromPositions(start, end);
+  }
+  // TODO: `doc` is not needed for this!
+  inverseMapPosition(positionAfterEdit, doc) {
+    const reversed = this.inverse(doc);
+    return reversed.mapPosition(positionAfterEdit);
+  }
+  inverseMapRange(range, doc) {
+    const reversed = this.inverse(doc);
+    return reversed.mapRange(range);
+  }
+  apply(text) {
+    let result = "";
+    let lastEditEnd = new Position(1, 1);
+    for (const edit of this.edits) {
+      const editRange = edit.range;
+      const editStart = editRange.getStartPosition();
+      const editEnd = editRange.getEndPosition();
+      const r2 = rangeFromPositions(lastEditEnd, editStart);
+      if (!r2.isEmpty()) {
+        result += text.getValueOfRange(r2);
+      }
+      result += edit.text;
+      lastEditEnd = editEnd;
+    }
+    const r = rangeFromPositions(lastEditEnd, text.endPositionExclusive);
+    if (!r.isEmpty()) {
+      result += text.getValueOfRange(r);
+    }
+    return result;
+  }
+  applyToString(str) {
+    const strText = new StringText(str);
+    return this.apply(strText);
+  }
+  inverse(doc) {
+    const ranges = this.getNewRanges();
+    return new TextEdit(
+      this.edits.map(
+        (e, idx) => new SingleTextEdit(
+          ranges[idx],
+          doc.getValueOfRange(e.range)
+        )
+      )
+    );
+  }
+  getNewRanges() {
+    const newRanges = [];
+    let previousEditEndLineNumber = 0;
+    let lineOffset = 0;
+    let columnOffset = 0;
+    for (const edit of this.edits) {
+      const textLength = TextLength.ofText(edit.text);
+      const newRangeStart = Position.lift({
+        lineNumber: edit.range.startLineNumber + lineOffset,
+        column: edit.range.startColumn + (edit.range.startLineNumber === previousEditEndLineNumber ? columnOffset : 0)
+      });
+      const newRange = textLength.createRange(newRangeStart);
+      newRanges.push(newRange);
+      lineOffset = newRange.endLineNumber - edit.range.endLineNumber;
+      columnOffset = newRange.endColumn - edit.range.endColumn;
+      previousEditEndLineNumber = edit.range.endLineNumber;
+    }
+    return newRanges;
+  }
+}
+class SingleTextEdit {
+  constructor(range, text) {
+    this.range = range;
+    this.text = text;
+  }
+  static {
+    __name(this, "SingleTextEdit");
+  }
+  get isEmpty() {
+    return this.range.isEmpty() && this.text.length === 0;
+  }
+  static equals(first, second) {
+    return first.range.equalsRange(second.range) && first.text === second.text;
+  }
+  toSingleEditOperation() {
+    return {
+      range: this.range,
+      text: this.text
+    };
+  }
+}
+function rangeFromPositions(start, end) {
+  if (start.lineNumber === end.lineNumber && start.column === Number.MAX_SAFE_INTEGER) {
+    return Range.fromPositions(end, end);
+  } else if (!start.isBeforeOrEqual(end)) {
+    throw new BugIndicatingError("start must be before end");
+  }
+  return new Range(
+    start.lineNumber,
+    start.column,
+    end.lineNumber,
+    end.column
+  );
+}
+__name(rangeFromPositions, "rangeFromPositions");
+class AbstractText {
+  static {
+    __name(this, "AbstractText");
+  }
+  get endPositionExclusive() {
+    return this.length.addToPosition(new Position(1, 1));
+  }
+  getValue() {
+    return this.getValueOfRange(this.length.toRange());
+  }
+}
+class LineBasedText extends AbstractText {
+  constructor(_getLineContent, _lineCount) {
+    assert(_lineCount >= 1);
+    super();
+    this._getLineContent = _getLineContent;
+    this._lineCount = _lineCount;
+  }
+  static {
+    __name(this, "LineBasedText");
+  }
+  getValueOfRange(range) {
+    if (range.startLineNumber === range.endLineNumber) {
+      return this._getLineContent(range.startLineNumber).substring(
+        range.startColumn - 1,
+        range.endColumn - 1
+      );
+    }
+    let result = this._getLineContent(range.startLineNumber).substring(
+      range.startColumn - 1
+    );
+    for (let i = range.startLineNumber + 1; i < range.endLineNumber; i++) {
+      result += "\n" + this._getLineContent(i);
+    }
+    result += "\n" + this._getLineContent(range.endLineNumber).substring(
+      0,
+      range.endColumn - 1
+    );
+    return result;
+  }
+  get length() {
+    const lastLine = this._getLineContent(this._lineCount);
+    return new TextLength(this._lineCount - 1, lastLine.length);
+  }
+}
+class ArrayText extends LineBasedText {
+  static {
+    __name(this, "ArrayText");
+  }
+  constructor(lines) {
+    super((lineNumber) => lines[lineNumber - 1], lines.length);
+  }
+}
+class StringText extends AbstractText {
+  constructor(value) {
+    super();
+    this.value = value;
+  }
+  static {
+    __name(this, "StringText");
+  }
+  _t = new PositionOffsetTransformer(this.value);
+  getValueOfRange(range) {
+    return this._t.getOffsetRange(range).substring(this.value);
+  }
+  get length() {
+    return this._t.textLength;
+  }
+}
+export {
+  AbstractText,
+  ArrayText,
+  LineBasedText,
+  SingleTextEdit,
+  StringText,
+  TextEdit
+};
+//# sourceMappingURL=textEdit.js.map

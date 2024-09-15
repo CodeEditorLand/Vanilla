@@ -1,1 +1,220 @@
-import{delta as f}from"../../../../base/common/arrays.js";import{Emitter as d}from"../../../../base/common/event.js";import{compare as p}from"../../../../base/common/strings.js";import{ExtensionManagementChannelClient as m}from"../../../../platform/extensionManagement/common/extensionManagementIpc.js";import{ExtensionIdentifier as a,ExtensionType as c}from"../../../../platform/extensions/common/extensions.js";class y extends m{constructor(t,e,i){super(t);this.userDataProfileService=e;this.uriIdentityService=i;this._register(e.onDidChangeCurrentProfile(o=>{this.uriIdentityService.extUri.isEqual(o.previous.extensionsResource,o.profile.extensionsResource)||o.join(this.whenProfileChanged(o))}))}_onDidChangeProfile=this._register(new d);onDidChangeProfile=this._onDidChangeProfile.event;async fireEvent(t,e){if(Array.isArray(e)){const i=t,o=e,r=[];for(const n of o){const s=this.filterEvent(n.profileLocation,n.applicationScoped??n.local?.isApplicationScoped??!1);(s instanceof Promise?await s:s)&&r.push(n)}r.length&&i.fire(r)}else{const i=t,o=e,r=this.filterEvent(o.profileLocation,o.applicationScoped??o.local?.isApplicationScoped??!1);(r instanceof Promise?await r:r)&&i.fire(o)}}async install(t,e){return e={...e,profileLocation:await this.getProfileLocation(e?.profileLocation)},super.install(t,e)}async installFromLocation(t,e){return super.installFromLocation(t,await this.getProfileLocation(e))}async installFromGallery(t,e){return e={...e,profileLocation:await this.getProfileLocation(e?.profileLocation)},super.installFromGallery(t,e)}async installGalleryExtensions(t){const e=[];for(const i of t)e.push({...i,options:{...i.options,profileLocation:await this.getProfileLocation(i.options?.profileLocation)}});return super.installGalleryExtensions(e)}async uninstall(t,e){return e={...e,profileLocation:await this.getProfileLocation(e?.profileLocation)},super.uninstall(t,e)}async uninstallExtensions(t){const e=[];for(const{extension:i,options:o}of t)e.push({extension:i,options:{...o,profileLocation:await this.getProfileLocation(o?.profileLocation)}});return super.uninstallExtensions(e)}async getInstalled(t=null,e,i){return super.getInstalled(t,await this.getProfileLocation(e),i)}async updateMetadata(t,e,i){return super.updateMetadata(t,e,await this.getProfileLocation(i))}async toggleAppliationScope(t,e){return super.toggleAppliationScope(t,await this.getProfileLocation(e))}async copyExtensions(t,e){return super.copyExtensions(await this.getProfileLocation(t),await this.getProfileLocation(e))}async whenProfileChanged(t){const e=await this.getProfileLocation(t.previous.extensionsResource),i=await this.getProfileLocation(t.profile.extensionsResource);if(this.uriIdentityService.extUri.isEqual(e,i))return;const o=await this.switchExtensionsProfile(e,i);this._onDidChangeProfile.fire(o)}async switchExtensionsProfile(t,e,i){const o=await this.getInstalled(c.User,t),r=await this.getInstalled(c.User,e);if(i?.length){const n=[];for(const s of o)i.some(l=>a.equals(s.identifier.id,l))&&!r.some(l=>a.equals(l.identifier.id,s.identifier.id))&&n.push(s.identifier);n.length&&await this.installExtensionsFromProfile(n,t,e)}return f(o,r,(n,s)=>p(`${a.toKey(n.identifier.id)}@${n.manifest.version}`,`${a.toKey(s.identifier.id)}@${s.manifest.version}`))}async getProfileLocation(t){return t??this.userDataProfileService.currentProfile.extensionsResource}}export{y as ProfileAwareExtensionManagementChannelClient};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { delta } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { compare } from "../../../../base/common/strings.js";
+import {
+  ExtensionManagementChannelClient as BaseExtensionManagementChannelClient
+} from "../../../../platform/extensionManagement/common/extensionManagementIpc.js";
+import {
+  ExtensionIdentifier,
+  ExtensionType
+} from "../../../../platform/extensions/common/extensions.js";
+class ProfileAwareExtensionManagementChannelClient extends BaseExtensionManagementChannelClient {
+  constructor(channel, userDataProfileService, uriIdentityService) {
+    super(channel);
+    this.userDataProfileService = userDataProfileService;
+    this.uriIdentityService = uriIdentityService;
+    this._register(
+      userDataProfileService.onDidChangeCurrentProfile((e) => {
+        if (!this.uriIdentityService.extUri.isEqual(
+          e.previous.extensionsResource,
+          e.profile.extensionsResource
+        )) {
+          e.join(this.whenProfileChanged(e));
+        }
+      })
+    );
+  }
+  static {
+    __name(this, "ProfileAwareExtensionManagementChannelClient");
+  }
+  _onDidChangeProfile = this._register(
+    new Emitter()
+  );
+  onDidChangeProfile = this._onDidChangeProfile.event;
+  async fireEvent(arg0, arg1) {
+    if (Array.isArray(arg1)) {
+      const event = arg0;
+      const data = arg1;
+      const filtered = [];
+      for (const e of data) {
+        const result = this.filterEvent(
+          e.profileLocation,
+          e.applicationScoped ?? e.local?.isApplicationScoped ?? false
+        );
+        if (result instanceof Promise ? await result : result) {
+          filtered.push(e);
+        }
+      }
+      if (filtered.length) {
+        event.fire(filtered);
+      }
+    } else {
+      const event = arg0;
+      const data = arg1;
+      const result = this.filterEvent(
+        data.profileLocation,
+        data.applicationScoped ?? data.local?.isApplicationScoped ?? false
+      );
+      if (result instanceof Promise ? await result : result) {
+        event.fire(data);
+      }
+    }
+  }
+  async install(vsix, installOptions) {
+    installOptions = {
+      ...installOptions,
+      profileLocation: await this.getProfileLocation(
+        installOptions?.profileLocation
+      )
+    };
+    return super.install(vsix, installOptions);
+  }
+  async installFromLocation(location, profileLocation) {
+    return super.installFromLocation(
+      location,
+      await this.getProfileLocation(profileLocation)
+    );
+  }
+  async installFromGallery(extension, installOptions) {
+    installOptions = {
+      ...installOptions,
+      profileLocation: await this.getProfileLocation(
+        installOptions?.profileLocation
+      )
+    };
+    return super.installFromGallery(extension, installOptions);
+  }
+  async installGalleryExtensions(extensions) {
+    const infos = [];
+    for (const extension of extensions) {
+      infos.push({
+        ...extension,
+        options: {
+          ...extension.options,
+          profileLocation: await this.getProfileLocation(
+            extension.options?.profileLocation
+          )
+        }
+      });
+    }
+    return super.installGalleryExtensions(infos);
+  }
+  async uninstall(extension, options) {
+    options = {
+      ...options,
+      profileLocation: await this.getProfileLocation(
+        options?.profileLocation
+      )
+    };
+    return super.uninstall(extension, options);
+  }
+  async uninstallExtensions(extensions) {
+    const infos = [];
+    for (const { extension, options } of extensions) {
+      infos.push({
+        extension,
+        options: {
+          ...options,
+          profileLocation: await this.getProfileLocation(
+            options?.profileLocation
+          )
+        }
+      });
+    }
+    return super.uninstallExtensions(infos);
+  }
+  async getInstalled(type = null, extensionsProfileResource, productVersion) {
+    return super.getInstalled(
+      type,
+      await this.getProfileLocation(extensionsProfileResource),
+      productVersion
+    );
+  }
+  async updateMetadata(local, metadata, extensionsProfileResource) {
+    return super.updateMetadata(
+      local,
+      metadata,
+      await this.getProfileLocation(extensionsProfileResource)
+    );
+  }
+  async toggleAppliationScope(local, fromProfileLocation) {
+    return super.toggleAppliationScope(
+      local,
+      await this.getProfileLocation(fromProfileLocation)
+    );
+  }
+  async copyExtensions(fromProfileLocation, toProfileLocation) {
+    return super.copyExtensions(
+      await this.getProfileLocation(fromProfileLocation),
+      await this.getProfileLocation(toProfileLocation)
+    );
+  }
+  async whenProfileChanged(e) {
+    const previousProfileLocation = await this.getProfileLocation(
+      e.previous.extensionsResource
+    );
+    const currentProfileLocation = await this.getProfileLocation(
+      e.profile.extensionsResource
+    );
+    if (this.uriIdentityService.extUri.isEqual(
+      previousProfileLocation,
+      currentProfileLocation
+    )) {
+      return;
+    }
+    const eventData = await this.switchExtensionsProfile(
+      previousProfileLocation,
+      currentProfileLocation
+    );
+    this._onDidChangeProfile.fire(eventData);
+  }
+  async switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions) {
+    const oldExtensions = await this.getInstalled(
+      ExtensionType.User,
+      previousProfileLocation
+    );
+    const newExtensions = await this.getInstalled(
+      ExtensionType.User,
+      currentProfileLocation
+    );
+    if (preserveExtensions?.length) {
+      const extensionsToInstall = [];
+      for (const extension of oldExtensions) {
+        if (preserveExtensions.some(
+          (id) => ExtensionIdentifier.equals(extension.identifier.id, id)
+        ) && !newExtensions.some(
+          (e) => ExtensionIdentifier.equals(
+            e.identifier.id,
+            extension.identifier.id
+          )
+        )) {
+          extensionsToInstall.push(extension.identifier);
+        }
+      }
+      if (extensionsToInstall.length) {
+        await this.installExtensionsFromProfile(
+          extensionsToInstall,
+          previousProfileLocation,
+          currentProfileLocation
+        );
+      }
+    }
+    return delta(
+      oldExtensions,
+      newExtensions,
+      (a, b) => compare(
+        `${ExtensionIdentifier.toKey(a.identifier.id)}@${a.manifest.version}`,
+        `${ExtensionIdentifier.toKey(b.identifier.id)}@${b.manifest.version}`
+      )
+    );
+  }
+  async getProfileLocation(profileLocation) {
+    return profileLocation ?? this.userDataProfileService.currentProfile.extensionsResource;
+  }
+}
+export {
+  ProfileAwareExtensionManagementChannelClient
+};
+//# sourceMappingURL=extensionManagementChannelClient.js.map

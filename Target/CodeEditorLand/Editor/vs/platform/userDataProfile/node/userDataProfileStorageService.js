@@ -1,1 +1,41 @@
-var f=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var v=(m,e,i,o)=>{for(var r=o>1?void 0:o?s(e,i):e,I=m.length-1,p;I>=0;I--)(p=m[I])&&(r=(o?p(e,i,r):p(r))||r);return o&&r&&f(e,i,r),r},t=(m,e)=>(i,o)=>e(i,o,m);import{IMainProcessService as n}from"../../ipc/common/mainProcessService.js";import{ILogService as u}from"../../log/common/log.js";import{IStorageService as S}from"../../storage/common/storage.js";import{IUserDataProfilesService as g}from"../common/userDataProfile.js";import{RemoteUserDataProfileStorageService as x}from"../common/userDataProfileStorageService.js";let c=class extends x{constructor(e,i,o,r){super(!0,e,i,o,r)}};c=v([t(0,n),t(1,g),t(2,S),t(3,u)],c);export{c as SharedProcessUserDataProfileStorageService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import { RemoteUserDataProfileStorageService } from "../common/userDataProfileStorageService.js";
+let SharedProcessUserDataProfileStorageService = class extends RemoteUserDataProfileStorageService {
+  static {
+    __name(this, "SharedProcessUserDataProfileStorageService");
+  }
+  constructor(mainProcessService, userDataProfilesService, storageService, logService) {
+    super(
+      true,
+      mainProcessService,
+      userDataProfilesService,
+      storageService,
+      logService
+    );
+  }
+};
+SharedProcessUserDataProfileStorageService = __decorateClass([
+  __decorateParam(0, IMainProcessService),
+  __decorateParam(1, IUserDataProfilesService),
+  __decorateParam(2, IStorageService),
+  __decorateParam(3, ILogService)
+], SharedProcessUserDataProfileStorageService);
+export {
+  SharedProcessUserDataProfileStorageService
+};
+//# sourceMappingURL=userDataProfileStorageService.js.map

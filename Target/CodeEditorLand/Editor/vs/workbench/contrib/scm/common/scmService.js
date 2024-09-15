@@ -1,1 +1,422 @@
-var M=Object.defineProperty;var H=Object.getOwnPropertyDescriptor;var u=(a,i,e,t)=>{for(var r=t>1?void 0:t?H(i,e):i,o=a.length-1,s;o>=0;o--)(s=a[o])&&(r=(t?s(i,e,r):s(r))||r);return t&&r&&M(i,e,r),r},l=(a,i)=>(e,t)=>i(e,t,a);import{Emitter as n}from"../../../../base/common/event.js";import{HistoryNavigator2 as C}from"../../../../base/common/history.js";import{Iterable as I}from"../../../../base/common/iterator.js";import{Disposable as R,DisposableStore as w,toDisposable as P}from"../../../../base/common/lifecycle.js";import{ResourceMap as S}from"../../../../base/common/map.js";import{Schemas as f}from"../../../../base/common/network.js";import{URI as V}from"../../../../base/common/uri.js";import{IContextKeyService as N}from"../../../../platform/contextkey/common/contextkey.js";import{ILogService as E}from"../../../../platform/log/common/log.js";import{IStorageService as m,StorageScope as d,StorageTarget as _}from"../../../../platform/storage/common/storage.js";import{IUriIdentityService as A}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IWorkspaceContextService as b}from"../../../../platform/workspace/common/workspace.js";import{SCMInputChangeReason as D}from"./scm.js";class x extends R{constructor(e,t){super();this.repository=e;this.history=t;this.repository.provider.rootUri?(this.historyNavigator=t.getHistory(this.repository.provider.label,this.repository.provider.rootUri),this._register(this.history.onWillSaveHistory(r=>{this.historyNavigator.isAtEnd()&&this.saveValue(),this.didChangeHistory&&r.historyDidIndeedChange(),this.didChangeHistory=!1}))):this.historyNavigator=new C([""],100),this._value=this.historyNavigator.current()}_value="";get value(){return this._value}_onDidChange=new n;onDidChange=this._onDidChange.event;_placeholder="";get placeholder(){return this._placeholder}set placeholder(e){this._placeholder=e,this._onDidChangePlaceholder.fire(e)}_onDidChangePlaceholder=new n;onDidChangePlaceholder=this._onDidChangePlaceholder.event;_enabled=!0;get enabled(){return this._enabled}set enabled(e){this._enabled=e,this._onDidChangeEnablement.fire(e)}_onDidChangeEnablement=new n;onDidChangeEnablement=this._onDidChangeEnablement.event;_visible=!0;get visible(){return this._visible}set visible(e){this._visible=e,this._onDidChangeVisibility.fire(e)}_onDidChangeVisibility=new n;onDidChangeVisibility=this._onDidChangeVisibility.event;setFocus(){this._onDidChangeFocus.fire()}_onDidChangeFocus=new n;onDidChangeFocus=this._onDidChangeFocus.event;showValidationMessage(e,t){this._onDidChangeValidationMessage.fire({message:e,type:t})}_onDidChangeValidationMessage=new n;onDidChangeValidationMessage=this._onDidChangeValidationMessage.event;_validateInput=()=>Promise.resolve(void 0);get validateInput(){return this._validateInput}set validateInput(e){this._validateInput=e,this._onDidChangeValidateInput.fire()}_onDidChangeValidateInput=new n;onDidChangeValidateInput=this._onDidChangeValidateInput.event;historyNavigator;didChangeHistory=!1;setValue(e,t,r){e!==this._value&&(t||(this.historyNavigator.replaceLast(this._value),this.historyNavigator.add(e),this.didChangeHistory=!0),this._value=e,this._onDidChange.fire({value:e,reason:r}))}showNextHistoryValue(){if(this.historyNavigator.isAtEnd())return;this.historyNavigator.has(this.value)||(this.saveValue(),this.historyNavigator.resetCursor());const e=this.historyNavigator.next();this.setValue(e,!0,D.HistoryNext)}showPreviousHistoryValue(){this.historyNavigator.isAtEnd()?this.saveValue():this.historyNavigator.has(this._value)||(this.saveValue(),this.historyNavigator.resetCursor());const e=this.historyNavigator.previous();this.setValue(e,!0,D.HistoryPrevious)}saveValue(){const e=this.historyNavigator.replaceLast(this._value);this.didChangeHistory=this.didChangeHistory||e!==this._value}}class W{constructor(i,e,t,r){this.id=i;this.provider=e;this.disposable=t;this.input=new x(this,r)}_selected=!1;get selected(){return this._selected}_onDidChangeSelection=new n;onDidChangeSelection=this._onDidChangeSelection.event;input;setSelected(i){this._selected!==i&&(this._selected=i,this._onDidChangeSelection.fire(i))}dispose(){this.disposable.dispose(),this.provider.dispose()}}class U{_didChangeHistory=!1;get didChangeHistory(){return this._didChangeHistory}historyDidIndeedChange(){this._didChangeHistory=!0}}let p=class{constructor(i,e){this.storageService=i;this.workspaceContextService=e;this.histories=new Map;const t=this.storageService.getObject("scm.history",d.WORKSPACE,[]);for(const[r,o,s]of t){let h=this.histories.get(r);h||(h=new S,this.histories.set(r,h)),h.set(o,new C(s,100))}this.migrateStorage()&&this.saveToStorage(),this.disposables.add(this.storageService.onDidChangeValue(d.WORKSPACE,"scm.history",this.disposables)(r=>{if(r.external&&r.key==="scm.history"){const o=this.storageService.getObject("scm.history",d.WORKSPACE,[]);for(const[s,h,v]of o){const g=this.getHistory(s,h);for(const c of I.reverse(v))g.prepend(c)}}})),this.disposables.add(this.storageService.onWillSaveState(r=>{const o=new U;this._onWillSaveHistory.fire(o),o.didChangeHistory&&this.saveToStorage()}))}disposables=new w;histories=new Map;_onWillSaveHistory=this.disposables.add(new n);onWillSaveHistory=this._onWillSaveHistory.event;saveToStorage(){const i=[];for(const[e,t]of this.histories)for(const[r,o]of t)o.size===1&&o.current()===""||i.push([e,r,[...o]]);this.storageService.store("scm.history",i,d.WORKSPACE,_.USER)}getHistory(i,e){let t=this.histories.get(i);t||(t=new S,this.histories.set(i,t));let r=t.get(e);return r||(r=new C([""],100),t.set(e,r)),r}migrateStorage(){let i=!1;const e=I.filter(this.storageService.keys(d.APPLICATION,_.MACHINE),t=>t.startsWith("scm/input:"));for(const t of e)try{const r=JSON.parse(this.storageService.get(t,d.APPLICATION,"")),o=/^scm\/input:([^:]+):(.+)$/.exec(t);if(!o||!Array.isArray(r?.history)||!Number.isInteger(r?.timestamp)){this.storageService.remove(t,d.APPLICATION);continue}const[,s,h]=o,v=V.file(h);if(this.workspaceContextService.getWorkspaceFolder(v)){const g=this.getHistory(s,v);for(const c of I.reverse(r.history))g.prepend(c);i=!0,this.storageService.remove(t,d.APPLICATION)}}catch{this.storageService.remove(t,d.APPLICATION)}return i}dispose(){this.disposables.dispose()}};p=u([l(0,m),l(1,b)],p);let y=class{constructor(i,e,t,r,o){this.logService=i;this.uriIdentityService=o;this.inputHistory=new p(r,e),this.providerCount=t.createKey("scm.providerCount",0)}_repositories=new Map;get repositories(){return this._repositories.values()}get repositoryCount(){return this._repositories.size}inputHistory;providerCount;_onDidAddProvider=new n;onDidAddRepository=this._onDidAddProvider.event;_onDidRemoveProvider=new n;onDidRemoveRepository=this._onDidRemoveProvider.event;registerSCMProvider(i){if(this.logService.trace("SCMService#registerSCMProvider"),this._repositories.has(i.id))throw new Error(`SCM Provider ${i.id} already exists.`);const e=P(()=>{this._repositories.delete(i.id),this._onDidRemoveProvider.fire(t),this.providerCount.set(this._repositories.size)}),t=new W(i.id,i,e,this.inputHistory);return this._repositories.set(i.id,t),this._onDidAddProvider.fire(t),this.providerCount.set(this._repositories.size),t}getRepository(i){if(typeof i=="string")return this._repositories.get(i);if(i.scheme!==f.file&&i.scheme!==f.vscodeRemote)return;let e,t=Number.POSITIVE_INFINITY;for(const r of this.repositories){const o=r.provider.rootUri;if(!o)continue;const s=this.uriIdentityService.extUri.relativePath(o,i);s&&!/^\.\./.test(s)&&s.length<t&&(e=r,t=s.length)}return e}};y=u([l(0,E),l(1,b),l(2,N),l(3,m),l(4,A)],y);export{y as SCMService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import { HistoryNavigator2 } from "../../../../base/common/history.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import {
+  SCMInputChangeReason
+} from "./scm.js";
+class SCMInput extends Disposable {
+  constructor(repository, history) {
+    super();
+    this.repository = repository;
+    this.history = history;
+    if (this.repository.provider.rootUri) {
+      this.historyNavigator = history.getHistory(
+        this.repository.provider.label,
+        this.repository.provider.rootUri
+      );
+      this._register(
+        this.history.onWillSaveHistory((event) => {
+          if (this.historyNavigator.isAtEnd()) {
+            this.saveValue();
+          }
+          if (this.didChangeHistory) {
+            event.historyDidIndeedChange();
+          }
+          this.didChangeHistory = false;
+        })
+      );
+    } else {
+      this.historyNavigator = new HistoryNavigator2([""], 100);
+    }
+    this._value = this.historyNavigator.current();
+  }
+  static {
+    __name(this, "SCMInput");
+  }
+  _value = "";
+  get value() {
+    return this._value;
+  }
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  _placeholder = "";
+  get placeholder() {
+    return this._placeholder;
+  }
+  set placeholder(placeholder) {
+    this._placeholder = placeholder;
+    this._onDidChangePlaceholder.fire(placeholder);
+  }
+  _onDidChangePlaceholder = new Emitter();
+  onDidChangePlaceholder = this._onDidChangePlaceholder.event;
+  _enabled = true;
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(enabled) {
+    this._enabled = enabled;
+    this._onDidChangeEnablement.fire(enabled);
+  }
+  _onDidChangeEnablement = new Emitter();
+  onDidChangeEnablement = this._onDidChangeEnablement.event;
+  _visible = true;
+  get visible() {
+    return this._visible;
+  }
+  set visible(visible) {
+    this._visible = visible;
+    this._onDidChangeVisibility.fire(visible);
+  }
+  _onDidChangeVisibility = new Emitter();
+  onDidChangeVisibility = this._onDidChangeVisibility.event;
+  setFocus() {
+    this._onDidChangeFocus.fire();
+  }
+  _onDidChangeFocus = new Emitter();
+  onDidChangeFocus = this._onDidChangeFocus.event;
+  showValidationMessage(message, type) {
+    this._onDidChangeValidationMessage.fire({
+      message,
+      type
+    });
+  }
+  _onDidChangeValidationMessage = new Emitter();
+  onDidChangeValidationMessage = this._onDidChangeValidationMessage.event;
+  _validateInput = /* @__PURE__ */ __name(() => Promise.resolve(void 0), "_validateInput");
+  get validateInput() {
+    return this._validateInput;
+  }
+  set validateInput(validateInput) {
+    this._validateInput = validateInput;
+    this._onDidChangeValidateInput.fire();
+  }
+  _onDidChangeValidateInput = new Emitter();
+  onDidChangeValidateInput = this._onDidChangeValidateInput.event;
+  historyNavigator;
+  didChangeHistory = false;
+  setValue(value, transient, reason) {
+    if (value === this._value) {
+      return;
+    }
+    if (!transient) {
+      this.historyNavigator.replaceLast(this._value);
+      this.historyNavigator.add(value);
+      this.didChangeHistory = true;
+    }
+    this._value = value;
+    this._onDidChange.fire({ value, reason });
+  }
+  showNextHistoryValue() {
+    if (this.historyNavigator.isAtEnd()) {
+      return;
+    } else if (!this.historyNavigator.has(this.value)) {
+      this.saveValue();
+      this.historyNavigator.resetCursor();
+    }
+    const value = this.historyNavigator.next();
+    this.setValue(value, true, SCMInputChangeReason.HistoryNext);
+  }
+  showPreviousHistoryValue() {
+    if (this.historyNavigator.isAtEnd()) {
+      this.saveValue();
+    } else if (!this.historyNavigator.has(this._value)) {
+      this.saveValue();
+      this.historyNavigator.resetCursor();
+    }
+    const value = this.historyNavigator.previous();
+    this.setValue(value, true, SCMInputChangeReason.HistoryPrevious);
+  }
+  saveValue() {
+    const oldValue = this.historyNavigator.replaceLast(this._value);
+    this.didChangeHistory = this.didChangeHistory || oldValue !== this._value;
+  }
+}
+class SCMRepository {
+  constructor(id, provider, disposable, inputHistory) {
+    this.id = id;
+    this.provider = provider;
+    this.disposable = disposable;
+    this.input = new SCMInput(this, inputHistory);
+  }
+  static {
+    __name(this, "SCMRepository");
+  }
+  _selected = false;
+  get selected() {
+    return this._selected;
+  }
+  _onDidChangeSelection = new Emitter();
+  onDidChangeSelection = this._onDidChangeSelection.event;
+  input;
+  setSelected(selected) {
+    if (this._selected === selected) {
+      return;
+    }
+    this._selected = selected;
+    this._onDidChangeSelection.fire(selected);
+  }
+  dispose() {
+    this.disposable.dispose();
+    this.provider.dispose();
+  }
+}
+class WillSaveHistoryEvent {
+  static {
+    __name(this, "WillSaveHistoryEvent");
+  }
+  _didChangeHistory = false;
+  get didChangeHistory() {
+    return this._didChangeHistory;
+  }
+  historyDidIndeedChange() {
+    this._didChangeHistory = true;
+  }
+}
+let SCMInputHistory = class {
+  constructor(storageService, workspaceContextService) {
+    this.storageService = storageService;
+    this.workspaceContextService = workspaceContextService;
+    this.histories = /* @__PURE__ */ new Map();
+    const entries = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
+    for (const [providerLabel, rootUri, history] of entries) {
+      let providerHistories = this.histories.get(providerLabel);
+      if (!providerHistories) {
+        providerHistories = new ResourceMap();
+        this.histories.set(providerLabel, providerHistories);
+      }
+      providerHistories.set(rootUri, new HistoryNavigator2(history, 100));
+    }
+    if (this.migrateStorage()) {
+      this.saveToStorage();
+    }
+    this.disposables.add(
+      this.storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        "scm.history",
+        this.disposables
+      )((e) => {
+        if (e.external && e.key === "scm.history") {
+          const raw = this.storageService.getObject("scm.history", StorageScope.WORKSPACE, []);
+          for (const [providerLabel, uri, rawHistory] of raw) {
+            const history = this.getHistory(providerLabel, uri);
+            for (const value of Iterable.reverse(rawHistory)) {
+              history.prepend(value);
+            }
+          }
+        }
+      })
+    );
+    this.disposables.add(
+      this.storageService.onWillSaveState((_) => {
+        const event = new WillSaveHistoryEvent();
+        this._onWillSaveHistory.fire(event);
+        if (event.didChangeHistory) {
+          this.saveToStorage();
+        }
+      })
+    );
+  }
+  static {
+    __name(this, "SCMInputHistory");
+  }
+  disposables = new DisposableStore();
+  histories = /* @__PURE__ */ new Map();
+  _onWillSaveHistory = this.disposables.add(
+    new Emitter()
+  );
+  onWillSaveHistory = this._onWillSaveHistory.event;
+  saveToStorage() {
+    const raw = [];
+    for (const [providerLabel, providerHistories] of this.histories) {
+      for (const [rootUri, history] of providerHistories) {
+        if (!(history.size === 1 && history.current() === "")) {
+          raw.push([providerLabel, rootUri, [...history]]);
+        }
+      }
+    }
+    this.storageService.store(
+      "scm.history",
+      raw,
+      StorageScope.WORKSPACE,
+      StorageTarget.USER
+    );
+  }
+  getHistory(providerLabel, rootUri) {
+    let providerHistories = this.histories.get(providerLabel);
+    if (!providerHistories) {
+      providerHistories = new ResourceMap();
+      this.histories.set(providerLabel, providerHistories);
+    }
+    let history = providerHistories.get(rootUri);
+    if (!history) {
+      history = new HistoryNavigator2([""], 100);
+      providerHistories.set(rootUri, history);
+    }
+    return history;
+  }
+  // Migrates from Application scope storage to Workspace scope.
+  // TODO@joaomoreno: Change from January 2024 onwards such that the only code is to remove all `scm/input:` storage keys
+  migrateStorage() {
+    let didSomethingChange = false;
+    const machineKeys = Iterable.filter(
+      this.storageService.keys(
+        StorageScope.APPLICATION,
+        StorageTarget.MACHINE
+      ),
+      (key) => key.startsWith("scm/input:")
+    );
+    for (const key of machineKeys) {
+      try {
+        const legacyHistory = JSON.parse(
+          this.storageService.get(key, StorageScope.APPLICATION, "")
+        );
+        const match = /^scm\/input:([^:]+):(.+)$/.exec(key);
+        if (!match || !Array.isArray(legacyHistory?.history) || !Number.isInteger(legacyHistory?.timestamp)) {
+          this.storageService.remove(key, StorageScope.APPLICATION);
+          continue;
+        }
+        const [, providerLabel, rootPath] = match;
+        const rootUri = URI.file(rootPath);
+        if (this.workspaceContextService.getWorkspaceFolder(rootUri)) {
+          const history = this.getHistory(providerLabel, rootUri);
+          for (const entry of Iterable.reverse(
+            legacyHistory.history
+          )) {
+            history.prepend(entry);
+          }
+          didSomethingChange = true;
+          this.storageService.remove(key, StorageScope.APPLICATION);
+        }
+      } catch {
+        this.storageService.remove(key, StorageScope.APPLICATION);
+      }
+    }
+    return didSomethingChange;
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+SCMInputHistory = __decorateClass([
+  __decorateParam(0, IStorageService),
+  __decorateParam(1, IWorkspaceContextService)
+], SCMInputHistory);
+let SCMService = class {
+  constructor(logService, workspaceContextService, contextKeyService, storageService, uriIdentityService) {
+    this.logService = logService;
+    this.uriIdentityService = uriIdentityService;
+    this.inputHistory = new SCMInputHistory(
+      storageService,
+      workspaceContextService
+    );
+    this.providerCount = contextKeyService.createKey(
+      "scm.providerCount",
+      0
+    );
+  }
+  static {
+    __name(this, "SCMService");
+  }
+  _repositories = /* @__PURE__ */ new Map();
+  // used in tests
+  get repositories() {
+    return this._repositories.values();
+  }
+  get repositoryCount() {
+    return this._repositories.size;
+  }
+  inputHistory;
+  providerCount;
+  _onDidAddProvider = new Emitter();
+  onDidAddRepository = this._onDidAddProvider.event;
+  _onDidRemoveProvider = new Emitter();
+  onDidRemoveRepository = this._onDidRemoveProvider.event;
+  registerSCMProvider(provider) {
+    this.logService.trace("SCMService#registerSCMProvider");
+    if (this._repositories.has(provider.id)) {
+      throw new Error(`SCM Provider ${provider.id} already exists.`);
+    }
+    const disposable = toDisposable(() => {
+      this._repositories.delete(provider.id);
+      this._onDidRemoveProvider.fire(repository);
+      this.providerCount.set(this._repositories.size);
+    });
+    const repository = new SCMRepository(
+      provider.id,
+      provider,
+      disposable,
+      this.inputHistory
+    );
+    this._repositories.set(provider.id, repository);
+    this._onDidAddProvider.fire(repository);
+    this.providerCount.set(this._repositories.size);
+    return repository;
+  }
+  getRepository(idOrResource) {
+    if (typeof idOrResource === "string") {
+      return this._repositories.get(idOrResource);
+    }
+    if (idOrResource.scheme !== Schemas.file && idOrResource.scheme !== Schemas.vscodeRemote) {
+      return void 0;
+    }
+    let bestRepository;
+    let bestMatchLength = Number.POSITIVE_INFINITY;
+    for (const repository of this.repositories) {
+      const root = repository.provider.rootUri;
+      if (!root) {
+        continue;
+      }
+      const path = this.uriIdentityService.extUri.relativePath(
+        root,
+        idOrResource
+      );
+      if (path && !/^\.\./.test(path) && path.length < bestMatchLength) {
+        bestRepository = repository;
+        bestMatchLength = path.length;
+      }
+    }
+    return bestRepository;
+  }
+};
+SCMService = __decorateClass([
+  __decorateParam(0, ILogService),
+  __decorateParam(1, IWorkspaceContextService),
+  __decorateParam(2, IContextKeyService),
+  __decorateParam(3, IStorageService),
+  __decorateParam(4, IUriIdentityService)
+], SCMService);
+export {
+  SCMService
+};
+//# sourceMappingURL=scmService.js.map

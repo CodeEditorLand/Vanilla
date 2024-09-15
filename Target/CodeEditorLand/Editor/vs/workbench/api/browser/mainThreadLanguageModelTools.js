@@ -1,1 +1,111 @@
-var p=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var c=(l,a,o,n)=>{for(var e=n>1?void 0:n?T(a,o):a,t=l.length-1,s;t>=0;t--)(s=l[t])&&(e=(n?s(a,o,e):s(e))||e);return n&&e&&p(a,o,e),e},r=(l,a)=>(o,n)=>a(o,n,l);import{MarkdownString as h}from"../../../base/common/htmlContent.js";import{Disposable as d,DisposableMap as m}from"../../../base/common/lifecycle.js";import{IChatService as u}from"../../contrib/chat/common/chatService.js";import{ILanguageModelToolsService as y}from"../../contrib/chat/common/languageModelToolsService.js";import{extHostNamedCustomer as v}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as k,MainContext as C}from"../common/extHost.protocol.js";import{MainThreadChatTask as I}from"./mainThreadChatAgents2.js";let i=class extends d{constructor(o,n,e){super();this._languageModelToolsService=n;this._chatService=e;this._proxy=o.getProxy(k.ExtHostLanguageModelTools),this._register(this._languageModelToolsService.onDidChangeTools(t=>this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])))}_proxy;_tools=this._register(new m);_countTokenCallbacks=new Map;async $getTools(){return Array.from(this._languageModelToolsService.getTools())}async $invokeTool(o,n){let e;if(o.context){const t=this._chatService.getSession(o.context?.sessionId),s=t.getRequests().at(-1),g=this._languageModelToolsService.getTool(o.toolId);e=new I(new h(`Using ${g?.displayName??o.toolId}`)),t.acceptResponseProgress(s,e)}try{return await this._languageModelToolsService.invokeTool(o,(t,s)=>this._proxy.$countTokensForInvocation(o.callId,t,s),n)}finally{e?.complete()}}$countTokensForInvocation(o,n,e){const t=this._countTokenCallbacks.get(o);if(!t)throw new Error(`Tool invocation call ${o} not found`);return t(n,e)}$registerTool(o){const n=this._languageModelToolsService.registerToolImplementation(o,{invoke:async(e,t,s)=>{try{return this._countTokenCallbacks.set(e.callId,t),await this._proxy.$invokeTool(e,s)}finally{this._countTokenCallbacks.delete(e.callId)}}});this._tools.set(o,n)}$unregisterTool(o){this._tools.deleteAndDispose(o)}};i=c([v(C.MainThreadLanguageModelTools),r(1,y),r(2,u)],i);export{i as MainThreadLanguageModelTools};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { MarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import {
+  IChatService
+} from "../../contrib/chat/common/chatService.js";
+import {
+  ILanguageModelToolsService
+} from "../../contrib/chat/common/languageModelToolsService.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
+import { MainThreadChatTask } from "./mainThreadChatAgents2.js";
+let MainThreadLanguageModelTools = class extends Disposable {
+  constructor(extHostContext, _languageModelToolsService, _chatService) {
+    super();
+    this._languageModelToolsService = _languageModelToolsService;
+    this._chatService = _chatService;
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostLanguageModelTools
+    );
+    this._register(
+      this._languageModelToolsService.onDidChangeTools(
+        (e) => this._proxy.$onDidChangeTools([
+          ...this._languageModelToolsService.getTools()
+        ])
+      )
+    );
+  }
+  _proxy;
+  _tools = this._register(new DisposableMap());
+  _countTokenCallbacks = /* @__PURE__ */ new Map();
+  async $getTools() {
+    return Array.from(this._languageModelToolsService.getTools());
+  }
+  async $invokeTool(dto, token) {
+    let task;
+    if (dto.context) {
+      const model = this._chatService.getSession(
+        dto.context?.sessionId
+      );
+      const request = model.getRequests().at(-1);
+      const tool = this._languageModelToolsService.getTool(dto.toolId);
+      task = new MainThreadChatTask(
+        new MarkdownString(`Using ${tool?.displayName ?? dto.toolId}`)
+      );
+      model.acceptResponseProgress(request, task);
+    }
+    try {
+      return await this._languageModelToolsService.invokeTool(
+        dto,
+        (input, token2) => this._proxy.$countTokensForInvocation(
+          dto.callId,
+          input,
+          token2
+        ),
+        token
+      );
+    } finally {
+      task?.complete();
+    }
+  }
+  $countTokensForInvocation(callId, input, token) {
+    const fn = this._countTokenCallbacks.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return fn(input, token);
+  }
+  $registerTool(name) {
+    const disposable = this._languageModelToolsService.registerToolImplementation(name, {
+      invoke: /* @__PURE__ */ __name(async (dto, countTokens, token) => {
+        try {
+          this._countTokenCallbacks.set(dto.callId, countTokens);
+          return await this._proxy.$invokeTool(dto, token);
+        } finally {
+          this._countTokenCallbacks.delete(dto.callId);
+        }
+      }, "invoke")
+    });
+    this._tools.set(name, disposable);
+  }
+  $unregisterTool(name) {
+    this._tools.deleteAndDispose(name);
+  }
+};
+__name(MainThreadLanguageModelTools, "MainThreadLanguageModelTools");
+MainThreadLanguageModelTools = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
+  __decorateParam(1, ILanguageModelToolsService),
+  __decorateParam(2, IChatService)
+], MainThreadLanguageModelTools);
+export {
+  MainThreadLanguageModelTools
+};
+//# sourceMappingURL=mainThreadLanguageModelTools.js.map
