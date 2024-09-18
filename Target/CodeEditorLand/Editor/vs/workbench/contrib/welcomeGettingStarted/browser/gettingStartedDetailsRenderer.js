@@ -1,57 +1,11 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
-};
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { generateUuid } from "../../../../base/common/uuid.js";
-import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
-import { TokenizationRegistry } from "../../../../editor/common/languages.js";
-import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
-import { URI } from "../../../../base/common/uri.js";
-import { language } from "../../../../base/common/platform.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { asWebviewUri } from "../../webview/common/webview.js";
-import { ResourceMap } from "../../../../base/common/map.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { gettingStartedContentRegistry } from "../common/gettingStartedContent.js";
-let GettingStartedDetailsRenderer = class {
-  constructor(fileService, notificationService, extensionService, languageService) {
-    this.fileService = fileService;
-    this.notificationService = notificationService;
-    this.extensionService = extensionService;
-    this.languageService = languageService;
-  }
-  static {
-    __name(this, "GettingStartedDetailsRenderer");
-  }
-  mdCache = new ResourceMap();
-  svgCache = new ResourceMap();
-  async renderMarkdown(path, base) {
-    const content = await this.readAndCacheStepMarkdown(path, base);
-    const nonce = generateUuid();
-    const colorMap = TokenizationRegistry.getColorMap();
-    const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
-    const inDev = document.location.protocol === "http:";
-    const imgSrcCsp = inDev ? "img-src https: data: http:" : "img-src https: data:";
-    return `<!DOCTYPE html>
+var C=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var m=(c,e,n,t)=>{for(var o=t>1?void 0:t?w(e,n):e,r=c.length-1,i;r>=0;r--)(i=c[r])&&(o=(t?i(e,n,o):i(o))||o);return t&&o&&C(e,n,o),o},s=(c,e)=>(n,t)=>e(n,t,c);import{generateUuid as h}from"../../../../base/common/uuid.js";import{generateTokensCSSForColorMap as g}from"../../../../editor/common/languages/supports/tokenization.js";import{TokenizationRegistry as p}from"../../../../editor/common/languages.js";import{DEFAULT_MARKDOWN_STYLES as u,renderMarkdownDocument as b}from"../../markdown/browser/markdownDocumentRenderer.js";import"../../../../base/common/uri.js";import{language as f}from"../../../../base/common/platform.js";import{joinPath as $}from"../../../../base/common/resources.js";import{assertIsDefined as y}from"../../../../base/common/types.js";import{asWebviewUri as I}from"../../webview/common/webview.js";import{ResourceMap as v}from"../../../../base/common/map.js";import{IFileService as L}from"../../../../platform/files/common/files.js";import{INotificationService as P}from"../../../../platform/notification/common/notification.js";import{ILanguageService as U}from"../../../../editor/common/languages/language.js";import{IExtensionService as E}from"../../../services/extensions/common/extensions.js";import{gettingStartedContentRegistry as M}from"../common/gettingStartedContent.js";let l=class{constructor(e,n,t,o){this.fileService=e;this.notificationService=n;this.extensionService=t;this.languageService=o}mdCache=new v;svgCache=new v;async renderMarkdown(e,n){const t=await this.readAndCacheStepMarkdown(e,n),o=h(),r=p.getColorMap(),i=r?g(r):"";return`<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; ${imgSrcCsp}; media-src https:; script-src 'nonce-${nonce}'; style-src 'nonce-${nonce}';">
-				<style nonce="${nonce}">
-					${DEFAULT_MARKDOWN_STYLES}
-					${css}
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; ${document.location.protocol==="http:"?"img-src https: data: http:":"img-src https: data:"}; media-src https:; script-src 'nonce-${o}'; style-src 'nonce-${o}';">
+				<style nonce="${o}">
+					${u}
+					${i}
 					body > img {
 						align-self: flex-start;
 					}
@@ -124,10 +78,10 @@ let GettingStartedDetailsRenderer = class {
 			</head>
 			<body>
 				<vertically-centered>
-					${content}
+					${t}
 				</vertically-centered>
 			</body>
-			<script nonce="${nonce}">
+			<script nonce="${o}">
 				const vscode = acquireVsCodeApi();
 
 				document.querySelectorAll('[when-checked]').forEach(el => {
@@ -169,21 +123,14 @@ let GettingStartedDetailsRenderer = class {
 					}
 				});
 		</script>
-		</html>`;
-  }
-  async renderSVG(path) {
-    const content = await this.readAndCacheSVGFile(path);
-    const nonce = generateUuid();
-    const colorMap = TokenizationRegistry.getColorMap();
-    const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
-    return `<!DOCTYPE html>
+		</html>`}async renderSVG(e){const n=await this.readAndCacheSVGFile(e),t=h(),o=p.getColorMap(),r=o?g(o):"";return`<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${nonce}';">
-				<style nonce="${nonce}">
-					${DEFAULT_MARKDOWN_STYLES}
-					${css}
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${t}';">
+				<style nonce="${t}">
+					${u}
+					${r}
 					svg {
 						position: fixed;
 						height: 100%;
@@ -197,82 +144,6 @@ let GettingStartedDetailsRenderer = class {
 				</style>
 			</head>
 			<body>
-				${content}
+				${n}
 			</body>
-		</html>`;
-  }
-  async readAndCacheSVGFile(path) {
-    if (!this.svgCache.has(path)) {
-      const contents = await this.readContentsOfPath(path, false);
-      this.svgCache.set(path, contents);
-    }
-    return assertIsDefined(this.svgCache.get(path));
-  }
-  async readAndCacheStepMarkdown(path, base) {
-    if (!this.mdCache.has(path)) {
-      const contents = await this.readContentsOfPath(path);
-      const markdownContents = await renderMarkdownDocument(transformUris(contents, base), this.extensionService, this.languageService, { allowUnknownProtocols: true });
-      this.mdCache.set(path, markdownContents);
-    }
-    return assertIsDefined(this.mdCache.get(path));
-  }
-  async readContentsOfPath(path, useModuleId = true) {
-    try {
-      const moduleId = JSON.parse(path.query).moduleId;
-      if (useModuleId && moduleId) {
-        const contents = await new Promise((resolve, reject) => {
-          const provider = gettingStartedContentRegistry.getProvider(moduleId);
-          if (!provider) {
-            reject(`Getting started: no provider registered for ${moduleId}`);
-          } else {
-            resolve(provider());
-          }
-        });
-        return contents;
-      }
-    } catch {
-    }
-    try {
-      const localizedPath = path.with({ path: path.path.replace(/\.md$/, `.nls.${language}.md`) });
-      const generalizedLocale = language?.replace(/-.*$/, "");
-      const generalizedLocalizedPath = path.with({ path: path.path.replace(/\.md$/, `.nls.${generalizedLocale}.md`) });
-      const fileExists = /* @__PURE__ */ __name((file) => this.fileService.stat(file).then((stat) => !!stat.size).catch(() => false), "fileExists");
-      const [localizedFileExists, generalizedLocalizedFileExists] = await Promise.all([
-        fileExists(localizedPath),
-        fileExists(generalizedLocalizedPath)
-      ]);
-      const bytes = await this.fileService.readFile(
-        localizedFileExists ? localizedPath : generalizedLocalizedFileExists ? generalizedLocalizedPath : path
-      );
-      return bytes.value.toString();
-    } catch (e) {
-      this.notificationService.error("Error reading markdown document at `" + path + "`: " + e);
-      return "";
-    }
-  }
-};
-GettingStartedDetailsRenderer = __decorateClass([
-  __decorateParam(0, IFileService),
-  __decorateParam(1, INotificationService),
-  __decorateParam(2, IExtensionService),
-  __decorateParam(3, ILanguageService)
-], GettingStartedDetailsRenderer);
-const transformUri = /* @__PURE__ */ __name((src, base) => {
-  const path = joinPath(base, src);
-  return asWebviewUri(path).toString(true);
-}, "transformUri");
-const transformUris = /* @__PURE__ */ __name((content, base) => content.replace(/src="([^"]*)"/g, (_, src) => {
-  if (src.startsWith("https://")) {
-    return `src="${src}"`;
-  }
-  return `src="${transformUri(src, base)}"`;
-}).replace(/!\[([^\]]*)\]\(([^)]*)\)/g, (_, title, src) => {
-  if (src.startsWith("https://")) {
-    return `![${title}](${src})`;
-  }
-  return `![${title}](${transformUri(src, base)})`;
-}), "transformUris");
-export {
-  GettingStartedDetailsRenderer
-};
-//# sourceMappingURL=gettingStartedDetailsRenderer.js.map
+		</html>`}async readAndCacheSVGFile(e){if(!this.svgCache.has(e)){const n=await this.readContentsOfPath(e,!1);this.svgCache.set(e,n)}return y(this.svgCache.get(e))}async readAndCacheStepMarkdown(e,n){if(!this.mdCache.has(e)){const t=await this.readContentsOfPath(e),o=await b(A(t,n),this.extensionService,this.languageService,{allowUnknownProtocols:!0});this.mdCache.set(e,o)}return y(this.mdCache.get(e))}async readContentsOfPath(e,n=!0){try{const t=JSON.parse(e.query).moduleId;if(n&&t)return await new Promise((r,i)=>{const a=M.getProvider(t);a?r(a()):i(`Getting started: no provider registered for ${t}`)})}catch{}try{const t=e.with({path:e.path.replace(/\.md$/,`.nls.${f}.md`)}),o=f?.replace(/-.*$/,""),r=e.with({path:e.path.replace(/\.md$/,`.nls.${o}.md`)}),i=S=>this.fileService.stat(S).then(k=>!!k.size).catch(()=>!1),[a,d]=await Promise.all([i(t),i(r)]);return(await this.fileService.readFile(a?t:d?r:e)).value.toString()}catch(t){return this.notificationService.error("Error reading markdown document at `"+e+"`: "+t),""}}};l=m([s(0,L),s(1,P),s(2,E),s(3,U)],l);const x=(c,e)=>{const n=$(e,c);return I(n).toString(!0)},A=(c,e)=>c.replace(/src="([^"]*)"/g,(n,t)=>t.startsWith("https://")?`src="${t}"`:`src="${x(t,e)}"`).replace(/!\[([^\]]*)\]\(([^)]*)\)/g,(n,t,o)=>o.startsWith("https://")?`![${t}](${o})`:`![${t}](${x(o,e)})`);export{l as GettingStartedDetailsRenderer};

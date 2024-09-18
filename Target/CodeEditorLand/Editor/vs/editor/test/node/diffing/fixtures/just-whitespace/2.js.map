@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/test/node/diffing/fixtures/just-whitespace/2.js"],
-  "sourcesContent": ["console.log('foo');"],
-  "mappings": "AAAA,QAAQ,IAAI,KAAK;",
-  "names": []
-}

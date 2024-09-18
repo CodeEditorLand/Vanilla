@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/test/node/testUtils.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { randomPath } from '../../common/extpath.js';\nimport { join } from '../../common/path.js';\nimport * as testUtils from '../common/testUtils.js';\n\nexport function getRandomTestPath(tmpdir: string, ...segments: string[]): string {\n\treturn randomPath(join(tmpdir, ...segments));\n}\n\nexport import flakySuite = testUtils.flakySuite;\n"],
-  "mappings": ";;AAKA,SAAS,kBAAkB;AAC3B,SAAS,YAAY;AACrB,YAAY,eAAe;AAEpB,SAAS,kBAAkB,WAAmB,UAA4B;AAChF,SAAO,WAAW,KAAK,QAAQ,GAAG,QAAQ,CAAC;AAC5C;AAFgB;AAIT,MAAO,aAAa,UAAU;",
-  "names": []
-}

@@ -1,6 +1,1 @@
-import { Event, IValueWithChangeEvent } from "../../../../base/common/event.js";
-import { RefCounted } from "../diffEditor/utils.js";
-import { IDiffEditorOptions } from "../../../common/config/editorOptions.js";
-import { ITextModel } from "../../../common/model.js";
-import { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
-//# sourceMappingURL=model.js.map
+import"../../../../base/common/event.js";import"../diffEditor/utils.js";import"../../../common/config/editorOptions.js";import"../../../common/model.js";import"../../../../platform/contextkey/common/contextkey.js";

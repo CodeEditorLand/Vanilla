@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/test/common/utils.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport assert from 'assert';\nimport { LanguagesRegistry } from '../../../editor/common/services/languagesRegistry.js';\n\n/**\n * This function is called before test running and also again at the end of test running\n * and can be used to add assertions. e.g. that registries are empty, etc.\n *\n * !! This is called directly by the testing framework.\n *\n * @skipMangle\n */\nexport function assertCleanState(): void {\n\t// If this test fails, it is a clear indication that\n\t// your test or suite is leaking services (e.g. via leaking text models)\n\t// assert.strictEqual(LanguageService.instanceCount, 0, 'No leaking ILanguageService');\n\tassert.strictEqual(LanguagesRegistry.instanceCount, 0, 'Error: Test run should not leak in LanguagesRegistry.');\n}\n"],
-  "mappings": ";;AAKA,OAAO,YAAY;AACnB,SAAS,yBAAyB;AAU3B,SAAS,mBAAyB;AAIxC,SAAO,YAAY,kBAAkB,eAAe,GAAG,uDAAuD;AAC/G;AALgB;",
-  "names": []
-}

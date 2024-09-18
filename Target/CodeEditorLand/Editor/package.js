@@ -1,5 +1,1 @@
-var package_default = "./Asset/package-76FCLE3G.json";
-export {
-  package_default as default
-};
-//# sourceMappingURL=package.js.map
+var c="./Asset/package-PVCBWCM4.json";export{c as default};

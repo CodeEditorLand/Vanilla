@@ -1,9 +1,1 @@
-import { WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { SyncScroll as ScrollLocking } from "./scrollLocking.js";
-registerWorkbenchContribution2(
-  ScrollLocking.ID,
-  ScrollLocking,
-  WorkbenchPhase.Eventually
-  // registration only
-);
-//# sourceMappingURL=scrollLocking.contribution.js.map
+import{WorkbenchPhase as r,registerWorkbenchContribution2 as n}from"../../../common/contributions.js";import{SyncScroll as o}from"./scrollLocking.js";n(o.ID,o,r.Eventually);

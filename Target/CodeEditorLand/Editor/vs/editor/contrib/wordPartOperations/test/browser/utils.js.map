@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/editor/contrib/wordPartOperations/test/browser/utils.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { ServiceIdentifier, ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';\n\nexport class StaticServiceAccessor implements ServicesAccessor {\n\tprivate services = new Map<ServiceIdentifier<any>, any>();\n\n\tpublic withService<T>(id: ServiceIdentifier<T>, service: T): this {\n\t\tthis.services.set(id, service);\n\t\treturn this;\n\t}\n\n\tpublic get<T>(id: ServiceIdentifier<T>): T {\n\t\tconst value = this.services.get(id);\n\t\tif (!value) {\n\t\t\tthrow new Error('Service does not exist');\n\t\t}\n\t\treturn value;\n\t}\n}\n"],
-  "mappings": ";;AAKA,SAAS,mBAAmB,wBAAwB;AAE7C,MAAM,sBAAkD;AAAA,EAP/D,OAO+D;AAAA;AAAA;AAAA,EACtD,WAAW,oBAAI,IAAiC;AAAA,EAEjD,YAAe,IAA0B,SAAkB;AACjE,SAAK,SAAS,IAAI,IAAI,OAAO;AAC7B,WAAO;AAAA,EACR;AAAA,EAEO,IAAO,IAA6B;AAC1C,UAAM,QAAQ,KAAK,SAAS,IAAI,EAAE;AAClC,QAAI,CAAC,OAAO;AACX,YAAM,IAAI,MAAM,wBAAwB;AAAA,IACzC;AACA,WAAO;AAAA,EACR;AACD;",
-  "names": []
-}

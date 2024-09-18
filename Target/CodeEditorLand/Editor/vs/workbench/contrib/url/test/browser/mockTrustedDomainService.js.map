@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/workbench/contrib/url/test/browser/mockTrustedDomainService.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { URI } from '../../../../../base/common/uri.js';\nimport { isURLDomainTrusted, ITrustedDomainService } from '../../browser/trustedDomainService.js';\n\nexport class MockTrustedDomainService implements ITrustedDomainService {\n\t_serviceBrand: undefined;\n\n\tconstructor(private readonly _trustedDomains: string[] = []) {\n\t}\n\n\tisValid(resource: URI): boolean {\n\t\treturn isURLDomainTrusted(resource, this._trustedDomains);\n\t}\n}\n"],
-  "mappings": ";;AAKA,SAAS,WAAW;AACpB,SAAS,oBAAoB,6BAA6B;AAEnD,MAAM,yBAA0D;AAAA,EAGtE,YAA6B,kBAA4B,CAAC,GAAG;AAAhC;AAAA,EAC7B;AAAA,EAZD,OAQuE;AAAA;AAAA;AAAA,EACtE;AAAA,EAKA,QAAQ,UAAwB;AAC/B,WAAO,mBAAmB,UAAU,KAAK,eAAe;AAAA,EACzD;AACD;",
-  "names": []
-}

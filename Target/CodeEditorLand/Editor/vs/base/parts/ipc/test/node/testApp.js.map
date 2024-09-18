@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/parts/ipc/test/node/testApp.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Server } from '../../node/ipc.cp.js';\nimport { TestChannel, TestService } from './testService.js';\n\nconst server = new Server('test');\nconst service = new TestService();\nserver.registerChannel('test', new TestChannel(service));\n"],
-  "mappings": "AAKA,SAAS,cAAc;AACvB,SAAS,aAAa,mBAAmB;AAEzC,MAAM,SAAS,IAAI,OAAO,MAAM;AAChC,MAAM,UAAU,IAAI,YAAY;AAChC,OAAO,gBAAgB,QAAQ,IAAI,YAAY,OAAO,CAAC;",
-  "names": []
-}

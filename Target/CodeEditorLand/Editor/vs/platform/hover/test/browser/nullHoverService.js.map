@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/platform/hover/test/browser/nullHoverService.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Disposable } from '../../../../base/common/lifecycle.js';\nimport type { IHoverService } from '../../browser/hover.js';\n\nexport const NullHoverService: IHoverService = {\n\t_serviceBrand: undefined,\n\thideHover: () => undefined,\n\tshowHover: () => undefined,\n\tsetupManagedHover: () => Disposable.None as any,\n\tshowAndFocusLastHover: () => undefined,\n\tshowManagedHover: () => undefined\n};\n"],
-  "mappings": ";;AAKA,SAAS,kBAAkB;AAGpB,MAAM,mBAAkC;AAAA,EAC9C,eAAe;AAAA,EACf,WAAW,6BAAM,QAAN;AAAA,EACX,WAAW,6BAAM,QAAN;AAAA,EACX,mBAAmB,6BAAM,WAAW,MAAjB;AAAA,EACnB,uBAAuB,6BAAM,QAAN;AAAA,EACvB,kBAAkB,6BAAM,QAAN;AACnB;",
-  "names": []
-}

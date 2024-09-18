@@ -1,7 +1,1 @@
-import { URI } from "../../../base/common/uri.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IClipboardService = createDecorator("clipboardService");
-export {
-  IClipboardService
-};
-//# sourceMappingURL=clipboardService.js.map
+import"../../../base/common/uri.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const t=e("clipboardService");export{t as IClipboardService};

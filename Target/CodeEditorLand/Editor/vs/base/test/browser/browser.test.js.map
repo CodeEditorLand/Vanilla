@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../Dependency/CodeEditorLand/Editor/Source/vs/base/test/browser/browser.test.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport assert from 'assert';\nimport { isMacintosh, isWindows } from '../../common/platform.js';\nimport { ensureNoDisposablesAreLeakedInTestSuite } from '../common/utils.js';\n\nsuite('Browsers', () => {\n\n\tensureNoDisposablesAreLeakedInTestSuite();\n\n\ttest('all', () => {\n\t\tassert(!(isWindows && isMacintosh));\n\t});\n});\n"],
-  "mappings": "AAIA,OAAO,YAAY;AACnB,SAAS,aAAa,iBAAiB;AACvC,SAAS,+CAA+C;AAExD,MAAM,YAAY,MAAM;AAEvB,0CAAwC;AAExC,OAAK,OAAO,MAAM;AACjB,WAAO,EAAE,aAAa,YAAY;AAAA,EACnC,CAAC;AACF,CAAC;",
-  "names": []
-}

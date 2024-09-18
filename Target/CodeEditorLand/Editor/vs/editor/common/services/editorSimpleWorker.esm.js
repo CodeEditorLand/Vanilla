@@ -1,4 +1,1 @@
-import { create } from "./editorSimpleWorker.js";
-import { bootstrapSimpleEditorWorker } from "./editorWorkerBootstrap.js";
-bootstrapSimpleEditorWorker(create);
-//# sourceMappingURL=editorSimpleWorker.esm.js.map
+import{create as r}from"./editorSimpleWorker.js";import{bootstrapSimpleEditorWorker as o}from"./editorWorkerBootstrap.js";o(r);

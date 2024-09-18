@@ -1,16 +1,1 @@
-import { Position } from "./core/position.js";
-import { Selection } from "./core/selection.js";
-var CursorChangeReason = /* @__PURE__ */ ((CursorChangeReason2) => {
-  CursorChangeReason2[CursorChangeReason2["NotSet"] = 0] = "NotSet";
-  CursorChangeReason2[CursorChangeReason2["ContentFlush"] = 1] = "ContentFlush";
-  CursorChangeReason2[CursorChangeReason2["RecoverFromMarkers"] = 2] = "RecoverFromMarkers";
-  CursorChangeReason2[CursorChangeReason2["Explicit"] = 3] = "Explicit";
-  CursorChangeReason2[CursorChangeReason2["Paste"] = 4] = "Paste";
-  CursorChangeReason2[CursorChangeReason2["Undo"] = 5] = "Undo";
-  CursorChangeReason2[CursorChangeReason2["Redo"] = 6] = "Redo";
-  return CursorChangeReason2;
-})(CursorChangeReason || {});
-export {
-  CursorChangeReason
-};
-//# sourceMappingURL=cursorEvents.js.map
+import"./core/position.js";import"./core/selection.js";var e=(o=>(o[o.NotSet=0]="NotSet",o[o.ContentFlush=1]="ContentFlush",o[o.RecoverFromMarkers=2]="RecoverFromMarkers",o[o.Explicit=3]="Explicit",o[o.Paste=4]="Paste",o[o.Undo=5]="Undo",o[o.Redo=6]="Redo",o))(e||{});export{e as CursorChangeReason};
