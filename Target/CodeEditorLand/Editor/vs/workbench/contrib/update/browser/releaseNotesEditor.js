@@ -10,7 +10,7 @@ var N=Object.defineProperty;var W=Object.getOwnPropertyDescriptor;var w=(u,e,t,r
 
 					/* codesetting */
 
-					code:has(.codesetting)+code {
+					code:has(.codesetting)+code:not(:has(.codesetting)) {
 						display: none;
 					}
 
