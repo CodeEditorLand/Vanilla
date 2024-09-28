@@ -1,7 +1,0 @@
-[submodule "Dependency/CodeEditorLand/Editor"]
-path = Dependency/CodeEditorLand/Editor
-url = ssh://git@github.com/CodeEditorLand/Editor.git
-
-[submodule "Dependency/Microsoft/VSCode"]
-path = Dependency/Microsoft/VSCode
-url = ssh://git@github.com/Microsoft/VSCode.git
